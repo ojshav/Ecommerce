@@ -13,6 +13,9 @@ import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function App() {
   // Scroll to top on route change
@@ -23,42 +26,44 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/products/:id" element={<ProductDetail />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/signin" element={<SignIn />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/business-login" element={<BusinessLogin />} />
-                <Route path="/register-business" element={<RegisterBusiness />} />
-              </Routes>
-            </main>
-            
-            <Footer />
-          </div>
-        </Router>
-        
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: '#363636',
-              color: '#fff',
-            },
-            success: {
-              duration: 3000,
-            },
-            error: {
-              duration: 4000,
-            },
-          }}
-        />
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+          <Router>
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              
+              <main className="flex-grow">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/products/:id" element={<ProductDetail />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/signin" element={<SignIn />} />
+                  <Route path="/signup" element={<SignUp />} />
+                  <Route path="/business-login" element={<BusinessLogin />} />
+                  <Route path="/register-business" element={<RegisterBusiness />} />
+                </Routes>
+              </main>
+              
+              <Footer />
+            </div>
+          </Router>
+          
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: '#363636',
+                color: '#fff',
+              },
+              success: {
+                duration: 3000,
+              },
+              error: {
+                duration: 4000,
+              },
+            }}
+          />
+        </GoogleOAuthProvider>
       </CartProvider>
     </AuthProvider>
   );
