@@ -4,15 +4,18 @@ import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 
 const SignUp: React.FC = () => {
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [apiError, setApiError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
-
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const validatePassword = () => {
     if (password !== confirmPassword) {
       setPasswordError("Passwords don't match");
@@ -36,15 +39,58 @@ const SignUp: React.FC = () => {
     }
     
     setIsSubmitting(true);
+    setApiError('');
     
     try {
-      const success = await register(fullName, email, password);
-      if (success) {
-        navigate('/');
+      // Call register API endpoint matching your Flask backend
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          password,
+          phone: phone || undefined, // Only include phone if provided
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || (data.details ? JSON.stringify(data.details) : 'Registration failed'));
       }
+      
+      // Update auth context with the received tokens if any
+      // Some APIs might return tokens immediately, others might require email verification
+      if (data.access_token && data.refresh_token) {
+        const success = await register(data.access_token, data.refresh_token, password);
+        if (success) {
+          navigate('/');
+          return;
+        }
+      }
+      
+      // If we don't have tokens yet, show verification message
+      navigate('/verification-pending');
+    } catch (err) {
+      if (err instanceof Error) {
+        setApiError(err.message || 'An error occurred during registration');
+      } else {
+        setApiError('An error occurred during registration');
+      }
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleAuth = async () => {
+    // This would typically be handled through a Google OAuth flow
+    // For now, this is a placeholder for the Google authentication
+    alert('Google Auth functionality would be implemented here');
   };
 
   return (
@@ -61,20 +107,43 @@ const SignUp: React.FC = () => {
             <p className="text-gray-600">Sign up to start shopping with us</p>
           </div>
           
+          {apiError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">
+              {apiError}
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
-              </label>
-              <input
-                id="fullName"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Enter your full name"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                  First Name
+                </label>
+                <input
+                  id="firstName"
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="First name"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Name
+                </label>
+                <input
+                  id="lastName"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Last name"
+                />
+              </div>
             </div>
             
             <div>
@@ -93,6 +162,20 @@ const SignUp: React.FC = () => {
             </div>
             
             <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                Phone (optional)
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Enter your phone number"
+              />
+            </div>
+            
+            <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Password
               </label>
@@ -103,7 +186,7 @@ const SignUp: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Create a password"
+                placeholder="Create a password (min. 8 characters)"
               />
             </div>
             
@@ -173,6 +256,7 @@ const SignUp: React.FC = () => {
             
             <button
               type="button"
+              onClick={handleGoogleAuth}
               className="mt-4 w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
               <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
