@@ -144,6 +144,11 @@ type AddProductProps = {
   mode?: 'create' | 'edit' | 'view';
 };
 
+// Common input styles for highlighting borders
+const inputBaseStyle = `border-2 border-gray-200 bg-white rounded-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-300 shadow-sm`;
+const inputErrorStyle = `border-2 border-red-300 bg-white rounded-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-300 text-red-900 placeholder-red-300 shadow-sm`;
+const inputReadOnlyStyle = `border-2 border-gray-200 bg-gray-50 rounded-md px-4 py-3 shadow-sm`;
+
 const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -355,15 +360,15 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
   };
   
   return (
-    <div className="w-full max-w-7xl mx-auto">
+    <div className="w-full max-w-7xl mx-auto pb-12 bg-gray-50">
       {/* Header */}
-      <div className="flex items-center justify-between pb-6 mb-6">
+      <div className="flex items-center justify-between py-8 mb-6 px-6">
         <h1 className="text-2xl font-semibold text-gray-900">{getPageTitle()}</h1>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4">
           <button
             type="button"
             onClick={handleBack}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+            className="inline-flex items-center px-5 py-2.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
           >
             Back
           </button>
@@ -371,7 +376,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none disabled:bg-primary-400 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-5 py-2.5 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:bg-blue-400 disabled:cursor-not-allowed"
           >
             {isSubmitting 
               ? (mode === 'edit' ? 'Saving...' : 'Creating...') 
@@ -384,19 +389,19 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
         </div>
       </div>
       
-      {/* Main form grid layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Main form grid layout with increased gap */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
         {/* Left column content */}
         <div className="md:col-span-2 space-y-6">
           {/* General Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="px-4 py-5 border-b border-gray-200">
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4">
               <h2 className="text-lg font-medium text-gray-900">General</h2>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="px-6 py-6 space-y-6 border-t border-gray-200">
               {/* SKU */}
               <div>
-                <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="sku" className="block text-sm text-gray-600 mb-1">
                   SKU <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-1 relative">
@@ -407,11 +412,11 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.sku}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`block w-full shadow-sm sm:text-sm rounded-md ${
+                    className={`block w-full ${
                       errors.sku 
-                        ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
-                        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                    } ${isReadOnly ? 'bg-gray-100' : ''}`}
+                        ? inputErrorStyle
+                        : isReadOnly ? inputReadOnlyStyle : inputBaseStyle
+                    }`}
                     aria-invalid={!!errors.sku}
                   />
                   {errors.sku && (
@@ -425,7 +430,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               
               {/* Product Number */}
               <div>
-                <label htmlFor="productNumber" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="productNumber" className="block text-sm text-gray-600 mb-1">
                   Product Number
                 </label>
                 <input
@@ -435,13 +440,13 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                   value={productData.productNumber}
                   onChange={handleChange}
                   readOnly={isReadOnly}
-                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                  className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                 />
               </div>
               
               {/* Product Name */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="name" className="block text-sm text-gray-600 mb-1">
                   Name <span className="text-red-500">*</span>
                   <span className="ml-1 text-xs text-gray-500">English</span>
                 </label>
@@ -453,11 +458,11 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.name}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`block w-full shadow-sm sm:text-sm rounded-md ${
+                    className={`block w-full ${
                       errors.name 
-                        ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
-                        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                    } ${isReadOnly ? 'bg-gray-100' : ''}`}
+                        ? inputErrorStyle
+                        : isReadOnly ? inputReadOnlyStyle : inputBaseStyle
+                    }`}
                     aria-invalid={!!errors.name}
                   />
                   {errors.name && (
@@ -471,7 +476,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               
               {/* URL Key */}
               <div>
-                <label htmlFor="urlKey" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="urlKey" className="block text-sm text-gray-600 mb-1">
                   URL Key <span className="text-red-500">*</span>
                   <span className="ml-1 text-xs text-gray-500">English</span>
                 </label>
@@ -482,13 +487,13 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                   value={productData.urlKey}
                   onChange={handleURLKeyChange}
                   readOnly={isReadOnly}
-                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                  className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                 />
               </div>
               
               {/* Tax Category */}
               <div>
-                <label htmlFor="taxCategory" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="taxCategory" className="block text-sm text-gray-600 mb-1">
                   Tax Category
                 </label>
                 <select
@@ -497,7 +502,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                   value={productData.taxCategory}
                   onChange={handleChange}
                   disabled={isReadOnly}
-                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                  className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                 >
                   {TAX_CATEGORIES.map(option => (
                     <option key={option.value} value={option.value}>
@@ -509,7 +514,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               
               {/* Color */}
               <div>
-                <label htmlFor="color" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="color" className="block text-sm text-gray-600 mb-1">
                   Color
                 </label>
                 <select
@@ -518,7 +523,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                   value={productData.color}
                   onChange={handleChange}
                   disabled={isReadOnly}
-                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                  className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                 >
                   {COLORS.map(option => (
                     <option key={option.value} value={option.value}>
@@ -530,7 +535,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               
               {/* Size */}
               <div>
-                <label htmlFor="size" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="size" className="block text-sm text-gray-600 mb-1">
                   Size
                 </label>
                 <select
@@ -539,7 +544,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                   value={productData.size}
                   onChange={handleChange}
                   disabled={isReadOnly}
-                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                  className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                 >
                   {SIZES.map(option => (
                     <option key={option.value} value={option.value}>
@@ -551,7 +556,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               
               {/* Brand */}
               <div>
-                <label htmlFor="brand" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="brand" className="block text-sm text-gray-600 mb-1">
                   Brand
                 </label>
                 <select
@@ -560,7 +565,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                   value={productData.brand}
                   onChange={handleChange}
                   disabled={isReadOnly}
-                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                  className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                 >
                   {BRANDS.map(option => (
                     <option key={option.value} value={option.value}>
@@ -573,20 +578,20 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
           </div>
           
           {/* Description Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="px-4 py-5 border-b border-gray-200">
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4">
               <h2 className="text-lg font-medium text-gray-900">Description</h2>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="px-6 py-6 space-y-6 border-t border-gray-200">
               {/* Short Description */}
               <div>
-                <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="shortDescription" className="block text-sm text-gray-600 mb-1">
                   Short Description <span className="text-red-500">*</span>
                   <span className="ml-1 text-xs text-gray-500">English</span>
                 </label>
                 <div className="mt-1 border border-gray-300 rounded-md overflow-hidden">
                   {/* Mock rich text editor toolbar */}
-                  <div className="flex items-center space-x-1 px-2 py-1 border-b border-gray-300 bg-gray-50">
+                  <div className="flex items-center space-x-1 px-3 py-2 border-b border-gray-300 bg-gray-50">
                     <button className="p-1 rounded hover:bg-gray-200" title="Bold">
                       <span className="font-bold">B</span>
                     </button>
@@ -617,20 +622,20 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.shortDescription}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`block w-full border-0 focus:ring-0 sm:text-sm ${isReadOnly ? 'bg-gray-100' : ''}`}
+                    className={`block w-full px-4 py-3 border-2 border-gray-200 ${isReadOnly ? 'bg-gray-50' : 'bg-white'}`}
                   ></textarea>
                 </div>
               </div>
               
               {/* Description */}
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="description" className="block text-sm text-gray-600 mb-1">
                   Description
                   <span className="ml-1 text-xs text-gray-500">English</span>
                 </label>
                 <div className="mt-1 border border-gray-300 rounded-md overflow-hidden">
                   {/* Mock rich text editor toolbar */}
-                  <div className="flex items-center space-x-1 px-2 py-1 border-b border-gray-300 bg-gray-50">
+                  <div className="flex items-center space-x-1 px-3 py-2 border-b border-gray-300 bg-gray-50">
                     <button className="p-1 rounded hover:bg-gray-200" title="Bold">
                       <span className="font-bold">B</span>
                     </button>
@@ -661,7 +666,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.description}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`block w-full border-0 focus:ring-0 sm:text-sm ${isReadOnly ? 'bg-gray-100' : ''}`}
+                    className={`block w-full px-4 py-3 border-2 border-gray-200 ${isReadOnly ? 'bg-gray-50' : 'bg-white'}`}
                   ></textarea>
                 </div>
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -671,15 +676,15 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               </div>
               
               {/* Meta Information */}
-              <div className="pt-4">
-                <h3 className="text-base font-medium text-gray-900 mb-3">Meta Description</h3>
+              <div className="pt-6">
+                <h3 className="text-base font-medium text-gray-900 mb-4">Meta Description</h3>
                 <div className="text-sm text-gray-500 mb-4">
                   <a href="http://kea.mywire.org:5500/" className="text-blue-600 hover:underline">http://kea.mywire.org:5500/</a>
                 </div>
                 
                 {/* Meta Title */}
-                <div className="mb-4">
-                  <label htmlFor="metaTitle" className="block text-sm font-medium text-gray-700">
+                <div className="mb-6">
+                  <label htmlFor="metaTitle" className="block text-sm text-gray-600 mb-1">
                     Meta Title
                     <span className="ml-1 text-xs text-gray-500">English</span>
                   </label>
@@ -690,13 +695,13 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.metaTitle}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                    className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                   />
                 </div>
                 
                 {/* Meta Keywords */}
-                <div className="mb-4">
-                  <label htmlFor="metaKeywords" className="block text-sm font-medium text-gray-700">
+                <div className="mb-6">
+                  <label htmlFor="metaKeywords" className="block text-sm text-gray-600 mb-1">
                     Meta Keywords
                     <span className="ml-1 text-xs text-gray-500">English</span>
                   </label>
@@ -707,13 +712,13 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.metaKeywords}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                    className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                   ></textarea>
                 </div>
                 
                 {/* Meta Description */}
                 <div>
-                  <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="metaDescription" className="block text-sm text-gray-600 mb-1">
                     Meta Description
                     <span className="ml-1 text-xs text-gray-500">English</span>
                   </label>
@@ -724,7 +729,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.metaDescription}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                    className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                   ></textarea>
                 </div>
               </div>
@@ -732,23 +737,23 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
           </div>
           
           {/* Images Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="px-4 py-5 border-b border-gray-200">
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4">
               <h2 className="text-lg font-medium text-gray-900">Images</h2>
             </div>
-            <div className="p-6">
-              <div className="text-sm text-gray-500 mb-4">
+            <div className="px-6 py-6 border-t border-gray-200">
+              <div className="text-sm text-gray-500 mb-6">
                 Image resolution should be like 560px X 609px
               </div>
               
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
                 {/* Add Image Button */}
                 <div 
                   onClick={triggerImageUpload}
-                  className={`flex flex-col items-center justify-center p-4 border border-dashed border-gray-300 rounded-md ${!isReadOnly ? 'cursor-pointer hover:bg-gray-50' : 'opacity-70 cursor-default'}`}
+                  className={`flex flex-col items-center justify-center p-6 border border-dashed border-gray-300 rounded-md ${!isReadOnly ? 'cursor-pointer hover:bg-gray-50' : 'opacity-70 cursor-default'}`}
                 >
-                  <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-100 mb-2">
-                    <PlusIcon className="h-6 w-6 text-gray-500" />
+                  <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gray-100 mb-3">
+                    <PlusIcon className="h-7 w-7 text-gray-500" />
                   </div>
                   <span className="text-xs text-gray-500 text-center">Add Image<br />png, jpeg, jpg</span>
                   <input
@@ -762,66 +767,59 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                 </div>
                 
                 {/* Image placeholders */}
-                <div className="flex flex-col items-center justify-center p-4 border border-gray-300 rounded-md">
-                  <div className="bg-gray-100 rounded-md w-full h-16 flex items-center justify-center mb-2">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-md">
+                  <div className="bg-gray-100 rounded-md w-full h-20 flex items-center justify-center mb-3">
+                    <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
                   </div>
                   <span className="text-xs text-gray-500">Front</span>
                 </div>
                 
-                <div className="flex flex-col items-center justify-center p-4 border border-gray-300 rounded-md">
-                  <div className="bg-gray-100 rounded-md w-full h-16 flex items-center justify-center mb-2">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-md">
+                  <div className="bg-gray-100 rounded-md w-full h-20 flex items-center justify-center mb-3">
+                    <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
                   </div>
                   <span className="text-xs text-gray-500">Next</span>
                 </div>
                 
-                <div className="flex flex-col items-center justify-center p-4 border border-gray-300 rounded-md">
-                  <div className="bg-gray-100 rounded-md w-full h-16 flex items-center justify-center mb-2">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-md">
+                  <div className="bg-gray-100 rounded-md w-full h-20 flex items-center justify-center mb-3">
+                    <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
                   </div>
                   <span className="text-xs text-gray-500">Next</span>
                 </div>
                 
-                <div className="flex flex-col items-center justify-center p-4 border border-gray-300 rounded-md">
-                  <div className="bg-gray-100 rounded-md w-full h-16 flex items-center justify-center mb-2">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-md">
+                  <div className="bg-gray-100 rounded-md w-full h-20 flex items-center justify-center mb-3">
+                    <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
                   </div>
                   <span className="text-xs text-gray-500">Zoom</span>
                 </div>
                 
-                <div className="flex flex-col items-center justify-center p-4 border border-gray-300 rounded-md">
-                  <div className="bg-gray-100 rounded-md w-full h-16 flex items-center justify-center mb-2">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div className="flex flex-col items-center justify-center p-6 border border-gray-300 rounded-md">
+                  <div className="bg-gray-100 rounded-md w-full h-20 flex items-center justify-center mb-3">
+                    <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
                   </div>
                   <span className="text-xs text-gray-500">Use Cases</span>
-                </div>
-                
-                <div className="flex flex-col items-center justify-center p-4 border border-gray-300 rounded-md">
-                  <div className="bg-gray-100 rounded-md w-full h-16 flex items-center justify-center mb-2">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                  </div>
-                  <span className="text-xs text-gray-500">Size</span>
                 </div>
               </div>
             </div>
           </div>
           
           {/* Videos Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="px-4 py-5 border-b border-gray-200">
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4">
               <h2 className="text-lg font-medium text-gray-900">Videos</h2>
             </div>
-            <div className="p-6">
-              <div className="text-sm text-gray-500 mb-4">
+            <div className="px-6 py-6 border-t border-gray-200">
+              <div className="text-sm text-gray-500 mb-6">
                 Maximum video size should be like 2M
               </div>
               
               <div 
                 onClick={triggerVideoUpload}
-                className={`flex flex-col items-center justify-center p-8 border border-dashed border-gray-300 rounded-md ${!isReadOnly ? 'cursor-pointer hover:bg-gray-50' : 'opacity-70 cursor-default'} max-w-xs`}
+                className={`flex flex-col items-center justify-center p-10 border border-dashed border-gray-300 rounded-md ${!isReadOnly ? 'cursor-pointer hover:bg-gray-50' : 'opacity-70 cursor-default'} max-w-md`}
               >
-                <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 mb-2">
+                <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 mb-3">
                   <PlusIcon className="h-8 w-8 text-gray-500" />
                 </div>
                 <span className="text-sm text-gray-500 text-center">Add Video<br />mp4, webm, mkv</span>
@@ -840,14 +838,14 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
         {/* Right column content */}
         <div className="space-y-6">
           {/* Price Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="px-4 py-5 border-b border-gray-200">
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4">
               <h2 className="text-lg font-medium text-gray-900">Price</h2>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="px-6 py-6 space-y-6 border-t border-gray-200">
               {/* Price */}
               <div>
-                <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="price" className="block text-sm text-gray-600 mb-1">
                   Price <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-1 relative">
@@ -861,11 +859,11 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.price}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`pl-7 block w-full shadow-sm sm:text-sm rounded-md ${
+                    className={`pl-7 block w-full ${
                       errors.price 
-                        ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
-                        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                    } ${isReadOnly ? 'bg-gray-100' : ''}`}
+                        ? inputErrorStyle
+                        : isReadOnly ? inputReadOnlyStyle : inputBaseStyle
+                    }`}
                     placeholder="0.00"
                     aria-invalid={!!errors.price}
                   />
@@ -880,7 +878,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               
               {/* Cost */}
               <div>
-                <label htmlFor="cost" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="cost" className="block text-sm text-gray-600 mb-1">
                   Cost
                 </label>
                 <div className="mt-1 relative">
@@ -894,7 +892,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.cost}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`pl-7 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                    className={`pl-7 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                     placeholder="0.00"
                   />
                 </div>
@@ -902,7 +900,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               
               {/* Special Price */}
               <div>
-                <label htmlFor="specialPrice" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="specialPrice" className="block text-sm text-gray-600 mb-1">
                   Special Price
                 </label>
                 <div className="mt-1 relative">
@@ -916,7 +914,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.specialPrice}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`pl-7 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                    className={`pl-7 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                     placeholder="0.00"
                   />
                 </div>
@@ -924,7 +922,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               
               {/* Special Price From */}
               <div>
-                <label htmlFor="specialPriceFrom" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="specialPriceFrom" className="block text-sm text-gray-600 mb-1">
                   Special Price From
                 </label>
                 <div className="mt-1 relative">
@@ -935,7 +933,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.specialPriceFrom}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                    className={`block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <CalendarIcon className="h-5 w-5 text-gray-400" />
@@ -945,7 +943,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               
               {/* Special Price To */}
               <div>
-                <label htmlFor="specialPriceTo" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="specialPriceTo" className="block text-sm text-gray-600 mb-1">
                   Special Price To
                 </label>
                 <div className="mt-1 relative">
@@ -956,7 +954,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.specialPriceTo}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                    className={`block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <CalendarIcon className="h-5 w-5 text-gray-400" />
@@ -965,10 +963,10 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               </div>
               
               {/* Customer Group Price */}
-              <div className="pt-4">
+              <div className="pt-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-base font-medium text-gray-900">Customer Group Price</h3>
-                  <button 
+                  <button
                     type="button" 
                     disabled={isReadOnly}
                     className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
@@ -999,14 +997,14 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
           </div>
           
           {/* Shipping Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="px-4 py-5 border-b border-gray-200">
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4">
               <h2 className="text-lg font-medium text-gray-900">Shipping</h2>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="px-6 py-6 space-y-6 border-t border-gray-200">
               {/* Length */}
               <div>
-                <label htmlFor="length" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="length" className="block text-sm text-gray-600 mb-1">
                   Length
                 </label>
                 <input
@@ -1016,13 +1014,13 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                   value={productData.length}
                   onChange={handleChange}
                   readOnly={isReadOnly}
-                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                  className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                 />
               </div>
               
               {/* Width */}
               <div>
-                <label htmlFor="width" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="width" className="block text-sm text-gray-600 mb-1">
                   Width
                 </label>
                 <input
@@ -1032,13 +1030,13 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                   value={productData.width}
                   onChange={handleChange}
                   readOnly={isReadOnly}
-                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                  className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                 />
               </div>
               
               {/* Height */}
               <div>
-                <label htmlFor="height" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="height" className="block text-sm text-gray-600 mb-1">
                   Height
                 </label>
                 <input
@@ -1048,13 +1046,13 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                   value={productData.height}
                   onChange={handleChange}
                   readOnly={isReadOnly}
-                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                  className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                 />
               </div>
               
               {/* Weight */}
               <div>
-                <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="weight" className="block text-sm text-gray-600 mb-1">
                   Weight <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-1 relative">
@@ -1065,11 +1063,11 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     value={productData.weight}
                     onChange={handleChange}
                     readOnly={isReadOnly}
-                    className={`block w-full shadow-sm sm:text-sm rounded-md ${
-                      errors.weight 
-                        ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
-                        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                    } ${isReadOnly ? 'bg-gray-100' : ''}`}
+                    className={`block w-full ${
+                      errors.weight
+                        ? inputErrorStyle
+                        : isReadOnly ? inputReadOnlyStyle : inputBaseStyle
+                    }`}
                     aria-invalid={!!errors.weight}
                   />
                   {errors.weight && (
@@ -1084,11 +1082,11 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
           </div>
           
           {/* Settings Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="px-4 py-5 border-b border-gray-200">
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4">
               <h2 className="text-lg font-medium text-gray-900">Settings</h2>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="px-6 py-6 space-y-6 border-t border-gray-200">
               {/* New */}
               <div className="relative flex items-start">
                 <div className="flex items-center h-5">
@@ -1099,7 +1097,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     checked={productData.isNew}
                     onChange={handleToggle}
                     disabled={isReadOnly}
-                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    className="focus:ring-blue-500 h-5 w-5 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
                 <div className="ml-3 text-sm">
@@ -1117,7 +1115,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     checked={productData.isFeatured}
                     onChange={handleToggle}
                     disabled={isReadOnly}
-                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    className="focus:ring-blue-500 h-5 w-5 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
                 <div className="ml-3 text-sm">
@@ -1135,7 +1133,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     checked={productData.visibleIndividually}
                     onChange={handleToggle}
                     disabled={isReadOnly}
-                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    className="focus:ring-blue-500 h-5 w-5 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
                 <div className="ml-3 text-sm">
@@ -1153,7 +1151,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     checked={productData.status}
                     onChange={handleToggle}
                     disabled={isReadOnly}
-                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    className="focus:ring-blue-500 h-5 w-5 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
                 <div className="ml-3 text-sm">
@@ -1171,7 +1169,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     checked={productData.allowGuestCheckout}
                     onChange={handleToggle}
                     disabled={isReadOnly}
-                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    className="focus:ring-blue-500 h-5 w-5 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
                 <div className="ml-3 text-sm">
@@ -1182,11 +1180,11 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
           </div>
           
           {/* Inventories Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="px-4 py-5 border-b border-gray-200">
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4">
               <h2 className="text-lg font-medium text-gray-900">Inventories</h2>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="px-6 py-6 space-y-6 border-t border-gray-200">
               {/* Manage Stock */}
               <div className="relative flex items-start">
                 <div className="flex items-center h-5">
@@ -1197,7 +1195,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                     checked={productData.manageStock}
                     onChange={handleToggle}
                     disabled={isReadOnly}
-                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    className="focus:ring-blue-500 h-5 w-5 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
                 <div className="ml-3 text-sm">
@@ -1207,7 +1205,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               
               {/* Pending Ordered Qty */}
               <div className="flex items-center mt-4">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                   <span className="w-2 h-2 bg-yellow-400 rounded-full mr-1"></span>
                   Pending Ordered Qty: 0
                 </span>
@@ -1220,8 +1218,8 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
               </div>
               
               {/* Default */}
-              <div className="mt-4">
-                <label htmlFor="stockQuantity" className="block text-sm font-medium text-gray-700">
+              <div className="mt-6">
+                <label htmlFor="stockQuantity" className="block text-sm text-gray-600 mb-1">
                   Default
                 </label>
                 <input
@@ -1232,20 +1230,20 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                   onChange={handleChange}
                   readOnly={isReadOnly}
                   min="0"
-                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
+                  className={`mt-1 block w-full ${isReadOnly ? inputReadOnlyStyle : inputBaseStyle}`}
                 />
               </div>
             </div>
           </div>
           
           {/* Categories Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="px-4 py-5 border-b border-gray-200">
+          <div className="bg-white rounded-lg border border-gray-200">
+            <div className="px-6 py-4">
               <h2 className="text-lg font-medium text-gray-900">Categories</h2>
             </div>
-            <div className="p-6 space-y-3">
+            <div className="px-6 py-6 space-y-4 border-t border-gray-200">
               {PRODUCT_CATEGORIES.map(category => (
-                <div key={category.id} className="flex items-start">
+                <div key={category.id} className="flex items-start py-2">
                   <div className="flex items-center h-5">
                     <input
                       id={`category-${category.id}`}
@@ -1253,7 +1251,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
                       checked={productData.categories.includes(category.id)}
                       onChange={() => handleCategoryChange(category.id)}
                       disabled={isReadOnly}
-                      className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                      className="focus:ring-blue-500 h-5 w-5 text-blue-600 border-gray-300 rounded"
                     />
                   </div>
                   <div className="ml-3">
