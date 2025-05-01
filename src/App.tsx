@@ -11,6 +11,7 @@ import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
+import PasswordReset from './pages/auth/PasswordReset';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -41,6 +42,7 @@ function App() {
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <Router>
             <div className="flex flex-col min-h-screen">
+
               {/* Regular customer-facing routes */}
               <Routes>
                 {/* Business Dashboard Routes */}
@@ -97,6 +99,7 @@ function App() {
                           <Route path="/signup" element={<SignUp />} />
                           <Route path="/business-login" element={<BusinessLogin />} />
                           <Route path="/register-business" element={<RegisterBusiness />} />
+                          <Route path="/password/reset" element={<PasswordReset />} />
                         </Routes>
                       </main>
                       <Footer />
@@ -104,6 +107,7 @@ function App() {
                   }
                 />
               </Routes>
+
             </div>
           </Router>
           
