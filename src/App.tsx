@@ -11,6 +11,7 @@ import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
+import PasswordReset from './pages/auth/PasswordReset';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -41,6 +42,7 @@ function App() {
                   <Route path="/signup" element={<SignUp />} />
                   <Route path="/business-login" element={<BusinessLogin />} />
                   <Route path="/register-business" element={<RegisterBusiness />} />
+                  <Route path="/password/reset" element={<PasswordReset />} />
                 </Routes>
               </main>
               

@@ -109,7 +109,7 @@ const SignIn: React.FC = () => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <Link to="/password/reset-request" className="text-sm text-primary-600 hover:text-primary-700 transition-colors">
+                <Link to="/password/reset" className="text-sm text-primary-600 hover:text-primary-700 transition-colors">
                   Forgot your password?
                 </Link>
               </div>
