@@ -522,10 +522,10 @@ const Products: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-3">
-                      <Link to={`/business/catalog/products/${product.id}`} className="text-gray-600 hover:text-gray-900">
+                      <Link to={`/business/catalog/product/${product.id}/view`} className="text-gray-600 hover:text-gray-900">
                         <EyeIcon className="h-5 w-5" />
                       </Link>
-                      <Link to={`/business/catalog/products/${product.id}/edit`} className="text-blue-600 hover:text-blue-900">
+                      <Link to={`/business/catalog/product/${product.id}/edit`} className="text-blue-600 hover:text-blue-900">
                         <PencilIcon className="h-5 w-5" />
                       </Link>
                       <button className="text-red-600 hover:text-red-900">

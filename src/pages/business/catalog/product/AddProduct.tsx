@@ -6,8 +6,8 @@
 /// <reference path="./steps/Settings.tsx" />
 /// <reference path="./steps/RelatedProducts.tsx" />
 
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { 
   ExclamationCircleIcon,
   ChevronDownIcon,
@@ -140,15 +140,83 @@ const PRODUCT_CATEGORIES = [
   { id: 'kids', name: "Kid's" }
 ];
 
-const AddProduct: React.FC = () => {
+type AddProductProps = {
+  mode?: 'create' | 'edit' | 'view';
+};
+
+const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [productData, setProductData] = useState<ProductData>(initialProductData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReadOnly, setIsReadOnly] = useState(mode === 'view');
   
   // File input refs
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch product data when in edit or view mode
+  useEffect(() => {
+    if ((mode === 'edit' || mode === 'view') && id) {
+      // Here you would typically fetch the product data from API
+      // For now, let's simulate by finding the product in our mock data
+      const mockProducts = [
+        {
+          id: 1,
+          name: 'Louis Philippe Men\'s Solid Regular Fit T-Shirt',
+          sku: '1',
+          category: 'Men\'s',
+          price: '500.00',
+          stock: '50',
+          status: true,
+          image: 'https://placehold.co/80x80',
+          attributeFamily: 'Default',
+          urlKey: 'louis-philippe-mens-solid-regular-fit-t-shirt',
+          shortDescription: 'A comfortable t-shirt for everyday wear',
+          description: 'This Louis Philippe t-shirt is perfect for casual occasions. Made from 100% cotton.',
+          weight: '0.5',
+          categories: ['mens']
+        }
+      ];
+      
+      const product = mockProducts.find(p => p.id === Number(id));
+      
+      if (product) {
+        // Map the fetched product to our ProductData format
+        const fetchedProduct: Partial<ProductData> = {
+          name: product.name,
+          sku: product.sku,
+          price: product.price,
+          urlKey: product.urlKey,
+          shortDescription: product.shortDescription,
+          description: product.description,
+          weight: product.weight,
+          status: product.status,
+          categories: product.categories,
+          stockQuantity: product.stock
+        };
+        
+        setProductData(prev => ({ ...prev, ...fetchedProduct }));
+      } else {
+        // Handle case where product is not found
+        toast.error('Product not found');
+        navigate('/business/catalog/products');
+      }
+    }
+  }, [mode, id, navigate]);
+
+  // Page title based on mode
+  const getPageTitle = () => {
+    switch (mode) {
+      case 'edit':
+        return 'Edit Product';
+      case 'view':
+        return 'View Product';
+      default:
+        return 'Add Product';
+    }
+  };
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -188,12 +256,14 @@ const AddProduct: React.FC = () => {
 
   // Trigger file input click
   const triggerImageUpload = () => {
+    if (isReadOnly) return;
     if (imageInputRef.current) {
       imageInputRef.current.click();
     }
   };
   
   const triggerVideoUpload = () => {
+    if (isReadOnly) return;
     if (videoInputRef.current) {
       videoInputRef.current.click();
     }
@@ -247,6 +317,12 @@ const AddProduct: React.FC = () => {
 
   // Handle form submission
   const handleSubmit = async () => {
+    if (mode === 'view') {
+      // Switch to edit mode
+      navigate(`/business/catalog/product/${id}/edit`);
+      return;
+    }
+    
     if (validateForm()) {
       setIsSubmitting(true);
       try {
@@ -254,10 +330,18 @@ const AddProduct: React.FC = () => {
         // Simulating API call with timeout
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        toast.success('Product created successfully');
+        const successMessage = mode === 'edit' 
+          ? 'Product updated successfully' 
+          : 'Product created successfully';
+        
+        toast.success(successMessage);
         navigate('/business/catalog/products');
       } catch (error) {
-        toast.error('Failed to create product');
+        const errorMessage = mode === 'edit'
+          ? 'Failed to update product'
+          : 'Failed to create product';
+        
+        toast.error(errorMessage);
       } finally {
         setIsSubmitting(false);
       }
@@ -274,7 +358,7 @@ const AddProduct: React.FC = () => {
     <div className="w-full max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between pb-6 mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Edit Product</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">{getPageTitle()}</h1>
         <div className="flex items-center space-x-3">
           <button
             type="button"
@@ -289,7 +373,13 @@ const AddProduct: React.FC = () => {
             disabled={isSubmitting}
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none disabled:bg-primary-400 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Saving...' : 'Save Product'}
+            {isSubmitting 
+              ? (mode === 'edit' ? 'Saving...' : 'Creating...') 
+              : mode === 'view' 
+                ? 'Edit Product' 
+                : mode === 'edit' 
+                  ? 'Update Product' 
+                  : 'Save Product'}
           </button>
         </div>
       </div>
@@ -316,11 +406,12 @@ const AddProduct: React.FC = () => {
                     name="sku"
                     value={productData.sku}
                     onChange={handleChange}
+                    readOnly={isReadOnly}
                     className={`block w-full shadow-sm sm:text-sm rounded-md ${
                       errors.sku 
                         ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
                         : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                    }`}
+                    } ${isReadOnly ? 'bg-gray-100' : ''}`}
                     aria-invalid={!!errors.sku}
                   />
                   {errors.sku && (
@@ -343,7 +434,8 @@ const AddProduct: React.FC = () => {
                   name="productNumber"
                   value={productData.productNumber}
                   onChange={handleChange}
-                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  readOnly={isReadOnly}
+                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                 />
               </div>
               
@@ -360,11 +452,12 @@ const AddProduct: React.FC = () => {
                     name="name"
                     value={productData.name}
                     onChange={handleChange}
+                    readOnly={isReadOnly}
                     className={`block w-full shadow-sm sm:text-sm rounded-md ${
                       errors.name 
                         ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
                         : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                    }`}
+                    } ${isReadOnly ? 'bg-gray-100' : ''}`}
                     aria-invalid={!!errors.name}
                   />
                   {errors.name && (
@@ -388,7 +481,8 @@ const AddProduct: React.FC = () => {
                   name="urlKey"
                   value={productData.urlKey}
                   onChange={handleURLKeyChange}
-                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  readOnly={isReadOnly}
+                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                 />
               </div>
               
@@ -402,7 +496,8 @@ const AddProduct: React.FC = () => {
                   name="taxCategory"
                   value={productData.taxCategory}
                   onChange={handleChange}
-                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  disabled={isReadOnly}
+                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                 >
                   {TAX_CATEGORIES.map(option => (
                     <option key={option.value} value={option.value}>
@@ -422,7 +517,8 @@ const AddProduct: React.FC = () => {
                   name="color"
                   value={productData.color}
                   onChange={handleChange}
-                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  disabled={isReadOnly}
+                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                 >
                   {COLORS.map(option => (
                     <option key={option.value} value={option.value}>
@@ -442,7 +538,8 @@ const AddProduct: React.FC = () => {
                   name="size"
                   value={productData.size}
                   onChange={handleChange}
-                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  disabled={isReadOnly}
+                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                 >
                   {SIZES.map(option => (
                     <option key={option.value} value={option.value}>
@@ -462,7 +559,8 @@ const AddProduct: React.FC = () => {
                   name="brand"
                   value={productData.brand}
                   onChange={handleChange}
-                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  disabled={isReadOnly}
+                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                 >
                   {BRANDS.map(option => (
                     <option key={option.value} value={option.value}>
@@ -518,7 +616,8 @@ const AddProduct: React.FC = () => {
                     rows={4}
                     value={productData.shortDescription}
                     onChange={handleChange}
-                    className="block w-full border-0 focus:ring-0 sm:text-sm"
+                    readOnly={isReadOnly}
+                    className={`block w-full border-0 focus:ring-0 sm:text-sm ${isReadOnly ? 'bg-gray-100' : ''}`}
                   ></textarea>
                 </div>
               </div>
@@ -561,7 +660,8 @@ const AddProduct: React.FC = () => {
                     rows={6}
                     value={productData.description}
                     onChange={handleChange}
-                    className="block w-full border-0 focus:ring-0 sm:text-sm"
+                    readOnly={isReadOnly}
+                    className={`block w-full border-0 focus:ring-0 sm:text-sm ${isReadOnly ? 'bg-gray-100' : ''}`}
                   ></textarea>
                 </div>
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -589,7 +689,8 @@ const AddProduct: React.FC = () => {
                     name="metaTitle"
                     value={productData.metaTitle}
                     onChange={handleChange}
-                    className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    readOnly={isReadOnly}
+                    className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                   />
                 </div>
                 
@@ -605,7 +706,8 @@ const AddProduct: React.FC = () => {
                     rows={2}
                     value={productData.metaKeywords}
                     onChange={handleChange}
-                    className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    readOnly={isReadOnly}
+                    className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                   ></textarea>
                 </div>
                 
@@ -621,7 +723,8 @@ const AddProduct: React.FC = () => {
                     rows={2}
                     value={productData.metaDescription}
                     onChange={handleChange}
-                    className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    readOnly={isReadOnly}
+                    className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                   ></textarea>
                 </div>
               </div>
@@ -642,7 +745,7 @@ const AddProduct: React.FC = () => {
                 {/* Add Image Button */}
                 <div 
                   onClick={triggerImageUpload}
-                  className="flex flex-col items-center justify-center p-4 border border-dashed border-gray-300 rounded-md cursor-pointer hover:bg-gray-50"
+                  className={`flex flex-col items-center justify-center p-4 border border-dashed border-gray-300 rounded-md ${!isReadOnly ? 'cursor-pointer hover:bg-gray-50' : 'opacity-70 cursor-default'}`}
                 >
                   <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-100 mb-2">
                     <PlusIcon className="h-6 w-6 text-gray-500" />
@@ -716,7 +819,7 @@ const AddProduct: React.FC = () => {
               
               <div 
                 onClick={triggerVideoUpload}
-                className="flex flex-col items-center justify-center p-8 border border-dashed border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 max-w-xs"
+                className={`flex flex-col items-center justify-center p-8 border border-dashed border-gray-300 rounded-md ${!isReadOnly ? 'cursor-pointer hover:bg-gray-50' : 'opacity-70 cursor-default'} max-w-xs`}
               >
                 <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100 mb-2">
                   <PlusIcon className="h-8 w-8 text-gray-500" />
@@ -757,11 +860,12 @@ const AddProduct: React.FC = () => {
                     name="price"
                     value={productData.price}
                     onChange={handleChange}
+                    readOnly={isReadOnly}
                     className={`pl-7 block w-full shadow-sm sm:text-sm rounded-md ${
                       errors.price 
                         ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
                         : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                    }`}
+                    } ${isReadOnly ? 'bg-gray-100' : ''}`}
                     placeholder="0.00"
                     aria-invalid={!!errors.price}
                   />
@@ -789,7 +893,8 @@ const AddProduct: React.FC = () => {
                     name="cost"
                     value={productData.cost}
                     onChange={handleChange}
-                    className="pl-7 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    readOnly={isReadOnly}
+                    className={`pl-7 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                     placeholder="0.00"
                   />
                 </div>
@@ -810,7 +915,8 @@ const AddProduct: React.FC = () => {
                     name="specialPrice"
                     value={productData.specialPrice}
                     onChange={handleChange}
-                    className="pl-7 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    readOnly={isReadOnly}
+                    className={`pl-7 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                     placeholder="0.00"
                   />
                 </div>
@@ -828,7 +934,8 @@ const AddProduct: React.FC = () => {
                     name="specialPriceFrom"
                     value={productData.specialPriceFrom}
                     onChange={handleChange}
-                    className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    readOnly={isReadOnly}
+                    className={`block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <CalendarIcon className="h-5 w-5 text-gray-400" />
@@ -848,7 +955,8 @@ const AddProduct: React.FC = () => {
                     name="specialPriceTo"
                     value={productData.specialPriceTo}
                     onChange={handleChange}
-                    className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    readOnly={isReadOnly}
+                    className={`block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <CalendarIcon className="h-5 w-5 text-gray-400" />
@@ -862,7 +970,12 @@ const AddProduct: React.FC = () => {
                   <h3 className="text-base font-medium text-gray-900">Customer Group Price</h3>
                   <button 
                     type="button" 
-                    className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    disabled={isReadOnly}
+                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
+                      isReadOnly 
+                        ? 'text-blue-400 bg-blue-50 cursor-not-allowed' 
+                        : 'text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                    }`}
                   >
                     Add New
                   </button>
@@ -902,7 +1015,8 @@ const AddProduct: React.FC = () => {
                   name="length"
                   value={productData.length}
                   onChange={handleChange}
-                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  readOnly={isReadOnly}
+                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                 />
               </div>
               
@@ -917,7 +1031,8 @@ const AddProduct: React.FC = () => {
                   name="width"
                   value={productData.width}
                   onChange={handleChange}
-                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  readOnly={isReadOnly}
+                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                 />
               </div>
               
@@ -932,7 +1047,8 @@ const AddProduct: React.FC = () => {
                   name="height"
                   value={productData.height}
                   onChange={handleChange}
-                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  readOnly={isReadOnly}
+                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                 />
               </div>
               
@@ -948,11 +1064,12 @@ const AddProduct: React.FC = () => {
                     name="weight"
                     value={productData.weight}
                     onChange={handleChange}
+                    readOnly={isReadOnly}
                     className={`block w-full shadow-sm sm:text-sm rounded-md ${
                       errors.weight 
                         ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
                         : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                    }`}
+                    } ${isReadOnly ? 'bg-gray-100' : ''}`}
                     aria-invalid={!!errors.weight}
                   />
                   {errors.weight && (
@@ -981,6 +1098,7 @@ const AddProduct: React.FC = () => {
                     type="checkbox"
                     checked={productData.isNew}
                     onChange={handleToggle}
+                    disabled={isReadOnly}
                     className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
@@ -998,6 +1116,7 @@ const AddProduct: React.FC = () => {
                     type="checkbox"
                     checked={productData.isFeatured}
                     onChange={handleToggle}
+                    disabled={isReadOnly}
                     className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
@@ -1015,6 +1134,7 @@ const AddProduct: React.FC = () => {
                     type="checkbox"
                     checked={productData.visibleIndividually}
                     onChange={handleToggle}
+                    disabled={isReadOnly}
                     className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
@@ -1032,6 +1152,7 @@ const AddProduct: React.FC = () => {
                     type="checkbox"
                     checked={productData.status}
                     onChange={handleToggle}
+                    disabled={isReadOnly}
                     className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
@@ -1049,6 +1170,7 @@ const AddProduct: React.FC = () => {
                     type="checkbox"
                     checked={productData.allowGuestCheckout}
                     onChange={handleToggle}
+                    disabled={isReadOnly}
                     className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
@@ -1074,6 +1196,7 @@ const AddProduct: React.FC = () => {
                     type="checkbox"
                     checked={productData.manageStock}
                     onChange={handleToggle}
+                    disabled={isReadOnly}
                     className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
                   />
                 </div>
@@ -1107,8 +1230,9 @@ const AddProduct: React.FC = () => {
                   name="stockQuantity"
                   value={productData.stockQuantity}
                   onChange={handleChange}
+                  readOnly={isReadOnly}
                   min="0"
-                  className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className={`mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 ${isReadOnly ? 'bg-gray-100' : ''}`}
                 />
               </div>
             </div>
@@ -1128,6 +1252,7 @@ const AddProduct: React.FC = () => {
                       type="checkbox"
                       checked={productData.categories.includes(category.id)}
                       onChange={() => handleCategoryChange(category.id)}
+                      disabled={isReadOnly}
                       className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
                     />
                   </div>
