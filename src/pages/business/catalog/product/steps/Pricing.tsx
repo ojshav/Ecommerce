@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { ExclamationCircleIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { CalendarIcon } from '@heroicons/react/24/solid';
-import { ProductData } from '../AddProduct';
+
+// Define the ProductData type here since there are issues with importing it
+interface ProductData {
+  price: string;
+  cost: string;
+  specialPrice: string;
+  specialPriceFrom: string;
+  specialPriceTo: string;
+  customerGroupPrices: Array<{group: string; price: string}>;
+}
 
 type PricingProps = {
   data: ProductData;
@@ -117,17 +126,23 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors }) => {
               Special Price From
             </label>
             <div className="mt-1 relative">
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <CalendarIcon className="h-5 w-5 text-gray-400" />
-              </div>
               <input
                 type="date"
                 id="specialPriceFrom"
                 name="specialPriceFrom"
                 value={data.specialPriceFrom}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 pr-10"
               />
+              <div 
+                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                onClick={() => {
+                  const dateInput = document.getElementById('specialPriceFrom') as HTMLInputElement;
+                  if (dateInput) dateInput.click();
+                }}
+              >
+                <CalendarIcon className="h-5 w-5 text-gray-400" />
+              </div>
             </div>
           </div>
 
@@ -137,17 +152,23 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors }) => {
               Special Price To
             </label>
             <div className="mt-1 relative">
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <CalendarIcon className="h-5 w-5 text-gray-400" />
-              </div>
               <input
                 type="date"
                 id="specialPriceTo"
                 name="specialPriceTo"
                 value={data.specialPriceTo}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 pr-10"
               />
+              <div 
+                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                onClick={() => {
+                  const dateInput = document.getElementById('specialPriceTo') as HTMLInputElement;
+                  if (dateInput) dateInput.click();
+                }}
+              >
+                <CalendarIcon className="h-5 w-5 text-gray-400" />
+              </div>
             </div>
           </div>
         </div>
@@ -191,7 +212,7 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors }) => {
                   </td>
                 </tr>
               ) : (
-                data.customerGroupPrices.map((group, index) => (
+                data.customerGroupPrices.map((group: {group: string; price: string}, index: number) => (
                   <tr key={index}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {group.group}
