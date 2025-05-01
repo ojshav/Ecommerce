@@ -21,6 +21,13 @@ const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
 const BusinessProducts = lazy(() => import('./pages/business/Products'));
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
+
+// Lazy-loaded catalog pages
+const CatalogProducts = lazy(() => import('./pages/business/catalog/Products'));
+const CatalogCategories = lazy(() => import('./pages/business/catalog/Categories'));
+const CatalogAttributes = lazy(() => import('./pages/business/catalog/Attributes'));
+const AddProduct = lazy(() => import('./pages/business/catalog/product/AddProduct'));
+
 const LoadingFallback = () => (
   <div className="w-full h-full min-h-screen flex items-center justify-center">
     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
@@ -78,6 +85,43 @@ function App() {
                       </Suspense>
                     }
                   />
+                  
+                  {/* Catalog Routes */}
+                  <Route path="catalog">
+                    <Route
+                      path="products"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <CatalogProducts />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="categories"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <CatalogCategories />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="attributes"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <CatalogAttributes />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="product/new"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <AddProduct />
+                        </Suspense>
+                      }
+                    />
+                  </Route>
+                  
                   {/* Add more business routes here */}
                 </Route>
                 
