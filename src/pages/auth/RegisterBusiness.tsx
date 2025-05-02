@@ -31,13 +31,15 @@ const RegisterBusiness: React.FC = () => {
     
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      setFormData({
-        ...formData,
-        [parent]: {
-          ...formData[parent as keyof typeof formData],
-          [child]: value
-        }
-      });
+      if (parent === 'owner') {
+        setFormData({
+          ...formData,
+          owner: {
+            ...formData.owner,
+            [child]: value
+          }
+        });
+      }
     } else {
       setFormData({
         ...formData,
@@ -320,15 +322,16 @@ const RegisterBusiness: React.FC = () => {
             </form>
           </div>
           
-          <div className="px-8 py-4 bg-gray-50 border-t border-gray-200 text-center">
-            <p className="text-sm text-gray-600">
-              Already have a business account?{' '}
-              <Link to="/business-login" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
-                Login
-              </Link>
-            </p>
+          <div className="px-8 py-4 bg-gray-50 border-t border-gray-200">
+            {/* Intentionally left empty */}
           </div>
         </motion.div>
+      </div>
+      
+      <div className="text-center mt-4 mb-8">
+        <p className="text-gray-600 text-sm">
+          Already have a business account? <Link to="/business/login" className="text-primary-600 hover:underline font-medium">Login</Link>
+        </p>
       </div>
     </div>
   );

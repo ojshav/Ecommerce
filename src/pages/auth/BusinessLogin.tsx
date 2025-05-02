@@ -112,7 +112,7 @@ const BusinessLogin: React.FC = () => {
           </p>
           <p className="text-sm text-gray-600 mt-2">
             Need a personal account?{' '}
-            <Link to="/signin" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
+            <Link to="/sign-in" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
               Sign in as customer
             </Link>
           </p>

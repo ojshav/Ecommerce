@@ -1,103 +1,218 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ShoppingBag } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const Hero: React.FC = () => {
-  return (
-    <div className="relative bg-gradient-to-r from-primary-700 to-primary-500 text-white min-h-[600px] flex items-center">
-      {/* Decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full">
-          <svg 
-            className="absolute top-0 left-0 opacity-20" 
-            width="100%" height="100%" 
-            viewBox="0 0 1440 800" 
-            preserveAspectRatio="none"
-          >
-            <motion.path 
-              d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,208C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-              fill="currentColor"
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 0.2 }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
-            />
-          </svg>
-        </div>
-      </div>
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Updated offer data with real images
+  const offers = [
+    {
+      id: 1,
+      title: "Summer Sale",
+      description: "Get up to 50% off on selected electronics",
+      ctaText: "Shop Now",
+      ctaLink: "/products?sale=summer",
+      image: "https://images.unsplash.com/photo-1519558260268-cde7e03a0152?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
+      bgColor: "bg-blue-50"
+    },
+    {
+      id: 2,
+      title: "New Arrivals",
+      description: "Check out our latest tech collection",
+      ctaText: "Explore",
+      ctaLink: "/products?new=true",
+      image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
+      bgColor: "bg-green-50"
+    },
+    {
+      id: 3,
+      title: "Premium Audio",
+      description: "Exclusive headphones collection",
+      ctaText: "Buy Now",
+      ctaLink: "/products?category=audio",
+      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
+      bgColor: "bg-purple-50"
+    }
+  ];
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center justify-between">
-          <div className="lg:w-1/2 mb-10 lg:mb-0">
-            <motion.h1 
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              Welcome to <span className="text-white/90">ShopEasy</span>
-            </motion.h1>
-            
-            <motion.p 
-              className="text-lg sm:text-xl text-white/80 mb-8 max-w-xl"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              Discover amazing products at unbeatable prices. Shop smart, shop easy - we've curated the best selection for you.
-            </motion.p>
-            
-            <motion.div 
-              className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              <Link 
-                to="/products" 
-                className="flex items-center justify-center sm:justify-between space-x-2 bg-white text-primary-600 hover:bg-white/90 px-6 py-3 rounded-md font-medium transition-colors"
-              >
-                <ShoppingBag size={20} />
-                <span>Shop Now</span>
-                <ArrowRight size={18} className="hidden sm:block" />
-              </Link>
-              
-              <Link 
-                to="/categories" 
-                className="flex items-center justify-center space-x-2 border border-white/30 hover:bg-white/10 px-6 py-3 rounded-md font-medium transition-colors"
-              >
-                <span>Browse Categories</span>
-              </Link>
-            </motion.div>
-          </div>
-          
-          <motion.div 
-            className="lg:w-1/2"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <div className="relative">
-              <img 
-                src="https://images.pexels.com/photos/5632402/pexels-photo-5632402.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
-                alt="Shopping experience" 
-                className="rounded-lg shadow-2xl max-w-full h-auto"
-              />
-              
-              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-lg">
-                <div className="text-gray-900 font-semibold">New Arrivals</div>
-                <div className="text-gray-600 text-sm">Check out what's new!</div>
-              </div>
-              
-              <div className="absolute -top-6 -right-6 bg-accent-500 p-4 rounded-full shadow-lg text-white">
-                <div className="font-bold text-xl">30%</div>
-                <div className="text-xs whitespace-nowrap">Summer Sale</div>
+  // Sidebar product promotions
+  const sidebarItems = [
+    {
+      id: 1,
+      title: "Smart Watch",
+      description: "Track your fitness",
+      image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80",
+      link: "/products/smart-watch"
+    },
+    {
+      id: 2,
+      title: "Headphones",
+      description: "Premium sound",
+      image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=768&q=80",
+      link: "/products/headphones"
+    },
+    {
+      id: 3,
+      title: "Cameras",
+      description: "Capture moments",
+      image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80",
+      link: "/products/cameras"
+    }
+  ];
+
+  // Category shortcuts
+  const categoryShortcuts = [
+    { id: 1, name: "Smartphones", link: "/categories/smartphones" },
+    { id: 2, name: "Laptops", link: "/categories/laptops" },
+    { id: 3, name: "Tablets", link: "/categories/tablets" },
+    { id: 4, name: "Accessories", link: "/categories/accessories" },
+    { id: 5, name: "Audio", link: "/categories/audio" }
+  ];
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev === offers.length - 1 ? 0 : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? offers.length - 1 : prev - 1));
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
+
+  const currentOffer = offers[currentSlide];
+
+  return (
+    <section className="py-4">
+      <div className="container mx-auto px-4">
+        <div className="relative">
+          <div className="relative overflow-hidden">
+            <div className="flex">
+              <div className="grid grid-cols-12 gap-3 w-full">
+                {/* Left sidebar - small offer */}
+                <div className="col-span-2 hidden md:block">
+                  <div className="bg-gray-50 h-full rounded-lg shadow-sm overflow-hidden">
+                    <Link to={sidebarItems[0].link} className="block h-full">
+                      <div className="p-4 flex flex-col justify-between h-full">
+                        <div>
+                          <h3 className="text-sm font-bold mb-1">{sidebarItems[0].title}</h3>
+                          <p className="text-xs text-gray-600">{sidebarItems[0].description}</p>
+                        </div>
+                        <div className="text-center mt-auto">
+                          <img 
+                            src={sidebarItems[0].image} 
+                            alt={sidebarItems[0].title}
+                            className="w-full h-28 object-cover rounded mt-2 mb-2"
+                          />
+                          <button className="bg-black text-white text-xs px-4 py-2 rounded-md w-full">
+                            Shop Now
+                          </button>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+                
+                {/* Main offer */}
+                <div className="col-span-12 md:col-span-7">
+                  <div className={`${currentOffer.bgColor} rounded-lg overflow-hidden shadow-sm`}>
+                    <div className="p-4 md:p-6 flex items-center justify-between h-64 md:h-72">
+                      <div className="w-1/2 pl-4">
+                        <h2 className="text-xl md:text-3xl font-bold mb-2">{currentOffer.title}</h2>
+                        <p className="text-sm md:text-base text-gray-700 mb-6">{currentOffer.description}</p>
+                        <Link 
+                          to={currentOffer.ctaLink}
+                          className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition inline-block"
+                        >
+                          {currentOffer.ctaText}
+                        </Link>
+                      </div>
+                      <div className="w-1/2 flex justify-center">
+                        <img 
+                          src={currentOffer.image} 
+                          alt={currentOffer.title}
+                          className="h-48 md:h-56 w-auto object-contain"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Navigation controls */}
+                  <div className="flex justify-between items-center mt-2">
+                    <button 
+                      onClick={prevSlide}
+                      className="p-1 rounded-full bg-white border border-gray-300 hover:bg-gray-100"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <div className="flex space-x-2">
+                      {offers.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => goToSlide(index)}
+                          className={`h-2 w-8 rounded-full transition-all ${
+                            currentSlide === index ? 'bg-black' : 'bg-gray-300'
+                          }`}
+                        ></button>
+                      ))}
+                    </div>
+                    <button 
+                      onClick={nextSlide}
+                      className="p-1 rounded-full bg-white border border-gray-300 hover:bg-gray-100"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </div>
+                  
+                  {/* Bottom row of category shortcuts */}
+                  <div className="grid grid-cols-5 gap-2 mt-3">
+                    {categoryShortcuts.map((category) => (
+                      <Link 
+                        key={category.id} 
+                        to={category.link}
+                        className="bg-gray-50 p-3 rounded-lg shadow-sm hover:shadow-md transition-all text-center"
+                      >
+                        <span className="text-sm font-medium">{category.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Right sidebar - two small offers */}
+                <div className="col-span-3 space-y-3 hidden md:block">
+                  {sidebarItems.slice(1, 3).map((item, index) => (
+                    <Link 
+                      key={item.id}
+                      to={item.link}
+                      className="block bg-gray-50 rounded-lg shadow-sm overflow-hidden h-[8.5rem]"
+                    >
+                      <div className="p-4 flex h-full">
+                        <div className="w-1/2">
+                          <h3 className="text-sm font-bold mb-1">{item.title}</h3>
+                          <p className="text-xs text-gray-600">{item.description}</p>
+                          <button className="bg-black text-white text-xs px-3 py-1 rounded mt-2">
+                            View
+                          </button>
+                        </div>
+                        <div className="w-1/2 flex items-center justify-center">
+                          <img 
+                            src={item.image} 
+                            alt={item.title}
+                            className="h-24 w-full object-cover rounded"
+                          />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -1,212 +1,160 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Menu, X, User, Package, Store } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ShoppingCart, Heart, Search, Facebook, Instagram, Twitter, Mail } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
-import { useAuth } from '../../context/AuthContext';
+import CategoryDropdown from '../home/CategoryDropdown';
 
 const Navbar: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const { totalItems } = useCart();
-  const { isAuthenticated, isBusinessAccount, logout } = useAuth();
-  const location = useLocation();
 
-  // Handle scroll event to change navbar appearance
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
+  const toggleCategoryDropdown = () => {
+    setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
+  };
 
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
-      }`}
-    >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="h-10 w-10 rounded-lg bg-primary-600 text-white flex items-center justify-center">
-              <Store size={24} />
-            </div>
-            <span className="text-xl font-semibold text-gray-900">ShopEasy</span>
-          </Link>
+    <header className="w-full fixed top-0 left-0 right-0 z-50">
+      {/* Top navigation - black bar */}
+      <div className="bg-black text-white py-4">
+        <div className="container mx-auto px-4 flex items-center justify-between">
+          {/* Social Media Icons - Left side */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Link to="#" className="text-white hover:text-gray-300">
+              <Facebook size={18} />
+            </Link>
+            <Link to="#" className="text-white hover:text-gray-300">
+              <Instagram size={18} />
+            </Link>
+            <Link to="#" className="text-white hover:text-gray-300">
+              <Twitter size={18} />
+            </Link>
+            <Link to="#" className="text-white hover:text-gray-300">
+              <Mail size={18} />
+            </Link>
+          </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link 
-              to="/" 
-              className={`text-sm font-medium transition-colors hover:text-primary-600 ${
-                location.pathname === '/' ? 'text-primary-600' : 'text-gray-700'
-              }`}
-            >
-              Home
+          {/* Logo - Center for mobile, left for desktop */}
+          <div className="flex-1 md:flex-none text-center md:text-left">
+            <Link to="/" className="text-3xl font-bold">
+              Logo
             </Link>
-            <Link 
-              to="/products" 
-              className={`text-sm font-medium transition-colors hover:text-primary-600 ${
-                location.pathname.includes('/products') ? 'text-primary-600' : 'text-gray-700'
-              }`}
-            >
-              Products
-            </Link>
-            <Link 
-              to="/about" 
-              className={`text-sm font-medium transition-colors hover:text-primary-600 ${
-                location.pathname === '/about' ? 'text-primary-600' : 'text-gray-700'
-              }`}
-            >
-              About
-            </Link>
-            <Link 
-              to="/contact" 
-              className={`text-sm font-medium transition-colors hover:text-primary-600 ${
-                location.pathname === '/contact' ? 'text-primary-600' : 'text-gray-700'
-              }`}
-            >
-              Contact
-            </Link>
-          </nav>
+          </div>
 
-          {/* Right side - cart, login, etc. */}
+          {/* Search Bar & Actions - Right side */}
           <div className="flex items-center space-x-4">
-            {/* Cart */}
-            <Link to="/cart" className="relative p-2 text-gray-700 hover:text-primary-600 transition-colors">
-              <ShoppingCart size={20} />
+            {/* Search Bar */}
+            <div className="hidden md:flex relative w-64">
+              <input
+                type="text"
+                placeholder="What are you looking for?"
+                className="w-full rounded-md border-0 py-2 px-4 text-gray-900 focus:ring-2 focus:ring-primary-500"
+              />
+              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black text-white p-1 rounded">
+                <Search size={16} />
+              </button>
+            </div>
+
+            {/* Actions */}
+            <Link to="/wishlist" className="hidden md:block text-white hover:text-gray-300">
+              Wishlist
+            </Link>
+            <Link to="/cart" className="hidden md:block text-white hover:text-gray-300 relative">
+              Cart
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 bg-primary-600 text-white text-xs font-medium rounded-full">
+                <span className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {totalItems}
                 </span>
               )}
             </Link>
-
-            {/* Auth Actions */}
-            {isAuthenticated ? (
-              <div className="hidden md:flex items-center space-x-4">
-                <Link 
-                  to={isBusinessAccount ? "/business/dashboard" : "/account"} 
-                  className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
-                >
-                  {isBusinessAccount ? 'Dashboard' : 'My Account'}
-                </Link>
-                <button 
-                  onClick={logout}
-                  className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <div className="hidden md:flex items-center space-x-4">
-                <Link 
-                  to="/signin" 
-                  className="text-sm font-medium bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link 
-                  to="/business-login" 
-                  className="text-sm font-medium text-gray-700 border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors"
-                >
-                  Business Login
-                </Link>
-              </div>
-            )}
-
-            {/* Mobile menu button */}
-            <button 
-              className="md:hidden p-2 text-gray-700 hover:text-primary-600 transition-colors"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
+            <Link 
+              to="/business/login" 
+              className="hidden md:block text-white border border-white rounded-md px-3 py-1 hover:bg-white hover:text-black transition-colors"
             >
-              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+              Became a Merchant
+            </Link>
           </div>
         </div>
-
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-4 px-6 animate-slideDown">
-            <nav className="flex flex-col space-y-4">
-              <Link 
-                to="/" 
-                className={`text-base font-medium ${
-                  location.pathname === '/' ? 'text-primary-600' : 'text-gray-700'
-                }`}
+      </div>
+      
+      {/* Main navigation - white bar */}
+      <div className="bg-white border-b shadow-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between">
+            {/* Categories Dropdown Button */}
+            <div className="relative">
+              <button
+                className="flex items-center py-3 px-4 text-black hover:text-gray-700"
+                onClick={toggleCategoryDropdown}
+                aria-expanded={isCategoryDropdownOpen}
               >
+                <span className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Categories
+                </span>
+                <svg className={`ml-2 w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Main Nav Links */}
+            <nav className="hidden md:flex items-center">
+              <Link to="/" className="py-3 px-4 font-medium hover:text-primary-600">
                 Home
               </Link>
-              <Link 
-                to="/products" 
-                className={`text-base font-medium ${
-                  location.pathname.includes('/products') ? 'text-primary-600' : 'text-gray-700'
-                }`}
-              >
-                Products
+              <Link to="/new-product" className="py-3 px-4 font-medium hover:text-primary-600 flex items-center">
+                New Product
+                <svg className="ml-1 w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </Link>
-              <Link 
-                to="/about" 
-                className={`text-base font-medium ${
-                  location.pathname === '/about' ? 'text-primary-600' : 'text-gray-700'
-                }`}
-              >
-                About
+              <Link to="/all-products" className="py-3 px-4 font-medium hover:text-primary-600">
+                All Products
               </Link>
-              <Link 
-                to="/contact" 
-                className={`text-base font-medium ${
-                  location.pathname === '/contact' ? 'text-primary-600' : 'text-gray-700'
-                }`}
-              >
-                Contact
+              <Link to="/promotion" className="py-3 px-4 font-medium hover:text-primary-600 flex items-center">
+                Promotion <span className="bg-gray-500 text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
               </Link>
-
-              {/* Auth mobile */}
-              {isAuthenticated ? (
-                <>
-                  <Link 
-                    to={isBusinessAccount ? "/business/dashboard" : "/account"} 
-                    className="text-base font-medium text-gray-700 hover:text-primary-600 transition-colors"
-                  >
-                    {isBusinessAccount ? 'Dashboard' : 'My Account'}
-                  </Link>
-                  <button 
-                    onClick={logout}
-                    className="text-base font-medium text-left text-gray-700 hover:text-primary-600 transition-colors"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link 
-                    to="/signin" 
-                    className="text-base font-medium text-primary-600 hover:text-primary-700 transition-colors"
-                  >
-                    Sign In
-                  </Link>
-                  <Link 
-                    to="/business-login" 
-                    className="text-base font-medium text-gray-700 hover:text-gray-900 transition-colors"
-                  >
-                    Business Login
-                  </Link>
-                </>
-              )}
             </nav>
+            
+            {/* Right side links */}
+            <div className="flex items-center space-x-4">
+              <Link to="/track-order" className="flex items-center py-3 text-sm hover:text-primary-600">
+                <svg className="w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Track Your Order
+              </Link>
+              <Link to="/sign-in" className="flex items-center py-3 text-sm hover:text-primary-600">
+                <svg className="w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none">
+                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Sign In/Register
+              </Link>
+            </div>
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Mobile search - only shown on mobile */}
+      <div className="md:hidden px-4 py-2 bg-gray-50">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="What are you looking for?"
+            className="w-full rounded-md border-0 py-1.5 px-4 text-gray-900 focus:ring-2 focus:ring-primary-500"
+          />
+          <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
+            <Search size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* Category dropdown */}
+      {isCategoryDropdownOpen && (
+        <CategoryDropdown isOpen={isCategoryDropdownOpen} />
+      )}
     </header>
   );
 };
