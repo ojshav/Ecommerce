@@ -11,8 +11,7 @@ import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 
 import VerificationPending from './pages/auth/VerificationPending';
-import BusinessLogin from './pages/auth/BusinessLogin';
-import RegisterBusiness from './pages/auth/RegisterBusiness';
+
 import PasswordReset from './pages/auth/PasswordReset';
 import VerifyEmail from './pages/auth/VerifyEmail';
 

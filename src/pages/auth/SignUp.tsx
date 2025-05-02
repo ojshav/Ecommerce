@@ -124,6 +124,7 @@ const SignUp: React.FC = () => {
 
   const handleGoogleError = () => {
     setApiError('Google sign-in was unsuccessful. Please try again.');
+  };
 
   const handleGoogleAuth = () => {
     // Implement Google Auth
