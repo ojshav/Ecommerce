@@ -9,9 +9,11 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
+import VerificationPending from './pages/auth/VerificationPending';
 import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
 import PasswordReset from './pages/auth/PasswordReset';
+import VerifyEmail from './pages/auth/VerifyEmail';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -157,6 +159,8 @@ function App() {
                           <Route path="/cart" element={<Cart />} />
                           <Route path="/signin" element={<SignIn />} />
                           <Route path="/signup" element={<SignUp />} />
+                          <Route path="/verification-pending" element={<VerificationPending />} />
+                          <Route path="/verify-email/:token" element={<VerifyEmail />} />
                           <Route path="/business-login" element={<BusinessLogin />} />
                           <Route path="/register-business" element={<RegisterBusiness />} />
                           <Route path="/password/reset" element={<PasswordReset />} />
