@@ -9,6 +9,13 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
+
+import VerificationPending from './pages/auth/VerificationPending';
+import BusinessLogin from './pages/auth/BusinessLogin';
+import RegisterBusiness from './pages/auth/RegisterBusiness';
+import PasswordReset from './pages/auth/PasswordReset';
+import VerifyEmail from './pages/auth/VerifyEmail';
+
 import Register from './pages/auth/Register';
 import WishList from './pages/WishList';
 import Promotion from './pages/Promotion';
@@ -17,6 +24,7 @@ import TrackOrder from './pages/TrackOrder';
 import NewProduct from './pages/NewProduct';
 import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
+
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -169,6 +177,15 @@ function App() {
                           <Route path="/product/:productId" element={<ProductDetail />} />
                           <Route path="/new-product" element={<NewProduct />} />
                           <Route path="/cart" element={<Cart />} />
+
+                          <Route path="/signin" element={<SignIn />} />
+                          <Route path="/signup" element={<SignUp />} />
+                          <Route path="/verification-pending" element={<VerificationPending />} />
+                          <Route path="/verify-email/:token" element={<VerifyEmail />} />
+                          <Route path="/business-login" element={<BusinessLogin />} />
+                          <Route path="/register-business" element={<RegisterBusiness />} />
+                          <Route path="/password/reset" element={<PasswordReset />} />
+
                           <Route path="/wishlist" element={<WishList />} />
                           <Route path="/promotion" element={<Promotion />} />
                           <Route path="/sign-in" element={<SignIn />} />
@@ -177,6 +194,7 @@ function App() {
                           <Route path="/track-order" element={<TrackOrder />} />
                           <Route path="/categories/:categoryId" element={<Products />} />
                           <Route path="/categories/:categoryId/:brandId" element={<Products />} />
+
                         </Routes>
                       </main>
                       <Footer />

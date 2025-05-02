@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
+
+import { GoogleLogin } from '@react-oauth/google';
+
 import { FaGoogle } from 'react-icons/fa';
+
 
 const SignUp: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -49,7 +53,8 @@ const SignUp: React.FC = () => {
     setApiError('');
     
     try {
-      // Call register API endpoint
+
+
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
@@ -60,7 +65,7 @@ const SignUp: React.FC = () => {
           last_name: lastName,
           email,
           password,
-          phone: phone || undefined, // Only include phone if provided
+          phone: phone || undefined,
         }),
       });
       
@@ -70,7 +75,7 @@ const SignUp: React.FC = () => {
         throw new Error(data.error || (data.details ? JSON.stringify(data.details) : 'Registration failed'));
       }
       
-      // Some APIs might return tokens immediately, others might require email verification
+
       if (data.access_token && data.refresh_token) {
         const success = await register(data.access_token, data.refresh_token);
         if (success) {
@@ -79,8 +84,13 @@ const SignUp: React.FC = () => {
         }
       }
       
-      // If we don't have tokens yet, show verification message
-      navigate('/verification-pending');
+      // If no tokens, show verification pending page
+      navigate('/verification-pending', { 
+        state: { 
+          email,
+          message: 'Please check your email to verify your account. You will be automatically logged in after verification.'
+        } 
+      });
     } catch (err) {
       if (err instanceof Error) {
         setApiError(err.message || 'An error occurred during registration');
@@ -93,9 +103,32 @@ const SignUp: React.FC = () => {
     }
   };
 
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      const id_token = credentialResponse.credential;
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_token }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Google sign-in failed');
+      // Save tokens to context
+      const success = await register(data.access_token, data.refresh_token);
+      if (success) navigate('/');
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : 'Google sign-in error');
+    }
+  };
+
+  const handleGoogleError = () => {
+    setApiError('Google sign-in was unsuccessful. Please try again.');
+
   const handleGoogleAuth = () => {
     // Implement Google Auth
     console.log('Google auth clicked');
+
   };
 
   return (
@@ -251,6 +284,13 @@ const SignUp: React.FC = () => {
                 OR
               </span>
             </div>
+
+            
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+            />
+
           </div>
           
           <button
