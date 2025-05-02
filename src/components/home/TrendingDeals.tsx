@@ -1,51 +1,69 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 
 const TrendingDeals: React.FC = () => {
-  // Sample trending deals
+  // Diverse trending deals with real images from different categories
   const trendingDeals = [
     {
       id: 1,
-      name: "Smart Watch Pro",
-      price: 199.99,
-      description: "Track fitness, health, and stay connected",
-      image: "/placeholder.jpg"
+      name: "Apple Watch Series 8",
+      price: 399.99,
+      salePrice: 349.99,
+      discount: "13%",
+      description: "GPS, 41mm, health tracking features",
+      category: "Electronics",
+      image: "https://images.unsplash.com/photo-1551816230-ef5deaed4a26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=765&q=80"
     },
     {
       id: 2,
-      name: "Bluetooth Speaker",
-      price: 79.99,
-      description: "Portable speaker with amazing sound quality",
-      image: "/placeholder.jpg"
+      name: "Levi's 501 Original Jeans",
+      price: 69.50,
+      salePrice: 49.99,
+      discount: "28%",
+      description: "Classic straight fit denim",
+      category: "Clothing",
+      image: "https://images.unsplash.com/photo-1582552938357-32b906df40cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80"
     },
     {
       id: 3,
-      name: "Wireless Mouse",
-      price: 39.99,
-      description: "Ergonomic design for all-day comfort",
-      image: "/placeholder.jpg"
+      name: "Ceramic Vase Set",
+      price: 49.99,
+      salePrice: 32.99,
+      discount: "34%",
+      description: "Minimalist design for home decor",
+      category: "Home Decor",
+      image: "https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80"
     },
     {
       id: 4,
-      name: "Mechanical Keyboard",
-      price: 149.99,
-      description: "Tactile feedback for gaming and typing",
-      image: "/placeholder.jpg"
+      name: "Vitamin C Serum",
+      price: 29.99,
+      salePrice: 19.99,
+      discount: "33%",
+      description: "Brightening skin treatment",
+      category: "Beauty",
+      image: "https://images.unsplash.com/photo-1593487568720-92097fb460fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
     },
     {
       id: 5,
-      name: "Wireless Charger",
-      price: 29.99,
-      description: "Fast charging for compatible devices",
-      image: "/placeholder.jpg"
+      name: "Harry Potter Box Set",
+      price: 120.00,
+      salePrice: 89.99,
+      discount: "25%",
+      description: "Complete 7-book collection",
+      category: "Books",
+      image: "https://images.unsplash.com/photo-1551269901-5c5e14c25df7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80"
     },
     {
       id: 6,
-      name: "USB-C Hub",
-      price: 59.99,
-      description: "Connect all your devices with one hub",
-      image: "/placeholder.jpg"
+      name: "Resistance Bands Set",
+      price: 29.99,
+      salePrice: 19.99,
+      discount: "33%",
+      description: "5-piece home workout kit",
+      category: "Sports",
+      image: "https://images.unsplash.com/photo-1598447559311-88c21ee17fc7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80"
     }
   ];
 
@@ -55,10 +73,10 @@ const TrendingDeals: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Trending Deals</h2>
           <div className="flex space-x-2">
-            <button className="p-1 rounded-full bg-white border border-gray-300">
+            <button className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-100">
               <ChevronLeft size={16} />
             </button>
-            <button className="p-1 rounded-full bg-white border border-gray-300">
+            <button className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-100">
               <ChevronRight size={16} />
             </button>
           </div>
@@ -67,33 +85,40 @@ const TrendingDeals: React.FC = () => {
         {/* Trending Deals Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {trendingDeals.map((deal) => (
-            <div key={deal.id} className="border rounded-lg overflow-hidden flex">
+            <div key={deal.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow flex">
               {/* Product Image */}
-              <div className="w-1/3 bg-gray-100 flex items-center justify-center">
-                <div className="text-center text-gray-400">img</div>
+              <div className="w-1/3 relative">
+                <Link to={`/product/${deal.id}`}>
+                  <img 
+                    src={deal.image} 
+                    alt={deal.name}
+                    className="w-full h-full object-cover"
+                    style={{ minHeight: "140px" }}
+                  />
+                </Link>
+                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                  -{deal.discount}
+                </div>
               </div>
               
               {/* Product Info */}
               <div className="w-2/3 p-4">
-                <div className="space-y-1 mb-3">
-                  <div className="h-1 w-24 bg-black"></div>
-                  <div className="h-1 w-20 bg-black"></div>
-                  <div className="h-1 w-16 bg-black"></div>
+                <div className="mb-1 text-xs font-medium text-gray-500">{deal.category}</div>
+                <Link to={`/product/${deal.id}`} className="block">
+                  <h3 className="font-medium text-gray-800 mb-1 truncate hover:text-primary-600">{deal.name}</h3>
+                  <p className="text-gray-500 text-xs mb-2">{deal.description}</p>
+                </Link>
+                
+                {/* Price */}
+                <div className="flex items-center mb-2">
+                  <span className="text-gray-900 font-bold mr-2">${deal.salePrice}</span>
+                  <span className="text-gray-400 text-sm line-through">${deal.price}</span>
                 </div>
                 
-                {/* Bullet Points */}
-                <div className="flex space-x-1 mb-2">
-                  {[1, 2, 3].map((dot) => (
-                    <div key={dot} className="h-1 w-1 rounded-full bg-black"></div>
-                  ))}
-                </div>
-                
-                {/* Button */}
-                <div className="mt-2">
-                  <button className="bg-gray-300 text-xs px-3 py-1 rounded">
-                    Add to Cart
-                  </button>
-                </div>
+                {/* Add to Cart Button */}
+                <button className="flex items-center bg-black text-white px-3 py-1.5 rounded-md text-xs hover:bg-gray-800">
+                  <ShoppingCart size={14} className="mr-1" /> Add to Cart
+                </button>
               </div>
             </div>
           ))}

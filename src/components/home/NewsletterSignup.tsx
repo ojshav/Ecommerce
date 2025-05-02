@@ -18,38 +18,40 @@ const NewsletterSignup: React.FC = () => {
   return (
     <section className="py-10">
       <div className="container mx-auto px-4">
-        <div className="bg-gray-200 rounded-lg p-8">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="w-full md:w-1/3 mb-6 md:mb-0">
-              <div className="text-center md:text-left">
-                <div className="text-5xl font-bold mb-2">img</div>
-              </div>
+        <div className="bg-[#1a2332] rounded-lg overflow-hidden shadow-lg">
+          <div className="flex flex-row items-center p-6">
+            <div className="w-1/4 lg:w-1/5">
+              <img 
+                src="/newsletter-icon.png" 
+                alt="Newsletter"
+                className="w-full h-auto object-contain"
+              />
             </div>
             
-            <div className="w-full md:w-2/3">
-              <div className="space-y-4">
-                <div className="h-2 w-1/2 bg-white"></div>
-                <div className="h-2 w-3/4 bg-white"></div>
-                <div className="h-2 w-2/3 bg-white"></div>
-              </div>
+            <div className="w-3/4 lg:w-4/5 pl-6 text-white">
+              <h3 className="text-xl md:text-2xl font-bold mb-2">Stay Updated with Our Latest Offers</h3>
+              <p className="text-gray-300 mb-4 text-sm">Subscribe to our newsletter and get exclusive deals, new product announcements, and shopping tips delivered to your inbox.</p>
               
-              <form onSubmit={handleSubmit} className="mt-6">
+              <form onSubmit={handleSubmit} className="mt-4">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    className="flex-grow px-4 py-2 rounded-md border-0"
+                    className="flex-grow px-4 py-3 rounded-md border-0 text-gray-800 outline-none"
                     required
                   />
                   <button
                     type="submit"
-                    className="bg-gray-700 text-white py-2 px-6 rounded-md hover:bg-gray-800 transition"
+                    className="bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition-colors font-medium"
                   >
                     Subscribe
                   </button>
                 </div>
+                <p className="text-gray-400 text-xs mt-3">
+                  By subscribing, you agree to our Privacy Policy and consent to receive updates from our company.
+                </p>
               </form>
             </div>
           </div>
