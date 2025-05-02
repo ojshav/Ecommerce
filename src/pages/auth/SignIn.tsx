@@ -164,10 +164,15 @@ const SignIn: React.FC = () => {
               </div>
             </div>
             
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-            />
+            <div className="mt-4 w-full flex items-center justify-center py-3 px-4 rounded-md bg-white text-sm font-medium text-gray-700">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                text="signin_with"
+                shape="rectangular"
+                logo_alignment="center"
+              />
+            </div>
           </div>
         </div>
         
@@ -176,6 +181,12 @@ const SignIn: React.FC = () => {
             Don't have an account?{' '}
             <Link to="/signup" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
               Sign up
+            </Link>
+          </p>
+          <p className="text-sm text-gray-600 mt-2">
+            Are you a business?{' '}
+            <Link to="/business/login" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
+              Business login
             </Link>
           </p>
         </div>

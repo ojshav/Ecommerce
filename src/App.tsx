@@ -9,9 +9,14 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
+import Register from './pages/auth/Register';
+import WishList from './pages/WishList';
+import Promotion from './pages/Promotion';
+import BecomeMerchant from './pages/BecomeMerchant';
+import TrackOrder from './pages/TrackOrder';
+import NewProduct from './pages/NewProduct';
 import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
-import PasswordReset from './pages/auth/PasswordReset';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -143,7 +148,14 @@ function App() {
                   {/* Add more business routes here */}
                 </Route>
                 
-                {/* Public Routes */}
+                {/* Business Auth Routes */}
+                <Route path="/business/login" element={<BusinessLogin />} />
+                <Route path="/register-business" element={<RegisterBusiness />} />
+                
+                {/* Auth Routes without header/footer */}
+                <Route path="/signup" element={<SignUp />} />
+                
+                {/* Public Routes with header/footer */}
                 <Route 
                   path="/*" 
                   element={
@@ -152,14 +164,19 @@ function App() {
                       <main className="flex-grow">
                         <Routes>
                           <Route path="/" element={<Home />} />
-                          <Route path="/products" element={<Products />} />
-                          <Route path="/products/:id" element={<ProductDetail />} />
+                          <Route path="/all-products" element={<Products />} />
+                          <Route path="/products/:categoryId" element={<Products />} />
+                          <Route path="/product/:productId" element={<ProductDetail />} />
+                          <Route path="/new-product" element={<NewProduct />} />
                           <Route path="/cart" element={<Cart />} />
-                          <Route path="/signin" element={<SignIn />} />
-                          <Route path="/signup" element={<SignUp />} />
-                          <Route path="/business-login" element={<BusinessLogin />} />
-                          <Route path="/register-business" element={<RegisterBusiness />} />
-                          <Route path="/password/reset" element={<PasswordReset />} />
+                          <Route path="/wishlist" element={<WishList />} />
+                          <Route path="/promotion" element={<Promotion />} />
+                          <Route path="/sign-in" element={<SignIn />} />
+                          <Route path="/register" element={<Register />} />
+                          <Route path="/become-merchant" element={<BecomeMerchant />} />
+                          <Route path="/track-order" element={<TrackOrder />} />
+                          <Route path="/categories/:categoryId" element={<Products />} />
+                          <Route path="/categories/:categoryId/:brandId" element={<Products />} />
                         </Routes>
                       </main>
                       <Footer />
