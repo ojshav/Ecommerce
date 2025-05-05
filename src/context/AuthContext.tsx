@@ -7,6 +7,12 @@ interface User {
   role: 'customer' | 'merchant' | 'admin';
 }
 
+interface AuthState {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+}
+
 interface AuthContextType {
   accessToken: string | null;
   refreshToken: string | null;
@@ -16,6 +22,7 @@ interface AuthContextType {
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   businessLogin: (email: string, password: string) => Promise<boolean>;
+  setAuthState: (state: AuthState) => Promise<boolean>; // New function to set auth state directly
   logout: () => void;
   refreshTokenFunc: () => Promise<boolean>;
   register: (email: string, password: string) => Promise<boolean>;
@@ -60,25 +67,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
+  // New function to directly set all auth state at once
+  const setAuthState = async (state: AuthState) => {
+    try {
+      setAccessToken(state.accessToken);
+      setRefreshToken(state.refreshToken);
+      setUser(state.user);
+      return true;
+    } catch (error) {
+      console.error('Failed to set auth state:', error);
+      return false;
+    }
+  };
+
   const login = async (email: string, password: string) => {
     try {
-      // API call to login endpoint would go here
-      // For demo purposes, we're simulating a successful login
-      const mockResponse = {
-        access_token: 'customer_mock_token',
-        refresh_token: 'customer_mock_refresh_token',
-        user: {
-          id: '1',
-          email: email,
-          name: 'Customer User',
-          role: 'customer'
-        }
-      };
-      
-      setAccessToken(mockResponse.access_token);
-      setRefreshToken(mockResponse.refresh_token);
-      setUser(mockResponse.user as User);
-      return true;
+      // Make API call to the customer login endpoint
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/customer-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        setAccessToken(data.access_token);
+        setRefreshToken(data.refresh_token);
+        setUser(data.user);
+        return true;
+      } else {
+        throw new Error(data.error || 'Login failed');
+      }
     } catch (error) {
       console.error('Login failed:', error);
       return false;
@@ -87,23 +112,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const businessLogin = async (email: string, password: string) => {
     try {
-      // API call to business login endpoint would go here
-      // For demo purposes, we're simulating a successful login
-      const mockResponse = {
-        access_token: 'merchant_mock_token',
-        refresh_token: 'merchant_mock_refresh_token',
-        user: {
-          id: '2',
+      // Make API call to the business login endpoint
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          business_email: email,
+          password
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        setAccessToken(data.access_token);
+        setRefreshToken(data.refresh_token);
+        
+        // Create user object from merchant data
+        const userObj = {
+          id: data.merchant?.id || 'unknown',
           email: email,
-          name: 'Merchant User',
+          name: data.merchant?.business_name || 'Business User',
           role: 'merchant'
+        };
+        
+        setUser(userObj);
+        
+        // Store merchant profile if available
+        if (data.merchant) {
+          localStorage.setItem('merchant_profile', JSON.stringify(data.merchant));
         }
-      };
-      
-      setAccessToken(mockResponse.access_token);
-      setRefreshToken(mockResponse.refresh_token);
-      setUser(mockResponse.user as User);
-      return true;
+        
+        return true;
+      } else {
+        throw new Error(data.error || 'Business login failed');
+      }
     } catch (error) {
       console.error('Business login failed:', error);
       return false;
@@ -113,21 +158,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (email: string, password: string) => {
     try {
       // API call to register endpoint would go here
-      // For demo purposes, we're simulating a successful registration
-      const mockResponse = {
-        access_token: 'new_customer_mock_token',
-        refresh_token: 'new_customer_mock_refresh_token',
-        user: {
-          id: '3',
-          email: email,
-          role: 'customer'
-        }
-      };
-      
-      setAccessToken(mockResponse.access_token);
-      setRefreshToken(mockResponse.refresh_token);
-      setUser(mockResponse.user as User);
-      return true;
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 201) {
+        setAccessToken(data.access_token);
+        setRefreshToken(data.refresh_token);
+        setUser(data.user);
+        return true;
+      } else {
+        throw new Error(data.error || 'Registration failed');
+      }
     } catch (error) {
       console.error('Registration failed:', error);
       return false;
@@ -137,22 +188,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const registerBusiness = async (businessData: any) => {
     try {
       // API call to register business endpoint would go here
-      // For demo purposes, we're simulating a successful registration
-      const mockResponse = {
-        access_token: 'new_merchant_mock_token',
-        refresh_token: 'new_merchant_mock_refresh_token',
-        user: {
-          id: '4',
-          email: businessData.email,
-          name: businessData.name,
-          role: 'merchant'
-        }
-      };
-      
-      setAccessToken(mockResponse.access_token);
-      setRefreshToken(mockResponse.refresh_token);
-      setUser(mockResponse.user as User);
-      return true;
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register-business`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(businessData),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 201) {
+        setAccessToken(data.access_token);
+        setRefreshToken(data.refresh_token);
+        setUser(data.user);
+        return true;
+      } else {
+        throw new Error(data.error || 'Business registration failed');
+      }
     } catch (error) {
       console.error('Business registration failed:', error);
       return false;
@@ -166,19 +219,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
+    localStorage.removeItem('merchant_profile');
   };
 
   const refreshTokenFunc = async () => {
     if (!refreshToken) return false;
     try {
-      // API call to refresh token endpoint would go here
-      // For demo purposes, we're simulating a successful token refresh
-      const mockResponse = {
-        access_token: `refreshed_${refreshToken.split('_')[0]}_token`
-      };
-      
-      setAccessToken(mockResponse.access_token);
-      return true;
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          refresh_token: refreshToken
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        setAccessToken(data.access_token);
+        return true;
+      } else {
+        throw new Error('Token refresh failed');
+      }
     } catch (err) {
       logout();
       return false;
@@ -195,6 +259,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isAdmin, 
       login, 
       businessLogin,
+      setAuthState, // Added the new function
       logout, 
       refreshTokenFunc, 
       register,

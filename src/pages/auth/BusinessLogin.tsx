@@ -3,22 +3,70 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const BusinessLogin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { businessLogin } = useAuth();
+  const { setAuthState } = useAuth(); // We'll add this function to AuthContext
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError('');
     
     try {
-      const success = await businessLogin(email, password);
-      if (success) {
-        navigate('/business/dashboard');
+      // Make the API request to validate credentials
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          business_email: email,
+          password: password
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        // Update auth context with tokens and user info from the API
+        const success = await setAuthState({
+          accessToken: data.access_token,
+          refreshToken: data.refresh_token,
+          user: {
+            id: data.merchant?.id || 'unknown',
+            email: email,
+            name: data.merchant?.business_name || 'Business User',
+            role: 'merchant'
+          }
+        });
+        
+        if (success) {
+          // Store tokens in localStorage (can be moved to setAuthState)
+          localStorage.setItem('access_token', data.access_token);
+          localStorage.setItem('refresh_token', data.refresh_token);
+          
+          // Store merchant info if available
+          if (data.merchant) {
+            localStorage.setItem('merchant_profile', JSON.stringify(data.merchant));
+          }
+          
+          // Redirect to business dashboard
+          navigate('/business/dashboard');
+        } else {
+          throw new Error('Failed to update authentication context');
+        }
+      } else {
+        throw new Error(data.error || 'Invalid email or password');
       }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during login');
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -38,10 +86,16 @@ const BusinessLogin: React.FC = () => {
             <p className="text-gray-600">Access your merchant dashboard</p>
           </div>
           
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">
+              {error}
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Business Email
+                Email
               </label>
               <input
                 id="email"
