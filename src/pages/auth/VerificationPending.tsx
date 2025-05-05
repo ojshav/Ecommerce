@@ -1,39 +1,82 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { ClockIcon, CheckBadgeIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const VerificationPending: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   return (
-    <div className="pt-16 min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <motion.div 
-        className="max-w-md w-full bg-white rounded-xl shadow-sm overflow-hidden"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <div className="mb-4">
-              <svg className="mx-auto h-12 w-12 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
-              </svg>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-center">
+          <ClockIcon className="h-24 w-24 text-primary-600" />
+        </div>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Verification Pending
+        </h2>
+        <p className="mt-2 text-center text-md text-gray-600 max-w-md mx-auto">
+          Thank you for submitting your documents. Our team is currently reviewing your information.
+        </p>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <div className="space-y-6">
+            <div className="bg-gray-50 p-4 rounded-md">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <CheckBadgeIcon className="h-5 w-5 text-primary-500" aria-hidden="true" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-gray-800">Verification Status</h3>
+                  <div className="mt-2 text-sm text-gray-700">
+                    <p>
+                      Your merchant account verification is in progress. This usually takes 24-48 hours.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Verify Your Email</h1>
-            <p className="text-gray-600">
-              We've sent a verification link to your email address. Please check your inbox and click the link to verify your account.
-            </p>
-          </div>
-          
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Didn't receive the email?{' '}
-              <Link to="/signin" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
-                Try signing in
+
+            <div className="bg-gray-50 p-4 rounded-md">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <ClockIcon className="h-5 w-5 text-amber-500" aria-hidden="true" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-gray-800">What happens next?</h3>
+                  <div className="mt-2 text-sm text-gray-700">
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Our team will review all your submitted documents</li>
+                      <li>You'll receive an email once verification is complete</li>
+                      <li>After approval, you'll have full access to your merchant portal</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between space-x-3">
+              <button
+                onClick={() => navigate('/')}
+                className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
+                <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                Return Home
+              </button>
+              
+              <Link
+                to="/business-login"
+                className="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
+                Login to Check Status
               </Link>
-            </p>
+            </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

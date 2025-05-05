@@ -45,7 +45,7 @@ const navigationItems = [
 ];
 
 const AdminLayout: React.FC = () => {
-  const { isAuthenticated, isMerchant, logout, user } = useAuth();
+  const { isAuthenticated, isMerchant, isMerchantVerified, logout, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -88,6 +88,12 @@ const AdminLayout: React.FC = () => {
   // Handle unauthorized access
   if (!isAuthenticated || !isMerchant) {
     return <Navigate to="/business-login" state={{ from: location }} replace />;
+  }
+
+  // Handle unverified merchants - redirect to verification page
+  // Exception: allow verification page itself to be accessed
+  if (!isMerchantVerified && location.pathname !== '/business/verification') {
+    return <Navigate to="/business/verification" state={{ from: location }} replace />;
   }
 
   const toggleSidebar = () => {

@@ -5,6 +5,7 @@ interface User {
   email: string;
   name?: string;
   role: 'customer' | 'merchant' | 'admin';
+  isVerified?: boolean;
 }
 
 interface AuthContextType {
@@ -14,6 +15,7 @@ interface AuthContextType {
   user: User | null;
   isMerchant: boolean;
   isAdmin: boolean;
+  isMerchantVerified: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   businessLogin: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
@@ -35,6 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = !!accessToken;
   const isMerchant = user?.role === 'merchant' || user?.role === 'admin';
   const isAdmin = user?.role === 'admin';
+  const isMerchantVerified = isAdmin || (isMerchant && user?.isVerified === true);
 
   useEffect(() => {
     if (accessToken) {
@@ -71,7 +74,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           id: '1',
           email: email,
           name: 'Customer User',
-          role: 'customer'
+          role: 'customer',
+          isVerified: true
         }
       };
       
@@ -96,7 +100,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           id: '2',
           email: email,
           name: 'Merchant User',
-          role: 'merchant'
+          role: 'merchant',
+          isVerified: false // Most merchants start unverified
         }
       };
       
@@ -120,7 +125,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user: {
           id: '3',
           email: email,
-          role: 'customer'
+          role: 'customer',
+          isVerified: false
         }
       };
       
@@ -145,7 +151,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           id: '4',
           email: businessData.email,
           name: businessData.name,
-          role: 'merchant'
+          role: 'merchant',
+          isVerified: false // New merchants start unverified
         }
       };
       
@@ -192,7 +199,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isAuthenticated,
       user,
       isMerchant,
-      isAdmin, 
+      isAdmin,
+      isMerchantVerified,
       login, 
       businessLogin,
       logout, 
