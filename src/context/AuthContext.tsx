@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAdmin = user?.role === 'admin';
   const isEmailVerified = user?.isEmailVerified || false;
 
+
   useEffect(() => {
     if (accessToken) {
       localStorage.setItem('access_token', accessToken);
@@ -71,6 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const setAuthState = async (state: AuthState) => {
     try {
+
       setAccessToken(state.accessToken);
       setRefreshToken(state.refreshToken);
       setUser(state.user);
@@ -94,6 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (accessToken: string, refreshToken: string, userData?: any) => {
     try {
+
       if (userData) {
         // If user data is provided directly from auth response
         const userObj = createUserObject(userData);
@@ -109,6 +112,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
+
         }
       });
 
@@ -134,6 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (accessToken: string, refreshToken: string, userData?: any) => {
     try {
+
       if (userData) {
         // If user data is provided directly from auth response
         const userObj = createUserObject(userData);
@@ -149,6 +154,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
+
         }
       });
 
@@ -174,6 +180,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const verifyEmail = async (token: string) => {
     try {
+
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email/${token}`, {
         method: 'GET',
         headers: {
@@ -266,8 +273,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       user,
       isMerchant,
       isAdmin,
+
       isEmailVerified,
       setAuthState,
+
       register,
       login,
       logout, 
