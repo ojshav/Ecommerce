@@ -1,6 +1,19 @@
-import React, { useState } from 'react';
-import { ExclamationCircleIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
-import { ProductData } from '../AddProduct';
+import React, { useState, useEffect } from 'react';
+import { ExclamationCircleIcon, ArrowPathIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+
+// Mock product data type
+type ProductData = {
+  name: Record<string, string>;
+  sku: string;
+  productNumber: string;
+  urlKey: string;
+  taxCategory: string;
+  metaTitle: Record<string, string>;
+  metaDescription: Record<string, string>;
+  metaKeywords: string;
+  category: string;
+  subCategory: string;
+};
 
 type BasicInfoProps = {
   data: ProductData;
@@ -8,129 +21,255 @@ type BasicInfoProps = {
   errors: Record<string, string>;
 };
 
-// Mock categories for dropdowns
+// Available languages
+const LANGUAGES = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Spanish' },
+  { code: 'fr', name: 'French' }
+];
+
+// Tax categories
 const TAX_CATEGORIES = [
   { value: '', label: 'Select' },
   { value: 'standard', label: 'Standard Rate' },
   { value: 'reduced', label: 'Reduced Rate' },
-  { value: 'zero', label: 'Zero Rate' }
+  { value: 'none', label: 'None' }
 ];
 
-const COLORS = [
-  { value: '', label: 'Select' },
-  { value: 'black', label: 'Black' },
-  { value: 'white', label: 'White' },
-  { value: 'red', label: 'Red' },
-  { value: 'blue', label: 'Blue' },
-  { value: 'green', label: 'Green' }
+// Main categories
+const MAIN_CATEGORIES = [
+  { id: 'clothing', name: 'Clothing & Fashion' },
+  { id: 'electronics', name: 'Electronics' },
+  { id: 'home', name: 'Home & Decor' },
+  { id: 'beauty', name: 'Beauty & Personal Care' },
+  { id: 'sports', name: 'Sports & Outdoors' },
+  { id: 'books', name: 'Books & Stationery' }
 ];
 
-const SIZES = [
-  { value: '', label: 'Select' },
-  { value: 'xs', label: 'XS' },
-  { value: 's', label: 'S' },
-  { value: 'm', label: 'M' },
-  { value: 'l', label: 'L' },
-  { value: 'xl', label: 'XL' }
-];
+// Sub-categories mapping
+const SUB_CATEGORIES: Record<string, Array<{ id: string; name: string }>> = {
+  clothing: [
+    { id: 'mens', name: "Men's Clothing" },
+    { id: 'womens', name: "Women's Clothing" },
+    { id: 'kids', name: "Kid's Clothing" },
+    { id: 'accessories', name: 'Fashion Accessories' }
+  ],
+  electronics: [
+    { id: 'laptops', name: 'Laptops & Computers' },
+    { id: 'phones', name: 'Mobile Phones' },
+    { id: 'tablets', name: 'Tablets' },
+    { id: 'accessories', name: 'Electronics Accessories' }
+  ],
+  home: [
+    { id: 'furniture', name: 'Furniture' },
+    { id: 'decor', name: 'Home Decor' },
+    { id: 'kitchen', name: 'Kitchen & Dining' },
+    { id: 'bath', name: 'Bath & Bedding' }
+  ],
+  beauty: [
+    { id: 'skincare', name: 'Skincare' },
+    { id: 'makeup', name: 'Makeup' },
+    { id: 'fragrances', name: 'Fragrances' },
+    { id: 'haircare', name: 'Hair Care' }
+  ],
+  sports: [
+    { id: 'fitness', name: 'Fitness Equipment' },
+    { id: 'outdoor', name: 'Outdoor Sports' },
+    { id: 'team', name: 'Team Sports' },
+    { id: 'accessories', name: 'Sports Accessories' }
+  ],
+  books: [
+    { id: 'fiction', name: 'Fiction Books' },
+    { id: 'nonfiction', name: 'Non-Fiction Books' },
+    { id: 'stationery', name: 'Stationery' },
+    { id: 'magazines', name: 'Magazines' }
+  ]
+};
 
-const BRANDS = [
-  { value: '', label: 'Select' },
-  { value: 'nike', label: 'Nike' },
-  { value: 'adidas', label: 'Adidas' },
-  { value: 'puma', label: 'Puma' },
-  { value: 'reebok', label: 'Reebok' }
-];
+const Tooltip = ({ content }: { content: string }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  return (
+    <div className="relative inline-block">
+      <button
+        type="button"
+        className="text-gray-400 hover:text-gray-500 focus:outline-none"
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+        onClick={() => setIsVisible(!isVisible)}
+      >
+        <QuestionMarkCircleIcon className="h-4 w-4" />
+      </button>
+      
+      {isVisible && (
+        <div className="absolute z-10 w-64 p-2 mt-1 text-sm text-left text-gray-600 bg-white rounded-md shadow-lg border border-gray-200">
+          {content}
+        </div>
+      )}
+    </div>
+  );
+};
 
-const BasicInfo: React.FC<BasicInfoProps> = ({ data, updateData, errors }) => {
-  const [showSeo, setShowSeo] = useState(false);
+type TranslatableFields = 'name' | 'metaTitle' | 'metaDescription';
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) {
+  const [activeLanguage, setActiveLanguage] = useState('en');
+  
+  // Initialize empty language fields if they don't exist
+  useEffect(() => {
+    const ensureLanguageFields = () => {
+      const fields: TranslatableFields[] = ['name', 'metaTitle', 'metaDescription'];
+      const updatedData = {...data};
+      let hasChanges = false;
+      
+      fields.forEach(field => {
+        if (!updatedData[field]) {
+          updatedData[field] = {};
+          hasChanges = true;
+        }
+        
+        LANGUAGES.forEach(lang => {
+          if (!updatedData[field][lang.code]) {
+            updatedData[field][lang.code] = '';
+            hasChanges = true;
+          }
+        });
+      });
+      
+      if (hasChanges) {
+        updateData(updatedData);
+      }
+    };
+    
+    ensureLanguageFields();
+  }, []);
+  
+  const generateUrlKey = () => {
+    const name = data.name?.[activeLanguage] || '';
+    const urlKey = name
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    
+    updateData({ urlKey });
+  };
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     updateData({ [name]: value });
   };
-
-  const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    updateData({ [name]: checked });
+  
+  const handleLanguageChange = (field: TranslatableFields, value: string) => {
+    updateData({
+      [field]: {
+        ...data[field],
+        [activeLanguage]: value
+      }
+    });
+    
+    // Auto-generate URL key when product name changes in the primary language (English)
+    if (field === 'name' && activeLanguage === 'en') {
+      const urlKey = value
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      
+      updateData({ urlKey });
+    }
   };
-
-  const handleURLKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Convert input to valid URL key (slug) format
-    let value = e.target.value;
-    value = value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
-    updateData({ urlKey: value });
-  };
-
+  
   return (
     <div className="space-y-8">
       <h2 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3">Product Information</h2>
       
-      {/* Basic Details Section */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
           <h3 className="text-base font-medium text-gray-900">General</h3>
         </div>
         
         <div className="p-6 space-y-6">
-          {/* SKU */}
-          <div className="space-y-1">
-            <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
-              SKU <span className="text-red-500">*</span>
-            </label>
-            <div className="mt-1 relative">
-              <input
-                type="text"
-                id="sku"
-                name="sku"
-                value={data.sku}
+          {/* Category Selection */}
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                Main Category <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={data.category || ''}
                 onChange={handleChange}
-                className={`block w-full shadow-sm sm:text-sm rounded-md ${
-                  errors.sku 
-                    ? 'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
-                    : 'border-gray-300 focus:ring-primary-500 focus:border-primary-500'
-                }`}
-              />
-              {errors.sku && (
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-                </div>
-              )}
+                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Select Category</option>
+                {MAIN_CATEGORIES.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
             </div>
-            {errors.sku && <p className="mt-1 text-sm text-red-600">{errors.sku}</p>}
+
+            {data.category && (
+              <div className="space-y-1">
+                <label htmlFor="subCategory" className="block text-sm font-medium text-gray-700">
+                  Sub Category <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="subCategory"
+                  name="subCategory"
+                  value={data.subCategory || ''}
+                  onChange={handleChange}
+                  className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Select Sub Category</option>
+                  {SUB_CATEGORIES[data.category]?.map(subCategory => (
+                    <option key={subCategory.id} value={subCategory.id}>
+                      {subCategory.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
-          {/* Product Number */}
+          {/* Product Name - with language tabs */}
           <div className="space-y-1">
-            <label htmlFor="productNumber" className="block text-sm font-medium text-gray-700">
-              Product Number
-            </label>
-            <input
-              type="text"
-              id="productNumber"
-              name="productNumber"
-              value={data.productNumber}
-              onChange={handleChange}
-              className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-            />
-          </div>
-          
-          {/* Product Name */}
-          <div className="space-y-1">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Name <span className="text-red-500">*</span>
-            </label>
+            <div className="flex justify-between items-center">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Product Name <span className="text-red-500">*</span>
+              </label>
+              
+              <div className="flex space-x-1 text-xs">
+                {LANGUAGES.map(lang => (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => setActiveLanguage(lang.code)}
+                    className={`px-2 py-1 rounded ${
+                      activeLanguage === lang.code
+                        ? 'bg-blue-100 text-blue-800 font-medium'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {lang.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
             <div className="mt-1 relative">
               <input
                 type="text"
-                id="name"
-                name="name"
-                value={data.name}
-                onChange={handleChange}
+                id={`name-${activeLanguage}`}
+                value={data.name?.[activeLanguage] || ''}
+                onChange={(e) => handleLanguageChange('name', e.target.value)}
                 className={`block w-full shadow-sm sm:text-sm rounded-md ${
                   errors.name 
                     ? 'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
-                    : 'border-gray-300 focus:ring-primary-500 focus:border-primary-500'
+                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                 }`}
               />
               {errors.name && (
@@ -142,38 +281,108 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ data, updateData, errors }) => {
             {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
           </div>
           
-          {/* URL Key */}
+          {/* SKU */}
           <div className="space-y-1">
-            <label htmlFor="urlKey" className="block text-sm font-medium text-gray-700">
-              URL Key <span className="text-red-500">*</span>
-            </label>
+            <div className="flex items-center">
+              <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
+                SKU <span className="text-red-500">*</span>
+              </label>
+              <div className="ml-2">
+                <Tooltip content="A unique identifier used to track inventory and manage your products." />
+              </div>
+            </div>
+            <div className="mt-1 relative">
+              <input
+                type="text"
+                id="sku"
+                name="sku"
+                value={data.sku || ''}
+                onChange={handleChange}
+                className={`block w-full shadow-sm sm:text-sm rounded-md ${
+                  errors.sku 
+                    ? 'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
+                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                }`}
+              />
+              {errors.sku && (
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+                </div>
+              )}
+            </div>
+            {errors.sku && <p className="mt-1 text-sm text-red-600">{errors.sku}</p>}
+          </div>
+          
+          {/* Product Number */}
+          <div className="space-y-1">
+            <div className="flex items-center">
+              <label htmlFor="productNumber" className="block text-sm font-medium text-gray-700">
+                Product Number
+              </label>
+              <div className="ml-2">
+                <Tooltip content="Optional internal reference number for your product." />
+              </div>
+            </div>
+            <input
+              type="text"
+              id="productNumber"
+              name="productNumber"
+              value={data.productNumber || ''}
+              onChange={handleChange}
+              className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          
+          {/* URL Key - with regenerate button and preview */}
+          <div className="space-y-1">
+            <div className="flex items-center">
+              <label htmlFor="urlKey" className="block text-sm font-medium text-gray-700">
+                URL Key <span className="text-red-500">*</span>
+              </label>
+              <div className="ml-2">
+                <Tooltip content="The URL-friendly version of your product name that appears in the browser address bar." />
+              </div>
+            </div>
             <div className="mt-1 relative flex">
-              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-                English
-              </span>
               <input
                 type="text"
                 id="urlKey"
                 name="urlKey"
-                value={data.urlKey}
-                onChange={handleURLKeyChange}
-                className="flex-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-none rounded-r-md focus:ring-primary-500 focus:border-primary-500"
+                value={data.urlKey || ''}
+                onChange={handleChange}
+                className="flex-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-l-md focus:ring-blue-500 focus:border-blue-500"
               />
+              <button
+                type="button"
+                onClick={generateUrlKey}
+                className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-700 rounded-r-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <ArrowPathIcon className="h-4 w-4" />
+              </button>
+            </div>
+            {/* URL Preview */}
+            <div className="text-sm text-gray-500 mt-1 truncate">
+              Preview: <span className="text-blue-600">/products/{data.urlKey || 'product-url'}</span>
             </div>
           </div>
           
           {/* Tax Category */}
           <div className="space-y-1">
-            <label htmlFor="taxCategory" className="block text-sm font-medium text-gray-700">
-              Tax Category
-            </label>
+            <div className="flex items-center">
+              <label htmlFor="taxCategory" className="block text-sm font-medium text-gray-700">
+                Tax Category <span className="text-red-500">*</span>
+              </label>
+              <div className="ml-2">
+                <Tooltip content="The tax category determines what tax rate applies to this product." />
+              </div>
+            </div>
             <div className="relative">
               <select
                 id="taxCategory"
                 name="taxCategory"
-                value={data.taxCategory}
+                value={data.taxCategory || ''}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 pr-10 appearance-none"
+                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pr-10 appearance-none"
               >
                 {TAX_CATEGORIES.map(option => (
                   <option key={option.value} value={option.value}>
@@ -188,205 +397,151 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ data, updateData, errors }) => {
               </div>
             </div>
           </div>
-          
-          {/* Color */}
-          <div className="space-y-1">
-            <label htmlFor="color" className="block text-sm font-medium text-gray-700">
-              Color
-            </label>
-            <div className="relative">
-              <select
-                id="color"
-                name="color"
-                value={data.color}
-                onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 pr-10 appearance-none"
-              >
-                {COLORS.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </div>
-          
-          {/* Size */}
-          <div className="space-y-1">
-            <label htmlFor="size" className="block text-sm font-medium text-gray-700">
-              Size
-            </label>
-            <div className="relative">
-              <select
-                id="size"
-                name="size"
-                value={data.size}
-                onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 pr-10 appearance-none"
-              >
-                {SIZES.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </div>
-          
-          {/* Brand */}
-          <div className="space-y-1">
-            <label htmlFor="brand" className="block text-sm font-medium text-gray-700">
-              Brand
-            </label>
-            <div className="relative">
-              <select
-                id="brand"
-                name="brand"
-                value={data.brand}
-                onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 pr-10 appearance-none"
-              >
-                {BRANDS.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </div>
-          
-          {/* Short Description */}
-          <div className="space-y-1">
-            <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700">
-              Short Description <span className="text-gray-500 text-xs pl-1">English</span>
-            </label>
-            <div className="border border-gray-300 rounded-md">
-              <div className="flex items-center border-b border-gray-300 bg-gray-50 p-2">
-                <button className="p-1 text-gray-700 hover:text-gray-900">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd"></path>
-                  </svg>
-                </button>
-                <button className="p-1 text-gray-700 hover:text-gray-900">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd"></path>
-                  </svg>
-                </button>
-              </div>
-              <textarea
-                id="shortDescription"
-                name="shortDescription"
-                rows={3}
-                value={data.shortDescription}
-                onChange={handleChange}
-                className="block w-full sm:text-sm border-0 focus:ring-0"
-              />
-            </div>
-            <div className="text-right text-xs text-gray-500">0 words</div>
-          </div>
         </div>
       </div>
       
-      {/* SEO Fields - Collapsible */}
+      {/* SEO Fields */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-        <button 
-          type="button" 
-          onClick={() => setShowSeo(!showSeo)}
-          className="w-full px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between text-left"
-        >
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
           <h3 className="text-base font-medium text-gray-900">SEO Information</h3>
-          {showSeo ? (
-            <ChevronUpIcon className="h-5 w-5 text-gray-500" />
-          ) : (
-            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
-          )}
-        </button>
+        </div>
         
-        {showSeo && (
-          <div className="p-6 space-y-5">
-            <p className="text-sm text-gray-600 italic mb-4">
-              Optimize your product for search engines to improve visibility.
-            </p>
+        <div className="p-6 space-y-6">
+          <p className="text-sm text-gray-600 italic mb-4">
+            Optimize your product for search engines to improve visibility.
+          </p>
+          
+          {/* Meta Title - with language tabs */}
+          <div className="space-y-1">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <label htmlFor="metaTitle" className="block text-sm font-medium text-gray-700">
+                  Meta Title
+                </label>
+                <div className="ml-2">
+                  <Tooltip content="The title that appears in search engine results. If left blank, the product name will be used." />
+                </div>
+              </div>
+              
+              <div className="flex space-x-1 text-xs">
+                {LANGUAGES.map(lang => (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => setActiveLanguage(lang.code)}
+                    className={`px-2 py-1 rounded ${
+                      activeLanguage === lang.code
+                        ? 'bg-blue-100 text-blue-800 font-medium'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {lang.name}
+                  </button>
+                ))}
+              </div>
+            </div>
             
-            <div>
-              <label htmlFor="metaTitle" className="block text-sm font-medium text-gray-700">
-                Meta Title
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  id="metaTitle"
-                  name="metaTitle"
-                  value={data.metaTitle}
-                  onChange={handleChange}
-                  placeholder="Title displayed in search results"
-                  className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
-                <p className="mt-1 text-xs text-gray-500">
+            <div className="mt-1">
+              <input
+                type="text"
+                id={`metaTitle-${activeLanguage}`}
+                value={data.metaTitle?.[activeLanguage] || ''}
+                onChange={(e) => handleLanguageChange('metaTitle', e.target.value)}
+                placeholder={data.name?.[activeLanguage] || 'Title displayed in search results'}
+                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              />
+              <div className="flex justify-between mt-1">
+                <p className="text-xs text-gray-500">
                   Recommended length: 50-60 characters
                 </p>
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700">
-                Meta Description
-              </label>
-              <div className="mt-1">
-                <textarea
-                  id="metaDescription"
-                  name="metaDescription"
-                  rows={3}
-                  value={data.metaDescription}
-                  onChange={handleChange}
-                  placeholder="Brief summary of the product for search engines"
-                  className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  Recommended length: 150-160 characters
-                </p>
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="metaKeywords" className="block text-sm font-medium text-gray-700">
-                Meta Keywords
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  id="metaKeywords"
-                  name="metaKeywords"
-                  value={data.metaKeywords}
-                  onChange={handleChange}
-                  className="shadow-sm focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                  placeholder="Product, Category, Brand, etc."
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  Comma separated keywords relevant to the product
+                <p className={`text-xs ${
+                  (data.metaTitle?.[activeLanguage]?.length || 0) > 60 ? 'text-red-500' : 'text-gray-500'
+                }`}>
+                  {data.metaTitle?.[activeLanguage]?.length || 0}/60
                 </p>
               </div>
             </div>
           </div>
-        )}
+          
+          {/* Meta Description - with language tabs */}
+          <div className="space-y-1">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700">
+                  Meta Description
+                </label>
+                <div className="ml-2">
+                  <Tooltip content="A brief summary of the product shown in search engine results." />
+                </div>
+              </div>
+              
+              <div className="flex space-x-1 text-xs">
+                {LANGUAGES.map(lang => (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => setActiveLanguage(lang.code)}
+                    className={`px-2 py-1 rounded ${
+                      activeLanguage === lang.code
+                        ? 'bg-blue-100 text-blue-800 font-medium'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {lang.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="mt-1">
+              <textarea
+                id={`metaDescription-${activeLanguage}`}
+                rows={3}
+                value={data.metaDescription?.[activeLanguage] || ''}
+                onChange={(e) => handleLanguageChange('metaDescription', e.target.value)}
+                placeholder="Brief summary of the product for search engines"
+                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              />
+              <div className="flex justify-between mt-1">
+                <p className="text-xs text-gray-500">
+                  Recommended length: 150-160 characters
+                </p>
+                <p className={`text-xs ${
+                  (data.metaDescription?.[activeLanguage]?.length || 0) > 160 ? 'text-red-500' : 'text-gray-500'
+                }`}>
+                  {data.metaDescription?.[activeLanguage]?.length || 0}/160
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Meta Keywords */}
+          <div className="space-y-1">
+            <div className="flex items-center">
+              <label htmlFor="metaKeywords" className="block text-sm font-medium text-gray-700">
+                Meta Keywords
+              </label>
+              <div className="ml-2">
+                <Tooltip content="Comma-separated keywords relevant to the product. Limited influence on SEO but may be used by some search engines." />
+              </div>
+            </div>
+            <div className="mt-1">
+              <input
+                type="text"
+                id="metaKeywords"
+                name="metaKeywords"
+                value={data.metaKeywords || ''}
+                onChange={handleChange}
+                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                placeholder="Product, Category, Brand, etc."
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Comma separated keywords relevant to the product
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
-
-export default BasicInfo; 
+}

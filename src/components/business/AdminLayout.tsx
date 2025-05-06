@@ -90,12 +90,6 @@ const AdminLayout: React.FC = () => {
     return <Navigate to="/business-login" state={{ from: location }} replace />;
   }
 
-  // Handle unverified merchants - redirect to verification page
-  // Exception: allow verification page itself to be accessed
-  if (!isMerchantVerified && location.pathname !== '/business/verification') {
-    return <Navigate to="/business/verification" state={{ from: location }} replace />;
-  }
-
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };

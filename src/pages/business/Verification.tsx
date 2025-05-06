@@ -17,7 +17,7 @@ interface DocumentUpload {
 
 const Verification: React.FC = () => {
   const navigate = useNavigate();
-  const { user, accessToken, refreshToken } = useAuth();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [noGstChecked, setNoGstChecked] = useState(false);
   const [bankDetails, setBankDetails] = useState({
@@ -142,19 +142,8 @@ const Verification: React.FC = () => {
     // In a real application, you would upload files to server here
     // For demo, we'll simulate a successful submission after 2 seconds
     setTimeout(() => {
-      // For the demo, set the user as verified directly in localStorage
-      if (user) {
-        const verifiedUser = { ...user, isVerified: true };
-        localStorage.setItem('user', JSON.stringify(verifiedUser));
-        
-        // Force a page reload to update the Auth context with the new verified status
-        // In a real app, you would update the context directly or use an API call
-        window.location.href = '/business/dashboard';
-      } else {
-        // Fallback to navigate if no user is found (shouldn't happen)
-        navigate('/business/dashboard');
-      }
-      
+      // After successful submission, navigate to pending verification page
+      navigate('/verification-pending');
       setIsSubmitting(false);
     }, 2000);
   };
@@ -176,7 +165,7 @@ const Verification: React.FC = () => {
             </div>
             <div className="ml-3">
               <p className="text-sm text-yellow-700">
-                For demo purposes, you'll get immediate access to the dashboard after submitting documents. Normally, documents would be reviewed within 24–48 hours.
+                Your documents will be reviewed within 24–48 hours. We'll notify you upon verification.
               </p>
             </div>
           </div>
@@ -704,4 +693,4 @@ const Verification: React.FC = () => {
   );
 };
 
-export default Verification; 
+export default Verification;
