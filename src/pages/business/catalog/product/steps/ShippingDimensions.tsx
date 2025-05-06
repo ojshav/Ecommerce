@@ -73,19 +73,19 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-gray-900">Shipping</h2>
+    <div className="p-6">
+      <h2 className="text-xl font-semibold text-gray-900 pb-4 mb-6">Shipping</h2>
       
       <div className="space-y-6">
         {/* Dimensions Unit Selection */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 mb-6">
           <div className="flex items-center">
             <span className="text-sm font-medium text-gray-700">Dimensions Unit</span>
             <Popover className="relative ml-2">
               <Popover.Button className="focus:outline-none">
-                <InformationCircleIcon className="h-4 w-4 text-gray-400 hover:text-gray-500" />
+                <InformationCircleIcon className="h-5 w-5 text-gray-400 hover:text-gray-500" />
               </Popover.Button>
-              <Popover.Panel className="absolute z-10 w-64 p-2 mt-1 text-sm text-white bg-gray-900 rounded-md shadow-lg">
+              <Popover.Panel className="absolute z-10 w-64 p-3 mt-1 text-sm text-white bg-gray-800 rounded-md shadow-lg">
                 {getTooltipContent('dimensions')}
               </Popover.Panel>
             </Popover>
@@ -93,7 +93,7 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
           <select
             value={dimensionUnit}
             onChange={(e) => handleUnitChange(e, 'dimension')}
-            className="block w-24 shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+            className="block w-32 py-2 px-3 border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 shadow-sm text-base transition-all duration-200"
             disabled={isReadOnly}
           >
             <option value="cm">cm</option>
@@ -102,11 +102,11 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
         </div>
 
         {/* Length */}
-        <div className="space-y-1">
-          <label htmlFor="length" className="block text-sm font-medium text-gray-700">
+        <div className="space-y-2 mb-6">
+          <label htmlFor="length" className="block text-sm font-medium text-gray-700 mb-1">
             Length
           </label>
-          <div className="mt-1 relative">
+          <div className="relative">
             <input
               type="text"
               id="length"
@@ -114,15 +114,15 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
               value={data.length}
               onChange={handleChange}
               placeholder="0.00"
-              className={`block w-full shadow-sm sm:text-sm rounded-md ${
+              className={`block w-full py-3 px-4 text-base shadow-sm rounded-md ${
                 errors.length
-                  ? 'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
-                  : 'border-gray-300 focus:ring-primary-500 focus:border-primary-500'
+                  ? 'border-2 border-red-300 pr-12 text-red-900 placeholder-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-300 transition-all duration-200'
+                  : 'border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200'
               }`}
               readOnly={isReadOnly}
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">{dimensionUnit}</span>
+              <span className="text-gray-500 text-base">{dimensionUnit}</span>
             </div>
             {errors.length && (
               <div className="absolute inset-y-0 right-0 pr-12 flex items-center pointer-events-none">
@@ -134,11 +134,11 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
         </div>
         
         {/* Width */}
-        <div className="space-y-1">
-          <label htmlFor="width" className="block text-sm font-medium text-gray-700">
+        <div className="space-y-2 mb-6">
+          <label htmlFor="width" className="block text-sm font-medium text-gray-700 mb-1">
             Width
           </label>
-          <div className="mt-1 relative">
+          <div className="relative">
             <input
               type="text"
               id="width"
@@ -146,15 +146,15 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
               value={data.width}
               onChange={handleChange}
               placeholder="0.00"
-              className={`block w-full shadow-sm sm:text-sm rounded-md ${
+              className={`block w-full py-3 px-4 text-base shadow-sm rounded-md ${
                 errors.width
-                  ? 'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
-                  : 'border-gray-300 focus:ring-primary-500 focus:border-primary-500'
+                  ? 'border-2 border-red-300 pr-12 text-red-900 placeholder-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-300 transition-all duration-200'
+                  : 'border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200'
               }`}
               readOnly={isReadOnly}
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">{dimensionUnit}</span>
+              <span className="text-gray-500 text-base">{dimensionUnit}</span>
             </div>
             {errors.width && (
               <div className="absolute inset-y-0 right-0 pr-12 flex items-center pointer-events-none">
@@ -166,11 +166,11 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
         </div>
         
         {/* Height */}
-        <div className="space-y-1">
-          <label htmlFor="height" className="block text-sm font-medium text-gray-700">
+        <div className="space-y-2 mb-6">
+          <label htmlFor="height" className="block text-sm font-medium text-gray-700 mb-1">
             Height
           </label>
-          <div className="mt-1 relative">
+          <div className="relative">
             <input
               type="text"
               id="height"
@@ -178,15 +178,15 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
               value={data.height}
               onChange={handleChange}
               placeholder="0.00"
-              className={`block w-full shadow-sm sm:text-sm rounded-md ${
+              className={`block w-full py-3 px-4 text-base shadow-sm rounded-md ${
                 errors.height
-                  ? 'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
-                  : 'border-gray-300 focus:ring-primary-500 focus:border-primary-500'
+                  ? 'border-2 border-red-300 pr-12 text-red-900 placeholder-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-300 transition-all duration-200'
+                  : 'border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200'
               }`}
               readOnly={isReadOnly}
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">{dimensionUnit}</span>
+              <span className="text-gray-500 text-base">{dimensionUnit}</span>
             </div>
             {errors.height && (
               <div className="absolute inset-y-0 right-0 pr-12 flex items-center pointer-events-none">
@@ -198,14 +198,14 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
         </div>
 
         {/* Weight Unit Selection */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 mb-6">
           <div className="flex items-center">
             <span className="text-sm font-medium text-gray-700">Weight Unit</span>
             <Popover className="relative ml-2">
               <Popover.Button className="focus:outline-none">
-                <InformationCircleIcon className="h-4 w-4 text-gray-400 hover:text-gray-500" />
+                <InformationCircleIcon className="h-5 w-5 text-gray-400 hover:text-gray-500" />
               </Popover.Button>
-              <Popover.Panel className="absolute z-10 w-64 p-2 mt-1 text-sm text-white bg-gray-900 rounded-md shadow-lg">
+              <Popover.Panel className="absolute z-10 w-64 p-3 mt-1 text-sm text-white bg-gray-800 rounded-md shadow-lg">
                 {getTooltipContent('weight')}
               </Popover.Panel>
             </Popover>
@@ -213,7 +213,7 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
           <select
             value={weightUnit}
             onChange={(e) => handleUnitChange(e, 'weight')}
-            className="block w-24 shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+            className="block w-32 py-2 px-3 border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 shadow-sm text-base transition-all duration-200"
             disabled={isReadOnly}
           >
             <option value="kg">kg</option>
@@ -222,11 +222,11 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
         </div>
         
         {/* Weight */}
-        <div className="space-y-1">
-          <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
+        <div className="space-y-2 mb-6">
+          <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-1">
             Weight <span className="text-red-500">*</span>
           </label>
-          <div className="mt-1 relative">
+          <div className="relative">
             <input
               type="text"
               id="weight"
@@ -234,15 +234,15 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
               value={data.weight}
               onChange={handleChange}
               placeholder="0.00"
-              className={`block w-full shadow-sm sm:text-sm rounded-md ${
+              className={`block w-full py-3 px-4 text-base shadow-sm rounded-md ${
                 errors.weight
-                  ? 'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
-                  : 'border-gray-300 focus:ring-primary-500 focus:border-primary-500'
+                  ? 'border-2 border-red-300 pr-12 text-red-900 placeholder-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-300 transition-all duration-200'
+                  : 'border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200'
               }`}
               readOnly={isReadOnly}
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">{weightUnit}</span>
+              <span className="text-gray-500 text-base">{weightUnit}</span>
             </div>
             {errors.weight && (
               <div className="absolute inset-y-0 right-0 pr-12 flex items-center pointer-events-none">
@@ -255,36 +255,36 @@ const ShippingDimensions: React.FC<ShippingDimensionsProps> = ({ data, updateDat
 
         {/* Volumetric Weight */}
         {volumetricWeight && (
-          <div className="space-y-1">
-            <div className="flex items-center">
+          <div className="space-y-2 mb-6">
+            <div className="flex items-center mb-1">
               <label className="block text-sm font-medium text-gray-700">
                 Volumetric Weight
               </label>
               <Popover className="relative ml-2">
                 <Popover.Button className="focus:outline-none">
-                  <InformationCircleIcon className="h-4 w-4 text-gray-400 hover:text-gray-500" />
+                  <InformationCircleIcon className="h-5 w-5 text-gray-400 hover:text-gray-500" />
                 </Popover.Button>
-                <Popover.Panel className="absolute z-10 w-64 p-2 mt-1 text-sm text-white bg-gray-900 rounded-md shadow-lg">
+                <Popover.Panel className="absolute z-10 w-64 p-3 mt-1 text-sm text-white bg-gray-800 rounded-md shadow-lg">
                   {getTooltipContent('volumetric')}
                 </Popover.Panel>
               </Popover>
             </div>
-            <div className="mt-1 relative">
+            <div className="relative">
               <input
                 type="text"
                 value={volumetricWeight}
                 readOnly
-                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md bg-gray-50"
+                className="block w-full py-3 px-4 text-base shadow-sm border-2 border-gray-200 rounded-md bg-gray-50"
               />
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <span className="text-gray-500 sm:text-sm">kg</span>
+                <span className="text-gray-500 text-base">kg</span>
               </div>
             </div>
           </div>
         )}
       </div>
       
-      <div className="bg-gray-50 rounded-md p-4 mt-6">
+      <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
         <div className="flex">
           <div className="flex-shrink-0">
             <svg className="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

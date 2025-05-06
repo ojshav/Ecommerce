@@ -109,7 +109,7 @@ const AdminLayout: React.FC = () => {
       <div
         className={`${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen`}
+        } fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen overflow-hidden`}
       >
         {/* Sidebar Header */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
@@ -126,8 +126,8 @@ const AdminLayout: React.FC = () => {
           )}
         </div>
         
-        {/* Sidebar Content */}
-        <div className="py-4 h-full overflow-y-auto">
+        {/* Sidebar Content - allows scrolling only within sidebar content */}
+        <div className="py-4 h-[calc(100vh-64px)] overflow-y-auto">
           <nav className="px-2 space-y-1">
             {navigationItems.map((item) => {
               // Determine if this item or any of its subitems is active
@@ -217,11 +217,11 @@ const AdminLayout: React.FC = () => {
         </div>
       </div>
       
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
-        {/* Top Navigation */}
-        <header className="bg-white shadow z-10">
-          <div className="h-16 px-4 flex items-center justify-between">
+      {/* Main Content - fixed height, no overflow */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Navigation - fixed height */}
+        <header className="bg-white shadow z-10 h-16 flex-shrink-0">
+          <div className="h-full px-4 flex items-center justify-between">
             {/* Left: Hamburger Menu (mobile) */}
             <button
               className="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
@@ -323,9 +323,11 @@ const AdminLayout: React.FC = () => {
           </div>
         </header>
         
-        {/* Page Content */}
-        <main className="flex-1 p-6">
-          <Outlet />
+        {/* Page Content - allows scrolling within content area */}
+        <main className="flex-1 overflow-auto relative">
+          <div className="p-6">
+            <Outlet />
+          </div>
         </main>
       </div>
       

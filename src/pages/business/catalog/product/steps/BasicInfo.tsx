@@ -181,19 +181,17 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
   };
   
   return (
-    <div className="space-y-8">
-      <h2 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3">Product Information</h2>
+    <div className="p-6">
+      <h2 className="text-xl font-semibold text-gray-900 pb-4 mb-6">Product Information</h2>
       
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h3 className="text-base font-medium text-gray-900">General</h3>
-        </div>
+      <div className="space-y-6">
+        <div className="bg-gray-50 p-4 rounded-lg mb-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">General</h3>
         
-        <div className="p-6 space-y-6">
           {/* Category Selection */}
-          <div className="space-y-4">
-            <div className="space-y-1">
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="space-y-2">
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
                 Main Category <span className="text-red-500">*</span>
               </label>
               <select
@@ -201,7 +199,7 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
                 name="category"
                 value={data.category || ''}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full shadow-sm px-4 py-3 text-base border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200"
               >
                 <option value="">Select Category</option>
                 {MAIN_CATEGORIES.map(category => (
@@ -213,8 +211,8 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
             </div>
 
             {data.category && (
-              <div className="space-y-1">
-                <label htmlFor="subCategory" className="block text-sm font-medium text-gray-700">
+              <div className="space-y-2">
+                <label htmlFor="subCategory" className="block text-sm font-medium text-gray-700 mb-1">
                   Sub Category <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -222,7 +220,7 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
                   name="subCategory"
                   value={data.subCategory || ''}
                   onChange={handleChange}
-                  className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="block w-full shadow-sm px-4 py-3 text-base border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200"
                 >
                   <option value="">Select Sub Category</option>
                   {SUB_CATEGORIES[data.category]?.map(subCategory => (
@@ -236,22 +234,22 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
           </div>
 
           {/* Product Name - with language tabs */}
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
+          <div className="space-y-2 mb-6">
+            <div className="flex justify-between items-center mb-1">
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                 Product Name <span className="text-red-500">*</span>
               </label>
               
-              <div className="flex space-x-1 text-xs">
+              <div className="flex rounded-md overflow-hidden border border-gray-200">
                 {LANGUAGES.map(lang => (
                   <button
                     key={lang.code}
                     type="button"
                     onClick={() => setActiveLanguage(lang.code)}
-                    className={`px-2 py-1 rounded ${
+                    className={`px-3 py-1.5 text-sm font-medium ${
                       activeLanguage === lang.code
-                        ? 'bg-blue-100 text-blue-800 font-medium'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                     }`}
                   >
                     {lang.name}
@@ -260,17 +258,17 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
               </div>
             </div>
             
-            <div className="mt-1 relative">
+            <div className="relative">
               <input
                 type="text"
                 id={`name-${activeLanguage}`}
                 value={data.name?.[activeLanguage] || ''}
                 onChange={(e) => handleLanguageChange('name', e.target.value)}
-                className={`block w-full shadow-sm sm:text-sm rounded-md ${
+                className={`block w-full py-3 px-4 text-base shadow-sm rounded-md ${
                   errors.name 
-                    ? 'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
-                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                }`}
+                    ? 'border-2 border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-300' 
+                    : 'border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-300'
+                } transition-all duration-200`}
               />
               {errors.name && (
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -282,8 +280,8 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
           </div>
           
           {/* SKU */}
-          <div className="space-y-1">
-            <div className="flex items-center">
+          <div className="space-y-2 mb-6">
+            <div className="flex items-center mb-1">
               <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
                 SKU <span className="text-red-500">*</span>
               </label>
@@ -291,18 +289,18 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
                 <Tooltip content="A unique identifier used to track inventory and manage your products." />
               </div>
             </div>
-            <div className="mt-1 relative">
+            <div className="relative">
               <input
                 type="text"
                 id="sku"
                 name="sku"
                 value={data.sku || ''}
                 onChange={handleChange}
-                className={`block w-full shadow-sm sm:text-sm rounded-md ${
+                className={`block w-full py-3 px-4 text-base shadow-sm rounded-md ${
                   errors.sku 
-                    ? 'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
-                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                }`}
+                    ? 'border-2 border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-300' 
+                    : 'border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-300'
+                } transition-all duration-200`}
               />
               {errors.sku && (
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -314,8 +312,8 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
           </div>
           
           {/* Product Number */}
-          <div className="space-y-1">
-            <div className="flex items-center">
+          <div className="space-y-2 mb-6">
+            <div className="flex items-center mb-1">
               <label htmlFor="productNumber" className="block text-sm font-medium text-gray-700">
                 Product Number
               </label>
@@ -329,13 +327,14 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
               name="productNumber"
               value={data.productNumber || ''}
               onChange={handleChange}
-              className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full py-3 px-4 text-base shadow-sm border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200"
             />
+          </div>
           </div>
           
           {/* URL Key - with regenerate button and preview */}
-          <div className="space-y-1">
-            <div className="flex items-center">
+        <div className="space-y-2">
+          <div className="flex items-center mb-1">
               <label htmlFor="urlKey" className="block text-sm font-medium text-gray-700">
                 URL Key <span className="text-red-500">*</span>
               </label>
@@ -343,32 +342,37 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
                 <Tooltip content="The URL-friendly version of your product name that appears in the browser address bar." />
               </div>
             </div>
-            <div className="mt-1 relative flex">
+          <div className="relative flex">
               <input
                 type="text"
                 id="urlKey"
                 name="urlKey"
                 value={data.urlKey || ''}
                 onChange={handleChange}
-                className="flex-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-l-md focus:ring-blue-500 focus:border-blue-500"
+              className={`flex-1 block w-full py-3 px-4 text-base shadow-sm rounded-l-md ${
+                errors.urlKey 
+                  ? 'border-2 border-red-300 text-red-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-300' 
+                  : 'border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-300'
+              } transition-all duration-200`}
               />
               <button
                 type="button"
                 onClick={generateUrlKey}
-                className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-700 rounded-r-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex items-center px-4 py-3 border-2 border-l-0 border-gray-200 bg-gray-50 text-gray-700 rounded-r-md hover:bg-gray-100 focus:outline-none"
               >
-                <ArrowPathIcon className="h-4 w-4" />
+              <ArrowPathIcon className="h-5 w-5" />
               </button>
             </div>
             {/* URL Preview */}
-            <div className="text-sm text-gray-500 mt-1 truncate">
+          <div className="text-sm text-gray-500 mt-2 truncate">
               Preview: <span className="text-blue-600">/products/{data.urlKey || 'product-url'}</span>
-            </div>
+          </div>
+          {errors.urlKey && <p className="mt-1 text-sm text-red-600">{errors.urlKey}</p>}
           </div>
           
           {/* Tax Category */}
-          <div className="space-y-1">
-            <div className="flex items-center">
+        <div className="space-y-2">
+          <div className="flex items-center mb-1">
               <label htmlFor="taxCategory" className="block text-sm font-medium text-gray-700">
                 Tax Category <span className="text-red-500">*</span>
               </label>
@@ -382,7 +386,7 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
                 name="taxCategory"
                 value={data.taxCategory || ''}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pr-10 appearance-none"
+              className="block w-full py-3 px-4 text-base shadow-sm border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200 pr-10 appearance-none"
               >
                 {TAX_CATEGORIES.map(option => (
                   <option key={option.value} value={option.value}>
@@ -390,156 +394,13 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
                   </option>
                 ))}
               </select>
-              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+            <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
                 <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
                 </svg>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* SEO Fields */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h3 className="text-base font-medium text-gray-900">SEO Information</h3>
-        </div>
-        
-        <div className="p-6 space-y-6">
-          <p className="text-sm text-gray-600 italic mb-4">
-            Optimize your product for search engines to improve visibility.
-          </p>
-          
-          {/* Meta Title - with language tabs */}
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <label htmlFor="metaTitle" className="block text-sm font-medium text-gray-700">
-                  Meta Title
-                </label>
-                <div className="ml-2">
-                  <Tooltip content="The title that appears in search engine results. If left blank, the product name will be used." />
-                </div>
-              </div>
-              
-              <div className="flex space-x-1 text-xs">
-                {LANGUAGES.map(lang => (
-                  <button
-                    key={lang.code}
-                    type="button"
-                    onClick={() => setActiveLanguage(lang.code)}
-                    className={`px-2 py-1 rounded ${
-                      activeLanguage === lang.code
-                        ? 'bg-blue-100 text-blue-800 font-medium'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {lang.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            <div className="mt-1">
-              <input
-                type="text"
-                id={`metaTitle-${activeLanguage}`}
-                value={data.metaTitle?.[activeLanguage] || ''}
-                onChange={(e) => handleLanguageChange('metaTitle', e.target.value)}
-                placeholder={data.name?.[activeLanguage] || 'Title displayed in search results'}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-              />
-              <div className="flex justify-between mt-1">
-                <p className="text-xs text-gray-500">
-                  Recommended length: 50-60 characters
-                </p>
-                <p className={`text-xs ${
-                  (data.metaTitle?.[activeLanguage]?.length || 0) > 60 ? 'text-red-500' : 'text-gray-500'
-                }`}>
-                  {data.metaTitle?.[activeLanguage]?.length || 0}/60
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Meta Description - with language tabs */}
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700">
-                  Meta Description
-                </label>
-                <div className="ml-2">
-                  <Tooltip content="A brief summary of the product shown in search engine results." />
-                </div>
-              </div>
-              
-              <div className="flex space-x-1 text-xs">
-                {LANGUAGES.map(lang => (
-                  <button
-                    key={lang.code}
-                    type="button"
-                    onClick={() => setActiveLanguage(lang.code)}
-                    className={`px-2 py-1 rounded ${
-                      activeLanguage === lang.code
-                        ? 'bg-blue-100 text-blue-800 font-medium'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {lang.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            <div className="mt-1">
-              <textarea
-                id={`metaDescription-${activeLanguage}`}
-                rows={3}
-                value={data.metaDescription?.[activeLanguage] || ''}
-                onChange={(e) => handleLanguageChange('metaDescription', e.target.value)}
-                placeholder="Brief summary of the product for search engines"
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-              />
-              <div className="flex justify-between mt-1">
-                <p className="text-xs text-gray-500">
-                  Recommended length: 150-160 characters
-                </p>
-                <p className={`text-xs ${
-                  (data.metaDescription?.[activeLanguage]?.length || 0) > 160 ? 'text-red-500' : 'text-gray-500'
-                }`}>
-                  {data.metaDescription?.[activeLanguage]?.length || 0}/160
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Meta Keywords */}
-          <div className="space-y-1">
-            <div className="flex items-center">
-              <label htmlFor="metaKeywords" className="block text-sm font-medium text-gray-700">
-                Meta Keywords
-              </label>
-              <div className="ml-2">
-                <Tooltip content="Comma-separated keywords relevant to the product. Limited influence on SEO but may be used by some search engines." />
-              </div>
-            </div>
-            <div className="mt-1">
-              <input
-                type="text"
-                id="metaKeywords"
-                name="metaKeywords"
-                value={data.metaKeywords || ''}
-                onChange={handleChange}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                placeholder="Product, Category, Brand, etc."
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                Comma separated keywords relevant to the product
-              </p>
-            </div>
-          </div>
+          {errors.taxCategory && <p className="mt-1 text-sm text-red-600">{errors.taxCategory}</p>}
         </div>
       </div>
     </div>

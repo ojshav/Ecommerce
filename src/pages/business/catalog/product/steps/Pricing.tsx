@@ -55,19 +55,19 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly 
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-gray-900">Price</h2>
+    <div className="p-6">
+      <h2 className="text-xl font-semibold text-gray-900 pb-4 mb-6">Price</h2>
       
       {/* Price Fields */}
-      <div className="grid grid-cols-1 gap-6">
+      <div className="space-y-6">
         {/* Regular Price */}
-        <div className="space-y-1">
-          <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+        <div className="space-y-2">
+          <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
             Price <span className="text-red-500">*</span>
           </label>
-          <div className="mt-1 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">$</span>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span className="text-gray-500 text-base">$</span>
             </div>
             <input
               type="number"
@@ -77,10 +77,10 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly 
               onChange={handleChange}
               min="0"
               step="0.01"
-              className={`pl-7 block w-full shadow-sm sm:text-sm rounded-md ${
+              className={`pl-8 block w-full py-3 text-base shadow-sm rounded-md ${
                 errors.price
-                  ? 'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
-                  : 'border-gray-300 focus:ring-primary-500 focus:border-primary-500'
+                  ? 'border-2 border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-300 transition-all duration-200'
+                  : 'border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200'
               }`}
               readOnly={isReadOnly}
             />
@@ -94,23 +94,23 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly 
         </div>
 
         {/* Cost */}
-        <div className="space-y-1">
-          <div className="flex items-center">
+        <div className="space-y-2">
+          <div className="flex items-center mb-1">
             <label htmlFor="cost" className="block text-sm font-medium text-gray-700">
               Cost Price
             </label>
-            <Popover className="relative">
-              <Popover.Button className="ml-1">
-                <InformationCircleIcon className="h-4 w-4 text-gray-400" />
+            <Popover className="relative ml-2">
+              <Popover.Button className="focus:outline-none">
+                <InformationCircleIcon className="h-5 w-5 text-gray-400 hover:text-gray-500" />
               </Popover.Button>
-              <Popover.Panel className="absolute z-10 w-64 p-2 mt-1 text-sm text-white bg-gray-900 rounded-md shadow-lg">
+              <Popover.Panel className="absolute z-10 w-64 p-3 mt-1 text-sm text-white bg-gray-800 rounded-md shadow-lg">
                 Used for calculating margins. Not shown to customers.
               </Popover.Panel>
             </Popover>
           </div>
-          <div className="mt-1 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">$</span>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span className="text-gray-500 text-base">$</span>
             </div>
             <input
               type="number"
@@ -120,26 +120,26 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly 
               onChange={handleChange}
               min="0"
               step="0.01"
-              className="pl-7 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              className="pl-8 block w-full py-3 text-base shadow-sm border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200"
               readOnly={isReadOnly}
             />
           </div>
         </div>
 
         {/* Discount Buttons */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
+        <div className="space-y-3">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Quick Discount
           </label>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {STANDARD_DISCOUNTS.map((discount) => (
               <button
                 key={discount}
                 type="button"
                 onClick={() => handleDiscountClick(discount)}
-                className={`px-3 py-1 text-sm font-medium rounded-md ${
+                className={`px-4 py-2 text-base font-medium rounded-md transition-all duration-200 ${
                   discountPercentage === discount
-                    ? 'bg-primary-600 text-white'
+                    ? 'bg-primary-600 text-white shadow-sm'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
                 disabled={isReadOnly}
@@ -151,13 +151,13 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly 
         </div>
 
         {/* Special Price */}
-        <div className="space-y-1">
-          <label htmlFor="specialPrice" className="block text-sm font-medium text-gray-700">
+        <div className="space-y-2">
+          <label htmlFor="specialPrice" className="block text-sm font-medium text-gray-700 mb-1">
             Special Price
           </label>
-          <div className="mt-1 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">$</span>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span className="text-gray-500 text-base">$</span>
             </div>
             <input
               type="number"
@@ -167,32 +167,32 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly 
               onChange={handleChange}
               min="0"
               step="0.01"
-              className="pl-7 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              className="pl-8 block w-full py-3 text-base shadow-sm border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200"
               readOnly={isReadOnly}
             />
           </div>
           {discountPercentage && (
-            <p className="mt-1 text-sm text-green-600">
+            <p className="mt-2 text-sm font-medium text-green-600">
               You're giving a {discountPercentage}% discount!
             </p>
           )}
         </div>
 
         {/* Special Price Date Range */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Special Price From */}
-          <div className="space-y-1">
-            <label htmlFor="specialPriceFrom" className="block text-sm font-medium text-gray-700">
+          <div className="space-y-2">
+            <label htmlFor="specialPriceFrom" className="block text-sm font-medium text-gray-700 mb-1">
               Special Price From
             </label>
-            <div className="mt-1 relative">
+            <div className="relative">
               <input
                 type="date"
                 id="specialPriceFrom"
                 name="specialPriceFrom"
                 value={data.specialPriceFrom}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 pr-10"
+                className="block w-full py-3 text-base shadow-sm border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200 pr-10"
                 readOnly={isReadOnly}
               />
               <div 
@@ -208,18 +208,18 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly 
           </div>
 
           {/* Special Price To */}
-          <div className="space-y-1">
-            <label htmlFor="specialPriceTo" className="block text-sm font-medium text-gray-700">
+          <div className="space-y-2">
+            <label htmlFor="specialPriceTo" className="block text-sm font-medium text-gray-700 mb-1">
               Special Price To
             </label>
-            <div className="mt-1 relative">
+            <div className="relative">
               <input
                 type="date"
                 id="specialPriceTo"
                 name="specialPriceTo"
                 value={data.specialPriceTo}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 pr-10"
+                className="block w-full py-3 text-base shadow-sm border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200 pr-10"
                 readOnly={isReadOnly}
               />
               <div 

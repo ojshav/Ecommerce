@@ -290,190 +290,192 @@ export default function Attributes({ data, updateData, category, subCategory, er
   };
 
   return (
-    <div className="space-y-8">
-      <h2 className="text-xl font-semibold text-gray-900 border-b border-gray-200 pb-3">Product Attributes</h2>
+    <div className="p-6">
+      <h2 className="text-xl font-semibold text-gray-900 pb-4 mb-6">Product Attributes</h2>
       
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h3 className="text-base font-medium text-gray-900">General Attributes</h3>
-        </div>
-        
-        <div className="p-6 space-y-6">
-          {/* Brand Selection */}
-          <div className="space-y-2">
-            <div className="flex items-center">
-              <label htmlFor="brand" className="block text-sm font-medium text-gray-700">
-                Brand <span className="text-red-500">*</span>
-              </label>
-              <div className="ml-2">
-                <Tooltip content="Select the brand of your product. If your brand is not listed, you can request to add it." />
-              </div>
-            </div>
-            
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search brands..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-              
-              <div className="mt-2 max-h-48 overflow-y-auto border border-gray-200 rounded-md">
-                {filteredBrands.map(brand => (
-                  <div
-                    key={brand.id}
-                    className={`px-4 py-2 cursor-pointer hover:bg-gray-50 ${
-                      data.brand === brand.id ? 'bg-blue-50' : ''
-                    }`}
-                    onClick={() => handleBrandChange(brand.id)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-900">{brand.name}</span>
-                      {brand.status === 'pending' && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                          Pending
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <button
-                type="button"
-                onClick={() => setIsAddBrandModalOpen(true)}
-                className="mt-2 inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <PlusIcon className="h-4 w-4 mr-1" />
-                Add New Brand
-              </button>
-            </div>
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-6">
+          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 className="text-lg font-medium text-gray-900">General Attributes</h3>
           </div>
           
-          {/* Color Selection */}
-          <div className="space-y-2">
-            <div className="flex items-center">
-              <label className="block text-sm font-medium text-gray-700">
-                Colors
-              </label>
-              <div className="ml-2">
-                <Tooltip content="Select the colors available for this product. Used for filters and product variants." />
-              </div>
-            </div>
-            
-            <div className="flex flex-wrap gap-2">
-              {COLORS.map(color => (
-                <label
-                  key={color.id}
-                  className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer ${
-                    data.colors.includes(color.id)
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={data.colors.includes(color.id)}
-                    onChange={() => handleColorChange(color.id)}
-                    className="sr-only"
-                  />
-                  {color.name}
-                </label>
-              ))}
-            </div>
-          </div>
-          
-          {/* Size Selection */}
-          {getAvailableSizes().length > 0 && (
+          <div className="p-6 space-y-6">
+            {/* Brand Selection */}
             <div className="space-y-2">
-              <div className="flex items-center">
-                <label className="block text-sm font-medium text-gray-700">
-                  Sizes
+              <div className="flex items-center mb-1">
+                <label htmlFor="brand" className="block text-sm font-medium text-gray-700">
+                  Brand <span className="text-red-500">*</span>
                 </label>
                 <div className="ml-2">
-                  <Tooltip content="Select the sizes available for this product. Used for filters and product variants." />
+                  <Tooltip content="Select the brand of your product. If your brand is not listed, you can request to add it." />
+                </div>
+              </div>
+              
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search brands..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="block w-full py-3 px-4 text-base shadow-sm border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200"
+                />
+                
+                <div className="mt-2 max-h-48 overflow-y-auto border-2 border-gray-200 rounded-md">
+                  {filteredBrands.map(brand => (
+                    <div
+                      key={brand.id}
+                      className={`px-4 py-3 cursor-pointer hover:bg-gray-50 ${
+                        data.brand === brand.id ? 'bg-blue-50' : ''
+                      }`}
+                      onClick={() => handleBrandChange(brand.id)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-900">{brand.name}</span>
+                        {brand.status === 'pending' && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Pending
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={() => setIsAddBrandModalOpen(true)}
+                  className="mt-3 inline-flex items-center px-4 py-2.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <PlusIcon className="h-4 w-4 mr-1" />
+                  Add New Brand
+                </button>
+              </div>
+            </div>
+            
+            {/* Color Selection */}
+            <div className="space-y-2">
+              <div className="flex items-center mb-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Colors
+                </label>
+                <div className="ml-2">
+                  <Tooltip content="Select the colors available for this product. Used for filters and product variants." />
                 </div>
               </div>
               
               <div className="flex flex-wrap gap-2">
-                {getAvailableSizes().map(size => (
+                {COLORS.map(color => (
                   <label
-                    key={size.id}
-                    className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer ${
-                      data.sizes.includes(size.id)
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                    key={color.id}
+                    className={`inline-flex items-center px-3 py-2 rounded-full text-sm font-medium cursor-pointer ${
+                      data.colors.includes(color.id)
+                        ? 'bg-blue-100 text-blue-800 border-2 border-blue-200'
+                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border-2 border-gray-100'
                     }`}
                   >
                     <input
                       type="checkbox"
-                      checked={data.sizes.includes(size.id)}
-                      onChange={() => handleSizeChange(size.id)}
+                      checked={data.colors.includes(color.id)}
+                      onChange={() => handleColorChange(color.id)}
                       className="sr-only"
                     />
-                    {size.name}
+                    {color.name}
                   </label>
                 ))}
               </div>
             </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Category-Specific Attributes */}
-      {categoryAttributes.length > 0 && (
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <h3 className="text-base font-medium text-gray-900">Category-Specific Attributes</h3>
-          </div>
-          
-          <div className="p-6 space-y-6">
-            {categoryAttributes.map(attribute => (
-              <div key={attribute.id} className="space-y-2">
-                <div className="flex items-center">
-                  <label htmlFor={attribute.id} className="block text-sm font-medium text-gray-700">
-                    {attribute.name}
-                    {attribute.required && <span className="text-red-500 ml-1">*</span>}
+            
+            {/* Size Selection */}
+            {getAvailableSizes().length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Sizes
                   </label>
-                  {attribute.helpText && (
-                    <div className="ml-2">
-                      <Tooltip content={attribute.helpText} />
-                    </div>
-                  )}
+                  <div className="ml-2">
+                    <Tooltip content="Select the sizes available for this product. Used for filters and product variants." />
+                  </div>
                 </div>
                 
-                {attribute.type === 'dropdown' && (
-                  <select
-                    id={attribute.id}
-                    value={data.customAttributes[attribute.id] as string || ''}
-                    onChange={(e) => handleCustomAttributeChange(attribute.id, e.target.value)}
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select {attribute.name}</option>
-                    {attribute.options?.map(option => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                )}
-                
-                {attribute.type === 'text' && (
-                  <input
-                    type="text"
-                    id={attribute.id}
-                    value={data.customAttributes[attribute.id] as string || ''}
-                    onChange={(e) => handleCustomAttributeChange(attribute.id, e.target.value)}
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    placeholder={`Enter ${attribute.name.toLowerCase()}`}
-                  />
-                )}
+                <div className="flex flex-wrap gap-2">
+                  {getAvailableSizes().map(size => (
+                    <label
+                      key={size.id}
+                      className={`inline-flex items-center px-3 py-2 rounded-full text-sm font-medium cursor-pointer ${
+                        data.sizes.includes(size.id)
+                          ? 'bg-blue-100 text-blue-800 border-2 border-blue-200'
+                          : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border-2 border-gray-100'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={data.sizes.includes(size.id)}
+                        onChange={() => handleSizeChange(size.id)}
+                        className="sr-only"
+                      />
+                      {size.name}
+                    </label>
+                  ))}
+                </div>
               </div>
-            ))}
+            )}
           </div>
         </div>
-      )}
+        
+        {/* Category-Specific Attributes */}
+        {categoryAttributes.length > 0 && (
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <h3 className="text-lg font-medium text-gray-900">Category-Specific Attributes</h3>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {categoryAttributes.map(attribute => (
+                <div key={attribute.id} className="space-y-2">
+                  <div className="flex items-center mb-1">
+                    <label htmlFor={attribute.id} className="block text-sm font-medium text-gray-700">
+                      {attribute.name}
+                      {attribute.required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                    {attribute.helpText && (
+                      <div className="ml-2">
+                        <Tooltip content={attribute.helpText} />
+                      </div>
+                    )}
+                  </div>
+                  
+                  {attribute.type === 'dropdown' && (
+                    <select
+                      id={attribute.id}
+                      value={data.customAttributes[attribute.id] as string || ''}
+                      onChange={(e) => handleCustomAttributeChange(attribute.id, e.target.value)}
+                      className="block w-full py-3 px-4 text-base shadow-sm border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200"
+                    >
+                      <option value="">Select {attribute.name}</option>
+                      {attribute.options?.map(option => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  
+                  {attribute.type === 'text' && (
+                    <input
+                      type="text"
+                      id={attribute.id}
+                      value={data.customAttributes[attribute.id] as string || ''}
+                      onChange={(e) => handleCustomAttributeChange(attribute.id, e.target.value)}
+                      className="block w-full py-3 px-4 text-base shadow-sm border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200"
+                      placeholder={`Enter ${attribute.name.toLowerCase()}`}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
       
       {/* Add Brand Modal */}
       <AddBrandModal

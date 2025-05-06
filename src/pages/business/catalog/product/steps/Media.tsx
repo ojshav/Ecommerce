@@ -152,189 +152,193 @@ const Media: React.FC<MediaProps> = ({ data, updateData, errors }) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Images Section */}
-      <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Images</h2>
-        <p className="text-sm text-gray-600 mb-4">Image resolution should be 560px X 609px (max 1MB per image)</p>
+    <div className="p-6">
+      <h2 className="text-xl font-semibold text-gray-900 pb-4 mb-6">Product Media</h2>
+      
+      <div className="space-y-6">
+        {/* Images Section */}
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-3">Images</h3>
+          <p className="text-sm text-gray-600 mb-4">Image resolution should be 560px X 609px (max 1MB per image)</p>
+          
+          {/* Image Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-4">
+            {/* Image Upload Box */}
+            <div 
+              {...getRootProps()} 
+              className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center h-40 cursor-pointer relative
+                ${isDragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:bg-gray-50'}`}
+            >
+              <input {...getInputProps()} />
+              <PhotoIcon className="h-10 w-10 text-gray-400" />
+              <div className="mt-2 text-sm text-center text-gray-500">
+                {isDragActive ? (
+                  <p>Drop the files here...</p>
+                ) : (
+                  <>
+                    <p>Drag & drop images here</p>
+                    <p className="text-xs">or click to browse</p>
+                    <p className="text-xs mt-1">png, jpeg, jpg (max 1MB)</p>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            {/* Image Thumbnails */}
+            {data.images.map((image, index) => (
+              <div 
+                key={image.id}
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData('text/plain', index.toString());
+                  setDraggedOver(index.toString());
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDraggedOver(index.toString());
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                  reorderImage(fromIndex, index);
+                  setDraggedOver(null);
+                }}
+                onDragEnd={() => setDraggedOver(null)}
+                className={`relative border-2 rounded-lg h-40 overflow-hidden cursor-move
+                  ${data.primaryImage === index ? 'ring-2 ring-primary-500 border-primary-300' : 'border-gray-300'}
+                  ${draggedOver === index.toString() ? 'ring-2 ring-blue-500' : ''}`}
+              >
+                <img 
+                  src={image.url} 
+                  alt={`Product ${index + 1}`} 
+                  className="h-full w-full object-cover"
+                />
+                
+                {/* Primary badge */}
+                {data.primaryImage === index && (
+                  <div className="absolute top-2 left-2 bg-primary-500 text-white text-xs px-2 py-1 rounded-md shadow-sm">
+                    Front
+                  </div>
+                )}
+                
+                {/* Actions */}
+                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white p-2 flex justify-between">
+                  <button 
+                    type="button"
+                    onClick={() => setPrimaryImage(index)}
+                    className="text-xs hover:text-primary-300 flex items-center"
+                  >
+                    <StarIcon className={`h-4 w-4 mr-1 ${data.primaryImage === index ? 'text-yellow-400' : ''}`} />
+                    {data.primaryImage === index ? 'Primary' : 'Set as Front'}
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="text-xs text-red-300 hover:text-red-100"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {uploadError && (
+            <p className="text-sm text-red-600 mt-2">{uploadError}</p>
+          )}
+
+          {/* Image slots showing usage */}
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-4 mt-6">
+            <div className="text-center">
+              <div className="border-2 border-gray-200 rounded-lg h-24 flex items-center justify-center">
+                <span className="text-sm text-gray-500">Front</span>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="border-2 border-gray-200 rounded-lg h-24 flex items-center justify-center">
+                <span className="text-sm text-gray-500">Next</span>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="border-2 border-gray-200 rounded-lg h-24 flex items-center justify-center">
+                <span className="text-sm text-gray-500">Next</span>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="border-2 border-gray-200 rounded-lg h-24 flex items-center justify-center">
+                <span className="text-sm text-gray-500">Zoom</span>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="border-2 border-gray-200 rounded-lg h-24 flex items-center justify-center">
+                <span className="text-sm text-gray-500">Use Cases</span>
+              </div>
+            </div>
+          </div>
+        </div>
         
-        {/* Image Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-4">
-          {/* Image Upload Box */}
+        {/* Videos Section */}
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-3">Videos</h3>
+          <p className="text-sm text-gray-600 mb-4">Maximum video size: 5MB (mp4, webm, mkv)</p>
+          
+          {/* Video Upload Box */}
           <div 
             {...getRootProps()} 
-            className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center h-36 cursor-pointer relative
+            className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center h-40 cursor-pointer relative
               ${isDragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:bg-gray-50'}`}
           >
             <input {...getInputProps()} />
-            <PhotoIcon className="h-10 w-10 text-gray-400" />
+            <PlusIcon className="h-10 w-10 text-gray-400" />
             <div className="mt-2 text-sm text-center text-gray-500">
               {isDragActive ? (
-                <p>Drop the files here...</p>
+                <p>Drop the video here...</p>
               ) : (
                 <>
-                  <p>Drag & drop images here</p>
+                  <p>Drag & drop video here</p>
                   <p className="text-xs">or click to browse</p>
-                  <p className="text-xs mt-1">png, jpeg, jpg (max 1MB)</p>
+                  <p className="text-xs mt-1">mp4, webm, mkv (max 5MB)</p>
                 </>
               )}
             </div>
           </div>
           
-          {/* Image Thumbnails */}
-          {data.images.map((image, index) => (
-            <div 
-              key={image.id}
-              draggable
-              onDragStart={(e) => {
-                e.dataTransfer.setData('text/plain', index.toString());
-                setDraggedOver(index.toString());
-              }}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDraggedOver(index.toString());
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
-                reorderImage(fromIndex, index);
-                setDraggedOver(null);
-              }}
-              onDragEnd={() => setDraggedOver(null)}
-              className={`relative border rounded-lg h-36 overflow-hidden cursor-move
-                ${data.primaryImage === index ? 'ring-2 ring-primary-500' : 'border-gray-300'}
-                ${draggedOver === index.toString() ? 'ring-2 ring-blue-500' : ''}`}
-            >
-              <img 
-                src={image.url} 
-                alt={`Product ${index + 1}`} 
-                className="h-full w-full object-cover"
-              />
-              
-              {/* Primary badge */}
-              {data.primaryImage === index && (
-                <div className="absolute top-2 left-2 bg-primary-500 text-white text-xs px-2 py-1 rounded">
-                  Front
-                </div>
-              )}
-              
-              {/* Actions */}
-              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 flex justify-between">
-                <button 
-                  type="button"
-                  onClick={() => setPrimaryImage(index)}
-                  className="text-xs hover:text-primary-300 flex items-center"
-                >
-                  <StarIcon className={`h-4 w-4 mr-1 ${data.primaryImage === index ? 'text-yellow-400' : ''}`} />
-                  {data.primaryImage === index ? 'Primary' : 'Set as Front'}
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="text-xs text-red-300 hover:text-red-100"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {uploadError && (
-          <p className="text-sm text-red-600 mt-2">{uploadError}</p>
-        )}
-
-        {/* Image slots showing usage */}
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-4 mt-4">
-          <div className="text-center">
-            <div className="border border-gray-300 rounded-lg h-24 flex items-center justify-center">
-              <span className="text-sm text-gray-500">Front</span>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="border border-gray-300 rounded-lg h-24 flex items-center justify-center">
-              <span className="text-sm text-gray-500">Next</span>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="border border-gray-300 rounded-lg h-24 flex items-center justify-center">
-              <span className="text-sm text-gray-500">Next</span>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="border border-gray-300 rounded-lg h-24 flex items-center justify-center">
-              <span className="text-sm text-gray-500">Zoom</span>
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="border border-gray-300 rounded-lg h-24 flex items-center justify-center">
-              <span className="text-sm text-gray-500">Use Cases</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Videos Section */}
-      <div className="mt-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Videos</h2>
-        <p className="text-sm text-gray-600 mb-4">Maximum video size: 5MB (mp4, webm, mkv)</p>
-        
-        {/* Video Upload Box */}
-        <div 
-          {...getRootProps()} 
-          className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center h-36 cursor-pointer relative
-            ${isDragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:bg-gray-50'}`}
-        >
-          <input {...getInputProps()} />
-          <PlusIcon className="h-10 w-10 text-gray-400" />
-          <div className="mt-2 text-sm text-center text-gray-500">
-            {isDragActive ? (
-              <p>Drop the video here...</p>
-            ) : (
-              <>
-                <p>Drag & drop video here</p>
-                <p className="text-xs">or click to browse</p>
-                <p className="text-xs mt-1">mp4, webm, mkv (max 5MB)</p>
-              </>
-            )}
-          </div>
-        </div>
-        
-        {/* Video List */}
-        {data.videos.length > 0 && (
-          <div className="mt-4 space-y-3">
-            {data.videos.map((video, index) => (
-              <div key={video.id} className="flex items-center justify-between p-3 border border-gray-300 rounded-lg">
-                <div className="flex items-center">
-                  <div className="w-20 h-20 bg-gray-200 rounded overflow-hidden">
-                    {video.thumbnail ? (
-                      <img 
-                        src={video.thumbnail} 
-                        alt={video.name} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-gray-500 text-xs">Video</span>
-                      </div>
-                    )}
+          {/* Video List */}
+          {data.videos.length > 0 && (
+            <div className="mt-4 space-y-3">
+              {data.videos.map((video, index) => (
+                <div key={video.id} className="flex items-center justify-between p-3 border-2 border-gray-200 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-24 h-24 bg-gray-200 rounded overflow-hidden">
+                      {video.thumbnail ? (
+                        <img 
+                          src={video.thumbnail} 
+                          alt={video.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="text-gray-500 text-xs">Video</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900">{video.name}</p>
+                      <p className="text-xs text-gray-500">{(video.file.size / (1024 * 1024)).toFixed(2)}MB</p>
+                    </div>
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">{video.name}</p>
-                    <p className="text-xs text-gray-500">{(video.file.size / (1024 * 1024)).toFixed(2)}MB</p>
-                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => removeVideo(index)}
+                    className="text-red-500 hover:text-red-700 p-2"
+                  >
+                    <TrashIcon className="h-5 w-5" />
+                  </button>
                 </div>
-                <button 
-                  type="button"
-                  onClick={() => removeVideo(index)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <TrashIcon className="h-5 w-5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

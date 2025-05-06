@@ -223,9 +223,9 @@ type AddProductProps = {
 };
 
 // Common input styles for highlighting borders
-const inputBaseStyle = `border-2 border-gray-200 bg-white rounded-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-300 shadow-sm`;
-const inputErrorStyle = `border-2 border-red-300 bg-white rounded-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-300 text-red-900 placeholder-red-300 shadow-sm`;
-const inputReadOnlyStyle = `border-2 border-gray-200 bg-gray-50 rounded-md px-4 py-3 shadow-sm`;
+const inputBaseStyle = `border-2 border-gray-200 bg-white rounded-md px-4 py-3.5 w-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-300 shadow-sm text-base transition-all duration-200`;
+const inputErrorStyle = `border-2 border-red-300 bg-white rounded-md px-4 py-3.5 w-full focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-300 text-red-900 placeholder-red-300 shadow-sm text-base transition-all duration-200`;
+const inputReadOnlyStyle = `border-2 border-gray-200 bg-gray-50 rounded-md px-4 py-3.5 w-full shadow-sm text-base transition-all duration-200`;
 
 const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
   const navigate = useNavigate();
@@ -238,6 +238,19 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
   // File input refs
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  // Lock body scrolling to prevent multiple scrollbars
+  useEffect(() => {
+    // Save the original style
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    // Lock scrolling on body
+    document.body.style.overflow = 'hidden';
+    
+    // Cleanup function to restore original style
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
 
   // Fetch product data when in edit or view mode
   useEffect(() => {
@@ -525,9 +538,9 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto pb-12 bg-gray-50">
-      {/* Header */}
-      <div className="flex items-center justify-between py-8 mb-6 px-6">
+    <div className="flex flex-col w-full h-full overflow-hidden bg-gray-50">
+      {/* Header - fixed height with consistent spacing */}
+      <div className="flex items-center justify-between py-6 px-8 bg-white border-b border-gray-200 flex-shrink-0">
         <h1 className="text-2xl font-semibold text-gray-900">{getPageTitle()}</h1>
         <div className="flex items-center space-x-4">
           <button
@@ -554,105 +567,131 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
         </div>
       </div>
       
-      {/* Main form grid layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
-        {/* Left column content */}
-        <div className="md:col-span-2 space-y-6">
-          {/* Basic Info Section */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <BasicInfo
-              data={productData}
-              updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
-              errors={errors}
-            />
-          </div>
-          
-          {/* Attributes Section */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <Attributes
-              data={{
-                brand: productData.brand,
-                colors: productData.colors,
-                sizes: productData.sizes,
-                customAttributes: productData.customAttributes
-              }}
-              updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
-              category={productData.category}
-              subCategory={productData.subCategory}
-              errors={errors}
-            />
-          </div>
-          
-          {/* Variants Section */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <Variants
-              data={productData}
-              updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
-              errors={errors}
-              isReadOnly={isReadOnly}
-            />
-          </div>
-          
-          {/* Description Section */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <Description
-              data={productData}
-              updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
-              errors={errors}
-            />
-          </div>
-          
-          {/* Media Section */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <Media
-              data={productData}
-              updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
-              errors={errors}
-            />
-          </div>
-        </div>
-        
-        {/* Right column content */}
-        <div className="space-y-6">
-          {/* Price Section */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <Pricing
-              data={{
-                price: productData.price,
-                cost: productData.cost,
-                specialPrice: productData.specialPrice,
-                specialPriceFrom: productData.specialPriceFrom,
-                specialPriceTo: productData.specialPriceTo
-              }}
-              updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
-              errors={errors}
-              isReadOnly={isReadOnly}
-            />
-          </div>
+      {/* Content area - single scrollable container with no nested scrolling */}
+      <div className="flex-1 overflow-y-auto pb-6">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          {/* Grid layout for main sections */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left column content - spans 2 columns on large screens */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Basic Info Section */}
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <BasicInfo
+                  data={productData}
+                  updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
+                  errors={errors}
+                />
+              </div>
+              
+              {/* Attributes Section */}
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <Attributes
+                  data={{
+                    brand: productData.brand,
+                    colors: productData.colors,
+                    sizes: productData.sizes,
+                    customAttributes: productData.customAttributes
+                  }}
+                  updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
+                  category={productData.category}
+                  subCategory={productData.subCategory}
+                  errors={errors}
+                />
+              </div>
+              
+              {/* Description Section */}
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <Description
+                  data={productData}
+                  updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
+                  errors={errors}
+                />
+              </div>
+              
+              {/* Media Section */}
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <Media
+                  data={productData}
+                  updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
+                  errors={errors}
+                />
+              </div>
+              
+              {/* Variants Section */}
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <Variants
+                  data={productData}
+                  updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
+                  errors={errors}
+                  isReadOnly={isReadOnly}
+                />
+              </div>
+            </div>
+            
+            {/* Right column content - pricing and stock */}
+            <div className="space-y-6">
+              {/* Price Section */}
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <Pricing
+                  data={{
+                    price: productData.price,
+                    cost: productData.cost,
+                    specialPrice: productData.specialPrice,
+                    specialPriceFrom: productData.specialPriceFrom,
+                    specialPriceTo: productData.specialPriceTo
+                  }}
+                  updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
+                  errors={errors}
+                  isReadOnly={isReadOnly}
+                />
+              </div>
 
-          {/* Stock Section */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <Stock
-              data={{
-                manageStock: productData.manageStock,
-                stockQuantity: productData.stockQuantity,
-                lowStockThreshold: productData.lowStockThreshold,
-                pendingOrderedQty: productData.pendingOrderedQty
-              }}
-              updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
-              errors={errors}
-              isReadOnly={isReadOnly}
-            />
-          </div>
+              {/* Stock Section */}
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <Stock
+                  data={{
+                    manageStock: productData.manageStock,
+                    stockQuantity: productData.stockQuantity,
+                    lowStockThreshold: productData.lowStockThreshold,
+                    pendingOrderedQty: productData.pendingOrderedQty
+                  }}
+                  updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
+                  errors={errors}
+                  isReadOnly={isReadOnly}
+                />
+              </div>
 
-          {/* Shipping Dimensions Section */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <ShippingDimensions
-              data={productData}
-              updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
-              errors={errors}
-              isReadOnly={isReadOnly}
-            />
+              {/* Shipping Dimensions Section */}
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <ShippingDimensions
+                  data={productData}
+                  updateData={(newData) => setProductData(prev => ({ ...prev, ...newData }))}
+                  errors={errors}
+                  isReadOnly={isReadOnly}
+                />
+              </div>
+              
+              {/* Save/Back buttons for mobile - shown only on small screens */}
+              <div className="flex justify-end space-x-4 lg:hidden bg-gray-50 pt-4 pb-2">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:bg-blue-400 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting 
+                    ? 'Saving...'
+                    : 'Save Product'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
