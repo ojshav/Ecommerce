@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { motion } from 'framer-motion';
-
 import { GoogleLogin } from '@react-oauth/google';
-
 import { FaGoogle } from 'react-icons/fa';
-
 
 const SignUp: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -53,8 +49,6 @@ const SignUp: React.FC = () => {
     setApiError('');
     
     try {
-
-
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
@@ -74,7 +68,6 @@ const SignUp: React.FC = () => {
       if (!response.ok) {
         throw new Error(data.error || (data.details ? JSON.stringify(data.details) : 'Registration failed'));
       }
-      
 
       if (data.access_token && data.refresh_token) {
         const success = await register(data.access_token, data.refresh_token);
@@ -103,7 +96,6 @@ const SignUp: React.FC = () => {
     }
   };
 
-
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
       const id_token = credentialResponse.credential;
@@ -114,9 +106,14 @@ const SignUp: React.FC = () => {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Google sign-in failed');
-      // Save tokens to context
-      const success = await register(data.access_token, data.refresh_token);
-      if (success) navigate('/');
+      
+      // Pass the user data directly to register function
+      const success = await register(data.access_token, data.refresh_token, data.user);
+      if (success) {
+        navigate('/');
+      } else {
+        throw new Error('Failed to complete Google sign-in');
+      }
     } catch (err) {
       setApiError(err instanceof Error ? err.message : 'Google sign-in error');
     }
@@ -124,12 +121,6 @@ const SignUp: React.FC = () => {
 
   const handleGoogleError = () => {
     setApiError('Google sign-in was unsuccessful. Please try again.');
-  };
-
-  const handleGoogleAuth = () => {
-    // Implement Google Auth
-    console.log('Google auth clicked');
-
   };
 
   return (
@@ -285,22 +276,17 @@ const SignUp: React.FC = () => {
                 OR
               </span>
             </div>
-
-            
+          </div>
+          
+          <div className="mt-4 flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
+              text="signup_with"
+              shape="rectangular"
+              logo_alignment="center"
             />
-
           </div>
-          
-          <button
-            type="button"
-            onClick={handleGoogleAuth}
-            className="mt-4 w-full flex items-center justify-center gap-2 py-3 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <FaGoogle className="text-[#4285F4]" /> Sign up with Google
-          </button>
         </div>
         
         <div className="mt-6 text-center">

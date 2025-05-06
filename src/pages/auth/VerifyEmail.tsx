@@ -7,42 +7,19 @@ const VerifyEmail: React.FC = () => {
   const { token } = useParams<{ token: string }>();
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { verifyEmail } = useAuth();
   const navigate = useNavigate();
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const isVerifying = useRef(false);
 
   useEffect(() => {
-    const verifyEmail = async () => {
+    const verifyEmailToken = async () => {
       // Prevent multiple verification attempts
-      if (isVerifying.current) return;
+      if (isVerifying.current || !token) return;
       isVerifying.current = true;
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/verify-email/${token}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          // If the error is about token already used, show a different message
-          if (data.error?.includes('used') || data.error?.includes('expired')) {
-            setStatus('error');
-            setError('This verification link has already been used or has expired. Please try signing in.');
-            setTimeout(() => {
-              navigate('/login');
-            }, 3000);
-            return;
-          }
-          throw new Error(data.error || 'Verification failed');
-        }
-
-        // Save tokens to context and login
-        const success = await login(data.access_token, data.refresh_token);
+        const success = await verifyEmail(token);
+        
         if (success) {
           setStatus('success');
           // Redirect to home page after 2 seconds
@@ -50,7 +27,7 @@ const VerifyEmail: React.FC = () => {
             navigate('/');
           }, 2000);
         } else {
-          throw new Error('Failed to login after verification');
+          throw new Error('Verification failed');
         }
       } catch (err) {
         setStatus('error');
@@ -60,8 +37,8 @@ const VerifyEmail: React.FC = () => {
       }
     };
 
-    verifyEmail();
-  }, [token, login, navigate]);
+    verifyEmailToken();
+  }, [token, verifyEmail, navigate]);
 
   return (
     <div className="pt-16 min-h-screen bg-gray-50 flex items-center justify-center px-4">

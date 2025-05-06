@@ -3,14 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const { login } = useAuth();
+  const { setAuthState } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,8 +36,22 @@ const SignIn: React.FC = () => {
         throw new Error(data.error || 'Failed to sign in');
       }
       
-      // Update auth context with the received tokens
-      const success = await login(data.access_token, data.refresh_token);
+      // Create user object from response
+      const userObj = {
+        id: data.user?.id || 'unknown',
+        email: data.user?.email || email,
+        name: `${data.user?.first_name || ''} ${data.user?.last_name || ''}`.trim() || 'User',
+        role: (data.user?.role === 'MERCHANT' ? 'merchant' : 
+               data.user?.role === 'ADMIN' ? 'admin' : 'customer') as 'merchant' | 'customer' | 'admin'
+      };
+      
+      // Update auth context with the received tokens and user data
+      const success = await setAuthState({
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+        user: userObj
+      });
+      
       if (success) {
         navigate('/');
       }
@@ -86,8 +102,23 @@ const SignIn: React.FC = () => {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Google sign-in failed');
-      // Save tokens to context
-      const success = await login(data.access_token, data.refresh_token);
+      
+      // Create user object from response
+      const userObj = {
+        id: data.user?.id || 'unknown',
+        email: data.user?.email || '',
+        name: `${data.user?.first_name || ''} ${data.user?.last_name || ''}`.trim() || 'User',
+        role: (data.user?.role === 'MERCHANT' ? 'merchant' : 
+               data.user?.role === 'ADMIN' ? 'admin' : 'customer') as 'merchant' | 'customer' | 'admin'
+      };
+      
+      // Update auth context with tokens and user data
+      const success = await setAuthState({
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+        user: userObj
+      });
+      
       if (success) navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Google sign-in error');
@@ -273,4 +304,4 @@ const SignIn: React.FC = () => {
   );
 };
 
-export default SignIn;
+export default SignIn;  
