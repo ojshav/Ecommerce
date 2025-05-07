@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Heart, Search, Facebook, Instagram, Twitter, Mail } from 'lucide-react';
+import { ShoppingCart, Heart, Search, Facebook, Instagram, Twitter, Mail, LogOut } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import CategoryDropdown from '../home/CategoryDropdown';
 
 const Navbar: React.FC = () => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const { totalItems } = useCart();
+  const { isAuthenticated, user, logout } = useAuth();
 
   const toggleCategoryDropdown = () => {
     setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -66,12 +72,14 @@ const Navbar: React.FC = () => {
                 </span>
               )}
             </Link>
-            <Link 
-              to="/business/login" 
-              className="hidden md:block text-white border border-white rounded-md px-3 py-1 hover:bg-white hover:text-black transition-colors"
-            >
-              Became a Merchant
-            </Link>
+            {!isAuthenticated && (
+              <Link 
+                to="/business/login" 
+                className="hidden md:block text-white border border-white rounded-md px-3 py-1 hover:bg-white hover:text-black transition-colors"
+              >
+                Become a Merchant
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -126,12 +134,27 @@ const Navbar: React.FC = () => {
                 </svg>
                 Track Your Order
               </Link>
-              <Link to="/sign-in" className="flex items-center py-3 text-sm hover:text-primary-600">
-                <svg className="w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Sign In/Register
-              </Link>
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-600">
+                    Welcome, {user?.name || 'User'}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center py-3 text-sm text-red-600 hover:text-red-700"
+                  >
+                    <LogOut className="w-5 h-5 mr-1" />
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <Link to="/sign-in" className="flex items-center py-3 text-sm hover:text-primary-600">
+                  <svg className="w-5 h-5 mr-1" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Sign In/Register
+                </Link>
+              )}
             </div>
           </div>
         </div>

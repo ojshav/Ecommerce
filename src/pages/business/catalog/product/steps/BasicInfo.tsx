@@ -5,7 +5,6 @@ import { ExclamationCircleIcon, ArrowPathIcon, QuestionMarkCircleIcon } from '@h
 type ProductData = {
   name: Record<string, string>;
   sku: string;
-  productNumber: string;
   urlKey: string;
   taxCategory: string;
   metaTitle: Record<string, string>;
@@ -311,25 +310,8 @@ export default function BasicInfo({ data, updateData, errors }: BasicInfoProps) 
             {errors.sku && <p className="mt-1 text-sm text-red-600">{errors.sku}</p>}
           </div>
           
-          {/* Product Number */}
-          <div className="space-y-2 mb-6">
-            <div className="flex items-center mb-1">
-              <label htmlFor="productNumber" className="block text-sm font-medium text-gray-700">
-                Product Number
-              </label>
-              <div className="ml-2">
-                <Tooltip content="Optional internal reference number for your product." />
-              </div>
-            </div>
-            <input
-              type="text"
-              id="productNumber"
-              name="productNumber"
-              value={data.productNumber || ''}
-              onChange={handleChange}
-              className="block w-full py-3 px-4 text-base shadow-sm border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200"
-            />
-          </div>
+    
+          
           </div>
           
           {/* URL Key - with regenerate button and preview */}
