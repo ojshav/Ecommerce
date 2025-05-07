@@ -19,13 +19,8 @@ const Description: React.FC<DescriptionProps> = ({ data, updateData, errors }) =
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
   };
 
-  // Function to generate slug from text
-  const generateSlug = (text: string) => {
-    return text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-  };
+ 
+  
 
   // Rich text editor toolbar buttons
   const RichTextToolbar = () => (
@@ -130,36 +125,8 @@ const Description: React.FC<DescriptionProps> = ({ data, updateData, errors }) =
         <div className="bg-white rounded-lg">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Meta Information</h3>
           
-          {/* URL Key / Slug */}
-          <div className="space-y-2 mb-6">
-            <label htmlFor="urlKey" className="block text-sm font-medium text-gray-700 mb-1">
-              URL Key / Slug <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                id="urlKey"
-                name="urlKey"
-                value={data.urlKey}
-                onChange={(e) => {
-                  const slug = generateSlug(e.target.value);
-                  updateData({ urlKey: slug });
-                }}
-                className={`block w-full py-3 px-4 text-base shadow-sm rounded-md ${
-                  errors.urlKey
-                    ? 'border-2 border-red-300 pr-10 text-red-900 placeholder-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-300 transition-all duration-200'
-                    : 'border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-300 transition-all duration-200'
-                }`}
-                placeholder="product-name-with-hyphens"
-              />
-              {errors.urlKey && (
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-                </div>
-              )}
-            </div>
-            {errors.urlKey && <p className="mt-1 text-sm text-red-600">{errors.urlKey}</p>}
-          </div>
+        
+          
 
           {/* Meta Title */}
           <div className="space-y-2 mb-6">
