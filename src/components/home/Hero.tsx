@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import TopSellingCarousel from './TopSellingCarousel';
 
 const Hero: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Add auto-scroll effect with 2-second delay
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % offers.length);
+    }, 2000); // Change slide every 2 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
   
   // Updated offer data with real images
   const offers = [
@@ -93,26 +103,7 @@ const Hero: React.FC = () => {
               <div className="grid grid-cols-12 gap-3 w-full">
                 {/* Left sidebar - small offer */}
                 <div className="col-span-2 hidden md:block">
-                  <div className="bg-gray-50 h-full rounded-lg shadow-sm overflow-hidden">
-                    <Link to={sidebarItems[0].link} className="block h-full">
-                      <div className="p-4 flex flex-col justify-between h-full">
-                        <div>
-                          <h3 className="text-sm font-bold mb-1">{sidebarItems[0].title}</h3>
-                          <p className="text-xs text-gray-600">{sidebarItems[0].description}</p>
-                        </div>
-                        <div className="text-center mt-auto">
-                          <img 
-                            src={sidebarItems[0].image} 
-                            alt={sidebarItems[0].title}
-                            className="w-full h-28 object-cover rounded mt-2 mb-2"
-                          />
-                          <button className="bg-black text-white text-xs px-4 py-2 rounded-md w-full">
-                            Shop Now
-                          </button>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
+                  <TopSellingCarousel />
                 </div>
                 
                 {/* Main offer */}
