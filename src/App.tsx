@@ -28,6 +28,14 @@ import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AdminLayout from './components/business/AdminLayout';
+import FAQ from './pages/FAQ';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import ShippingPolicy from './pages/ShippingPolicy';
+import Returns from './pages/Returns';
+import Privacy from './pages/Privacy';
+import Cookies from './pages/Cookies';
+import Terms from './pages/Terms';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -202,6 +210,14 @@ function App() {
                           <Route path="/track-order" element={<TrackOrder />} />
                           <Route path="/categories/:categoryId" element={<Products />} />
                           <Route path="/categories/:categoryId/:brandId" element={<Products />} />
+                          <Route path="/faq" element={<FAQ />} />
+                          <Route path="/about" element={<About />} />
+                          <Route path="/contact" element={<Contact />} />
+                          <Route path="/shipping" element={<ShippingPolicy />} />
+                          <Route path="/returns" element={<Returns />} />
+                          <Route path="/privacy" element={<Privacy />} />
+                          <Route path="/cookies" element={<Cookies />} />
+                          <Route path="/terms" element={<Terms />} />
 
                         </Routes>
                       </main>
