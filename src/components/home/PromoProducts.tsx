@@ -31,7 +31,7 @@ const PromoProducts: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Promo Products</h2>
-          <Link to="/promotions" className="text-sm text-gray-600 hover:text-primary-600">
+          <Link to="/promotion" className="text-sm text-gray-600 hover:text-primary-600">
             See All
           </Link>
         </div>

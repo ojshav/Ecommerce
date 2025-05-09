@@ -101,13 +101,18 @@ const FeaturedProducts: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Featured Products</h2>
-          <div className="flex space-x-2">
-            <button className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-100">
-              <ChevronLeft size={16} />
-            </button>
-            <button className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-100">
-              <ChevronRight size={16} />
-            </button>
+          <div className="flex items-center space-x-4">
+            <Link to="/featured" className="text-sm text-gray-600 hover:text-primary-600 transition-colors">
+              See all
+            </Link>
+            <div className="flex space-x-2">
+              <button className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-100">
+                <ChevronLeft size={16} />
+              </button>
+              <button className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-100">
+                <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
         </div>
 
