@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight } from 'lucide-react';
+import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight, Share2 } from 'lucide-react';
 import { getProductById } from '../data/products';
+import { featuredProductsData } from '../data/featuredProductsData';
 import { useCart } from '../context/CartContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 
+// Tab type
+type TabType = 'product-details' | 'information' | 'reviews';
+
 const ProductDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const product = getProductById(id || '');
+  const { productId } = useParams<{ productId: string }>();
+  console.log('Product ID from URL:', productId);
+  
+  // Use the enhanced getProductById which will search in both data sources
+  const product = getProductById(productId || '');
+  console.log('Product found:', product);
+  
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState('');
+  const [activeTab, setActiveTab] = useState<TabType>('product-details');
   
   useEffect(() => {
     if (product) {

@@ -1,71 +1,31 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ShoppingCart, Heart } from 'lucide-react';
+import { featuredProductsData } from '../../data/featuredProductsData';
+
+// Product type for exported featured products
+export type FeaturedProduct = {
+  id: string;
+  name: string;
+  price: number;
+  discountPrice: number | null;
+  rating: number;
+  reviews: number;
+  stock: number;
+  description: string;
+  image: string;
+  images: string[];
+  category: string;
+  currency: string;
+  tags: string[];
+  originalPrice: number;
+};
 
 const FeaturedProducts: React.FC = () => {
-  // Diverse range of featured products with real images
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "Sony WH-1000XM4",
-      price: 349.99,
-      discountPrice: 299.99,
-      rating: 4.8,
-      description: "Wireless noise-cancelling headphones",
-      image: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=688&q=80",
-      category: "Electronics"
-    },
-    {
-      id: 2,
-      name: "Nike Air Max 270",
-      price: 150.00,
-      discountPrice: 129.99,
-      rating: 4.7,
-      description: "Men's athletic shoes",
-      image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-      category: "Clothing"
-    },
-    {
-      id: 3,
-      name: "Modern Table Lamp",
-      price: 79.99,
-      discountPrice: 59.99,
-      rating: 4.5,
-      description: "Contemporary design for home decor",
-      image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
-      category: "Home Decor"
-    },
-    {
-      id: 4,
-      name: "Fenty Beauty Foundation",
-      price: 38.00,
-      discountPrice: null,
-      rating: 4.9,
-      description: "Pro Filt'r Soft Matte Foundation",
-      image: "https://images.unsplash.com/photo-1631214503851-d45e5c72df1b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=709&q=80",
-      category: "Beauty"
-    },
-    {
-      id: 5,
-      name: "The Alchemist",
-      price: 16.99,
-      discountPrice: 12.99,
-      rating: 4.7,
-      description: "Bestselling novel by Paulo Coelho",
-      image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
-      category: "Books"
-    },
-    {
-      id: 6,
-      name: "Yoga Mat",
-      price: 29.99,
-      discountPrice: 24.99,
-      rating: 4.6,
-      description: "Non-slip exercise yoga mat",
-      image: "https://images.unsplash.com/photo-1599447292180-45d51e69d456?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
-      category: "Sports"
-    }
-  ];
+  // Use the featuredProductsData from the separate file
+  const featuredProducts = featuredProductsData;
+  
+  console.log('Featured products in component:', featuredProducts.map(p => ({ id: p.id, name: p.name })));
 
   // Function to render star ratings
   const renderRating = (rating: number) => {
@@ -102,7 +62,7 @@ const FeaturedProducts: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Featured Products</h2>
           <div className="flex items-center space-x-4">
-            <Link to="/featured" className="text-sm text-gray-600 hover:text-primary-600 transition-colors">
+            <Link to="/products" className="text-sm text-gray-600 hover:text-primary-600 transition-colors">
               See all
             </Link>
             <div className="flex space-x-2">
@@ -122,11 +82,14 @@ const FeaturedProducts: React.FC = () => {
             <div key={product.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               {/* Product Image with overlay */}
               <div className="relative">
-                <Link to={`/product/${product.id}`}>
+                <Link 
+                  to={`/product/${product.id}`}
+                  onClick={() => console.log(`Navigating to product with ID: ${product.id}, Full URL: /product/${product.id}`)}
+                >
                   <img 
                     src={product.image} 
                     alt={product.name}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-48 object-cover transform transition-transform duration-500 hover:scale-105"
                   />
                 </Link>
                 
@@ -136,9 +99,9 @@ const FeaturedProducts: React.FC = () => {
                 </div>
                 
                 {/* Discount tag */}
-                {product.discountPrice && (
+                {product.originalPrice && product.price < product.originalPrice && (
                   <div className="absolute bottom-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-                    {Math.round(((product.price - product.discountPrice) / product.price) * 100)}% OFF
+                    {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
                   </div>
                 )}
                 
@@ -155,7 +118,11 @@ const FeaturedProducts: React.FC = () => {
               
               {/* Product Info */}
               <div className="p-4">
-                <Link to={`/product/${product.id}`} className="block">
+                <Link 
+                  to={`/product/${product.id}`} 
+                  className="block"
+                  onClick={() => console.log(`Navigating to product from info with ID: ${product.id}, Full URL: /product/${product.id}`)}
+                >
                   <h3 className="font-medium text-gray-800 mb-1 hover:text-primary-600 transition-colors">{product.name}</h3>
                   <p className="text-gray-500 text-sm mb-2">{product.description}</p>
                   
@@ -164,10 +131,10 @@ const FeaturedProducts: React.FC = () => {
                   
                   {/* Price */}
                   <div className="mt-2 flex items-baseline">
-                    {product.discountPrice ? (
+                    {product.originalPrice && product.price < product.originalPrice ? (
                       <>
-                        <span className="text-gray-900 font-bold">${product.discountPrice.toFixed(2)}</span>
-                        <span className="text-gray-400 text-sm line-through ml-2">${product.price.toFixed(2)}</span>
+                        <span className="text-gray-900 font-bold">${product.price.toFixed(2)}</span>
+                        <span className="text-gray-400 text-sm line-through ml-2">${product.originalPrice.toFixed(2)}</span>
                       </>
                     ) : (
                       <span className="text-gray-900 font-bold">${product.price.toFixed(2)}</span>
