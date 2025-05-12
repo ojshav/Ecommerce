@@ -5,6 +5,13 @@ interface User {
   email: string;
   name?: string;
   role: 'customer' | 'merchant' | 'admin';
+  isEmailVerified?: boolean;
+}
+
+interface AuthState {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
 }
 
 interface AuthContextType {
@@ -14,12 +21,13 @@ interface AuthContextType {
   user: User | null;
   isMerchant: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  businessLogin: (email: string, password: string) => Promise<boolean>;
+  isEmailVerified: boolean;
+  setAuthState: (state: AuthState) => Promise<boolean>;
+  register: (accessToken: string, refreshToken: string, userData?: any) => Promise<boolean>;
+  login: (accessToken: string, refreshToken: string, userData?: any) => Promise<boolean>;
   logout: () => void;
   refreshTokenFunc: () => Promise<boolean>;
-  register: (email: string, password: string) => Promise<boolean>;
-  registerBusiness: (businessData: any) => Promise<boolean>;
+  verifyEmail: (token: string) => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,6 +43,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = !!accessToken;
   const isMerchant = user?.role === 'merchant' || user?.role === 'admin';
   const isAdmin = user?.role === 'admin';
+  const isEmailVerified = user?.isEmailVerified || false;
+
 
   useEffect(() => {
     if (accessToken) {
@@ -60,73 +70,65 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
-  const login = async (email: string, password: string) => {
+  const setAuthState = async (state: AuthState) => {
     try {
-      // API call to login endpoint would go here
-      // For demo purposes, we're simulating a successful login
-      const mockResponse = {
-        access_token: 'customer_mock_token',
-        refresh_token: 'customer_mock_refresh_token',
-        user: {
-          id: '1',
-          email: email,
-          name: 'Customer User',
-          role: 'customer'
-        }
-      };
-      
-      setAccessToken(mockResponse.access_token);
-      setRefreshToken(mockResponse.refresh_token);
-      setUser(mockResponse.user as User);
+
+      setAccessToken(state.accessToken);
+      setRefreshToken(state.refreshToken);
+      setUser(state.user);
       return true;
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('Failed to set auth state:', error);
       return false;
     }
   };
 
-  const businessLogin = async (email: string, password: string) => {
-    try {
-      // API call to business login endpoint would go here
-      // For demo purposes, we're simulating a successful login
-      const mockResponse = {
-        access_token: 'merchant_mock_token',
-        refresh_token: 'merchant_mock_refresh_token',
-        user: {
-          id: '2',
-          email: email,
-          name: 'Merchant User',
-          role: 'merchant'
-        }
-      };
-      
-      setAccessToken(mockResponse.access_token);
-      setRefreshToken(mockResponse.refresh_token);
-      setUser(mockResponse.user as User);
-      return true;
-    } catch (error) {
-      console.error('Business login failed:', error);
-      return false;
-    }
+  const createUserObject = (userData: any): User => {
+    return {
+      id: userData.id,
+      email: userData.email,
+      name: `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'User',
+      role: userData.role === 'MERCHANT' ? 'merchant' : 
+            userData.role === 'ADMIN' ? 'admin' : 'customer',
+      isEmailVerified: userData.is_email_verified || false
+    };
   };
 
-  const register = async (email: string, password: string) => {
+  const register = async (accessToken: string, refreshToken: string, userData?: any) => {
     try {
-      // API call to register endpoint would go here
-      // For demo purposes, we're simulating a successful registration
-      const mockResponse = {
-        access_token: 'new_customer_mock_token',
-        refresh_token: 'new_customer_mock_refresh_token',
-        user: {
-          id: '3',
-          email: email,
-          role: 'customer'
+
+      if (userData) {
+        // If user data is provided directly from auth response
+        const userObj = createUserObject(userData);
+        await setAuthState({
+          accessToken,
+          refreshToken,
+          user: userObj
+        });
+        return true;
+      }
+
+      // Fallback to fetching user data if not provided
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+
         }
-      };
-      
-      setAccessToken(mockResponse.access_token);
-      setRefreshToken(mockResponse.refresh_token);
-      setUser(mockResponse.user as User);
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+
+      const fetchedUserData = await response.json();
+      const userObj = createUserObject(fetchedUserData);
+
+      await setAuthState({
+        accessToken,
+        refreshToken,
+        user: userObj
+      });
+
       return true;
     } catch (error) {
       console.error('Registration failed:', error);
@@ -134,51 +136,129 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const registerBusiness = async (businessData: any) => {
+  const login = async (accessToken: string, refreshToken: string, userData?: any) => {
     try {
-      // API call to register business endpoint would go here
-      // For demo purposes, we're simulating a successful registration
-      const mockResponse = {
-        access_token: 'new_merchant_mock_token',
-        refresh_token: 'new_merchant_mock_refresh_token',
-        user: {
-          id: '4',
-          email: businessData.email,
-          name: businessData.name,
-          role: 'merchant'
+
+      if (userData) {
+        // If user data is provided directly from auth response
+        const userObj = createUserObject(userData);
+        await setAuthState({
+          accessToken,
+          refreshToken,
+          user: userObj
+        });
+        return true;
+      }
+
+      // Fallback to fetching user data if not provided
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+
         }
-      };
-      
-      setAccessToken(mockResponse.access_token);
-      setRefreshToken(mockResponse.refresh_token);
-      setUser(mockResponse.user as User);
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+
+      const fetchedUserData = await response.json();
+      const userObj = createUserObject(fetchedUserData);
+
+      await setAuthState({
+        accessToken,
+        refreshToken,
+        user: userObj
+      });
+
       return true;
     } catch (error) {
-      console.error('Business registration failed:', error);
+      console.error('Login failed:', error);
+      return false;
+    }
+  };
+
+  const verifyEmail = async (token: string) => {
+    try {
+
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email/${token}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Verification failed');
+      }
+
+      // Update user's email verification status
+      if (user) {
+        setUser({
+          ...user,
+          isEmailVerified: true
+        });
+      }
+
+      // If tokens are provided in the response, update them
+      if (data.access_token && data.refresh_token) {
+        await login(data.access_token, data.refresh_token);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Email verification failed:', error);
       return false;
     }
   };
 
   const logout = () => {
+    // If you want to call the logout API endpoint before clearing local state:
+    if (refreshToken) {
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          refresh_token: refreshToken
+        }),
+      }).catch(err => console.error('Error during logout:', err));
+    }
+    
+    // Clear local state
     setAccessToken(null);
     setRefreshToken(null);
     setUser(null);
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
+    localStorage.removeItem('merchant_profile');
   };
 
   const refreshTokenFunc = async () => {
     if (!refreshToken) return false;
     try {
-      // API call to refresh token endpoint would go here
-      // For demo purposes, we're simulating a successful token refresh
-      const mockResponse = {
-        access_token: `refreshed_${refreshToken.split('_')[0]}_token`
-      };
-      
-      setAccessToken(mockResponse.access_token);
-      return true;
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          refresh_token: refreshToken
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        setAccessToken(data.access_token);
+        return true;
+      } else {
+        throw new Error('Token refresh failed');
+      }
     } catch (err) {
       logout();
       return false;
@@ -192,13 +272,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isAuthenticated,
       user,
       isMerchant,
-      isAdmin, 
-      login, 
-      businessLogin,
-      logout, 
-      refreshTokenFunc, 
+      isAdmin,
+
+      isEmailVerified,
+      setAuthState,
+
       register,
-      registerBusiness
+      login,
+      logout, 
+      refreshTokenFunc,
+      verifyEmail
     }}>
       {children}
     </AuthContext.Provider>
@@ -212,3 +295,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
