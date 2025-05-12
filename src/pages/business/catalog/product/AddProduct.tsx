@@ -10,24 +10,22 @@ import Stock from './steps/Stock';
 import ShippingDimensions from './steps/ShippingDimensions';
 import Variants from './steps/Variants';
 import { XMarkIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Define the product data type
 export type ProductData = {
   sku: string;
   productNumber: string;
-  name: Record<string, string>;
+  name: string;
   urlKey: string;
   taxCategory: string;
   category: string;
   subCategory: string;
+  subSubCategory: string;
   status: boolean;
   
   // Description
   shortDescription: string;
   description: string;
-  metaTitle: Record<string, string>;
-  metaKeywords: string;
-  metaDescription: Record<string, string>;
   
   // Pricing
   price: string;
@@ -104,29 +102,15 @@ export type ProductData = {
 const initialProductData: ProductData = {
   sku: '',
   productNumber: '',
-  name: {
-    en: '',
-    es: '',
-    fr: ''
-  },
+  name: '',
   urlKey: '',
   taxCategory: '',
   category: '',
   subCategory: '',
+  subSubCategory: '',
   status: true,
   shortDescription: '',
   description: '',
-  metaTitle: {
-    en: '',
-    es: '',
-    fr: ''
-  },
-  metaKeywords: '',
-  metaDescription: {
-    en: '',
-    es: '',
-    fr: ''
-  },
   price: '',
   cost: '',
   specialPrice: '',
@@ -151,75 +135,6 @@ const initialProductData: ProductData = {
   sizes: [],
   customAttributes: {},
   variants: []
-};
-
-// Mock categories for dropdowns
-const TAX_CATEGORIES = [
-  { value: '', label: 'Select' },
-  { value: 'standard', label: 'Standard Rate' },
-  { value: 'reduced', label: 'Reduced Rate' },
-  { value: 'zero', label: 'Zero Rate' }
-];
-
-// Main categories
-const MAIN_CATEGORIES = [
-  { id: 'clothing', name: 'Clothing & Fashion' },
-  { id: 'electronics', name: 'Electronics' },
-  { id: 'home', name: 'Home & Decor' },
-  { id: 'beauty', name: 'Beauty & Personal Care' },
-  { id: 'sports', name: 'Sports & Outdoors' },
-  { id: 'books', name: 'Books & Stationery' }
-];
-
-// Sub-categories mapping
-const SUB_CATEGORIES: Record<string, Array<{ id: string; name: string }>> = {
-  clothing: [
-    { id: 'mens', name: "Men's Clothing" },
-    { id: 'womens', name: "Women's Clothing" },
-    { id: 'kids', name: "Kid's Clothing" },
-    { id: 'accessories', name: 'Fashion Accessories' }
-  ],
-  electronics: [
-    { id: 'laptops', name: 'Laptops & Computers' },
-    { id: 'phones', name: 'Mobile Phones' },
-    { id: 'tablets', name: 'Tablets' },
-    { id: 'accessories', name: 'Electronics Accessories' }
-  ],
-  home: [
-    { id: 'furniture', name: 'Furniture' },
-    { id: 'decor', name: 'Home Decor' },
-    { id: 'kitchen', name: 'Kitchen & Dining' },
-    { id: 'bath', name: 'Bath & Bedding' }
-  ],
-  beauty: [
-    { id: 'skincare', name: 'Skincare' },
-    { id: 'makeup', name: 'Makeup' },
-    { id: 'fragrances', name: 'Fragrances' },
-    { id: 'haircare', name: 'Hair Care' }
-  ],
-  sports: [
-    { id: 'fitness', name: 'Fitness Equipment' },
-    { id: 'outdoor', name: 'Outdoor Sports' },
-    { id: 'team', name: 'Team Sports' },
-    { id: 'accessories', name: 'Sports Accessories' }
-  ],
-  books: [
-    { id: 'fiction', name: 'Fiction Books' },
-    { id: 'nonfiction', name: 'Non-Fiction Books' },
-    { id: 'stationery', name: 'Stationery' },
-    { id: 'magazines', name: 'Magazines' }
-  ]
-};
-
-// Available languages
-const LANGUAGES = [
-  { code: 'en', name: 'English' },
-  { code: 'es', name: 'Spanish' },
-  { code: 'fr', name: 'French' }
-];
-
-type AddProductProps = {
-  mode?: 'create' | 'edit' | 'view';
 };
 
 // Common input styles for highlighting borders
@@ -255,79 +170,41 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
   // Fetch product data when in edit or view mode
   useEffect(() => {
     if ((mode === 'edit' || mode === 'view') && id) {
-      // Here you would typically fetch the product data from API
-      // For now, let's simulate by finding the product in our mock data
-      const mockProducts = [
-        {
-          id: 1,
-          name: {
-            en: 'Louis Philippe Men\'s Solid Regular Fit T-Shirt',
-            es: 'Camiseta Regular Sólida Louis Philippe para Hombre',
-            fr: 'T-shirt Regular Uni Louis Philippe pour Homme'
-          },
-          sku: '1',
-          category: 'Men\'s',
-          price: '500.00',
-          stock: '50',
-          status: true,
-          images: [
-            {
-              id: '1',
-              name: 'main-image.jpg',
-              url: 'https://placehold.co/560x609',
-              file: new File([], 'main-image.jpg'),
-              type: 'image' as const
-            }
-          ],
-          videos: [],
-          primaryImage: 0,
-          attributeFamily: 'Default',
-          urlKey: 'louis-philippe-mens-solid-regular-fit-t-shirt',
-          shortDescription: 'A comfortable t-shirt for everyday wear',
-          description: 'This Louis Philippe t-shirt is perfect for casual occasions. Made from 100% cotton.',
-          weight: '0.5',
-          categories: ['mens'],
-          metaTitle: {
-            en: 'Louis Philippe Men\'s T-Shirt | Premium Cotton',
-            es: 'Camiseta Louis Philippe para Hombre | Algodón Premium',
-            fr: 'T-shirt Louis Philippe pour Homme | Coton Premium'
-          },
-          metaDescription: {
-            en: 'Premium quality cotton t-shirt by Louis Philippe. Perfect for casual wear.',
-            es: 'Camiseta de algodón de alta calidad de Louis Philippe. Perfecta para uso casual.',
-            fr: 'T-shirt en coton de haute qualité de Louis Philippe. Parfait pour un usage décontracté.'
+      // Fetch product data from API
+      const fetchProductData = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}api/products/${id}`);
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.error || 'Failed to fetch product');
           }
+          
+          // Map the fetched product to our ProductData format
+          const fetchedProduct: Partial<ProductData> = {
+            name: data.name,
+            sku: data.sku,
+            price: data.price,
+            urlKey: data.urlKey,
+            shortDescription: data.shortDescription,
+            description: data.description,
+            weight: data.weight,
+            status: data.status,
+            categories: data.categories,
+            stockQuantity: data.stock,
+            images: data.images,
+            videos: data.videos,
+            primaryImage: data.primaryImage
+          };
+          
+          setProductData(prev => ({ ...prev, ...fetchedProduct }));
+        } catch (err) {
+          toast.error('Failed to fetch product');
+          navigate('/business/catalog/products');
         }
-      ];
-      
-      const product = mockProducts.find(p => p.id === Number(id));
-      
-      if (product) {
-        // Map the fetched product to our ProductData format
-        const fetchedProduct: Partial<ProductData> = {
-          name: product.name,
-          sku: product.sku,
-          price: product.price,
-          urlKey: product.urlKey,
-          shortDescription: product.shortDescription,
-          description: product.description,
-          weight: product.weight,
-          status: product.status,
-          categories: product.categories,
-          stockQuantity: product.stock,
-          metaTitle: product.metaTitle,
-          metaDescription: product.metaDescription,
-          images: product.images,
-          videos: product.videos,
-          primaryImage: product.primaryImage
-        };
-        
-        setProductData(prev => ({ ...prev, ...fetchedProduct }));
-      } else {
-        // Handle case where product is not found
-        toast.error('Product not found');
-        navigate('/business/catalog/products');
-      }
+      };
+
+      fetchProductData();
     }
   }, [mode, id, navigate]);
 
@@ -436,7 +313,7 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
     let formErrors: Record<string, string> = {};
     let isValid = true;
 
-    if (!productData.name.en.trim()) {
+    if (!productData.name.trim()) {
       formErrors.name = 'Product name is required';
       isValid = false;
     }
@@ -472,28 +349,6 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
       isValid = false;
     }
 
-    if (!productData.metaTitle.en.trim()) {
-      formErrors.metaTitle = 'Meta title is required';
-      isValid = false;
-    }
-
-    if (!productData.metaDescription.en.trim()) {
-      formErrors.metaDescription = 'Meta description is required';
-      isValid = false;
-    }
-
-    // Validate meta title length
-    if (productData.metaTitle.en.length > 60) {
-      formErrors.metaTitle = 'Meta title must be 60 characters or less';
-      isValid = false;
-    }
-
-    // Validate meta description length
-    if (productData.metaDescription.en.length > 155) {
-      formErrors.metaDescription = 'Meta description must be 155 characters or less';
-      isValid = false;
-    }
-
     setErrors(formErrors);
     return isValid;
   };
@@ -509,22 +364,55 @@ const AddProduct: React.FC<AddProductProps> = ({ mode = 'create' }) => {
     if (validateForm()) {
       setIsSubmitting(true);
       try {
-        // Here you would call your API to save the product
-        // Simulating API call with timeout
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Only send required fields for product creation
+        const formattedData = {
+          product_name: productData.name,
+          category_id: productData.category ? parseInt(productData.category) : null,
+          price: parseFloat(productData.price) || 0,
+          
+          // Optional fields - only include if they have values
+          ...(productData.subCategory && { sub_category_id: parseInt(productData.subCategory) }),
+          ...(productData.subSubCategory && { sub_sub_category_id: parseInt(productData.subSubCategory) }),
+          ...(productData.taxCategory && { tax_category: productData.taxCategory }),
+          ...(productData.brand && { brand_id: parseInt(productData.brand) }),
+          ...(productData.shortDescription && { short_description: productData.shortDescription }),
+          ...(productData.description && { full_description: productData.description }),
+          ...(productData.cost && { cost_price: parseFloat(productData.cost) }),
+          ...(productData.specialPrice && { special_price: parseFloat(productData.specialPrice) }),
+          ...(productData.specialPriceFrom && { special_price_from: productData.specialPriceFrom }),
+          ...(productData.specialPriceTo && { special_price_to: productData.specialPriceTo }),
+          ...(productData.manageStock !== undefined && { manage_stock: productData.manageStock }),
+          ...(productData.stockQuantity && { stock_quantity: parseInt(productData.stockQuantity) }),
+          ...(productData.lowStockThreshold && { low_stock_threshold: parseInt(productData.lowStockThreshold) }),
+          ...(productData.length && { dimensions_length: parseFloat(productData.length) }),
+          ...(productData.width && { dimensions_width: parseFloat(productData.width) }),
+          ...(productData.height && { dimensions_height: parseFloat(productData.height) }),
+          ...(productData.weight && { weight: parseFloat(productData.weight) })
+        };
+
+        const response = await fetch(`${API_BASE_URL}api/products${mode === 'edit' ? `/${id}` : ''}`, {
+          method: mode === 'edit' ? 'PUT' : 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(formattedData)
+        });
+
+        const responseData = await response.json();
         
+        if (!response.ok) {
+          throw new Error(responseData.error || `Failed to ${mode === 'edit' ? 'update' : 'create'} product`);
+        }
+
         const successMessage = mode === 'edit' 
           ? 'Product updated successfully' 
           : 'Product created successfully';
-        
         toast.success(successMessage);
         navigate('/business/catalog/products');
       } catch (error) {
-        const errorMessage = mode === 'edit'
-          ? 'Failed to update product'
-          : 'Failed to create product';
-        
-        toast.error(errorMessage);
+        console.error('Error saving product:', error);
+        toast.error(error instanceof Error ? error.message : `Failed to ${mode === 'edit' ? 'update' : 'create'} product`);
       } finally {
         setIsSubmitting(false);
       }

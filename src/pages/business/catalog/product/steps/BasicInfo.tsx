@@ -9,9 +9,6 @@ type ProductData = {
   sku: string;
   urlKey: string;
   taxCategory: string;
-  metaTitle: string;
-  metaDescription: string;
-  metaKeywords: string;
   category: string;
   subCategory: string;
   subSubCategory: string;
@@ -23,9 +20,6 @@ const defaultProductData: ProductData = {
   sku: '',
   urlKey: '',
   taxCategory: '',
-  metaTitle: '',
-  metaDescription: '',
-  metaKeywords: '',
   category: '',
   subCategory: '',
   subSubCategory: ''
@@ -35,7 +29,6 @@ type BasicInfoProps = {
   data: ProductData;
   updateData: (data: Partial<ProductData>) => void;
   errors: Record<string, string>;
-  onSubmit?: (data: ProductData) => Promise<void>;
 };
 
 // Tax categories
@@ -78,12 +71,10 @@ const Tooltip = ({ content }: { content: string }) => {
   );
 };
 
-export default function BasicInfo({ data = defaultProductData, updateData, errors, onSubmit }: BasicInfoProps) {
+export default function BasicInfo({ data = defaultProductData, updateData, errors }: BasicInfoProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [submitLoading, setSubmitLoading] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -203,83 +194,11 @@ export default function BasicInfo({ data = defaultProductData, updateData, error
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (submitLoading) return;
-
-    try {
-      setSubmitLoading(true);
-      setSubmitError(null);
-
-      // Prepare the data for API submission
-      const productData = {
-        product_name: data.name || '',
-        sku: data.sku || '',
-        url_key: data.urlKey || '',
-        tax_category: data.taxCategory || '',
-        meta_title: data.metaTitle || '',
-        meta_description: data.metaDescription || '',
-        meta_keywords: data.metaKeywords || '',
-        category_id: data.category ? parseInt(data.category) : null,
-        sub_category_id: data.subCategory ? parseInt(data.subCategory) : null,
-        sub_sub_category_id: data.subSubCategory ? parseInt(data.subSubCategory) : null
-      };
-
-      // Make API call to create product
-      const response = await fetch(`${API_BASE_URL}/api/products`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(productData)
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.error || 'Failed to create product');
-      }
-
-      // If onSubmit prop is provided, call it with the response data
-      if (onSubmit) {
-        await onSubmit(data);
-      }
-
-      // Show success message or handle success case
-      console.log('Product created successfully:', responseData);
-
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Failed to create product');
-      console.error('Error creating product:', err);
-    } finally {
-      setSubmitLoading(false);
-    }
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="p-6">
+    <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-900">Product Information</h2>
-        <button
-          type="submit"
-          disabled={submitLoading}
-          className={`px-4 py-2 rounded-md text-white font-medium ${
-            submitLoading 
-              ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-primary-600 hover:bg-primary-700'
-          } transition-colors duration-200`}
-        >
-          {submitLoading ? 'Saving...' : 'Save Product'}
-        </button>
       </div>
-
-      {submitError && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-600">{submitError}</p>
-        </div>
-      )}
 
       <div className="space-y-6">
         <div className="bg-gray-50 p-4 rounded-lg mb-6">
@@ -498,6 +417,6 @@ export default function BasicInfo({ data = defaultProductData, updateData, error
           </div>
         </div>
       </div>
-    </form>
+    </div>
   );
 }

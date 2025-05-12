@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { ExclamationCircleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { CalendarIcon } from '@heroicons/react/24/solid';
 import { Popover } from '@headlessui/react';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Define the ProductData type here since there are issues with importing it
 interface ProductData {
+  productId?: number;
   price: string;
   cost: string;
   specialPrice: string;
@@ -17,12 +18,16 @@ type PricingProps = {
   updateData: (data: Partial<ProductData>) => void;
   errors: Record<string, string>;
   isReadOnly: boolean;
+  onSave?: () => void;
 };
 
 const STANDARD_DISCOUNTS = [5, 10, 15, 20, 25, 30];
 
-const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly }) => {
+
+const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly, onSave }) => {
   const [discountPercentage, setDiscountPercentage] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Calculate discount percentage when price or special price changes
   useEffect(() => {
@@ -54,9 +59,75 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly 
     }
   };
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    // Convert from HTML date input format (YYYY-MM-DD) to API format if needed
+    return dateString;
+  };
+
+  const savePrice = async () => {
+    if (!data.productId || isReadOnly) return;
+    
+    setIsSaving(true);
+    setSaveError(null);
+    
+    try {
+      // Prepare the data for the API
+      const priceData = {
+        price: parseFloat(data.price),
+        cost_price: data.cost ? parseFloat(data.cost) : null,
+        special_price: data.specialPrice ? parseFloat(data.specialPrice) : null,
+        special_price_from: data.specialPriceFrom ? formatDate(data.specialPriceFrom) : null,
+        special_price_to: data.specialPriceTo ? formatDate(data.specialPriceTo) : null
+      };
+      
+      // Call the price update endpoint
+      const response = await fetch(
+        `${API_BASE_URL}/api/product/products/${data.productId}/price`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(priceData)
+        }
+      );
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.error || 'Failed to update price information');
+      }
+      
+      if (onSave) onSave();
+    } catch (error) {
+      console.error('Error saving price data:', error);
+      setSaveError('Failed to update price information. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="p-6">
-      <h2 className="text-xl font-semibold text-gray-900 pb-4 mb-6">Price</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold text-gray-900">Price</h2>
+        {!isReadOnly && data.productId && (
+          <button
+            type="button"
+            onClick={savePrice}
+            disabled={isSaving}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+          >
+            {isSaving ? 'Saving...' : 'Save Pricing'}
+          </button>
+        )}
+      </div>
+      
+      {saveError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-300 rounded-md">
+          <p className="text-sm text-red-700">{saveError}</p>
+        </div>
+      )}
       
       {/* Price Fields */}
       <div className="space-y-6">
@@ -198,8 +269,10 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly 
               <div 
                 className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                 onClick={() => {
-                  const dateInput = document.getElementById('specialPriceFrom') as HTMLInputElement;
-                  if (dateInput) dateInput.click();
+                  if (!isReadOnly) {
+                    const dateInput = document.getElementById('specialPriceFrom') as HTMLInputElement;
+                    if (dateInput) dateInput.click();
+                  }
                 }}
               >
                 <CalendarIcon className="h-5 w-5 text-gray-400" />
@@ -225,8 +298,10 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly 
               <div 
                 className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                 onClick={() => {
-                  const dateInput = document.getElementById('specialPriceTo') as HTMLInputElement;
-                  if (dateInput) dateInput.click();
+                  if (!isReadOnly) {
+                    const dateInput = document.getElementById('specialPriceTo') as HTMLInputElement;
+                    if (dateInput) dateInput.click();
+                  }
                 }}
               >
                 <CalendarIcon className="h-5 w-5 text-gray-400" />
@@ -239,4 +314,4 @@ const Pricing: React.FC<PricingProps> = ({ data, updateData, errors, isReadOnly 
   );
 };
 
-export default Pricing; 
+export default Pricing;

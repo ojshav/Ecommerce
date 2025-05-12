@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
@@ -7,104 +7,213 @@ import {
   ExclamationCircleIcon,
   InformationCircleIcon
 } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface DocumentUpload {
   id: string;
   file: File | null;
   status: 'pending' | 'uploaded' | 'error';
   required: boolean;
+  documentType: string;
+}
+
+interface BusinessDetails {
+  gstin: string;
+  panNumber: string;
+  gtin: string;
 }
 
 const Verification: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, accessToken, isMerchant } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [noGstChecked, setNoGstChecked] = useState(false);
   const [bankDetails, setBankDetails] = useState({
     accountNumber: '',
     ifscCode: ''
   });
+  const [businessDetails, setBusinessDetails] = useState<BusinessDetails>({
+    gstin: '',
+    panNumber: '',
+    gtin: ''
+  });
 
-  // Document upload states
+  // Redirect if not authenticated or not a merchant
+  useEffect(() => {
+    if (!user || !isMerchant) {
+      toast.error('You must be logged in as a merchant to access this page');
+      navigate('/login');
+    }
+  }, [user, isMerchant, navigate]);
+
+  // Document upload states with document types
   const [documents, setDocuments] = useState<{ [key: string]: DocumentUpload }>({
     businessRegistration: {
-      id: 'businessRegistration',
+      id: 'business_registration',
       file: null,
       status: 'pending',
-      required: true
+      required: true,
+      documentType: 'business_registration'
     },
     panCard: {
       id: 'panCard',
       file: null,
       status: 'pending',
-      required: true
+      required: true,
+      documentType: 'pan_card'
     },
     gstin: {
       id: 'gstin',
       file: null,
       status: 'pending',
-      required: false
+      required: false,
+      documentType: 'gstin'
     },
     identityProof: {
       id: 'identityProof',
       file: null,
       status: 'pending',
-      required: true
+      required: true,
+      documentType: 'identity_proof'
     },
     addressProof: {
       id: 'addressProof',
       file: null,
       status: 'pending',
-      required: true
+      required: true,
+      documentType: 'address_proof'
     },
     cancelledCheque: {
       id: 'cancelledCheque', 
       file: null,
       status: 'pending',
-      required: true
+      required: true,
+      documentType: 'cancelled_cheque'
     },
     gstCertificate: {
       id: 'gstCertificate',
       file: null,
       status: 'pending',
-      required: false
+      required: false,
+      documentType: 'gst_certificate'
     },
     msmeCertificate: {
       id: 'msmeCertificate',
       file: null,
       status: 'pending',
-      required: false
+      required: false,
+      documentType: 'msme_certificate'
     },
     digitalSignatureCertificate: {
       id: 'digitalSignatureCertificate',
       file: null,
       status: 'pending',
-      required: false
+      required: false,
+      documentType: 'digital_signature'
     },
     returnPolicy: {
       id: 'returnPolicy',
       file: null,
       status: 'pending',
-      required: false
+      required: false,
+      documentType: 'return_policy'
     },
-    logisticsPreferences: {
-      id: 'logisticsPreferences',
+    shippingDetails: {
+      id: 'shippingDetails',
       file: null,
       status: 'pending',
-      required: false
+      required: false,
+      documentType: 'shipping_details'
     }
   });
 
-  const handleFileChange = (documentId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (documentId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !accessToken) {
+      toast.error('Please log in to upload documents');
+      return;
+    }
+
+    // Validate token format
+    const tokenRegex = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
+    if (!tokenRegex.test(accessToken)) {
+      toast.error('Invalid authentication token. Please log in again.');
+      return;
+    }
+
     if (e.target.files && e.target.files[0]) {
-      setDocuments(prev => ({
-        ...prev,
-        [documentId]: {
-          ...prev[documentId],
-          file: e.target.files![0],
-          status: 'uploaded'
+      const file = e.target.files[0];
+      
+      // Validate file type
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Invalid file type. Please upload PDF, JPEG, or PNG files only.');
+        return;
+      }
+
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      if (file.size > maxSize) {
+        toast.error('File size too large. Maximum size is 10MB.');
+        return;
+      }
+
+      try {
+        // Prepare FormData for upload
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('document_type', documents[documentId].documentType);
+
+        // Ensure API_BASE_URL doesn't end with a slash
+        const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+        const uploadUrl = `${baseUrl}/api/merchant/documents/upload`;
+
+        // Upload document to backend
+        const response = await fetch(uploadUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            toast.error('Session expired. Please log in again.');
+            return;
+          }
+          throw new Error(data.message || 'Failed to upload document');
         }
-      }));
+
+        // Update document state
+        setDocuments(prev => ({
+          ...prev,
+          [documentId]: {
+            ...prev[documentId],
+            file,
+            status: data.document.status === 'pending' ? 'uploaded' : data.document.status
+          }
+        }));
+
+        toast.success('Document uploaded successfully');
+      } catch (error: unknown) {
+        console.error('Error uploading document:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to upload document';
+        
+        setDocuments(prev => ({
+          ...prev,
+          [documentId]: {
+            ...prev[documentId],
+            file,
+            status: 'error'
+          }
+        }));
+        
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -116,36 +225,111 @@ const Verification: React.FC = () => {
     }));
   };
 
+  const handleBusinessDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setBusinessDetails(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleNoGstChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNoGstChecked(e.target.checked);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    // Check if all required documents are uploaded
-    const requiredDocsUploaded = Object.values(documents)
-      .filter(doc => doc.required)
-      .every(doc => doc.file !== null || (doc.id === 'gstin' && noGstChecked));
-
-    // Check if bank details are filled
-    const bankDetailsFilled = bankDetails.accountNumber.trim() !== '' && 
-                             bankDetails.ifscCode.trim() !== '';
-
-    if (!requiredDocsUploaded || !bankDetailsFilled) {
-      alert('Please upload all required documents and fill in bank details');
-      setIsSubmitting(false);
+    
+    if (!user || !accessToken) {
+      toast.error('Please log in to submit verification');
       return;
     }
 
-    // In a real application, you would upload files to server here
-    // For demo, we'll simulate a successful submission after 2 seconds
-    setTimeout(() => {
-      // After successful submission, navigate to pending verification page
-      navigate('/verification-pending');
+    setIsSubmitting(true);
+
+    try {
+      // Check if all required documents are uploaded
+      const requiredDocsUploaded = Object.values(documents)
+        .filter(doc => doc.required)
+        .every(doc => doc.status === 'uploaded' || (doc.id === 'gstin' && noGstChecked));
+
+      // Check if bank details are filled
+      const bankDetailsFilled = bankDetails.accountNumber.trim() !== '' && 
+                               bankDetails.ifscCode.trim() !== '';
+
+      // Check if business details are filled
+      const businessDetailsFilled = businessDetails.panNumber.trim() !== '' && 
+                                  (businessDetails.gstin.trim() !== '' || noGstChecked);
+
+      if (!requiredDocsUploaded || !bankDetailsFilled || !businessDetailsFilled) {
+        toast.error('Please upload all required documents and fill in all required details');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Debug: Log the request data
+      const requestData = {
+        pan_number: businessDetails.panNumber,
+        gstin: noGstChecked ? null : businessDetails.gstin,
+        gtin: businessDetails.gtin || null,
+        bank_account_number: bankDetails.accountNumber,
+        bank_ifsc_code: bankDetails.ifscCode
+      };
+      console.log('Request Data:', requestData);
+
+      // Submit business and bank details
+      const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+      const profileResponse = await fetch(`${baseUrl}/api/merchants/profile`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      const profileData = await profileResponse.json();
+      console.log('Profile Response:', profileData);
+
+      if (!profileResponse.ok) {
+        console.error('Profile Update Error:', {
+          status: profileResponse.status,
+          statusText: profileResponse.statusText,
+          data: profileData
+        });
+        throw new Error(profileData.error || profileData.message || 'Failed to submit business details');
+      }
+
+      // Submit for verification
+      const verifyResponse = await fetch(`${baseUrl}/api/merchants/profile/verify`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const verifyData = await verifyResponse.json();
+      console.log('Verification Response:', verifyData);
+
+      if (!verifyResponse.ok) {
+        console.error('Verification Error:', {
+          status: verifyResponse.status,
+          statusText: verifyResponse.statusText,
+          data: verifyData
+        });
+        throw new Error(verifyData.error || verifyData.message || 'Failed to submit for verification');
+      }
+
+      toast.success('Verification submitted successfully');
+      navigate('/business/verification-pending');
+    } catch (error: unknown) {
+      console.error('Error submitting verification:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit verification';
+      toast.error(errorMessage);
+    } finally {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -172,10 +356,90 @@ const Verification: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Section 1: Business Verification Documents */}
+          {/* Section 1: Business Details */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              1. Business Verification Documents
+              1. Business Details
+            </h2>
+            
+            <div className="space-y-6">
+              {/* PAN Number */}
+              <div>
+                <label className="block mb-2 font-medium text-gray-700">
+                  🔹 PAN Number
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="panNumber"
+                  value={businessDetails.panNumber}
+                  onChange={handleBusinessDetailsChange}
+                  placeholder="Enter PAN number"
+                  className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  required
+                  pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                  title="Please enter a valid PAN number (e.g., ABCDE1234F)"
+                />
+              </div>
+
+              {/* GSTIN */}
+              <div>
+                <label className="block mb-2 font-medium text-gray-700">
+                  🔹 GSTIN (If applicable)
+                </label>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    name="gstin"
+                    value={businessDetails.gstin}
+                    onChange={handleBusinessDetailsChange}
+                    placeholder="Enter GSTIN"
+                    className={`block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
+                      noGstChecked ? 'opacity-50' : ''
+                    }`}
+                    disabled={noGstChecked}
+                    pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}"
+                    title="Please enter a valid GSTIN"
+                  />
+                  
+                  <div className="flex items-center">
+                    <input
+                      id="noGstin"
+                      type="checkbox"
+                      checked={noGstChecked}
+                      onChange={handleNoGstChange}
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="noGstin" className="ml-2 block text-sm text-gray-700">
+                      I don't have GSTIN — I will upload a declaration
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* GTIN */}
+              <div>
+                <label className="block mb-2 font-medium text-gray-700">
+                  🔹 GTIN (Global Trade Item Number)
+                </label>
+                <input
+                  type="text"
+                  name="gtin"
+                  value={businessDetails.gtin}
+                  onChange={handleBusinessDetailsChange}
+                  placeholder="Enter GTIN (optional)"
+                  className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  pattern="[0-9]{8}|[0-9]{12,14}"
+                  title="Please enter a valid GTIN (8, 12, 13, or 14 digits)"
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* Section 2: Business Verification Documents */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
+              2. Business Verification Documents
             </h2>
             
             <div className="space-y-6">
@@ -192,13 +456,19 @@ const Verification: React.FC = () => {
                 <div className="flex items-center">
                   <label className={`
                     flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.businessRegistration.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white'}
+                    ${documents.businessRegistration.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                      documents.businessRegistration.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
                     hover:bg-gray-50 cursor-pointer w-full max-w-xs
                   `}>
                     {documents.businessRegistration.status === 'uploaded' ? (
                       <span className="flex items-center text-green-600">
                         <CheckCircleIcon className="h-5 w-5 mr-2" />
                         {documents.businessRegistration.file?.name || 'File uploaded'}
+                      </span>
+                    ) : documents.businessRegistration.status === 'error' ? (
+                      <span className="flex items-center text-red-600">
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                        Upload failed
                       </span>
                     ) : (
                       <span className="flex items-center text-gray-600">
@@ -229,13 +499,19 @@ const Verification: React.FC = () => {
                 <div className="flex items-center">
                   <label className={`
                     flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.panCard.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white'}
+                    ${documents.panCard.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                      documents.panCard.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
                     hover:bg-gray-50 cursor-pointer w-full max-w-xs
                   `}>
                     {documents.panCard.status === 'uploaded' ? (
                       <span className="flex items-center text-green-600">
                         <CheckCircleIcon className="h-5 w-5 mr-2" />
                         {documents.panCard.file?.name || 'File uploaded'}
+                      </span>
+                    ) : documents.panCard.status === 'error' ? (
+                      <span className="flex items-center text-red-600">
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                        Upload failed
                       </span>
                     ) : (
                       <span className="flex items-center text-gray-600">
@@ -266,7 +542,8 @@ const Verification: React.FC = () => {
                   <div className="flex items-center">
                     <label className={`
                       flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                      ${documents.gstin.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white'}
+                      ${documents.gstin.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                        documents.gstin.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
                       hover:bg-gray-50 cursor-pointer w-full max-w-xs
                       ${noGstChecked ? 'opacity-50 pointer-events-none' : ''}
                     `}>
@@ -274,6 +551,11 @@ const Verification: React.FC = () => {
                         <span className="flex items-center text-green-600">
                           <CheckCircleIcon className="h-5 w-5 mr-2" />
                           {documents.gstin.file?.name || 'File uploaded'}
+                        </span>
+                      ) : documents.gstin.status === 'error' ? (
+                        <span className="flex items-center text-red-600">
+                          <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                          Upload failed
                         </span>
                       ) : (
                         <span className="flex items-center text-gray-600">
@@ -308,10 +590,10 @@ const Verification: React.FC = () => {
             </div>
           </div>
           
-          {/* Section 2: Identity & Address Proof */}
+          {/* Section 3: Identity & Address Proof */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              2. Identity & Address Proof
+              3. Identity & Address Proof
             </h2>
             
             <div className="space-y-6">
@@ -328,13 +610,19 @@ const Verification: React.FC = () => {
                 <div className="flex items-center">
                   <label className={`
                     flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.identityProof.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white'}
+                    ${documents.identityProof.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                      documents.identityProof.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
                     hover:bg-gray-50 cursor-pointer w-full max-w-xs
                   `}>
                     {documents.identityProof.status === 'uploaded' ? (
                       <span className="flex items-center text-green-600">
                         <CheckCircleIcon className="h-5 w-5 mr-2" />
                         {documents.identityProof.file?.name || 'File uploaded'}
+                      </span>
+                    ) : documents.identityProof.status === 'error' ? (
+                      <span className="flex items-center text-red-600">
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                        Upload failed
                       </span>
                     ) : (
                       <span className="flex items-center text-gray-600">
@@ -365,13 +653,19 @@ const Verification: React.FC = () => {
                 <div className="flex items-center">
                   <label className={`
                     flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.addressProof.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white'}
+                    ${documents.addressProof.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                      documents.addressProof.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
                     hover:bg-gray-50 cursor-pointer w-full max-w-xs
                   `}>
                     {documents.addressProof.status === 'uploaded' ? (
                       <span className="flex items-center text-green-600">
                         <CheckCircleIcon className="h-5 w-5 mr-2" />
                         {documents.addressProof.file?.name || 'File uploaded'}
+                      </span>
+                    ) : documents.addressProof.status === 'error' ? (
+                      <span className="flex items-center text-red-600">
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                        Upload failed
                       </span>
                     ) : (
                       <span className="flex items-center text-gray-600">
@@ -391,10 +685,10 @@ const Verification: React.FC = () => {
             </div>
           </div>
           
-          {/* Section 3: Bank Account Details */}
+          {/* Section 4: Bank Account Details */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              3. Bank Account Details
+              4. Bank Account Details
             </h2>
             
             <div className="space-y-6">
@@ -411,13 +705,19 @@ const Verification: React.FC = () => {
                 <div className="flex items-center">
                   <label className={`
                     flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.cancelledCheque.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white'}
+                    ${documents.cancelledCheque.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                      documents.cancelledCheque.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
                     hover:bg-gray-50 cursor-pointer w-full max-w-xs
                   `}>
                     {documents.cancelledCheque.status === 'uploaded' ? (
                       <span className="flex items-center text-green-600">
                         <CheckCircleIcon className="h-5 w-5 mr-2" />
                         {documents.cancelledCheque.file?.name || 'File uploaded'}
+                      </span>
+                    ) : documents.cancelledCheque.status === 'error' ? (
+                      <span className="flex items-center text-red-600">
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                        Upload failed
                       </span>
                     ) : (
                       <span className="flex items-center text-gray-600">
@@ -478,10 +778,10 @@ const Verification: React.FC = () => {
             </div>
           </div>
           
-          {/* Section 4: Tax Compliance */}
+          {/* Section 5: Tax Compliance */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              4. Tax Compliance
+              5. Tax Compliance
             </h2>
             
             <div className="space-y-6">
@@ -495,7 +795,8 @@ const Verification: React.FC = () => {
                 <div className="flex items-center">
                   <label className={`
                     flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.gstCertificate.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white'}
+                    ${documents.gstCertificate.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                      documents.gstCertificate.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
                     hover:bg-gray-50 cursor-pointer w-full max-w-xs
                     ${noGstChecked ? 'opacity-50 pointer-events-none' : ''}
                   `}>
@@ -503,6 +804,11 @@ const Verification: React.FC = () => {
                       <span className="flex items-center text-green-600">
                         <CheckCircleIcon className="h-5 w-5 mr-2" />
                         {documents.gstCertificate.file?.name || 'File uploaded'}
+                      </span>
+                    ) : documents.gstCertificate.status === 'error' ? (
+                      <span className="flex items-center text-red-600">
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                        Upload failed
                       </span>
                     ) : (
                       <span className="flex items-center text-gray-600">
@@ -530,13 +836,19 @@ const Verification: React.FC = () => {
                 <div className="flex items-center">
                   <label className={`
                     flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.msmeCertificate.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white'}
+                    ${documents.msmeCertificate.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                      documents.msmeCertificate.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
                     hover:bg-gray-50 cursor-pointer w-full max-w-xs
                   `}>
                     {documents.msmeCertificate.status === 'uploaded' ? (
                       <span className="flex items-center text-green-600">
                         <CheckCircleIcon className="h-5 w-5 mr-2" />
                         {documents.msmeCertificate.file?.name || 'File uploaded'}
+                      </span>
+                    ) : documents.msmeCertificate.status === 'error' ? (
+                      <span className="flex items-center text-red-600">
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                        Upload failed
                       </span>
                     ) : (
                       <span className="flex items-center text-gray-600">
@@ -556,10 +868,10 @@ const Verification: React.FC = () => {
             </div>
           </div>
           
-          {/* Section 5: Other Optional Documents */}
+          {/* Section 6: Other Optional Documents */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              5. Other Optional Documents
+              6. Other Optional Documents
             </h2>
             
             <div className="space-y-6">
@@ -572,13 +884,19 @@ const Verification: React.FC = () => {
                 <div className="flex items-center">
                   <label className={`
                     flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.digitalSignatureCertificate.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white'}
+                    ${documents.digitalSignatureCertificate.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                      documents.digitalSignatureCertificate.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
                     hover:bg-gray-50 cursor-pointer w-full max-w-xs
                   `}>
                     {documents.digitalSignatureCertificate.status === 'uploaded' ? (
                       <span className="flex items-center text-green-600">
                         <CheckCircleIcon className="h-5 w-5 mr-2" />
                         {documents.digitalSignatureCertificate.file?.name || 'File uploaded'}
+                      </span>
+                    ) : documents.digitalSignatureCertificate.status === 'error' ? (
+                      <span className="flex items-center text-red-600">
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                        Upload failed
                       </span>
                     ) : (
                       <span className="flex items-center text-gray-600">
@@ -605,13 +923,19 @@ const Verification: React.FC = () => {
                 <div className="flex items-center">
                   <label className={`
                     flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.returnPolicy.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white'}
+                    ${documents.returnPolicy.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                      documents.returnPolicy.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
                     hover:bg-gray-50 cursor-pointer w-full max-w-xs
                   `}>
                     {documents.returnPolicy.status === 'uploaded' ? (
                       <span className="flex items-center text-green-600">
                         <CheckCircleIcon className="h-5 w-5 mr-2" />
                         {documents.returnPolicy.file?.name || 'File uploaded'}
+                      </span>
+                    ) : documents.returnPolicy.status === 'error' ? (
+                      <span className="flex items-center text-red-600">
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                        Upload failed
                       </span>
                     ) : (
                       <span className="flex items-center text-gray-600">
@@ -629,22 +953,28 @@ const Verification: React.FC = () => {
                 </div>
               </div>
               
-              {/* Logistics/Shipping Preferences */}
+              {/* Shipping Details */}
               <div>
                 <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Logistics/Shipping Preferences / Tie-ups (Optional)
+                  🔹 Shipping Details / Tie-ups (Optional)
                 </label>
                 
                 <div className="flex items-center">
                   <label className={`
                     flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.logisticsPreferences.status === 'uploaded' ? 'border-green-300 bg-green-50' : 'border-gray-300 bg-white'}
+                    ${documents.shippingDetails.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                      documents.shippingDetails.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
                     hover:bg-gray-50 cursor-pointer w-full max-w-xs
                   `}>
-                    {documents.logisticsPreferences.status === 'uploaded' ? (
+                    {documents.shippingDetails.status === 'uploaded' ? (
                       <span className="flex items-center text-green-600">
                         <CheckCircleIcon className="h-5 w-5 mr-2" />
-                        {documents.logisticsPreferences.file?.name || 'File uploaded'}
+                        {documents.shippingDetails.file?.name || 'File uploaded'}
+                      </span>
+                    ) : documents.shippingDetails.status === 'error' ? (
+                      <span className="flex items-center text-red-600">
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                        Upload failed
                       </span>
                     ) : (
                       <span className="flex items-center text-gray-600">
@@ -656,7 +986,7 @@ const Verification: React.FC = () => {
                       type="file"
                       className="hidden"
                       accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileChange('logisticsPreferences', e)}
+                      onChange={(e) => handleFileChange('shippingDetails', e)}
                     />
                   </label>
                 </div>
@@ -683,7 +1013,7 @@ const Verification: React.FC = () => {
                   Processing...
                 </span>
               ) : (
-                'Submit All Documents'
+                'Submit Verification'
               )}
             </button>
           </div>

@@ -6,6 +6,7 @@ interface User {
   name?: string;
   role: 'customer' | 'merchant' | 'admin';
   isEmailVerified?: boolean;
+  verificationStatus?: 'pending' | 'approved' | 'rejected' | 'not_submitted';
 }
 
 interface AuthState {
@@ -22,12 +23,15 @@ interface AuthContextType {
   isMerchant: boolean;
   isAdmin: boolean;
   isEmailVerified: boolean;
+  isVerifiedMerchant: boolean;
   setAuthState: (state: AuthState) => Promise<boolean>;
   register: (accessToken: string, refreshToken: string, userData?: any) => Promise<boolean>;
   login: (accessToken: string, refreshToken: string, userData?: any) => Promise<boolean>;
   logout: () => void;
   refreshTokenFunc: () => Promise<boolean>;
   verifyEmail: (token: string) => Promise<boolean>;
+  fetchVerificationStatus: () => Promise<void>;
+  updateVerificationStatus: (status: User['verificationStatus']) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isMerchant = user?.role === 'merchant' || user?.role === 'admin';
   const isAdmin = user?.role === 'admin';
   const isEmailVerified = user?.isEmailVerified || false;
-
+  const isVerifiedMerchant = user?.verificationStatus === 'approved';
 
   useEffect(() => {
     if (accessToken) {
@@ -72,7 +76,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const setAuthState = async (state: AuthState) => {
     try {
-
       setAccessToken(state.accessToken);
       setRefreshToken(state.refreshToken);
       setUser(state.user);
@@ -83,6 +86,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const fetchVerificationStatus = async () => {
+    if (!isMerchant || !accessToken) return;
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/merchant/verification/status`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch verification status');
+      }
+
+      const data = await response.json();
+      
+      // Update user's verification status
+      if (user) {
+        setUser({
+          ...user,
+          verificationStatus: data.status
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching verification status:', error);
+    }
+  };
+
+  const updateVerificationStatus = (status: User['verificationStatus']) => {
+    if (user) {
+      setUser({
+        ...user,
+        verificationStatus: status
+      });
+    }
+  };
+
   const createUserObject = (userData: any): User => {
     return {
       id: userData.id,
@@ -90,13 +130,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       name: `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'User',
       role: userData.role === 'MERCHANT' ? 'merchant' : 
             userData.role === 'ADMIN' ? 'admin' : 'customer',
-      isEmailVerified: userData.is_email_verified || false
+      isEmailVerified: userData.is_email_verified || false,
+      verificationStatus: userData.verification_status || 'not_submitted'
     };
   };
 
   const register = async (accessToken: string, refreshToken: string, userData?: any) => {
     try {
-
       if (userData) {
         // If user data is provided directly from auth response
         const userObj = createUserObject(userData);
@@ -112,7 +152,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
-
         }
       });
 
@@ -138,6 +177,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (accessToken: string, refreshToken: string, userData?: any) => {
     try {
+      // Validate token format
+      const tokenRegex = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
+      if (!tokenRegex.test(accessToken)) {
+        throw new Error('Invalid token format');
+      }
 
       if (userData) {
         // If user data is provided directly from auth response
@@ -154,7 +198,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
-
         }
       });
 
@@ -180,7 +223,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const verifyEmail = async (token: string) => {
     try {
-
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email/${token}`, {
         method: 'GET',
         headers: {
@@ -254,12 +296,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
 
       if (response.status === 200) {
+        // Validate new token format
+        const tokenRegex = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
+        if (!tokenRegex.test(data.access_token)) {
+          throw new Error('Invalid token format received');
+        }
+        
         setAccessToken(data.access_token);
         return true;
       } else {
-        throw new Error('Token refresh failed');
+        throw new Error(data.msg || 'Token refresh failed');
       }
     } catch (err) {
+      console.error('Token refresh error:', err);
       logout();
       return false;
     }
@@ -273,15 +322,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       user,
       isMerchant,
       isAdmin,
-
       isEmailVerified,
+      isVerifiedMerchant,
       setAuthState,
-
       register,
       login,
       logout, 
       refreshTokenFunc,
-      verifyEmail
+      verifyEmail,
+      fetchVerificationStatus,
+      updateVerificationStatus
     }}>
       {children}
     </AuthContext.Provider>

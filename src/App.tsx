@@ -42,12 +42,10 @@ const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
 const BusinessProducts = lazy(() => import('./pages/business/Products'));
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
-const BusinessVerification = lazy(() => import('./pages/business/Verification'));
+const Verification = lazy(() => import('./pages/business/verification'));
 
 // Lazy-loaded catalog pages
 const CatalogProducts = lazy(() => import('./pages/business/catalog/Products'));
-const CatalogCategories = lazy(() => import('./pages/business/catalog/Categories'));
-const CatalogAttributes = lazy(() => import('./pages/business/catalog/Attributes'));
 const AddProduct = lazy(() => import('./pages/business/catalog/product/AddProduct'));
 
 const LoadingFallback = () => (
@@ -96,7 +94,7 @@ function App() {
                     path="verification"
                     element={
                       <Suspense fallback={<LoadingFallback />}>
-                        <BusinessVerification />
+                        <Verification />
                       </Suspense>
                     }
                   />
@@ -131,7 +129,7 @@ function App() {
                       path="categories"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <CatalogCategories />
+                         
                         </Suspense>
                       }
                     />
@@ -139,7 +137,7 @@ function App() {
                       path="attributes"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <CatalogAttributes />
+                       
                         </Suspense>
                       }
                     />
