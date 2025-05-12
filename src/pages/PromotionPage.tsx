@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Filter, ShoppingCart, Heart, ChevronDown, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
-const Promotion: React.FC = () => {
+const PromotionPage: React.FC = () => {
   const { addToCart } = useCart();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('popularity');
@@ -388,6 +388,4 @@ const Promotion: React.FC = () => {
   );
 };
 
-export default Promotion;
-
- 
+export default PromotionPage; 
