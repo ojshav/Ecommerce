@@ -54,6 +54,7 @@ import Returns from './pages/Returns';
 import Privacy from './pages/Privacy';
 import Cookies from './pages/Cookies';
 import Terms from './pages/Terms';
+import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
 
 
 // Lazy-loaded business dashboard pages
@@ -61,7 +62,7 @@ const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
 const BusinessProducts = lazy(() => import('./pages/business/Products'));
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
-const Verification = lazy(() => import('./pages/business/verification'));
+const Verification = lazy(() => import('./pages/business/Verification'));
 
 // Lazy-loaded catalog pages
 const CatalogProducts = lazy(() => import('./pages/business/catalog/Products'));
@@ -199,117 +200,24 @@ function App() {
                   
                   {/* Add more business routes here */}
 
+
                 </Route>
-
-                {/* Superadmin Routes - Protected by ProtectedSuperadminRoute */}
-                <Route
-                  path="/superadmin"
-                  element={
-                  
-                      <Dashboard />
-                    
-                  }
-                />
-                <Route
-                  path="/superadmin/user-activity-overview"
-                  element={
-                    
-                      <UserActivity />
-                  
-                  }
-                />
-                <Route
-                  path="/superadmin/user-management"
-                  element={
-                  
-                      <UserManagement />
-                    
-                  }
-                />
-                <Route
-                  path="/superadmin/content-moderation"
-                  element={
-              
-                      <ContentModeration />
-           
-                  }
-                />
-                <Route
-                  path="/superadmin/site-traffic-analytics"
-                  element={
-                    
-                      <TrafficAnalytics />
-                 
-                  }
-                />
-                <Route
-                  path="/superadmin/sales-reports"
-                  element={
-                 
-                      <SalesReport />
-                  
-                  }
-                />
-                <Route
-                  path="/superadmin/fraud-detection"
-                  element={
-                 
-                      <FraudDetection />
-                 
-                  }
-                />
-
-                <Route
-                  path="/superadmin/marketplace-health"
-                  element={
-               
-                      <MarketplaceHealth />
-                   
-                  }
-                />
-                 <Route
-                  path="/superadmin/merchant-analytics"
-                  element={
-                
-
-                      <MerchantAnalytics />
-                    
-                  }
-                />
-                <Route
-                  path="/superadmin/platform-performance"
-                  element={
-          
-                      <PlatformPerformance />
-                  
-                  }
-                />
-                 <Route
-                  path="/superadmin/merchant-management"
-                  element={
-                    
-                      <MerchantManagement />
-                 
-                  }
-                />
-                  
-                  <Route
-                  path="/superadmin/categories"
-                  element={
-                   
-                      <Categories/>
-               
-                  }
-                />
-
-                <Route
-                  path="/superadmin/attribute"
-                  element={
-                   
-                      <Attribute/>
-               
-                  }
-                />
+ {/* Superadmin Routes - Using SuperAdminLayout */}
+                <Route path="/superadmin" element={<SuperAdminLayout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="user-activity-overview" element={<UserActivity />} />
+                  <Route path="user-management" element={<UserManagement />} />
+                  <Route path="content-moderation" element={<ContentModeration />} />
+                  <Route path="site-traffic-analytics" element={<TrafficAnalytics />} />
+                  <Route path="sales-reports" element={<SalesReport />} />
+                  <Route path="fraud-detection" element={<FraudDetection />} />
+                  <Route path="marketplace-health" element={<MarketplaceHealth />} />
+                  <Route path="merchant-analytics" element={<MerchantAnalytics />} />
+                  <Route path="platform-performance" element={<PlatformPerformance />} />
+                  <Route path="merchant-management" element={<MerchantManagement />} />
+                  <Route path="categories" element={<Categories />} />
+                  <Route path="attribute" element={<Attribute />} />
+                </Route>
 
                 {/* Business Auth Routes */}
                 <Route path="/business/login" element={<BusinessLogin />} />

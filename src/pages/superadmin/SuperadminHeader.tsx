@@ -25,24 +25,9 @@ const SuperadminHeader: React.FC = () => {
           {/* Navigation Links - could be expanded */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              <a 
-                href="/superadmin" 
-                className="text-gray-800 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Dashboard
-              </a>
-              <a 
-                href="/superadmin/content-moderation" 
-                className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Content Moderation
-              </a>
-              <a 
-                href="/superadmin/user-management" 
-                className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                User Management
-              </a>
+              
+              
+            
             </div>
           </div>
           
