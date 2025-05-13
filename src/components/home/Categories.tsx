@@ -1,117 +1,226 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 
 const Categories: React.FC = () => {
-  // Expanded categories with real data and images
+  // Category data with icons
   const categories = [
     {
       id: 1,
-      name: 'Electronics',
-      brands: ['Apple', 'Samsung', 'Sony', 'Dell', 'LG'],
-      image: 'https://images.unsplash.com/photo-1588508065123-287b28e013da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80',
-      slug: 'electronics',
-      bgColor: 'bg-blue-50'
+      name: 'Motor vehicles',
+      icon: '🛵',
+      slug: 'motor-vehicles',
+      bgColor: 'bg-[#f5f7f2]',
     },
     {
       id: 2,
-      name: 'Clothing',
-      brands: ['Nike', 'Adidas', 'Zara', 'H&M', 'Uniqlo'],
-      image: 'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-      slug: 'clothing',
-      bgColor: 'bg-green-50'
+      name: 'Technology',
+      icon: '⏹️',
+      slug: 'technology',
+      bgColor: 'bg-[#f5f7f2]',
+      isActive: true,
     },
     {
       id: 3,
-      name: 'Home Decor',
-      brands: ['IKEA', 'Wayfair', 'West Elm', 'Pottery Barn', 'Crate & Barrel'],
-      image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1032&q=80',
-      slug: 'home-decor',
-      bgColor: 'bg-yellow-50'
+      name: 'Watch',
+      icon: '⌚',
+      slug: 'watch',
+      bgColor: 'bg-[#f5f7f2]',
     },
     {
       id: 4,
-      name: 'Beauty',
-      brands: ['Sephora', 'MAC', 'Fenty', 'L\'Oréal', 'Estée Lauder'],
-      image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80',
-      slug: 'beauty',
-      bgColor: 'bg-pink-50'
+      name: 'Glasses',
+      icon: '👓',
+      slug: 'glasses',
+      bgColor: 'bg-[#f5f7f2]',
     },
     {
       id: 5,
-      name: 'Sports',
-      brands: ['Nike', 'Under Armour', 'Adidas', 'Puma', 'New Balance'],
-      image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-      slug: 'sports',
-      bgColor: 'bg-purple-50'
+      name: 'Beauty',
+      icon: '💄',
+      slug: 'beauty',
+      bgColor: 'bg-[#f5f7f2]',
     },
     {
       id: 6,
-      name: 'Books',
-      brands: ['Penguin', 'HarperCollins', 'Simon & Schuster', 'Macmillan', 'Random House'],
-      image: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-      slug: 'books',
-      bgColor: 'bg-indigo-50'
-    }
+      name: 'Toys',
+      icon: '🚚',
+      slug: 'toys',
+      bgColor: 'bg-[#f5f7f2]',
+    },
   ];
 
+  // Product data
+  const products = [
+    {
+      id: 1,
+      name: 'Apple Macbook Pro 2019 MWP42SA/A',
+      price: 2013.54,
+      image: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80',
+      tag: 'New',
+    },
+    {
+      id: 2,
+      name: 'Apple Watch Series 5 MWV62VN/A',
+      price: 517.79,
+      image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80',
+      tag: 'Favorite',
+    },
+    {
+      id: 3,
+      name: 'Apple Macbook Air MWTJ2SA/A (2020)',
+      price: 1099,
+      originalPrice: 1193.71,
+      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1026&q=80',
+      tag: '- 15%',
+    },
+    {
+      id: 4,
+      name: 'Hand Watch Rossini – 5395T01G',
+      price: 193.31,
+      image: 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=694&q=80',
+      tag: 'Sold Out',
+    },
+    {
+      id: 5,
+      name: 'Apple Macbook Pro MWTJ2SA/A Space Grey',
+      price: 1646.34,
+      image: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
+    },
+    {
+      id: 6,
+      name: 'Apple Macbook Pro 2020 MWP42SA/A',
+      price: 2142.98,
+      image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80',
+    },
+  ];
+
+  const getTagClass = (tag: string) => {
+    switch(tag) {
+      case 'New':
+        return 'bg-orange-500 text-white';
+      case 'Favorite':
+        return 'bg-yellow-400 text-black';
+      case '- 15%':
+        return 'bg-orange-500 text-white';
+      case 'Sold Out':
+        return 'bg-gray-700 text-white';
+      default:
+        return '';
+    }
+  };
+
   return (
-    <section className="py-10">
+    <section className="py-8">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-8">Shop By Categories</h2>
+        {/* Categories header with navigation */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">Shop By Categories</h2>
+          <div className="flex items-center">
+            <Link to="/categories" className="text-orange-500 text-sm font-medium mr-4">
+              See All
+            </Link>
+            <div className="flex space-x-2">
+              <button className="p-1 rounded-full border border-gray-300">
+                <ChevronLeft size={20} />
+              </button>
+              <button className="p-1 rounded-full border border-gray-300">
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Categories slider */}
+        <div className="flex space-x-4 overflow-x-auto pb-4 mb-8">
           {categories.map((category) => (
-            <div key={category.id} className={`${category.bgColor} rounded-lg shadow-sm overflow-hidden`}>
-              <div className="p-6 relative">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-bold text-xl mb-2">{category.name}</h3>
-                    <Link to={`/categories/${category.slug}`} className="text-sm text-primary-600 hover:text-primary-700 flex items-center">
-                      View All <ChevronRight size={14} className="ml-1" />
-                    </Link>
-                  </div>
-                  <img 
-                    src={category.image} 
-                    alt={category.name}
-                    className="w-24 h-24 object-cover rounded-md"
-                  />
+            <div 
+              key={category.id} 
+              className={`flex-shrink-0 w-36 h-40 ${category.bgColor} rounded-lg flex flex-col items-center justify-center text-center p-4 ${category.isActive ? 'border-2 border-orange-500 relative' : ''}`}
+            >
+              <div className="w-14 h-14 mb-4 flex items-center justify-center">
+                <span className="text-3xl">{category.icon}</span>
+              </div>
+              <h3 className="font-medium">{category.name}</h3>
+              {category.isActive && (
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-orange-500 rotate-45"></div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Products grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {products.map((product) => (
+            <div key={product.id} className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 relative">
+              {product.tag && (
+                <span className={`absolute top-2 left-2 text-xs py-1 px-2 rounded ${getTagClass(product.tag)}`}>
+                  {product.tag}
+                </span>
+              )}
+              <button className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm">
+                <Heart size={18} className="text-gray-500" />
+              </button>
+              <div className="h-40 overflow-hidden">
+                <img 
+                  src={product.image} 
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-3">
+                <h3 className="text-sm font-medium mb-1 line-clamp-2">{product.name}</h3>
+                <div className="flex space-x-2 items-baseline">
+                  <span className="font-bold">${product.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  {product.originalPrice && (
+                    <span className="text-sm text-gray-500 line-through">${product.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  )}
                 </div>
-                
-                <div className="grid grid-cols-2 gap-y-3">
-                  {category.brands.map((brand, idx) => (
-                    <Link 
-                      key={idx} 
-                      to={`/categories/${category.slug}/${brand.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'and')}`}
-                      className="text-sm text-gray-700 hover:text-primary-600 flex items-center"
-                    >
-                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></span>
-                      {brand}
-                    </Link>
-                  ))}
-                </div>
+                <button className="w-full mt-3 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded text-sm transition">
+                  Add to Cart
+                </button>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Promotional Banner */}
-        <div className="bg-gray-900 rounded-lg mt-10 overflow-hidden shadow-md">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="p-8 text-white">
-              <h3 className="text-lg font-bold text-gray-300 mb-2">SUMMER COLLECTION</h3>
-              <p className="text-2xl md:text-3xl font-bold mb-4">New Arrivals for Summer</p>
-              <p className="text-gray-300 mb-6">Discover the hottest products for the season</p>
-              <button className="bg-white text-gray-900 px-6 py-3 rounded-md font-medium hover:bg-gray-100 transition">
-                Shop Now
-              </button>
+        {/* Promotional Banners */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+          {/* Banner 1 - Camera */}
+          <div className="relative rounded-lg overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+              alt="Camera promotion" 
+              className="w-full h-80 object-cover"
+            />
+            <div className="absolute top-0 left-0 p-8 w-full h-full flex flex-col justify-center">
+              <div className="max-w-xs">
+                <span className="text-sm font-medium text-gray-800">Hot Deal</span>
+                <h3 className="text-2xl font-bold text-gray-900 mt-2 mb-1">TOURS SAFE</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">TRUE DISCOUNT</h3>
+                <button className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition">
+                  Order Now
+                </button>
+              </div>
             </div>
-            <div className="p-4 md:p-0">
-              <img 
-                src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" 
-                alt="Summer Collection" 
-                className="w-full max-w-md h-auto object-contain"
-              />
+          </div>
+          
+          {/* Banner 2 - Living Room */}
+          <div className="relative rounded-lg overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+              alt="Living room promotion" 
+              className="w-full h-80 object-cover"
+            />
+            <div className="absolute top-0 left-0 p-8 w-full h-full flex flex-col justify-center">
+              <div className="max-w-xs">
+                <span className="text-sm font-medium text-gray-800">New Product</span>
+                <h3 className="text-2xl font-bold text-gray-900 mt-2 mb-1">EXPERIENCE TECHNOLOGY</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">RELAX HIGHLY</h3>
+                <button className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition">
+                  Order Now
+                </button>
+              </div>
             </div>
           </div>
         </div>
