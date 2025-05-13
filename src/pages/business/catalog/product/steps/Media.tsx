@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { PhotoIcon, TrashIcon, PlusIcon, StarIcon } from '@heroicons/react/24/outline';
 import { ProductData } from '../AddProduct';
 import { useDropzone } from 'react-dropzone';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 type MediaProps = {
   data: ProductData;
   updateData: (data: Partial<ProductData>) => void;
@@ -25,71 +25,54 @@ const MAX_IMAGE_SIZE = 1024 * 1024; // 1MB
 const MAX_VIDEO_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_IMAGES = 7;
 
+async function uploadImageToBackend(file: File, productId: string | number) {
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('product_id', String(productId));
+  // Optionally: formData.append('is_main', 'false');
+  const response = await fetch(`${API_BASE_URL}/api/product-auxiliary/product-images`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!response.ok) {
+    throw new Error('Image upload failed');
+  }
+  return response.json(); // { image_url, image_id }
+}
+
 const Media: React.FC<MediaProps> = ({ data, updateData, errors }) => {
   const [draggedOver, setDraggedOver] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setUploadError(null);
-    
-    const newMedia: MediaFile[] = [];
-    
+
+    const newImages: ImageFile[] = [];
     for (const file of acceptedFiles) {
-      // Validate file size
       if (file.type.startsWith('image/') && file.size > MAX_IMAGE_SIZE) {
         setUploadError(`Image ${file.name} exceeds 1MB limit`);
         continue;
       }
-      
-      if (file.type.startsWith('video/') && file.size > MAX_VIDEO_SIZE) {
-        setUploadError(`Video ${file.name} exceeds 5MB limit`);
-        continue;
+      try {
+        const result = await uploadImageToBackend(file, data.product_id);
+        newImages.push({
+          id: result.image_id,
+          name: file.name,
+          url: result.image_url,
+          file,
+          type: 'image',
+        });
+      } catch (err) {
+        setUploadError(`Failed to upload ${file.name}`);
       }
-
-      // Create media object
-      const mediaFile: MediaFile = {
-        id: Date.now() + Math.random().toString(),
-        name: file.name,
-        url: URL.createObjectURL(file),
-        file,
-        type: file.type.startsWith('image/') ? 'image' : 'video'
-      } as MediaFile;
-
-      // Generate thumbnail for videos
-      if (mediaFile.type === 'video') {
-        const video = document.createElement('video');
-        video.src = mediaFile.url;
-        video.onloadeddata = () => {
-          video.currentTime = 1;
-          video.onseeked = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-            (mediaFile as VideoFile).thumbnail = canvas.toDataURL();
-            updateData({ videos: [...data.videos, mediaFile as VideoFile] });
-          };
-        };
-      }
-
-      newMedia.push(mediaFile);
     }
-
-    // Update state based on media type
-    const newImages = newMedia.filter((m): m is ImageFile => m.type === 'image');
-    const newVideos = newMedia.filter((m): m is VideoFile => m.type === 'video');
 
     if (newImages.length > 0) {
       const updatedImages = [...data.images, ...newImages];
-      updateData({ 
+      updateData({
         images: updatedImages.slice(0, MAX_IMAGES),
-        primaryImage: data.primaryImage === null ? 0 : data.primaryImage
+        primaryImage: data.primaryImage === null ? 0 : data.primaryImage,
       });
-    }
-
-    if (newVideos.length > 0) {
-      updateData({ videos: [...data.videos, ...newVideos] });
     }
   }, [data, updateData]);
 

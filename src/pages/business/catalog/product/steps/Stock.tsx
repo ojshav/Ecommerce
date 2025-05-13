@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { ExclamationCircleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { Popover } from '@headlessui/react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 interface StockData {
+  productId?: number;
   manageStock: boolean;
   stockQuantity: string;
   lowStockThreshold: string;
@@ -18,6 +21,8 @@ type StockProps = {
 
 const Stock: React.FC<StockProps> = ({ data, updateData, errors, isReadOnly }) => {
   const [stockStatus, setStockStatus] = useState<'in-stock' | 'low-stock' | 'out-of-stock'>('in-stock');
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Calculate stock status
   useEffect(() => {
@@ -41,6 +46,42 @@ const Stock: React.FC<StockProps> = ({ data, updateData, errors, isReadOnly }) =
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked, type } = e.target;
     updateData({ [name]: type === 'checkbox' ? checked : value });
+    if (name === 'stockQuantity') {
+      saveStock();
+    }
+  };
+
+  const saveStock = async () => {
+    if (!data.productId || isReadOnly) return;
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const stockData = {
+        stock_quantity: parseInt(data.stockQuantity) || 0,
+        low_stock_threshold: parseInt(data.lowStockThreshold) || 0,
+        manage_stock: data.manageStock
+      };
+      const response = await fetch(
+        `${API_BASE_URL}/api/product/products/${data.productId}/stock`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(stockData)
+        }
+      );
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.error || 'Failed to update stock information');
+      }
+    } catch (error) {
+      console.error('Error saving stock data:', error);
+      setSaveError('Failed to update stock information. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const getStatusColor = () => {
@@ -68,7 +109,11 @@ const Stock: React.FC<StockProps> = ({ data, updateData, errors, isReadOnly }) =
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold text-gray-900 pb-4 mb-6">Stock Management</h2>
-      
+      {saveError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-300 rounded-md">
+          <p className="text-sm text-red-700">{saveError}</p>
+        </div>
+      )}
       {/* Manage Stock Toggle */}
       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 mb-6">
         <div className="flex items-center">
