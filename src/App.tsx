@@ -302,7 +302,7 @@ function App() {
                   }
                 />
 
-<Route
+                <Route
                   path="/superadmin/attribute"
                   element={
                    
@@ -310,9 +310,6 @@ function App() {
                
                   }
                 />
-                {/* Public Routes */}
-                <Route
-                  path="/*"
 
                 {/* Business Auth Routes */}
                 <Route path="/business/login" element={<BusinessLogin />} />
