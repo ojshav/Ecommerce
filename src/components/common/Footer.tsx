@@ -4,7 +4,7 @@ import { Store, Mail, Phone, MapPin, Facebook, Instagram, Twitter } from 'lucide
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-black text-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
                 <Link to="/" className="text-gray-400 hover:text-white transition-colors">Home</Link>
               </li>
               <li>
-                <Link to="/products" className="text-gray-400 hover:text-white transition-colors">Products</Link>
+                <Link to="/all-products" className="text-gray-400 hover:text-white transition-colors">Products</Link>
               </li>
               <li>
                 <Link to="/about" className="text-gray-400 hover:text-white transition-colors">About Us</Link>

@@ -1,53 +1,48 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const RegisterBusiness: React.FC = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    // User details
+    first_name: '',
+    last_name: '',
     phone: '',
-    address: '',
-    type: 'Retailer',
-    taxId: '',
-    website: '',
-    owner: {
-      fullName: '',
-    },
     password: '',
-    confirmPassword: '',
+    confirm_password: '',
+    
+    // Business details
+    business_name: '',
+    business_description: '',
+    business_email: '',
+    business_phone: '',
+    business_address: '',
   });
   
   const [passwordError, setPasswordError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [error, setError] = useState('');
   
-  const { registerBusiness } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setFormData({
-        ...formData,
-        [parent]: {
-          ...formData[parent as keyof typeof formData],
-          [child]: value
-        }
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value
-      });
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // Clear password error when user starts typing
+    if (name === 'password' || name === 'confirm_password') {
+      setPasswordError('');
     }
   };
 
   const validatePassword = () => {
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.confirm_password) {
       setPasswordError("Passwords don't match");
       return false;
     }
@@ -63,22 +58,46 @@ const RegisterBusiness: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     
     if (!validatePassword()) {
       return;
     }
     
     if (!agreeToTerms) {
+      setError('Please agree to the terms and conditions');
       return;
     }
     
     setIsSubmitting(true);
     
     try {
-      const success = await registerBusiness(formData);
-      if (success) {
-        navigate('/business/dashboard');
+      // Prepare data for API - remove confirm_password as it's not needed in the backend
+      const { confirm_password, ...apiData } = formData;
+      
+      // Log the data being sent
+      console.log('Sending data:', apiData);
+      
+      const response = await fetch(`${API_BASE_URL}/api/auth/register/merchant`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error('Registration error:', data);
+        throw new Error(data.error || data.details || 'Failed to register');
       }
+      
+      // Success - navigate to dashboard
+      navigate('/business/dashboard');
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred during registration');
     } finally {
       setIsSubmitting(false);
     }
@@ -99,61 +118,53 @@ const RegisterBusiness: React.FC = () => {
               <p className="text-gray-600">Create your merchant account to start selling on our platform</p>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Business Name
-                  </label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Business name"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="owner.fullName" className="block text-sm font-medium text-gray-700 mb-1">
-                    Owner's Full Name
-                  </label>
-                  <input
-                    id="owner.fullName"
-                    name="owner.fullName"
-                    type="text"
-                    value={formData.owner.fullName}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Full name"
-                  />
-                </div>
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">
+                {error}
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Business Email
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="business@example.com"
-                  />
+            )}
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Personal Information */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-medium text-gray-900">Personal Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">
+                      First Name
+                    </label>
+                    <input
+                      id="first_name"
+                      name="first_name"
+                      type="text"
+                      value={formData.first_name}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="First name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">
+                      Last Name
+                    </label>
+                    <input
+                      id="last_name"
+                      name="last_name"
+                      type="text"
+                      value={formData.last_name}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Last name"
+                    />
+                  </div>
                 </div>
                 
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                    Business Phone
+                    Phone
                   </label>
                   <input
                     id="phone"
@@ -168,116 +179,130 @@ const RegisterBusiness: React.FC = () => {
                 </div>
               </div>
               
-              <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                  Business Address
-                </label>
-                <input
-                  id="address"
-                  name="address"
-                  type="text"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Complete address"
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Business Information */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-medium text-gray-900">Business Information</h2>
                 <div>
-                  <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-                    Business Type
-                  </label>
-                  <select
-                    id="type"
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    <option value="Retailer">Retailer</option>
-                    <option value="Manufacturer">Manufacturer</option>
-                    <option value="Distributor">Distributor</option>
-                    <option value="Service Provider">Service Provider</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label htmlFor="taxId" className="block text-sm font-medium text-gray-700 mb-1">
-                    Tax ID / Business Number
+                  <label htmlFor="business_name" className="block text-sm font-medium text-gray-700 mb-1">
+                    Business Name
                   </label>
                   <input
-                    id="taxId"
-                    name="taxId"
+                    id="business_name"
+                    name="business_name"
                     type="text"
-                    value={formData.taxId}
+                    value={formData.business_name}
                     onChange={handleChange}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Tax ID or business registration number"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
-                  Website (Optional)
-                </label>
-                <div className="flex rounded-md shadow-sm">
-                  <span className="inline-flex items-center px-3 py-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
-                    https://
-                  </span>
-                  <input
-                    id="website"
-                    name="website"
-                    type="text"
-                    value={formData.website}
-                    onChange={handleChange}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="www.yourbusiness.com"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Create a password"
+                    placeholder="Business name"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                    Confirm Password
+                  <label htmlFor="business_description" className="block text-sm font-medium text-gray-700 mb-1">
+                    Business Description
                   </label>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    value={formData.confirmPassword}
+                  <textarea
+                    id="business_description"
+                    name="business_description"
+                    value={formData.business_description}
                     onChange={handleChange}
-                    required
-                    className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                      passwordError ? 'border-red-300' : 'border-gray-300'
-                    }`}
-                    placeholder="Confirm your password"
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="Describe your business"
                   />
-                  {passwordError && (
-                    <p className="mt-1 text-sm text-red-600">{passwordError}</p>
-                  )}
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="business_email" className="block text-sm font-medium text-gray-700 mb-1">
+                      Business Email
+                    </label>
+                    <input
+                      id="business_email"
+                      name="business_email"
+                      type="email"
+                      value={formData.business_email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="business@example.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="business_phone" className="block text-sm font-medium text-gray-700 mb-1">
+                      Business Phone
+                    </label>
+                    <input
+                      id="business_phone"
+                      name="business_phone"
+                      type="tel"
+                      value={formData.business_phone}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Business phone number"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label htmlFor="business_address" className="block text-sm font-medium text-gray-700 mb-1">
+                    Business Address
+                  </label>
+                  <textarea
+                    id="business_address"
+                    name="business_address"
+                    value={formData.business_address}
+                    onChange={handleChange}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="Complete business address"
+                  />
+                </div>
+              </div>
+              
+              {/* Password */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-medium text-gray-900">Account Security</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                      Password
+                    </label>
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      minLength={8}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Create a password"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="confirm_password" className="block text-sm font-medium text-gray-700 mb-1">
+                      Confirm Password
+                    </label>
+                    <input
+                      id="confirm_password"
+                      name="confirm_password"
+                      type="password"
+                      value={formData.confirm_password}
+                      onChange={handleChange}
+                      required
+                      minLength={8}
+                      className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                        passwordError ? 'border-red-300' : 'border-gray-300'
+                      }`}
+                      placeholder="Confirm your password"
+                    />
+                    {passwordError && (
+                      <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+                    )}
+                  </div>
                 </div>
               </div>
               
@@ -320,15 +345,19 @@ const RegisterBusiness: React.FC = () => {
             </form>
           </div>
           
-          <div className="px-8 py-4 bg-gray-50 border-t border-gray-200 text-center">
+          <div className="px-8 py-4 bg-gray-50 border-t border-gray-200">
             <p className="text-sm text-gray-600">
-              Already have a business account?{' '}
-              <Link to="/business-login" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
-                Login
-              </Link>
+              After registration, you'll need to complete your business verification by submitting required documents.
+              Your account will be reviewed before you can start selling on our platform.
             </p>
           </div>
         </motion.div>
+      </div>
+      
+      <div className="text-center mt-4 mb-8">
+        <p className="text-gray-600 text-sm">
+          Already have a business account? <Link to="/business/login" className="text-primary-600 hover:underline font-medium">Login</Link>
+        </p>
       </div>
     </div>
   );

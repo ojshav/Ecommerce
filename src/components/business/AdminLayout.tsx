@@ -16,13 +16,23 @@ import {
   ChatBubbleLeftIcon,
   DocumentChartBarIcon,
   StarIcon,
-  ArrowLeftOnRectangleIcon
+  ArrowLeftOnRectangleIcon,
+  ListBulletIcon,
+  AdjustmentsHorizontalIcon
 } from '@heroicons/react/24/outline';
 
 // Navigation items for the sidebar
 const navigationItems = [
   { name: 'Dashboard', path: '/business/dashboard', icon: ChartBarIcon },
-  { name: 'Products', path: '/business/products', icon: CubeIcon },
+  { 
+    name: 'Catalog', 
+    icon: CubeIcon,
+    submenu: [
+      { name: 'Products', path: '/business/catalog/products', icon: CubeIcon },
+      { name: 'Categories', path: '/business/catalog/categories', icon: ListBulletIcon },
+      { name: 'Attributes', path: '/business/catalog/attributes', icon: AdjustmentsHorizontalIcon },
+    ]
+  },
   { name: 'Orders', path: '/business/orders', icon: ShoppingBagIcon },
   { name: 'Inventory', path: '/business/inventory', icon: TagIcon },
   { name: 'Customers', path: '/business/customers', icon: UserGroupIcon },
@@ -35,13 +45,16 @@ const navigationItems = [
 ];
 
 const AdminLayout: React.FC = () => {
-  const { isAuthenticated, isMerchant, logout, user } = useAuth();
+  const { isAuthenticated, isMerchant, isMerchantVerified, logout, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({
+    Catalog: true // Start with Catalog expanded
+  });
 
   // Handle window resize
   useEffect(() => {
@@ -58,6 +71,20 @@ const AdminLayout: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Auto-expand submenu if current path matches a submenu item
+  useEffect(() => {
+    navigationItems.forEach(item => {
+      if (item.submenu) {
+        const isSubmenuActive = item.submenu.some(subItem => 
+          location.pathname.startsWith(subItem.path)
+        );
+        if (isSubmenuActive) {
+          setExpandedMenus(prev => ({ ...prev, [item.name]: true }));
+        }
+      }
+    });
+  }, [location.pathname]);
+
   // Handle unauthorized access
   if (!isAuthenticated || !isMerchant) {
     return <Navigate to="/business-login" state={{ from: location }} replace />;
@@ -65,6 +92,10 @@ const AdminLayout: React.FC = () => {
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const toggleSubmenu = (name: string) => {
+    setExpandedMenus(prev => ({ ...prev, [name]: !prev[name] }));
   };
 
   const handleLogout = () => {
@@ -78,7 +109,7 @@ const AdminLayout: React.FC = () => {
       <div
         className={`${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen`}
+        } fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen overflow-hidden`}
       >
         {/* Sidebar Header */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
@@ -95,39 +126,102 @@ const AdminLayout: React.FC = () => {
           )}
         </div>
         
-        {/* Sidebar Content */}
-        <div className="py-4 h-full overflow-y-auto">
+        {/* Sidebar Content - allows scrolling only within sidebar content */}
+        <div className="py-4 h-[calc(100vh-64px)] overflow-y-auto">
           <nav className="px-2 space-y-1">
             {navigationItems.map((item) => {
-              const isActive = location.pathname === item.path;
+              // Determine if this item or any of its subitems is active
+              const hasSubmenu = !!item.submenu;
+              const isMenuActive = hasSubmenu 
+                ? item.submenu.some(subItem => location.pathname.startsWith(subItem.path))
+                : location.pathname === item.path;
+              const isExpanded = expandedMenus[item.name] || false;
+
               return (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={`${
-                    isActive
-                      ? 'bg-primary-50 text-primary-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  } group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors`}
-                >
-                  <item.icon
-                    className={`${
-                      isActive ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-500'
-                    } mr-3 flex-shrink-0 h-6 w-6 transition-colors`}
-                  />
-                  {item.name}
-                </Link>
+                <div key={item.name}>
+                  {hasSubmenu ? (
+                    // Menu item with submenu
+                    <div>
+                      <button
+                        onClick={() => toggleSubmenu(item.name)}
+                        className={`${
+                          isMenuActive
+                            ? 'bg-primary-50 text-primary-700'
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        } w-full group flex items-center justify-between px-2 py-2 text-base font-medium rounded-md transition-colors`}
+                      >
+                        <div className="flex items-center">
+                          <item.icon
+                            className={`${
+                              isMenuActive ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-500'
+                            } mr-3 flex-shrink-0 h-6 w-6 transition-colors`}
+                          />
+                          {item.name}
+                        </div>
+                        <ChevronDownIcon
+                          className={`${
+                            isExpanded ? 'transform rotate-180' : ''
+                          } h-4 w-4 text-gray-500 transition-transform`}
+                        />
+                      </button>
+                      
+                      {/* Submenu items */}
+                      {isExpanded && (
+                        <div className="ml-6 mt-1 space-y-1">
+                          {item.submenu.map(subItem => {
+                            const isSubItemActive = location.pathname.startsWith(subItem.path);
+                            return (
+                              <Link
+                                key={subItem.name}
+                                to={subItem.path}
+                                className={`${
+                                  isSubItemActive
+                                    ? 'bg-primary-50 text-primary-700'
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`}
+                              >
+                                <subItem.icon
+                                  className={`${
+                                    isSubItemActive ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-500'
+                                  } mr-3 flex-shrink-0 h-5 w-5 transition-colors`}
+                                />
+                                {subItem.name}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    // Regular menu item without submenu
+                    <Link
+                      to={item.path}
+                      className={`${
+                        isMenuActive
+                          ? 'bg-primary-50 text-primary-700'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      } group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors`}
+                    >
+                      <item.icon
+                        className={`${
+                          isMenuActive ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-500'
+                        } mr-3 flex-shrink-0 h-6 w-6 transition-colors`}
+                      />
+                      {item.name}
+                    </Link>
+                  )}
+                </div>
               );
             })}
           </nav>
         </div>
       </div>
       
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
-        {/* Top Navigation */}
-        <header className="bg-white shadow z-10">
-          <div className="h-16 px-4 flex items-center justify-between">
+      {/* Main Content - fixed height, no overflow */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Navigation - fixed height */}
+        <header className="bg-white shadow z-10 h-16 flex-shrink-0">
+          <div className="h-full px-4 flex items-center justify-between">
             {/* Left: Hamburger Menu (mobile) */}
             <button
               className="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
@@ -229,9 +323,11 @@ const AdminLayout: React.FC = () => {
           </div>
         </header>
         
-        {/* Page Content */}
-        <main className="flex-1 p-6">
-          <Outlet />
+        {/* Page Content - allows scrolling within content area */}
+        <main className="flex-1 overflow-auto relative">
+          <div className="p-6">
+            <Outlet />
+          </div>
         </main>
       </div>
       

@@ -1,4 +1,5 @@
 import { Product, Category } from '../types';
+import { featuredProductsData } from './featuredProductsData';
 
 export const products: Product[] = [
   {
@@ -180,7 +181,19 @@ export const getFeaturedProducts = (): Product[] => {
 };
 
 export const getProductById = (id: string): Product | undefined => {
-  return products.find(product => product.id === id);
+  // First try to find in the main products array
+  const foundProduct = products.find(product => product.id === id);
+  
+  // If not found, try in the featured products data
+  if (!foundProduct) {
+    return featuredProductsData.find(product => 
+      product.id === id || 
+      product.id === String(id) || 
+      String(product.id) === id
+    );
+  }
+  
+  return foundProduct;
 };
 
 export const getProductsByCategory = (categorySlug: string): Product[] => {
