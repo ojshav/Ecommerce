@@ -1,28 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  Grid,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-} from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, ExpandMore, ExpandLess } from '@mui/icons-material';
+import { ChevronDown, ChevronUp, Trash, Plus } from 'lucide-react';
 
+// Type definitions
 interface Category {
   id: string;
   name: string;
@@ -38,10 +17,9 @@ interface Subcategory {
   productCount: number;
 }
 
-const Categories: React.FC = () => {
+export default function Categories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [openSubcategoryDialog, setOpenSubcategoryDialog] = useState<boolean>(false);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [categoryFormData, setCategoryFormData] = useState({
     name: '',
@@ -136,37 +114,13 @@ const Categories: React.FC = () => {
   };
 
   const validateForm = () => {
-    const errors = { name: '', description: '' };
-    let isValid = true;
-
-    if (!categoryFormData.name.trim()) {
-      errors.name = 'Category name is required';
-      isValid = false;
-    }
-    if (!categoryFormData.description.trim()) {
-      errors.description = 'Description is required';
-      isValid = false;
-    }
-
-    setFormErrors(errors);
-    return isValid;
+    // No validation required - all fields are optional
+    return true;
   };
 
   const validateSubcategoryForm = () => {
-    const errors = { name: '', description: '' };
-    let isValid = true;
-
-    if (!subcategoryFormData.name.trim()) {
-      errors.name = 'Subcategory name is required';
-      isValid = false;
-    }
-    if (!subcategoryFormData.description.trim()) {
-      errors.description = 'Description is required';
-      isValid = false;
-    }
-
-    setFormErrors(errors);
-    return isValid;
+    // No validation required - all fields are optional
+    return true;
   };
 
   const handleAddCategoryAndContinue = () => {
@@ -242,192 +196,252 @@ const Categories: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-        <Typography variant="h4">Categories</Typography>
-        <Button variant="contained" color="primary" startIcon={<AddIcon />} onClick={handleOpenDialog}>
-          Add Category
-        </Button>
-      </Box>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Categories</h1>
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-blue-700 transition-colors"
+          onClick={handleOpenDialog}
+        >
+          <Plus size={18} />
+          <span>Add Category</span>
+        </button>
+      </div>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell />
-              <TableCell>NAME</TableCell>
-              <TableCell>DESCRIPTION</TableCell>
-              <TableCell>NO. OF PRODUCTS</TableCell>
-              <TableCell align="right">ACTIONS</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="min-w-full table-auto">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="w-10 px-2 py-3"></th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. of Products</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
             {categories.map((category) => {
               const isExpanded = expandedCategories[category.id] || false;
               const productCount = category.subcategories.reduce((sum, subcat) => sum + subcat.productCount, 0);
 
               return (
                 <React.Fragment key={category.id}>
-                  <TableRow hover>
-                    <TableCell>
-                      <IconButton size="small" onClick={() => toggleCategoryExpand(category.id)}>
-                        {isExpanded ? <ExpandLess /> : <ExpandMore />}
-                      </IconButton>
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <tr className="hover:bg-gray-50">
+                    <td className="px-2 py-4">
+                      <button 
+                        className="p-1 rounded-full hover:bg-gray-200" 
+                        onClick={() => toggleCategoryExpand(category.id)}
+                      >
+                        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
                         {category.imageUrl && (
-                          <Box
-                            component="img"
-                            src={category.imageUrl}
-                            sx={{ width: 30, height: 30, mr: 1, borderRadius: '50%' }}
+                          <img 
+                            src={category.imageUrl} 
+                            alt={category.name}
+                            className="w-8 h-8 mr-2 rounded-full"
                           />
                         )}
-                        {category.name}
-                      </Box>
-                    </TableCell>
-                    <TableCell>{category.description}</TableCell>
-                    <TableCell>{productCount}</TableCell>
-                    <TableCell align="right">
-                      <IconButton size="small" onClick={() => handleDeleteCategory(category.id)} title="Delete Category">
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
+                        <span className="font-medium">{category.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">{category.description}</td>
+                    <td className="px-6 py-4">{productCount}</td>
+                    <td className="px-6 py-4 text-right">
+                      <button 
+                        className="p-1 text-gray-500 hover:text-red-600 rounded" 
+                        onClick={() => handleDeleteCategory(category.id)}
+                        title="Delete Category"
+                      >
+                        <Trash size={16} />
+                      </button>
+                    </td>
+                  </tr>
 
                   {isExpanded &&
                     category.subcategories.map((subcategory) => (
-                      <TableRow key={subcategory.id} sx={{ backgroundColor: '#f9f9f9' }}>
-                        <TableCell />
-                        <TableCell sx={{ pl: 6 }}>{subcategory.name}</TableCell>
-                        <TableCell>{subcategory.description}</TableCell>
-                        <TableCell>{subcategory.productCount}</TableCell>
-                        <TableCell align="right">
-                          <IconButton
-                            size="small"
+                      <tr key={subcategory.id} className="bg-gray-50">
+                        <td className="px-2 py-3"></td>
+                        <td className="px-6 py-3 pl-12 whitespace-nowrap">
+                          {subcategory.name}
+                        </td>
+                        <td className="px-6 py-3">{subcategory.description}</td>
+                        <td className="px-6 py-3">{subcategory.productCount}</td>
+                        <td className="px-6 py-3 text-right">
+                          <button
+                            className="p-1 text-gray-500 hover:text-red-600 rounded"
                             onClick={() => handleDeleteSubcategory(category.id, subcategory.id)}
                             title="Delete Subcategory"
                           >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
+                            <Trash size={16} />
+                          </button>
+                        </td>
+                      </tr>
                     ))}
                 </React.Fragment>
               );
             })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </tbody>
+        </table>
+      </div>
 
-      {/* Category and Subcategory Combined Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>{newCategoryId ? 'Add Subcategories' : 'Add Category'}</DialogTitle>
-        <DialogContent>
-          {!newCategoryId ? (
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12}>
-                <TextField
-                  name="name"
-                  label="Category Name"
-                  fullWidth
-                  required
-                  value={categoryFormData.name}
-                  onChange={handleCategoryChange}
-                  error={!!formErrors.name}
-                  helperText={formErrors.name}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  name="description"
-                  label="Description"
-                  fullWidth
-                  required
-                  multiline
-                  rows={3}
-                  value={categoryFormData.description}
-                  onChange={handleCategoryChange}
-                  error={!!formErrors.description}
-                  helperText={formErrors.description}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <Box>
-                  <Typography variant="subtitle2" gutterBottom>Category Image</Typography>
-                  <Button variant="outlined" component="label">
-                    Upload Image
-                    <input type="file" hidden accept="image/*" onChange={handleImageChange} />
-                  </Button>
-                  {categoryFormData.image && (
-                    <Box sx={{ mt: 2 }}>
-                      <Typography variant="caption">{categoryFormData.image.name}</Typography>
-                    </Box>
-                  )}
-                </Box>
-              </Grid>
-            </Grid>
-          ) : (
-            <>
-              <Grid container spacing={2} sx={{ mt: 1 }}>
-                <Grid item xs={12}>
-                  <TextField
+      {/* Modal Dialog for Categories and Subcategories */}
+      {openDialog && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">
+                {newCategoryId ? 'Add Subcategories' : 'Add Category'}
+              </h2>
+              <button 
+                className="text-gray-400 hover:text-gray-600"
+                onClick={handleCloseDialog}
+              >
+                &times;
+              </button>
+            </div>
+            
+            {!newCategoryId ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Category Name
+                  </label>
+                  <input
+                    type="text"
                     name="name"
-                    label="Subcategory Name"
-                    fullWidth
-                    required
+                    value={categoryFormData.name}
+                    onChange={handleCategoryChange}
+                    className={`w-full px-3 py-2 border rounded-md ${formErrors.name ? 'border-red-500' : 'border-gray-300'}`}
+                  />
+                  {formErrors.name && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    name="description"
+                    rows={3}
+                    value={categoryFormData.description}
+                    onChange={handleCategoryChange}
+                    className={`w-full px-3 py-2 border rounded-md ${formErrors.description ? 'border-red-500' : 'border-gray-300'}`}
+                  />
+                  {formErrors.description && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.description}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Category Image
+                  </label>
+                  <label className="inline-block px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                    Upload Image
+                    <input 
+                      type="file" 
+                      hidden 
+                      accept="image/*" 
+                      onChange={handleImageChange} 
+                    />
+                  </label>
+                  {categoryFormData.image && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      {categoryFormData.image.name}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Subcategory Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
                     value={subcategoryFormData.name}
                     onChange={(e) => setSubcategoryFormData({ ...subcategoryFormData, name: e.target.value })}
-                    error={!!formErrors.name}
-                    helperText={formErrors.name}
+                    className={`w-full px-3 py-2 border rounded-md ${formErrors.name ? 'border-red-500' : 'border-gray-300'}`}
                   />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
+                  {formErrors.name && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
                     name="description"
-                    label="Description"
-                    fullWidth
-                    required
-                    multiline
                     rows={3}
                     value={subcategoryFormData.description}
                     onChange={(e) => setSubcategoryFormData({ ...subcategoryFormData, description: e.target.value })}
-                    error={!!formErrors.description}
-                    helperText={formErrors.description}
+                    className={`w-full px-3 py-2 border rounded-md ${formErrors.description ? 'border-red-500' : 'border-gray-300'}`}
                   />
-                </Grid>
-              </Grid>
+                  {formErrors.description && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.description}</p>
+                  )}
+                </div>
 
-              {tempSubcategories.length > 0 && (
-                <Box mt={2}>
-                  <Typography variant="subtitle1">Subcategories Added:</Typography>
-                  <ul>
-                    {tempSubcategories.map((sub) => (
-                      <li key={sub.id}>{sub.name} - {sub.description}</li>
-                    ))}
-                  </ul>
-                </Box>
+                {tempSubcategories.length > 0 && (
+                  <div className="mt-4">
+                    <h3 className="font-medium text-gray-700">Subcategories Added:</h3>
+                    <ul className="mt-2 list-disc pl-5 space-y-1">
+                      {tempSubcategories.map((sub) => (
+                        <li key={sub.id}>
+                          <span className="font-medium">{sub.name}</span> - {sub.description}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+                onClick={handleCloseDialog}
+              >
+                Cancel
+              </button>
+              
+              {!newCategoryId ? (
+                <button
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  onClick={handleAddCategoryAndContinue}
+                >
+                  Continue
+                </button>
+              ) : (
+                <>
+                  <button
+                    className="px-4 py-2 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50"
+                    onClick={handleAddSubcategoryContinue}
+                  >
+                    Continue
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    onClick={handleSaveAllSubcategories}
+                  >
+                    Save All
+                  </button>
+                </>
               )}
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          {!newCategoryId ? (
-            <Button onClick={handleAddCategoryAndContinue} variant="contained" color="primary">
-              Continue
-            </Button>
-          ) : (
-            <>
-              <Button onClick={handleAddSubcategoryContinue} color="primary">Continue</Button>
-              <Button onClick={handleSaveAllSubcategories} variant="contained" color="primary">Save All</Button>
-            </>
-          )}
-        </DialogActions>
-      </Dialog>
-    </Box>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
-};
-
-export default Categories;
+}
 

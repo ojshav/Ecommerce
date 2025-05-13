@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, X, ChevronDown, ChevronRight, Edit, Trash2 } from 'lucide-react';
 import CommonNavbar from './CommonNavbar';
+import SuperAdminLayout from './SuperAdminLayout';
 
 interface IAttribute {
     id: string;
@@ -234,7 +235,7 @@ const Attribute: React.FC = () => {
     };
 
     return (
-        
+      
  
         <div className="p-6">
              
@@ -768,7 +769,7 @@ const Attribute: React.FC = () => {
                 </div>
             )}
         </div>
-       
+  
        
     );
 };
