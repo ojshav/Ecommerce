@@ -1,4 +1,5 @@
-import React, { useEffect, lazy, Suspense } from 'react';
+import { ReactNode, useEffect, lazy, Suspense } from 'react';
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
@@ -25,9 +26,26 @@ import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
 
 import { CartProvider } from './context/CartContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AdminLayout from './components/business/AdminLayout';
+
+import Dashboard from "./pages/superadmin/Dashboard";
+import UserActivity from './pages/superadmin/UserActivity';
+import UserManagement from './pages/superadmin/Usermanagement';
+import ContentModeration from './pages/superadmin/ContentModeration';
+
+import TrafficAnalytics from './pages/superadmin/TrafficAnalytics';
+import SalesReport from './pages/superadmin/SalesReport';
+import FraudDetection from './pages/superadmin/FraudDetection';
+import MarketplaceHealth from './pages/superadmin/MarketplaceHealth';
+import MerchantAnalytics from './pages/superadmin/MerchantAnalytics';
+import PlatformPerformance from './pages/superadmin/PlatformPerformance';
+import MerchantManagement from './pages/superadmin/MerchantManagement';
+import Notification from './pages/superadmin/Notifications';
+import Categories from './pages/superadmin/Categories';
+import Attribute from './pages/superadmin/Attribute';
+
 import FAQ from './pages/FAQ';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -36,6 +54,7 @@ import Returns from './pages/Returns';
 import Privacy from './pages/Privacy';
 import Cookies from './pages/Cookies';
 import Terms from './pages/Terms';
+
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -54,8 +73,19 @@ const LoadingFallback = () => (
   </div>
 );
 
+
+
+
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
+
+
+
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+// Main App component
 function App() {
   // Scroll to top on route change
   useEffect(() => {
@@ -69,7 +99,6 @@ function App() {
           <Router>
             <div className="flex flex-col min-h-screen">
 
-              {/* Regular customer-facing routes */}
               <Routes>
                 {/* Business Dashboard Routes */}
                 <Route path="/business" element={<AdminLayout />}>
@@ -114,6 +143,7 @@ function App() {
                       </Suspense>
                     }
                   />
+
                   
                   {/* Catalog Routes */}
                   <Route path="catalog">
@@ -168,8 +198,122 @@ function App() {
                   </Route>
                   
                   {/* Add more business routes here */}
+
                 </Route>
+
+                {/* Superadmin Routes - Protected by ProtectedSuperadminRoute */}
+                <Route
+                  path="/superadmin"
+                  element={
+                  
+                      <Dashboard />
+                    
+                  }
+                />
+                <Route
+                  path="/superadmin/user-activity-overview"
+                  element={
+                    
+                      <UserActivity />
+                  
+                  }
+                />
+                <Route
+                  path="/superadmin/user-management"
+                  element={
+                  
+                      <UserManagement />
+                    
+                  }
+                />
+                <Route
+                  path="/superadmin/content-moderation"
+                  element={
+              
+                      <ContentModeration />
+           
+                  }
+                />
+                <Route
+                  path="/superadmin/site-traffic-analytics"
+                  element={
+                    
+                      <TrafficAnalytics />
+                 
+                  }
+                />
+                <Route
+                  path="/superadmin/sales-reports"
+                  element={
+                 
+                      <SalesReport />
+                  
+                  }
+                />
+                <Route
+                  path="/superadmin/fraud-detection"
+                  element={
+                 
+                      <FraudDetection />
+                 
+                  }
+                />
+
+                <Route
+                  path="/superadmin/marketplace-health"
+                  element={
+               
+                      <MarketplaceHealth />
+                   
+                  }
+                />
+                 <Route
+                  path="/superadmin/merchant-analytics"
+                  element={
                 
+
+                      <MerchantAnalytics />
+                    
+                  }
+                />
+                <Route
+                  path="/superadmin/platform-performance"
+                  element={
+          
+                      <PlatformPerformance />
+                  
+                  }
+                />
+                 <Route
+                  path="/superadmin/merchant-management"
+                  element={
+                    
+                      <MerchantManagement />
+                 
+                  }
+                />
+                  
+                  <Route
+                  path="/superadmin/categories"
+                  element={
+                   
+                      <Categories/>
+               
+                  }
+                />
+
+<Route
+                  path="/superadmin/attribute"
+                  element={
+                   
+                      <Attribute/>
+               
+                  }
+                />
+                {/* Public Routes */}
+                <Route
+                  path="/*"
+
                 {/* Business Auth Routes */}
                 <Route path="/business/login" element={<BusinessLogin />} />
                 <Route path="/register-business" element={<RegisterBusiness />} />
@@ -180,6 +324,7 @@ function App() {
                 {/* Public Routes with header/footer */}
                 <Route 
                   path="/*" 
+
                   element={
                     <>
                       <Navbar />
@@ -198,6 +343,7 @@ function App() {
                           <Route path="/verify-email/:token" element={<VerifyEmail />} />
                           <Route path="/business-login" element={<BusinessLogin />} />
                           <Route path="/register-business" element={<RegisterBusiness />} />
+
                           <Route path="/password/reset" element={<PasswordReset />} />
 
                           <Route path="/wishlist" element={<WishList />} />
@@ -217,6 +363,7 @@ function App() {
                           <Route path="/cookies" element={<Cookies />} />
                           <Route path="/terms" element={<Terms />} />
 
+
                         </Routes>
                       </main>
                       <Footer />
@@ -227,7 +374,7 @@ function App() {
 
             </div>
           </Router>
-          
+
           <Toaster
             position="top-right"
             toastOptions={{
