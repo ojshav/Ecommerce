@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Search, 
   Filter, 
-  ChevronDown, 
-  ChevronUp,
   Check, 
   X, 
   Info,
-  AlertCircle
+  AlertCircle,
+  Eye
 } from 'lucide-react';
 
 // Mock data - replace with actual API call
@@ -113,28 +113,13 @@ const StatusBadge = ({ status }: { status: string }) => {
   );
 };
 
-// Document verification badge
-const DocumentBadge = ({ verified }: { verified: boolean }) => {
-  return verified ? (
-    <span className="inline-flex items-center text-green-500">
-      <Check size={16} className="mr-1" />
-      <span className="text-xs">Verified</span>
-    </span>
-  ) : (
-    <span className="inline-flex items-center text-red-500">
-      <X size={16} className="mr-1" />
-      <span className="text-xs">Missing</span>
-    </span>
-  );
-};
-
 // Main component
 const MerchantManagement: React.FC = () => {
+  const navigate = useNavigate();
   const [merchants, setMerchants] = useState(mockMerchants);
   const [filteredMerchants, setFilteredMerchants] = useState(merchants);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [expandedMerchant, setExpandedMerchant] = useState<number | null>(null);
   const [selectedMerchant, setSelectedMerchant] = useState<any | null>(null);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [showRejectionModal, setShowRejectionModal] = useState(false);
@@ -195,9 +180,10 @@ const MerchantManagement: React.FC = () => {
     setSelectedMerchant(null);
   };
 
-  // Toggle merchant details
-  const toggleMerchantDetails = (id: number) => {
-    setExpandedMerchant(expandedMerchant === id ? null : id);
+  // Navigate to merchant details page
+  const viewMerchantDetails = (id: number) => {
+    navigate(`/superadmin/merchant-management/${id}`); // ✅ Correct path
+
   };
 
   return (
@@ -266,107 +252,58 @@ const MerchantManagement: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredMerchants.map((merchant) => (
-                <React.Fragment key={merchant.id}>
-                  <tr className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{merchant.name}</div>
-                          <div className="text-sm text-gray-500">{merchant.email}</div>
-                        </div>
+                <tr key={merchant.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{merchant.name}</div>
+                        <div className="text-sm text-gray-500">{merchant.email}</div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{merchant.category}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{merchant.dateApplied}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <StatusBadge status={merchant.status} />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => toggleMerchantDetails(merchant.id)}
-                          className="text-blue-600 hover:text-blue-900 flex items-center"
-                        >
-                          {expandedMerchant === merchant.id ? (
-                            <>
-                              <span>Hide Details</span>
-                              <ChevronUp size={16} className="ml-1" />
-                            </>
-                          ) : (
-                            <>
-                              <span>View Details</span>
-                              <ChevronDown size={16} className="ml-1" />
-                            </>
-                          )}
-                        </button>
-                        {merchant.status === "pending" && (
-                          <>
-                            <button
-                              onClick={() => {
-                                setSelectedMerchant(merchant);
-                                setShowApprovalModal(true);
-                              }}
-                              className="text-green-600 hover:text-green-900"
-                            >
-                              Approve
-                            </button>
-                            <button
-                              onClick={() => {
-                                setSelectedMerchant(merchant);
-                                setShowRejectionModal(true);
-                              }}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              Reject
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                  
-                  {/* Expanded merchant details */}
-                  {expandedMerchant === merchant.id && (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-4 bg-gray-50">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <h4 className="font-semibold text-gray-700 mb-3">Merchant Details</h4>
-                            <div className="space-y-2">
-                              <p><span className="font-medium">Phone:</span> {merchant.phone}</p>
-                              <p><span className="font-medium">Description:</span> {merchant.description}</p>
-                              {merchant.status === "rejected" && (
-                                <p className="text-red-600"><span className="font-medium">Rejection Reason:</span> {merchant.rejectionReason}</p>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h4 className="font-semibold text-gray-700 mb-3">Document Verification</h4>
-                            <div className="space-y-2">
-                              <p className="flex justify-between">
-                                <span className="font-medium">Business License:</span>
-                                <DocumentBadge verified={merchant.documents.businessLicense} />
-                              </p>
-                              <p className="flex justify-between">
-                                <span className="font-medium">Tax Certificate:</span>
-                                <DocumentBadge verified={merchant.documents.taxCertificate} />
-                              </p>
-                              <p className="flex justify-between">
-                                <span className="font-medium">Identity Proof:</span>
-                                <DocumentBadge verified={merchant.documents.identityProof} />
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{merchant.category}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{merchant.dateApplied}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <StatusBadge status={merchant.status} />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={() => viewMerchantDetails(merchant.id)}
+                        className="text-blue-600 hover:text-blue-900 flex items-center"
+                      >
+                        <Eye size={16} className="mr-1" />
+                        View Details
+                      </button>
+                      {merchant.status === "pending" && (
+                        <>
+                          <button
+                            onClick={() => {
+                              setSelectedMerchant(merchant);
+                              setShowApprovalModal(true);
+                            }}
+                            className="text-green-600 hover:text-green-900"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedMerchant(merchant);
+                              setShowRejectionModal(true);
+                            }}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Reject
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
