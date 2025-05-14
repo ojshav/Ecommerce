@@ -54,6 +54,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
           Sold Out
         </div>
       )}
+      {!isNew && product.stock > 0 && salePercentage && (
+        <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-3 py-1 text-xs rounded">
+          -{salePercentage}%
+        </div>
+      )}
       
       {/* Wishlist button */}
       <div className="absolute top-2 right-2 z-10">
@@ -83,6 +88,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
           
           <div className="mt-2 mb-3">
             <span className="text-base font-bold">${product.price.toFixed(2)}</span>
+            {product.originalPrice && (
+              <span className="text-sm text-gray-400 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
+            )}
           </div>
         </div>
       </Link>

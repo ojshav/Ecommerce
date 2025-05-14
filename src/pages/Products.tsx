@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Heart } from 'lucide-react';
 import { Product } from '../types';
 import ProductCard from '../components/product/ProductCard';
-import RecentlyViewedCard from '../components/product/RecentlyViewedCard';
+// ProductDetail is imported in the router configuration
 
 const Products: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState(products);
@@ -312,6 +312,12 @@ const Products: React.FC = () => {
         reviews: 50,
         stock: 10
       };
+      
+      // Make sure originalPrice is included
+      if (item.originalPrice && !product.originalPrice) {
+        product.originalPrice = item.originalPrice;
+      }
+      
       return product;
     });
     
@@ -555,14 +561,21 @@ const Products: React.FC = () => {
               const product = recentlyViewed[index];
               if (!product) return null;
               
+              // Calculate sale percentage if original price exists
+              const salePercentage = item.originalPrice 
+                ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100) 
+                : undefined;
+              
+              // Set isNew based on label text
+              const isNew = item.label?.text === "New";
+              
+              // Each ProductCard automatically links to ProductDetail page via its internal Link component
               return (
-                <RecentlyViewedCard
+                <ProductCard
                   key={index}
                   product={product}
-                  label={item.label}
-                  modelNumber={item.modelNumber}
-                  displayPrice={item.price.toFixed(2)}
-                  originalPrice={item.originalPrice?.toFixed(2)}
+                  isNew={isNew}
+                  salePercentage={salePercentage}
                 />
               );
             })}

@@ -14,7 +14,6 @@ const Home: React.FC = () => {
         <Categories />
         <FeaturedProducts />
         <PromoProducts />
-        <NewsletterSignup />
         <TrendingDeals />
       </div>
     </div>
