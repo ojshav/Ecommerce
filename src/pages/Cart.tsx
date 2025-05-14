@@ -10,7 +10,7 @@ const Cart: React.FC = () => {
   if (cart.length === 0) {
     return (
       <motion.div 
-        className="pt-20 min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4"
+        className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -42,7 +42,7 @@ const Cart: React.FC = () => {
   };
 
   return (
-    <div className="pt-20 min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
         
