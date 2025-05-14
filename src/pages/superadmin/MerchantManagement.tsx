@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { 
   Search, 
   Filter, 
@@ -7,83 +8,51 @@ import {
   X, 
   Info,
   AlertCircle,
-  Eye
+  Eye,
+  Loader
 } from 'lucide-react';
 
-// Mock data - replace with actual API call
-const mockMerchants = [
-  {
-    id: 1,
-    name: "Tech Gadgets Inc",
-    email: "contact@techgadgets.com",
-    phone: "555-123-4567",
-    status: "pending",
-    dateApplied: "2025-04-28",
-    description: "Selling the latest tech gadgets and accessories",
-    documents: {
-      businessLicense: true,
-      taxCertificate: true,
-      identityProof: true
-    }
-  },
-  {
-    id: 2,
-    name: "Fashion Forward",
-    email: "info@fashionforward.com",
-    phone: "555-987-6543",
-    status: "approved",
-    dateApplied: "2025-04-22",
-    description: "Trendy clothing and accessories for all",
-    documents: {
-      businessLicense: true,
-      taxCertificate: true,
-      identityProof: true
-    }
-  },
-  {
-    id: 3,
-    name: "Home Essentials",
-    email: "support@homeessentials.com",
-    phone: "555-456-7890",
-    status: "rejected",
-    dateApplied: "2025-04-25",
-    description: "Quality products for your home",
-    rejectionReason: "Incomplete documentation",
-    documents: {
-      businessLicense: true,
-      taxCertificate: false,
-      identityProof: true
-    }
-  },
-  {
-    id: 4,
-    name: "Organic Foods Co",
-    email: "hello@organicfoods.com",
-    phone: "555-222-3333",
-    status: "pending",
-    dateApplied: "2025-05-01",
-    description: "Organic and sustainably sourced food products",
-    documents: {
-      businessLicense: true,
-      taxCertificate: true,
-      identityProof: false
-    }
-  },
-  {
-    id: 5,
-    name: "Fitness Gear Pro",
-    email: "sales@fitnessgear.com",
-    phone: "555-444-5555",
-    status: "pending",
-    dateApplied: "2025-04-30",
-    description: "Professional fitness equipment and accessories",
-    documents: {
-      businessLicense: true,
-      taxCertificate: true,
-      identityProof: true
-    }
-  }
-];
+// API base URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// Interface for merchant document data
+interface MerchantDocument {
+  id: number;
+  document_type: string;
+  status: string;
+  file_url: string;
+  file_name: string;
+  file_size: number;
+  mime_type: string;
+  admin_notes?: string;
+  verified_at?: string;
+  created_at: string;
+}
+
+interface Merchant {
+  id: number;
+  user_id: number;
+  name: string; // Combination of first_name and last_name
+  email: string;
+  business_name: string;
+  business_email: string;
+  business_phone: string;
+  business_description: string;
+  business_address: string;
+  status: string;
+  dateApplied: string; // created_at
+  description: string; // business_description
+  rejectionReason?: string;
+  documents: {
+    businessLicense: boolean;
+    taxCertificate: boolean;
+    identityProof: boolean;
+  };
+  verification_status: string;
+  verification_submitted_at?: string;
+  verification_completed_at?: string;
+  verification_notes?: string;
+}
 
 // Status badge component
 const StatusBadge = ({ status }: { status: string }) => {
@@ -111,24 +80,81 @@ const StatusBadge = ({ status }: { status: string }) => {
 // Main component
 const MerchantManagement: React.FC = () => {
   const navigate = useNavigate();
-  const [merchants, setMerchants] = useState(mockMerchants);
-  const [filteredMerchants, setFilteredMerchants] = useState(merchants);
+  const { accessToken } = useAuth();
+  const [merchants, setMerchants] = useState<Merchant[]>([]);
+  const [filteredMerchants, setFilteredMerchants] = useState<Merchant[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedMerchant, setSelectedMerchant] = useState<any | null>(null);
+  const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Simulate API call
+  // Fetch merchants from API
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    const fetchMerchants = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // Fetch all users with merchant role
+        const response = await fetch(`${API_BASE_URL}/api/admin/merchants`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch merchants: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Fetched merchants:', data);
+                // Transform the data to match our component's expected format
+        const transformedMerchants = data.merchants.map((merchant: any) => ({
+          id: merchant.id,
+          user_id: merchant.user_id,
+          name: `${merchant.user?.first_name || ''} ${merchant.user?.last_name || ''}`.trim(),
+          email: merchant.user?.email || '',
+          business_name: merchant.business_name,
+          business_email: merchant.business_email,
+          business_phone: merchant.business_phone || '',
+          business_description: merchant.business_description || '',
+          business_address: merchant.business_address || '',
+          status: merchant.verification_status?.toLowerCase() || 'pending',
+          dateApplied: new Date(merchant.created_at).toISOString().split('T')[0],
+          description: merchant.business_description || '',
+          rejectionReason: merchant.verification_notes,
+          verification_status: merchant.verification_status,
+          verification_submitted_at: merchant.verification_submitted_at,
+          verification_completed_at: merchant.verification_completed_at,
+          verification_notes: merchant.verification_notes,
+          // Store the original document objects for later use
+          documentList: merchant.documents || [],
+          // Create a simplified document status object for quick checks
+          documents: {
+            businessLicense: merchant.documents?.some((doc: any) => doc.document_type === 'BUSINESS_LICENSE') || false,
+            taxCertificate: merchant.documents?.some((doc: any) => doc.document_type === 'TAX_CERTIFICATE') || false,
+            identityProof: merchant.documents?.some((doc: any) => doc.document_type === 'IDENTITY_PROOF') || false
+          }
+        }));
+        
+        setMerchants(transformedMerchants);
+      } catch (err) {
+        console.error('Error fetching merchants:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch merchants');
+      } finally {
+        setIsLoading(false);
+      }
+    };
     
-    return () => clearTimeout(timer);
-  }, []);
+    if (accessToken) {
+      fetchMerchants();
+    }
+  }, [accessToken]);
 
   // Filter merchants based on search and status
   useEffect(() => {
@@ -149,34 +175,73 @@ const MerchantManagement: React.FC = () => {
   }, [merchants, searchTerm, statusFilter]);
 
   // Handle merchant approval
-  const handleApprove = (id: number) => {
-    const updatedMerchants = merchants.map(merchant => 
-      merchant.id === id ? { ...merchant, status: "approved" } : merchant
-    );
-    setMerchants(updatedMerchants);
-    setShowApprovalModal(false);
-    setSelectedMerchant(null);
+  const handleApprove = async (id: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/merchants/${id}/approve`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to approve merchant: ${response.status}`);
+      }
+      
+      // Update local state
+      const updatedMerchants = merchants.map(merchant => 
+        merchant.id === id ? { ...merchant, status: "approved" } : merchant
+      );
+      setMerchants(updatedMerchants);
+      setShowApprovalModal(false);
+      setSelectedMerchant(null);
+    } catch (err) {
+      console.error('Error approving merchant:', err);
+      alert(err instanceof Error ? err.message : 'Failed to approve merchant');
+    }
   };
 
   // Handle merchant rejection
-  const handleReject = (id: number) => {
+  const handleReject = async (id: number) => {
     if (!rejectionReason.trim()) {
       alert("Please provide a reason for rejection");
       return;
     }
     
-    const updatedMerchants = merchants.map(merchant => 
-      merchant.id === id ? { ...merchant, status: "rejected", rejectionReason } : merchant
-    );
-    setMerchants(updatedMerchants);
-    setShowRejectionModal(false);
-    setRejectionReason("");
-    setSelectedMerchant(null);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/merchants/${id}/reject`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ reason: rejectionReason })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to reject merchant: ${response.status}`);
+      }
+      
+      // Update local state
+      const updatedMerchants = merchants.map(merchant => 
+        merchant.id === id ? { ...merchant, status: "rejected", rejectionReason } : merchant
+      );
+      setMerchants(updatedMerchants);
+      setShowRejectionModal(false);
+      setRejectionReason("");
+      setSelectedMerchant(null);
+    } catch (err) {
+      console.error('Error rejecting merchant:', err);
+      alert(err instanceof Error ? err.message : 'Failed to reject merchant');
+    }
   };
 
-  // Navigate to merchant details page
-  const viewMerchantDetails = (id: number) => {
-    navigate(`/superadmin/merchant-management/${id}`);
+  // Navigate to merchant details page with document data
+  const viewMerchantDetails = (merchant: any) => {
+    // Store merchant data in sessionStorage to avoid additional API calls
+    sessionStorage.setItem('selectedMerchant', JSON.stringify(merchant));
+    navigate(`/superadmin/merchant-management/${merchant.id}`);
   };
 
   return (
@@ -217,11 +282,19 @@ const MerchantManagement: React.FC = () => {
         </div>
       </div>
       
-      {/* Merchants list */}
+      {/* Error state */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6 flex items-start">
+          <AlertCircle className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+      
+      {/* Loading state */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <div className="flex flex-col items-center">
+            <Loader className="h-12 w-12 text-blue-500 animate-spin" />
             <p className="mt-4 text-gray-600">Loading merchants...</p>
           </div>
         </div>
@@ -262,7 +335,7 @@ const MerchantManagement: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-3">
                       <button
-                        onClick={() => viewMerchantDetails(merchant.id)}
+                        onClick={() => viewMerchantDetails(merchant)}
                         className="text-blue-600 hover:text-blue-900 flex items-center"
                       >
                         <Eye size={16} className="mr-1" />

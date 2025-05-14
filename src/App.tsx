@@ -56,7 +56,7 @@ import Cookies from './pages/Cookies';
 import Terms from './pages/Terms';
 import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
 import MerchantDetails from './pages/superadmin/MerchantDetails';
-
+import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -203,7 +203,10 @@ function App() {
 
 
                 </Route>
- {/* Superadmin Routes - Using SuperAdminLayout */}
+                {/* Superadmin Login Route */}
+                <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+                
+                {/* Superadmin Routes - Protected by role check in the component */}
                 <Route path="/superadmin" element={<SuperAdminLayout />}>
                   <Route index element={<Dashboard />} />
                   <Route path="user-activity-overview" element={<UserActivity />} />

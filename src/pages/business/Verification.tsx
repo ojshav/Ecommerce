@@ -25,6 +25,14 @@ interface BusinessDetails {
   gtin: string;
 }
 
+interface ValidationErrors {
+  panNumber?: string;
+  gstin?: string;
+  gtin?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+}
+
 const Verification: React.FC = () => {
   const navigate = useNavigate();
   const { user, accessToken, isMerchant } = useAuth();
@@ -39,6 +47,9 @@ const Verification: React.FC = () => {
     panNumber: '',
     gtin: ''
   });
+  
+  // State for validation errors
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
   // Redirect if not authenticated or not a merchant
   useEffect(() => {
@@ -223,6 +234,9 @@ const Verification: React.FC = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Validate the field as user types
+    validateField(name, value);
   };
 
   const handleBusinessDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -231,6 +245,79 @@ const Verification: React.FC = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Validate the field as user types
+    validateField(name, value);
+  };
+  
+  // Validate individual field
+  const validateField = (name: string, value: string) => {
+    const errors = { ...validationErrors };
+    
+    switch (name) {
+      case 'panNumber':
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (!panRegex.test(value) && value.trim() !== '') {
+          errors.panNumber = 'PAN must be in format ABCDE1234F';
+        } else {
+          delete errors.panNumber;
+        }
+        break;
+        
+      case 'gstin':
+        if (value.trim() !== '' && !noGstChecked) {
+          const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+          if (!gstinRegex.test(value)) {
+            errors.gstin = 'GSTIN must be in format 27AADCB2230M1ZT';
+          } else {
+            delete errors.gstin;
+          }
+        } else {
+          delete errors.gstin;
+        }
+        break;
+        
+      case 'gtin':
+        if (value.trim() !== '') {
+          const gtinRegex = /^[0-9]{13,14}$/;
+          if (!gtinRegex.test(value)) {
+            errors.gtin = 'GTIN must be 13 or 14 digits';
+          } else {
+            delete errors.gtin;
+          }
+        } else {
+          delete errors.gtin;
+        }
+        break;
+        
+      case 'accountNumber':
+        if (value.trim() !== '') {
+          const accNumberRegex = /^[0-9]{9,18}$/;
+          if (!accNumberRegex.test(value)) {
+            errors.accountNumber = 'Account number must be 9-18 digits';
+          } else {
+            delete errors.accountNumber;
+          }
+        } else {
+          delete errors.accountNumber;
+        }
+        break;
+        
+      case 'ifscCode':
+        if (value.trim() !== '') {
+          const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+          if (!ifscRegex.test(value)) {
+            errors.ifscCode = 'IFSC must be in format SBIN0001234';
+          } else {
+            delete errors.ifscCode;
+          }
+        } else {
+          delete errors.ifscCode;
+        }
+        break;
+    }
+    
+    setValidationErrors(errors);
   };
 
   const handleNoGstChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -244,7 +331,51 @@ const Verification: React.FC = () => {
       toast.error('Please log in to submit verification');
       return;
     }
-
+    
+    // Validate all fields before submission
+    const errors: { [key: string]: string } = {};
+    
+    // Validate PAN Number
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panRegex.test(businessDetails.panNumber)) {
+      errors.panNumber = 'PAN must be in format ABCDE1234F';
+    }
+    
+    // Validate GSTIN if provided and not checked as N/A
+    if (businessDetails.gstin.trim() !== '' && !noGstChecked) {
+      const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstinRegex.test(businessDetails.gstin)) {
+        errors.gstin = 'GSTIN must be in format 27AADCB2230M1ZT';
+      }
+    }
+    
+    // Validate GTIN if provided
+    if (businessDetails.gtin.trim() !== '') {
+      const gtinRegex = /^[0-9]{13,14}$/;
+      if (!gtinRegex.test(businessDetails.gtin)) {
+        errors.gtin = 'GTIN must be 13 or 14 digits';
+      }
+    }
+    
+    // Validate bank account number
+    const accNumberRegex = /^[0-9]{9,18}$/;
+    if (!accNumberRegex.test(bankDetails.accountNumber)) {
+      errors.accountNumber = 'Account number must be 9-18 digits';
+    }
+    
+    // Validate IFSC code
+    const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+    if (!ifscRegex.test(bankDetails.ifscCode)) {
+      errors.ifscCode = 'IFSC must be in format SBIN0001234';
+    }
+    
+    // If there are validation errors, show them and stop submission
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      toast.error('Please fix the validation errors before submitting');
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
@@ -374,12 +505,13 @@ const Verification: React.FC = () => {
                   name="panNumber"
                   value={businessDetails.panNumber}
                   onChange={handleBusinessDetailsChange}
-                  placeholder="Enter PAN number"
-                  className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  placeholder="Enter PAN number (e.g., ABCDE1234F)"
+                  className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${validationErrors.panNumber ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary-500'}`}
                   required
-                  pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
-                  title="Please enter a valid PAN number (e.g., ABCDE1234F)"
                 />
+                {validationErrors.panNumber && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.panNumber}</p>
+                )}
               </div>
 
               {/* GSTIN */}
@@ -393,25 +525,23 @@ const Verification: React.FC = () => {
                     name="gstin"
                     value={businessDetails.gstin}
                     onChange={handleBusinessDetailsChange}
-                    placeholder="Enter GSTIN"
-                    className={`block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 ${
-                      noGstChecked ? 'opacity-50' : ''
-                    }`}
+                    placeholder="Enter GSTIN (e.g., 27AADCB2230M1ZT)"
+                    className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${noGstChecked ? 'opacity-50' : ''} ${validationErrors.gstin ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary-500'}`}
                     disabled={noGstChecked}
-                    pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}"
-                    title="Please enter a valid GSTIN"
                   />
-                  
+                  {validationErrors.gstin && !noGstChecked && (
+                    <p className="mt-1 text-sm text-red-600">{validationErrors.gstin}</p>
+                  )}
                   <div className="flex items-center">
                     <input
                       id="noGstin"
                       type="checkbox"
                       checked={noGstChecked}
                       onChange={handleNoGstChange}
-                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                      className="mr-2"
                     />
-                    <label htmlFor="noGstin" className="ml-2 block text-sm text-gray-700">
-                      I don't have GSTIN — I will upload a declaration
+                    <label htmlFor="noGstin" className="text-sm text-gray-600">
+                      I don't have GSTIN
                     </label>
                   </div>
                 </div>
@@ -420,26 +550,76 @@ const Verification: React.FC = () => {
               {/* GTIN */}
               <div>
                 <label className="block mb-2 font-medium text-gray-700">
-                  🔹 GTIN (Global Trade Item Number)
+                  🔹 GTIN (Optional)
                 </label>
                 <input
                   type="text"
                   name="gtin"
                   value={businessDetails.gtin}
                   onChange={handleBusinessDetailsChange}
-                  placeholder="Enter GTIN (optional)"
-                  className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                  pattern="[0-9]{8}|[0-9]{12,14}"
-                  title="Please enter a valid GTIN (8, 12, 13, or 14 digits)"
+                  placeholder="Enter GTIN (optional, e.g., 8901234567890)"
+                  className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${validationErrors.gtin ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary-500'}`}
                 />
+                {validationErrors.gtin && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.gtin}</p>
+                )}
               </div>
             </div>
           </div>
-          
-          {/* Section 2: Business Verification Documents */}
+
+          {/* Section 2: Bank Details */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              2. Business Verification Documents
+              2. Bank Details
+            </h2>
+            
+            <div className="space-y-6">
+              {/* Account Number */}
+              <div>
+                <label className="block mb-2 font-medium text-gray-700">
+                  🔹 Account Number
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="accountNumber"
+                  value={bankDetails.accountNumber}
+                  onChange={handleBankDetailsChange}
+                  placeholder="Enter account number (9-18 digits)"
+                  className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${validationErrors.accountNumber ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary-500'}`}
+                  required
+                />
+                {validationErrors.accountNumber && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.accountNumber}</p>
+                )}
+              </div>
+
+              {/* IFSC Code */}
+              <div>
+                <label className="block mb-2 font-medium text-gray-700">
+                  🔹 IFSC Code
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="ifscCode"
+                  value={bankDetails.ifscCode}
+                  onChange={handleBankDetailsChange}
+                  placeholder="Enter IFSC code (e.g., SBIN0001234)"
+                  className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${validationErrors.ifscCode ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary-500'}`}
+                  required
+                />
+                {validationErrors.ifscCode && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.ifscCode}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Business Registration */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
+              3. Business Registration
             </h2>
             
             <div className="space-y-6">
@@ -449,9 +629,6 @@ const Verification: React.FC = () => {
                   🔹 Business Registration Certificate
                   <span className="text-red-500 ml-1">*</span>
                 </label>
-                <p className="text-sm text-gray-500 mb-2">
-                  (e.g., GST Registration, Shop & Establishment Certificate, or Govt. License)
-                </p>
                 
                 <div className="flex items-center">
                   <label className={`
@@ -473,7 +650,7 @@ const Verification: React.FC = () => {
                     ) : (
                       <span className="flex items-center text-gray-600">
                         <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                        Upload File (PDF/JPG/PNG)
+                        Upload File
                       </span>
                     )}
                     <input
@@ -485,127 +662,22 @@ const Verification: React.FC = () => {
                   </label>
                 </div>
               </div>
-              
-              {/* PAN Card */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 PAN Card (Business or Individual)
-                  <span className="text-red-500 ml-1">*</span>
-                </label>
-                <p className="text-sm text-gray-500 mb-2">
-                  (Required for tax compliance)
-                </p>
-                
-                <div className="flex items-center">
-                  <label className={`
-                    flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.panCard.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                      documents.panCard.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                    hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                  `}>
-                    {documents.panCard.status === 'uploaded' ? (
-                      <span className="flex items-center text-green-600">
-                        <CheckCircleIcon className="h-5 w-5 mr-2" />
-                        {documents.panCard.file?.name || 'File uploaded'}
-                      </span>
-                    ) : documents.panCard.status === 'error' ? (
-                      <span className="flex items-center text-red-600">
-                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                        Upload failed
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-gray-600">
-                        <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                        Upload File
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileChange('panCard', e)}
-                    />
-                  </label>
-                </div>
-              </div>
-              
-              {/* GSTIN */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 GSTIN (If applicable)
-                </label>
-                <p className="text-sm text-gray-500 mb-2">
-                  (Mandatory for selling taxable goods. Upload certificate or declaration if exempt)
-                </p>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <label className={`
-                      flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                      ${documents.gstin.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                        documents.gstin.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                      hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                      ${noGstChecked ? 'opacity-50 pointer-events-none' : ''}
-                    `}>
-                      {documents.gstin.status === 'uploaded' ? (
-                        <span className="flex items-center text-green-600">
-                          <CheckCircleIcon className="h-5 w-5 mr-2" />
-                          {documents.gstin.file?.name || 'File uploaded'}
-                        </span>
-                      ) : documents.gstin.status === 'error' ? (
-                        <span className="flex items-center text-red-600">
-                          <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                          Upload failed
-                        </span>
-                      ) : (
-                        <span className="flex items-center text-gray-600">
-                          <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                          Upload File
-                        </span>
-                      )}
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={(e) => handleFileChange('gstin', e)}
-                        disabled={noGstChecked}
-                      />
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <input
-                      id="noGstin"
-                      type="checkbox"
-                      checked={noGstChecked}
-                      onChange={handleNoGstChange}
-                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="noGstin" className="ml-2 block text-sm text-gray-700">
-                      I don't have GSTIN — I will upload a declaration
-                    </label>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
-          
-          {/* Section 3: Identity & Address Proof */}
+
+          {/* Section 4: Identity and Address Proof */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              3. Identity & Address Proof
+              4. Identity and Address Proof
             </h2>
             
             <div className="space-y-6">
               {/* Identity Proof */}
               <div>
                 <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Identity Proof of Owner
+                  🔹 Identity Proof
                   <span className="text-red-500 ml-1">*</span>
                 </label>
-                <p className="text-sm text-gray-500 mb-2">
-                  (Aadhar Card / Voter ID / Passport / Driving License)
-                </p>
                 
                 <div className="flex items-center">
                   <label className={`
@@ -639,16 +711,13 @@ const Verification: React.FC = () => {
                   </label>
                 </div>
               </div>
-              
+
               {/* Address Proof */}
               <div>
                 <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Address Proof of Business
+                  🔹 Address Proof
                   <span className="text-red-500 ml-1">*</span>
                 </label>
-                <p className="text-sm text-gray-500 mb-2">
-                  (Utility Bill / Rent Agreement / Property Papers)
-                </p>
                 
                 <div className="flex items-center">
                   <label className={`
@@ -684,100 +753,7 @@ const Verification: React.FC = () => {
               </div>
             </div>
           </div>
-          
-          {/* Section 4: Bank Account Details */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              4. Bank Account Details
-            </h2>
-            
-            <div className="space-y-6">
-              {/* Cancelled Cheque */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Cancelled Cheque or Bank Passbook Copy
-                  <span className="text-red-500 ml-1">*</span>
-                </label>
-                <p className="text-sm text-gray-500 mb-2">
-                  (To verify account name & number)
-                </p>
-                
-                <div className="flex items-center">
-                  <label className={`
-                    flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.cancelledCheque.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                      documents.cancelledCheque.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                    hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                  `}>
-                    {documents.cancelledCheque.status === 'uploaded' ? (
-                      <span className="flex items-center text-green-600">
-                        <CheckCircleIcon className="h-5 w-5 mr-2" />
-                        {documents.cancelledCheque.file?.name || 'File uploaded'}
-                      </span>
-                    ) : documents.cancelledCheque.status === 'error' ? (
-                      <span className="flex items-center text-red-600">
-                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                        Upload failed
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-gray-600">
-                        <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                        Upload File
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileChange('cancelledCheque', e)}
-                    />
-                  </label>
-                </div>
-              </div>
-              
-              {/* Bank Details */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Bank Details
-                  <span className="text-red-500 ml-1">*</span>
-                </label>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl">
-                  <div>
-                    <label htmlFor="accountNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                      Account Number
-                    </label>
-                    <input
-                      type="text"
-                      id="accountNumber"
-                      name="accountNumber"
-                      value={bankDetails.accountNumber}
-                      onChange={handleBankDetailsChange}
-                      placeholder="Enter bank account number"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="ifscCode" className="block text-sm font-medium text-gray-700 mb-1">
-                      IFSC Code
-                    </label>
-                    <input
-                      type="text"
-                      id="ifscCode"
-                      name="ifscCode"
-                      value={bankDetails.ifscCode}
-                      onChange={handleBankDetailsChange}
-                      placeholder="Enter IFSC code"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
+
           {/* Section 5: Tax Compliance */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">

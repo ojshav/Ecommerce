@@ -1,11 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AlertCircle, FileText, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface Document {
   type: string;
   submitted: boolean;
   imageUrl?: string;
+  id?: number;
+  status?: string;
+  file_name?: string;
+  file_size?: number;
+  mime_type?: string;
+  admin_notes?: string;
+  verified_at?: string;
 }
 
 interface Merchant {
@@ -28,78 +39,35 @@ interface Merchant {
   };
 }
 
-// Mock data with document image URLs
-const mockMerchants: Merchant[] = [
-  {
-    id: 1,
-    name: "Tech Gadgets Inc",
-    email: "contact@techgadgets.com",
-    phone: "555-123-4567",
-    status: "pending",
-    category: "Electronics",
-    dateApplied: "2025-04-28",
-    description: "Selling the latest tech gadgets and accessories",
-    panNumber: "ABCDE1234F",
-    gstin: "22ABCDE1234F1Z5",
-    gtin: "0123456789123",
-    bankAccountNumber: "1234567890",
-    bankIfscCode: "HDFC0001234",
-    documents: {
-      businessRegistration: {
-        type: "Business Registration",
-        submitted: true,
-        imageUrl: "/api/placeholder/800/600"
-      },
-      panCard: {
-        type: "PAN Card",
-        submitted: true,
-        imageUrl: "/api/placeholder/800/600"
-      },
-      gstin: {
-        type: "GSTIN Certificate",
-        submitted: true,
-        imageUrl: "/api/placeholder/800/600"
-      },
-      identityProof: {
-        type: "Identity Proof",
-        submitted: true,
-        imageUrl: "/api/placeholder/800/600"
-      },
-      addressProof: {
-        type: "Address Proof",
-        submitted: true,
-        imageUrl: "/api/placeholder/800/600"
-      },
-      cancelledCheque: {
-        type: "Cancelled Cheque",
-        submitted: true,
-        imageUrl: "/api/placeholder/800/600"
-      },
-      gstCertificate: {
-        type: "GST Certificate",
-        submitted: true,
-        imageUrl: "/api/placeholder/800/600"
-      },
-      msmeCertificate: {
-        type: "MSME Certificate",
-        submitted: false
-      },
-      digitalSignatureCertificate: {
-        type: "Digital Signature",
-        submitted: false
-      },
-      returnPolicy: {
-        type: "Return Policy",
-        submitted: false
-      },
-      shippingDetails: {
-        type: "Shipping Details",
-        submitted: false
-      },
-    }
-  },
-  // add other merchants similarly...
-];
+// Document type mapping - matches the document types in Verification.tsx
+const documentTypeMapping: { [key: string]: string } = {
+  'business_registration': 'Business Registration',
+  'pan_card': 'PAN Card',
+  'gstin': 'GSTIN Certificate',
+  'identity_proof': 'Identity Proof',
+  'address_proof': 'Address Proof',
+  'cancelled_cheque': 'Cancelled Cheque',
+  'gst_certificate': 'GST Certificate',
+  'msme_certificate': 'MSME Certificate',
+  'digital_signature': 'Digital Signature',
+  'return_policy': 'Return Policy',
+  'shipping_details': 'Shipping Details'
+};
+
+// Document key mapping (reverse of above)
+const documentKeyMapping: { [key: string]: string } = {
+  'Business Registration': 'businessRegistration',
+  'PAN Card': 'panCard',
+  'GSTIN Certificate': 'gstin',
+  'Identity Proof': 'identityProof',
+  'Address Proof': 'addressProof',
+  'Cancelled Cheque': 'cancelledCheque',
+  'GST Certificate': 'gstCertificate',
+  'MSME Certificate': 'msmeCertificate',
+  'Digital Signature': 'digitalSignatureCertificate',
+  'Return Policy': 'returnPolicy',
+  'Shipping Details': 'shippingDetails'
+};
 
 const DocumentViewer: React.FC<{
   documents: {
@@ -107,8 +75,14 @@ const DocumentViewer: React.FC<{
   };
   onClose: () => void;
   initialDocKey: string;
-}> = ({ documents, onClose, initialDocKey }) => {
+  onApprove: (documentId: number) => Promise<void>;
+  onReject: (documentId: number, reason: string) => Promise<void>;
+  isActionLoading: boolean;
+}> = ({ documents, onClose, initialDocKey, onApprove, onReject, isActionLoading }) => {
   const [currentDocKey, setCurrentDocKey] = useState(initialDocKey);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
+  
   const documentKeys = Object.keys(documents).filter(key => documents[key].submitted);
   const currentIndex = documentKeys.indexOf(currentDocKey);
   
@@ -125,12 +99,44 @@ const DocumentViewer: React.FC<{
   };
   
   const currentDoc = documents[currentDocKey];
+  const documentId = currentDoc.id;
+  const documentStatus = currentDoc.status?.toLowerCase() || '';
+  
+  const handleApprove = () => {
+    if (documentId) {
+      onApprove(documentId);
+    }
+  };
+  
+  const handleReject = () => {
+    if (documentId && rejectionReason.trim()) {
+      onReject(documentId, rejectionReason);
+      setShowRejectModal(false);
+      setRejectionReason('');
+    }
+  };
+  
+  // Pre-fill rejection reason if document is already rejected and has admin notes
+  useEffect(() => {
+    if (documentStatus === 'rejected' && currentDoc.admin_notes && showRejectModal) {
+      setRejectionReason(currentDoc.admin_notes);
+    } else if (showRejectModal) {
+      setRejectionReason('');
+    }
+  }, [showRejectModal, documentStatus, currentDoc.admin_notes]);
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2 sm:p-4">
       <div className="bg-white rounded-lg w-full max-w-6xl mx-auto max-h-screen flex flex-col">
         <div className="flex justify-between items-center p-3 sm:p-4 border-b">
-          <h3 className="text-lg sm:text-xl font-semibold truncate">{currentDoc.type}</h3>
+          <div>
+            <h3 className="text-lg sm:text-xl font-semibold truncate">{currentDoc.type}</h3>
+            <div className="text-sm text-gray-500">
+              Status: <span className={`font-medium ${documentStatus === 'approved' ? 'text-green-600' : documentStatus === 'rejected' ? 'text-red-600' : 'text-yellow-600'}`}>
+                {documentStatus.charAt(0).toUpperCase() + documentStatus.slice(1)}
+              </span>
+            </div>
+          </div>
           <button onClick={onClose} className="p-1 rounded-full hover:bg-gray-100">
             <X size={24} />
           </button>
@@ -146,6 +152,79 @@ const DocumentViewer: React.FC<{
           ) : (
             <div className="text-gray-500">No image available</div>
           )}
+        </div>
+        
+        {/* Document details */}
+        {currentDoc.file_name && (
+          <div className="px-4 py-2 bg-gray-50 border-t border-gray-200">
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="text-gray-600">File name:</div>
+              <div className="font-medium">{currentDoc.file_name}</div>
+              
+              {currentDoc.file_size && (
+                <>
+                  <div className="text-gray-600">File size:</div>
+                  <div className="font-medium">{Math.round(currentDoc.file_size / 1024)} KB</div>
+                </>
+              )}
+              
+              {currentDoc.verified_at && (
+                <>
+                  <div className="text-gray-600">Verified at:</div>
+                  <div className="font-medium">{new Date(currentDoc.verified_at).toLocaleString()}</div>
+                </>
+              )}
+              
+              {currentDoc.admin_notes && (
+                <>
+                  <div className="text-gray-600">Admin notes:</div>
+                  <div className="font-medium text-red-600">{currentDoc.admin_notes}</div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+        
+        {/* Action buttons for all documents */}
+        <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+          <div className="flex justify-between items-center">
+            {/* Show current status */}
+            <div className="flex items-center">
+              {documentStatus === 'approved' && (
+                <div className="flex items-center text-green-600">
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-sm font-medium">Approved</span>
+                </div>
+              )}
+              {documentStatus === 'rejected' && (
+                <div className="flex items-center text-red-600">
+                  <span className="bg-red-100 text-red-800 px-2 py-1 rounded-md text-sm font-medium">Rejected</span>
+                </div>
+              )}
+              {documentStatus === 'pending' && (
+                <div className="flex items-center text-yellow-600">
+                  <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-md text-sm font-medium">Pending</span>
+                </div>
+              )}
+            </div>
+            
+            {/* Action buttons */}
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowRejectModal(true)}
+                disabled={isActionLoading}
+                className={`px-4 py-2 ${documentStatus === 'rejected' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-700'} rounded-md hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {documentStatus === 'rejected' ? 'Update Rejection' : 'Reject Document'}
+              </button>
+              <button
+                onClick={handleApprove}
+                disabled={isActionLoading}
+                className={`px-4 py-2 ${documentStatus === 'approved' ? 'bg-green-700' : 'bg-green-600'} text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {documentStatus === 'approved' ? 'Re-Approve' : 'Approve Document'}
+              </button>
+            </div>
+          </div>
         </div>
         
         <div className="flex justify-between items-center p-3 sm:p-4 border-t">
@@ -170,6 +249,46 @@ const DocumentViewer: React.FC<{
           </button>
         </div>
       </div>
+      
+      {/* Rejection Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center text-red-500 mb-4">
+              <X size={24} className="mr-2" />
+              <h3 className="text-lg font-semibold">Reject Document</h3>
+            </div>
+            <p className="mb-4">
+              Please provide a reason for rejecting this document:
+            </p>
+            <textarea
+              className="w-full border border-gray-300 rounded-md p-2 mb-4"
+              rows={4}
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Enter rejection reason..."
+            ></textarea>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setRejectionReason("");
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReject}
+                disabled={!rejectionReason.trim() || isActionLoading}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+              >
+                Confirm Rejection
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -177,15 +296,183 @@ const DocumentViewer: React.FC<{
 const MerchantDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { accessToken, user } = useAuth();
   const [merchant, setMerchant] = useState<Merchant | null>(null);
   const [viewingDocument, setViewingDocument] = useState<string | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isDocumentActionLoading, setIsDocumentActionLoading] = useState(false);
+
+  // Fetch merchant details from API to ensure we get all data including bank details
+  const fetchMerchantDetails = async (merchantId: string): Promise<Merchant | null> => {
+    // Accept merchantId as a parameter
+    
+    if (!accessToken) {
+      toast.error('You must be logged in to view merchant details');
+      navigate('/login');
+      return null;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Always fetch from API to get the most up-to-date data including bank details
+      const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+      console.log(`Fetching merchant details from: ${baseUrl}/api/admin/merchants/${merchantId}`);
+      
+      // Use the admin endpoint to get merchant details - matches what's used in MerchantManagement.tsx
+      const response = await fetch(`${baseUrl}/api/admin/merchants/${merchantId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        // If API fetch fails, redirect to merchant list
+        toast.error('Merchant details not found. Redirecting to merchant list.');
+        navigate('/superadmin/merchant-management');
+        return null;
+      }
+
+      const data = await response.json();
+      console.log('Fetched merchant data from API:', data); // Debug log
+      
+      // Map backend field names to frontend field names
+      return {
+        ...data,
+        name: data.business_name,
+        email: data.business_email,
+        phone: data.business_phone,
+        description: data.business_description,
+        status: data.verification_status,
+        dateApplied: data.created_at,
+        panNumber: data.pan_number || '',
+        bankAccountNumber: data.bank_account_number || '',
+        bankIfscCode: data.bank_ifsc_code || ''
+      };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch merchant details';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Fetch merchant documents using the document API endpoint
+  const fetchMerchantDocuments = async (merchantId: string) => {
+    if (!accessToken) {
+      return [];
+    }
+
+    try {
+      // Ensure API_BASE_URL doesn't end with a slash
+      const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+      
+      // Use the document endpoint with merchant_id parameter for admin access
+      // This matches the endpoint in document_route.py: @document_bp.route('', methods=['GET'])
+      const response = await fetch(`${baseUrl}/api/merchant/documents?merchant_id=${merchantId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch merchant documents: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('Fetched documents:', data.documents);
+      return data.documents;
+    } catch (error: unknown) {
+      console.error('Error fetching documents:', error);
+      toast.error('Failed to fetch merchant documents');
+      return [];
+    }
+  };
+
+  // Transform API document data to the format expected by the UI
+  const transformDocuments = (apiDocuments: any[]) => {
+    // Initialize with all possible document types from Verification.tsx
+    const documents: { [key: string]: Document } = {
+      businessRegistration: { type: 'Business Registration', submitted: false },
+      panCard: { type: 'PAN Card', submitted: false },
+      gstin: { type: 'GSTIN Certificate', submitted: false },
+      identityProof: { type: 'Identity Proof', submitted: false },
+      addressProof: { type: 'Address Proof', submitted: false },
+      cancelledCheque: { type: 'Cancelled Cheque', submitted: false },
+      gstCertificate: { type: 'GST Certificate', submitted: false },
+      msmeCertificate: { type: 'MSME Certificate', submitted: false },
+      digitalSignatureCertificate: { type: 'Digital Signature', submitted: false },
+      returnPolicy: { type: 'Return Policy', submitted: false },
+      shippingDetails: { type: 'Shipping Details', submitted: false }
+    };
+
+    // Update with actual document data
+    apiDocuments.forEach(doc => {
+      const docType = documentTypeMapping[doc.document_type] || doc.document_type;
+      const docKey = documentKeyMapping[docType] || doc.document_type.toLowerCase();
+      
+      documents[docKey] = {
+        type: docType,
+        submitted: true,
+        imageUrl: doc.file_url,
+        id: doc.id,
+        status: doc.status,
+        file_name: doc.file_name,
+        file_size: doc.file_size,
+        mime_type: doc.mime_type,
+        admin_notes: doc.admin_notes,
+        verified_at: doc.verified_at
+      };
+    });
+
+    return documents;
+  };
 
   useEffect(() => {
-    const merchantId = Number(id);
-    const found = mockMerchants.find(m => m.id === merchantId);
-    setMerchant(found || null);
-  }, [id]);
+    const loadMerchantData = async () => {
+      if (!id) return;
+
+      // Check if user is authenticated and has admin role
+      if (!user || !['admin', 'superadmin'].includes(user.role)) {
+        toast.error('You must be logged in as an admin to view merchant details');
+        navigate('/login');
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        // Always fetch from API to get the complete merchant data including bank details
+        const merchantData = await fetchMerchantDetails(id);
+        if (!merchantData) return;
+
+        // Fetch documents directly from the document API
+        const documentsData = await fetchMerchantDocuments(id);
+        const transformedDocuments = transformDocuments(documentsData);
+
+        // Combine merchant data with documents
+        setMerchant({
+          ...merchantData,
+          documents: transformedDocuments
+        });
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load merchant data';
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadMerchantData();
+  }, [id, accessToken, user, navigate]);
 
   const openDocumentViewer = (docKey: string) => {
     setViewingDocument(docKey);
@@ -193,6 +480,95 @@ const MerchantDetails: React.FC = () => {
 
   const closeDocumentViewer = () => {
     setViewingDocument(null);
+  };
+
+  // Approve a document using the document API endpoint
+  const approveDocument = async (documentId: number) => {
+    if (!accessToken) return;
+    
+    try {
+      setIsDocumentActionLoading(true);
+      const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+      
+      // This matches the endpoint in document_route.py: @document_bp.route('/<int:id>/approve', methods=['POST'])
+      // Backend expects a JSON body with notes field (even if null)
+      const response = await fetch(`${baseUrl}/api/merchant/documents/${documentId}/approve`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ notes: null }) // Send notes field as required by backend
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to approve document: ${response.statusText}`);
+      }
+
+      toast.success('Document approved successfully');
+      
+      // Refresh merchant documents
+      if (id) {
+        const documentsData = await fetchMerchantDocuments(id);
+        const transformedDocuments = transformDocuments(documentsData);
+        
+        if (merchant) {
+          setMerchant({
+            ...merchant,
+            documents: transformedDocuments
+          });
+        }
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to approve document';
+      toast.error(errorMessage);
+    } finally {
+      setIsDocumentActionLoading(false);
+    }
+  };
+
+  // Reject a document using the document API endpoint
+  const rejectDocument = async (documentId: number, reason: string) => {
+    if (!accessToken || !reason.trim()) return;
+    
+    try {
+      setIsDocumentActionLoading(true);
+      const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+      
+      // This matches the endpoint in document_route.py: @document_bp.route('/<int:id>/reject', methods=['POST'])
+      const response = await fetch(`${baseUrl}/api/merchant/documents/${documentId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ reason })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to reject document: ${response.statusText}`);
+      }
+
+      toast.success('Document rejected successfully');
+      
+      // Refresh merchant documents
+      if (id) {
+        const documentsData = await fetchMerchantDocuments(id);
+        const transformedDocuments = transformDocuments(documentsData);
+        
+        if (merchant) {
+          setMerchant({
+            ...merchant,
+            documents: transformedDocuments
+          });
+        }
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reject document';
+      toast.error(errorMessage);
+    } finally {
+      setIsDocumentActionLoading(false);
+    }
   };
 
   const getStatusBadgeClass = (status: string) => {
@@ -205,6 +581,30 @@ const MerchantDetails: React.FC = () => {
         return 'bg-yellow-100 text-yellow-800';
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <p className="mt-4 text-lg font-semibold text-gray-700">Loading merchant data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <AlertCircle size={48} className="text-red-500 mb-4" />
+        <p className="text-lg font-semibold text-gray-700">{error}</p>
+        <button
+          onClick={() => navigate(-1)}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
 
   if (!merchant) {
     return (
@@ -306,11 +706,15 @@ const MerchantDetails: React.FC = () => {
                     <div className="space-y-3 sm:space-y-4">
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
                         <div className="text-sm font-medium text-gray-500">Account Number:</div>
-                        <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">{merchant.bankAccountNumber}</div>
+                        <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                          {merchant.bankAccountNumber || 'Not provided'}
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
                         <div className="text-sm font-medium text-gray-500">IFSC Code:</div>
-                        <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">{merchant.bankIfscCode}</div>
+                        <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                          {merchant.bankIfscCode || 'Not provided'}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -396,6 +800,9 @@ const MerchantDetails: React.FC = () => {
           documents={merchant.documents} 
           onClose={closeDocumentViewer} 
           initialDocKey={viewingDocument}
+          onApprove={approveDocument}
+          onReject={rejectDocument}
+          isActionLoading={isDocumentActionLoading}
         />
       )}
     </div>
