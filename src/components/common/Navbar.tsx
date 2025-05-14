@@ -32,10 +32,10 @@ const Navbar: React.FC = () => {
   return (
     <header className="w-full fixed top-0 left-0 right-0 z-50">
       {/* Top navigation - black bar */}
-      <div className="bg-black text-white py-4 md:py-6 lg:py-10">
+      <div className="bg-black text-white pb-4 md:pb-6 lg:pb-10">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col items-start space-y-2">
+          <div className="flex flex-col pl-20">
+            <div className="flex flex-start py-5">
               {/* Social Media Icons - Left top - Hidden on mobile */}
               <div className="hidden sm:flex items-center space-x-4">
                 <Link to="#" className="text-[#F2631F] hover:text-orange-400">
@@ -51,75 +51,78 @@ const Navbar: React.FC = () => {
                   <Mail size={16} />
                 </Link>
               </div>
-
+            </div>
+            
+            <div className="flex flex-row items-center justify-between w-full pt-5">
               {/* Logo - Left below icons */}
               <div className="mt-0 sm:mt-2">
                 <Link to="/" className="inline-block">
                   <img src="/assets/images/logo.svg" alt="AUIN Logo" width="100" height="35" className="sm:w-[120px] sm:h-[42px]" />
                 </Link>
               </div>
-            </div>
+              
 
-            {/* Mobile menu toggle */}
-            <button 
-              className="md:hidden text-white p-2" 
-              onClick={toggleMobileMenu}
-              aria-label="Toggle mobile menu"
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-
-            {/* Search and Actions - Hidden on mobile, shown in mobile menu */}
-            <div className="hidden md:flex items-center space-x-5">
-              {/* Search Bar with Category Dropdown */}
-              <div className="flex rounded-md overflow-hidden bg-white">
-                <input
-                  type="text"
-                  placeholder="What are you looking for?"
-                  className="w-full border-0 py-2 px-4 text-gray-900 focus:ring-0 focus:outline-none"
-                />
-                <div className="relative flex items-center border-l border-gray-200 bg-white">
-                  <select 
-                    className="h-full appearance-none bg-transparent py-2 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none"
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                  >
-                    <option>Category</option>
-                    <option>Electronics</option>
-                    <option>Clothing</option>
-                    <option>Home & Garden</option>
-                  </select>
-                  <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
-                </div>
-              </div>
-
-              <button className="bg-black hover:bg-gray-900 text-white py-2 px-6 rounded-md border border-white">
-                Search
+              {/* Mobile menu toggle */}
+              <button 
+                className="md:hidden text-white p-2" 
+                onClick={toggleMobileMenu}
+                aria-label="Toggle mobile menu"
+              >
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
 
-              {/* Icons */}
-              <Link to="/wishlist" className="text-white hover:text-[#F2631F]">
-                <Heart className="w-6 h-6" />
-              </Link>
-              
-              <Link to="/cart" className="text-white hover:text-[#F2631F] relative">
-                <ShoppingCart className="w-6 h-6" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-[#F2631F] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                )}
-              </Link>
-              
-              <Link to="/profile" className="text-white hover:text-[#F2631F]">
-                <User className="w-6 h-6" />
-              </Link>
-              
-              <Link 
-                to="/business/login" 
-                className="bg-[#F2631F] text-white rounded-md px-4 py-2 hover:bg-orange-600 transition-colors whitespace-nowrap"
-              >
-                Become a Merchant
-              </Link>
+              {/* Search and Actions - Hidden on mobile, shown in mobile menu */}
+              <div className="hidden md:flex items-center space-x-5">
+                {/* Search Bar with Category Dropdown */}
+                <div className="flex rounded-md overflow-hidden bg-white">
+                  <input
+                    type="text"
+                    placeholder="What are you looking for?"
+                    className="w-full md:w-96 border-0 py-2 px-4 text-gray-900 focus:ring-0 focus:outline-none"
+                  />
+                  <div className="relative flex items-center border-l border-gray-200 bg-white">
+                    <select 
+                      className="h-full appearance-none bg-transparent py-2 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none"
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                    >
+                      <option>Category</option>
+                      <option>Electronics</option>
+                      <option>Clothing</option>
+                      <option>Home & Garden</option>
+                    </select>
+                    <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
+                  </div>
+                </div>
+
+                <button className="bg-black hover:bg-gray-900 text-white py-2 px-6 rounded-md border border-white">
+                  Search
+                </button>
+
+                {/* Icons */}
+                <Link to="/wishlist" className="text-white hover:text-[#F2631F]">
+                  <Heart className="w-6 h-6" />
+                </Link>
+                
+                <Link to="/cart" className="text-white hover:text-[#F2631F] relative">
+                  <ShoppingCart className="w-6 h-6" />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-[#F2631F] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {totalItems}
+                    </span>
+                  )}
+                </Link>
+                
+                <Link to="/profile" className="text-white hover:text-[#F2631F]">
+                  <User className="w-6 h-6" />
+                </Link>
+                
+                <Link 
+                  to="/business/login" 
+                  className="bg-[#F2631F] text-white rounded-md px-4 py-2 hover:bg-orange-600 transition-colors whitespace-nowrap"
+                >
+                  Become a Merchant
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -188,7 +191,7 @@ const Navbar: React.FC = () => {
       
       {/* Main navigation - white bar */}
       <div className="bg-white border-b shadow-sm py-2">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-20">
           {/* Mobile lower navigation toggle */}
           <div className="md:hidden flex items-center justify-between">
             <button
