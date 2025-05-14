@@ -233,7 +233,7 @@ function App() {
                   element={
                     <>
                       <Navbar />
-                      <main className="flex-grow">
+                      <main className="flex-grow content-container">
                         <Routes>
                           <Route path="/" element={<Home />} />
                           <Route path="/all-products" element={<Products />} />

@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .content-container {
+    @apply pt-[212px] pb-10; /* Adjusted padding-top for fixed navbar */
+  }
+}
