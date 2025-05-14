@@ -18,7 +18,6 @@ const mockMerchants = [
     email: "contact@techgadgets.com",
     phone: "555-123-4567",
     status: "pending",
-    category: "Electronics",
     dateApplied: "2025-04-28",
     description: "Selling the latest tech gadgets and accessories",
     documents: {
@@ -33,7 +32,6 @@ const mockMerchants = [
     email: "info@fashionforward.com",
     phone: "555-987-6543",
     status: "approved",
-    category: "Clothing",
     dateApplied: "2025-04-22",
     description: "Trendy clothing and accessories for all",
     documents: {
@@ -48,7 +46,6 @@ const mockMerchants = [
     email: "support@homeessentials.com",
     phone: "555-456-7890",
     status: "rejected",
-    category: "Home & Garden",
     dateApplied: "2025-04-25",
     description: "Quality products for your home",
     rejectionReason: "Incomplete documentation",
@@ -64,7 +61,6 @@ const mockMerchants = [
     email: "hello@organicfoods.com",
     phone: "555-222-3333",
     status: "pending",
-    category: "Food & Beverage",
     dateApplied: "2025-05-01",
     description: "Organic and sustainably sourced food products",
     documents: {
@@ -79,7 +75,6 @@ const mockMerchants = [
     email: "sales@fitnessgear.com",
     phone: "555-444-5555",
     status: "pending",
-    category: "Sports & Fitness",
     dateApplied: "2025-04-30",
     description: "Professional fitness equipment and accessories",
     documents: {
@@ -142,8 +137,7 @@ const MerchantManagement: React.FC = () => {
     if (searchTerm) {
       results = results.filter(merchant => 
         merchant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        merchant.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        merchant.category.toLowerCase().includes(searchTerm.toLowerCase())
+        merchant.email.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
@@ -182,8 +176,7 @@ const MerchantManagement: React.FC = () => {
 
   // Navigate to merchant details page
   const viewMerchantDetails = (id: number) => {
-    navigate(`/superadmin/merchant-management/${id}`); // ✅ Correct path
-
+    navigate(`/superadmin/merchant-management/${id}`);
   };
 
   return (
@@ -198,7 +191,7 @@ const MerchantManagement: React.FC = () => {
           </div>
           <input
             type="text"
-            placeholder="Search merchants by name, email, or category"
+            placeholder="Search merchants by name or email"
             className="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -244,7 +237,6 @@ const MerchantManagement: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Merchant</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Applied</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -260,9 +252,6 @@ const MerchantManagement: React.FC = () => {
                         <div className="text-sm text-gray-500">{merchant.email}</div>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{merchant.category}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{merchant.dateApplied}</div>
