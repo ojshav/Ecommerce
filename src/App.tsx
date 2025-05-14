@@ -55,6 +55,7 @@ import Privacy from './pages/Privacy';
 import Cookies from './pages/Cookies';
 import Terms from './pages/Terms';
 import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
+import MerchantDetails from './pages/superadmin/MerchantDetails';
 
 
 // Lazy-loaded business dashboard pages
@@ -215,8 +216,11 @@ function App() {
                   <Route path="merchant-analytics" element={<MerchantAnalytics />} />
                   <Route path="platform-performance" element={<PlatformPerformance />} />
                   <Route path="merchant-management" element={<MerchantManagement />} />
+                    <Route path="merchant-management/:id" element={<MerchantDetails />} /> 
                   <Route path="categories" element={<Categories />} />
                   <Route path="attribute" element={<Attribute />} />
+        
+
                 </Route>
 
                 {/* Business Auth Routes */}
