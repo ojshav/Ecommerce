@@ -32,62 +32,70 @@ const ProductCard: React.FC<ProductCardProps> = ({
     e.stopPropagation();
     toast.success(`${product.name} added to wishlist`);
   };
+  
+  // Generate model number based on product id
+  const getModelNumber = (id: string) => {
+    if (id === '1') return 'MWP42SA/A';
+    if (id === '2') return 'MWT32SA/A Space Grey';
+    if (id === '3') return 'MWTK2SA/A Silver';
+    return `MW${id}${id}SA/A`;
+  };
     
   return (
-    <div className="border border-gray-200 relative group">
+    <div className="bg-white group relative flex flex-col h-full border border-gray-100 hover:shadow-md transition-shadow">
+      {/* Status label (New or Sold Out) */}
+      {isNew && (
+        <div className="absolute top-2 left-2 z-10 bg-orange-500 text-white px-3 py-1 text-xs rounded">
+          New
+        </div>
+      )}
+      {product.stock === 0 && (
+        <div className="absolute top-2 left-2 z-10 bg-gray-700 text-white px-3 py-1 text-xs rounded">
+          Sold Out
+        </div>
+      )}
+      
+      {/* Wishlist button */}
       <div className="absolute top-2 right-2 z-10">
         <button 
-          className="bg-white rounded-full p-1.5 shadow-sm hover:bg-gray-100"
+          className="bg-white rounded-full p-1.5 hover:bg-gray-100 shadow-sm"
           onClick={handleWishlist}
         >
           <Heart className="h-4 w-4 text-gray-500" />
         </button>
       </div>
       
-      {/* Labels */}
-      {isNew && (
-        <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-0.5 rounded z-10">New</span>
-      )}
-      {isBuiltIn && (
-        <span className="absolute top-2 left-2 bg-gray-500 text-white text-xs px-2 py-0.5 rounded z-10">Built-in</span>
-      )}
-      {salePercentage && (
-        <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded z-10">-{salePercentage}%</span>
-      )}
-      
-      <Link to={`/product/${product.id}`}>
-        <div className="relative">
+      <Link to={`/product/${product.id}`} className="flex-grow">
+        <div className="p-4 pt-8">
           <img 
             src={product.image}
             alt={product.name} 
-            className="w-full h-40 object-cover"
+            className="w-full h-40 object-contain"
           />
         </div>
         
-        <div className="p-3">
-          <h3 className="text-xs font-medium truncate">{product.name}</h3>
-          <p className="text-xs text-gray-500 mt-1 truncate">
-            {product.id.toUpperCase()}
+        <div className="px-4 pb-2">
+          <h3 className="text-base font-medium line-clamp-1">{product.name}</h3>
+          
+          <p className="text-xs text-gray-500 mt-1">
+            {getModelNumber(product.id)}
           </p>
           
-          <div className="mt-2">
-            <span className="text-sm font-bold">${product.price.toFixed(2)}</span>
-            {product.originalPrice && (
-              <span className="text-xs text-gray-400 line-through ml-1">
-                ${product.originalPrice.toFixed(2)}
-              </span>
-            )}
+          <div className="mt-2 mb-3">
+            <span className="text-base font-bold">${product.price.toFixed(2)}</span>
           </div>
         </div>
       </Link>
       
-      <button 
-        className="w-full bg-orange-500 text-white text-xs py-1.5 px-3 hover:bg-orange-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-        onClick={handleAddToCart}
-        disabled={product.stock === 0}
-      >
-        {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-      </button>
+      <div className="px-4 pb-4 mt-auto">
+        <button 
+          className="w-full bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition-colors font-medium"
+          onClick={handleAddToCart}
+          disabled={product.stock === 0}
+        >
+          {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
+        </button>
+      </div>
     </div>
   );
 };

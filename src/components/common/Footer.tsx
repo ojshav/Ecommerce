@@ -5,7 +5,7 @@ import { Instagram } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-black text-white">
+    <footer className="bg-black text-white w-full overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-x-12 gap-y-10">
           {/* Logo and Company Info */}
@@ -130,7 +130,7 @@ const Footer: React.FC = () => {
       </div>
       
       {/* Copyright Section */}
-      <div className="bg-white py-4">
+      <div className="bg-white py-4 w-full">
         <div className="container mx-auto px-4">
           <p className="text-gray-500 text-sm text-center">
             © 2000-2021, All Rights Reserved

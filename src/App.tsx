@@ -99,7 +99,7 @@ function App() {
       <CartProvider>
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <Router>
-            <div className="flex flex-col min-h-screen">
+            <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
 
               <Routes>
                 {/* Business Dashboard Routes */}
