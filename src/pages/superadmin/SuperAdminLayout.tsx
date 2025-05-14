@@ -1,5 +1,6 @@
-import { ReactNode, useState } from "react";
-import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import { ReactNode, useState, useEffect } from "react";
+import { useNavigate, Outlet, useLocation, Navigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import {
   ActivitySquare,
   ShoppingBag,
@@ -224,6 +225,22 @@ const SuperAdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, user } = useAuth();
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/superadmin/login" replace />;
+  }
+
+  // Redirect to unauthorized page if authenticated but not a superadmin
+  // Check if the user role includes 'admin' (case insensitive)
+  const userRole = user?.role?.toLowerCase() || '';
+  const isAdmin = userRole.includes('admin') || userRole === 'super_admin';
+  
+  if (isAuthenticated && !isAdmin) {
+    console.log('Unauthorized access attempt with role:', user?.role);
+    return <Navigate to="/unauthorized" replace />;
+  }
 
   // Determine active section based on current route
   const getCurrentRoute = () => {
@@ -236,9 +253,9 @@ const SuperAdminLayout = () => {
   };
 
   // Update selected category when location changes
-  useState(() => {
+  useEffect(() => {
     getCurrentRoute();
-  });
+  }, [location.pathname]);
 
   const handleNavigation = (section: string) => {
     const route = `/superadmin/${section.toLowerCase().replace(/\s+/g, "-")}`;

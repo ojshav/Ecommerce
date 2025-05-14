@@ -124,12 +124,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const createUserObject = (userData: any): User => {
+    // Determine the role with proper handling of admin roles
+    let role: 'customer' | 'merchant' | 'admin' = 'customer';
+    const userRole = (userData.role || '').toLowerCase();
+    
+    if (userRole === 'merchant') {
+      role = 'merchant';
+    } else if (userRole.includes('admin')) {
+      // Handle any role that contains 'admin' (admin, super_admin, etc.)
+      role = 'admin';
+    }
+    
+    console.log('Original role from backend:', userData.role);
+    console.log('Transformed role for frontend:', role);
+    
     return {
       id: userData.id,
       email: userData.email,
       name: `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'User',
-      role: userData.role === 'MERCHANT' ? 'merchant' : 
-            userData.role === 'ADMIN' ? 'admin' : 'customer',
+      role: role,
       isEmailVerified: userData.is_email_verified || false,
       verificationStatus: userData.verification_status || 'not_submitted'
     };
