@@ -16,21 +16,18 @@ import {
   ChatBubbleLeftIcon,
   DocumentChartBarIcon,
   StarIcon,
-  ArrowLeftOnRectangleIcon,
-  ListBulletIcon,
-  AdjustmentsHorizontalIcon
+  ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
-// Navigation items for the sidebar
+// Modified navigation items - removed Categories and Attributes from Catalog submenu
 const navigationItems = [
   { name: 'Dashboard', path: '/business/dashboard', icon: ChartBarIcon },
-  { 
+  // Catalog is now a direct link instead of having a submenu
+{ 
     name: 'Catalog', 
     icon: CubeIcon,
     submenu: [
       { name: 'Products', path: '/business/catalog/products', icon: CubeIcon },
-      { name: 'Categories', path: '/business/catalog/categories', icon: ListBulletIcon },
-      { name: 'Attributes', path: '/business/catalog/attributes', icon: AdjustmentsHorizontalIcon },
     ]
   },
   { name: 'Orders', path: '/business/orders', icon: ShoppingBagIcon },
@@ -52,9 +49,7 @@ const AdminLayout: React.FC = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({
-    Catalog: true // Start with Catalog expanded
-  });
+  const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
 
   // Handle window resize
   useEffect(() => {
@@ -134,7 +129,8 @@ const AdminLayout: React.FC = () => {
               const hasSubmenu = !!item.submenu;
               const isMenuActive = hasSubmenu 
                 ? item.submenu.some(subItem => location.pathname.startsWith(subItem.path))
-                : location.pathname === item.path;
+                : location.pathname === item.path || 
+                  (item.name === 'Catalog' && location.pathname.startsWith('/business/catalog'));
               const isExpanded = expandedMenus[item.name] || false;
 
               return (
@@ -342,4 +338,4 @@ const AdminLayout: React.FC = () => {
   );
 };
 
-export default AdminLayout; 
+export default AdminLayout;

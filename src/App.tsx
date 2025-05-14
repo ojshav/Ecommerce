@@ -157,22 +157,8 @@ function App() {
                         </Suspense>
                       }
                     />
-                    <Route
-                      path="categories"
-                      element={
-                        <Suspense fallback={<LoadingFallback />}>
-                         
-                        </Suspense>
-                      }
-                    />
-                    <Route
-                      path="attributes"
-                      element={
-                        <Suspense fallback={<LoadingFallback />}>
-                       
-                        </Suspense>
-                      }
-                    />
+                   
+                   
                     <Route
                       path="product/new"
                       element={
