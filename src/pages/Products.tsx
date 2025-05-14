@@ -1,314 +1,322 @@
 import React, { useState, useEffect } from 'react';
 import { products } from '../data/products';
 import { Link } from 'react-router-dom';
-import { X, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Heart } from 'lucide-react';
 import { Product } from '../types';
+import ProductCard from '../components/product/ProductCard';
+import RecentlyViewedCard from '../components/product/RecentlyViewedCard';
 
 const Products: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState(products);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedGender, setSelectedGender] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
-  const [selectedDiscounts, setSelectedDiscounts] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
 
   // Demo products data with structure matching Product type
   const demoProducts: Product[] = [
     { 
       id: '1', 
-      name: "4K Action Camera", 
-      description: "High-quality 4K action camera for all your adventures", 
-      price: 249.99, 
+      name: "Apple Macbook Pro 2019", 
+      description: "High-quality laptop for professionals", 
+      price: 2013.54, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1613080828499-5dbc124c5b88?q=80&w=600&auto=format&fit=crop", 
-      category: "Photography", 
+      image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.8, 
       reviews: 124,
       stock: 10,
-      tags: ["camera", "photography", "outdoor"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '2', 
-      name: "Ergonomic Gaming Mouse", 
-      description: "Professional gaming mouse with customizable buttons", 
-      price: 59.99, 
+      name: "Apple Macbook Air", 
+      description: "Thin and light laptop", 
+      price: 1193.71, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1527814050087-3793815479db?q=80&w=600&auto=format&fit=crop", 
-      category: "Gaming", 
+      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.7, 
       reviews: 89,
       stock: 25,
-      tags: ["gaming", "peripherals", "computer"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '3', 
-      name: "Ultra HD Smart TV", 
-      description: "Crystal clear 4K display with smart capabilities", 
-      price: 899.99, 
-      originalPrice: 799.99, 
+      name: "Apple Macbook Pro", 
+      description: "Powerful laptop for professionals", 
+      price: 2013.54, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?q=80&w=600&auto=format&fit=crop", 
-      category: "Electronics", 
+      image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.5, 
       reviews: 67,
       stock: 8,
-      tags: ["tv", "entertainment", "electronics"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '4', 
-      name: "Wireless Headphones", 
-      description: "Premium wireless headphones with noise cancellation", 
-      price: 179.99, 
-      originalPrice: 149.99, 
+      name: "Apple Macbook Air", 
+      description: "Lightweight laptop", 
+      price: 1193.71, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=600&auto=format&fit=crop", 
-      category: "Audio", 
+      image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.6, 
       reviews: 112,
       stock: 15,
-      tags: ["audio", "headphones", "wireless"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '5', 
-      name: "Smart Home Hub", 
-      description: "Control all your smart devices from one hub", 
-      price: 129.99, 
-      originalPrice: 99.99, 
+      name: "Apple Macbook Pro 2019", 
+      description: "Professional laptop", 
+      price: 2013.54, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1558089687-f282ffcbc0d4?q=80&w=600&auto=format&fit=crop", 
-      category: "Smart Home", 
+      image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.3, 
       reviews: 47,
       stock: 12,
-      tags: ["smart home", "automation", "technology"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '6', 
-      name: "Fitness Smartwatch", 
-      description: "Track your fitness goals with this premium smartwatch", 
-      price: 199.99, 
+      name: "Apple Macbook Air", 
+      description: "Thin laptop", 
+      price: 2013.54, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=600&auto=format&fit=crop", 
-      category: "Wearables", 
+      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.7, 
       reviews: 78,
       stock: 18,
-      tags: ["fitness", "wearable", "health"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '7', 
-      name: "Digital SLR Camera", 
-      description: "Professional-grade DSLR camera for photography enthusiasts", 
-      price: 649.99, 
+      name: "Apple Macbook Pro 2019", 
+      description: "Powerful laptop", 
+      price: 2142.98, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1502982720700-bfff97f2ecac?q=80&w=600&auto=format&fit=crop", 
-      category: "Photography", 
+      image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.9, 
       reviews: 56,
       stock: 7,
-      tags: ["photography", "camera", "professional"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '8', 
-      name: "Mechanical Keyboard", 
-      description: "Responsive mechanical keyboard with RGB lighting", 
-      price: 89.99, 
+      name: "Apple Macbook Pro 2020", 
+      description: "Latest model laptop", 
+      price: 2013.54, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?q=80&w=600&auto=format&fit=crop", 
-      category: "Computing", 
+      image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.5, 
       reviews: 93,
       stock: 22,
-      tags: ["keyboard", "gaming", "computer"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '9', 
-      name: "Portable Bluetooth Speaker", 
-      description: "Compact speaker with powerful sound", 
-      price: 49.99, 
+      name: "Apple Macbook Pro 2019", 
+      description: "Professional laptop", 
+      price: 2013.54, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?q=80&w=600&auto=format&fit=crop", 
-      category: "Audio", 
+      image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.2, 
       reviews: 104,
       stock: 30,
-      tags: ["audio", "speaker", "portable"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '10', 
-      name: "Premium Laptop", 
-      description: "Powerful laptop for work and gaming", 
-      price: 1299.99, 
+      name: "Apple Macbook Pro 2019", 
+      description: "Professional laptop", 
+      price: 2013.54, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=600&auto=format&fit=crop", 
-      category: "Computing", 
+      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.8, 
       reviews: 71,
       stock: 9,
-      tags: ["laptop", "computer", "premium"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '11', 
-      name: "Wireless Earbuds", 
-      description: "True wireless earbuds with premium sound quality", 
-      price: 129.99, 
+      name: "Apple Macbook Pro 2019", 
+      description: "Professional laptop", 
+      price: 2013.54, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?q=80&w=600&auto=format&fit=crop", 
-      category: "Audio", 
+      image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.4, 
       reviews: 129,
       stock: 24,
-      tags: ["audio", "earbuds", "wireless"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '12', 
-      name: "Smart Doorbell", 
-      description: "Keep your home secure with this smart doorbell", 
-      price: 149.99, 
-      originalPrice: 129.99, 
+      name: "Apple Macbook Air", 
+      description: "Lightweight laptop", 
+      price: 2285.05, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1584475784921-d9dbfd9d17ca?q=80&w=600&auto=format&fit=crop", 
-      category: "Smart Home", 
+      image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.6, 
       reviews: 58,
       stock: 14,
-      tags: ["security", "smart home", "doorbell"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '13', 
-      name: "Limited Edition Console", 
-      description: "Special edition gaming console with exclusive design", 
-      price: 499.99, 
+      name: "Apple Macbook 2023", 
+      description: "Latest model", 
+      price: 2385.06, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1605901309584-818e25960a8f?q=80&w=600&auto=format&fit=crop", 
-      category: "Gaming", 
+      image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.9, 
       reviews: 42,
-      stock: 0,
-      tags: ["gaming", "console", "limited edition"]
+      stock: 5,
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '14', 
-      name: "Robot Vacuum Cleaner", 
-      description: "Automated cleaning with smart navigation", 
-      price: 299.99, 
+      name: "Apple Macbook Pro 2019", 
+      description: "Professional laptop", 
+      price: 2013.54, 
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1567416659975-0298edc91739?q=80&w=600&auto=format&fit=crop", 
-      category: "Home", 
+      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=600&auto=format&fit=crop", 
+      category: "Laptop", 
       rating: 4.3, 
       reviews: 87,
       stock: 11,
-      tags: ["home", "cleaning", "robot"]
+      tags: ["laptop", "apple", "macbook"]
     },
     { 
       id: '15', 
-      name: "Noise Cancelling Headphones", 
-      description: "Premium over-ear headphones with noise cancellation", 
-      price: 249.99, 
+      name: "Apple Watch Series 5", 
+      description: "Smart watch", 
+      price: 594.51, 
+      originalPrice: 713.41,
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1599669454699-248893623440?q=80&w=600&auto=format&fit=crop", 
-      category: "Audio", 
+      image: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=600&auto=format&fit=crop", 
+      category: "Watch", 
       rating: 4.8, 
       reviews: 96,
       stock: 16,
-      tags: ["audio", "headphones", "noise cancelling"]
+      tags: ["watch", "apple", "smart watch"]
     },
     { 
       id: '16', 
-      name: "External SSD Drive", 
-      description: "Fast and reliable external storage solution", 
-      price: 129.99, 
-      originalPrice: 99.99, 
+      name: "Rossini wristwatch", 
+      description: "Classic wristwatch", 
+      price: 146.71, 
+      originalPrice: 176.05,
       currency: "USD", 
-      image: "https://images.unsplash.com/photo-1625961332771-3f40b0e2bdcf?q=80&w=600&auto=format&fit=crop", 
-      category: "Storage", 
+      image: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?q=80&w=600&auto=format&fit=crop", 
+      category: "Watch", 
       rating: 4.7, 
       reviews: 64,
       stock: 19,
-      tags: ["storage", "computer", "SSD"]
+      tags: ["watch", "rossini", "wristwatch"]
     },
   ];
 
+  // Recently viewed products data
+  const recentlyViewedProducts = [
+    {
+      id: '15',
+      name: "Apple Watch Series 5",
+      price: 594.51,
+      originalPrice: 713.41,
+      image: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=600&auto=format&fit=crop",
+      label: { text: "-28%", colorClass: "bg-red-500" },
+      modelNumber: "MWHF2VN/A"
+    },
+    {
+      id: '16',
+      name: "Rossini wristwatch",
+      price: 146.71,
+      originalPrice: 176.05,
+      image: "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?q=80&w=600&auto=format&fit=crop",
+      label: { text: "-10%", colorClass: "bg-orange-500" },
+      modelNumber: "T128W/V/I/O"
+    },
+    {
+      id: '17',
+      name: "Angel Whitening Treatment Lotion",
+      price: 193.31,
+      originalPrice: 205.22,
+      image: "https://images.unsplash.com/photo-1619549396130-6511cddb59e8?q=80&w=600&auto=format&fit=crop",
+      label: { text: "-6%", colorClass: "bg-green-500" }
+    },
+    {
+      id: '1',
+      name: "Apple MacBook Pro 2019",
+      price: 2013.54,
+      originalPrice: 2416.25,
+      image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=600&auto=format&fit=crop",
+      label: { text: "New", colorClass: "bg-orange-500" },
+      modelNumber: "MVH12SA/A"
+    },
+    {
+      id: '18',
+      name: "Shop the Best at Gala Toy Park",
+      price: 32,
+      image: "https://images.unsplash.com/photo-1599751449918-8a10a588222c?q=80&w=600&auto=format&fit=crop",
+      label: { text: "New", colorClass: "bg-orange-500" }
+    },
+    {
+      id: '19',
+      name: "Citizen BN0100-51L Men's Watch",
+      price: 56.79,
+      image: "https://images.unsplash.com/photo-1617714651073-157ebdad18ac?q=80&w=600&auto=format&fit=crop"
+    }
+  ];
+
   // Get unique categories (brands) - just for demo
-  const brands = ["ABC", "ABC", "ABC", "ABC", "ABC", "ABC"];
+  const brands = ["Apple", "DELL", "Casio", "Samsung", "PKJ", "Honda"];
   
   // Mock color options
   const colorOptions = [
-    { name: 'Gray', value: 'bg-gray-400' },
-    { name: 'LightGray', value: 'bg-gray-300' },
-    { name: 'DarkGray', value: 'bg-gray-600' },
-    { name: 'Gray2', value: 'bg-gray-500' },
-    { name: 'Gray3', value: 'bg-gray-700' },
-    { name: 'Gray4', value: 'bg-gray-800' },
-    { name: 'Gray5', value: 'bg-gray-200' },
-    { name: 'Gray6', value: 'bg-gray-400' },
-    { name: 'Gray7', value: 'bg-gray-500' },
+    { name: 'Red', value: 'bg-red-500' },
+    { name: 'Black', value: 'bg-black' },
+    { name: 'Orange', value: 'bg-orange-500' },
+    { name: 'Yellow', value: 'bg-yellow-400' },
+    { name: 'Green', value: 'bg-green-500' },
+    { name: 'Blue', value: 'bg-blue-500' },
+    { name: 'Purple', value: 'bg-purple-500' },
+    { name: 'Pink', value: 'bg-pink-300' },
   ];
 
-  // Filter products when search query or filters change
   useEffect(() => {
-    let result = [...products];
+    // Set recently viewed products
+    const recentlyViewedData = recentlyViewedProducts.map(item => {
+      const product = demoProducts.find(p => p.id === item.id) || {
+        id: item.id,
+        name: item.name,
+        description: '',
+        price: item.price,
+        originalPrice: item.originalPrice,
+        currency: 'USD',
+        image: item.image,
+        category: '',
+        rating: 4.5,
+        reviews: 50,
+        stock: 10
+      };
+      return product;
+    });
     
-    // Apply search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        product => 
-          product.name.toLowerCase().includes(query) || 
-          product.description.toLowerCase().includes(query) ||
-          product.tags?.some(tag => tag.toLowerCase().includes(query))
-      );
-    }
-    
-    // Apply gender filter (simplified for demo)
-    if (selectedGender) {
-      // In a real app, would filter by actual gender category
-      result = result.filter(product => {
-        if (selectedGender === 'Men') return product.category === 'electronics' || product.category === 'furniture';
-        if (selectedGender === 'Women') return product.category === 'fashion' || product.category === 'clothing';
-        if (selectedGender === 'Boy') return product.category === 'sports';
-        if (selectedGender === 'Girls') return product.category === 'beauty';
-        return true;
-      });
-    }
-
-    // Apply brand filter (simulated)
-    if (selectedBrands.length > 0) {
-      // In a real app, would filter by actual brands
-      // For demo, we'll just filter randomly based on id
-      result = result.filter(product => {
-        const productIdNum = parseInt(product.id);
-        return selectedBrands.some((_, index) => productIdNum % (index + 3) === 0);
-      });
-    }
-
-    // Apply color filter (simulated)
-    if (selectedColors.length > 0) {
-      // In a real app, would filter by actual colors
-      // For demo, we'll just filter randomly based on id
-      result = result.filter(product => {
-        const productIdNum = parseInt(product.id);
-        return selectedColors.some((_, index) => productIdNum % (index + 2) === 0);
-      });
-    }
-    
-    // Apply price range filter
-    result = result.filter(
-      product => product.price >= priceRange[0] && product.price <= priceRange[1]
-    );
-    
-    // Apply discount filter (simulated)
-    if (selectedDiscounts.length > 0) {
-      result = result.filter(product => product.originalPrice !== undefined);
-    }
-    
-    setFilteredProducts(result);
-
-    // Set recently viewed (for demo purposes) - now properly typed
-    setRecentlyViewed(demoProducts.slice(0, 6));
-  }, [searchQuery, selectedGender, selectedBrands, selectedColors, priceRange, selectedDiscounts]);
+    setRecentlyViewed(recentlyViewedData);
+  }, []);
   
   // Toggle brand selection
   const toggleBrand = (brand: string) => {
@@ -327,205 +335,171 @@ const Products: React.FC = () => {
         : [...prev, color]
     );
   };
-
-  // Toggle discount selection
-  const toggleDiscount = (discount: string) => {
-    setSelectedDiscounts(prev => 
-      prev.includes(discount) 
-        ? prev.filter(d => d !== discount)
-        : [...prev, discount]
-    );
-  };
   
   // Reset all filters
   const resetFilters = () => {
     setSearchQuery('');
-    setSelectedGender('');
+    setSelectedCategory('');
     setSelectedBrands([]);
     setSelectedColors([]);
-    setPriceRange([0, 10000]);
-    setSelectedDiscounts([]);
+    setPriceRange([0, 1000000]);
   };
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 pb-8">
-        {/* Available items */}
-        <div className="py-4 flex items-center">
-          <div className="mr-2 w-3 h-3 bg-gray-400 rounded-full"></div>
-          <span className="text-sm text-gray-600">All available items</span>
-          <svg className="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 12H19M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-        
-        {/* Mobile Filter Button */}
-        <div className="md:hidden mb-4">
-          <button 
-            className="w-full py-2 px-4 bg-gray-100 text-gray-800 rounded flex justify-between items-center"
-            onClick={() => alert('Mobile filter would open here')}
-          >
-            <span className="font-medium">Filter Products</span>
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 6H21M10 12H21M17 18H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </button>
+      <div className="container mx-auto px-4 py-4">
+        {/* Breadcrumb */}
+        <div className="text-xs text-gray-500 mb-4">
+          <span>Home</span> / <span>Technology</span> / <span>Laptop</span> / <span className="text-black">Apple</span>
         </div>
         
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Filters Sidebar - Hidden on Mobile */}
-          <div className="hidden md:block w-56">
-            <div className="border border-gray-200">
-              <div className="flex justify-between items-center p-3">
-                <h3 className="font-medium">Filter</h3>
-                <button className="text-xs text-gray-500">Clear All</button>
-              </div>
-              
-              {/* Gender Filter */}
-              <div className="p-2 border-t border-gray-200">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="gender-men"
-                        name="gender"
-                        checked={selectedGender === 'Men'}
-                        onChange={() => setSelectedGender('Men')}
-                        className="h-4 w-4 text-gray-600 border-gray-300 rounded-full"
-                      />
-                      <label htmlFor="gender-men" className="ml-2 text-sm">Men</label>
-                    </div>
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="gender-women"
-                        name="gender"
-                        checked={selectedGender === 'Women'}
-                        onChange={() => setSelectedGender('Women')}
-                        className="h-4 w-4 text-gray-600 border-gray-300 rounded-full"
-                      />
-                      <label htmlFor="gender-women" className="ml-2 text-sm">Women</label>
-                    </div>
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="gender-boy"
-                        name="gender"
-                        checked={selectedGender === 'Boy'}
-                        onChange={() => setSelectedGender('Boy')}
-                        className="h-4 w-4 text-gray-600 border-gray-300 rounded-full"
-                      />
-                      <label htmlFor="gender-boy" className="ml-2 text-sm">Boy</label>
-                    </div>
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        id="gender-girls"
-                        name="gender"
-                        checked={selectedGender === 'Girls'}
-                        onChange={() => setSelectedGender('Girls')}
-                        className="h-4 w-4 text-gray-600 border-gray-300 rounded-full"
-                      />
-                      <label htmlFor="gender-girls" className="ml-2 text-sm">Girls</label>
-                    </div>
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+          {/* Category Sidebar */}
+          <div className="w-full md:w-56 pr-4">
+            <div className="mb-8">
+              <h3 className="font-medium text-base mb-3">Category</h3>
+              <div className="space-y-1">
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Toys and Puzzle</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 text-gray-800 font-medium hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Technology</span>
+                  <ChevronRight className="h-4 w-4 transform rotate-90" />
+                </button>
+                <div className="pl-4 space-y-1 mt-1">
+                  <button className="w-full flex items-center py-1.5 text-sm hover:text-gray-700 transition-colors">
+                    Smart Watch
+                  </button>
+                  <button className="w-full flex items-center justify-between py-1.5 text-sm font-medium hover:text-gray-700 transition-colors">
+                    <span>Laptop</span>
+                    <ChevronRight className="h-4 w-4 transform rotate-90 ml-auto" />
+                  </button>
+                  <div className="pl-2 space-y-1 mt-1">
+                    <button className="w-full text-left py-1.5 px-2 bg-orange-500 text-white rounded text-sm">
+                      Apple
+                    </button>
+                    <button className="w-full text-left py-1.5 px-2 text-sm hover:bg-gray-100 transition-colors rounded">
+                      DELL
+                    </button>
                   </div>
                 </div>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Tablet</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Desktop</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Accessories</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Watch</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Home & Life</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Cosmetic</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Fashion Accessories</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Products On Demand</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Fashion</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Nail Care</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Party accessories</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button className="w-full flex items-center justify-between py-1.5 hover:text-gray-700 transition-colors">
+                  <span className="text-sm">Vehicle</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               </div>
-              
-              {/* Brand Filter */}
-              <div className="p-3 border-t border-gray-200">
-                <h4 className="font-medium text-sm mb-2">Brand</h4>
-                <div className="space-y-2">
-                  {brands.map((brand, index) => (
-                    <div key={index} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id={`brand-${index}`}
-                        checked={selectedBrands.includes(brand)}
-                        onChange={() => toggleBrand(brand)}
-                        className="h-4 w-4 text-gray-600 border-gray-300 rounded"
-                      />
-                      <label htmlFor={`brand-${index}`} className="ml-2 text-xs flex justify-between w-full">
-                        <span>ABC</span>
-                        <span className="text-gray-400 text-xs">(120)</span>
-                      </label>
-                    </div>
-                  ))}
+            </div>
+            
+            {/* Brand Filter */}
+            <div className="mb-8">
+              <h3 className="font-medium text-base mb-3">Brand</h3>
+              <div className="flex flex-wrap gap-2">
+                <button className="px-2 py-1.5 border border-gray-200 rounded-sm text-xs hover:bg-gray-100 transition-colors">Apple</button>
+                <button className="px-2 py-1.5 border border-gray-200 rounded-sm text-xs hover:bg-gray-100 transition-colors">DELL</button>
+                <button className="px-2 py-1.5 border border-gray-200 rounded-sm text-xs hover:bg-gray-100 transition-colors">Casio</button>
+                <button className="px-2 py-1.5 border border-gray-200 rounded-sm text-xs hover:bg-gray-100 transition-colors">Samsung</button>
+                <button className="px-2 py-1.5 border border-gray-200 rounded-sm text-xs hover:bg-gray-100 transition-colors">PKJ</button>
+                <button className="px-2 py-1.5 border border-gray-200 rounded-sm text-xs hover:bg-gray-100 transition-colors">Honda</button>
+                <button className="px-2 py-1.5 border border-gray-200 rounded-sm text-xs hover:bg-gray-100 transition-colors">Oppo</button>
+                <button className="px-2 py-1.5 border border-gray-200 rounded-sm text-xs hover:bg-gray-100 transition-colors">LG</button>
+                <button className="px-2 py-1.5 border border-gray-200 rounded-sm text-xs hover:bg-gray-100 transition-colors">Lock & Lock</button>
+              </div>
+            </div>
+            
+            {/* Color Filter */}
+            <div className="mb-8">
+              <h3 className="font-medium text-base mb-3">Color</h3>
+              <div className="flex flex-wrap gap-3">
+                <button className="w-5 h-5 rounded-full bg-red-500 transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"></button>
+                <button className="w-5 h-5 rounded-full bg-black transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-black"></button>
+                <button className="w-5 h-5 rounded-full bg-orange-500 transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"></button>
+                <button className="w-5 h-5 rounded-full bg-yellow-400 transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"></button>
+                <button className="w-5 h-5 rounded-full bg-green-500 transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-green-500"></button>
+                <button className="w-5 h-5 rounded-full bg-emerald-500 transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"></button>
+                <button className="w-5 h-5 rounded-full bg-blue-500 transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"></button>
+                <button className="w-5 h-5 rounded-full bg-purple-500 transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"></button>
+                <button className="w-5 h-5 rounded-full bg-pink-300 transition-transform hover:scale-110 focus:ring-2 focus:ring-offset-2 focus:ring-pink-300"></button>
+              </div>
+            </div>
+            
+            {/* Price Range */}
+            <div className="mb-8">
+              <h3 className="font-medium text-base mb-3">Price</h3>
+              <div className="px-2">
+                <div className="flex justify-between text-xs text-gray-500 mb-2">
+                  <span>$0</span>
+                  <span>$1,000,000</span>
                 </div>
-              </div>
-              
-              {/* Discount Range */}
-              <div className="p-3 border-t border-gray-200">
-                <h4 className="font-medium text-sm mb-2">Discount Range</h4>
-                <div className="space-y-2">
-                  {["ABC", "ABC", "ABC", "ABC", "ABC", "ABC"].map((discount, index) => (
-                    <div key={index} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id={`discount-${index}`}
-                        checked={selectedDiscounts.includes(discount)}
-                        onChange={() => toggleDiscount(discount)}
-                        className="h-4 w-4 text-gray-600 border-gray-300 rounded"
-                      />
-                      <label htmlFor={`discount-${index}`} className="ml-2 text-xs">
-                        {discount}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Color Filter */}
-              <div className="p-3 border-t border-gray-200">
-                <h4 className="font-medium text-sm mb-2">Color</h4>
-                <div className="grid grid-cols-3 gap-2">
-                  {colorOptions.slice(0, 9).map((color, index) => (
-                    <div key={index} className="flex justify-center">
-                      <button
-                        className={`w-5 h-5 rounded-full ${color.value}`}
-                        onClick={() => toggleColor(color.name)}
-                        aria-label={`Select ${color.name} color`}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Price Range */}
-              <div className="p-3 border-t border-gray-200">
-                <h4 className="font-medium text-sm mb-2">Price</h4>
-                <div className="px-2">
+                <div className="relative pt-1">
+                  <div className="w-full h-1 bg-gray-200 rounded-lg appearance-none">
+                    <div 
+                      className="absolute h-1 bg-orange-500 rounded-lg"
+                      style={{ width: `${(priceRange[1] / 1000000) * 100}%` }}
+                    ></div>
+                  </div>
                   <input
                     type="range"
                     min="0"
-                    max="10000"
-                    step="100"
+                    max="1000000"
+                    step="10000"
                     value={priceRange[1]}
                     onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                    className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    className="absolute top-0 w-full h-2 opacity-0 cursor-pointer"
                   />
-                  <div className="flex justify-between text-xs text-gray-500 mt-2">
-                    <span>$0</span>
-                    <span>$10,000.00</span>
+                  <div className="relative mt-1">
+                    <div 
+                      className="absolute w-4 h-4 bg-orange-500 rounded-full -translate-y-1/2 -translate-x-1/2 border-2 border-white" 
+                      style={{ left: '0%', top: '0' }}
+                    ></div>
+                    <div 
+                      className="absolute w-4 h-4 bg-orange-500 rounded-full -translate-y-1/2 -translate-x-1/2 border-2 border-white" 
+                      style={{ left: `${(priceRange[1] / 1000000) * 100}%`, top: '0' }}
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -534,62 +508,28 @@ const Products: React.FC = () => {
           
           {/* Products Grid */}
           <div className="flex-1">
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
-              {demoProducts.map((product, index) => (
-                <div key={index} className="border border-gray-200 relative group cursor-pointer">
-                  {product.id === '1' || product.id === '2' || product.id === '8' ? (
-                    <span className="absolute top-2 left-2 bg-black text-white text-xs px-2 py-1 rounded-sm z-10">NEW</span>
-                  ) : null}
-                  <div className="relative">
-                    <div className="h-36 sm:h-40 md:h-44 lg:h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
-                      <img 
-                        src={product.image} 
-                        alt={product.name} 
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    {product.id === '4' || product.id === '5' ? (
-                      <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-sm">Sale</span>
-                    ) : null}
-                    {product.id === '10' ? (
-                      <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-sm">Popular & Hot</span>
-                    ) : null}
-                    {product.id === '13' ? (
-                      <span className="absolute top-2 right-2 bg-gray-700 text-white text-xs px-2 py-1 rounded-sm">Sold Out</span>
-                    ) : null}
-                    {product.id === '12' ? (
-                      <span className="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded-sm">-10%</span>
-                    ) : null}
-                  </div>
-                  <div className="p-2 md:p-3">
-                    <p className="text-xs text-gray-500">{product.category}</p>
-                    <p className="text-xs md:text-sm font-medium mt-0.5 md:mt-1 line-clamp-1">{product.name}</p>
-                    <div className="flex items-center mt-1 md:mt-2">
-                      <span className="text-xs md:text-sm font-bold">${product.price.toFixed(2)}</span>
-                      {product.originalPrice && (
-                        <span className="text-xs text-gray-400 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
-                      )}
-                    </div>
-                    <div className="flex justify-between items-center mt-2 md:mt-3">
-                      <a href="#" className="text-blue-500 text-xs hover:underline">View</a>
-                      <button className="bg-black text-white text-xs px-2 py-0.5 md:px-3 md:py-1 rounded-sm">Add</button>
-                    </div>
-                  </div>
-                </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+              {demoProducts.slice(0, 16).map((product, index) => (
+                <ProductCard 
+                  key={index} 
+                  product={product}
+                  isNew={index % 4 === 0}
+                  isBuiltIn={index % 7 === 0}
+                />
               ))}
             </div>
-                
+            
             {/* Pagination */}
-            <div className="flex justify-center mt-4 mb-8">
-              <button className="px-2 sm:px-3 py-1 rounded border border-gray-200 text-gray-700">
+            <div className="flex justify-center items-center gap-1 my-6">
+              <button className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded">
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <button className="px-2 sm:px-3 py-1 rounded border border-gray-200 text-gray-700 mx-1">1</button>
-              <button className="px-2 sm:px-3 py-1 rounded bg-gray-800 text-white mx-1">2</button>
-              <button className="px-2 sm:px-3 py-1 rounded border border-gray-200 text-gray-700 mx-1">3</button>
-              <button className="hidden sm:block px-3 py-1 rounded border border-gray-200 text-gray-700 mx-1">4</button>
-              <button className="hidden sm:block px-3 py-1 rounded border border-gray-200 text-gray-700 mx-1">5</button>
-              <button className="px-2 sm:px-3 py-1 rounded border border-gray-200 text-gray-700">
+              <button className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded">1</button>
+              <button className="w-6 h-6 flex items-center justify-center bg-orange-500 text-white rounded">2</button>
+              <button className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded">3</button>
+              <button className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded">4</button>
+              <button className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded">5</button>
+              <button className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded">
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
@@ -597,52 +537,35 @@ const Products: React.FC = () => {
         </div>
 
         {/* Recently Viewed */}
-        <div className="mt-8 md:mt-12 mb-8">
+        <div className="mt-8 mb-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-base md:text-lg font-medium">Recently Viewed</h2>
+            <h2 className="text-base font-medium">Recently Viewed</h2>
             <div className="flex space-x-2">
-              <button className="border border-gray-200 p-1 rounded-sm hover:bg-gray-50">
+              <button className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded">
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <button className="border border-gray-200 p-1 rounded-sm hover:bg-gray-50">
+              <button className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded">
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
-            {demoProducts.slice(0, 6).map((product, index) => (
-              <div key={index} className="border border-gray-200 cursor-pointer hover:shadow-md transition-shadow duration-200">
-                <div className="relative">
-                  <div className="h-24 sm:h-28 md:h-32 bg-gray-100 flex items-center justify-center overflow-hidden">
-                    <img 
-                      src={product.image} 
-                      alt={product.name} 
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  {product.id === '4' || product.id === '5' ? (
-                    <span className="absolute top-1 right-1 bg-red-500 text-white text-[8px] md:text-[9px] px-1 py-0.5 rounded-sm">Sale</span>
-                  ) : null}
-                  {product.id === '1' || product.id === '2' ? (
-                    <span className="absolute top-1 left-1 bg-black text-white text-[8px] md:text-[9px] px-1 py-0.5 rounded-sm">NEW</span>
-                  ) : null}
-                </div>
-                <div className="p-2 md:p-2.5">
-                  <p className="text-[9px] md:text-[10px] text-gray-500">{product.category}</p>
-                  <p className="text-[10px] md:text-xs font-medium mt-0.5 md:mt-1 line-clamp-1">{product.name}</p>
-                  <div className="flex items-center mt-1 md:mt-1.5">
-                    <span className="text-[10px] md:text-xs font-bold">${product.price.toFixed(2)}</span>
-                    {product.originalPrice && (
-                      <span className="text-[8px] md:text-[10px] text-gray-400 line-through ml-1 md:ml-1.5">${product.originalPrice.toFixed(2)}</span>
-                    )}
-                  </div>
-                  <div className="flex justify-between items-center mt-1 md:mt-2">
-                    <a href="#" className="text-blue-500 text-[9px] md:text-[10px] hover:underline">View</a>
-                    <button className="bg-black text-white text-[9px] md:text-[10px] px-1.5 md:px-2 py-0.5 rounded-sm hover:bg-gray-800">Add</button>
-                  </div>
-                </div>
-              </div>
-            ))}
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {recentlyViewedProducts.map((item, index) => {
+              const product = recentlyViewed[index];
+              if (!product) return null;
+              
+              return (
+                <RecentlyViewedCard
+                  key={index}
+                  product={product}
+                  label={item.label}
+                  modelNumber={item.modelNumber}
+                  displayPrice={item.price.toFixed(2)}
+                  originalPrice={item.originalPrice?.toFixed(2)}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
