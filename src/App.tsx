@@ -56,6 +56,8 @@ import Cookies from './pages/Cookies';
 import Terms from './pages/Terms';
 import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
 import MerchantDetails from './pages/superadmin/MerchantDetails';
+import Inventory from './pages/business/Inventory';
+import VerificationStatus from './pages/business/VerificationStatus';
 
 
 // Lazy-loaded business dashboard pages
@@ -122,10 +124,26 @@ function App() {
                     }
                   />
                   <Route
+                    path="inventory"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Inventory />
+                      </Suspense>
+                    }
+                  />
+                  <Route
                     path="verification"
                     element={
                       <Suspense fallback={<LoadingFallback />}>
                         <Verification />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="verification-pending"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <VerificationStatus />
                       </Suspense>
                     }
                   />
@@ -146,7 +164,7 @@ function App() {
                     }
                   />
 
-                  
+
                   {/* Catalog Routes */}
                   <Route path="catalog">
                     <Route
@@ -157,8 +175,8 @@ function App() {
                         </Suspense>
                       }
                     />
-                   
-                   
+
+
                     <Route
                       path="product/new"
                       element={
@@ -184,12 +202,12 @@ function App() {
                       }
                     />
                   </Route>
-                  
+
                   {/* Add more business routes here */}
 
 
                 </Route>
- {/* Superadmin Routes - Using SuperAdminLayout */}
+                {/* Superadmin Routes - Using SuperAdminLayout */}
                 <Route path="/superadmin" element={<SuperAdminLayout />}>
                   <Route index element={<Dashboard />} />
                   <Route path="user-activity-overview" element={<UserActivity />} />
@@ -202,23 +220,23 @@ function App() {
                   <Route path="merchant-analytics" element={<MerchantAnalytics />} />
                   <Route path="platform-performance" element={<PlatformPerformance />} />
                   <Route path="merchant-management" element={<MerchantManagement />} />
-                    <Route path="merchant-management/:id" element={<MerchantDetails />} /> 
+                  <Route path="merchant-management/:id" element={<MerchantDetails />} />
                   <Route path="categories" element={<Categories />} />
                   <Route path="attribute" element={<Attribute />} />
-        
+
 
                 </Route>
 
                 {/* Business Auth Routes */}
                 <Route path="/business/login" element={<BusinessLogin />} />
                 <Route path="/register-business" element={<RegisterBusiness />} />
-                
+
                 {/* Auth Routes without header/footer */}
                 <Route path="/signup" element={<SignUp />} />
-                
+
                 {/* Public Routes with header/footer */}
-                <Route 
-                  path="/*" 
+                <Route
+                  path="/*"
 
                   element={
                     <>
