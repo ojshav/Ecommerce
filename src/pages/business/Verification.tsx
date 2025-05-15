@@ -76,6 +76,7 @@ const Verification: React.FC = () => {
   const [selectedCountry, setSelectedCountry] = useState('IN');
   const [countryConfig, setCountryConfig] = useState<CountryConfig | null>(null);
   const [supportedCountries, setSupportedCountries] = useState<Array<{ code: string; name: string }>>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // State for validation errors
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
@@ -103,13 +104,46 @@ const Verification: React.FC = () => {
   // Document upload states
   const [documents, setDocuments] = useState<{ [key: string]: DocumentUpload }>({});
 
-  // Redirect if not authenticated or not a merchant
+  // Add this new function to check verification status
+  const checkVerificationStatus = async () => {
+    if (!user || !accessToken) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/merchants/verification-status`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch verification status');
+      }
+
+      const data = await response.json();
+      
+      // If documents are already submitted, redirect to status page
+      if (data.has_submitted_documents) {
+        navigate('/business/verification-pending');
+        return;
+      }
+
+      // If we get here, user hasn't submitted documents yet
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error checking verification status:', error);
+      setIsLoading(false);
+    }
+  };
+
+  // Update the useEffect for authentication check
   useEffect(() => {
     if (!user || !isMerchant) {
       toast.error('You must be logged in as a merchant to access this page');
       navigate('/login');
+    } else {
+      checkVerificationStatus();
     }
-  }, [user, isMerchant, navigate]);
+  }, [user, isMerchant, navigate, accessToken]);
 
   // Fetch supported countries
   useEffect(() => {
@@ -452,6 +486,18 @@ const Verification: React.FC = () => {
     };
     return errorMessages[fieldName as keyof typeof errorMessages]?.[countryCode as keyof (typeof errorMessages)[keyof typeof errorMessages]] || "Invalid input";
   };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto py-12 px-4 flex justify-center">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-8 w-64 bg-gray-200 rounded mb-8"></div>
+          <div className="h-64 w-full bg-gray-200 rounded"></div>
+          <div className="mt-4 text-gray-500">Loading verification form...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4">

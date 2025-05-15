@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -28,6 +29,7 @@ interface CountryConfig {
 }
 
 const RegisterBusiness: React.FC = () => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     // User details
     first_name: '',
@@ -58,6 +60,13 @@ const RegisterBusiness: React.FC = () => {
   const [countryConfig, setCountryConfig] = useState<CountryConfig | null>(null);
   
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && user.role === 'superadmin') {
+      navigate('/superadmin/dashboard');
+      return;
+    }
+  }, [user, navigate]);
 
   // Fetch supported countries
   useEffect(() => {
@@ -205,7 +214,8 @@ const RegisterBusiness: React.FC = () => {
         country_code: apiData.country_code,
         state_province: apiData.state_province,
         city: apiData.city,
-        postal_code: apiData.postal_code
+        postal_code: apiData.postal_code,
+        role: 'merchant'
       };
 
       const response = await fetch(`${API_BASE_URL}/api/auth/register/merchant`, {
@@ -221,7 +231,7 @@ const RegisterBusiness: React.FC = () => {
       if (!response.ok) {
         throw new Error(data.error || data.details || 'Failed to register');
       }
-      // fixed the navoigation issue after the merchant registraation
+      
       navigate('/verification-pending', { 
         state: { 
           business_email: formData.business_email,

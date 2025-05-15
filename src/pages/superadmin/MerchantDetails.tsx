@@ -680,14 +680,14 @@ const MerchantDetails: React.FC = () => {
                     <div className="space-y-3 sm:space-y-4">
                       {merchant.country_code === 'IN' ? (
                         <>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
-                            <div className="text-sm font-medium text-gray-500">PAN Number:</div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                        <div className="text-sm font-medium text-gray-500">PAN Number:</div>
                             <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
                               {merchant.pan_number || 'Not provided'}
                             </div>
-                          </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
-                            <div className="text-sm font-medium text-gray-500">GSTIN:</div>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                        <div className="text-sm font-medium text-gray-500">GSTIN:</div>
                             <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
                               {merchant.gstin || 'Not provided'}
                             </div>
@@ -706,13 +706,13 @@ const MerchantDetails: React.FC = () => {
                             <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
                               {merchant.vat_number || 'Not provided'}
                             </div>
-                          </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
                             <div className="text-sm font-medium text-gray-500">Sales Tax Number:</div>
                             <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
                               {merchant.sales_tax_number || 'Not provided'}
                             </div>
-                          </div>
+                      </div>
                         </>
                       )}
                     </div>
