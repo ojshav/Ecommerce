@@ -1,4 +1,5 @@
-import React, { useEffect, lazy, Suspense } from 'react';
+import { ReactNode, useEffect, lazy, Suspense } from 'react';
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
@@ -25,9 +26,26 @@ import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
 
 import { CartProvider } from './context/CartContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AdminLayout from './components/business/AdminLayout';
+
+import Dashboard from "./pages/superadmin/Dashboard";
+import UserActivity from './pages/superadmin/UserActivity';
+import UserManagement from './pages/superadmin/Usermanagement';
+import ContentModeration from './pages/superadmin/ContentModeration';
+
+import TrafficAnalytics from './pages/superadmin/TrafficAnalytics';
+import SalesReport from './pages/superadmin/SalesReport';
+import FraudDetection from './pages/superadmin/FraudDetection';
+import MarketplaceHealth from './pages/superadmin/MarketplaceHealth';
+import MerchantAnalytics from './pages/superadmin/MerchantAnalytics';
+import PlatformPerformance from './pages/superadmin/PlatformPerformance';
+import MerchantManagement from './pages/superadmin/MerchantManagement';
+import Notification from './pages/superadmin/Notifications';
+import Categories from './pages/superadmin/Categories';
+import Attribute from './pages/superadmin/Attribute';
+
 import FAQ from './pages/FAQ';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -36,18 +54,19 @@ import Returns from './pages/Returns';
 import Privacy from './pages/Privacy';
 import Cookies from './pages/Cookies';
 import Terms from './pages/Terms';
+import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
+import MerchantDetails from './pages/superadmin/MerchantDetails';
+import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
 const BusinessProducts = lazy(() => import('./pages/business/Products'));
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
-const BusinessVerification = lazy(() => import('./pages/business/Verification'));
+const Verification = lazy(() => import('./pages/business/Verification'));
 
 // Lazy-loaded catalog pages
 const CatalogProducts = lazy(() => import('./pages/business/catalog/Products'));
-const CatalogCategories = lazy(() => import('./pages/business/catalog/Categories'));
-const CatalogAttributes = lazy(() => import('./pages/business/catalog/Attributes'));
 const AddProduct = lazy(() => import('./pages/business/catalog/product/AddProduct'));
 
 const LoadingFallback = () => (
@@ -56,8 +75,19 @@ const LoadingFallback = () => (
   </div>
 );
 
+
+
+
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
+
+
+
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+// Main App component
 function App() {
   // Scroll to top on route change
   useEffect(() => {
@@ -69,9 +99,8 @@ function App() {
       <CartProvider>
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <Router>
-            <div className="flex flex-col min-h-screen">
+            <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
 
-              {/* Regular customer-facing routes */}
               <Routes>
                 {/* Business Dashboard Routes */}
                 <Route path="/business" element={<AdminLayout />}>
@@ -96,7 +125,7 @@ function App() {
                     path="verification"
                     element={
                       <Suspense fallback={<LoadingFallback />}>
-                        <BusinessVerification />
+                        <Verification />
                       </Suspense>
                     }
                   />
@@ -116,6 +145,7 @@ function App() {
                       </Suspense>
                     }
                   />
+
                   
                   {/* Catalog Routes */}
                   <Route path="catalog">
@@ -127,22 +157,8 @@ function App() {
                         </Suspense>
                       }
                     />
-                    <Route
-                      path="categories"
-                      element={
-                        <Suspense fallback={<LoadingFallback />}>
-                          <CatalogCategories />
-                        </Suspense>
-                      }
-                    />
-                    <Route
-                      path="attributes"
-                      element={
-                        <Suspense fallback={<LoadingFallback />}>
-                          <CatalogAttributes />
-                        </Suspense>
-                      }
-                    />
+                   
+                   
                     <Route
                       path="product/new"
                       element={
@@ -170,8 +186,32 @@ function App() {
                   </Route>
                   
                   {/* Add more business routes here */}
+
+
                 </Route>
+                {/* Superadmin Login Route */}
+                <Route path="/superadmin/login" element={<SuperAdminLogin />} />
                 
+                {/* Superadmin Routes - Protected by role check in the component */}
+                <Route path="/superadmin" element={<SuperAdminLayout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="user-activity-overview" element={<UserActivity />} />
+                  <Route path="user-management" element={<UserManagement />} />
+                  <Route path="content-moderation" element={<ContentModeration />} />
+                  <Route path="site-traffic-analytics" element={<TrafficAnalytics />} />
+                  <Route path="sales-reports" element={<SalesReport />} />
+                  <Route path="fraud-detection" element={<FraudDetection />} />
+                  <Route path="marketplace-health" element={<MarketplaceHealth />} />
+                  <Route path="merchant-analytics" element={<MerchantAnalytics />} />
+                  <Route path="platform-performance" element={<PlatformPerformance />} />
+                  <Route path="merchant-management" element={<MerchantManagement />} />
+                    <Route path="merchant-management/:id" element={<MerchantDetails />} /> 
+                  <Route path="categories" element={<Categories />} />
+                  <Route path="attribute" element={<Attribute />} />
+        
+
+                </Route>
+
                 {/* Business Auth Routes */}
                 <Route path="/business/login" element={<BusinessLogin />} />
                 <Route path="/register-business" element={<RegisterBusiness />} />
@@ -182,10 +222,11 @@ function App() {
                 {/* Public Routes with header/footer */}
                 <Route 
                   path="/*" 
+
                   element={
                     <>
                       <Navbar />
-                      <main className="flex-grow">
+                      <main className="flex-grow content-container">
                         <Routes>
                           <Route path="/" element={<Home />} />
                           <Route path="/all-products" element={<Products />} />
@@ -200,6 +241,7 @@ function App() {
                           <Route path="/verify-email/:token" element={<VerifyEmail />} />
                           <Route path="/business-login" element={<BusinessLogin />} />
                           <Route path="/register-business" element={<RegisterBusiness />} />
+
                           <Route path="/password/reset" element={<PasswordReset />} />
 
                           <Route path="/wishlist" element={<WishList />} />
@@ -219,6 +261,7 @@ function App() {
                           <Route path="/cookies" element={<Cookies />} />
                           <Route path="/terms" element={<Terms />} />
 
+
                         </Routes>
                       </main>
                       <Footer />
@@ -229,7 +272,7 @@ function App() {
 
             </div>
           </Router>
-          
+
           <Toaster
             position="top-right"
             toastOptions={{
