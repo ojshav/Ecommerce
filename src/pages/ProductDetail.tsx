@@ -5,6 +5,8 @@ import { getProductById } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
+import RecentlyViewedProducts from '../components/product/RecentlyViewedProducts';
+import { recentlyViewedData } from '../data/recentlyViewedData';
 
 // Tab type
 type TabType = 'product-details' | 'information' | 'reviews';
@@ -17,6 +19,7 @@ const ProductDetail: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('product-details');
+  const [selectedColor, setSelectedColor] = useState('black');
   
   useEffect(() => {
     if (product) {
@@ -227,179 +230,210 @@ const ProductDetail: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumbs */}
-        <nav className="flex items-center text-sm mb-6">
+        <nav className="flex items-center text-xs mb-3">
           <Link to="/" className="text-gray-500 hover:text-primary-600 transition-colors">Home</Link>
-          <ChevronRight size={14} className="mx-2 text-gray-400" />
-          <Link to="/products" className="text-gray-500 hover:text-primary-600 transition-colors">Products</Link>
-          <ChevronRight size={14} className="mx-2 text-gray-400" />
+          <ChevronRight size={12} className="mx-1 text-gray-400" />
+          <Link to="/technology" className="text-gray-500 hover:text-primary-600 transition-colors">Technology</Link>
+          <ChevronRight size={12} className="mx-1 text-gray-400" />
+          <Link to="/laptop" className="text-gray-500 hover:text-primary-600 transition-colors">Laptop</Link>
+          <ChevronRight size={12} className="mx-1 text-gray-400" />
+          <Link to="/apple" className="text-gray-500 hover:text-primary-600 transition-colors">Apple</Link>
+          <ChevronRight size={12} className="mx-1 text-gray-400" />
           <span className="text-gray-900 font-medium">{product.name}</span>
         </nav>
         
         {/* Product Overview Section */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
             {/* Product Images */}
-            <div className="space-y-4">
-              <div className="rounded-lg overflow-hidden bg-gray-100 aspect-square flex items-center justify-center border border-gray-200">
+            <div className="space-y-2">
+              <div className="rounded-lg overflow-hidden bg-gray-100 h-64 md:h-80 flex items-center justify-center border border-gray-200">
                 <img 
                   src={selectedImage} 
                   alt={product.name} 
-                  className="w-full h-full object-contain"
+                  className="max-w-full max-h-full object-contain"
                 />
               </div>
               
-              {product.images && product.images.length > 1 && (
-                <div className="flex space-x-2">
-                  {product.images.map((img, index) => (
-                    <button
-                      key={index}
-                      className={`rounded-md overflow-hidden flex-shrink-0 w-20 h-20 border-2 ${
-                        selectedImage === img ? 'border-primary-500' : 'border-gray-200'
-                      }`}
-                      onClick={() => setSelectedImage(img)}
-                    >
-                      <img 
-                        src={img} 
-                        alt={`${product.name} - view ${index + 1}`} 
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div className="flex space-x-2 justify-start">
+                {product.images && product.images.length > 0 && (
+                  <div className="flex space-x-2">
+                    {product.images.map((img, index) => (
+                      <button
+                        key={index}
+                        className={`rounded-md overflow-hidden flex-shrink-0 w-16 h-16 border-2 ${
+                          selectedImage === img ? 'border-primary-500' : 'border-gray-200'
+                        }`}
+                        onClick={() => setSelectedImage(img)}
+                      >
+                        <img 
+                          src={img} 
+                          alt={`${product.name} - view ${index + 1}`} 
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Product Info */}
             <div className="flex flex-col">
-              {product.originalPrice && (
-                <span className="inline-block bg-red-500 text-white text-xs font-semibold px-2.5 py-1 rounded-md mb-3 w-max">
-                  Sale
-                </span>
-              )}
-              
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                {product.name}
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                Apple iPad Pro 11" (2020) Wifi 128Gb (Silver)-128Gb/ 11Inch/ Wifi
               </h1>
               
-              <div className="flex items-center space-x-2 mb-4">
+              <div className="flex items-center space-x-2 mb-2">
                 <div className="flex items-center">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star 
                       key={i}
-                      size={16}
-                      fill={i < Math.floor(product.rating) ? 'currentColor' : 'none'} 
-                      className={i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-300'}
+                      size={14}
+                      fill={i < 4 ? 'currentColor' : 'none'} 
+                      className={i < 4 ? 'text-amber-400' : 'text-gray-300'}
                     />
                   ))}
                 </div>
-                <span className="text-gray-500 text-sm">{product.rating} ({product.reviews} reviews)</span>
+                <span className="text-gray-500 text-xs">4.0 (632 reviews)</span>
               </div>
               
-              <div className="mb-6">
+              <div className="mb-3">
                 <div className="flex items-baseline space-x-2">
-                  <span className="text-2xl sm:text-3xl font-bold text-gray-900">
-                    ${product.price.toFixed(2)}
+                  <span className="text-xl sm:text-2xl font-bold text-gray-900">
+                    $904.18
                   </span>
-                  {product.originalPrice && (
-                    <span className="text-lg text-gray-500 line-through">
-                      ${product.originalPrice.toFixed(2)}
-                    </span>
-                  )}
-                </div>
-                {product.originalPrice && (
-                  <span className="text-green-600 font-medium text-sm mt-1 block">
-                    Save ${(product.originalPrice - product.price).toFixed(2)} ({Math.round((1 - product.price / product.originalPrice) * 100)}% off)
-                  </span>
-                )}
-              </div>
-              
-              <p className="text-gray-700 mb-6">{product.description}</p>
-              
-              <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
-                <div className={product.stock > 0 ? "text-green-600 font-medium" : "text-red-500 font-medium"}>
-                  {product.stock > 0 ? (
-                    <div className="flex items-center">
-                      <Check size={18} className="mr-1" />
-                      <span>{product.stock > 5 ? 'In Stock' : `Only ${product.stock} left in stock`}</span>
-                    </div>
-                  ) : 'Out of Stock'}
                 </div>
               </div>
               
-              <div className="py-4 border-t border-b border-gray-200 mb-6">
-                <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:space-x-6">
-                  <div className="flex items-center border border-gray-300 rounded-md overflow-hidden w-max">
+              <div className="mb-2">
+                <div className="text-sm font-medium mb-1">Code: Apple iPad Pro 11" (2020) Wifi 128Gb Silver</div>
+                <div className="flex items-center mb-1">
+                  <span className="text-sm font-medium mr-1">Category:</span>
+                  <span className="text-sm text-primary-600">Technology</span>
+                </div>
+                <div className="flex items-center mb-2">
+                  <span className="text-sm font-medium mr-1">Keyword:</span>
+                  <span className="text-sm text-primary-600 mr-1">Apple,</span>
+                  <span className="text-sm text-primary-600 mr-1">Technology,</span>
+                  <span className="text-sm text-primary-600">Tablet</span>
+                </div>
+              </div>
+              
+              <div className="space-y-1 mb-3 text-sm">
+                <div className="flex items-center">
+                  <span className="text-gray-700">• Display: LED-Backlit, 11Inch</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-700">• Chipset/CPU: Apple A12Z Bionic 2.5Ghz</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-700">• RAM: 128Gb</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-700">• Operating System: iOS 13</span>
+                </div>
+              </div>
+              
+              <div className="mb-3">
+                <div className="text-sm font-medium mb-1">Color:</div>
+                <div className="flex space-x-2">
+                  <button 
+                    className={`w-6 h-6 rounded-full bg-black ${selectedColor === 'black' ? 'ring-2 ring-offset-1 ring-black' : ''}`}
+                    onClick={() => setSelectedColor('black')}
+                    aria-label="Black"
+                  />
+                  <button 
+                    className={`w-6 h-6 rounded-full bg-pink-300 ${selectedColor === 'pink' ? 'ring-2 ring-offset-1 ring-pink-300' : ''}`}
+                    onClick={() => setSelectedColor('pink')}
+                    aria-label="Pink"
+                  />
+                  <button 
+                    className={`w-6 h-6 rounded-full bg-gray-400 ${selectedColor === 'gray' ? 'ring-2 ring-offset-1 ring-gray-400' : ''}`}
+                    onClick={() => setSelectedColor('gray')}
+                    aria-label="Gray"
+                  />
+                  <button 
+                    className={`w-6 h-6 rounded-full bg-yellow-200 ${selectedColor === 'yellow' ? 'ring-2 ring-offset-1 ring-yellow-200' : ''}`}
+                    onClick={() => setSelectedColor('yellow')}
+                    aria-label="Yellow"
+                  />
+                </div>
+              </div>
+              
+              <div className="mb-3">
+                <div className="flex items-center mb-2">
+                  <span className="text-sm font-medium mr-1">Amount:</span>
+                  <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
                     <button 
-                      className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors"
+                      className="px-2 py-1 bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                       onClick={() => handleQuantityChange(-1)}
                       disabled={quantity <= 1}
                     >
                       -
                     </button>
-                    <span className="w-12 text-center">{quantity}</span>
+                    <span className="w-8 text-center text-sm">{quantity}</span>
                     <button 
-                      className="px-3 py-2 text-gray-600 hover:bg-gray-100 transition-colors"
+                      className="px-2 py-1 bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                       onClick={() => handleQuantityChange(1)}
                       disabled={quantity >= product.stock}
                     >
                       +
                     </button>
                   </div>
+                </div>
+                
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={product.stock === 0}
+                    className="flex-1 bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors font-medium text-sm"
+                  >
+                    Add To Cart
+                  </button>
                   
-                  <div className="flex-1 flex space-x-3">
-                    <button
-                      onClick={handleAddToCart}
-                      disabled={product.stock === 0}
-                      className={`flex-1 flex items-center justify-center space-x-2 rounded-md py-3 px-4 font-medium ${
-                        product.stock > 0 
-                          ? 'bg-primary-600 text-white hover:bg-primary-700' 
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      } transition-colors`}
-                    >
-                      <ShoppingCart size={18} />
-                      <span>Add to Cart</span>
-                    </button>
-                    
-                    <button 
-                      className="p-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-                      aria-label="Add to Wishlist"
-                    >
-                      <Heart size={18} className="text-gray-600" />
-                    </button>
-                    
-                    <button 
-                      className="p-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-                      aria-label="Share"
-                    >
-                      <Share2 size={18} className="text-gray-600" />
-                    </button>
-                  </div>
+                  <button 
+                    className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                    aria-label="Add to Wishlist"
+                  >
+                    <Heart size={16} className="text-gray-600" />
+                  </button>
                 </div>
               </div>
               
-              {/* Product Meta */}
-              <div className="text-sm text-gray-600 space-y-2">
-                <div className="flex">
-                  <span className="font-medium w-24">Category:</span>
-                  <span className="capitalize">{product.category}</span>
+              <div className="pt-3 border-t border-gray-200">
+                <div className="flex justify-between items-center mb-1">
+                  <div className="text-sm text-gray-700">Special Offer:</div>
+                  <div className="flex items-center space-x-2">
+                    <div className="text-xs text-gray-600">Sold: 700</div>
+                    <div className="text-xs text-gray-600">In Stock: 300</div>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-1.5 mb-3">
+                  <div className="bg-orange-500 h-1.5 rounded-full w-7/10"></div>
                 </div>
                 
-                {product.tags && (
-                  <div className="flex">
-                    <span className="font-medium w-24">Tags:</span>
-                    <div className="flex flex-wrap">
-                      {product.tags.map((tag, index) => (
-                        <span key={tag} className="capitalize">
-                          {tag}
-                          {index < product.tags!.length - 1 && ", "}
-                        </span>
-                      ))}
-                    </div>
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <div>
+                    <div className="text-lg font-bold">10</div>
+                    <div className="text-xs text-gray-500">Day</div>
                   </div>
-                )}
+                  <div>
+                    <div className="text-lg font-bold">42</div>
+                    <div className="text-xs text-gray-500">Hours</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold">00</div>
+                    <div className="text-xs text-gray-500">Min</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold">08</div>
+                    <div className="text-xs text-gray-500">Sec</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -411,69 +445,44 @@ const ProductDetail: React.FC = () => {
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab('product-details')}
-                className={`py-4 px-6 font-medium text-sm border-b-2 ${
+                className={`py-2 px-4 text-xs font-medium border-b-2 ${
                   activeTab === 'product-details'
                     ? 'border-primary-600 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 } transition-colors`}
               >
-                Product Details
+                Description
               </button>
               <button
                 onClick={() => setActiveTab('information')}
-                className={`py-4 px-6 font-medium text-sm border-b-2 ${
+                className={`py-2 px-4 text-xs font-medium border-b-2 ${
                   activeTab === 'information'
                     ? 'border-primary-600 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 } transition-colors`}
               >
-                Information
+                Technical Specifications
               </button>
               <button
                 onClick={() => setActiveTab('reviews')}
-                className={`py-4 px-6 font-medium text-sm border-b-2 ${
+                className={`py-2 px-4 text-xs font-medium border-b-2 ${
                   activeTab === 'reviews'
                     ? 'border-primary-600 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 } transition-colors`}
               >
-                Reviews ({product.reviews})
+                Comment
               </button>
             </nav>
           </div>
           
-          <div className="p-6">
+          <div className="p-4">
             {renderTabContent()}
           </div>
         </div>
         
-        {/* Related Products */}
-        <div className="mt-12">
-          <h2 className="text-xl font-bold mb-6">Similar Products</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div className="h-48 overflow-hidden">
-                  <img 
-                    src={`https://images.pexels.com/photos/${[3394666, 437037, 5721903, 1866149, 6205791, 190819][index]}/pexels-photo-${[3394666, 437037, 5721903, 1866149, 6205791, 190819][index]}.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&dpr=2`} 
-                    alt="Related Product" 
-                    className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-110"
-                  />
-                </div>
-                <div className="p-3">
-                  <h3 className="font-medium text-gray-800 text-sm mb-1 truncate">Related Product {index + 1}</h3>
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-gray-900">${(Math.random() * 200 + 99).toFixed(2)}</span>
-                    <div className="flex items-center">
-                      <Star size={12} className="text-amber-400" fill="currentColor" />
-                      <span className="text-xs text-gray-500 ml-1">{(Math.random() * 1 + 4).toFixed(1)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Recently Viewed Products */}
+        <RecentlyViewedProducts products={recentlyViewedData} />
       </div>
     </div>
   );
