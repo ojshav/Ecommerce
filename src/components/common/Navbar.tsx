@@ -4,9 +4,11 @@ import { ShoppingCart, Heart, Search, Facebook, Instagram, Twitter, Mail, LogOut
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import CategoryDropdown from '../home/CategoryDropdown';
+import NewProductDropdown from '../home/NewProductDropdown';
 
 const Navbar: React.FC = () => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [isNewProductDropdownOpen, setIsNewProductDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Category');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lowerMobileMenuOpen, setLowerMobileMenuOpen] = useState(false);
@@ -15,6 +17,12 @@ const Navbar: React.FC = () => {
 
   const toggleCategoryDropdown = () => {
     setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
+    if (isNewProductDropdownOpen) setIsNewProductDropdownOpen(false);
+  };
+
+  const toggleNewProductDropdown = () => {
+    setIsNewProductDropdownOpen(!isNewProductDropdownOpen);
+    if (isCategoryDropdownOpen) setIsCategoryDropdownOpen(false);
   };
 
   const toggleMobileMenu = () => {
@@ -27,6 +35,10 @@ const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
+  };
+
+  const closeNewProductDropdown = () => {
+    setIsNewProductDropdownOpen(false);
   };
 
   return (
@@ -234,7 +246,7 @@ const Navbar: React.FC = () => {
             <div className="md:hidden border-t border-gray-200 pt-2 pb-1">
               <div className="mb-2">
                 <button
-                  className="flex items-center py-1.5 px-2 text-sm w-full text-left hover:bg-gray-50 rounded"
+                  className="flex items-center justify-between py-1.5 px-2 text-sm w-full text-left hover:bg-gray-50 rounded"
                   onClick={toggleCategoryDropdown}
                 >
                   <span className="flex items-center font-medium">
@@ -243,7 +255,7 @@ const Navbar: React.FC = () => {
                     </svg>
                     Categories
                   </span>
-                  <ChevronDown className="ml-auto w-4 h-4" />
+                  <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isCategoryDropdownOpen && (
                   <div className="pl-4 py-1.5 space-y-1.5">
@@ -262,10 +274,31 @@ const Navbar: React.FC = () => {
                 <Link to="/all-products" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
                   All Products
                 </Link>
-                <Link to="/new-product" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
+                <button 
+                  className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded w-full text-left"
+                  onClick={toggleNewProductDropdown}
+                >
                   <span>New Product</span>
-                  <ChevronDown className="w-4 h-4" />
-                </Link>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isNewProductDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isNewProductDropdownOpen && lowerMobileMenuOpen && (
+                  <div className="bg-gray-50 py-2 px-3 ml-3 rounded">
+                    <div className="space-y-2">
+                      <Link to="/new-product?category=smart-watch" className="block text-sm hover:text-[#F2631F]" onClick={closeNewProductDropdown}>
+                        Smart Watch
+                      </Link>
+                      <Link to="/new-product?category=tablet" className="block text-sm hover:text-[#F2631F]" onClick={closeNewProductDropdown}>
+                        Tablet
+                      </Link>
+                      <Link to="/new-product?category=accessories" className="block text-sm hover:text-[#F2631F]" onClick={closeNewProductDropdown}>
+                        Accessories
+                      </Link>
+                      <Link to="/new-product?promotion=october-sale" className="block text-sm text-[#F2631F] font-medium" onClick={closeNewProductDropdown}>
+                        Special Offers
+                      </Link>
+                    </div>
+                  </div>
+                )}
                 <Link to="/promotion" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
                   <span>Promotion</span>
                   <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
@@ -289,7 +322,7 @@ const Navbar: React.FC = () => {
                   </svg>
                   <span className="inline">Category</span>
                 </span>
-                <ChevronDown className="ml-1 w-4 h-4" />
+                <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
             </div>
             
@@ -301,10 +334,13 @@ const Navbar: React.FC = () => {
               <Link to="/all-products" className="py-1.5 px-4 font-medium hover:text-[#F2631F]">
                 All Products
               </Link>
-              <Link to="/new-product" className="py-1.5 px-4 font-medium hover:text-[#F2631F] flex items-center">
+              <button 
+                className="py-1.5 px-4 font-medium hover:text-[#F2631F] flex items-center bg-transparent border-none cursor-pointer"
+                onClick={toggleNewProductDropdown}
+              >
                 New Product
-                <ChevronDown className="ml-1 w-4 h-4" />
-              </Link>
+                <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isNewProductDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
               <Link to="/promotion" className="py-1.5 px-4 font-medium hover:text-[#F2631F] flex items-center">
                 Promotion <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
               </Link>
@@ -344,7 +380,18 @@ const Navbar: React.FC = () => {
 
       {/* Category dropdown - for desktop */}
       {isCategoryDropdownOpen && !lowerMobileMenuOpen && (
-        <CategoryDropdown isOpen={isCategoryDropdownOpen} />
+        <CategoryDropdown 
+          isOpen={isCategoryDropdownOpen} 
+          closeDropdown={() => setIsCategoryDropdownOpen(false)} 
+        />
+      )}
+      
+      {/* New Product dropdown */}
+      {isNewProductDropdownOpen && (
+        <NewProductDropdown 
+          isOpen={isNewProductDropdownOpen} 
+          closeDropdown={() => setIsNewProductDropdownOpen(false)} 
+        />
       )}
     </header>
   );
