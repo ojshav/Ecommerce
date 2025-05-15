@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 
 interface CategoryDropdownProps {
   isOpen: boolean;
+  closeDropdown?: () => void;
 }
 
-const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen }) => {
+const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdown }) => {
   // Categories data structure
   const categories = [
     { name: 'All Products', link: '/products' },
@@ -64,6 +65,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen }) => {
                 className={`flex items-center justify-between px-5 py-3 hover:bg-[#f6eadd] ${
                   category.active ? 'bg-[#f47521] text-white' : 'text-gray-800'
                 }`}
+                onClick={closeDropdown}
               >
                 <span>{category.name}</span>
                 <span>›</span>
@@ -83,7 +85,11 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen }) => {
                   <ul className="space-y-3">
                     {subcategories.laptopCategory.brands.map((brand, index) => (
                       <li key={index}>
-                        <Link to={`/category/laptop/${brand.toLowerCase()}`} className="text-gray-600 hover:text-[#f47521]">
+                        <Link 
+                          to={`/category/laptop/${brand.toLowerCase()}`} 
+                          className="text-gray-600 hover:text-[#f47521]"
+                          onClick={closeDropdown}
+                        >
                           {brand}
                         </Link>
                       </li>
@@ -96,7 +102,11 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen }) => {
                   <ul className="space-y-3">
                     {subcategories.desktopCategory.items.map((item, index) => (
                       <li key={index}>
-                        <Link to={`/category/desktop/${item.toLowerCase().replace(/\s+/g, '-')}`} className="text-gray-600 hover:text-[#f47521]">
+                        <Link 
+                          to={`/category/desktop/${item.toLowerCase().replace(/\s+/g, '-')}`} 
+                          className="text-gray-600 hover:text-[#f47521]"
+                          onClick={closeDropdown}
+                        >
                           {item}
                         </Link>
                       </li>
@@ -111,7 +121,11 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen }) => {
                 <ul className="space-y-3">
                   {subcategories.mainCategories[1].brands?.map((brand, index) => (
                     <li key={index}>
-                      <Link to={`/category/tablet/${brand.toLowerCase()}`} className="text-gray-600 hover:text-[#f47521]">
+                      <Link 
+                        to={`/category/tablet/${brand.toLowerCase()}`} 
+                        className="text-gray-600 hover:text-[#f47521]"
+                        onClick={closeDropdown}
+                      >
                         {brand}
                       </Link>
                     </li>
@@ -125,7 +139,11 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen }) => {
                 <ul className="space-y-3">
                   {subcategories.mainCategories[2].items?.map((item, index) => (
                     <li key={index}>
-                      <Link to={`/category/accessories/${item.toLowerCase().replace(/\s+/g, '-')}`} className="text-gray-600 hover:text-[#f47521]">
+                      <Link 
+                        to={`/category/accessories/${item.toLowerCase().replace(/\s+/g, '-')}`} 
+                        className="text-gray-600 hover:text-[#f47521]"
+                        onClick={closeDropdown}
+                      >
                         {item}
                       </Link>
                     </li>
@@ -135,7 +153,11 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen }) => {
             </div>
             
             <div className="mt-8">
-              <Link to="/categories" className="bg-[#f47521] text-white py-3 px-4 inline-block w-full text-center">
+              <Link 
+                to="/categories" 
+                className="bg-[#f47521] text-white py-3 px-4 inline-block w-full text-center"
+                onClick={closeDropdown}
+              >
                 All of Category
               </Link>
             </div>

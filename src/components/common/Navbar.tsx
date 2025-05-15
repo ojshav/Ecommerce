@@ -358,12 +358,18 @@ const Navbar: React.FC = () => {
 
       {/* Category dropdown - for desktop */}
       {isCategoryDropdownOpen && !lowerMobileMenuOpen && (
-        <CategoryDropdown isOpen={isCategoryDropdownOpen} />
+        <CategoryDropdown 
+          isOpen={isCategoryDropdownOpen} 
+          closeDropdown={() => setIsCategoryDropdownOpen(false)} 
+        />
       )}
       
       {/* New Product dropdown */}
       {isNewProductDropdownOpen && (
-        <NewProductDropdown isOpen={isNewProductDropdownOpen} />
+        <NewProductDropdown 
+          isOpen={isNewProductDropdownOpen} 
+          closeDropdown={() => setIsNewProductDropdownOpen(false)} 
+        />
       )}
     </header>
   );

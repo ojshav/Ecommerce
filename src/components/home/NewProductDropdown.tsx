@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 
 interface NewProductDropdownProps {
   isOpen: boolean;
+  closeDropdown: () => void;
 }
 
-const NewProductDropdown: React.FC<NewProductDropdownProps> = ({ isOpen }) => {
+const NewProductDropdown: React.FC<NewProductDropdownProps> = ({ isOpen, closeDropdown }) => {
   // Product categories for new products
   const categories = [
     { name: 'Smart Watch', link: '/new-product?category=smart-watch' },
@@ -39,7 +40,11 @@ const NewProductDropdown: React.FC<NewProductDropdownProps> = ({ isOpen }) => {
             <ul className="space-y-3">
               {brands.map((brand, index) => (
                 <li key={index}>
-                  <Link to={brand.link} className="text-gray-600 hover:text-[#f47521]">
+                  <Link 
+                    to={brand.link} 
+                    className="text-gray-600 hover:text-[#f47521]"
+                    onClick={closeDropdown}
+                  >
                     {brand.name}
                   </Link>
                 </li>
@@ -53,7 +58,11 @@ const NewProductDropdown: React.FC<NewProductDropdownProps> = ({ isOpen }) => {
             <ul className="space-y-3">
               {brands.map((brand, index) => (
                 <li key={index}>
-                  <Link to={brand.link} className="text-gray-600 hover:text-[#f47521]">
+                  <Link 
+                    to={brand.link} 
+                    className="text-gray-600 hover:text-[#f47521]"
+                    onClick={closeDropdown}
+                  >
                     {brand.name}
                   </Link>
                 </li>
@@ -67,7 +76,11 @@ const NewProductDropdown: React.FC<NewProductDropdownProps> = ({ isOpen }) => {
             <ul className="space-y-3">
               {accessories.map((accessory, index) => (
                 <li key={index}>
-                  <Link to={accessory.link} className="text-gray-600 hover:text-[#f47521]">
+                  <Link 
+                    to={accessory.link} 
+                    className="text-gray-600 hover:text-[#f47521]"
+                    onClick={closeDropdown}
+                  >
                     {accessory.name}
                   </Link>
                 </li>
@@ -84,6 +97,7 @@ const NewProductDropdown: React.FC<NewProductDropdownProps> = ({ isOpen }) => {
             <Link 
               to="/new-product?promotion=october-sale" 
               className="bg-[#f47521] text-white py-2 px-4 inline-block rounded hover:bg-[#e26a19] text-sm font-medium"
+              onClick={closeDropdown}
             >
               Buy Now
             </Link>
