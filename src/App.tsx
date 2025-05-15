@@ -57,6 +57,9 @@ import Terms from './pages/Terms';
 import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
 import MerchantDetails from './pages/superadmin/MerchantDetails';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
+import Brands from './components/home/brands';
+import Inventory from './pages/business/Inventory';
+import VerificationStatus from './pages/business/VerificationStatus';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -122,10 +125,26 @@ function App() {
                     }
                   />
                   <Route
+                    path="inventory"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Inventory />
+                      </Suspense>
+                    }
+                  />
+                  <Route
                     path="verification"
                     element={
                       <Suspense fallback={<LoadingFallback />}>
                         <Verification />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="verification-pending"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <VerificationStatus />
                       </Suspense>
                     }
                   />
@@ -146,7 +165,7 @@ function App() {
                     }
                   />
 
-                  
+
                   {/* Catalog Routes */}
                   <Route path="catalog">
                     <Route
@@ -157,8 +176,8 @@ function App() {
                         </Suspense>
                       }
                     />
-                   
-                   
+
+
                     <Route
                       path="product/new"
                       element={
@@ -184,15 +203,17 @@ function App() {
                       }
                     />
                   </Route>
-                  
+
                   {/* Add more business routes here */}
 
 
                 </Route>
+
                 {/* Superadmin Login Route */}
                 <Route path="/superadmin/login" element={<SuperAdminLogin />} />
                 
                 {/* Superadmin Routes - Protected by role check in the component */}
+
                 <Route path="/superadmin" element={<SuperAdminLayout />}>
                   <Route index element={<Dashboard />} />
                   <Route path="user-activity-overview" element={<UserActivity />} />
@@ -205,23 +226,23 @@ function App() {
                   <Route path="merchant-analytics" element={<MerchantAnalytics />} />
                   <Route path="platform-performance" element={<PlatformPerformance />} />
                   <Route path="merchant-management" element={<MerchantManagement />} />
-                    <Route path="merchant-management/:id" element={<MerchantDetails />} /> 
+                  <Route path="merchant-management/:id" element={<MerchantDetails />} />
                   <Route path="categories" element={<Categories />} />
                   <Route path="attribute" element={<Attribute />} />
-        
+
 
                 </Route>
 
                 {/* Business Auth Routes */}
                 <Route path="/business/login" element={<BusinessLogin />} />
                 <Route path="/register-business" element={<RegisterBusiness />} />
-                
+
                 {/* Auth Routes without header/footer */}
                 <Route path="/signup" element={<SignUp />} />
-                
+
                 {/* Public Routes with header/footer */}
-                <Route 
-                  path="/*" 
+                <Route
+                  path="/*"
 
                   element={
                     <>
@@ -260,7 +281,7 @@ function App() {
                           <Route path="/privacy" element={<Privacy />} />
                           <Route path="/cookies" element={<Cookies />} />
                           <Route path="/terms" element={<Terms />} />
-
+                          <Route path="/brands/:brandId" element={<Brands />} />
 
                         </Routes>
                       </main>
