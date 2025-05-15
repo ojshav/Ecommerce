@@ -11,45 +11,97 @@ import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+interface CountryConfig {
+  country_code: string;
+  country_name: string;
+  required_documents: Array<{
+    type: string;
+    name: string;
+    required: boolean;
+  }>;
+  field_validations: {
+    [key: string]: {
+      pattern: string;
+      message: string;
+    };
+  };
+  bank_fields: string[];
+  tax_fields: string[];
+}
+
 interface DocumentUpload {
   id: string;
   file: File | null;
   status: 'pending' | 'uploaded' | 'error';
   required: boolean;
   documentType: string;
+  name: string;
 }
 
 interface BusinessDetails {
-  gstin: string;
-  panNumber: string;
-  gtin: string;
+  gstin?: string;
+  panNumber?: string;
+  taxId?: string;
+  vatNumber?: string;
+  salesTaxNumber?: string;
+}
+
+interface BankDetails {
+  accountNumber: string;
+  bankName: string;
+  bankBranch?: string;
+  ifscCode?: string;
+  swiftCode?: string;
+  routingNumber?: string;
+  iban?: string;
 }
 
 interface ValidationErrors {
   panNumber?: string;
   gstin?: string;
-  gtin?: string;
+  taxId?: string;
+  vatNumber?: string;
+  salesTaxNumber?: string;
   accountNumber?: string;
   ifscCode?: string;
+  swiftCode?: string;
+  routingNumber?: string;
+  iban?: string;
 }
 
 const Verification: React.FC = () => {
   const navigate = useNavigate();
   const { user, accessToken, isMerchant } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [noGstChecked, setNoGstChecked] = useState(false);
-  const [bankDetails, setBankDetails] = useState({
-    accountNumber: '',
-    ifscCode: ''
-  });
-  const [businessDetails, setBusinessDetails] = useState<BusinessDetails>({
-    gstin: '',
-    panNumber: '',
-    gtin: ''
-  });
+  const [selectedCountry, setSelectedCountry] = useState('IN');
+  const [countryConfig, setCountryConfig] = useState<CountryConfig | null>(null);
+  const [supportedCountries, setSupportedCountries] = useState<Array<{ code: string; name: string }>>([]);
   
   // State for validation errors
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+
+  // Business details state
+  const [businessDetails, setBusinessDetails] = useState<BusinessDetails>({
+    gstin: '',
+    panNumber: '',
+    taxId: '',
+    vatNumber: '',
+    salesTaxNumber: ''
+  });
+
+  // Bank details state
+  const [bankDetails, setBankDetails] = useState<BankDetails>({
+    accountNumber: '',
+    bankName: '',
+    bankBranch: '',
+    ifscCode: '',
+    swiftCode: '',
+    routingNumber: '',
+    iban: ''
+  });
+
+  // Document upload states
+  const [documents, setDocuments] = useState<{ [key: string]: DocumentUpload }>({});
 
   // Redirect if not authenticated or not a merchant
   useEffect(() => {
@@ -59,97 +111,70 @@ const Verification: React.FC = () => {
     }
   }, [user, isMerchant, navigate]);
 
-  // Document upload states with document types
-  const [documents, setDocuments] = useState<{ [key: string]: DocumentUpload }>({
-    businessRegistration: {
-      id: 'business_registration',
-      file: null,
-      status: 'pending',
-      required: true,
-      documentType: 'business_registration'
-    },
-    panCard: {
-      id: 'panCard',
-      file: null,
-      status: 'pending',
-      required: true,
-      documentType: 'pan_card'
-    },
-    gstin: {
-      id: 'gstin',
-      file: null,
-      status: 'pending',
-      required: false,
-      documentType: 'gstin'
-    },
-    identityProof: {
-      id: 'identityProof',
-      file: null,
-      status: 'pending',
-      required: true,
-      documentType: 'identity_proof'
-    },
-    addressProof: {
-      id: 'addressProof',
-      file: null,
-      status: 'pending',
-      required: true,
-      documentType: 'address_proof'
-    },
-    cancelledCheque: {
-      id: 'cancelledCheque', 
-      file: null,
-      status: 'pending',
-      required: true,
-      documentType: 'cancelled_cheque'
-    },
-    gstCertificate: {
-      id: 'gstCertificate',
-      file: null,
-      status: 'pending',
-      required: false,
-      documentType: 'gst_certificate'
-    },
-    msmeCertificate: {
-      id: 'msmeCertificate',
-      file: null,
-      status: 'pending',
-      required: false,
-      documentType: 'msme_certificate'
-    },
-    digitalSignatureCertificate: {
-      id: 'digitalSignatureCertificate',
-      file: null,
-      status: 'pending',
-      required: false,
-      documentType: 'digital_signature'
-    },
-    returnPolicy: {
-      id: 'returnPolicy',
-      file: null,
-      status: 'pending',
-      required: false,
-      documentType: 'return_policy'
-    },
-    shippingDetails: {
-      id: 'shippingDetails',
-      file: null,
-      status: 'pending',
-      required: false,
-      documentType: 'shipping_details'
+  // Fetch supported countries
+  useEffect(() => {
+    const fetchSupportedCountries = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/merchants/supported-countries`);
+        if (!response.ok) throw new Error('Failed to fetch supported countries');
+        const data = await response.json();
+        setSupportedCountries(data.countries);
+      } catch (error) {
+        console.error('Error fetching supported countries:', error);
+        toast.error('Failed to load supported countries');
+      }
+    };
+
+    fetchSupportedCountries();
+  }, []);
+
+  // Fetch country configuration when country changes
+  useEffect(() => {
+    const fetchCountryConfig = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/merchants/country-config/${selectedCountry}`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch country configuration');
+        const config = await response.json();
+        setCountryConfig(config);
+        
+        // Update document requirements
+        const newDocuments: { [key: string]: DocumentUpload } = {};
+        config.required_documents.forEach((doc: { type: string; name: string; required: boolean }) => {
+          newDocuments[doc.type] = {
+            id: doc.type,
+            file: null,
+            status: 'pending',
+            required: doc.required,
+            documentType: doc.type,
+            name: doc.name
+          };
+        });
+        
+        setDocuments(newDocuments);
+      } catch (error) {
+        console.error('Error fetching country config:', error);
+        toast.error('Failed to load country configuration');
+      }
+    };
+
+    if (accessToken) {
+      fetchCountryConfig();
     }
-  });
+  }, [selectedCountry, accessToken]);
+
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCountry(e.target.value);
+    setValidationErrors({});
+  };
 
   const handleFileChange = async (documentId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     if (!user || !accessToken) {
       toast.error('Please log in to upload documents');
-      return;
-    }
-
-    // Validate token format
-    const tokenRegex = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
-    if (!tokenRegex.test(accessToken)) {
-      toast.error('Invalid authentication token. Please log in again.');
       return;
     }
 
@@ -164,24 +189,19 @@ const Verification: React.FC = () => {
       }
 
       // Validate file size (10MB limit)
-      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      const maxSize = 10 * 1024 * 1024;
       if (file.size > maxSize) {
         toast.error('File size too large. Maximum size is 10MB.');
         return;
       }
 
       try {
-        // Prepare FormData for upload
         const formData = new FormData();
         formData.append('file', file);
         formData.append('document_type', documents[documentId].documentType);
+        formData.append('country_code', selectedCountry);
 
-        // Ensure API_BASE_URL doesn't end with a slash
-        const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-        const uploadUrl = `${baseUrl}/api/merchant/documents/upload`;
-
-        // Upload document to backend
-        const response = await fetch(uploadUrl, {
+        const response = await fetch(`${API_BASE_URL}/api/merchant/documents/upload`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${accessToken}`
@@ -189,31 +209,25 @@ const Verification: React.FC = () => {
           body: formData
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
-          if (response.status === 401) {
-            toast.error('Session expired. Please log in again.');
-            return;
-          }
-          throw new Error(data.message || 'Failed to upload document');
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to upload document');
         }
 
-        // Update document state
+        const data = await response.json();
+
         setDocuments(prev => ({
           ...prev,
           [documentId]: {
             ...prev[documentId],
             file,
-            status: data.document.status === 'pending' ? 'uploaded' : data.document.status
+            status: 'uploaded'
           }
         }));
 
         toast.success('Document uploaded successfully');
-      } catch (error: unknown) {
+      } catch (error) {
         console.error('Error uploading document:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to upload document';
-        
         setDocuments(prev => ({
           ...prev,
           [documentId]: {
@@ -222,21 +236,9 @@ const Verification: React.FC = () => {
             status: 'error'
           }
         }));
-        
-        toast.error(errorMessage);
+        toast.error(error instanceof Error ? error.message : 'Failed to upload document');
       }
     }
-  };
-
-  const handleBankDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setBankDetails(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Validate the field as user types
-    validateField(name, value);
   };
 
   const handleBusinessDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -245,83 +247,39 @@ const Verification: React.FC = () => {
       ...prev,
       [name]: value
     }));
-    
-    // Validate the field as user types
     validateField(name, value);
   };
-  
-  // Validate individual field
-  const validateField = (name: string, value: string) => {
-    const errors = { ...validationErrors };
-    
-    switch (name) {
-      case 'panNumber':
-        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-        if (!panRegex.test(value) && value.trim() !== '') {
-          errors.panNumber = 'PAN must be in format ABCDE1234F';
-        } else {
-          delete errors.panNumber;
-        }
-        break;
-        
-      case 'gstin':
-        if (value.trim() !== '' && !noGstChecked) {
-          const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-          if (!gstinRegex.test(value)) {
-            errors.gstin = 'GSTIN must be in format 27AADCB2230M1ZT';
-          } else {
-            delete errors.gstin;
-          }
-        } else {
-          delete errors.gstin;
-        }
-        break;
-        
-      case 'gtin':
-        if (value.trim() !== '') {
-          const gtinRegex = /^[0-9]{13,14}$/;
-          if (!gtinRegex.test(value)) {
-            errors.gtin = 'GTIN must be 13 or 14 digits';
-          } else {
-            delete errors.gtin;
-          }
-        } else {
-          delete errors.gtin;
-        }
-        break;
-        
-      case 'accountNumber':
-        if (value.trim() !== '') {
-          const accNumberRegex = /^[0-9]{9,18}$/;
-          if (!accNumberRegex.test(value)) {
-            errors.accountNumber = 'Account number must be 9-18 digits';
-          } else {
-            delete errors.accountNumber;
-          }
-        } else {
-          delete errors.accountNumber;
-        }
-        break;
-        
-      case 'ifscCode':
-        if (value.trim() !== '') {
-          const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
-          if (!ifscRegex.test(value)) {
-            errors.ifscCode = 'IFSC must be in format SBIN0001234';
-          } else {
-            delete errors.ifscCode;
-          }
-        } else {
-          delete errors.ifscCode;
-        }
-        break;
-    }
-    
-    setValidationErrors(errors);
+
+  const handleBankDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setBankDetails(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    validateField(name, value);
   };
 
-  const handleNoGstChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNoGstChecked(e.target.checked);
+  const validateField = (name: string, value: string) => {
+    if (!countryConfig) return;
+    
+    console.log(`Validating field ${name} with value:`, value);
+    console.log('Current country config:', countryConfig);
+    
+    const errors = { ...validationErrors };
+    const validations = countryConfig.field_validations;
+    
+    if (validations[name]) {
+      const pattern = new RegExp(validations[name].pattern);
+      if (!pattern.test(value) && value.trim() !== '') {
+        errors[name as keyof ValidationErrors] = validations[name].message;
+        console.log(`Validation failed for ${name}:`, validations[name].message);
+      } else {
+        delete errors[name as keyof ValidationErrors];
+        console.log(`Validation passed for ${name}`);
+      }
+    }
+
+    setValidationErrors(errors);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -331,108 +289,78 @@ const Verification: React.FC = () => {
       toast.error('Please log in to submit verification');
       return;
     }
+
+    // Validate all required fields
+    const errors: ValidationErrors = {};
+    const requiredFields = {
+      'IN': ['panNumber', 'gstin', 'ifscCode'],
+      'GLOBAL': ['taxId', 'swiftCode']
+    };
+
+    console.log('Starting validation for country:', selectedCountry);
+    console.log('Current business details:', businessDetails);
+    console.log('Current bank details:', bankDetails);
+
+    const countryRequiredFields = requiredFields[selectedCountry as keyof typeof requiredFields] || [];
     
-    // Validate all fields before submission
-    const errors: { [key: string]: string } = {};
-    
-    // Validate PAN Number
-    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    if (!panRegex.test(businessDetails.panNumber)) {
-      errors.panNumber = 'PAN must be in format ABCDE1234F';
-    }
-    
-    // Validate GSTIN if provided and not checked as N/A
-    if (businessDetails.gstin.trim() !== '' && !noGstChecked) {
-      const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-      if (!gstinRegex.test(businessDetails.gstin)) {
-        errors.gstin = 'GSTIN must be in format 27AADCB2230M1ZT';
+    countryRequiredFields.forEach(field => {
+      const value = businessDetails[field as keyof BusinessDetails] || 
+                   bankDetails[field as keyof BankDetails];
+      if (!value || value.trim() === '') {
+        errors[field as keyof ValidationErrors] = `${field} is required`;
+        console.log(`Validation error: ${field} is missing or empty`);
       }
-    }
-    
-    // Validate GTIN if provided
-    if (businessDetails.gtin.trim() !== '') {
-      const gtinRegex = /^[0-9]{13,14}$/;
-      if (!gtinRegex.test(businessDetails.gtin)) {
-        errors.gtin = 'GTIN must be 13 or 14 digits';
-      }
-    }
-    
-    // Validate bank account number
-    const accNumberRegex = /^[0-9]{9,18}$/;
-    if (!accNumberRegex.test(bankDetails.accountNumber)) {
-      errors.accountNumber = 'Account number must be 9-18 digits';
-    }
-    
-    // Validate IFSC code
-    const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
-    if (!ifscRegex.test(bankDetails.ifscCode)) {
-      errors.ifscCode = 'IFSC must be in format SBIN0001234';
-    }
-    
-    // If there are validation errors, show them and stop submission
+    });
+
     if (Object.keys(errors).length > 0) {
+      console.log('Validation errors found:', errors);
       setValidationErrors(errors);
-      toast.error('Please fix the validation errors before submitting');
+      toast.error('Please fill in all required fields');
       return;
     }
-    
+
     setIsSubmitting(true);
 
     try {
-      // Check if all required documents are uploaded
-      const requiredDocsUploaded = Object.values(documents)
-        .filter(doc => doc.required)
-        .every(doc => doc.status === 'uploaded' || (doc.id === 'gstin' && noGstChecked));
-
-      // Check if bank details are filled
-      const bankDetailsFilled = bankDetails.accountNumber.trim() !== '' && 
-                               bankDetails.ifscCode.trim() !== '';
-
-      // Check if business details are filled
-      const businessDetailsFilled = businessDetails.panNumber.trim() !== '' && 
-                                  (businessDetails.gstin.trim() !== '' || noGstChecked);
-
-      if (!requiredDocsUploaded || !bankDetailsFilled || !businessDetailsFilled) {
-        toast.error('Please upload all required documents and fill in all required details');
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Debug: Log the request data
-      const requestData = {
-        pan_number: businessDetails.panNumber,
-        gstin: noGstChecked ? null : businessDetails.gstin,
-        gtin: businessDetails.gtin || null,
+      // Format the data according to the backend schema
+      const profileData = {
+        country_code: selectedCountry,
+        // Business details
+        pan_number: selectedCountry === 'IN' ? businessDetails.panNumber : '',
+        gstin: selectedCountry === 'IN' ? businessDetails.gstin : '',
+        tax_id: selectedCountry === 'GLOBAL' ? businessDetails.taxId : '',
+        vat_number: selectedCountry === 'GLOBAL' ? businessDetails.vatNumber : '',
+        sales_tax_number: selectedCountry === 'GLOBAL' ? businessDetails.salesTaxNumber : '',
+        // Bank details
         bank_account_number: bankDetails.accountNumber,
-        bank_ifsc_code: bankDetails.ifscCode
+        bank_name: bankDetails.bankName,
+        bank_branch: bankDetails.bankBranch,
+        bank_ifsc_code: selectedCountry === 'IN' ? bankDetails.ifscCode : '',
+        bank_swift_code: selectedCountry === 'GLOBAL' ? bankDetails.swiftCode : '',
+        bank_routing_number: selectedCountry === 'GLOBAL' ? bankDetails.routingNumber : '',
+        bank_iban: selectedCountry === 'GLOBAL' ? bankDetails.iban : ''
       };
-      console.log('Request Data:', requestData);
 
-      // Submit business and bank details
-      const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-      const profileResponse = await fetch(`${baseUrl}/api/merchants/profile`, {
+      console.log('Submitting profile data:', profileData);
+
+      const profileResponse = await fetch(`${API_BASE_URL}/api/merchants/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(requestData)
+        body: JSON.stringify(profileData)
       });
 
-      const profileData = await profileResponse.json();
-      console.log('Profile Response:', profileData);
-
       if (!profileResponse.ok) {
-        console.error('Profile Update Error:', {
-          status: profileResponse.status,
-          statusText: profileResponse.statusText,
-          data: profileData
-        });
-        throw new Error(profileData.error || profileData.message || 'Failed to submit business details');
+        const errorData = await profileResponse.json();
+        console.error('Profile update failed:', errorData);
+        throw new Error(errorData.error || errorData.details || 'Failed to update profile');
       }
 
       // Submit for verification
-      const verifyResponse = await fetch(`${baseUrl}/api/merchants/profile/verify`, {
+      console.log('Submitting for verification...');
+      const verifyResponse = await fetch(`${API_BASE_URL}/api/merchants/profile/verify`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -440,27 +368,89 @@ const Verification: React.FC = () => {
         }
       });
 
-      const verifyData = await verifyResponse.json();
-      console.log('Verification Response:', verifyData);
-
       if (!verifyResponse.ok) {
-        console.error('Verification Error:', {
-          status: verifyResponse.status,
-          statusText: verifyResponse.statusText,
-          data: verifyData
-        });
-        throw new Error(verifyData.error || verifyData.message || 'Failed to submit for verification');
+        const errorData = await verifyResponse.json();
+        console.error('Verification submission failed:', errorData);
+        throw new Error(errorData.error || errorData.details || 'Failed to submit for verification');
       }
 
+      console.log('Verification submitted successfully');
       toast.success('Verification submitted successfully');
       navigate('/business/verification-pending');
-    } catch (error: unknown) {
-      console.error('Error submitting verification:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to submit verification';
-      toast.error(errorMessage);
+    } catch (error) {
+      console.error('Error in verification process:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to submit verification');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const getFieldHelperText = (fieldName: string, countryCode: string) => {
+    const helpers = {
+      panNumber: {
+        IN: "Enter your 10-character PAN number (e.g., ABCDE1234F)",
+        GLOBAL: "Enter your tax identification number"
+      },
+      gstin: {
+        IN: "Enter your 15-character GSTIN (e.g., 22AAAAA0000A1Z5)",
+        GLOBAL: "Enter your GST/VAT number"
+      },
+      taxId: {
+        IN: "Enter your tax identification number",
+        GLOBAL: "Enter your tax ID (e.g., XX-XXXXXXX for EIN)"
+      },
+      ifscCode: {
+        IN: "Enter your 11-character IFSC code (e.g., SBIN0001234)",
+        GLOBAL: "Enter your bank's IFSC code"
+      },
+      swiftCode: {
+        IN: "Enter your bank's SWIFT/BIC code",
+        GLOBAL: "Enter your 8-11 character SWIFT/BIC code (e.g., SBINUS33)"
+      },
+      accountNumber: {
+        IN: "Enter your bank account number",
+        GLOBAL: "Enter your bank account number"
+      },
+      bankName: {
+        IN: "Enter your bank's name",
+        GLOBAL: "Enter your bank's name"
+      }
+    };
+    return helpers[fieldName as keyof typeof helpers]?.[countryCode as keyof (typeof helpers)[keyof typeof helpers]] || "";
+  };
+
+  const getValidationErrorMessage = (fieldName: string, countryCode: string) => {
+    const errorMessages = {
+      panNumber: {
+        IN: "Please enter a valid PAN number (e.g., ABCDE1234F)",
+        GLOBAL: "Please enter a valid tax identification number"
+      },
+      gstin: {
+        IN: "Please enter a valid GSTIN (e.g., 22AAAAA0000A1Z5)",
+        GLOBAL: "Please enter a valid GST/VAT number"
+      },
+      taxId: {
+        IN: "Please enter a valid tax identification number",
+        GLOBAL: "Please enter a valid tax ID (e.g., XX-XXXXXXX for EIN)"
+      },
+      ifscCode: {
+        IN: "Please enter a valid IFSC code (e.g., SBIN0001234)",
+        GLOBAL: "Please enter a valid IFSC code"
+      },
+      swiftCode: {
+        IN: "Please enter a valid SWIFT/BIC code",
+        GLOBAL: "Please enter a valid SWIFT/BIC code (e.g., SBINUS33)"
+      },
+      accountNumber: {
+        IN: "Please enter a valid account number",
+        GLOBAL: "Please enter a valid account number"
+      },
+      bankName: {
+        IN: "Please enter a valid bank name",
+        GLOBAL: "Please enter a valid bank name"
+      }
+    };
+    return errorMessages[fieldName as keyof typeof errorMessages]?.[countryCode as keyof (typeof errorMessages)[keyof typeof errorMessages]] || "Invalid input";
   };
 
   return (
@@ -473,503 +463,323 @@ const Verification: React.FC = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <InformationCircleIcon className="h-5 w-5 text-yellow-400" />
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-yellow-700">
-                Your documents will be reviewed within 24–48 hours. We'll notify you upon verification.
-              </p>
-            </div>
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit}>
-          {/* Section 1: Business Details */}
+          {/* Country Selection */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              1. Business Details
+              Select Your Country
+            </h2>
+            <select
+              value={selectedCountry}
+              onChange={handleCountryChange}
+              className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+            >
+              {supportedCountries.map(country => (
+                <option key={country.code} value={country.code}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Business Details Section */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
+              Business Details
             </h2>
             
             <div className="space-y-6">
-              {/* PAN Number */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 PAN Number
-                  <span className="text-red-500 ml-1">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="panNumber"
-                  value={businessDetails.panNumber}
-                  onChange={handleBusinessDetailsChange}
-                  placeholder="Enter PAN number (e.g., ABCDE1234F)"
-                  className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${validationErrors.panNumber ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary-500'}`}
-                  required
-                />
-                {validationErrors.panNumber && (
-                  <p className="mt-1 text-sm text-red-600">{validationErrors.panNumber}</p>
-                )}
-              </div>
-
-              {/* GSTIN */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 GSTIN (If applicable)
-                </label>
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    name="gstin"
-                    value={businessDetails.gstin}
-                    onChange={handleBusinessDetailsChange}
-                    placeholder="Enter GSTIN (e.g., 27AADCB2230M1ZT)"
-                    className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${noGstChecked ? 'opacity-50' : ''} ${validationErrors.gstin ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary-500'}`}
-                    disabled={noGstChecked}
-                  />
-                  {validationErrors.gstin && !noGstChecked && (
-                    <p className="mt-1 text-sm text-red-600">{validationErrors.gstin}</p>
-                  )}
-                  <div className="flex items-center">
-                    <input
-                      id="noGstin"
-                      type="checkbox"
-                      checked={noGstChecked}
-                      onChange={handleNoGstChange}
-                      className="mr-2"
-                    />
-                    <label htmlFor="noGstin" className="text-sm text-gray-600">
-                      I don't have GSTIN
+              {selectedCountry === 'IN' ? (
+                <>
+                  {/* Indian Business Fields */}
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">
+                      PAN Number <span className="text-red-500">*</span>
                     </label>
+                    <input
+                      type="text"
+                      name="panNumber"
+                      value={businessDetails.panNumber}
+                      onChange={handleBusinessDetailsChange}
+                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
+                        validationErrors.panNumber ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="e.g., ABCDE1234F"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">
+                      {getFieldHelperText('panNumber', selectedCountry)}
+                    </p>
+                    {validationErrors.panNumber && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {getValidationErrorMessage('panNumber', selectedCountry)}
+                      </p>
+                    )}
                   </div>
-                </div>
-              </div>
 
-              {/* GTIN */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 GTIN (Optional)
-                </label>
-                <input
-                  type="text"
-                  name="gtin"
-                  value={businessDetails.gtin}
-                  onChange={handleBusinessDetailsChange}
-                  placeholder="Enter GTIN (optional, e.g., 8901234567890)"
-                  className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${validationErrors.gtin ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary-500'}`}
-                />
-                {validationErrors.gtin && (
-                  <p className="mt-1 text-sm text-red-600">{validationErrors.gtin}</p>
-                )}
-              </div>
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">
+                      GSTIN <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="gstin"
+                      value={businessDetails.gstin}
+                      onChange={handleBusinessDetailsChange}
+                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
+                        validationErrors.gstin ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="e.g., 22AAAAA0000A1Z5"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">
+                      {getFieldHelperText('gstin', selectedCountry)}
+                    </p>
+                    {validationErrors.gstin && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {getValidationErrorMessage('gstin', selectedCountry)}
+                      </p>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Global Business Fields */}
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">
+                      Tax ID <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="taxId"
+                      value={businessDetails.taxId}
+                      onChange={handleBusinessDetailsChange}
+                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
+                        validationErrors.taxId ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="e.g., XX-XXXXXXX"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">
+                      {getFieldHelperText('taxId', selectedCountry)}
+                    </p>
+                    {validationErrors.taxId && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {getValidationErrorMessage('taxId', selectedCountry)}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">
+                      VAT Number
+                    </label>
+                    <input
+                      type="text"
+                      name="vatNumber"
+                      value={businessDetails.vatNumber}
+                      onChange={handleBusinessDetailsChange}
+                      className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:ring-primary-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">
+                      Sales Tax Number
+                    </label>
+                    <input
+                      type="text"
+                      name="salesTaxNumber"
+                      value={businessDetails.salesTaxNumber}
+                      onChange={handleBusinessDetailsChange}
+                      className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:ring-primary-500"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Section 2: Bank Details */}
+          {/* Bank Details Section */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              2. Bank Details
+              Bank Details
             </h2>
             
             <div className="space-y-6">
-              {/* Account Number */}
               <div>
                 <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Account Number
-                  <span className="text-red-500 ml-1">*</span>
+                  Account Number <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="accountNumber"
                   value={bankDetails.accountNumber}
                   onChange={handleBankDetailsChange}
-                  placeholder="Enter account number (9-18 digits)"
-                  className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${validationErrors.accountNumber ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary-500'}`}
-                  required
+                  className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
+                    validationErrors.accountNumber ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 />
+                <p className="mt-1 text-sm text-gray-500">
+                  {getFieldHelperText('accountNumber', selectedCountry)}
+                </p>
                 {validationErrors.accountNumber && (
-                  <p className="mt-1 text-sm text-red-600">{validationErrors.accountNumber}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {getValidationErrorMessage('accountNumber', selectedCountry)}
+                  </p>
                 )}
               </div>
 
-              {/* IFSC Code */}
               <div>
                 <label className="block mb-2 font-medium text-gray-700">
-                  🔹 IFSC Code
-                  <span className="text-red-500 ml-1">*</span>
+                  Bank Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  name="ifscCode"
-                  value={bankDetails.ifscCode}
+                  name="bankName"
+                  value={bankDetails.bankName}
                   onChange={handleBankDetailsChange}
-                  placeholder="Enter IFSC code (e.g., SBIN0001234)"
-                  className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${validationErrors.ifscCode ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-primary-500'}`}
-                  required
+                  className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:ring-primary-500"
                 />
-                {validationErrors.ifscCode && (
-                  <p className="mt-1 text-sm text-red-600">{validationErrors.ifscCode}</p>
-                )}
+                <p className="mt-1 text-sm text-gray-500">
+                  {getFieldHelperText('bankName', selectedCountry)}
+                </p>
               </div>
+
+              {selectedCountry === 'IN' ? (
+                <>
+                  {/* Indian Bank Fields */}
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">
+                      IFSC Code <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="ifscCode"
+                      value={bankDetails.ifscCode}
+                      onChange={handleBankDetailsChange}
+                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
+                        validationErrors.ifscCode ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="e.g., SBIN0001234"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">
+                      {getFieldHelperText('ifscCode', selectedCountry)}
+                    </p>
+                    {validationErrors.ifscCode && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {getValidationErrorMessage('ifscCode', selectedCountry)}
+                      </p>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Global Bank Fields */}
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">
+                      SWIFT/BIC Code <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="swiftCode"
+                      value={bankDetails.swiftCode}
+                      onChange={handleBankDetailsChange}
+                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
+                        validationErrors.swiftCode ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="e.g., SBINUS33"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">
+                      {getFieldHelperText('swiftCode', selectedCountry)}
+                    </p>
+                    {validationErrors.swiftCode && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {getValidationErrorMessage('swiftCode', selectedCountry)}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 font-medium text-gray-700">
+                      Routing Number
+                    </label>
+                    <input
+                      type="text"
+                      name="routingNumber"
+                      value={bankDetails.routingNumber}
+                      onChange={handleBankDetailsChange}
+                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
+                        validationErrors.routingNumber ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="e.g., 123456789"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">
+                      Enter your bank's routing number (if applicable)
+                    </p>
+                    {validationErrors.routingNumber && (
+                      <p className="mt-1 text-sm text-red-600">
+                        Please enter a valid routing number
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Section 3: Business Registration */}
+          {/* Document Upload Section */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              3. Business Registration
+              Required Documents
             </h2>
             
             <div className="space-y-6">
-              {/* Business Registration Certificate */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Business Registration Certificate
-                  <span className="text-red-500 ml-1">*</span>
-                </label>
-                
-                <div className="flex items-center">
-                  <label className={`
-                    flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.businessRegistration.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                      documents.businessRegistration.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                    hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                  `}>
-                    {documents.businessRegistration.status === 'uploaded' ? (
-                      <span className="flex items-center text-green-600">
-                        <CheckCircleIcon className="h-5 w-5 mr-2" />
-                        {documents.businessRegistration.file?.name || 'File uploaded'}
-                      </span>
-                    ) : documents.businessRegistration.status === 'error' ? (
-                      <span className="flex items-center text-red-600">
-                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                        Upload failed
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-gray-600">
-                        <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                        Upload File
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileChange('businessRegistration', e)}
-                    />
+              {Object.entries(documents).map(([id, doc]) => (
+                <div key={id} className="bg-white p-4 rounded-lg shadow">
+                  <label className="block mb-2 font-medium text-gray-700">
+                    {doc.name}
+                    {doc.required && <span className="text-red-500 ml-1">*</span>}
                   </label>
+                  
+                  <div className="flex items-center">
+                    <label className={`
+                      flex justify-center items-center px-4 py-2 border-2 rounded-md 
+                      ${doc.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
+                        doc.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
+                      hover:bg-gray-50 cursor-pointer w-full max-w-xs
+                    `}>
+                      {doc.status === 'uploaded' ? (
+                        <span className="flex items-center text-green-600">
+                          <CheckCircleIcon className="h-5 w-5 mr-2" />
+                          {doc.file?.name || 'File uploaded'}
+                        </span>
+                      ) : doc.status === 'error' ? (
+                        <span className="flex items-center text-red-600">
+                          <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                          Upload failed
+                        </span>
+                      ) : (
+                        <span className="flex items-center text-gray-600">
+                          <CloudArrowUpIcon className="h-5 w-5 mr-2" />
+                          Upload File
+                        </span>
+                      )}
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) => handleFileChange(id, e)}
+                      />
+                    </label>
+                  </div>
+                  {doc.status === 'error' && (
+                    <p className="mt-1 text-sm text-red-600">
+                      Please try uploading again
+                    </p>
+                  )}
                 </div>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Section 4: Identity and Address Proof */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              4. Identity and Address Proof
-            </h2>
-            
-            <div className="space-y-6">
-              {/* Identity Proof */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Identity Proof
-                  <span className="text-red-500 ml-1">*</span>
-                </label>
-                
-                <div className="flex items-center">
-                  <label className={`
-                    flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.identityProof.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                      documents.identityProof.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                    hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                  `}>
-                    {documents.identityProof.status === 'uploaded' ? (
-                      <span className="flex items-center text-green-600">
-                        <CheckCircleIcon className="h-5 w-5 mr-2" />
-                        {documents.identityProof.file?.name || 'File uploaded'}
-                      </span>
-                    ) : documents.identityProof.status === 'error' ? (
-                      <span className="flex items-center text-red-600">
-                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                        Upload failed
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-gray-600">
-                        <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                        Upload File
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileChange('identityProof', e)}
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* Address Proof */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Address Proof
-                  <span className="text-red-500 ml-1">*</span>
-                </label>
-                
-                <div className="flex items-center">
-                  <label className={`
-                    flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.addressProof.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                      documents.addressProof.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                    hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                  `}>
-                    {documents.addressProof.status === 'uploaded' ? (
-                      <span className="flex items-center text-green-600">
-                        <CheckCircleIcon className="h-5 w-5 mr-2" />
-                        {documents.addressProof.file?.name || 'File uploaded'}
-                      </span>
-                    ) : documents.addressProof.status === 'error' ? (
-                      <span className="flex items-center text-red-600">
-                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                        Upload failed
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-gray-600">
-                        <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                        Upload File
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileChange('addressProof', e)}
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 5: Tax Compliance */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              5. Tax Compliance
-            </h2>
-            
-            <div className="space-y-6">
-              {/* GST Certificate */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 GST Certificate
-                  {!noGstChecked && <span className="text-red-500 ml-1">*</span>}
-                </label>
-                
-                <div className="flex items-center">
-                  <label className={`
-                    flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.gstCertificate.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                      documents.gstCertificate.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                    hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                    ${noGstChecked ? 'opacity-50 pointer-events-none' : ''}
-                  `}>
-                    {documents.gstCertificate.status === 'uploaded' ? (
-                      <span className="flex items-center text-green-600">
-                        <CheckCircleIcon className="h-5 w-5 mr-2" />
-                        {documents.gstCertificate.file?.name || 'File uploaded'}
-                      </span>
-                    ) : documents.gstCertificate.status === 'error' ? (
-                      <span className="flex items-center text-red-600">
-                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                        Upload failed
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-gray-600">
-                        <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                        Upload File
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileChange('gstCertificate', e)}
-                      disabled={noGstChecked}
-                    />
-                  </label>
-                </div>
-              </div>
-              
-              {/* MSME Certificate */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 MSME Certificate (Optional)
-                </label>
-                
-                <div className="flex items-center">
-                  <label className={`
-                    flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.msmeCertificate.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                      documents.msmeCertificate.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                    hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                  `}>
-                    {documents.msmeCertificate.status === 'uploaded' ? (
-                      <span className="flex items-center text-green-600">
-                        <CheckCircleIcon className="h-5 w-5 mr-2" />
-                        {documents.msmeCertificate.file?.name || 'File uploaded'}
-                      </span>
-                    ) : documents.msmeCertificate.status === 'error' ? (
-                      <span className="flex items-center text-red-600">
-                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                        Upload failed
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-gray-600">
-                        <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                        Upload File
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileChange('msmeCertificate', e)}
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Section 6: Other Optional Documents */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
-              6. Other Optional Documents
-            </h2>
-            
-            <div className="space-y-6">
-              {/* Digital Signature Certificate */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Digital Signature Certificate (Optional)
-                </label>
-                
-                <div className="flex items-center">
-                  <label className={`
-                    flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.digitalSignatureCertificate.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                      documents.digitalSignatureCertificate.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                    hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                  `}>
-                    {documents.digitalSignatureCertificate.status === 'uploaded' ? (
-                      <span className="flex items-center text-green-600">
-                        <CheckCircleIcon className="h-5 w-5 mr-2" />
-                        {documents.digitalSignatureCertificate.file?.name || 'File uploaded'}
-                      </span>
-                    ) : documents.digitalSignatureCertificate.status === 'error' ? (
-                      <span className="flex items-center text-red-600">
-                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                        Upload failed
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-gray-600">
-                        <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                        Upload File
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileChange('digitalSignatureCertificate', e)}
-                    />
-                  </label>
-                </div>
-              </div>
-              
-              {/* Return/Refund Policy */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Return/Refund Policy Document (Optional)
-                </label>
-                
-                <div className="flex items-center">
-                  <label className={`
-                    flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.returnPolicy.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                      documents.returnPolicy.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                    hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                  `}>
-                    {documents.returnPolicy.status === 'uploaded' ? (
-                      <span className="flex items-center text-green-600">
-                        <CheckCircleIcon className="h-5 w-5 mr-2" />
-                        {documents.returnPolicy.file?.name || 'File uploaded'}
-                      </span>
-                    ) : documents.returnPolicy.status === 'error' ? (
-                      <span className="flex items-center text-red-600">
-                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                        Upload failed
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-gray-600">
-                        <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                        Upload File
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileChange('returnPolicy', e)}
-                    />
-                  </label>
-                </div>
-              </div>
-              
-              {/* Shipping Details */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  🔹 Shipping Details / Tie-ups (Optional)
-                </label>
-                
-                <div className="flex items-center">
-                  <label className={`
-                    flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                    ${documents.shippingDetails.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                      documents.shippingDetails.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                    hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                  `}>
-                    {documents.shippingDetails.status === 'uploaded' ? (
-                      <span className="flex items-center text-green-600">
-                        <CheckCircleIcon className="h-5 w-5 mr-2" />
-                        {documents.shippingDetails.file?.name || 'File uploaded'}
-                      </span>
-                    ) : documents.shippingDetails.status === 'error' ? (
-                      <span className="flex items-center text-red-600">
-                        <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                        Upload failed
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-gray-600">
-                        <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                        Upload File
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => handleFileChange('shippingDetails', e)}
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-          
           <div className="flex justify-center mt-10">
             <button
               type="submit"

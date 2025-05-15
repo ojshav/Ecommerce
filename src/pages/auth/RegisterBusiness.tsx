@@ -1,8 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+interface Country {
+  code: string;
+  name: string;
+}
+
+interface CountryConfig {
+  country_code: string;
+  country_name: string;
+  required_documents: Array<{
+    type: string;
+    name: string;
+    required: boolean;
+  }>;
+  field_validations: {
+    [key: string]: {
+      pattern: string;
+      message: string;
+    };
+  };
+  bank_fields: string[];
+  tax_fields: string[];
+}
 
 const RegisterBusiness: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -19,16 +42,56 @@ const RegisterBusiness: React.FC = () => {
     business_email: '',
     business_phone: '',
     business_address: '',
+    
+    // Location details
+    country_code: 'IN', // Default to India
+    state_province: '',
+    city: '',
+    postal_code: ''
   });
   
   const [passwordError, setPasswordError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [error, setError] = useState('');
+  const [supportedCountries, setSupportedCountries] = useState<Country[]>([]);
+  const [countryConfig, setCountryConfig] = useState<CountryConfig | null>(null);
   
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Fetch supported countries
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/merchants/supported-countries`);
+        if (!response.ok) throw new Error('Failed to fetch countries');
+        const data = await response.json();
+        setSupportedCountries(data.countries);
+      } catch (error) {
+        console.error('Error fetching countries:', error);
+      }
+    };
+
+    fetchCountries();
+  }, []);
+
+  // Fetch country configuration when country changes
+  useEffect(() => {
+    const fetchCountryConfig = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/merchants/country-config/${formData.country_code}`);
+        if (!response.ok) throw new Error('Failed to fetch country configuration');
+        const data = await response.json();
+        setCountryConfig(data);
+      } catch (error) {
+        console.error('Error fetching country configuration:', error);
+      }
+    };
+
+    fetchCountryConfig();
+  }, [formData.country_code]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -56,6 +119,41 @@ const RegisterBusiness: React.FC = () => {
     return true;
   };
 
+  const validateCountrySpecificFields = () => {
+    if (!countryConfig) return true;
+
+    const errors: string[] = [];
+    
+    // Validate required tax fields
+    countryConfig.tax_fields.forEach(field => {
+      if (!formData[field as keyof typeof formData]) {
+        errors.push(`${field.replace('_', ' ').toUpperCase()} is required`);
+      }
+    });
+
+    // Validate required bank fields
+    countryConfig.bank_fields.forEach(field => {
+      if (!formData[field as keyof typeof formData]) {
+        errors.push(`${field.replace('_', ' ').toUpperCase()} is required`);
+      }
+    });
+
+    // Validate field patterns if available
+    Object.entries(countryConfig.field_validations).forEach(([field, validation]) => {
+      const value = formData[field as keyof typeof formData];
+      if (value && !new RegExp(validation.pattern).test(value)) {
+        errors.push(validation.message);
+      }
+    });
+
+    if (errors.length > 0) {
+      setError(errors.join('\n'));
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -75,21 +173,52 @@ const RegisterBusiness: React.FC = () => {
       // Prepare data for API - remove confirm_password as it's not needed in the backend
       const { confirm_password, ...apiData } = formData;
       
-      // Log the data being sent
-      console.log('Sending data:', apiData);
-      
+      // Ensure all required fields are present
+      const requiredFields = [
+        'first_name',
+        'last_name',
+        'business_name',
+        'business_email',
+        'password',
+        'country_code',
+        'state_province',
+        'city',
+        'postal_code'
+      ];
+
+      const missingFields = requiredFields.filter(field => !apiData[field as keyof typeof apiData]);
+      if (missingFields.length > 0) {
+        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+      }
+
+      // Format the data according to the backend schema
+      const merchantData = {
+        first_name: apiData.first_name,
+        last_name: apiData.last_name,
+        phone: apiData.phone || '',
+        password: apiData.password,
+        business_name: apiData.business_name,
+        business_description: apiData.business_description || '',
+        business_email: apiData.business_email,
+        business_phone: apiData.business_phone || apiData.phone || '',
+        business_address: apiData.business_address || '',
+        country_code: apiData.country_code,
+        state_province: apiData.state_province,
+        city: apiData.city,
+        postal_code: apiData.postal_code
+      };
+
       const response = await fetch(`${API_BASE_URL}/api/auth/register/merchant`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(apiData),
+        body: JSON.stringify(merchantData),
       });
       
       const data = await response.json();
       
       if (!response.ok) {
-        console.error('Registration error:', data);
         throw new Error(data.error || data.details || 'Failed to register');
       }
       // fixed the navoigation issue after the merchant registraation
@@ -123,7 +252,7 @@ const RegisterBusiness: React.FC = () => {
             </div>
             
             {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md whitespace-pre-line">
                 {error}
               </div>
             )}
@@ -228,6 +357,7 @@ const RegisterBusiness: React.FC = () => {
                       type="email"
                       value={formData.business_email}
                       onChange={handleChange}
+                      required
                       className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="business@example.com"
                     />
@@ -265,6 +395,80 @@ const RegisterBusiness: React.FC = () => {
                 </div>
               </div>
               
+              {/* Location Information */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-medium text-gray-900">Business Location</h2>
+                <div>
+                  <label htmlFor="country_code" className="block text-sm font-medium text-gray-700 mb-1">
+                    Country
+                  </label>
+                  <select
+                    id="country_code"
+                    name="country_code"
+                    value={formData.country_code}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  >
+                    {supportedCountries.map(country => (
+                      <option key={country.code} value={country.code}>
+                        {country.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="state_province" className="block text-sm font-medium text-gray-700 mb-1">
+                    State/Province
+                  </label>
+                  <input
+                    id="state_province"
+                    name="state_province"
+                    type="text"
+                    value={formData.state_province}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="State or Province"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                      City
+                    </label>
+                    <input
+                      id="city"
+                      name="city"
+                      type="text"
+                      value={formData.city}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="City"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="postal_code" className="block text-sm font-medium text-gray-700 mb-1">
+                      Postal Code
+                    </label>
+                    <input
+                      id="postal_code"
+                      name="postal_code"
+                      type="text"
+                      value={formData.postal_code}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Postal Code"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Password */}
               <div className="space-y-4">
                 <h2 className="text-lg font-medium text-gray-900">Account Security</h2>

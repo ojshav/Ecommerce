@@ -7,14 +7,13 @@ import toast from 'react-hot-toast';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface Document {
-  type: string;
-  submitted: boolean;
-  imageUrl?: string;
-  id?: number;
-  status?: string;
-  file_name?: string;
-  file_size?: number;
-  mime_type?: string;
+  id: number;
+  document_type: string;
+  file_url: string;
+  file_name: string;
+  file_size: number;
+  mime_type: string;
+  status: string;
   admin_notes?: string;
   verified_at?: string;
 }
@@ -29,50 +28,64 @@ interface Merchant {
   dateApplied: string;
   description: string;
   rejectionReason?: string;
-  panNumber: string;
+  country_code: string;
+  pan_number?: string;
   gstin?: string;
-  gtin?: string;
-  bankAccountNumber: string;
-  bankIfscCode: string;
-  documents: {
-    [key: string]: Document;
-  };
+  tax_id?: string;
+  vat_number?: string;
+  sales_tax_number?: string;
+  bank_account_number: string;
+  bank_name?: string;
+  bank_branch?: string;
+  bank_ifsc_code?: string;
+  bank_swift_code?: string;
+  bank_routing_number?: string;
+  bank_iban?: string;
+  documents: Document[];
 }
 
-// Document type mapping - matches the document types in Verification.tsx
+// Document type mapping - matches the document types in document_route.py
 const documentTypeMapping: { [key: string]: string } = {
-  'business_registration': 'Business Registration',
-  'pan_card': 'PAN Card',
-  'gstin': 'GSTIN Certificate',
-  'identity_proof': 'Identity Proof',
-  'address_proof': 'Address Proof',
-  'cancelled_cheque': 'Cancelled Cheque',
-  'gst_certificate': 'GST Certificate',
-  'msme_certificate': 'MSME Certificate',
-  'digital_signature': 'Digital Signature',
-  'return_policy': 'Return Policy',
-  'shipping_details': 'Shipping Details'
+  'BUSINESS_REGISTRATION_IN': 'Business Registration (India)',
+  'BUSINESS_REGISTRATION_GLOBAL': 'Business Registration (Global)',
+  'PAN_CARD': 'PAN Card',
+  'GSTIN': 'GSTIN Certificate',
+  'AADHAR': 'Aadhar Card',
+  'BUSINESS_ADDRESS_PROOF_IN': 'Business Address Proof (India)',
+  'BUSINESS_ADDRESS_PROOF_GLOBAL': 'Business Address Proof (Global)',
+  'CANCELLED_CHEQUE': 'Cancelled Cheque',
+  'BANK_ACCOUNT_IN': 'Bank Account Details (India)',
+  'BANK_ACCOUNT_GLOBAL': 'Bank Account Details (Global)',
+  'GST_CERTIFICATE': 'GST Certificate',
+  'MSME_CERTIFICATE': 'MSME Certificate',
+  'DSC': 'Digital Signature Certificate',
+  'TAX_ID_GLOBAL': 'Tax ID (Global)',
+  'SALES_TAX_REG': 'Sales Tax Registration',
+  'PASSPORT': 'Passport',
+  'SALES_TAX_PERMIT': 'Sales Tax Permit',
+  'SMALL_BUSINESS_CERT': 'Small Business Certificate',
+  'ESIGN_CERTIFICATE': 'E-Sign Certificate',
+  'RETURN_POLICY': 'Return Policy',
+  'SHIPPING_DETAILS': 'Shipping Details'
 };
 
 // Document key mapping (reverse of above)
 const documentKeyMapping: { [key: string]: string } = {
-  'Business Registration': 'businessRegistration',
-  'PAN Card': 'panCard',
-  'GSTIN Certificate': 'gstin',
-  'Identity Proof': 'identityProof',
-  'Address Proof': 'addressProof',
-  'Cancelled Cheque': 'cancelledCheque',
-  'GST Certificate': 'gstCertificate',
-  'MSME Certificate': 'msmeCertificate',
-  'Digital Signature': 'digitalSignatureCertificate',
-  'Return Policy': 'returnPolicy',
-  'Shipping Details': 'shippingDetails'
+  'Business Registration': 'BUSINESS_REGISTRATION_IN',
+  'PAN Card': 'PAN_CARD',
+  'GSTIN Certificate': 'GSTIN',
+  'Identity Proof': 'AADHAR',
+  'Address Proof': 'BUSINESS_ADDRESS_PROOF_IN',
+  'Cancelled Cheque': 'CANCELLED_CHEQUE',
+  'GST Certificate': 'GST_CERTIFICATE',
+  'MSME Certificate': 'MSME_CERTIFICATE',
+  'Digital Signature': 'DSC',
+  'Return Policy': 'RETURN_POLICY',
+  'Shipping Details': 'SHIPPING_DETAILS'
 };
 
 const DocumentViewer: React.FC<{
-  documents: {
-    [key: string]: Document;
-  };
+  documents: Document[];
   onClose: () => void;
   initialDocKey: string;
   onApprove: (documentId: number) => Promise<void>;
@@ -83,7 +96,7 @@ const DocumentViewer: React.FC<{
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   
-  const documentKeys = Object.keys(documents).filter(key => documents[key].submitted);
+  const documentKeys = documents.map(doc => doc.id.toString());
   const currentIndex = documentKeys.indexOf(currentDocKey);
   
   const goToNext = () => {
@@ -98,9 +111,9 @@ const DocumentViewer: React.FC<{
     }
   };
   
-  const currentDoc = documents[currentDocKey];
-  const documentId = currentDoc.id;
-  const documentStatus = currentDoc.status?.toLowerCase() || '';
+  const currentDoc = documents.find(doc => doc.id.toString() === currentDocKey);
+  const documentId = currentDoc?.id;
+  const documentStatus = currentDoc?.status.toLowerCase() || '';
   
   const handleApprove = () => {
     if (documentId) {
@@ -118,19 +131,21 @@ const DocumentViewer: React.FC<{
   
   // Pre-fill rejection reason if document is already rejected and has admin notes
   useEffect(() => {
-    if (documentStatus === 'rejected' && currentDoc.admin_notes && showRejectModal) {
+    if (documentStatus === 'rejected' && currentDoc?.admin_notes && showRejectModal) {
       setRejectionReason(currentDoc.admin_notes);
     } else if (showRejectModal) {
       setRejectionReason('');
     }
-  }, [showRejectModal, documentStatus, currentDoc.admin_notes]);
+  }, [showRejectModal, documentStatus, currentDoc?.admin_notes]);
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2 sm:p-4">
       <div className="bg-white rounded-lg w-full max-w-6xl mx-auto max-h-screen flex flex-col">
         <div className="flex justify-between items-center p-3 sm:p-4 border-b">
           <div>
-            <h3 className="text-lg sm:text-xl font-semibold truncate">{currentDoc.type}</h3>
+            <h3 className="text-lg sm:text-xl font-semibold truncate">
+              {currentDoc?.document_type ? documentTypeMapping[currentDoc.document_type] : currentDoc?.document_type}
+            </h3>
             <div className="text-sm text-gray-500">
               Status: <span className={`font-medium ${documentStatus === 'approved' ? 'text-green-600' : documentStatus === 'rejected' ? 'text-red-600' : 'text-yellow-600'}`}>
                 {documentStatus.charAt(0).toUpperCase() + documentStatus.slice(1)}
@@ -143,10 +158,10 @@ const DocumentViewer: React.FC<{
         </div>
         
         <div className="p-2 sm:p-4 flex-1 overflow-auto flex items-center justify-center bg-gray-100">
-          {currentDoc.imageUrl ? (
+          {currentDoc?.file_url ? (
             <img 
-              src={currentDoc.imageUrl} 
-              alt={currentDoc.type}
+              src={currentDoc.file_url} 
+              alt={currentDoc.document_type}
               className="max-w-full max-h-[70vh] object-contain"
             />
           ) : (
@@ -155,7 +170,7 @@ const DocumentViewer: React.FC<{
         </div>
         
         {/* Document details */}
-        {currentDoc.file_name && (
+        {currentDoc?.file_name && (
           <div className="px-4 py-2 bg-gray-50 border-t border-gray-200">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="text-gray-600">File name:</div>
@@ -305,8 +320,6 @@ const MerchantDetails: React.FC = () => {
 
   // Fetch merchant details from API to ensure we get all data including bank details
   const fetchMerchantDetails = async (merchantId: string): Promise<Merchant | null> => {
-    // Accept merchantId as a parameter
-    
     if (!accessToken) {
       toast.error('You must be logged in to view merchant details');
       navigate('/login');
@@ -317,11 +330,9 @@ const MerchantDetails: React.FC = () => {
       setIsLoading(true);
       setError(null);
       
-      // Always fetch from API to get the most up-to-date data including bank details
       const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
       console.log(`Fetching merchant details from: ${baseUrl}/api/admin/merchants/${merchantId}`);
       
-      // Use the admin endpoint to get merchant details - matches what's used in MerchantManagement.tsx
       const response = await fetch(`${baseUrl}/api/admin/merchants/${merchantId}`, {
         method: 'GET',
         headers: {
@@ -331,16 +342,14 @@ const MerchantDetails: React.FC = () => {
       });
 
       if (!response.ok) {
-        // If API fetch fails, redirect to merchant list
         toast.error('Merchant details not found. Redirecting to merchant list.');
         navigate('/superadmin/merchant-management');
         return null;
       }
 
       const data = await response.json();
-      console.log('Fetched merchant data from API:', data); // Debug log
+      console.log('Fetched merchant data from API:', data);
       
-      // Map backend field names to frontend field names
       return {
         ...data,
         name: data.business_name,
@@ -349,9 +358,19 @@ const MerchantDetails: React.FC = () => {
         description: data.business_description,
         status: data.verification_status,
         dateApplied: data.created_at,
-        panNumber: data.pan_number || '',
-        bankAccountNumber: data.bank_account_number || '',
-        bankIfscCode: data.bank_ifsc_code || ''
+        country_code: data.country_code,
+        pan_number: data.pan_number,
+        gstin: data.gstin,
+        tax_id: data.tax_id,
+        vat_number: data.vat_number,
+        sales_tax_number: data.sales_tax_number,
+        bank_account_number: data.bank_account_number,
+        bank_name: data.bank_name,
+        bank_branch: data.bank_branch,
+        bank_ifsc_code: data.bank_ifsc_code,
+        bank_swift_code: data.bank_swift_code,
+        bank_routing_number: data.bank_routing_number,
+        bank_iban: data.bank_iban
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch merchant details';
@@ -370,11 +389,8 @@ const MerchantDetails: React.FC = () => {
     }
 
     try {
-      // Ensure API_BASE_URL doesn't end with a slash
       const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
       
-      // Use the document endpoint with merchant_id parameter for admin access
-      // This matches the endpoint in document_route.py: @document_bp.route('', methods=['GET'])
       const response = await fetch(`${baseUrl}/api/merchant/documents?merchant_id=${merchantId}`, {
         method: 'GET',
         headers: {
@@ -400,37 +416,23 @@ const MerchantDetails: React.FC = () => {
   // Transform API document data to the format expected by the UI
   const transformDocuments = (apiDocuments: any[]) => {
     // Initialize with all possible document types from Verification.tsx
-    const documents: { [key: string]: Document } = {
-      businessRegistration: { type: 'Business Registration', submitted: false },
-      panCard: { type: 'PAN Card', submitted: false },
-      gstin: { type: 'GSTIN Certificate', submitted: false },
-      identityProof: { type: 'Identity Proof', submitted: false },
-      addressProof: { type: 'Address Proof', submitted: false },
-      cancelledCheque: { type: 'Cancelled Cheque', submitted: false },
-      gstCertificate: { type: 'GST Certificate', submitted: false },
-      msmeCertificate: { type: 'MSME Certificate', submitted: false },
-      digitalSignatureCertificate: { type: 'Digital Signature', submitted: false },
-      returnPolicy: { type: 'Return Policy', submitted: false },
-      shippingDetails: { type: 'Shipping Details', submitted: false }
-    };
+    const documents: Document[] = [];
 
     // Update with actual document data
     apiDocuments.forEach(doc => {
       const docType = documentTypeMapping[doc.document_type] || doc.document_type;
-      const docKey = documentKeyMapping[docType] || doc.document_type.toLowerCase();
       
-      documents[docKey] = {
-        type: docType,
-        submitted: true,
-        imageUrl: doc.file_url,
+      documents.push({
         id: doc.id,
-        status: doc.status,
+        document_type: docType,
+        file_url: doc.file_url,
         file_name: doc.file_name,
         file_size: doc.file_size,
         mime_type: doc.mime_type,
+        status: doc.status,
         admin_notes: doc.admin_notes,
         verified_at: doc.verified_at
-      };
+      });
     });
 
     return documents;
@@ -490,32 +492,29 @@ const MerchantDetails: React.FC = () => {
       setIsDocumentActionLoading(true);
       const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
       
-      // This matches the endpoint in document_route.py: @document_bp.route('/<int:id>/approve', methods=['POST'])
-      // Backend expects a JSON body with notes field (even if null)
       const response = await fetch(`${baseUrl}/api/merchant/documents/${documentId}/approve`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ notes: null }) // Send notes field as required by backend
+        body: JSON.stringify({ notes: null })
       });
 
       if (!response.ok) {
         throw new Error(`Failed to approve document: ${response.statusText}`);
       }
 
-      toast.success('Document approved successfully');
+      const data = await response.json();
+      toast.success(data.message);
       
       // Refresh merchant documents
       if (id) {
         const documentsData = await fetchMerchantDocuments(id);
-        const transformedDocuments = transformDocuments(documentsData);
-        
         if (merchant) {
           setMerchant({
             ...merchant,
-            documents: transformedDocuments
+            documents: documentsData
           });
         }
       }
@@ -535,31 +534,29 @@ const MerchantDetails: React.FC = () => {
       setIsDocumentActionLoading(true);
       const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
       
-      // This matches the endpoint in document_route.py: @document_bp.route('/<int:id>/reject', methods=['POST'])
       const response = await fetch(`${baseUrl}/api/merchant/documents/${documentId}/reject`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ reason })
+        body: JSON.stringify({ notes: reason })
       });
 
       if (!response.ok) {
         throw new Error(`Failed to reject document: ${response.statusText}`);
       }
 
-      toast.success('Document rejected successfully');
+      const data = await response.json();
+      toast.success(data.message);
       
       // Refresh merchant documents
       if (id) {
         const documentsData = await fetchMerchantDocuments(id);
-        const transformedDocuments = transformDocuments(documentsData);
-        
         if (merchant) {
           setMerchant({
             ...merchant,
-            documents: transformedDocuments
+            documents: documentsData
           });
         }
       }
@@ -681,18 +678,43 @@ const MerchantDetails: React.FC = () => {
                   </div>
                   <div className="p-4 sm:p-6">
                     <div className="space-y-3 sm:space-y-4">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
-                        <div className="text-sm font-medium text-gray-500">PAN Number:</div>
-                        <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">{merchant.panNumber}</div>
-                      </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
-                        <div className="text-sm font-medium text-gray-500">GSTIN:</div>
-                        <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">{merchant.gstin || 'Not provided'}</div>
-                      </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
-                        <div className="text-sm font-medium text-gray-500">GTIN:</div>
-                        <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">{merchant.gtin || 'Not provided'}</div>
-                      </div>
+                      {merchant.country_code === 'IN' ? (
+                        <>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                            <div className="text-sm font-medium text-gray-500">PAN Number:</div>
+                            <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                              {merchant.pan_number || 'Not provided'}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                            <div className="text-sm font-medium text-gray-500">GSTIN:</div>
+                            <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                              {merchant.gstin || 'Not provided'}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                            <div className="text-sm font-medium text-gray-500">Tax ID:</div>
+                            <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                              {merchant.tax_id || 'Not provided'}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                            <div className="text-sm font-medium text-gray-500">VAT Number:</div>
+                            <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                              {merchant.vat_number || 'Not provided'}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                            <div className="text-sm font-medium text-gray-500">Sales Tax Number:</div>
+                            <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                              {merchant.sales_tax_number || 'Not provided'}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -707,15 +729,50 @@ const MerchantDetails: React.FC = () => {
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
                         <div className="text-sm font-medium text-gray-500">Account Number:</div>
                         <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
-                          {merchant.bankAccountNumber || 'Not provided'}
+                          {merchant.bank_account_number || 'Not provided'}
                         </div>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
-                        <div className="text-sm font-medium text-gray-500">IFSC Code:</div>
+                        <div className="text-sm font-medium text-gray-500">Bank Name:</div>
                         <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
-                          {merchant.bankIfscCode || 'Not provided'}
+                          {merchant.bank_name || 'Not provided'}
                         </div>
                       </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                        <div className="text-sm font-medium text-gray-500">Bank Branch:</div>
+                        <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                          {merchant.bank_branch || 'Not provided'}
+                        </div>
+                      </div>
+                      {merchant.country_code === 'IN' ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                          <div className="text-sm font-medium text-gray-500">IFSC Code:</div>
+                          <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                            {merchant.bank_ifsc_code || 'Not provided'}
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                            <div className="text-sm font-medium text-gray-500">SWIFT Code:</div>
+                            <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                              {merchant.bank_swift_code || 'Not provided'}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                            <div className="text-sm font-medium text-gray-500">Routing Number:</div>
+                            <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                              {merchant.bank_routing_number || 'Not provided'}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                            <div className="text-sm font-medium text-gray-500">IBAN:</div>
+                            <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                              {merchant.bank_iban || 'Not provided'}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -740,33 +797,41 @@ const MerchantDetails: React.FC = () => {
                   </div>
                   <div className="p-4 sm:p-6">
                     <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
-                      {Object.entries(merchant.documents).map(([key, doc]) => (
+                      {merchant.documents.map((doc) => (
                         <div 
-                          key={key} 
+                          key={doc.id} 
                           className={`flex items-center p-2 sm:p-3 rounded-md border ${
-                            doc.submitted ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-100'
+                            doc.status === 'APPROVED' ? 'border-green-200 bg-green-50' : 
+                            doc.status === 'REJECTED' ? 'border-red-200 bg-red-50' : 
+                            'border-gray-200 bg-gray-100'
                           }`}
                         >
                           <div className="mr-2 sm:mr-3">
-                            {doc.submitted ? (
+                            {doc.status === 'APPROVED' ? (
                               <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">
                                 ✓
                               </div>
+                            ) : doc.status === 'REJECTED' ? (
+                              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+                                ✗
+                              </div>
                             ) : (
                               <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-400">
-                                ✗
+                                ○
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs sm:text-sm font-medium text-gray-800 truncate">{doc.type}</p>
+                            <p className="text-xs sm:text-sm font-medium text-gray-800 truncate">
+                              {documentTypeMapping[doc.document_type] || doc.document_type}
+                            </p>
                             <p className="text-xs text-gray-500">
-                              {doc.submitted ? 'Submitted' : 'Missing'}
+                              {doc.status.charAt(0) + doc.status.slice(1).toLowerCase()}
                             </p>
                           </div>
-                          {doc.submitted && doc.imageUrl && (
+                          {doc.file_url && (
                             <button
-                              onClick={() => openDocumentViewer(key)}
+                              onClick={() => openDocumentViewer(doc.id.toString())}
                               className="ml-2 text-blue-600 hover:text-blue-800"
                             >
                               <FileText size={16} className="sm:size-18" />
