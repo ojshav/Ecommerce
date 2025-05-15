@@ -132,19 +132,19 @@ const Categories: React.FC = () => {
         </div>
         
         {/* Categories slider */}
-        <div className="flex space-x-4 overflow-x-auto pb-4 mb-8">
+        <div className="flex space-x-4 overflow-x-auto pb-4 mb-8 pt-2 pl-2">
           {categories.map((category) => (
             <div 
               key={category.id} 
-              className={`flex-shrink-0 w-36 h-40 ${category.bgColor} rounded-lg flex flex-col items-center justify-center text-center p-4 ${category.isActive ? 'border-2 border-orange-500 relative' : ''}`}
+              onClick={() => {
+                // navigate to shop by category page
+              }}
+              className={`flex-shrink-0 w-36 h-40 ${category.bgColor} rounded-lg flex flex-col items-center justify-center text-center p-4 transition duration-200 hover:scale-105 hover:border-2 hover:border-orange-500 hover:relative cursor-pointer`}
             >
               <div className="w-14 h-14 mb-4 flex items-center justify-center">
                 <span className="text-3xl">{category.icon}</span>
               </div>
               <h3 className="font-medium">{category.name}</h3>
-              {category.isActive && (
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-orange-500 rotate-45"></div>
-              )}
             </div>
           ))}
         </div>
