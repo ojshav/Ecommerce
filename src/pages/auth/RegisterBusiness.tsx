@@ -92,9 +92,13 @@ const RegisterBusiness: React.FC = () => {
         console.error('Registration error:', data);
         throw new Error(data.error || data.details || 'Failed to register');
       }
-      
-      // Success - navigate to dashboard
-      navigate('/business/dashboard');
+      // fixed the navoigation issue after the merchant registraation
+      navigate('/verification-pending', { 
+        state: { 
+          business_email: formData.business_email,
+          message: 'Please check your email to verify your account. You will be automatically logged in after verification.'
+        } 
+      });
     } catch (err) {
       console.error('Registration error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred during registration');

@@ -152,13 +152,15 @@ const PromoProducts: React.FC = () => {
         </div>
 
         {/* Full-width Banner */}
-        <div className="relative rounded-lg overflow-hidden h-96">
-          <img 
-            src={banner.image}
-            alt="Promo banner" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 flex items-center p-8">
+      </div>
+      <div className="relative overflow-hidden h-96 w-screen -ml-[calc((100vw-100%)/2)]">
+        <img 
+          src={banner.image}
+          alt="Promo banner" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 flex items-center p-8">
+          <div className="container mx-auto px-4">
             <div className="ml-auto mr-8">
               <span className="inline-block bg-white bg-opacity-90 px-3 py-1 text-sm mb-4">
                 {banner.tag}
@@ -171,6 +173,8 @@ const PromoProducts: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="container mx-auto px-4">
       </div>
     </section>
   );

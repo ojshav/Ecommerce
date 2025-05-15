@@ -56,9 +56,12 @@ import Cookies from './pages/Cookies';
 import Terms from './pages/Terms';
 import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
 import MerchantDetails from './pages/superadmin/MerchantDetails';
+
 import Inventory from './pages/business/Inventory';
 import VerificationStatus from './pages/business/VerificationStatus';
 
+
+import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';>>>>>>> master
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -101,7 +104,7 @@ function App() {
       <CartProvider>
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <Router>
-            <div className="flex flex-col min-h-screen">
+            <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
 
               <Routes>
                 {/* Business Dashboard Routes */}
@@ -207,7 +210,12 @@ function App() {
 
 
                 </Route>
-                {/* Superadmin Routes - Using SuperAdminLayout */}
+
+                {/* Superadmin Login Route */}
+                <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+                
+                {/* Superadmin Routes - Protected by role check in the component */}
+
                 <Route path="/superadmin" element={<SuperAdminLayout />}>
                   <Route index element={<Dashboard />} />
                   <Route path="user-activity-overview" element={<UserActivity />} />
@@ -241,7 +249,7 @@ function App() {
                   element={
                     <>
                       <Navbar />
-                      <main className="flex-grow">
+                      <main className="flex-grow content-container">
                         <Routes>
                           <Route path="/" element={<Home />} />
                           <Route path="/all-products" element={<Products />} />

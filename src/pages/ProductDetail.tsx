@@ -28,7 +28,7 @@ const ProductDetail: React.FC = () => {
   
   if (!product) {
     return (
-      <div className="pt-20 min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Product Not Found</h2>
           <p className="text-gray-600 mb-6">The product you're looking for does not exist or has been removed.</p>
@@ -227,7 +227,7 @@ const ProductDetail: React.FC = () => {
   };
 
   return (
-    <div className="pt-20 min-h-screen bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumbs */}
         <nav className="flex items-center text-sm mb-6">
