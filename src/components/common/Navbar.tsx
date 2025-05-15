@@ -4,9 +4,11 @@ import { ShoppingCart, Heart, Search, Facebook, Instagram, Twitter, Mail, LogOut
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import CategoryDropdown from '../home/CategoryDropdown';
+import NewProductDropdown from '../home/NewProductDropdown';
 
 const Navbar: React.FC = () => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [isNewProductDropdownOpen, setIsNewProductDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Category');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lowerMobileMenuOpen, setLowerMobileMenuOpen] = useState(false);
@@ -15,6 +17,12 @@ const Navbar: React.FC = () => {
 
   const toggleCategoryDropdown = () => {
     setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
+    if (isNewProductDropdownOpen) setIsNewProductDropdownOpen(false);
+  };
+
+  const toggleNewProductDropdown = () => {
+    setIsNewProductDropdownOpen(!isNewProductDropdownOpen);
+    if (isCategoryDropdownOpen) setIsCategoryDropdownOpen(false);
   };
 
   const toggleMobileMenu = () => {
@@ -262,10 +270,13 @@ const Navbar: React.FC = () => {
                 <Link to="/all-products" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
                   All Products
                 </Link>
-                <Link to="/new-product" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
+                <button 
+                  className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded w-full text-left"
+                  onClick={toggleNewProductDropdown}
+                >
                   <span>New Product</span>
                   <ChevronDown className="w-4 h-4" />
-                </Link>
+                </button>
                 <Link to="/promotion" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
                   <span>Promotion</span>
                   <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
@@ -301,10 +312,13 @@ const Navbar: React.FC = () => {
               <Link to="/all-products" className="py-1.5 px-4 font-medium hover:text-[#F2631F]">
                 All Products
               </Link>
-              <Link to="/new-product" className="py-1.5 px-4 font-medium hover:text-[#F2631F] flex items-center">
+              <button 
+                className="py-1.5 px-4 font-medium hover:text-[#F2631F] flex items-center bg-transparent border-none cursor-pointer"
+                onClick={toggleNewProductDropdown}
+              >
                 New Product
                 <ChevronDown className="ml-1 w-4 h-4" />
-              </Link>
+              </button>
               <Link to="/promotion" className="py-1.5 px-4 font-medium hover:text-[#F2631F] flex items-center">
                 Promotion <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
               </Link>
@@ -345,6 +359,11 @@ const Navbar: React.FC = () => {
       {/* Category dropdown - for desktop */}
       {isCategoryDropdownOpen && !lowerMobileMenuOpen && (
         <CategoryDropdown isOpen={isCategoryDropdownOpen} />
+      )}
+      
+      {/* New Product dropdown */}
+      {isNewProductDropdownOpen && (
+        <NewProductDropdown isOpen={isNewProductDropdownOpen} />
       )}
     </header>
   );
