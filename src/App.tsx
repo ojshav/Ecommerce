@@ -56,12 +56,11 @@ import Cookies from './pages/Cookies';
 import Terms from './pages/Terms';
 import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
 import MerchantDetails from './pages/superadmin/MerchantDetails';
-
+import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
+import Brands from './components/home/brands';
 import Inventory from './pages/business/Inventory';
 import VerificationStatus from './pages/business/VerificationStatus';
-
-
-import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';>>>>>>> master
+import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -283,7 +282,7 @@ function App() {
                           <Route path="/privacy" element={<Privacy />} />
                           <Route path="/cookies" element={<Cookies />} />
                           <Route path="/terms" element={<Terms />} />
-
+                          <Route path="/brands/:brandId" element={<Brands />} />
 
                         </Routes>
                       </main>
