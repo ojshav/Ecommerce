@@ -5,6 +5,7 @@ import Categories from '../components/home/Categories';
 import PromoProducts from '../components/home/PromoProducts';
 import TrendingDeals from '../components/home/TrendingDeals';
 import NewsletterSignup from '../components/home/NewsletterSignup';
+import Brands from '../components/home/brands';
 
 const Home: React.FC = () => {
   return (
@@ -12,6 +13,7 @@ const Home: React.FC = () => {
       <div className="space-y-8">
         <Hero />
         <Categories />
+        <Brands />
         <FeaturedProducts />
         <PromoProducts />
         <TrendingDeals />
