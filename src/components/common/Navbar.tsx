@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Search, Facebook, Instagram, Twitter, Mail, LogOut, User, ChevronDown, Menu, X } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import CategoryDropdown from '../home/CategoryDropdown';
 import NewProductDropdown from '../home/NewProductDropdown';
+import SearchResults from './SearchResults';
+import useClickOutside from '../../hooks/useClickOutside';
 
 const Navbar: React.FC = () => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
@@ -12,8 +14,16 @@ const Navbar: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('Category');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lowerMobileMenuOpen, setLowerMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const { totalItems } = useCart();
   const { isAuthenticated, user, logout } = useAuth();
+
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(searchContainerRef, () => {
+    setShowSearchResults(false);
+  });
 
   const toggleCategoryDropdown = () => {
     setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
@@ -40,6 +50,58 @@ const Navbar: React.FC = () => {
   const closeNewProductDropdown = () => {
     setIsNewProductDropdownOpen(false);
   };
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setShowSearchResults(true);
+  };
+
+  const handleSearchInputFocus = () => {
+    if (searchQuery) {
+      setShowSearchResults(true);
+    }
+  };
+
+  const searchBarContent = (
+    <div ref={searchContainerRef} className="relative">
+      <div className="flex rounded-md overflow-hidden bg-white">
+        <input
+          type="text"
+          placeholder="What are you looking for?"
+          className="w-full md:w-96 border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none"
+          value={searchQuery}
+          onChange={handleSearchInputChange}
+          onFocus={handleSearchInputFocus}
+        />
+        <div className="relative flex items-center border-l border-gray-200 bg-white">
+          <select 
+            className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none"
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            <option>Category</option>
+            <option>Electronics</option>
+            <option>Clothing</option>
+            <option>Home & Garden</option>
+          </select>
+          <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
+        </div>
+      </div>
+      <SearchResults isVisible={showSearchResults} searchQuery={searchQuery} />
+    </div>
+  );
+
+  const mobileSearchBar = (
+    <div className="relative mb-4">
+      {searchBarContent}
+    </div>
+  );
+
+  const desktopSearchBar = (
+    <div className="hidden md:block relative">
+      {searchBarContent}
+    </div>
+  );
 
   return (
     <header className="w-full fixed top-0 left-0 right-0 z-50">
@@ -85,27 +147,8 @@ const Navbar: React.FC = () => {
 
               {/* Search and Actions - Hidden on mobile, shown in mobile menu */}
               <div className="hidden md:flex items-center space-x-5">
-                {/* Search Bar with Category Dropdown */}
-                <div className="flex rounded-md overflow-hidden bg-white">
-                  <input
-                    type="text"
-                    placeholder="What are you looking for?"
-                    className="w-full md:w-96 border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none"
-                  />
-                  <div className="relative flex items-center border-l border-gray-200 bg-white">
-                    <select 
-                      className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none"
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                    >
-                      <option>Category</option>
-                      <option>Electronics</option>
-                      <option>Clothing</option>
-                      <option>Home & Garden</option>
-                    </select>
-                    <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
-                  </div>
-                </div>
-
+                {desktopSearchBar}
+                
                 <button className="bg-black hover:bg-gray-900 text-white py-1.5 px-6 rounded-md border border-white">
                   Search
                 </button>
@@ -143,17 +186,7 @@ const Navbar: React.FC = () => {
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-black text-white border-t border-gray-800 py-3 px-4">
-          {/* Mobile Search */}
-          <div className="flex mb-4 rounded-md overflow-hidden bg-white">
-            <input
-              type="text"
-              placeholder="What are you looking for?"
-              className="w-full border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none"
-            />
-            <button className="bg-black text-white p-1.5">
-              <Search size={18} />
-            </button>
-          </div>
+          {mobileSearchBar}
           
           {/* Mobile action links */}
           <div className="grid grid-cols-3 gap-3 mb-3">
