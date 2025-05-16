@@ -665,7 +665,18 @@ const MerchantDetails: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
                         <div className="text-sm font-medium text-gray-500">Date Applied:</div>
-                        <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">{merchant.dateApplied}</div>
+                        <div className="col-span-1 sm:col-span-2 text-sm text-gray-800">
+                          {merchant.dateApplied ? new Date(merchant.dateApplied).toLocaleString('en-IN', {
+                            timeZone: 'Asia/Kolkata',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: true
+                          }) : 'Not available'}
+                        </div>
                       </div>
                     </div>
                   </div>
