@@ -110,6 +110,13 @@ const VerificationStatus: React.FC = () => {
       }
 
       const data = await response.json();
+      
+      // Only redirect if documents are not submitted and we're not already on the verification page
+      if (!data.has_submitted_documents && !window.location.pathname.includes('/business/verification')) {
+        navigate('/business/verification');
+        return;
+      }
+      
       setVerificationData(data);
       
       if (data.verification_status === 'rejected') {
@@ -121,6 +128,10 @@ const VerificationStatus: React.FC = () => {
     } catch (error) {
       console.error('Error fetching verification status:', error);
       toast.error('Failed to load verification status');
+      // Only redirect on error if we're not already on the verification page
+      if (!window.location.pathname.includes('/business/verification')) {
+        navigate('/business/verification');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -200,7 +211,7 @@ const VerificationStatus: React.FC = () => {
         <h2 className="text-xl font-semibold text-gray-900">No Verification Data Found</h2>
         <p className="mt-2 text-gray-600">Please start the verification process to continue.</p>
         <button 
-          onClick={() => navigate('/business/verification')}
+          onClick={() => navigate('/business/Verification')}
           className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
         >
           Start Verification

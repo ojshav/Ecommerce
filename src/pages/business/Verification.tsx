@@ -121,8 +121,8 @@ const Verification: React.FC = () => {
 
       const data = await response.json();
       
-      // If documents are already submitted, redirect to status page
-      if (data.has_submitted_documents) {
+      // Only redirect if documents are submitted and we're not already on the status page
+      if (data.has_submitted_documents && !window.location.pathname.includes('/business/verification-status')) {
         navigate('/business/verification-pending');
         return;
       }
@@ -410,7 +410,7 @@ const Verification: React.FC = () => {
 
       console.log('Verification submitted successfully');
       toast.success('Verification submitted successfully');
-      navigate('/business/verification-pending');
+      navigate('/business/verification-status');
     } catch (error) {
       console.error('Error in verification process:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to submit verification');
