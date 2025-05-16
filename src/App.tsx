@@ -60,6 +60,11 @@ import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
 import Brands from './components/home/brands';
 import Inventory from './pages/business/Inventory';
 import VerificationStatus from './pages/business/VerificationStatus';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import CancellationPolicy from './pages/CancellationPolicy';
+import ReturnRefund from './pages/ReturnRefund';
+import ShippingDelivery from './pages/ShippingDelivery';
+
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -281,6 +286,10 @@ function App() {
                           <Route path="/privacy" element={<Privacy />} />
                           <Route path="/cookies" element={<Cookies />} />
                           <Route path="/terms" element={<Terms />} />
+                           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                           <Route path="/cancellation-policy" element={<CancellationPolicy />} />
+                           <Route path="/return-refund" element={<ReturnRefund />} />
+                           <Route path="/shipping-delivery" element={<ShippingDelivery />} />
                           <Route path="/brands/:brandId" element={<Brands />} />
 
                         </Routes>
