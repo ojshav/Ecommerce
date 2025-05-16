@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { Product } from '../../types';
 
 interface RecentlyViewedProductsProps {
@@ -11,6 +11,8 @@ interface ProductDetail {
   name: string;
   price: string;
   originalPrice: string | null;
+  discountPercent?: string;
+  model: string;
 }
 
 const RecentlyViewedProducts: React.FC<RecentlyViewedProductsProps> = ({ products }) => {
@@ -32,33 +34,42 @@ const RecentlyViewedProducts: React.FC<RecentlyViewedProductsProps> = ({ product
   // Define product details map with proper typing
   const productDetailsMap: Record<string, ProductDetail> = {
     '1': { 
-      name: 'Apple Watch Series 5 MWV42SA/A', 
+      name: 'Apple Watch Series 5',
+      model: 'MWV62VN/A',
       price: '514.51', 
-      originalPrice: '$599.99'
+      originalPrice: '$599.99',
+      discountPercent: '29%'
     },
     '2': { 
-      name: 'Rossini wristwatch - 123RXYTA', 
+      name: 'Rossini wristwatch',
+      model: '1328W01A',
       price: '146.71',
-      originalPrice: '$189.99'
+      originalPrice: '$189.99',
+      discountPercent: '12%'
     },
     '3': { 
-      name: 'Angel Whitewing Traminet Lafon', 
+      name: 'Angel Whitening Treament Lotion',
+      model: '',
       price: '193.31',
-      originalPrice: '$215.99'
+      originalPrice: '$199.99',
+      discountPercent: '5%'
     },
     '4': { 
-      name: 'Apple MacBook Pro 2019 MWTK28AA', 
+      name: 'Apple MacBook Pro 2019',
+      model: 'MWP42SA/A',
       price: '2013.54',
-      originalPrice: '$2,499.99'
+      originalPrice: '$199.99',
     },
     '5': { 
-      name: 'Shop the Best at Seia Toy Park', 
+      name: 'Shop the Best at Gela Toy Park',
+      model: '',
       price: '32',
       originalPrice: null
     },
     '6': { 
-      name: 'Citizen BK600-BTL Men\'s Watch', 
-      price: '56.79',
+      name: 'Citizen BI5000-87L Men\'s Watch',
+      model: '',
+      price: '66.79',
       originalPrice: null
     }
   };
@@ -66,85 +77,94 @@ const RecentlyViewedProducts: React.FC<RecentlyViewedProductsProps> = ({ product
   return (
     <div className="mt-8">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-base font-medium">Recently Viewed</h2>
+        <h2 className="text-lg font-medium">Recently Viewed</h2>
         <div className="flex space-x-1">
-          <button className="w-5 h-5 flex items-center justify-center border border-gray-300 rounded-sm hover:bg-gray-100">
-            <ChevronLeft className="h-3 w-3" />
+          <button className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded-sm hover:bg-gray-100">
+            <ChevronLeft className="h-4 w-4" />
           </button>
-          <button className="w-5 h-5 flex items-center justify-center border border-gray-300 rounded-sm hover:bg-gray-100">
-            <ChevronRight className="h-3 w-3" />
+          <button className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded-sm hover:bg-gray-100">
+            <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       </div>
       
-      <div className="grid grid-cols-6 gap-3">
+      <div className="grid grid-cols-6 gap-4">
         {products.map((product) => {
-          // Get correct label and color for each product based on the image
-          let label = null;
-          
-          if (product.id === '1') {
-            label = { text: 'New', color: 'bg-orange-500' };
-          } else if (product.id === '2') {
-            label = { text: '-10%', color: 'bg-orange-500' };
-          } else if (product.id === '3') {
-            label = { text: '-8%', color: 'bg-orange-500' };
-          } else if (product.id === '4') {
-            label = { text: 'HOT', color: 'bg-orange-500' };
-          } else if (product.id === '5') {
-            label = { text: 'Sale', color: 'bg-orange-500' };
-          }
-          
           // Get the product details from our map with a fallback
           const productDetails = productDetailsMap[product.id] || {
             name: product.name,
+            model: '',
             price: product.price.toString(),
             originalPrice: product.originalPrice ? `$${product.originalPrice.toFixed(2)}` : null
           };
           
+          // Determine if product has a "New" tag or discount percentage
+          let tagContent = null;
+          let tagColor = "bg-orange-500";
+          
+          if (product.id === '4' || product.id === '5') {
+            tagContent = "New";
+          } else if (productDetails.discountPercent) {
+            tagContent = `- ${productDetails.discountPercent}`;
+          }
+          
           return (
-            <div key={product.id} className="bg-gray-100 rounded-sm overflow-hidden">
-              <div className="relative">
-                {/* Label */}
-                {label && (
-                  <div className={`absolute top-1 left-1 ${label.color} text-white text-xs px-1.5 py-0.5 rounded-sm`}>
-                    {label.text}
-                  </div>
-                )}
-                
-                {/* Product Image */}
-                <Link to={`/product/${product.id}`}>
-                  <div className="h-[76px] w-full flex items-center justify-center bg-gray-100">
-                    <img 
-                      src={getImageUrl(product.id)} 
-                      alt={productDetails.name} 
-                      className="h-full object-cover"
-                    />
-                  </div>
-                </Link>
-              </div>
+            <div key={product.id} className="bg-white rounded-md overflow-hidden group relative shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+              {/* Wishlist Icon */}
+              <button className="absolute top-2 right-2 z-10 text-gray-400 hover:text-red-500 transition-colors">
+                <Heart className="h-5 w-5" />
+              </button>
               
-              <div className="p-1.5 bg-gray-100 text-left">
-                {/* Product Name */}
-                <Link to={`/product/${product.id}`} className="block">
-                  <h3 className="text-[11px] font-normal line-clamp-2 mb-0.5 text-gray-900">
+              {/* Label */}
+              {tagContent && (
+                <div className={`absolute top-2 left-2 ${tagColor} text-white text-xs px-2 py-0.5 rounded-sm z-10`}>
+                  {tagContent}
+                </div>
+              )}
+              
+              {/* Product Image */}
+              <Link to={`/product/${product.id}`} className="block">
+                <div className="h-[130px] w-full flex items-center justify-center bg-gray-50 p-4">
+                  <img 
+                    src={getImageUrl(product.id)} 
+                    alt={productDetails.name} 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </Link>
+              
+              <div className="p-3 flex flex-col h-[calc(100%-130px)]">
+                {/* Product Name and Model Number */}
+                <Link to={`/product/${product.id}`} className="block flex-grow">
+                  <h3 className="text-sm font-medium text-gray-800 mb-1 line-clamp-2 h-10">
                     {productDetails.name}
                   </h3>
+                  {productDetails.model && (
+                    <p className="text-xs text-gray-500 mb-2">{productDetails.model}</p>
+                  )}
                 </Link>
                 
                 {/* Price */}
-                <div className="flex items-baseline flex-wrap mb-1">
-                  <span className="text-xs font-semibold text-gray-900 mr-1">
+                <div className="flex items-baseline mb-3">
+                  <span className="text-base font-semibold text-gray-900">
                     ${productDetails.price}
                   </span>
                   {productDetails.originalPrice && (
-                    <span className="text-[10px] text-gray-500 line-through">
+                    <span className="text-xs text-gray-400 line-through ml-2">
                       {productDetails.originalPrice}
                     </span>
                   )}
                 </div>
                 
+                {/* Color options */}
+                <div className="flex space-x-1 mb-3">
+                  <div className="w-4 h-4 rounded-full bg-black ring-1 ring-gray-200"></div>
+                  <div className="w-4 h-4 rounded-full bg-gray-400 ring-1 ring-gray-200"></div>
+                  <div className="w-4 h-4 rounded-full bg-yellow-200 ring-1 ring-gray-200"></div>
+                </div>
+                
                 {/* Add to Cart Button */}
-                <button className="w-full bg-orange-500 text-white text-[10px] py-1 px-0 text-center rounded-sm hover:bg-orange-600 transition-colors">
+                <button className="w-full bg-orange-500 text-white text-xs py-2 px-3 rounded hover:bg-orange-600 transition-colors font-medium">
                   Add to Cart
                 </button>
               </div>

@@ -66,67 +66,139 @@ const ProductDetail: React.FC = () => {
       case 'product-details':
         return (
           <div className="py-6">
-            <h3 className="text-xl font-semibold mb-4">Product Details</h3>
-            <p className="text-gray-700 mb-4">{product.description}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <div className="border border-gray-200 rounded-md p-4">
-                <h4 className="font-medium mb-2">Features</h4>
-                <ul className="list-disc list-inside text-gray-600 space-y-2">
-                  <li>High-quality materials</li>
-                  <li>Premium design</li>
-                  <li>Durable construction</li>
-                  <li>Versatile usage</li>
-                </ul>
-              </div>
-              <div className="border border-gray-200 rounded-md p-4">
-                <h4 className="font-medium mb-2">Specifications</h4>
-                <div className="space-y-2 text-gray-600">
-                  <div className="flex justify-between">
-                    <span>Brand</span>
-                    <span className="font-medium">{product.name.split(' ')[0]}</span>
-                  </div>
-                  <div className="flex justify-between border-t border-gray-100 pt-2">
-                    <span>Category</span>
-                    <span className="font-medium capitalize">{product.category}</span>
-                  </div>
-                  <div className="flex justify-between border-t border-gray-100 pt-2">
-                    <span>Warranty</span>
-                    <span className="font-medium">1 Year</span>
-                  </div>
-                  <div className="flex justify-between border-t border-gray-100 pt-2">
-                    <span>In Stock</span>
-                    <span className="font-medium">{product.stock} units</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <h3 className="text-xl font-medium mb-4 text-gray-900">Thin and light design, thin 5.9mm, soft rounded edges, elegant silver color</h3>
+            
+            <p className="text-gray-700 mb-4">
+              Apple iPad Pro 11 "(2020) Wifi 128Gb (Silver) has the same design as its predecessor, but there are changes 
+              such as the rear camera system is placed in a square and weight 471g for a feeling of weight. Size 247.6 x 178.5 
+              mm and a thickness of only 5.9mm, iPad Pro 11 2020 will be extremely thin and light, convenient to carry and 
+              use on the go.
+            </p>
+            
+            <p className="text-gray-700 mb-6">
+              Soft rounded edges provide a comfortable, solid hand feel, creating harmony in design. iPad Pro 11 2020 
+              comes in elegant and classy silver.
+            </p>
+            
+            <h3 className="text-xl font-medium mb-4 text-gray-900">120Hz screen, 16 million colors, 11-inch IPS LCD panel</h3>
+            
+            <p className="text-gray-700 mb-4">
+              Using a screen with a frequency of 120Hz will give iPad Pro the ability to display sharp images, fast image 
+              processing speed. In addition, the 120Hz frequency screen for Apple also symbolizes touch sensitivity, helping 
+              to scan finger movements and respond quickly. As a result, users will have a better experience, fast and 
+              responsive operations, avoiding image glitches and delay.
+            </p>
+            
+            <p className="text-gray-700 mb-6">
+              Apple also equips the iPad Pro 11 2020 with an IPS LCD panel of 16 million colors, with a resolution of 
+              1668x2388 pixels on an 11-inch screen size to help display sharp, vivid colors, high contrast. In addition, the 
+              screen technologies like ProMotion, True Tone give users authentic and wonderful experiences. In addition, 
+              the iPad Pro 11 2020's screen is also covered with an oleophobic coating that helps prevent fingerprints and 
+              glare effectively when used outdoors.
+            </p>
+            
+            <h3 className="text-xl font-medium mb-4 text-gray-900">Perfect Experience</h3>
+            
+            <p className="text-gray-700 mb-4">
+              Everything you experience on iPad (2019) 10.2 "Wifi + Cellular 32GB MW6D2ZA / A (Gold) has great picture and 
+              sound quality.
+            </p>
           </div>
         );
       case 'information':
         return (
           <div className="py-6">
-            <h3 className="text-xl font-semibold mb-4">Product Information</h3>
+            <h3 className="text-xl font-medium mb-6 text-gray-900">Technical Specifications</h3>
             
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-medium text-lg mb-2">Description</h4>
-                <p className="text-gray-700">{product.description}</p>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-lg mb-2">Care Instructions</h4>
-                <p className="text-gray-700">Please refer to the product manual for detailed care instructions. For general maintenance, clean with a soft, dry cloth and store in a cool, dry place when not in use.</p>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-lg mb-2">Shipping Information</h4>
-                <p className="text-gray-700">Products are shipped within 24-48 hours of order confirmation. Delivery typically takes 3-5 business days depending on your location.</p>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-lg mb-2">Return Policy</h4>
-                <p className="text-gray-700">If you're not completely satisfied with your purchase, you may return it within 30 days for a full refund or replacement. Products must be in original condition with all packaging.</p>
-              </div>
+            <div className="border-t border-gray-200">
+              <table className="min-w-full">
+                <tbody>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700 w-1/3">Information</td>
+                    <td className="py-3 text-gray-800"></td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700 w-1/3">Product</td>
+                    <td className="py-3 text-gray-800">iPad</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Manufacturer</td>
+                    <td className="py-3 text-gray-800">Apple</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Model</td>
+                    <td className="py-3 text-gray-800">iPad Pro 11" (2020) Wifi 128Gb</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Screen</td>
+                    <td className="py-3 text-gray-800">LED-Backlit, 11inch</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Resolution</td>
+                    <td className="py-3 text-gray-800">2388x1668</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Chipset/ CPU</td>
+                    <td className="py-3 text-gray-800">Apple A12Z Bionic, 2.5GHz</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">RAM</td>
+                    <td className="py-3 text-gray-800">6Gb</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">ROM</td>
+                    <td className="py-3 text-gray-800">128Gb</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Memory card support</td>
+                    <td className="py-3 text-gray-800">No</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Camera</td>
+                    <td className="py-3 text-gray-800">Rear camera: 12MP / Front camera: 7MP</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Connect</td>
+                    <td className="py-3 text-gray-800">WiFi + Bluetooth 5.0</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Fingerprint security</td>
+                    <td className="py-3 text-gray-800">No</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Operating system</td>
+                    <td className="py-3 text-gray-800">iOS 13</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Battery capacity</td>
+                    <td className="py-3 text-gray-800">0 mAh</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Weight</td>
+                    <td className="py-3 text-gray-800">0.471 kg</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Size</td>
+                    <td className="py-3 text-gray-800">24.7 x 17.8 x 0.59 cm</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Color</td>
+                    <td className="py-3 text-gray-800">Silver</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Communication port</td>
+                    <td className="py-3 text-gray-800">USB Type C</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Accessories included</td>
+                    <td className="py-3 text-gray-800">Charger (18W), Type C cable (1m), instruction manual</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-3 pr-4 font-medium text-gray-700">Other</td>
+                    <td className="py-3 text-gray-800">Face ID</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         );
@@ -404,6 +476,33 @@ const ProductDetail: React.FC = () => {
                 </div>
               </div>
               
+              {/* Share buttons */}
+              <div className="mb-3">
+                <div className="text-sm font-medium mb-2">Share:</div>
+                <div className="flex space-x-2">
+                  <button className="w-8 h-8 rounded-lg bg-white text-orange-500 border border-orange-500 flex items-center justify-center hover:bg-orange-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z" />
+                    </svg>
+                  </button>
+                  <button className="w-8 h-8 rounded-lg bg-white text-orange-500 border border-orange-500 flex items-center justify-center hover:bg-orange-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z" />
+                    </svg>
+                  </button>
+                  <button className="w-8 h-8 rounded-lg bg-white text-orange-500 border border-orange-500 flex items-center justify-center hover:bg-orange-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z" />
+                    </svg>
+                  </button>
+                  <button className="w-8 h-8 rounded-lg bg-white text-orange-500 border border-orange-500 flex items-center justify-center hover:bg-orange-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
               <div className="pt-3 border-t border-gray-200">
                 <div className="flex justify-between items-center mb-1">
                   <div className="text-sm text-gray-700">Special Offer:</div>
@@ -442,12 +541,12 @@ const ProductDetail: React.FC = () => {
         {/* Tabs Section */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="border-b border-gray-200">
-            <nav className="flex -mb-px">
+            <nav className="flex">
               <button
                 onClick={() => setActiveTab('product-details')}
-                className={`py-2 px-4 text-xs font-medium border-b-2 ${
+                className={`py-2 px-4 font-medium border-b-2 ${
                   activeTab === 'product-details'
-                    ? 'border-primary-600 text-primary-600'
+                    ? 'border-orange-500 text-orange-500'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 } transition-colors`}
               >
@@ -455,9 +554,9 @@ const ProductDetail: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('information')}
-                className={`py-2 px-4 text-xs font-medium border-b-2 ${
+                className={`py-2 px-4 font-medium border-b-2 ${
                   activeTab === 'information'
-                    ? 'border-primary-600 text-primary-600'
+                    ? 'border-orange-500 text-orange-500'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 } transition-colors`}
               >
@@ -465,9 +564,9 @@ const ProductDetail: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('reviews')}
-                className={`py-2 px-4 text-xs font-medium border-b-2 ${
+                className={`py-2 px-4 font-medium border-b-2 ${
                   activeTab === 'reviews'
-                    ? 'border-primary-600 text-primary-600'
+                    ? 'border-orange-500 text-orange-500'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 } transition-colors`}
               >
