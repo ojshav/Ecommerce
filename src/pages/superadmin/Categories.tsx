@@ -6,7 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Type definitions
 interface Category {
-  id: number;
+  category_id: number;
   name: string;
   slug: string;
   description?: string;
@@ -24,20 +24,45 @@ export default function Categories() {
   const [categoryFormData, setCategoryFormData] = useState({
     name: '',
     slug: '',
-    description: '',
     parent_id: '',
     icon: null as File | null,
   });
   const [formErrors, setFormErrors] = useState({
     name: '',
     slug: '',
-    description: '',
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  // Add function to organize categories into a tree structure
+  const organizeCategories = (categories: Category[]): Category[] => {
+    const categoryMap = new Map<number, Category>();
+    const rootCategories: Category[] = [];
+
+    // First pass: Create a map of all categories
+    categories.forEach(category => {
+      categoryMap.set(category.category_id, { ...category, subcategories: [] });
+    });
+
+    // Second pass: Organize into tree structure
+    categories.forEach(category => {
+      const categoryWithSubs = categoryMap.get(category.category_id)!;
+      if (category.parent_id) {
+        const parent = categoryMap.get(category.parent_id);
+        if (parent) {
+          parent.subcategories = parent.subcategories || [];
+          parent.subcategories.push(categoryWithSubs);
+        }
+      } else {
+        rootCategories.push(categoryWithSubs);
+      }
+    });
+
+    return rootCategories;
+  };
 
   const fetchCategories = async () => {
     try {
@@ -53,15 +78,8 @@ export default function Categories() {
       }
 
       const categoriesData = await response.json();
-      
-      // Organize categories into parent-child structure
-      const parentCategories = categoriesData.filter((cat: Category) => !cat.parent_id);
-      const categoriesWithSubs = parentCategories.map((parent: Category) => ({
-        ...parent,
-        subcategories: categoriesData.filter((cat: Category) => cat.parent_id === parent.id)
-      }));
-      
-      setCategories(categoriesWithSubs);
+      const organizedCategories = organizeCategories(categoriesData);
+      setCategories(organizedCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
       toast.error('Failed to fetch categories');
@@ -74,14 +92,12 @@ export default function Categories() {
     setCategoryFormData({
       name: '',
       slug: '',
-      description: '',
       parent_id: '',
       icon: null,
     });
     setFormErrors({
       name: '',
       slug: '',
-      description: '',
     });
     setOpenDialog(true);
   };
@@ -90,14 +106,36 @@ export default function Categories() {
     setOpenDialog(false);
   };
 
+  // Add function to generate slug from name
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+  };
+
   const handleCategoryChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setCategoryFormData({
-      ...categoryFormData,
-      [name]: value,
-    });
+    
+    if (name === 'name') {
+      // Generate slug when name changes
+      const newSlug = generateSlug(value);
+      setCategoryFormData({
+        ...categoryFormData,
+        name: value,
+        slug: newSlug,
+      });
+    } else {
+      setCategoryFormData({
+        ...categoryFormData,
+        [name]: value,
+      });
+    }
 
     if (formErrors[name as keyof typeof formErrors]) {
       setFormErrors({
@@ -120,7 +158,6 @@ export default function Categories() {
     const errors = {
       name: '',
       slug: '',
-      description: '',
     };
     let isValid = true;
 
@@ -132,6 +169,13 @@ export default function Categories() {
     if (!categoryFormData.slug.trim()) {
       errors.slug = 'Slug is required';
       isValid = false;
+    } else {
+      // Add slug validation
+      const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+      if (!slugRegex.test(categoryFormData.slug.trim())) {
+        errors.slug = 'Slug must contain only lowercase letters, numbers, and hyphens';
+        isValid = false;
+      }
     }
 
     setFormErrors(errors);
@@ -144,14 +188,16 @@ export default function Categories() {
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append('name', categoryFormData.name);
-      formData.append('slug', categoryFormData.slug);
-      if (categoryFormData.description) {
-        formData.append('description', categoryFormData.description);
-      }
-      if (categoryFormData.parent_id) {
+      formData.append('name', categoryFormData.name.trim());
+      formData.append('slug', categoryFormData.slug.trim());
+      
+      // Handle parent_id - convert empty string to null
+      if (categoryFormData.parent_id === '') {
+        formData.append('parent_id', '');
+      } else if (categoryFormData.parent_id) {
         formData.append('parent_id', categoryFormData.parent_id);
       }
+
       if (categoryFormData.icon) {
         formData.append('icon_file', categoryFormData.icon);
       }
@@ -171,7 +217,7 @@ export default function Categories() {
 
       toast.success('Category created successfully');
       handleCloseDialog();
-      fetchCategories();
+      await fetchCategories();
     } catch (error) {
       console.error('Error creating category:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to create category');
@@ -181,6 +227,11 @@ export default function Categories() {
   };
 
   const handleDeleteCategory = async (categoryId: number) => {
+    if (!categoryId) {
+      toast.error('Invalid category ID');
+      return;
+    }
+
     if (!window.confirm('Are you sure you want to delete this category?')) return;
 
     try {
@@ -189,19 +240,26 @@ export default function Categories() {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ message: 'Failed to delete category' }));
         throw new Error(errorData.message || 'Failed to delete category');
       }
 
       toast.success('Category deleted successfully');
-      fetchCategories();
+      await fetchCategories(); // Refresh the categories list
     } catch (error) {
       console.error('Error deleting category:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to delete category');
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        toast.error('Network error: Please check your connection and try again');
+      } else {
+        toast.error(error instanceof Error ? error.message : 'Failed to delete category');
+      }
     } finally {
       setLoading(false);
     }
@@ -212,6 +270,67 @@ export default function Categories() {
       ...expandedCategories,
       [categoryId]: !expandedCategories[categoryId],
     });
+  };
+
+  // Add function to render category rows recursively
+  const renderCategoryRows = (category: Category, level: number = 0) => {
+    const isExpanded = expandedCategories[category.category_id] || false;
+    const hasSubcategories = category.subcategories && category.subcategories.length > 0;
+
+    return (
+      <React.Fragment key={category.category_id}>
+        <tr className="hover:bg-gray-50">
+          <td className="px-2 py-4">
+            {hasSubcategories && (
+              <button 
+                className="p-1 rounded-full hover:bg-gray-200" 
+                onClick={() => toggleCategoryExpand(category.category_id)}
+              >
+                {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+            )}
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="flex items-center" style={{ paddingLeft: `${level * 2}rem` }}>
+              {category.icon_url && (
+                <img 
+                  src={category.icon_url} 
+                  alt={category.name}
+                  className="w-8 h-8 mr-2 rounded-full"
+                />
+              )}
+              <span className="font-medium">{category.name}</span>
+            </div>
+          </td>
+          <td className="px-6 py-4">{category.slug}</td>
+          <td className="px-6 py-4 text-right">
+            <button 
+              className="p-1 text-gray-500 hover:text-red-600 rounded" 
+              onClick={() => handleDeleteCategory(category.category_id)}
+              title="Delete Category"
+            >
+              <Trash size={16} />
+            </button>
+          </td>
+        </tr>
+
+        {isExpanded && category.subcategories && category.subcategories.map(subcategory => 
+          renderCategoryRows(subcategory, level + 1)
+        )}
+      </React.Fragment>
+    );
+  };
+
+  // Update the getAllCategories function to handle nested categories
+  const getAllCategories = (categories: Category[]): Category[] => {
+    let allCategories: Category[] = [];
+    categories.forEach(category => {
+      allCategories.push(category);
+      if (category.subcategories) {
+        allCategories = [...allCategories, ...getAllCategories(category.subcategories)];
+      }
+    });
+    return allCategories;
   };
 
   if (loading) {
@@ -238,72 +357,11 @@ export default function Categories() {
               <th className="w-10 px-2 py-3"></th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {categories.map((category) => {
-              const isExpanded = expandedCategories[category.id] || false;
-
-              return (
-                <React.Fragment key={category.id}>
-                  <tr className="hover:bg-gray-50">
-                    <td className="px-2 py-4">
-                      <button 
-                        className="p-1 rounded-full hover:bg-gray-200" 
-                        onClick={() => toggleCategoryExpand(category.id)}
-                      >
-                        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        {category.icon_url && (
-                          <img 
-                            src={category.icon_url} 
-                            alt={category.name}
-                            className="w-8 h-8 mr-2 rounded-full"
-                          />
-                        )}
-                        <span className="font-medium">{category.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">{category.slug}</td>
-                    <td className="px-6 py-4">{category.description}</td>
-                    <td className="px-6 py-4 text-right">
-                      <button 
-                        className="p-1 text-gray-500 hover:text-red-600 rounded" 
-                        onClick={() => handleDeleteCategory(category.id)}
-                        title="Delete Category"
-                      >
-                        <Trash size={16} />
-                      </button>
-                    </td>
-                  </tr>
-
-                  {isExpanded && category.subcategories && category.subcategories.map((subcategory) => (
-                    <tr key={subcategory.id} className="bg-gray-50">
-                      <td className="px-2 py-3"></td>
-                      <td className="px-6 py-3 pl-12 whitespace-nowrap">
-                        {subcategory.name}
-                      </td>
-                      <td className="px-6 py-3">{subcategory.slug}</td>
-                      <td className="px-6 py-3">{subcategory.description}</td>
-                      <td className="px-6 py-3 text-right">
-                        <button
-                          className="p-1 text-gray-500 hover:text-red-600 rounded"
-                          onClick={() => handleDeleteCategory(subcategory.id)}
-                          title="Delete Subcategory"
-                        >
-                          <Trash size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </React.Fragment>
-              );
-            })}
+            {categories.map(category => renderCategoryRows(category))}
           </tbody>
         </table>
       </div>
@@ -333,6 +391,7 @@ export default function Categories() {
                   value={categoryFormData.name}
                   onChange={handleCategoryChange}
                   className={`w-full px-3 py-2 border rounded-md ${formErrors.name ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Enter category name"
                 />
                 {formErrors.name && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
@@ -349,25 +408,11 @@ export default function Categories() {
                   value={categoryFormData.slug}
                   onChange={handleCategoryChange}
                   className={`w-full px-3 py-2 border rounded-md ${formErrors.slug ? 'border-red-500' : 'border-gray-300'}`}
+                  placeholder="Auto-generated from name"
+                  readOnly
                 />
                 {formErrors.slug && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.slug}</p>
-                )}
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  rows={3}
-                  value={categoryFormData.description}
-                  onChange={handleCategoryChange}
-                  className={`w-full px-3 py-2 border rounded-md ${formErrors.description ? 'border-red-500' : 'border-gray-300'}`}
-                />
-                {formErrors.description && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.description}</p>
                 )}
               </div>
               
@@ -382,8 +427,8 @@ export default function Categories() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="">None (Top Level Category)</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
+                  {getAllCategories(categories).map((cat) => (
+                    <option key={cat.category_id} value={cat.category_id}>
                       {cat.name}
                     </option>
                   ))}
