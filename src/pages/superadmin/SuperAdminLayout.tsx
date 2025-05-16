@@ -167,6 +167,11 @@ export const catalogSection = {
       description: "Manage product categories and subcategories"
     },
     {
+      title: "Brand Creation",
+      icon: ShoppingBag,
+      description: "Manage product brands"
+    },
+    {
       title: "Attribute",
       icon: Settings,
       description: "Manage product attributes and specifications"
@@ -245,9 +250,7 @@ const SuperAdminLayout = () => {
   // Determine active section based on current route
   const getCurrentRoute = () => {
     const path = location.pathname;
-    if (path.includes("categories")) {
-      setSelectedCategory("Catalog Management");
-    } else if (path.includes("attribute")) {
+    if (path.includes("categories") || path.includes("attribute") || path.includes("brands")) {
       setSelectedCategory("Catalog Management");
     }
   };
@@ -377,21 +380,19 @@ const SuperAdminLayout = () => {
                 {/* Show catalog items when active */}
                 {selectedCategory === "Catalog Management" && (
                   <div className="mt-2 ml-6 space-y-1">
-                    <button
-                      onClick={() => handleCatalogItemClick("categories")}
-                      className="w-full flex items-center px-3 py-2 rounded-md text-left text-gray-700 hover:bg-gray-100"
-                    >
-                      <FolderOpen className="w-4 h-4 text-gray-500 mr-2" />
-                      <span className="text-sm">Categories</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => handleCatalogItemClick("attribute")}
-                      className="w-full flex items-center px-3 py-2 rounded-md text-left text-gray-700 hover:bg-gray-100"
-                    >
-                      <Settings className="w-4 h-4 text-gray-500 mr-2" />
-                      <span className="text-sm">Attribute</span>
-                    </button>
+                    {catalogSection.items.map((item, index) => {
+                      const ItemIcon = item.icon;
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => handleCatalogItemClick(item.title.toLowerCase().replace(/\s+/g, "-"))}
+                          className="w-full flex items-center px-3 py-2 rounded-md text-left text-gray-700 hover:bg-gray-100"
+                        >
+                          <ItemIcon className="w-4 h-4 text-gray-500 mr-2" />
+                          <span className="text-sm">{item.title}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </li>

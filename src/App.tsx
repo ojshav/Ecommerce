@@ -45,6 +45,7 @@ import MerchantManagement from './pages/superadmin/MerchantManagement';
 import Notification from './pages/superadmin/Notifications';
 import Categories from './pages/superadmin/Categories';
 import Attribute from './pages/superadmin/Attribute';
+import BrandCreation from './pages/superadmin/BrandCreation';
 
 import FAQ from './pages/FAQ';
 import About from './pages/About';
@@ -228,6 +229,7 @@ function App() {
                   <Route path="merchant-management" element={<MerchantManagement />} />
                   <Route path="merchant-management/:id" element={<MerchantDetails />} />
                   <Route path="categories" element={<Categories />} />
+                  <Route path="brand-creation" element={<BrandCreation />} />
                   <Route path="attribute" element={<Attribute />} />
 
 
