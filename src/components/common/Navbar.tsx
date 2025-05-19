@@ -8,6 +8,9 @@ import NewProductDropdown from '../home/NewProductDropdown';
 import SearchResults from './SearchResults';
 import useClickOutside from '../../hooks/useClickOutside';
 
+// Custom breakpoint for 968px
+const customBreakpoint = '@media (max-width: 968px)';
+
 const Navbar: React.FC = () => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isNewProductDropdownOpen, setIsNewProductDropdownOpen] = useState(false);
@@ -19,9 +22,14 @@ const Navbar: React.FC = () => {
   const { totalItems } = useCart();
   const { isAuthenticated, user, logout } = useAuth();
 
-  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const desktopSearchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(searchContainerRef, () => {
+  useClickOutside(desktopSearchRef, () => {
+    setShowSearchResults(false);
+  });
+
+  useClickOutside(mobileSearchRef, () => {
     setShowSearchResults(false);
   });
 
@@ -63,20 +71,25 @@ const Navbar: React.FC = () => {
     }
   };
 
+  const handleSearchClose = () => {
+    setShowSearchResults(false);
+    setSearchQuery('');
+  };
+
   const searchBarContent = (
-    <div ref={searchContainerRef} className="relative">
+    <div ref={desktopSearchRef} className="relative">
       <div className="flex rounded-md overflow-hidden bg-white">
         <input
           type="text"
           placeholder="What are you looking for?"
-          className="w-full md:w-96 border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none"
+          className="w-full md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none"
           value={searchQuery}
           onChange={handleSearchInputChange}
           onFocus={handleSearchInputFocus}
         />
         <div className="relative flex items-center border-l border-gray-200 bg-white">
           <select 
-            className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none"
+            className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none text-sm"
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
             <option>Category</option>
@@ -87,13 +100,47 @@ const Navbar: React.FC = () => {
           <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
         </div>
       </div>
-      <SearchResults isVisible={showSearchResults} searchQuery={searchQuery} />
+      <SearchResults 
+        isVisible={showSearchResults} 
+        searchQuery={searchQuery} 
+        onItemClick={handleSearchClose}
+      />
     </div>
   );
 
   const mobileSearchBar = (
-    <div className="relative mb-4">
-      {searchBarContent}
+    <div className="relative mb-4 px-2">
+      <div ref={mobileSearchRef} className="relative">
+        <div className="flex flex-col rounded-md overflow-hidden bg-white shadow-sm">
+          <input
+            type="text"
+            placeholder="What are you looking for?"
+            className="w-full border-0 py-2.5 px-4 text-gray-900 focus:ring-0 focus:outline-none text-base"
+            value={searchQuery}
+            onChange={handleSearchInputChange}
+            onFocus={handleSearchInputFocus}
+          />
+          <div className="relative flex items-center border-t border-gray-200 bg-white">
+            <select 
+              className="w-full h-full appearance-none bg-transparent py-2.5 pl-4 pr-8 text-gray-900 focus:ring-0 focus:outline-none text-base"
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option>Category</option>
+              <option>Electronics</option>
+              <option>Clothing</option>
+              <option>Home & Garden</option>
+            </select>
+            <ChevronDown size={20} className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
+          </div>
+        </div>
+        <SearchResults isVisible={showSearchResults} searchQuery={searchQuery} onItemClick={handleSearchClose} />
+      </div>
+      <button
+        className="w-full bg-[#F2631F] text-white py-2 rounded-md mt-2 text-base"
+        onClick={handleSearchClose}
+      >
+        Search
+      </button>
     </div>
   );
 
@@ -107,8 +154,8 @@ const Navbar: React.FC = () => {
     <header className="w-full fixed top-0 left-0 right-0 z-50">
       {/* Top navigation - black bar */}
       <div className="bg-black text-white pb-2 md:pb-3 lg:pb-4">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:pl-20">
+        <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px]">
+          <div className="flex flex-col sm:pl-1 md:pl-0">
             <div className="flex flex-start py-2 sm:py-3">
               {/* Social Media Icons - Left top - Hidden on mobile */}
               <div className="hidden sm:flex items-center space-x-4">
@@ -129,63 +176,71 @@ const Navbar: React.FC = () => {
             
             <div className="flex flex-row items-center justify-between w-full pt-2 sm:pt-3">
               {/* Logo - Left below icons */}
-              <div className="mt-0">
+              <div className="mt-0 flex-shrink-0 mr-2 md:mr-6 mid:mr-8">
                 <Link to="/" className="inline-block">
-                  <img src="/assets/images/logo.svg" alt="AUIN Logo" width="100" height="35" className="w-[90px] h-[30px] sm:w-[120px] sm:h-[42px]" />
+                  <img src="/assets/images/logo.svg" alt="AUIN Logo" width="100" height="35" className="w-[90px] h-[30px] sm:w-[100px] sm:h-[35px] mid:w-[120px] mid:h-[42px]" />
                 </Link>
               </div>
-              
 
-              {/* Mobile menu toggle */}
+              {/* Mobile menu toggle - use custom breakpoint at 968px */}
               <button 
-                className="md:hidden text-white p-2" 
+                className="block nav:hidden text-white p-2 sm:ml-auto" 
                 onClick={toggleMobileMenu}
                 aria-label="Toggle mobile menu"
               >
                 {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
 
-              {/* Search and Actions - Hidden on mobile, shown in mobile menu */}
-              <div className="hidden md:flex items-center space-x-5">
-                {desktopSearchBar}
-                
-                <button className="bg-black hover:bg-gray-900 text-white py-1.5 px-6 rounded-md border border-white">
-                  Search
-                </button>
+              {/* Search and Actions - use custom breakpoint at 968px */}
+              <div className="hidden nav:flex items-center justify-end flex-1">
+                <div className="flex flex-wrap md:flex-nowrap items-center gap-2 nav:gap-3 mid:gap-4">
+                  <div className="w-full md:w-auto">
+                    {desktopSearchBar}
+                  </div>
+                  
+                  <button 
+                    className="bg-black hover:bg-gray-900 text-white py-1.5 px-2 nav:px-3 mid:px-6 rounded-md border border-white whitespace-nowrap text-sm"
+                    onClick={handleSearchClose}
+                  >
+                    Search
+                  </button>
 
-                {/* Icons */}
-                <Link to="/wishlist" className="text-white hover:text-[#F2631F]">
-                  <Heart className="w-5 h-5" />
-                </Link>
-                
-                <Link to="/cart" className="text-white hover:text-[#F2631F] relative">
-                  <ShoppingCart className="w-5 h-5" />
-                  {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-[#F2631F] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {totalItems}
-                    </span>
-                  )}
-                </Link>
-                
-                <Link to="/profile" className="text-white hover:text-[#F2631F]">
-                  <User className="w-5 h-5" />
-                </Link>
-                
-                <Link 
-                  to="/business/login" 
-                  className="bg-[#F2631F] text-white rounded-md px-3 py-1.5 hover:bg-orange-600 transition-colors whitespace-nowrap text-sm"
-                >
-                  Become a Merchant
-                </Link>
+                  {/* Icons */}
+                  <div className="flex items-center gap-2 nav:gap-3 mid:gap-4">
+                    <Link to="/wishlist" className="text-white hover:text-[#F2631F]">
+                      <Heart className="w-5 h-5" />
+                    </Link>
+                    
+                    <Link to="/cart" className="text-white hover:text-[#F2631F] relative">
+                      <ShoppingCart className="w-5 h-5" />
+                      {totalItems > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-[#F2631F] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          {totalItems}
+                        </span>
+                      )}
+                    </Link>
+                    
+                    <Link to="/profile" className="text-white hover:text-[#F2631F]">
+                      <User className="w-5 h-5" />
+                    </Link>
+                  </div>
+                  
+                  <Link 
+                    to="/business/login" 
+                    className="bg-[#F2631F] text-white rounded-md px-2 nav:px-2.5 mid:px-3 py-1.5 hover:bg-orange-600 transition-colors whitespace-nowrap text-xs nav:text-sm"
+                  >
+                    Become a Merchant
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       
-      {/* Mobile menu dropdown */}
+      {/* Mobile menu dropdown - use custom breakpoint at 968px */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-black text-white border-t border-gray-800 py-3 px-4">
+        <div className="nav:hidden bg-black text-white border-t border-gray-800 py-3 px-4">
           {mobileSearchBar}
           
           {/* Mobile action links */}
@@ -236,9 +291,9 @@ const Navbar: React.FC = () => {
       
       {/* Main navigation - white bar */}
       <div className="bg-white border-b shadow-sm py-1.5">
-        <div className="container mx-auto px-4 sm:px-8 md:px-16 lg:px-20">
-          {/* Mobile lower navigation toggle */}
-          <div className="md:hidden flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px]">
+          {/* Mobile lower navigation toggle - use custom breakpoint at 968px */}
+          <div className="nav:hidden flex items-center justify-between">
             <button
               className="flex items-center py-1.5 text-black" 
               onClick={toggleLowerMobileMenu}
@@ -274,9 +329,9 @@ const Navbar: React.FC = () => {
             </div>
           </div>
           
-          {/* Mobile lower navigation dropdown */}
+          {/* Mobile lower navigation dropdown - use custom breakpoint at 968px */}
           {lowerMobileMenuOpen && (
-            <div className="md:hidden border-t border-gray-200 pt-2 pb-1">
+            <div className="nav:hidden border-t border-gray-200 pt-2 pb-1">
               <div className="mb-2">
                 <button
                   className="flex items-center justify-between py-1.5 px-2 text-sm w-full text-left hover:bg-gray-50 rounded"
@@ -340,12 +395,12 @@ const Navbar: React.FC = () => {
             </div>
           )}
           
-          {/* Desktop navigation */}
-          <div className="hidden md:flex items-center justify-between">
+          {/* Desktop navigation - use custom breakpoint at 968px */}
+          <div className="hidden nav:flex items-center justify-between">
             {/* Categories Dropdown Button */}
             <div className="relative flex items-center">
               <button
-                className="flex items-center py-1.5 px-4 text-black hover:text-gray-700"
+                className="flex items-center py-1.5 px-3 md:px-4 text-black hover:text-gray-700"
                 onClick={toggleCategoryDropdown}
                 aria-expanded={isCategoryDropdownOpen}
               >
@@ -361,26 +416,26 @@ const Navbar: React.FC = () => {
             
             {/* Main Nav Links */}
             <nav className="flex items-center">
-              <Link to="/" className="py-1.5 px-4 font-medium hover:text-[#F2631F]">
+              <Link to="/" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F]">
                 Home
               </Link>
-              <Link to="/all-products" className="py-1.5 px-4 font-medium hover:text-[#F2631F]">
+              <Link to="/all-products" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F]">
                 All Products
               </Link>
               <button 
-                className="py-1.5 px-4 font-medium hover:text-[#F2631F] flex items-center bg-transparent border-none cursor-pointer"
+                className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F] flex items-center bg-transparent border-none cursor-pointer"
                 onClick={toggleNewProductDropdown}
               >
                 New Product
                 <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isNewProductDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-              <Link to="/promotion" className="py-1.5 px-4 font-medium hover:text-[#F2631F] flex items-center">
+              <Link to="/promotion" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F] flex items-center">
                 Promotion <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
               </Link>
             </nav>
             
             {/* Right side links */}
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-6">
               <Link to="/track-order" className="flex items-center py-1.5 text-sm hover:text-[#F2631F]">
                 <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -388,7 +443,7 @@ const Navbar: React.FC = () => {
                 <span>Track Your Order</span>
               </Link>
               {isAuthenticated ? (
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
                   <span className="text-sm text-gray-600">
                     Welcome, {user?.name || 'User'}
                   </span>
