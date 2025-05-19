@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { PlusCircle, Upload, X, Check, AlertCircle } from 'lucide-react';
+import { PlusCircle, Upload, X, Check, AlertCircle, Edit2, Trash2 } from 'lucide-react';
 import SuperAdminLayout from './SuperAdminLayout';
 import { toast } from 'react-hot-toast';
 
@@ -37,6 +37,13 @@ const BrandCreation: React.FC = () => {
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState<string>('');
+
+    // State for edit mode
+    const [editingBrand, setEditingBrand] = useState<IBrand | null>(null);
+    const [editName, setEditName] = useState<string>('');
+    const [editImage, setEditImage] = useState<File | null>(null);
+    const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
 
     // Fetch brands and categories on component mount
     useEffect(() => {
@@ -106,10 +113,31 @@ const BrandCreation: React.FC = () => {
         }
     };
 
+    // Handle edit image upload
+    const handleEditImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setEditImage(file);
+            
+            // Create preview URL
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setEditImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     // Clear image selection
     const clearImageSelection = () => {
         setBrandImage(null);
         setBrandImagePreview(null);
+    };
+
+    // Clear edit image selection
+    const clearEditImageSelection = () => {
+        setEditImage(null);
+        setEditImagePreview(null);
     };
 
     // Submit new brand
@@ -165,6 +193,93 @@ const BrandCreation: React.FC = () => {
         } finally {
             setSubmitting(false);
         }
+    };
+
+    // Handle edit brand
+    const handleEditBrand = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingBrand) return;
+
+        try {
+            const formData = new FormData();
+            formData.append('name', editName.trim());
+            
+            if (editImage) {
+                formData.append('icon_file', editImage);
+            }
+
+            const response = await fetch(`${API_BASE_URL}/api/superadmin/brands/${editingBrand.brand_id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update brand');
+            }
+
+            const updatedBrand = await response.json();
+            
+            // Update the brands list
+            setBrands(brands.map(brand => 
+                brand.brand_id === editingBrand.brand_id ? updatedBrand : brand
+            ));
+            
+            toast.success('Brand updated successfully');
+            cancelEdit();
+            fetchBrands();
+        } catch (err: any) {
+            console.error('Error updating brand:', err);
+            toast.error(err.message || 'Failed to update brand');
+        }
+    };
+
+    // Handle delete brand
+    const handleDeleteBrand = async (brandId: number) => {
+        if (!window.confirm('Are you sure you want to delete this brand?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/superadmin/brands/${brandId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to delete brand');
+            }
+
+            // Remove the deleted brand from the list
+            setBrands(brands.filter(brand => brand.brand_id !== brandId));
+            toast.success('Brand deleted successfully');
+        } catch (err: any) {
+            console.error('Error deleting brand:', err);
+            toast.error(err.message || 'Failed to delete brand');
+        }
+    };
+
+    // Start editing a brand
+    const startEdit = (brand: IBrand) => {
+        setEditingBrand(brand);
+        setEditName(brand.name);
+        setEditImagePreview(brand.icon_url);
+        setIsEditing(true);
+    };
+
+    // Cancel editing
+    const cancelEdit = () => {
+        setEditingBrand(null);
+        setEditName('');
+        setEditImage(null);
+        setEditImagePreview(null);
+        setIsEditing(false);
     };
 
     // Reset form fields
@@ -230,24 +345,6 @@ const BrandCreation: React.FC = () => {
                                         className="w-full p-2 border rounded-md"
                                         required
                                     />
-                                </div>
-                                
-                                <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Category
-                                    </label>
-                                    <select
-                                        value={selectedCategory || ''}
-                                        onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
-                                        className="w-full p-2 border rounded-md"
-                                    >
-                                        <option value="">Select a category</option>
-                                        {categories.map(category => (
-                                            <option key={category.category_id} value={category.category_id}>
-                                                {category.name}
-                                            </option>
-                                        ))}
-                                    </select>
                                 </div>
                                 
                                 <div className="mb-4">
@@ -351,10 +448,18 @@ const BrandCreation: React.FC = () => {
                                             <span className="font-medium">{brand.name}</span>
                                         </div>
                                         <div className="flex space-x-2">
-                                            <button className="text-blue-500 hover:text-blue-700 text-sm">
+                                            <button 
+                                                onClick={() => startEdit(brand)}
+                                                className="text-blue-500 hover:text-blue-700 text-sm flex items-center"
+                                            >
+                                                <Edit2 className="w-4 h-4 mr-1" />
                                                 Edit
                                             </button>
-                                            <button className="text-red-500 hover:text-red-700 text-sm">
+                                            <button 
+                                                onClick={() => handleDeleteBrand(brand.brand_id)}
+                                                className="text-red-500 hover:text-red-700 text-sm flex items-center"
+                                            >
+                                                <Trash2 className="w-4 h-4 mr-1" />
                                                 Delete
                                             </button>
                                         </div>
@@ -365,6 +470,85 @@ const BrandCreation: React.FC = () => {
                     )}
                 </div>
             </div>
+
+            {/* Edit Brand Modal */}
+            {isEditing && editingBrand && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h3 className="text-lg font-medium mb-4">Edit Brand</h3>
+                        <form onSubmit={handleEditBrand}>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Brand Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    placeholder="Enter brand name"
+                                    className="w-full p-2 border rounded-md"
+                                    required
+                                />
+                            </div>
+                            
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Brand Icon
+                                </label>
+                                
+                                {editImagePreview ? (
+                                    <div className="relative w-32 h-32 mb-2">
+                                        <img 
+                                            src={editImagePreview} 
+                                            alt="Brand preview" 
+                                            className="w-full h-full object-contain border rounded-md"
+                                        />
+                                        <button 
+                                            type="button"
+                                            onClick={clearEditImageSelection}
+                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center cursor-pointer hover:bg-gray-50"
+                                        onClick={() => document.getElementById('editBrandImageInput')?.click()}
+                                    >
+                                        <Upload className="w-6 h-6 mx-auto text-gray-400" />
+                                        <p className="text-sm text-gray-500 mt-1">Click to upload or drag and drop</p>
+                                        <p className="text-xs text-gray-400">PNG, JPG, JPEG, GIF, SVG, WEBP</p>
+                                    </div>
+                                )}
+                                
+                                <input
+                                    id="editBrandImageInput"
+                                    type="file"
+                                    onChange={handleEditImageChange}
+                                    accept="image/png,image/jpeg,image/jpg,image/gif,image/svg+xml,image/webp"
+                                    className="hidden"
+                                />
+                            </div>
+                            
+                            <div className="flex justify-end space-x-2">
+                                <button
+                                    type="button"
+                                    onClick={cancelEdit}
+                                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                                >
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
