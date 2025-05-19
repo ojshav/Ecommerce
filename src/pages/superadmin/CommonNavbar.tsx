@@ -1,4 +1,4 @@
-// CommonNavbar.tsx
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -22,10 +22,7 @@ import {
   FolderOpen
 } from "lucide-react";
 
-// Import your header component
-// import SuperadminHeader from "./SuperadminHeader";
-
-// Dashboard sections organized into categories - you can also import this from a separate file
+// Dashboard sections organized into categories
 const dashboardSections = [
   {
     category: "Analytics & Reports",
@@ -101,46 +98,42 @@ const CommonNavbar = ({
 
   // Get color classes based on category
   const getCategoryColorClasses = (categoryName: string) => {
-    switch (categoryName) {
-      case "Management":
-        return {
-          text: "text-emerald-600",
-          bg: "bg-emerald-50",
-          border: "border-emerald-100",
-          hover: "hover:text-emerald-600",
-          active: "bg-emerald-100 text-emerald-700"
-        };
-      case "Operations & Security":
-        return {
-          text: "text-amber-600",
-          bg: "bg-amber-50",
-          border: "border-amber-100",
-          hover: "hover:text-amber-600",
-          active: "bg-amber-100 text-amber-700"
-        };
-      case "Advanced Controls":
-        return {
-          text: "text-purple-600",
-          bg: "bg-purple-50",
-          border: "border-purple-100",
-          hover: "hover:text-purple-600",
-          active: "bg-purple-100 text-purple-700"
-        };
-      default: // Analytics & Reports
-        return {
-          text: "text-blue-600",
-          bg: "bg-blue-50",
-          border: "border-blue-100",
-          hover: "hover:text-blue-600",
-          active: "bg-blue-100 text-blue-700"
-        };
-    }
+    const colorMap: Record<string, any> = {
+      "Management": {
+        text: "text-emerald-600",
+        bg: "bg-emerald-50",
+        border: "border-emerald-100",
+        hover: "hover:bg-emerald-100/80 hover:text-emerald-700",
+        active: "bg-emerald-100 text-emerald-700 font-medium"
+      },
+      "Operations & Security": {
+        text: "text-amber-600",
+        bg: "bg-amber-50",
+        border: "border-amber-100",
+        hover: "hover:bg-amber-100/80 hover:text-amber-700",
+        active: "bg-amber-100 text-amber-700 font-medium"
+      },
+      "Advanced Controls": {
+        text: "text-purple-600",
+        bg: "bg-purple-50",
+        border: "border-purple-100",
+        hover: "hover:bg-purple-100/80 hover:text-purple-700",
+        active: "bg-purple-100 text-purple-700 font-medium"
+      }
+    };
+    
+    return colorMap[categoryName] || {
+      text: "text-blue-600",
+      bg: "bg-blue-50",
+      border: "border-blue-100",
+      hover: "hover:bg-blue-100/80 hover:text-blue-700",
+      active: "bg-blue-100 text-blue-700 font-medium"
+    };
   };
 
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
     
-    // Call the callback if provided
     if (onCategoryChange) {
       onCategoryChange(category);
     }
@@ -155,14 +148,12 @@ const CommonNavbar = ({
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Handle navigation for additional links
   const handleNavigation = (path: string) => {
     navigate(path);
   };
 
-  // Update selected category based on URL path when component mounts
+  // Update selected category based on URL path
   useEffect(() => {
-    // Extract the current path
     const currentPath = location.pathname;
     
     // Check if the path matches any section item
@@ -175,102 +166,132 @@ const CommonNavbar = ({
         }
       }
     }
-    
-    // Check additional links
-    for (const link of additionalLinks) {
-      if (currentPath === link.path) {
-        // Keep the current category but highlight this specific path
-        return;
-      }
-    }
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Include the SuperadminHeader component */}
-      {/* <SuperadminHeader /> */}
-      {/* Remove the comment above when you have the SuperadminHeader component available */}
-
-      <div className="flex">
-        {/* Mobile sidebar toggle */}
-        <button
-          className="md:hidden fixed bottom-4 right-4 z-30 p-3 rounded-full bg-gray-800 text-white shadow-lg"
-          onClick={toggleSidebar}
-        >
-          {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      <div className="flex flex-1 overflow-hidden">
+        {/* Mobile overlay */}
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-gray-900/60 z-30 md:hidden"
+            onClick={toggleSidebar}
+          />
+        )}
 
         {/* Sidebar */}
-        <div className={`
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-          fixed md:static z-20 transform md:translate-x-0 transition-transform duration-300 ease-in-out
-          w-64 min-h-screen bg-white shadow-md flex flex-col
-        `}>
-          {/* Sidebar Header */}
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <Home className="w-6 h-6 text-gray-600" />
-              <h2 className="text-xl font-bold text-gray-800">Super Admin</h2>
-            </div>
+        <aside 
+          className={`
+            fixed md:sticky top-0 h-screen w-64
+            transition-transform duration-200 ease-out
+            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+            md:translate-x-0 z-40 bg-white shadow-sm border-r border-gray-200
+          `}
+        >
+          {/* Header */}
+          <div className="h-14 flex items-center px-4 border-b">
+            <Home className="w-5 h-5 text-gray-700" />
+            <h2 className="ml-3 font-medium">Super Admin</h2>
           </div>
 
-          {/* Sidebar Navigation */}
-          <nav className="flex-1 overflow-y-auto p-4">
-            <ul className="space-y-1">
-              {dashboardSections.map((section, index) => {
-                const Icon = section.icon;
-                const colorClasses = getCategoryColorClasses(section.category);
-                const isActive = selectedCategory === section.category;
+          {/* Nav content */}
+          <nav className="flex-1 overflow-y-auto p-3 space-y-6">
+            {/* Categories */}
+            <div>
+              <h3 className="px-2 text-xs text-gray-500 uppercase font-medium">Navigation</h3>
+              <ul className="mt-1 space-y-1">
+                {dashboardSections.map((section, index) => {
+                  const Icon = section.icon;
+                  const colors = getCategoryColorClasses(section.category);
+                  const isActive = selectedCategory === section.category;
 
-                return (
-                  <li key={index}>
-                    <button
-                      onClick={() => handleCategorySelect(section.category)}
-                      className={`
-                        w-full flex items-center px-4 py-3 rounded-lg text-left
-                        ${isActive ? colorClasses.active : 'text-gray-700 hover:bg-gray-100'}
-                        transition-all duration-200
-                      `}
-                    >
-                      <Icon className={`w-5 h-5 ${isActive ? '' : 'text-gray-500'} mr-3`} />
-                      <span className="font-medium">{section.category}</span>
-                      <ChevronRight className={`w-4 h-4 ml-auto ${isActive ? '' : 'text-gray-400'}`} />
-                    </button>
-                  </li>
-                );
-              })}
-              
-              {/* Additional links */}
-              {additionalLinks.map((link, index) => {
-                const Icon = link.icon;
-                const isActive = location.pathname === link.path;
-                
-                return (
-                  <li key={`additional-${index}`}>
-                    <button
-                      onClick={() => handleNavigation(link.path)}
-                      className={`
-                        w-full flex items-center px-4 py-3 rounded-lg text-left
-                        ${isActive ? 'bg-gray-100 text-gray-800' : 'text-gray-700 hover:bg-gray-100'} 
-                        transition-all duration-200
-                      `}
-                    >
-                      <Icon className={`w-5 h-5 ${isActive ? 'text-gray-700' : 'text-gray-500'} mr-3`} />
-                      <span className="font-medium">{link.title}</span>
-                      <ChevronRight className={`w-4 h-4 ml-auto ${isActive ? '' : 'text-gray-400'}`} />
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+                  return (
+                    <li key={index}>
+                      <button
+                        onClick={() => handleCategorySelect(section.category)}
+                        className={`
+                          w-full flex items-center justify-between px-3 py-2 rounded-md
+                          ${isActive ? colors.active : `text-gray-700 ${colors.hover}`}
+                        `}
+                      >
+                        <div className="flex items-center">
+                          <Icon className={`w-4 h-4 mr-3 ${isActive ? colors.text : 'text-gray-500'}`} />
+                          <span>{section.category}</span>
+                        </div>
+                        <ChevronRight className={`w-4 h-4 ${isActive ? colors.text : 'text-gray-400'}`} />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            
+            {/* Tools */}
+            <div>
+              <h3 className="px-2 text-xs text-gray-500 uppercase font-medium">Tools</h3>
+              <ul className="mt-1 space-y-1">
+                {additionalLinks.map((link, index) => {
+                  const Icon = link.icon;
+                  const isActive = location.pathname === link.path;
+                  
+                  return (
+                    <li key={`tool-${index}`}>
+                      <button
+                        onClick={() => handleNavigation(link.path)}
+                        className={`
+                          w-full flex items-center justify-between px-3 py-2 rounded-md
+                          ${isActive ? 'bg-gray-100 text-gray-800 font-medium' : 'text-gray-700 hover:bg-gray-100'} 
+                        `}
+                      >
+                        <div className="flex items-center">
+                          <Icon className={`w-4 h-4 mr-3 ${isActive ? 'text-gray-700' : 'text-gray-500'}`} />
+                          <span>{link.title}</span>
+                        </div>
+                        <ChevronRight className={`w-4 h-4 ${isActive ? 'text-gray-700' : 'text-gray-400'}`} />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           </nav>
-        </div>
 
-        {/* Main Content */}
-        <div className="flex-1">
-          {children}
-        </div>
+          {/* Footer */}
+          <div className="p-3 border-t text-xs text-gray-500">
+            <div className="flex items-center">
+              <Settings className="w-3.5 h-3.5 mr-1.5" />
+              <span>v1.0</span>
+            </div>
+          </div>
+        </aside>
+
+        {/* Main content */}
+        <main className="flex-1 flex flex-col overflow-hidden">
+          {/* Mobile header */}
+          <div className="md:hidden h-14 flex items-center px-4 border-b bg-white shadow-sm">
+            <button 
+              onClick={toggleSidebar}
+              className="p-1.5 rounded-md hover:bg-gray-100"
+            >
+              <Menu className="h-5 w-5 text-gray-600" />
+            </button>
+            <span className="ml-3 font-medium">Super Admin</span>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-auto">
+            {children}
+          </div>
+        </main>
       </div>
+
+      {/* Mobile toggle */}
+      <button
+        className="md:hidden fixed bottom-4 right-4 z-50 p-2.5 rounded-full bg-gray-800 text-white shadow-lg"
+        onClick={toggleSidebar}
+      >
+        {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </button>
     </div>
   );
 };
