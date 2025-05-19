@@ -65,7 +65,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import CancellationPolicy from './pages/CancellationPolicy';
 import ReturnRefund from './pages/ReturnRefund';
 import ShippingDelivery from './pages/ShippingDelivery';
-
+import UserProfile from './pages/UserProfile';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -293,6 +293,7 @@ function App() {
                            <Route path="/return-refund" element={<ReturnRefund />} />
                            <Route path="/shipping-delivery" element={<ShippingDelivery />} />
                           <Route path="/brands/:brandId" element={<Brands />} />
+                          <Route path="/profile" element={<UserProfile />} />
 
                         </Routes>
                       </main>
