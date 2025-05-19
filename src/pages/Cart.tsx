@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CartItem, { CartItemProps } from '../components/CartItem';
 import CartSummary from '../components/CartSummary';
+import { useNavigate } from 'react-router-dom';
 
 // Placeholder data - in a real app this would come from an API or state management
 const initialCartItems: Omit<CartItemProps, 'onRemove' | 'onUpdateQuantity'>[] = [
@@ -32,6 +33,7 @@ const Cart: React.FC = () => {
   const [subtotal, setSubtotal] = useState(0);
   const [shipping, setShipping] = useState(5.00);
   const [total, setTotal] = useState(0);
+  const navigate = useNavigate();
 
   // Calculate totals whenever cart items change
   useEffect(() => {
@@ -51,8 +53,7 @@ const Cart: React.FC = () => {
   };
 
   const handleCheckout = () => {
-    alert('Proceeding to checkout!');
-    // In a real app, this would navigate to checkout page or process
+    navigate('/payment');
   };
 
   const handleApplyPromo = (code: string) => {
