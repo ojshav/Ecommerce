@@ -69,14 +69,15 @@ import ShippingDelivery from './pages/ShippingDelivery';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
-const BusinessProducts = lazy(() => import('./pages/business/Products'));
+const BusinessProducts = lazy(() => import('./pages/business/catalog/Products'));
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
 const Verification = lazy(() => import('./pages/business/Verification'));
 
 // Lazy-loaded catalog pages
 const CatalogProducts = lazy(() => import('./pages/business/catalog/Products'));
-const AddProduct = lazy(() => import('./pages/business/catalog/product/AddProduct'));
+const AddProducts = lazy(() => import('./pages/business/catalog/product/steps/AddProducts'));
+const EditProduct = lazy(() => import('./pages/business/catalog/product/components/EditProduct'));
 
 const LoadingFallback = () => (
   <div className="w-full h-full min-h-screen flex items-center justify-center">
@@ -182,13 +183,11 @@ function App() {
                         </Suspense>
                       }
                     />
-
-
                     <Route
                       path="product/new"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <AddProduct />
+                          <AddProducts />
                         </Suspense>
                       }
                     />
@@ -196,7 +195,7 @@ function App() {
                       path="product/:id/view"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <AddProduct mode="view" />
+                          <AddProducts mode="view" />
                         </Suspense>
                       }
                     />
@@ -204,7 +203,7 @@ function App() {
                       path="product/:id/edit"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <AddProduct mode="edit" />
+                          <EditProduct />
                         </Suspense>
                       }
                     />

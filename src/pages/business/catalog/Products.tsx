@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
@@ -13,114 +13,59 @@ import {
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
 
-// Mock product data
-const PRODUCTS = [
-  {
-    id: 1,
-    name: 'Louis Philippe Men\'s Solid Regular Fit T-Shirt',
-    sku: '1',
-    category: 'Men\'s',
-    price: 500.00,
-    stock: 50,
-    status: 'Active',
-    image: 'https://placehold.co/80x80',
-    attributeFamily: 'Default'
-  },
-  {
-    id: 2,
-    name: 'Louis Philippe Men\'s Solid Classic Fit Shirt',
-    sku: '2',
-    category: 'Men\'s',
-    price: 700.00,
-    stock: 20,
-    status: 'Active',
-    image: 'https://placehold.co/80x80',
-    attributeFamily: 'Default'
-  },
-  {
-    id: 3,
-    name: 'SIRIL Women\'s Self Woven, Lace Georgette Saree with Unstitched Blouse',
-    sku: '3',
-    category: 'Women\'s',
-    price: 1000.00,
-    stock: 14,
-    status: 'Active',
-    image: 'https://placehold.co/80x80',
-    attributeFamily: 'Default'
-  },
-  {
-    id: 4,
-    name: 'VERO MODA Women\'s Cotton Fit and Flare Above The Knee Dress',
-    sku: '4',
-    category: 'Women\'s',
-    price: 1000.00,
-    stock: 30,
-    status: 'Active',
-    image: 'https://placehold.co/80x80',
-    attributeFamily: 'Default'
-  },
-  {
-    id: 5,
-    name: 'SKU - 10',
-    sku: '10',
-    category: 'N/A',
-    price: 0.00,
-    stock: 0,
-    status: 'Disable',
-    image: 'https://placehold.co/80x80',
-    attributeFamily: 'Default'
-  }
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// Categories for filter dropdown
-const CATEGORIES = [
-  'All Categories',
-  'Men\'s',
-  'Women\'s',
-  'Kids',
-  'Accessories'
-];
-
-// Status options
-const STATUS_OPTIONS = [
-  'All',
-  'Active',
-  'Out of Stock',
-  'Draft',
-  'Archived',
-  'Disable'
-];
+interface Product {
+  product_id: number;
+  product_name: string;
+  sku: string;
+  category_id: number;
+  brand_id: number;
+  cost_price: number;
+  selling_price: number;
+  special_price: number | null;
+  special_start: string | null;
+  special_end: string | null;
+  active_flag: boolean;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  category?: {
+    category_id: number;
+    name: string;
+  };
+  brand?: {
+    brand_id: number;
+    name: string;
+  };
+  media?: Array<{
+    media_id: number;
+    url: string;
+    type: 'IMAGE' | 'VIDEO';
+  }>;
+  variants?: Array<{
+    variant_id: number;
+    sku: string;
+    price: string | number;
+    stock: string | number;
+    attributes: Array<{
+      name: string;
+      value: string;
+    }>;
+    media?: Array<{
+      media_id: number;
+      media_url: string;
+      media_type: string;
+      is_primary: boolean;
+    }>;
+  }>;
+}
 
 // Status badge component
-const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
-  let bgColor = '';
-  let textColor = '';
-  
-  switch (status) {
-    case 'Active':
-      bgColor = 'bg-green-100';
-      textColor = 'text-green-800';
-      break;
-    case 'Out of Stock':
-      bgColor = 'bg-orange-100';
-      textColor = 'text-orange-800';
-      break;
-    case 'Draft':
-      bgColor = 'bg-blue-100';
-      textColor = 'text-blue-800';
-      break;
-    case 'Archived':
-      bgColor = 'bg-gray-100';
-      textColor = 'text-gray-800';
-      break;
-    case 'Disable':
-      bgColor = 'bg-gray-100';
-      textColor = 'text-gray-800';
-      break;
-    default:
-      bgColor = 'bg-gray-100';
-      textColor = 'text-gray-800';
-  }
+const StatusBadge: React.FC<{ active: boolean }> = ({ active }) => {
+  const bgColor = active ? 'bg-green-100' : 'bg-gray-100';
+  const textColor = active ? 'text-green-800' : 'text-gray-800';
+  const status = active ? 'Active' : 'Inactive';
   
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor}`}>
@@ -129,7 +74,33 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   );
 };
 
+const formatPrice = (price: string | number): string => {
+  console.log('formatPrice input:', price, 'type:', typeof price);
+  if (typeof price === 'string') {
+    const numPrice = parseFloat(price);
+    console.log('Parsed string price:', numPrice);
+    return isNaN(numPrice) ? '0.00' : numPrice.toFixed(2);
+  }
+  return price.toFixed(2);
+};
+
+const formatStock = (stock: string | number | undefined): string => {
+  console.log('formatStock input:', stock, 'type:', typeof stock);
+  if (stock === undefined || stock === null) {
+    return '0';
+  }
+  if (typeof stock === 'string') {
+    const numStock = parseInt(stock);
+    console.log('Parsed string stock:', numStock);
+    return isNaN(numStock) ? '0' : numStock.toString();
+  }
+  return stock.toString();
+};
+
 const Products: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [selectedStatus, setSelectedStatus] = useState('All');
@@ -144,7 +115,125 @@ const Products: React.FC = () => {
     key: null,
     direction: 'ascending',
   });
-  
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      console.log('Fetching products from API...');
+      
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+
+      const data = await response.json();
+      console.log('Products data received:', data);
+      
+      // Fetch variants for each product
+      console.log('Fetching variants for products...');
+      const productsWithVariants = await Promise.all(
+        data.map(async (product: Product) => {
+          try {
+            console.log(`Fetching variants for product ${product.product_id}...`);
+            const variantsResponse = await fetch(
+              `${API_BASE_URL}/api/merchant-dashboard/products/${product.product_id}/variants`,
+              {
+                headers: {
+                  'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+            
+            if (variantsResponse.ok) {
+              const variants = await variantsResponse.json();
+              console.log(`Variants for product ${product.product_id}:`, variants);
+              return { ...product, variants };
+            }
+            console.log(`No variants found for product ${product.product_id}`);
+            return product;
+          } catch (error) {
+            console.error(`Error fetching variants for product ${product.product_id}:`, error);
+            return product;
+          }
+        })
+      );
+
+      console.log('Final products with variants:', productsWithVariants);
+      setProducts(productsWithVariants);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError('Failed to load products. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (productId: number) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete product');
+      }
+
+      // Refresh the product list
+      fetchProducts();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('Failed to delete product. Please try again.');
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete ${selectedItems.length} products?`)) {
+      return;
+    }
+
+    try {
+      // Delete products one by one
+      await Promise.all(
+        selectedItems.map(productId =>
+          fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+              'Content-Type': 'application/json',
+            },
+          })
+        )
+      );
+
+      // Refresh the product list and clear selection
+      fetchProducts();
+      setSelectedItems([]);
+    } catch (error) {
+      console.error('Error deleting products:', error);
+      alert('Failed to delete some products. Please try again.');
+    }
+  };
+
   // Handle sort
   const requestSort = (key: string) => {
     let direction: 'ascending' | 'descending' = 'ascending';
@@ -155,24 +244,27 @@ const Products: React.FC = () => {
   };
   
   // Filter products based on search, category, status, and price
-  const filteredProducts = PRODUCTS.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     // Search filter
-    const matchesSearch = product.name
+    const matchesSearch = product.product_name
       .toLowerCase()
       .includes(searchTerm.toLowerCase()) || 
       product.sku.toLowerCase().includes(searchTerm.toLowerCase());
     
     // Category filter
     const matchesCategory =
-      selectedCategory === 'All Categories' || product.category === selectedCategory;
+      selectedCategory === 'All Categories' || 
+      product.category?.name === selectedCategory;
     
     // Status filter
     const matchesStatus =
-      selectedStatus === 'All' || product.status === selectedStatus;
+      selectedStatus === 'All' || 
+      (selectedStatus === 'Active' && product.active_flag) ||
+      (selectedStatus === 'Inactive' && !product.active_flag);
     
     // Price filter
-    const matchesMinPrice = minPrice === '' || product.price >= parseFloat(minPrice);
-    const matchesMaxPrice = maxPrice === '' || product.price <= parseFloat(maxPrice);
+    const matchesMinPrice = minPrice === '' || product.selling_price >= parseFloat(minPrice);
+    const matchesMaxPrice = maxPrice === '' || product.selling_price <= parseFloat(maxPrice);
     
     return matchesSearch && matchesCategory && matchesStatus && matchesMinPrice && matchesMaxPrice;
   });
@@ -182,10 +274,13 @@ const Products: React.FC = () => {
     let sortableProducts = [...filteredProducts];
     if (sortConfig.key !== null) {
       sortableProducts.sort((a, b) => {
-        if (a[sortConfig.key as keyof typeof a] < b[sortConfig.key as keyof typeof b]) {
+        const aValue = a[sortConfig.key as keyof Product] as string | number;
+        const bValue = b[sortConfig.key as keyof Product] as string | number;
+        
+        if (aValue < bValue) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
-        if (a[sortConfig.key as keyof typeof a] > b[sortConfig.key as keyof typeof b]) {
+        if (aValue > bValue) {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
         return 0;
@@ -211,7 +306,7 @@ const Products: React.FC = () => {
     if (selectedItems.length === sortedProducts.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(sortedProducts.map(product => product.id));
+      setSelectedItems(sortedProducts.map(product => product.product_id));
     }
   };
 
@@ -224,19 +319,6 @@ const Products: React.FC = () => {
     }
   };
 
-  // Handle bulk actions
-  const handleBulkAction = (action: 'delete' | 'status', statusValue?: string) => {
-    if (action === 'delete') {
-      // Here you would implement the actual delete logic with API call
-      alert(`Deleting ${selectedItems.length} products`);
-    } else if (action === 'status' && statusValue) {
-      // Here you would implement the status change logic with API call
-      alert(`Changing ${selectedItems.length} products status to ${statusValue}`);
-    }
-    // Reset selection after action
-    setSelectedItems([]);
-  };
-  
   // Clear all filters
   const clearFilters = () => {
     setSearchTerm('');
@@ -245,7 +327,29 @@ const Products: React.FC = () => {
     setMinPrice('');
     setMaxPrice('');
   };
-  
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p className="text-red-700">{error}</p>
+        <button
+          onClick={fetchProducts}
+          className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Title and Action Buttons */}
@@ -261,7 +365,6 @@ const Products: React.FC = () => {
           <Link
             to="/business/catalog/product/new"
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none"
-            onClick={() => console.log('Add Product button clicked, navigating to /business/catalog/product/new')}
           >
             <PlusIcon className="h-4 w-4 mr-2" />
             Add Product
@@ -283,34 +386,20 @@ const Products: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Search products by name or ID..."
+                placeholder="Search products by name or SKU..."
               />
             </div>
             
             {/* Basic Filters */}
             <div className="flex space-x-2">
               <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="block pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-              >
-                {CATEGORIES.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-              
-              <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
                 className="block pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
               >
-                {STATUS_OPTIONS.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
+                <option value="All">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
               </select>
             </div>
             
@@ -327,42 +416,6 @@ const Products: React.FC = () => {
           {/* Advanced Filters */}
           {showFilters && (
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
-                </label>
-                <select
-                  id="category"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                >
-                  {CATEGORIES.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
-                <select
-                  id="status"
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                >
-                  {STATUS_OPTIONS.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
               <div>
                 <label htmlFor="price-min" className="block text-sm font-medium text-gray-700 mb-1">
                   Price Range
@@ -386,21 +439,6 @@ const Products: React.FC = () => {
                   />
                 </div>
               </div>
-              
-              <div>
-                <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">
-                  Stock Status
-                </label>
-                <select
-                  id="stock"
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                >
-                  <option>All</option>
-                  <option>In Stock</option>
-                  <option>Out of Stock</option>
-                  <option>Low Stock</option>
-                </select>
-              </div>
 
               <div className="sm:col-span-2 lg:col-span-4 flex justify-end">
                 <button
@@ -410,6 +448,7 @@ const Products: React.FC = () => {
                   Reset
                 </button>
                 <button
+                  onClick={() => setShowFilters(false)}
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none"
                 >
                   Apply Filters
@@ -426,18 +465,8 @@ const Products: React.FC = () => {
               {selectedItems.length} product(s) selected
             </span>
             <div className="flex space-x-2">
-              <select
-                className="block pl-3 pr-10 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                onChange={(e) => handleBulkAction('status', e.target.value)}
-                defaultValue=""
-              >
-                <option value="" disabled>Change Status</option>
-                <option value="Active">Active</option>
-                <option value="Draft">Draft</option>
-                <option value="Archived">Archived</option>
-              </select>
               <button
-                onClick={() => handleBulkAction('delete')}
+                onClick={handleBulkDelete}
                 className="inline-flex items-center px-3 py-1 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none"
               >
                 <TrashIcon className="h-4 w-4 mr-1" />
@@ -461,21 +490,24 @@ const Products: React.FC = () => {
                   />
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('name')}>
-                    Name / SKU / Attribute Family
-                    {getSortIndicator('name')}
+                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('product_name')}>
+                    Name / SKU
+                    {getSortIndicator('product_name')}
                   </div>
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('image')}>
-                    Image / Price / Quantity / Id
-                    {getSortIndicator('image')}
+                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('selling_price')}>
+                    Price / Category / Brand
+                    {getSortIndicator('selling_price')}
                   </div>
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('status')}>
-                    Status / Category / Type
-                    {getSortIndicator('status')}
+                  Variants
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('active_flag')}>
+                    Status
+                    {getSortIndicator('active_flag')}
                   </div>
                 </th>
                 <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -485,55 +517,92 @@ const Products: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap w-8">
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                      checked={selectedItems.includes(product.id)}
-                      onChange={() => toggleSelectItem(product.id)}
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                        <div className="text-sm text-gray-500">SKU - {product.sku}</div>
-                        <div className="text-sm text-gray-500">Attribute Family - {product.attributeFamily}</div>
+                <React.Fragment key={product.product_id}>
+                  <tr className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap w-8">
+                      <input
+                        type="checkbox"
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        checked={selectedItems.includes(product.product_id)}
+                        onChange={() => toggleSelectItem(product.product_id)}
+                      />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {product.media && product.media[0] && (
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <img 
+                              className="h-10 w-10 rounded-sm object-cover" 
+                              src={product.media[0].url} 
+                              alt={product.product_name} 
+                            />
+                          </div>
+                        )}
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">{product.product_name}</div>
+                          <div className="text-sm text-gray-500">SKU - {product.sku}</div>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <img className="h-10 w-10 rounded-sm object-cover" src={product.image} alt={product.name} />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        ${product.selling_price.toFixed(2)}
+                        {product.special_price && (
+                          <span className="ml-2 text-red-600">
+                            Special: ${product.special_price.toFixed(2)}
+                          </span>
+                        )}
                       </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">${product.price.toFixed(2)}</div>
-                        <div className="text-sm text-gray-500">{product.stock > 0 ? product.stock + ' Available' : 'Out of Stock'}</div>
-                        <div className="text-sm text-gray-500">Id - {product.id}</div>
+                      <div className="text-sm text-gray-500">{product.category?.name || 'No Category'}</div>
+                      <div className="text-sm text-gray-500">{product.brand?.name || 'No Brand'}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900">
+                        {product.variants?.length || 0} variants
+                        {product.variants && product.variants.length > 0 && (
+                          <div className="mt-2 space-y-2">
+                            {product.variants.map((variant) => {
+                              console.log('Rendering variant:', variant);
+                              return (
+                                <div key={variant.variant_id} className="text-xs bg-gray-50 p-2 rounded">
+                                  <div className="font-medium">SKU: {variant.sku || 'N/A'}</div>
+                                  <div>Price: ${formatPrice(variant.price)}</div>
+                                  <div>Stock: {formatStock(variant.stock)}</div>
+                                  {variant.attribute && (
+                                    <div className="mt-1">
+                                      <span className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-700 mr-1 mb-1">
+                                        {variant.attribute}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <StatusBadge status={product.status} />
-                    <div className="text-sm text-gray-500 mt-1">{product.category}</div>
-                    <div className="text-sm text-gray-500">simple</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end space-x-3">
-                      <Link to={`/business/catalog/product/${product.id}/view`} className="text-gray-600 hover:text-gray-900">
-                        <EyeIcon className="h-5 w-5" />
-                      </Link>
-                      <Link to={`/business/catalog/product/${product.id}/edit`} className="text-blue-600 hover:text-blue-900">
-                        <PencilIcon className="h-5 w-5" />
-                      </Link>
-                      <button className="text-red-600 hover:text-red-900">
-                        <TrashIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <StatusBadge active={product.active_flag} />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end space-x-3">
+                        <Link to={`/business/catalog/product/${product.product_id}/view`} className="text-gray-600 hover:text-gray-900">
+                          <EyeIcon className="h-5 w-5" />
+                        </Link>
+                        <Link to={`/business/catalog/product/${product.product_id}/edit`} className="text-blue-600 hover:text-blue-900">
+                          <PencilIcon className="h-5 w-5" />
+                        </Link>
+                        <button 
+                          onClick={() => handleDeleteProduct(product.product_id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </React.Fragment>
               ))}
             </tbody>
           </table>
@@ -551,41 +620,9 @@ const Products: React.FC = () => {
             </div>
           )}
         </div>
-        
-        {/* Pagination */}
-        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">1</span> to{' '}
-                <span className="font-medium">{sortedProducts.length}</span> of{' '}
-                <span className="font-medium">{sortedProducts.length}</span> results
-              </p>
-            </div>
-            <div>
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                <button
-                  disabled
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  <ChevronLeftIcon className="h-5 w-5" />
-                </button>
-                <button className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary-50 text-sm font-medium text-primary-700 hover:bg-gray-50">
-                  1
-                </button>
-                <button
-                  disabled
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  <ChevronRightIcon className="h-5 w-5" />
-                </button>
-              </nav>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
 };
 
-export default Products; 
+export default Products;
