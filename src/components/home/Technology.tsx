@@ -74,9 +74,9 @@ const Technology: React.FC = () => {
   const { addToCart } = useCart();
 
   return (
-    <section className="pb-12 px-4 md:px-8">
-      <div className="container mx-auto">
-        <div className="flex flex-col space-y-6 px-20">
+    <section className="pb-12">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col space-y-6">
           {/* Header with navigation */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
             <h2 className="text-2xl font-semibold">Technology</h2>
