@@ -205,94 +205,183 @@ const ProductDetail: React.FC = () => {
       case 'reviews':
         return (
           <div className="py-6">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold">Customer Reviews</h3>
-              <button className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors">
-                Write a Review
-              </button>
+            <div className="flex items-start mb-6">
+              <h3 className="text-xl font-semibold">Review</h3>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-1">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="text-center mb-4">
-                    <div className="text-5xl font-bold text-gray-900 mb-2">{product.rating}</div>
-                    <div className="flex justify-center mb-2">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star 
-                          key={i}
-                          size={18}
-                          fill={i < Math.floor(product.rating) ? 'currentColor' : 'none'} 
-                          className={i < Math.floor(product.rating) ? 'text-amber-400' : 'text-gray-300'}
-                        />
-                      ))}
-                    </div>
-                    <div className="text-sm text-gray-500">{product.reviews} reviews</div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {[5, 4, 3, 2, 1].map(num => {
-                      const percentage = num === 5 ? 70 : num === 4 ? 20 : num === 3 ? 7 : num === 2 ? 2 : 1;
-                      return (
-                        <div key={num} className="flex items-center">
-                          <div className="flex items-center w-28">
-                            <span className="text-sm mr-2">{num}</span>
-                            <Star size={14} className="text-amber-400" fill="currentColor" />
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-amber-400 h-2 rounded-full" 
-                              style={{ width: `${percentage}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-xs text-gray-500 ml-2 w-10">{percentage}%</span>
-                        </div>
-                      );
-                    })}
-                  </div>
+            <div className="mb-6">
+              <div className="flex items-center mb-2">
+                <div className="flex mr-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star 
+                      key={i}
+                      size={20}
+                      fill={i < 4.5 ? 'currentColor' : 'none'} 
+                      className={i < 4.5 ? 'text-amber-400' : 'text-gray-300'}
+                    />
+                  ))}
                 </div>
+                <span className="text-gray-700 font-semibold">4.5</span>
+                <span className="text-gray-500 text-sm ml-2">632 reviews</span>
               </div>
               
-              <div className="lg:col-span-2 space-y-6">
+              <div className="space-y-1">
                 {[
-                  { 
-                    name: 'Sarah J.', 
-                    date: '2 months ago', 
-                    rating: 5,
-                    comment: 'Absolutely love this product! The quality exceeded my expectations and it arrived earlier than expected. Would definitely recommend to anyone looking for a premium experience.'
-                  },
-                  { 
-                    name: 'Michael T.', 
-                    date: '1 month ago', 
-                    rating: 4,
-                    comment: 'Great product overall. Only giving 4 stars because the color is slightly different than shown in the pictures, but the quality and functionality are excellent.'
-                  },
-                  { 
-                    name: 'Emma L.', 
-                    date: '3 weeks ago', 
-                    rating: 5,
-                    comment: 'Perfect addition to my collection! The attention to detail is impressive and it fits my needs perfectly. Customer service was also excellent when I had a question.'
-                  }
-                ].map((review, index) => (
-                  <div key={index} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
-                    <div className="flex justify-between mb-2">
-                      <div className="font-medium">{review.name}</div>
-                      <div className="text-gray-500 text-sm">{review.date}</div>
+                  { stars: 5, count: 750, percentage: 75 },
+                  { stars: 4, count: 32, percentage: 22 },
+                  { stars: 3, count: 29, percentage: 18 },
+                  { stars: 2, count: 6, percentage: 6 },
+                  { stars: 1, count: 2, percentage: 2 }
+                ].map(item => (
+                  <div key={item.stars} className="flex items-center">
+                    <div className="flex items-center w-20">
+                      <span className="text-sm mr-1">{item.stars}</span>
+                      <Star size={14} className="text-amber-400" fill="currentColor" />
                     </div>
-                    <div className="flex mb-3">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star 
-                          key={i}
-                          size={16}
-                          fill={i < review.rating ? 'currentColor' : 'none'} 
-                          className={i < review.rating ? 'text-amber-400' : 'text-gray-300'}
-                        />
-                      ))}
+                    <div className="w-full bg-gray-200 rounded-full h-2 mx-2">
+                      <div 
+                        className="bg-amber-400 h-2 rounded-full" 
+                        style={{ width: `${item.percentage}%` }}
+                      ></div>
                     </div>
-                    <p className="text-gray-700">{review.comment}</p>
+                    <span className="text-xs text-gray-500 w-10">{item.count} stars</span>
                   </div>
                 ))}
               </div>
+            </div>
+            
+            <div className="divide-y divide-gray-200">
+              <div className="py-6">
+                <div className="flex items-center mb-2">
+                  <div className="w-10 h-10 bg-gray-100 rounded-full mr-3 overflow-hidden">
+                    <img src="https://i.pravatar.cc/100?u=ralph" alt="User avatar" className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <div className="font-medium">Ralph Edwards</div>
+                    <div className="text-gray-500 text-xs">October 30, 2020</div>
+                  </div>
+                  <div className="ml-auto">
+                    <span className="bg-orange-100 text-orange-500 text-xs px-2 py-1 rounded-full">Purchased by 24h supplier</span>
+                    <span className="bg-orange-100 text-orange-500 text-xs px-2 py-1 rounded-full ml-2">Gold seller</span>
+                  </div>
+                </div>
+                <div className="flex mb-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star 
+                      key={i}
+                      size={16}
+                      fill="currentColor"
+                      className="text-amber-400"
+                    />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-2">Watch the movie very loud, very sharp. Paper wrap - protect the environment. There is a stamp on fragile goods, but the more is is - the more the courier will throw ... :D</p>
+                <div className="flex items-center space-x-2">
+                  <button className="flex items-center text-gray-500 text-sm hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                    </svg>
+                    Like
+                  </button>
+                  <button className="flex items-center text-gray-500 text-sm hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                    </svg>
+                    Reply
+                  </button>
+                </div>
+              </div>
+              
+              <div className="py-6">
+                <div className="flex items-center mb-2">
+                  <div className="w-10 h-10 bg-gray-100 rounded-full mr-3 overflow-hidden">
+                    <img src="https://i.pravatar.cc/100?u=savannah" alt="User avatar" className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <div className="font-medium">Savannah Nguyen</div>
+                    <div className="text-gray-500 text-xs">October 10, 2020</div>
+                  </div>
+                  <div className="ml-auto">
+                    <span className="bg-orange-100 text-orange-500 text-xs px-2 py-1 rounded-full">Purchased by 24h supplier</span>
+                    <span className="bg-orange-100 text-orange-500 text-xs px-2 py-1 rounded-full ml-2">Silver seller</span>
+                  </div>
+                </div>
+                <div className="flex mb-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star 
+                      key={i}
+                      size={16}
+                      fill="currentColor"
+                      className="text-amber-400"
+                    />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-2">I bought and used very well compared to the price range. It is advised that you should use Asin Fast Delivery service which will be faster and avoid more distortion than standard Delivery. Before, I bought it for my brother-paid 57.2919. standard delivery, the box a bit dented.</p>
+                <div className="flex items-center space-x-2">
+                  <button className="flex items-center text-gray-500 text-sm hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                    </svg>
+                    Like
+                  </button>
+                  <button className="flex items-center text-gray-500 text-sm hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                    </svg>
+                    Reply
+                  </button>
+                </div>
+              </div>
+
+              <div className="py-6">
+                <div className="flex items-center mb-2">
+                  <div className="w-10 h-10 bg-gray-100 rounded-full mr-3 overflow-hidden">
+                    <img src="https://i.pravatar.cc/100?u=cody" alt="User avatar" className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <div className="font-medium">Cody Fisher</div>
+                    <div className="text-gray-500 text-xs">September 3, 2020</div>
+                  </div>
+                  <div className="ml-auto">
+                    <span className="bg-orange-100 text-orange-500 text-xs px-2 py-1 rounded-full">Purchased by 24h supplier</span>
+                    <span className="bg-orange-100 text-orange-500 text-xs px-2 py-1 rounded-full ml-2">White seller</span>
+                  </div>
+                </div>
+                <div className="flex mb-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star 
+                      key={i}
+                      size={16}
+                      fill="currentColor"
+                      className="text-amber-400"
+                    />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-2">Venture to buy a valuable technology product online for the first time! I have to say KhongNguoi (CNH) is too good, I book on September 3, there is no fast delivery so 9/9 deadline is available, but there is a busy job so thanks to early delivery support, today 9/9 it's in stock! Hope using its products later ...</p>
+                <div className="flex items-center space-x-2">
+                  <button className="flex items-center text-gray-500 text-sm hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                    </svg>
+                    Like
+                  </button>
+                  <button className="flex items-center text-gray-500 text-sm hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                    </svg>
+                    Reply
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-center mt-6">
+              <button className="flex items-center text-orange-500 border border-orange-500 rounded-md px-4 py-2 hover:bg-orange-50 transition-colors">
+                See More
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
             </div>
           </div>
         );

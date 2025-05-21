@@ -4,6 +4,10 @@ import {
   UserCircle2,
   Download,
   Search,
+  BarChart3,
+  PieChart as PieChartIcon,
+  LineChart as LineChartIcon,
+  RefreshCw,
 } from "lucide-react";
 import {
   LineChart,
@@ -17,6 +21,7 @@ import {
   Bar,
   PieChart,
   Pie,
+  Cell,
 } from "recharts";
 
 // Mock fallback data
@@ -51,6 +56,8 @@ const fallbackActivityTypes = [
   { type: "Logged Out", count: 10 },
 ];
 
+const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042'];
+
 const UserActivity = () => {
   const [activities, setActivities] = useState(fallbackActivities);
   const [chartData, setChartData] = useState(fallbackChartData);
@@ -58,6 +65,8 @@ const UserActivity = () => {
   const [activityTypes, setActivityTypes] = useState(fallbackActivityTypes);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState("line");
 
   useEffect(() => {
     // Future: Replace with your actual API endpoints
@@ -92,6 +101,14 @@ const UserActivity = () => {
     fetchData();
   }, []);
 
+  const refreshData = async () => {
+    setRefreshing(true);
+    // Simulate data refresh
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1200);
+  };
+
   const filtered = activities.filter(
     (a) =>
       a.user.toLowerCase().includes(search.toLowerCase()) ||
@@ -113,82 +130,171 @@ const UserActivity = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Activity className="text-blue-600 w-8 h-8" />
-          <h1 className="text-3xl font-bold text-gray-800">User Activity Overview</h1>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-[#4E6688] p-3 rounded-lg shadow-lg">
+              <Activity className="text-white w-6 h-6" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-800">User Activity Dashboard</h1>
+          </div>
+
+          <button
+            onClick={refreshData}
+            className="flex items-center gap-2 bg-[#4E6688]/20 text-[#4E6688] px-4 py-2 rounded-lg font-medium hover:bg-[#4E6688]/30 transition-all duration-300 group"
+          >
+            <RefreshCw className={`w-5 h-5 ${refreshing ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}`} />
+            Refresh Data
+          </button>
         </div>
 
         {loading ? (
-          <div className="text-gray-600">Loading activity data...</div>
+          <div className="flex items-center justify-center h-64 bg-white rounded-xl shadow animate-pulse">
+            <div className="text-gray-600 flex items-center gap-3">
+              <RefreshCw className="w-5 h-5 animate-spin" />
+              Loading activity data...
+            </div>
+          </div>
         ) : (
           <>
-            {/* Chart */}
-            <div className="bg-white rounded-xl shadow p-4 mb-6">
-              <h2 className="text-lg font-semibold mb-2">Activity Trend (Last 7 Days)</h2>
-              <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="actions" stroke="#3b82f6" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-              {/* Bar Chart */}
-              <div className="bg-white rounded-xl shadow p-4">
-                <h2 className="text-lg font-semibold mb-2">Top 5 Active Users</h2>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={topUsers} layout="vertical" margin={{ left: 30 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="user" type="category" />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#34d399" />
-                  </BarChart>
-                </ResponsiveContainer>
+            {/* Chart Tabs */}
+            <div className="bg-white rounded-xl shadow overflow-hidden mb-6 transition-all duration-300 hover:shadow-md">
+              <div className="border-b border-gray-200">
+                <div className="flex items-center">
+                  <button
+                    className={`flex items-center gap-2 px-6 py-3 font-medium text-sm transition-all ${activeTab === "line" ? "border-b-2 border-[#4E6688] text-[#4E6688]" : "text-gray-500 hover:text-gray-700"}`}
+                    onClick={() => setActiveTab("line")}
+                  >
+                    <LineChartIcon className="w-4 h-4" />
+                    Activity Trend
+                  </button>
+                  <button
+                    className={`flex items-center gap-2 px-6 py-3 font-medium text-sm transition-all ${activeTab === "bar" ? "border-b-2 border-[#4E6688] text-[#4E6688]" : "text-gray-500 hover:text-gray-700"}`}
+                    onClick={() => setActiveTab("bar")}
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    Top Users
+                  </button>
+                  <button
+                    className={`flex items-center gap-2 px-6 py-3 font-medium text-sm transition-all ${activeTab === "pie" ? "border-b-2 border-[#4E6688] text-[#4E6688]" : "text-gray-500 hover:text-gray-700"}`}
+                    onClick={() => setActiveTab("pie")}
+                  >
+                    <PieChartIcon className="w-4 h-4" />
+                    Activity Types
+                  </button>
+                </div>
               </div>
+              <div className="p-4">
+                <div className={`transition-opacity duration-300 ${activeTab === "line" ? "opacity-100" : "opacity-0 hidden"}`}>
+                  <h2 className="text-lg font-semibold mb-2">Activity Trend (Last 7 Days)</h2>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={chartData}>
+                      <defs>
+                        <linearGradient id="colorActions" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#4E6688" stopOpacity={0.8} />
+                          <stop offset="95%" stopColor="#4E6688" stopOpacity={0.1} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis dataKey="date" stroke="#888" />
+                      <YAxis stroke="#888" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          borderRadius: '8px',
+                          border: 'none',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="actions"
+                        stroke="#4E6688"
+                        strokeWidth={3}
+                        dot={{ stroke: '#4E6688', strokeWidth: 2, r: 4, fill: 'white' }}
+                        activeDot={{ r: 6, stroke: '#4E6688', strokeWidth: 2, fill: '#4E6688' }}
+                        animationDuration={1500}
+                        fill="url(#colorActions)"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
 
-              {/* Pie Chart */}
-              <div className="bg-white rounded-xl shadow p-4">
-                <h2 className="text-lg font-semibold mb-2">Activity Type Breakdown</h2>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={activityTypes}
-                      dataKey="count"
-                      nameKey="type"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      fill="#6366f1"
-                      label
-                    />
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className={`transition-opacity duration-300 ${activeTab === "bar" ? "opacity-100" : "opacity-0 hidden"}`}>
+                  <h2 className="text-lg font-semibold mb-2">Top 5 Active Users</h2>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={topUsers} layout="vertical" margin={{ left: 50 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis type="number" stroke="#888" />
+                      <YAxis dataKey="user" type="category" stroke="#888" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          borderRadius: '8px',
+                          border: 'none',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}
+                      />
+                      <Bar
+                        dataKey="count"
+                        fill="#4E6688"
+                        animationDuration={1500}
+                        animationBegin={300}
+                        radius={[0, 4, 4, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className={`transition-opacity duration-300 ${activeTab === "pie" ? "opacity-100" : "opacity-0 hidden"}`}>
+                  <h2 className="text-lg font-semibold mb-2">Activity Type Breakdown</h2>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={activityTypes}
+                        dataKey="count"
+                        nameKey="type"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        animationDuration={1500}
+                        animationBegin={300}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {activityTypes.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          borderRadius: '8px',
+                          border: 'none',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
 
             {/* Search & Export */}
-            <div className="flex items-center justify-between my-6">
-              <div className="relative w-full max-w-sm">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between my-6 gap-4">
+              <div className="relative w-full md:max-w-sm">
                 <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search user or activity..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#4E6688] focus:border-[#4E6688] focus:outline-none transition-all duration-300"
                 />
               </div>
               <button
                 onClick={handleExport}
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700 transition"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#4E6688] to-[#4E6688]/80 text-white px-6 py-2.5 rounded-lg shadow-lg hover:shadow-xl hover:translate-y-0.5 transform transition-all duration-300 focus:ring-2 focus:ring-offset-2 focus:ring-[#4E6688]"
               >
                 <Download className="w-5 h-5" />
                 Export CSV
@@ -196,35 +302,49 @@ const UserActivity = () => {
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto bg-white rounded-xl shadow">
+            <div className="overflow-hidden bg-white rounded-xl shadow transition-all duration-300 hover:shadow-md">
               <table className="min-w-full text-left">
-                <thead className="bg-blue-100 text-blue-800">
+                <thead className="bg-[#4E6688]/10 text-[#4E6688]/90">
                   <tr>
-                    <th className="p-4">User</th>
-                    <th className="p-4">Activity</th>
-                    <th className="p-4">Timestamp</th>
+                    <th className="px-6 py-4 font-semibold">User</th>
+                    <th className="px-6 py-4 font-semibold">Activity</th>
+                    <th className="px-6 py-4 font-semibold">Timestamp</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((activity) => (
-                    <tr key={activity.id} className="border-t hover:bg-gray-50">
-                      <td className="p-4 flex items-center gap-2 text-gray-800">
-                        <UserCircle2 className="w-5 h-5 text-gray-500" />
+                  {filtered.map((activity, index) => (
+                    <tr
+                      key={activity.id}
+                      className="border-t hover:bg-gray-50 transition-colors duration-150"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      <td className="px-6 py-4 flex items-center gap-2 text-gray-800">
+                        <div className="bg-[#4E6688]/20 p-2 rounded-full">
+                          <UserCircle2 className="w-5 h-5 text-[#4E6688]" />
+                        </div>
                         {activity.user}
                       </td>
-                      <td className="p-4 text-gray-600">{activity.activity}</td>
-                      <td className="p-4 text-gray-500 text-sm">{activity.timestamp}</td>
+                      <td className="px-6 py-4 text-gray-600">{activity.activity}</td>
+                      <td className="px-6 py-4 text-gray-500 text-sm">{activity.timestamp}</td>
                     </tr>
                   ))}
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={3} className="p-4 text-center text-gray-500">
-                        No activity found.
+                      <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
+                        No activities found matching your search.
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
+              {filtered.length > 0 && (
+                <div className="px-6 py-3 bg-gray-50 border-t flex justify-between items-center text-sm text-gray-500">
+                  <span>Showing {filtered.length} activities</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#4E6688]">Page 1 of 1</span>
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}
@@ -234,5 +354,4 @@ const UserActivity = () => {
 };
 
 export default UserActivity;
-
 

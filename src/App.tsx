@@ -65,7 +65,8 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import CancellationPolicy from './pages/CancellationPolicy';
 import ReturnRefund from './pages/ReturnRefund';
 import ShippingDelivery from './pages/ShippingDelivery';
-
+import UserProfile from './pages/UserProfile';
+import PaymentPage from './pages/PaymentPage';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -261,6 +262,7 @@ function App() {
                           <Route path="/product/:productId" element={<ProductDetail />} />
                           <Route path="/new-product" element={<NewProduct />} />
                           <Route path="/cart" element={<Cart />} />
+                          <Route path="/payment" element={<PaymentPage />} />
 
                           <Route path="/signin" element={<SignIn />} />
                           <Route path="/signup" element={<SignUp />} />
@@ -292,6 +294,7 @@ function App() {
                            <Route path="/return-refund" element={<ReturnRefund />} />
                            <Route path="/shipping-delivery" element={<ShippingDelivery />} />
                           <Route path="/brands/:brandId" element={<Brands />} />
+                          <Route path="/profile" element={<UserProfile />} />
 
                         </Routes>
                       </main>

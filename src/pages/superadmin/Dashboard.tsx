@@ -1,4 +1,4 @@
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { dashboardSections, getCategoryColorClasses } from "./SuperAdminLayout";
 
-// FeatureGrid component properly defined outside of the Dashboard component
+// FeatureGrid component simplified with description removed
 const FeatureGrid = ({
   filteredItems,
   searchQuery,
@@ -33,13 +33,12 @@ const FeatureGrid = ({
               transition-all duration-300 hover:bg-gray-50
             `}
           >
-            <div className="flex items-center mb-4">
+            <div className="flex items-center">
               <div className={`${currentColorClasses?.bg || "bg-gray-100"} ${currentColorClasses?.text || "text-gray-800"} p-3 rounded-lg`}>
                 <Icon className="w-6 h-6" />
               </div>
               <h3 className="ml-4 text-lg font-medium text-gray-800">{item.title}</h3>
             </div>
-            <p className="text-gray-600 text-sm">{item.description}</p>
           </div>
         );
       })}
@@ -71,7 +70,7 @@ const Dashboard = () => {
   const filteredItems = currentCategory?.items?.filter(item =>
     searchQuery
       ? item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase())
+      (item.description?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
       : true
   );
 
@@ -80,99 +79,108 @@ const Dashboard = () => {
     : null;
 
   return (
-    <>
-      {/* Header Section */}
-      <div className="bg-white rounded-2xl p-6 mb-8 shadow-md border border-gray-100">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            {currentCategory && (
-              <>
-                <h1 className="text-3xl font-bold text-gray-800 mb-1">
-                  {currentCategory.category}
-                </h1>
-                <p className="text-gray-600">
-                  {currentCategory.category === "Analytics & Reports" && "Track and analyze platform data and performance metrics"}
-                  {currentCategory.category === "Management" && "Manage users, products, and operations across the platform"}
-                  {currentCategory.category === "Operations & Security" && "Oversee platform operations and security protocols"}
-                  {currentCategory.category === "Advanced Controls" && "Access specialized tools and administrative functions"}
-                </p>
-              </>
-            )}
+  
+  <>
+    {/* Header Section */}
+    <div className="bg-white rounded-2xl p-6 mb-8 shadow-md border border-gray-200">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          {currentCategory && (
+            <h1 className="text-3xl font-semibold text-gray-900">
+              {currentCategory.category}
+            </h1>
+          )}
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative w-full md:w-80">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400 transition-all" />
           </div>
-          {/* Search Bar */}
-          <div className="relative w-full md:w-80">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              placeholder={`Search ${currentCategory?.category?.toLowerCase() || ""}...`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+          <input
+            type="text"
+            className="block w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-all"
+            placeholder={`Search ${currentCategory?.category?.toLowerCase() || ""}...`}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
       </div>
+    </div>
 
-      {/* Quick Stats - Show for Analytics & Reports */}
-      {currentCategory?.category === "Analytics & Reports" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-gray-500 text-sm font-medium mb-1">Total Users</h3>
-            <p className="text-3xl font-bold text-gray-800">24,738</p>
-            <span className="mt-2 text-sm text-green-600 flex items-center">
-              +12.5% <span className="ml-1 text-gray-500">from last month</span>
-            </span>
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-gray-500 text-sm font-medium mb-1">Active Merchants</h3>
-            <p className="text-3xl font-bold text-gray-800">1,423</p>
-            <span className="mt-2 text-sm text-green-600 flex items-center">
-              +8.2% <span className="ml-1 text-gray-500">from last month</span>
-            </span>
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-gray-500 text-sm font-medium mb-1">Total Revenue</h3>
-            <p className="text-3xl font-bold text-gray-800">$842,953</p>
-            <span className="mt-2 text-sm text-green-600 flex items-center">
-              +16.8% <span className="ml-1 text-gray-500">from last month</span>
-            </span>
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-gray-500 text-sm font-medium mb-1">Avg. Order Value</h3>
-            <p className="text-3xl font-bold text-gray-800">$87.42</p>
-            <span className="mt-2 text-sm text-green-600 flex items-center">
-              +4.3% <span className="ml-1 text-gray-500">from last month</span>
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Alert Banner - Show for Operations & Security */}
-      {currentCategory?.category === "Operations & Security" && (
-        <div className="mb-8 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start">
-          <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" />
-          <div>
-            <h3 className="font-medium text-amber-800">Security Alert</h3>
-            <p className="text-amber-700 text-sm">
-              5 suspicious login attempts detected in the last 24 hours. Review security logs for more details.
+    {/* Quick Stats for Analytics */}
+    {currentCategory?.category === "Analytics & Reports" && (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {[
+          {
+            label: "Total Users",
+            value: "24,738",
+            change: "+12.5%",
+            desc: "from last month"
+          },
+          {
+            label: "Active Merchants",
+            value: "1,423",
+            change: "+8.2%",
+            desc: "from last month"
+          },
+          {
+            label: "Total Revenue",
+            value: "$842,953",
+            change: "+16.8%",
+            desc: "from last month"
+          },
+          {
+            label: "Avg. Order Value",
+            value: "$87.42",
+            change: "+4.3%",
+            desc: "from last month"
+          }
+        ].map((stat, index) => (
+          <div
+            key={index}
+            className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all"
+          >
+            <h3 className="text-sm text-gray-500 font-medium">{stat.label}</h3>
+            <p className="text-3xl font-semibold text-gray-900 mt-1">{stat.value}</p>
+            <p className="text-sm text-green-600 mt-1 flex items-center">
+              {stat.change}
+              <span className="ml-1 text-gray-500">{stat.desc}</span>
             </p>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
+    )}
 
-      {/* Feature Items Grid */}
-      {filteredItems && (
-        <FeatureGrid
-          filteredItems={filteredItems}
-          searchQuery={searchQuery}
-          handleNavigation={handleNavigation}
-          currentColorClasses={currentColorClasses}
-        />
-      )}
-    </>
-  );
+    {/* Alert Banner */}
+    {currentCategory?.category === "Operations & Security" && (
+      <div className="mb-8 bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-start shadow-sm">
+        <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
+        <div>
+          <h3 className="font-medium text-yellow-800">Security Alert</h3>
+          <p className="text-yellow-700 text-sm">
+            5 suspicious login attempts detected in the last 24 hours.{" "}
+            <span className="underline cursor-pointer hover:text-yellow-900 transition">
+              Review security logs
+            </span>{" "}
+            for more details.
+          </p>
+        </div>
+      </div>
+    )}
+
+    {/* Feature Grid */}
+    {filteredItems && (
+      <FeatureGrid
+        filteredItems={filteredItems}
+        searchQuery={searchQuery}
+        handleNavigation={handleNavigation}
+        currentColorClasses={currentColorClasses}
+      />
+    )}
+  </>
+);
+
 };
 
 export default Dashboard;
