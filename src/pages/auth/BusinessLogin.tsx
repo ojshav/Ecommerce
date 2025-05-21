@@ -113,7 +113,7 @@ const BusinessLogin: React.FC = () => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700 transition-colors">
+                <Link to="/forgot-password" className="text-sm text-[#F2631F] hover:text-orange-400 transition-colors">
                   Forgot your password?
                 </Link>
               </div>
@@ -132,7 +132,7 @@ const BusinessLogin: React.FC = () => {
               <input
                 id="remember"
                 type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-[#F2631F] focus:ring-[#F2631F] border-gray-300 rounded"
               />
               <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
                 Remember me
@@ -142,7 +142,7 @@ const BusinessLogin: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-primary-600 text-white py-3 px-4 rounded-md font-medium hover:bg-primary-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full bg-[#F2631F] text-white py-3 px-4 rounded-md font-medium hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center">
@@ -160,13 +160,13 @@ const BusinessLogin: React.FC = () => {
         <div className="px-8 py-4 bg-gray-50 border-t border-gray-200 text-center">
           <p className="text-sm text-gray-600">
             Don't have a business account?{' '}
-            <Link to="/register-business" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
+            <Link to="/register-business" className="font-medium text-[#F2631F] hover:text-orange-400 transition-colors">
               Register your business
             </Link>
           </p>
           <p className="text-sm text-gray-600 mt-2">
             Need a personal account?{' '}
-            <Link to="/sign-in" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
+            <Link to="/sign-in" className="font-medium text-[#F2631F] hover:text-orange-400 transition-colors">
               Sign in as customer
             </Link>
           </p>
