@@ -45,6 +45,7 @@ import MerchantManagement from './pages/superadmin/MerchantManagement';
 import Notification from './pages/superadmin/Notifications';
 import Categories from './pages/superadmin/Categories';
 import Attribute from './pages/superadmin/Attribute';
+import BrandCreation from './pages/superadmin/BrandCreation';
 
 import FAQ from './pages/FAQ';
 import About from './pages/About';
@@ -64,7 +65,8 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import CancellationPolicy from './pages/CancellationPolicy';
 import ReturnRefund from './pages/ReturnRefund';
 import ShippingDelivery from './pages/ShippingDelivery';
-
+import UserProfile from './pages/UserProfile';
+import PaymentPage from './pages/PaymentPage';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -233,6 +235,7 @@ function App() {
                   <Route path="merchant-management" element={<MerchantManagement />} />
                   <Route path="merchant-management/:id" element={<MerchantDetails />} />
                   <Route path="categories" element={<Categories />} />
+                  <Route path="brand-creation" element={<BrandCreation />} />
                   <Route path="attribute" element={<Attribute />} />
 
 
@@ -260,6 +263,7 @@ function App() {
                           <Route path="/product/:productId" element={<ProductDetail />} />
                           <Route path="/new-product" element={<NewProduct />} />
                           <Route path="/cart" element={<Cart />} />
+                          <Route path="/payment" element={<PaymentPage />} />
 
                           <Route path="/signin" element={<SignIn />} />
                           <Route path="/signup" element={<SignUp />} />
@@ -291,6 +295,7 @@ function App() {
                            <Route path="/return-refund" element={<ReturnRefund />} />
                            <Route path="/shipping-delivery" element={<ShippingDelivery />} />
                           <Route path="/brands/:brandId" element={<Brands />} />
+                          <Route path="/profile" element={<UserProfile />} />
 
                         </Routes>
                       </main>

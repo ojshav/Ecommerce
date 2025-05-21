@@ -37,13 +37,13 @@ const Footer: React.FC = () => {
                 <Link to="/new-product" className="text-gray-300 hover:text-white transition-colors">New Product</Link>
               </li>
               <li>
-                <Link to="/shop-live" className="text-gray-300 hover:text-white transition-colors">Shop live</Link>
+                <Link to="/shop-live" className="text-gray-300 hover:text-white transition-colors"></Link>
               </li>
               <li>
                 <Link to="/promotion" className="text-gray-300 hover:text-white transition-colors">Promotion</Link>
               </li>
               <li>
-                <Link to="/top-brands" className="text-gray-300 hover:text-white transition-colors">Top Brands</Link>
+                <Link to="/top-brands" className="text-gray-300 hover:text-white transition-colors"></Link>
               </li>
             </ul>
           </div>

@@ -62,7 +62,7 @@ const RegisterBusiness: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user && user.role === 'superadmin') {
+    if (user && user.role === 'admin') {
       navigate('/superadmin/dashboard');
       return;
     }
@@ -168,10 +168,12 @@ const RegisterBusiness: React.FC = () => {
     setError('');
     
     if (!validatePassword()) {
+      console.debug('Password validation failed:', passwordError);
       return;
     }
     
     if (!agreeToTerms) {
+      console.debug('Terms agreement validation failed');
       setError('Please agree to the terms and conditions');
       return;
     }
@@ -197,6 +199,7 @@ const RegisterBusiness: React.FC = () => {
 
       const missingFields = requiredFields.filter(field => !apiData[field as keyof typeof apiData]);
       if (missingFields.length > 0) {
+        console.debug('Missing required fields:', missingFields);
         throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
       }
 
@@ -218,6 +221,11 @@ const RegisterBusiness: React.FC = () => {
         role: 'merchant'
       };
 
+      console.debug('Submitting merchant registration data:', {
+        ...merchantData,
+        password: '[REDACTED]' // Don't log the actual password
+      });
+
       const response = await fetch(`${API_BASE_URL}/api/auth/register/merchant`, {
         method: 'POST',
         headers: {
@@ -229,8 +237,19 @@ const RegisterBusiness: React.FC = () => {
       const data = await response.json();
       
       if (!response.ok) {
+        console.debug('Registration failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: data.error,
+          details: data.details
+        });
         throw new Error(data.error || data.details || 'Failed to register');
       }
+      
+      console.debug('Registration successful:', {
+        status: response.status,
+        data: { ...data, password: '[REDACTED]' }
+      });
       
       navigate('/verification-pending', { 
         state: { 
@@ -531,15 +550,15 @@ const RegisterBusiness: React.FC = () => {
                   required
                   checked={agreeToTerms}
                   onChange={(e) => setAgreeToTerms(e.target.checked)}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#F2631F] focus:ring-[#F2631F] border-gray-300 rounded"
                 />
                 <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
                   I agree to the{' '}
-                  <Link to="/terms" className="text-primary-600 hover:text-primary-700 transition-colors">
+                  <Link to="/terms" className="text-[#F2631F] hover:text-orange-400 transition-colors">
                     Terms and Conditions
                   </Link>
                   {' '}and{' '}
-                  <Link to="/privacy" className="text-primary-600 hover:text-primary-700 transition-colors">
+                  <Link to="/privacy" className="text-[#F2631F] hover:text-orange-400 transition-colors">
                     Privacy Policy
                   </Link>
                 </label>
@@ -548,7 +567,7 @@ const RegisterBusiness: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSubmitting || !agreeToTerms}
-                className="w-full bg-primary-600 text-white py-3 px-4 rounded-md font-medium hover:bg-primary-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full bg-[#F2631F] text-white py-3 px-4 rounded-md font-medium hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center">
@@ -574,7 +593,7 @@ const RegisterBusiness: React.FC = () => {
       
       <div className="text-center mt-4 mb-8">
         <p className="text-gray-600 text-sm">
-          Already have a business account? <Link to="/business/login" className="text-primary-600 hover:underline font-medium">Login</Link>
+          Already have a business account? <Link to="/business/login" className="text-[#F2631F] hover:text-orange-400 font-medium">Login</Link>
         </p>
       </div>
     </div>

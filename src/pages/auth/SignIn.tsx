@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { motion } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -42,7 +41,8 @@ const SignIn: React.FC = () => {
         email: data.user?.email || email,
         name: `${data.user?.first_name || ''} ${data.user?.last_name || ''}`.trim() || 'User',
         role: (data.user?.role === 'MERCHANT' ? 'merchant' : 
-               data.user?.role === 'ADMIN' ? 'admin' : 'customer') as 'merchant' | 'customer' | 'admin'
+               data.user?.role === 'ADMIN' ? 'admin' : 'customer') as 'merchant' | 'customer' | 'admin',
+        businessName: data.user?.businessName || ''
       };
       
       // Update auth context with the received tokens and user data
@@ -109,7 +109,8 @@ const SignIn: React.FC = () => {
         email: data.user?.email || '',
         name: `${data.user?.first_name || ''} ${data.user?.last_name || ''}`.trim() || 'User',
         role: (data.user?.role === 'MERCHANT' ? 'merchant' : 
-               data.user?.role === 'ADMIN' ? 'admin' : 'customer') as 'merchant' | 'customer' | 'admin'
+               data.user?.role === 'ADMIN' ? 'admin' : 'customer') as 'merchant' | 'customer' | 'admin',
+        businessName: data.user?.businessName || ''
       };
       
       // Update auth context with tokens and user data
@@ -130,150 +131,115 @@ const SignIn: React.FC = () => {
   };
 
   return (
-    <div className="pt-16 min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <motion.div 
-        className="max-w-md w-full bg-white rounded-xl shadow-sm overflow-hidden"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Sign in to your account</h1>
-            <p className="text-gray-600">Welcome back! Please enter your details.</p>
-          </div>
-          
+    <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] px-2">
+      <div className="w-full max-w-5xl flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0">
+        {/* Registered Customers */}
+        <div className="flex-1 bg-white rounded-xl shadow-sm p-8 md:p-10">
+          <h2 className="text-xl font-semibold mb-2">Registered Customers</h2>
+          <p className="text-gray-600 mb-6 text-sm">If you have an account, sign in with your email address.</p>
+
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">
               {error}
             </div>
           )}
-          
+
           {!showForgotPassword ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Enter your email"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F2631F] focus:border-transparent"
+                  placeholder="Type your email"
                 />
               </div>
-              
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowForgotPassword(true)}
-                    className="text-sm text-primary-600 hover:text-primary-700 transition-colors"
-                  >
-                    Forgot your password?
-                  </button>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password*</label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F2631F] focus:border-transparent"
+                    placeholder="Type your password"
+                  />
                 </div>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Enter your password"
-                />
               </div>
-              
-              <div className="flex items-center">
+              <div className="flex items-center mb-2">
                 <input
-                  id="remember"
+                  id="terms"
                   type="checkbox"
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#F2631F] focus:ring-[#F2631F] border-gray-300 rounded"
                 />
-                <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
-                  Remember me
+                <label htmlFor="terms" className="ml-2 block text-xs text-gray-700">
+                  I agree to the Terms and Conditions and Privacy Policy
                 </label>
               </div>
-              
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-primary-600 text-white py-3 px-4 rounded-md font-medium hover:bg-primary-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Signing in...
-                  </span>
-                ) : 'Sign in'}
-              </button>
+              <div className="flex items-center justify-between mb-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-[#F2631F] hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Signing in...' : 'Sign In'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-[#F2631F] hover:text-orange-600 font-medium"
+                >
+                  Forgot Password
+                </button>
+              </div>
+              <div className="text-xs text-gray-400">*Required Fields</div>
             </form>
           ) : (
-            <form onSubmit={handleForgotPassword} className="space-y-6">
+            <form onSubmit={handleForgotPassword} className="space-y-4">
               <div>
-                <label htmlFor="reset-email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
+                <label htmlFor="reset-email" className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
                 <input
                   id="reset-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Enter your email"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F2631F] focus:border-transparent"
+                  placeholder="Type your email"
                 />
               </div>
-              
               <div className="flex space-x-4">
                 <button
                   type="button"
                   onClick={() => setShowForgotPassword(false)}
-                  className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-md font-medium hover:bg-gray-300 transition-colors"
+                  className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md font-medium hover:bg-gray-300 transition-colors"
                 >
                   Back to Sign In
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 bg-primary-600 text-white py-3 px-4 rounded-md font-medium hover:bg-primary-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  className="flex-1 bg-[#F2631F] text-white py-2 px-4 rounded-md font-medium hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Sending...
-                    </span>
-                  ) : 'Send Reset Link'}
+                  {isSubmitting ? 'Sending...' : 'Send Reset Link'}
                 </button>
               </div>
             </form>
           )}
-          
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  OR
-                </span>
-              </div>
-            </div>
-            
-            <div className="mt-4 w-full flex items-center justify-center py-3 px-4 rounded-md bg-white text-sm font-medium text-gray-700">
+
+          <div className="my-4 flex items-center justify-center">
+            <div className="w-full border-t border-gray-200"></div>
+            <span className="px-2 text-gray-400 text-xs">or</span>
+            <div className="w-full border-t border-gray-200"></div>
+          </div>
+          <div className="space-y-2">
+            <div className="w-full flex items-center justify-center">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
@@ -284,24 +250,20 @@ const SignIn: React.FC = () => {
             </div>
           </div>
         </div>
-        
-        <div className="px-8 py-4 bg-gray-50 border-t border-gray-200 text-center">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link to="/signup" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
-              Sign up
-            </Link>
-          </p>
-          <p className="text-sm text-gray-600 mt-2">
-            Are you a business?{' '}
-            <Link to="/business/login" className="font-medium text-primary-600 hover:text-primary-700 transition-colors">
-              Business login
-            </Link>
-          </p>
+        {/* New Customers */}
+        <div className="flex-1 bg-white rounded-xl shadow-sm p-8 md:p-10 flex flex-col items-start justify-start min-h-[400px] mt-0 md:mt-12">
+          <h2 className="text-xl font-semibold mb-2">New Customers</h2>
+          <p className="text-gray-600 mb-6 text-sm max-w-xs">Creating an account has many benefits: check out faster, keep more than one address, track orders and more.</p>
+          <Link
+            to="/signup"
+            className="bg-[#F2631F] hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition-colors"
+          >
+            Create An Account
+          </Link>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
 
-export default SignIn;  
+export default SignIn;
