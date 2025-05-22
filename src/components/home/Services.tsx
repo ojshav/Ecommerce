@@ -9,7 +9,7 @@ const services = [
   },
   {
     icon: <Wallet className="w-12 h-12 text-[#F2631F]" />,
-    title: 'Money Back',
+    title: 'Cash Back',
     description: 'When paying for products via Dasun Wallet'
   },
   {
@@ -21,13 +21,13 @@ const services = [
 
 const Services: React.FC = () => {
   return (
-    <section className="pb-12 px-4 md:px-8 bg-white">
-      <div className="container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-20">
+    <section className="pb-12">
+      <div className="container mx-auto px-4 xl:px-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {services.map((service, index) => (
             <div 
               key={index}
-              className="flex flex-col items-center text-center p-6 border border-gray-200 rounded-lg bg-white"
+              className="flex flex-col items-center text-center px-0 py-6 border border-gray-200 rounded-lg bg-white hover:shadow-md transition-shadow"
             >
               <div className="mb-4">
                 {service.icon}

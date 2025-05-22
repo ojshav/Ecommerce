@@ -26,7 +26,7 @@
 
 @layer components {
   .content-container {
-    @apply pt-[250px] pb-0 sm:pt-[240px] md:pt-[150px] lg:pt-[150px]; /* Responsive padding-top for fixed navbar */
+    @apply pt-[250px] pb-0 sm:pt-[240px] md:pt-[150px] lg:pt-[150px]; /* Responsive padding-top for fixed navbar */
   }
 }
 
