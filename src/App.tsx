@@ -241,11 +241,11 @@ function App() {
                 </Route>
 
                 {/* Business Auth Routes */}
-                <Route path="/business/login" element={<BusinessLogin />} />
-                <Route path="/register-business" element={<RegisterBusiness />} />
+                {/* <Route path="/business/login" element={<BusinessLogin />} />
+                <Route path="/register-business" element={<RegisterBusiness />} /> */}
 
                 {/* Auth Routes without header/footer */}
-                <Route path="/signup" element={<SignUp />} />
+                {/* <Route path="/signup" element={<SignUp />} /> */}
 
                 {/* Public Routes with header/footer */}
                 <Route
@@ -268,7 +268,7 @@ function App() {
                           <Route path="/signup" element={<SignUp />} />
                           <Route path="/verification-pending" element={<VerificationPending />} />
                           <Route path="/verify-email/:token" element={<VerifyEmail />} />
-                          <Route path="/business-login" element={<BusinessLogin />} />
+                          <Route path="/business/login" element={<BusinessLogin />} />
                           <Route path="/register-business" element={<RegisterBusiness />} />
 
                           <Route path="/password/reset" element={<PasswordReset />} />
