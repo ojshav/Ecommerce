@@ -10,7 +10,7 @@ const SuperadminHeader: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/auth/superadmin-login');
+    navigate('/');
   };
 
   return (
