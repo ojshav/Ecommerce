@@ -11,10 +11,19 @@ export interface Product {
   featured?: boolean;
   favourite?: boolean;
   isNew?: boolean;
+  isBuiltIn?: boolean;
   rating: number;
   reviews: number;
   stock: number;
   tags?: string[];
+  primary_image?: string;
+  brand?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  sku: string;
+  category_id?: number;
+  brand_id?: number;
+  attributes?: any[];
 }
 
 export interface User {
