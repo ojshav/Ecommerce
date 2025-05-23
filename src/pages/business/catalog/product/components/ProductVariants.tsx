@@ -411,6 +411,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVariantForMedia, setSelectedVariantForMedia] = useState<string | null>(null);
   const [mediaStats, setMediaStats] = useState<{[key: string]: any}>({});
+  const [isUploading, setIsUploading] = useState<{[key: string]: boolean}>({});
 
   useEffect(() => {
     if (productId) {
@@ -733,27 +734,6 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
     }
   };
 
-  const fetchVariantMedia = async (variantId: number) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/variants/${variantId}/media`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch variant media');
-      }
-
-      const media = await response.json();
-      return media;
-    } catch (error) {
-      console.error('Error fetching variant media:', error);
-      throw error;
-    }
-  };
-
   const fetchMediaStats = async (variantId: number) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/variants/${variantId}/media/stats`, {
@@ -778,41 +758,58 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
   };
 
   const handleMediaUpload = async (variantId: number, file: File) => {
+    if (!variantId) return;
+
+    setIsUploading(prev => ({ ...prev, [variantId]: true }));
     const formData = new FormData();
     formData.append('media_file', file);
-    formData.append('type', file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE');
+    
+    // Detect media type based on file type
+    const isVideo = file.type.startsWith('video/');
+    const isImage = file.type.startsWith('image/');
+    
+    if (!isVideo && !isImage) {
+        setError('Invalid file type. Please upload an image or video.');
+        setIsUploading(prev => ({ ...prev, [variantId]: false }));
+        return;
+    }
+    
+    formData.append('type', isVideo ? 'VIDEO' : 'IMAGE');
     formData.append('display_order', '0');
     formData.append('is_primary', 'false');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/variants/${variantId}/media`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        },
-        body: formData,
-      });
+        const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/variants/${variantId}/media`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            },
+            body: formData,
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to upload media');
-      }
-
-      const newMedia = await response.json();
-      const updatedVariants = variants.map(v => {
-        if (v.variant_id === variantId) {
-          return {
-            ...v,
-            media: [...(v.media || []), newMedia]
-          };
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to upload media');
         }
-        return v;
-      });
 
-      onVariantsChange(updatedVariants);
-      await fetchMediaStats(variantId);
+        const newMedia = await response.json();
+        const updatedVariants = variants.map(v => {
+            if (v.variant_id === variantId) {
+                return {
+                    ...v,
+                    media: [...(v.media || []), newMedia]
+                };
+            }
+            return v;
+        });
+
+        onVariantsChange(updatedVariants);
+        await fetchMediaStats(variantId);
     } catch (error) {
-      console.error('Error uploading media:', error);
-      setError('Failed to upload media. Please try again.');
+        console.error('Error uploading media:', error);
+        setError(error instanceof Error ? error.message : 'Failed to upload media. Please try again.');
+    } finally {
+        setIsUploading(prev => ({ ...prev, [variantId]: false }));
     }
   };
 
@@ -882,6 +879,14 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
       setError('Failed to update media. Please try again.');
     }
   };
+
+  useEffect(() => {
+    variants.forEach(variant => {
+      if (variant.variant_id) {
+        fetchMediaStats(variant.variant_id);
+      }
+    });
+  }, [variants]);
 
   if (isLoading) {
     return (
