@@ -33,3 +33,10 @@
 
 
 
+@keyframes progressBarAnimation {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+.animate-progress-bar {
+  animation: progressBarAnimation 4s linear forwards; 
+}

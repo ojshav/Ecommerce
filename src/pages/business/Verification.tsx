@@ -5,7 +5,7 @@ import {
   CloudArrowUpIcon, 
   CheckCircleIcon, 
   ExclamationCircleIcon,
-  InformationCircleIcon
+  InformationCircleIcon 
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -36,6 +36,7 @@ interface DocumentUpload {
   required: boolean;
   documentType: string;
   name: string;
+  fileUrl?: string | null; // Added to store the URL of the uploaded file
 }
 
 interface BusinessDetails {
@@ -67,6 +68,8 @@ interface ValidationErrors {
   swiftCode?: string;
   routingNumber?: string;
   iban?: string;
+  // Potentially add a general documents error key if needed
+  // documents?: string; 
 }
 
 const Verification: React.FC = () => {
@@ -78,10 +81,8 @@ const Verification: React.FC = () => {
   const [supportedCountries, setSupportedCountries] = useState<Array<{ code: string; name: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // State for validation errors
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
-  // Business details state
   const [businessDetails, setBusinessDetails] = useState<BusinessDetails>({
     gstin: '',
     panNumber: '',
@@ -90,7 +91,6 @@ const Verification: React.FC = () => {
     salesTaxNumber: ''
   });
 
-  // Bank details state
   const [bankDetails, setBankDetails] = useState<BankDetails>({
     accountNumber: '',
     bankName: '',
@@ -101,10 +101,8 @@ const Verification: React.FC = () => {
     iban: ''
   });
 
-  // Document upload states
   const [documents, setDocuments] = useState<{ [key: string]: DocumentUpload }>({});
 
-  // Add this new function to check verification status
   const checkVerificationStatus = async () => {
     if (!user || !accessToken) return;
 
@@ -121,13 +119,10 @@ const Verification: React.FC = () => {
 
       const data = await response.json();
       
-      // Only redirect if documents are submitted and we're not already on the status page
       if (data.has_submitted_documents && !window.location.pathname.includes('/business/verification-status')) {
         navigate('/business/verification-pending');
         return;
       }
-
-      // If we get here, user hasn't submitted documents yet
       setIsLoading(false);
     } catch (error) {
       console.error('Error checking verification status:', error);
@@ -135,7 +130,6 @@ const Verification: React.FC = () => {
     }
   };
 
-  // Update the useEffect for authentication check
   useEffect(() => {
     if (!user || !isMerchant) {
       toast.error('You must be logged in as a merchant to access this page');
@@ -145,7 +139,6 @@ const Verification: React.FC = () => {
     }
   }, [user, isMerchant, navigate, accessToken]);
 
-  // Fetch supported countries
   useEffect(() => {
     const fetchSupportedCountries = async () => {
       try {
@@ -158,14 +151,14 @@ const Verification: React.FC = () => {
         toast.error('Failed to load supported countries');
       }
     };
-
     fetchSupportedCountries();
   }, []);
 
-  // Fetch country configuration when country changes
   useEffect(() => {
     const fetchCountryConfig = async () => {
+      if (!selectedCountry || !accessToken) return; 
       try {
+        setIsLoading(true); // Indicate loading when config changes
         const response = await fetch(`${API_BASE_URL}/api/merchants/country-config/${selectedCountry}`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`
@@ -176,27 +169,30 @@ const Verification: React.FC = () => {
         const config = await response.json();
         setCountryConfig(config);
         
-        // Update document requirements
         const newDocuments: { [key: string]: DocumentUpload } = {};
-        config.required_documents.forEach((doc: { type: string; name: string; required: boolean }) => {
-          newDocuments[doc.type] = {
-            id: doc.type,
-            file: null,
-            status: 'pending',
-            required: doc.required,
-            documentType: doc.type,
-            name: doc.name
-          };
-        });
-        
+        if (config.required_documents) {
+            config.required_documents.forEach((doc: { type: string; name: string; required: boolean }) => {
+            newDocuments[doc.type] = {
+                id: doc.type,
+                file: null,
+                status: 'pending',
+                required: doc.required,
+                documentType: doc.type,
+                name: doc.name,
+                fileUrl: null 
+            };
+            });
+        }
         setDocuments(newDocuments);
       } catch (error) {
         console.error('Error fetching country config:', error);
-        toast.error('Failed to load country configuration');
+        toast.error('Failed to load country configuration.');
+      } finally {
+        // setIsLoading(false); // Already handled by checkVerificationStatus initial load 
       }
     };
 
-    if (accessToken) {
+    if (accessToken) { // Only fetch if accessToken is present
       fetchCountryConfig();
     }
   }, [selectedCountry, accessToken]);
@@ -204,6 +200,10 @@ const Verification: React.FC = () => {
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedCountry(e.target.value);
     setValidationErrors({});
+    // Resetting form fields on country change if desired - user's original did not do this.
+    // setBusinessDetails({ gstin: '', panNumber: '', taxId: '', vatNumber: '', salesTaxNumber: '' });
+    // setBankDetails({ accountNumber: '', bankName: '', bankBranch: '', ifscCode: '', swiftCode: '', routingNumber: '', iban: '' });
+    // setDocuments({}); // This would clear documents, might need refetch or careful handling
   };
 
   const handleFileChange = async (documentId: string, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -215,20 +215,22 @@ const Verification: React.FC = () => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       
-      // Validate file type
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
       if (!allowedTypes.includes(file.type)) {
         toast.error('Invalid file type. Please upload PDF, JPEG, or PNG files only.');
+        e.target.value = ''; // Clear the input
         return;
       }
 
-      // Validate file size (10MB limit)
-      const maxSize = 10 * 1024 * 1024;
+      const maxSize = 10 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
         toast.error('File size too large. Maximum size is 10MB.');
+        e.target.value = ''; // Clear the input
         return;
       }
 
+      const toastId = toast.loading(`Uploading ${file.name}...`);
+      
       try {
         const formData = new FormData();
         formData.append('file', file);
@@ -254,23 +256,30 @@ const Verification: React.FC = () => {
           ...prev,
           [documentId]: {
             ...prev[documentId],
-            file,
-            status: 'uploaded'
+            file, // Store the File object
+            status: 'uploaded',
+            fileUrl: data.document.file_url // Store the URL from backend
           }
         }));
 
-        toast.success('Document uploaded successfully');
+        toast.success(`${documents[documentId].name} uploaded successfully`, { id: toastId });
       } catch (error) {
         console.error('Error uploading document:', error);
         setDocuments(prev => ({
           ...prev,
           [documentId]: {
             ...prev[documentId],
-            file,
-            status: 'error'
+            file, // Keep the file that failed to give context
+            status: 'error',
+            fileUrl: prev[documentId].fileUrl // Retain old URL if update failed
           }
         }));
-        toast.error(error instanceof Error ? error.message : 'Failed to upload document');
+        toast.error(error instanceof Error ? error.message : 'Failed to upload document', { id: toastId });
+      } finally {
+        // Clear the file input to allow re-selection of the same file if needed
+        if (e.target) {
+          e.target.value = '';
+        }
       }
     }
   };
@@ -294,25 +303,24 @@ const Verification: React.FC = () => {
   };
 
   const validateField = (name: string, value: string) => {
-    if (!countryConfig) return;
+    if (!countryConfig || !countryConfig.field_validations) return; // Add null check for field_validations
     
-    console.log(`Validating field ${name} with value:`, value);
-    console.log('Current country config:', countryConfig);
+    // console.log(`Validating field ${name} with value:`, value);
+    // console.log('Current country config:', countryConfig);
     
     const errors = { ...validationErrors };
-    const validations = countryConfig.field_validations;
+    const validationRule = countryConfig.field_validations[name]; // Corrected access
     
-    if (validations[name]) {
-      const pattern = new RegExp(validations[name].pattern);
-      if (!pattern.test(value) && value.trim() !== '') {
-        errors[name as keyof ValidationErrors] = validations[name].message;
-        console.log(`Validation failed for ${name}:`, validations[name].message);
+    if (validationRule) {
+      const pattern = new RegExp(validationRule.pattern);
+      if (!pattern.test(value) && value.trim() !== '') { // Only validate if not empty, empty check is for submit
+        errors[name as keyof ValidationErrors] = validationRule.message;
+        // console.log(`Validation failed for ${name}:`, validationRule.message);
       } else {
         delete errors[name as keyof ValidationErrors];
-        console.log(`Validation passed for ${name}`);
+        // console.log(`Validation passed for ${name}`);
       }
     }
-
     setValidationErrors(errors);
   };
 
@@ -324,58 +332,85 @@ const Verification: React.FC = () => {
       return;
     }
 
-    // Validate all required fields
-    const errors: ValidationErrors = {};
-    const requiredFields = {
-      'IN': ['panNumber', 'gstin', 'ifscCode'],
-      'GLOBAL': ['taxId', 'swiftCode']
+    const currentValidationErrors: ValidationErrors = {};
+    const requiredFieldsMap = {
+      'IN': ['panNumber', 'gstin', 'accountNumber', 'bankName', 'ifscCode'], // Added common ones
+      // Define for other countries or a 'GLOBAL' default if applicable
+      // For example, if 'US' is a country code:
+      // 'US': ['taxId', 'accountNumber', 'bankName', 'swiftCode', 'routingNumber'], 
     };
+    // Fallback to a general set if country not in map, or handle specific else case
+    const defaultRequiredFields = ['taxId', 'accountNumber', 'bankName', 'swiftCode'];
 
-    console.log('Starting validation for country:', selectedCountry);
-    console.log('Current business details:', businessDetails);
-    console.log('Current bank details:', bankDetails);
 
-    const countryRequiredFields = requiredFields[selectedCountry as keyof typeof requiredFields] || [];
+    // Validate required text fields based on country
+    let fieldsToValidate = requiredFieldsMap[selectedCountry as keyof typeof requiredFieldsMap] || defaultRequiredFields;
+    if (selectedCountry !== 'IN') { // Generic non-India case
+        fieldsToValidate = ['taxId', 'accountNumber', 'bankName', 'swiftCode'];
+        // Add routingNumber as optional or conditionally required for specific non-IN countries
+    }
+
+
+    fieldsToValidate.forEach(field => {
+        let value: string | undefined;
+        if (field in businessDetails) {
+            value = businessDetails[field as keyof BusinessDetails];
+        } else if (field in bankDetails) {
+            value = bankDetails[field as keyof BankDetails];
+        }
+
+        if (!value || value.trim() === '') {
+            currentValidationErrors[field as keyof ValidationErrors] = `${field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} is required.`;
+        } else if (countryConfig?.field_validations?.[field]) {
+            // Re-run pattern validation for required fields on submit
+            const rule = countryConfig.field_validations[field];
+            const pattern = new RegExp(rule.pattern);
+            if (!pattern.test(value)) {
+                currentValidationErrors[field as keyof ValidationErrors] = rule.message;
+            }
+        }
+    });
     
-    countryRequiredFields.forEach(field => {
-      const value = businessDetails[field as keyof BusinessDetails] || 
-                   bankDetails[field as keyof BankDetails];
-      if (!value || value.trim() === '') {
-        errors[field as keyof ValidationErrors] = `${field} is required`;
-        console.log(`Validation error: ${field} is missing or empty`);
+
+    // Validate required documents
+    let allRequiredDocsUploaded = true;
+    Object.values(documents).forEach(doc => {
+      if (doc.required && doc.status !== 'uploaded') {
+        allRequiredDocsUploaded = false;
       }
     });
 
-    if (Object.keys(errors).length > 0) {
-      console.log('Validation errors found:', errors);
-      setValidationErrors(errors);
-      toast.error('Please fill in all required fields');
+    if (!allRequiredDocsUploaded) {
+      toast.error('Please upload all required documents.');
+      // Optionally, you could set a specific error message for documents
+      // currentValidationErrors.documents = 'Please upload all required documents.';
+    }
+
+    if (Object.keys(currentValidationErrors).length > 0 || !allRequiredDocsUploaded) {
+      setValidationErrors(currentValidationErrors);
+      toast.error('Please fill in all required fields correctly and upload documents.');
       return;
     }
 
     setIsSubmitting(true);
+    const submissionToastId = toast.loading('Submitting verification...');
 
     try {
-      // Format the data according to the backend schema
       const profileData = {
         country_code: selectedCountry,
-        // Business details
         pan_number: selectedCountry === 'IN' ? businessDetails.panNumber : '',
         gstin: selectedCountry === 'IN' ? businessDetails.gstin : '',
-        tax_id: selectedCountry === 'GLOBAL' ? businessDetails.taxId : '',
-        vat_number: selectedCountry === 'GLOBAL' ? businessDetails.vatNumber : '',
-        sales_tax_number: selectedCountry === 'GLOBAL' ? businessDetails.salesTaxNumber : '',
-        // Bank details
+        tax_id: selectedCountry !== 'IN' ? businessDetails.taxId : '',
+        vat_number: selectedCountry !== 'IN' ? businessDetails.vatNumber : '',
+        sales_tax_number: selectedCountry !== 'IN' ? businessDetails.salesTaxNumber : '',
         bank_account_number: bankDetails.accountNumber,
         bank_name: bankDetails.bankName,
-        bank_branch: bankDetails.bankBranch,
+        bank_branch: bankDetails.bankBranch || '', // Ensure empty string if undefined
         bank_ifsc_code: selectedCountry === 'IN' ? bankDetails.ifscCode : '',
-        bank_swift_code: selectedCountry === 'GLOBAL' ? bankDetails.swiftCode : '',
-        bank_routing_number: selectedCountry === 'GLOBAL' ? bankDetails.routingNumber : '',
-        bank_iban: selectedCountry === 'GLOBAL' ? bankDetails.iban : ''
+        bank_swift_code: selectedCountry !== 'IN' ? bankDetails.swiftCode : '',
+        bank_routing_number: selectedCountry !== 'IN' ? bankDetails.routingNumber : '',
+        bank_iban: selectedCountry !== 'IN' ? bankDetails.iban : ''
       };
-
-      console.log('Submitting profile data:', profileData);
 
       const profileResponse = await fetch(`${API_BASE_URL}/api/merchants/profile`, {
         method: 'PUT',
@@ -388,12 +423,9 @@ const Verification: React.FC = () => {
 
       if (!profileResponse.ok) {
         const errorData = await profileResponse.json();
-        console.error('Profile update failed:', errorData);
-        throw new Error(errorData.error || errorData.details || 'Failed to update profile');
+        throw new Error(errorData.error || errorData.message || errorData.details?.body || 'Failed to update profile');
       }
 
-      // Submit for verification
-      console.log('Submitting for verification...');
       const verifyResponse = await fetch(`${API_BASE_URL}/api/merchants/profile/verify`, {
         method: 'POST',
         headers: {
@@ -404,23 +436,21 @@ const Verification: React.FC = () => {
 
       if (!verifyResponse.ok) {
         const errorData = await verifyResponse.json();
-        console.error('Verification submission failed:', errorData);
-        throw new Error(errorData.error || errorData.details || 'Failed to submit for verification');
+        throw new Error(errorData.error || errorData.message || errorData.details?.body || 'Failed to submit for verification');
       }
 
-      console.log('Verification submitted successfully');
-      toast.success('Verification submitted successfully');
-      navigate('/business/verification-status');
+      toast.success('Verification submitted successfully!', { id: submissionToastId });
+      navigate('/business/verification-pending');
     } catch (error) {
       console.error('Error in verification process:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to submit verification');
+      toast.error(error instanceof Error ? error.message : 'Failed to submit verification', { id: submissionToastId });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const getFieldHelperText = (fieldName: string, countryCode: string) => {
-    const helpers = {
+    const helpers: { [key: string]: { [key: string]: string } } = {
       panNumber: {
         IN: "Enter your 10-character PAN number (e.g., ABCDE1234F)",
         GLOBAL: "Enter your tax identification number"
@@ -430,31 +460,37 @@ const Verification: React.FC = () => {
         GLOBAL: "Enter your GST/VAT number"
       },
       taxId: {
-        IN: "Enter your tax identification number",
-        GLOBAL: "Enter your tax ID (e.g., XX-XXXXXXX for EIN)"
+        IN: "Enter your tax identification number", // This might be confusing for IN, PAN is primary
+        GLOBAL: "Enter your tax ID (e.g., EIN for US)"
       },
       ifscCode: {
         IN: "Enter your 11-character IFSC code (e.g., SBIN0001234)",
-        GLOBAL: "Enter your bank's IFSC code"
+        GLOBAL: "Enter your bank's local clearing code (if applicable)"
       },
       swiftCode: {
-        IN: "Enter your bank's SWIFT/BIC code",
+        IN: "Enter your bank's SWIFT/BIC code (if applicable for international transfers)",
         GLOBAL: "Enter your 8-11 character SWIFT/BIC code (e.g., SBINUS33)"
       },
       accountNumber: {
         IN: "Enter your bank account number",
-        GLOBAL: "Enter your bank account number"
+        GLOBAL: "Enter your bank account number or IBAN"
       },
       bankName: {
         IN: "Enter your bank's name",
         GLOBAL: "Enter your bank's name"
+      },
+      routingNumber: {
+        GLOBAL: "Enter your bank's routing number (e.g., ABA for US banks)"
       }
     };
-    return helpers[fieldName as keyof typeof helpers]?.[countryCode as keyof (typeof helpers)[keyof typeof helpers]] || "";
+    return helpers[fieldName]?.[countryCode] || helpers[fieldName]?.['GLOBAL'] || "";
   };
 
   const getValidationErrorMessage = (fieldName: string, countryCode: string) => {
-    const errorMessages = {
+    // This function seems to be duplicated by the direct messages from validationErrors state
+    // For direct display from validationErrors, this might not be strictly needed if messages are good there
+    // However, keeping it as per your original structure
+    const errorMessages: { [key: string]: { [key: string]: string } } = {
       panNumber: {
         IN: "Please enter a valid PAN number (e.g., ABCDE1234F)",
         GLOBAL: "Please enter a valid tax identification number"
@@ -469,7 +505,7 @@ const Verification: React.FC = () => {
       },
       ifscCode: {
         IN: "Please enter a valid IFSC code (e.g., SBIN0001234)",
-        GLOBAL: "Please enter a valid IFSC code"
+        GLOBAL: "Please enter a valid local clearing code"
       },
       swiftCode: {
         IN: "Please enter a valid SWIFT/BIC code",
@@ -477,23 +513,39 @@ const Verification: React.FC = () => {
       },
       accountNumber: {
         IN: "Please enter a valid account number",
-        GLOBAL: "Please enter a valid account number"
+        GLOBAL: "Please enter a valid account number or IBAN"
       },
       bankName: {
         IN: "Please enter a valid bank name",
         GLOBAL: "Please enter a valid bank name"
+      },
+      routingNumber: {
+          GLOBAL: "Please enter a valid routing number"
       }
     };
-    return errorMessages[fieldName as keyof typeof errorMessages]?.[countryCode as keyof (typeof errorMessages)[keyof typeof errorMessages]] || "Invalid input";
+    // Fallback logic for messages
+    return validationErrors[fieldName as keyof ValidationErrors] || errorMessages[fieldName]?.[countryCode] || errorMessages[fieldName]?.['GLOBAL'] || "Invalid input";
   };
 
-  if (isLoading) {
+  if (isLoading && !countryConfig) { // Show loading skeleton if initial data or config is loading
     return (
       <div className="max-w-5xl mx-auto py-12 px-4 flex justify-center">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="h-8 w-64 bg-gray-200 rounded mb-8"></div>
-          <div className="h-64 w-full bg-gray-200 rounded"></div>
-          <div className="mt-4 text-gray-500">Loading verification form...</div>
+        <div className="animate-pulse flex flex-col items-center w-full">
+          <div className="h-8 w-3/4 bg-gray-200 rounded mb-4 self-center"></div>
+          <div className="h-4 w-1/2 bg-gray-200 rounded mb-10 self-center"></div>
+          
+          <div className="w-full bg-white rounded-lg shadow-md p-6 mb-8">
+            <div className="h-6 w-1/3 bg-gray-200 rounded mb-6"></div>
+            <div className="h-10 w-full max-w-md bg-gray-200 rounded mb-8"></div>
+
+            <div className="h-6 w-1/3 bg-gray-200 rounded mb-6"></div>
+            <div className="space-y-6">
+                <div className="h-10 w-full max-w-md bg-gray-200 rounded"></div>
+                <div className="h-10 w-full max-w-md bg-gray-200 rounded"></div>
+            </div>
+             <div className="mt-4 h-4 w-3/4 max-w-md bg-gray-200 rounded"></div>
+          </div>
+          <div className="mt-6 text-gray-500">Loading verification form...</div>
         </div>
       </div>
     );
@@ -509,7 +561,7 @@ const Verification: React.FC = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate> {/* Added noValidate to rely on custom validation */}
           {/* Country Selection */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
@@ -518,7 +570,8 @@ const Verification: React.FC = () => {
             <select
               value={selectedCountry}
               onChange={handleCountryChange}
-              className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              className="block w-full max-w-md rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+              disabled={isSubmitting}
             >
               {supportedCountries.map(country => (
                 <option key={country.code} value={country.code}>
@@ -533,306 +586,287 @@ const Verification: React.FC = () => {
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
               Business Details
             </h2>
-            
             <div className="space-y-6">
               {selectedCountry === 'IN' ? (
                 <>
-                  {/* Indian Business Fields */}
                   <div>
-                    <label className="block mb-2 font-medium text-gray-700">
+                    <label htmlFor="panNumber" className="block mb-2 font-medium text-gray-700">
                       PAN Number <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="panNumber"
                       type="text"
                       name="panNumber"
-                      value={businessDetails.panNumber}
+                      value={businessDetails.panNumber || ''}
                       onChange={handleBusinessDetailsChange}
-                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
-                        validationErrors.panNumber ? 'border-red-500' : 'border-gray-300'
+                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
+                        validationErrors.panNumber ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                                                   : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
                       }`}
                       placeholder="e.g., ABCDE1234F"
+                      disabled={isSubmitting}
                     />
-                    <p className="mt-1 text-sm text-gray-500">
-                      {getFieldHelperText('panNumber', selectedCountry)}
-                    </p>
-                    {validationErrors.panNumber && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {getValidationErrorMessage('panNumber', selectedCountry)}
-                      </p>
-                    )}
+                    <p className="mt-1 text-sm text-gray-500">{getFieldHelperText('panNumber', selectedCountry)}</p>
+                    {validationErrors.panNumber && <p className="mt-1 text-sm text-red-600">{validationErrors.panNumber}</p>}
                   </div>
-
                   <div>
-                    <label className="block mb-2 font-medium text-gray-700">
+                    <label htmlFor="gstin" className="block mb-2 font-medium text-gray-700">
                       GSTIN <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="gstin"
                       type="text"
                       name="gstin"
-                      value={businessDetails.gstin}
+                      value={businessDetails.gstin || ''}
                       onChange={handleBusinessDetailsChange}
-                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
-                        validationErrors.gstin ? 'border-red-500' : 'border-gray-300'
+                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
+                        validationErrors.gstin ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                                               : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
                       }`}
                       placeholder="e.g., 22AAAAA0000A1Z5"
+                      disabled={isSubmitting}
                     />
-                    <p className="mt-1 text-sm text-gray-500">
-                      {getFieldHelperText('gstin', selectedCountry)}
-                    </p>
-                    {validationErrors.gstin && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {getValidationErrorMessage('gstin', selectedCountry)}
-                      </p>
-                    )}
+                    <p className="mt-1 text-sm text-gray-500">{getFieldHelperText('gstin', selectedCountry)}</p>
+                    {validationErrors.gstin && <p className="mt-1 text-sm text-red-600">{validationErrors.gstin}</p>}
                   </div>
                 </>
               ) : (
                 <>
-                  {/* Global Business Fields */}
                   <div>
-                    <label className="block mb-2 font-medium text-gray-700">
+                    <label htmlFor="taxId" className="block mb-2 font-medium text-gray-700">
                       Tax ID <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="taxId"
                       type="text"
                       name="taxId"
-                      value={businessDetails.taxId}
+                      value={businessDetails.taxId || ''}
                       onChange={handleBusinessDetailsChange}
-                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
-                        validationErrors.taxId ? 'border-red-500' : 'border-gray-300'
+                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
+                        validationErrors.taxId ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                                               : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
                       }`}
                       placeholder="e.g., XX-XXXXXXX"
+                      disabled={isSubmitting}
                     />
-                    <p className="mt-1 text-sm text-gray-500">
-                      {getFieldHelperText('taxId', selectedCountry)}
-                    </p>
-                    {validationErrors.taxId && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {getValidationErrorMessage('taxId', selectedCountry)}
-                      </p>
-                    )}
+                    <p className="mt-1 text-sm text-gray-500">{getFieldHelperText('taxId', selectedCountry)}</p>
+                    {validationErrors.taxId && <p className="mt-1 text-sm text-red-600">{validationErrors.taxId}</p>}
                   </div>
-
                   <div>
-                    <label className="block mb-2 font-medium text-gray-700">
-                      VAT Number
-                    </label>
-                    <input
-                      type="text"
-                      name="vatNumber"
-                      value={businessDetails.vatNumber}
-                      onChange={handleBusinessDetailsChange}
-                      className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:ring-primary-500"
-                    />
+                    <label htmlFor="vatNumber" className="block mb-2 font-medium text-gray-700">VAT Number</label>
+                    <input id="vatNumber" type="text" name="vatNumber" value={businessDetails.vatNumber || ''} onChange={handleBusinessDetailsChange} className="block w-full max-w-md rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" disabled={isSubmitting} />
                   </div>
-
                   <div>
-                    <label className="block mb-2 font-medium text-gray-700">
-                      Sales Tax Number
-                    </label>
-                    <input
-                      type="text"
-                      name="salesTaxNumber"
-                      value={businessDetails.salesTaxNumber}
-                      onChange={handleBusinessDetailsChange}
-                      className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:ring-primary-500"
-                    />
+                    <label htmlFor="salesTaxNumber" className="block mb-2 font-medium text-gray-700">Sales Tax Number</label>
+                    <input id="salesTaxNumber" type="text" name="salesTaxNumber" value={businessDetails.salesTaxNumber || ''} onChange={handleBusinessDetailsChange} className="block w-full max-w-md rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500" disabled={isSubmitting} />
                   </div>
                 </>
               )}
             </div>
           </div>
-
+          
           {/* Bank Details Section */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
               Bank Details
             </h2>
-            
             <div className="space-y-6">
               <div>
-                <label className="block mb-2 font-medium text-gray-700">
+                <label htmlFor="accountNumber" className="block mb-2 font-medium text-gray-700">
                   Account Number <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="accountNumber"
                   type="text"
                   name="accountNumber"
-                  value={bankDetails.accountNumber}
+                  value={bankDetails.accountNumber || ''}
                   onChange={handleBankDetailsChange}
-                  className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
-                    validationErrors.accountNumber ? 'border-red-500' : 'border-gray-300'
+                  className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
+                    validationErrors.accountNumber ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                                                  : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
                   }`}
+                  disabled={isSubmitting}
                 />
-                <p className="mt-1 text-sm text-gray-500">
-                  {getFieldHelperText('accountNumber', selectedCountry)}
-                </p>
-                {validationErrors.accountNumber && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getValidationErrorMessage('accountNumber', selectedCountry)}
-                  </p>
-                )}
+                <p className="mt-1 text-sm text-gray-500">{getFieldHelperText('accountNumber', selectedCountry)}</p>
+                {validationErrors.accountNumber && <p className="mt-1 text-sm text-red-600">{validationErrors.accountNumber}</p>}
               </div>
-
               <div>
-                <label className="block mb-2 font-medium text-gray-700">
+                <label htmlFor="bankName" className="block mb-2 font-medium text-gray-700">
                   Bank Name <span className="text-red-500">*</span>
                 </label>
                 <input
+                  id="bankName"
                   type="text"
                   name="bankName"
-                  value={bankDetails.bankName}
+                  value={bankDetails.bankName || ''}
                   onChange={handleBankDetailsChange}
-                  className="block w-full max-w-md rounded-md border-gray-300 shadow-sm focus:ring-primary-500"
+                  className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
+                    validationErrors.bankName ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                                             : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
+                  }`}
+                  disabled={isSubmitting}
                 />
-                <p className="mt-1 text-sm text-gray-500">
-                  {getFieldHelperText('bankName', selectedCountry)}
-                </p>
+                <p className="mt-1 text-sm text-gray-500">{getFieldHelperText('bankName', selectedCountry)}</p>
+                 {validationErrors.bankName && <p className="mt-1 text-sm text-red-600">{validationErrors.bankName}</p>}
               </div>
-
               {selectedCountry === 'IN' ? (
-                <>
-                  {/* Indian Bank Fields */}
-                  <div>
-                    <label className="block mb-2 font-medium text-gray-700">
-                      IFSC Code <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="ifscCode"
-                      value={bankDetails.ifscCode}
-                      onChange={handleBankDetailsChange}
-                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
-                        validationErrors.ifscCode ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="e.g., SBIN0001234"
-                    />
-                    <p className="mt-1 text-sm text-gray-500">
-                      {getFieldHelperText('ifscCode', selectedCountry)}
-                    </p>
-                    {validationErrors.ifscCode && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {getValidationErrorMessage('ifscCode', selectedCountry)}
-                      </p>
-                    )}
-                  </div>
-                </>
+                <div>
+                  <label htmlFor="ifscCode" className="block mb-2 font-medium text-gray-700">
+                    IFSC Code <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="ifscCode"
+                    type="text"
+                    name="ifscCode"
+                    value={bankDetails.ifscCode || ''}
+                    onChange={handleBankDetailsChange}
+                    className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
+                      validationErrors.ifscCode ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                                                : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
+                    }`}
+                    placeholder="e.g., SBIN0001234"
+                    disabled={isSubmitting}
+                  />
+                  <p className="mt-1 text-sm text-gray-500">{getFieldHelperText('ifscCode', selectedCountry)}</p>
+                  {validationErrors.ifscCode && <p className="mt-1 text-sm text-red-600">{validationErrors.ifscCode}</p>}
+                </div>
               ) : (
                 <>
-                  {/* Global Bank Fields */}
                   <div>
-                    <label className="block mb-2 font-medium text-gray-700">
+                    <label htmlFor="swiftCode" className="block mb-2 font-medium text-gray-700">
                       SWIFT/BIC Code <span className="text-red-500">*</span>
                     </label>
                     <input
+                      id="swiftCode"
                       type="text"
                       name="swiftCode"
-                      value={bankDetails.swiftCode}
+                      value={bankDetails.swiftCode || ''}
                       onChange={handleBankDetailsChange}
-                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
-                        validationErrors.swiftCode ? 'border-red-500' : 'border-gray-300'
+                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
+                        validationErrors.swiftCode ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                                                   : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
                       }`}
                       placeholder="e.g., SBINUS33"
+                      disabled={isSubmitting}
                     />
-                    <p className="mt-1 text-sm text-gray-500">
-                      {getFieldHelperText('swiftCode', selectedCountry)}
-                    </p>
-                    {validationErrors.swiftCode && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {getValidationErrorMessage('swiftCode', selectedCountry)}
-                      </p>
-                    )}
+                    <p className="mt-1 text-sm text-gray-500">{getFieldHelperText('swiftCode', selectedCountry)}</p>
+                    {validationErrors.swiftCode && <p className="mt-1 text-sm text-red-600">{validationErrors.swiftCode}</p>}
                   </div>
-
                   <div>
-                    <label className="block mb-2 font-medium text-gray-700">
-                      Routing Number
-                    </label>
-                    <input
-                      type="text"
-                      name="routingNumber"
-                      value={bankDetails.routingNumber}
-                      onChange={handleBankDetailsChange}
-                      className={`block w-full max-w-md rounded-md shadow-sm focus:ring-primary-500 ${
-                        validationErrors.routingNumber ? 'border-red-500' : 'border-gray-300'
-                      }`}
-                      placeholder="e.g., 123456789"
-                    />
-                    <p className="mt-1 text-sm text-gray-500">
-                      Enter your bank's routing number (if applicable)
-                    </p>
-                    {validationErrors.routingNumber && (
-                      <p className="mt-1 text-sm text-red-600">
-                        Please enter a valid routing number
-                      </p>
-                    )}
+                    <label htmlFor="routingNumber" className="block mb-2 font-medium text-gray-700">Routing Number</label>
+                    <input id="routingNumber" type="text" name="routingNumber" value={bankDetails.routingNumber || ''} onChange={handleBankDetailsChange} className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${ validationErrors.routingNumber ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500'}`} placeholder="e.g., 123456789" disabled={isSubmitting} />
+                    <p className="mt-1 text-sm text-gray-500">{getFieldHelperText('routingNumber', selectedCountry)}</p>
+                    {validationErrors.routingNumber && <p className="mt-1 text-sm text-red-600">{validationErrors.routingNumber}</p>}
                   </div>
                 </>
               )}
             </div>
           </div>
 
-          {/* Document Upload Section */}
+          {/* Document Upload Section - Updated Styling & Functionality */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
               Required Documents
             </h2>
-            
             <div className="space-y-6">
-              {Object.entries(documents).map(([id, doc]) => (
-                <div key={id} className="bg-white p-4 rounded-lg shadow">
-                  <label className="block mb-2 font-medium text-gray-700">
-                    {doc.name}
-                    {doc.required && <span className="text-red-500 ml-1">*</span>}
-                  </label>
-                  
-                  <div className="flex items-center">
-                    <label className={`
-                      flex justify-center items-center px-4 py-2 border-2 rounded-md 
-                      ${doc.status === 'uploaded' ? 'border-green-300 bg-green-50' : 
-                        doc.status === 'error' ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'}
-                      hover:bg-gray-50 cursor-pointer w-full max-w-xs
-                    `}>
-                      {doc.status === 'uploaded' ? (
-                        <span className="flex items-center text-green-600">
-                          <CheckCircleIcon className="h-5 w-5 mr-2" />
-                          {doc.file?.name || 'File uploaded'}
-                        </span>
-                      ) : doc.status === 'error' ? (
-                        <span className="flex items-center text-red-600">
-                          <ExclamationCircleIcon className="h-5 w-5 mr-2" />
-                          Upload failed
-                        </span>
-                      ) : (
-                        <span className="flex items-center text-gray-600">
-                          <CloudArrowUpIcon className="h-5 w-5 mr-2" />
-                          Upload File
-                        </span>
-                      )}
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={(e) => handleFileChange(id, e)}
-                      />
+              {countryConfig && Object.keys(documents).length > 0 ? (
+                 Object.values(documents).map((doc) => (
+                    <div key={doc.id} className="bg-white p-4 rounded-lg shadow">
+                    <label className="block mb-2 font-medium text-gray-700">
+                        {doc.name}
+                        {doc.required && <span className="text-red-500 ml-1">*</span>}
                     </label>
-                  </div>
-                  {doc.status === 'error' && (
-                    <p className="mt-1 text-sm text-red-600">
-                      Please try uploading again
-                    </p>
-                  )}
-                </div>
-              ))}
+
+                    {doc.status === 'uploaded' && doc.fileUrl ? (
+                        // Uploaded State: Show file info, View, and Update buttons
+                        <div className="mt-1">
+                            <div className="flex items-center p-2 bg-green-50 border border-green-200 rounded-md">
+                                <CheckCircleIcon className="h-5 w-5 mr-2 text-green-600 flex-shrink-0" />
+                                <p className="text-sm text-green-700 font-medium truncate flex-grow" title={doc.file?.name || 'Document uploaded'}>
+                                {doc.file?.name 
+                                    ? (doc.file.name.length > 30 ? doc.file.name.substring(0,27) + '...' : doc.file.name) 
+                                    : 'Uploaded'}
+                                </p>
+                            </div>
+                            <div className="flex items-center space-x-3 mt-2">
+                                <button
+                                type="button"
+                                onClick={() => window.open(doc.fileUrl!, '_blank', 'noopener,noreferrer')}
+                                className="text-sm text-primary-600 hover:text-primary-700 font-medium py-1 px-2 rounded-md hover:bg-primary-50 transition-colors"
+                                disabled={isSubmitting}
+                                >
+                                View
+                                </button>
+                                <label className={`text-sm font-medium py-1 px-2 rounded-md transition-colors ${isSubmitting ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer'}`}>
+                                Update
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    accept=".pdf,.jpg,.jpeg,.png"
+                                    onChange={(e) => !isSubmitting && handleFileChange(doc.id, e)}
+                                    disabled={isSubmitting}
+                                />
+                                </label>
+                            </div>
+                            <p className="mt-1 text-xs text-gray-500">PDF, JPG, PNG (Max 10MB)</p>
+                        </div>
+                    ) : (
+                        // Pending or Error State: Show Upload button/area (original style)
+                        <>
+                        <div className="flex items-center">
+                            <label className={`
+                            flex justify-center items-center px-4 py-2 border-2 rounded-md 
+                            ${doc.status === 'error' ? 'border-red-300 bg-red-50 text-red-600' : 'border-gray-300 bg-white text-gray-600'}
+                            ${isSubmitting ? 'cursor-not-allowed opacity-70' : 'hover:bg-gray-50 cursor-pointer'}
+                            w-full max-w-xs 
+                            `}
+                            >
+                            {doc.status === 'error' ? (
+                                <span className="flex items-center">
+                                <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                                Upload failed. Retry?
+                                </span>
+                            ) : (
+                                <span className="flex items-center">
+                                <CloudArrowUpIcon className="h-5 w-5 mr-2" />
+                                Upload File
+                                </span>
+                            )}
+                            <input
+                                type="file"
+                                className="hidden"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onChange={(e) => !isSubmitting && handleFileChange(doc.id, e)}
+                                disabled={isSubmitting}
+                            />
+                            </label>
+                        </div>
+                        {doc.status === 'error' && (
+                            <p className="mt-1 text-sm text-red-600">
+                            Please try uploading again. {doc.file?.name ? `(${doc.file.name})` : ''}
+                            </p>
+                        )}
+                        <p className="mt-1 text-xs text-gray-500">PDF, JPG, PNG (Max 10MB)</p>
+                        </>
+                    )}
+                    </div>
+                ))
+              ) : countryConfig && Object.keys(documents).length === 0 ? (
+                 <p className="text-gray-500 text-sm">No documents are currently required for {countryConfig.country_name}.</p>
+              ) : (
+                <p className="text-gray-500 text-sm">Select a country to view document requirements.</p>
+              )}
             </div>
           </div>
 
-          <div className="flex justify-center mt-10">
+          {/* Submit Button */}
+          <div className="flex justify-center mt-10 pt-6 border-t border-gray-200">
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || (isLoading && !countryConfig)} // Disable if still loading initial config
               className={`
                 px-8 py-3 rounded-md text-white font-semibold text-lg
-                ${isSubmitting ? 'bg-gray-400' : 'bg-primary-600 hover:bg-primary-700'}
+                ${isSubmitting || (isLoading && !countryConfig) ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}
                 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500
               `}
             >
