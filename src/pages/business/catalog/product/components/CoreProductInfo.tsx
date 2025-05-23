@@ -111,6 +111,35 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
   const [selectedAttributes, setSelectedAttributes] = useState<Record<number, string | string[]>>({});
   const [attributeErrors, setAttributeErrors] = useState<Record<string, any>>({});
 
+  // Function to generate SKU from product name
+  const generateSKU = (productName: string) => {
+    if (!productName) return '';
+    
+    // Remove special characters and convert to uppercase
+    const cleanName = productName
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .toUpperCase()
+      .trim();
+    
+    // Split into words and take first 3 characters of each word
+    const words = cleanName.split(/\s+/);
+    const skuParts = words.map(word => word.slice(0, 3));
+    
+    // Add timestamp to ensure uniqueness
+    const timestamp = Date.now().toString().slice(-4);
+    
+    // Combine parts and limit total length
+    return `${skuParts.join('-')}-${timestamp}`;
+  };
+
+  // Update SKU when product name changes
+  useEffect(() => {
+    if (name) {
+      const generatedSKU = generateSKU(name);
+      onInfoChange('sku', generatedSKU);
+    }
+  }, [name]);
+
   // Calculate discount whenever cost price or selling price changes
   useEffect(() => {
     const cost = parseFloat(costPrice) || 0;
@@ -370,26 +399,22 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
           </div>
         </div>
 
-        {/* SKU */}
+        {/* SKU - Read Only */}
         <div>
           <label
             htmlFor="sku"
             className="block text-sm font-medium text-gray-700"
           >
-            SKU
+            SKU (Auto-generated)
           </label>
           <div className="mt-1">
             <input
               type="text"
               id="sku"
               value={sku}
-              onChange={(e) => onInfoChange('sku', e.target.value)}
-              className={`block w-full rounded-md shadow-sm sm:text-sm ${
-                errors.sku
-                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
-              }`}
-              placeholder="Enter SKU"
+              readOnly
+              className="block w-full rounded-md shadow-sm sm:text-sm bg-gray-50 border-gray-300"
+              placeholder="SKU will be generated automatically"
             />
             {errors.sku && (
               <p className="mt-1 text-sm text-red-600">{errors.sku}</p>
