@@ -92,9 +92,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </p>
           
           <div className="mt-2 mb-3">
-            <span className="text-base font-bold">${product.price.toFixed(2)}</span>
+            <span className="text-base font-bold">₹{product.price.toFixed(2)}</span>
             {product.originalPrice && (
-              <span className="text-sm text-gray-400 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
+              <span className="text-sm text-gray-400 line-through ml-2">₹{product.originalPrice.toFixed(2)}</span>
             )}
           </div>
         </div>

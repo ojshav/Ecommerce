@@ -39,12 +39,22 @@ const ProductMeta: React.FC<ProductMetaProps> = ({
       setError(null);
       setSuccess(null);
 
+      // Validate required fields
+      if (!shortDescription.trim()) {
+        setError('Short description is required');
+        return;
+      }
+      if (!fullDescription.trim()) {
+        setError('Full description is required');
+        return;
+      }
+
       const metaData = {
-        meta_title: metaTitle,
-        meta_description: metaDescription,
-        meta_keywords: metaKeywords,
-        short_description: shortDescription,
-        full_description: fullDescription
+        short_desc: shortDescription.trim(),
+        full_desc: fullDescription.trim(),
+        meta_title: metaTitle.trim(),
+        meta_desc: metaDescription.trim(),
+        meta_keywords: metaKeywords.trim()
       };
 
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/meta`, {
@@ -61,10 +71,18 @@ const ProductMeta: React.FC<ProductMetaProps> = ({
         throw new Error(errorData.message || 'Failed to update meta data');
       }
 
+      const updatedData = await response.json();
       setSuccess('Meta data updated successfully');
+      
+      // Update local state with the response data
+      onMetaChange('shortDescription', updatedData.short_desc || '');
+      onMetaChange('fullDescription', updatedData.full_desc || '');
+      onMetaChange('metaTitle', updatedData.meta_title || '');
+      onMetaChange('metaDescription', updatedData.meta_desc || '');
+      onMetaChange('metaKeywords', updatedData.meta_keywords || '');
     } catch (error) {
       console.error('Error updating meta data:', error);
-      setError('Failed to update meta data. Please try again.');
+      setError(error instanceof Error ? error.message : 'Failed to update meta data. Please try again.');
     } finally {
       setIsLoading(false);
     }
