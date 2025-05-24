@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Heart, ChevronDown, ChevronUp } from 'lucide-react';
 import { Product } from '../types';
 import ProductCard from '../components/product/ProductCard';
@@ -17,6 +17,7 @@ interface Category {
 
 const Products: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -39,6 +40,56 @@ const Products: React.FC = () => {
 
   // Add new state for expanded categories
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+
+  // Handle product click to track recently viewed
+  const handleProductClick = async (productId: string) => {
+    try {
+      // Navigate to product detail page
+      navigate(`/product/${productId}`);
+      
+      // Track the view if user is authenticated
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        await fetch(`${API_BASE_URL}/api/products/${productId}/details`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+        
+        // Refresh recently viewed products
+        fetchRecentlyViewed();
+      }
+    } catch (error) {
+      console.error('Error tracking product view:', error);
+    }
+  };
+
+  // Fetch recently viewed products
+  const fetchRecentlyViewed = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+
+      const response = await fetch(`${API_BASE_URL}/api/products/recently-viewed`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch recently viewed products');
+      }
+
+      const data = await response.json();
+      setRecentlyViewed(data);
+    } catch (err) {
+      console.error('Error fetching recently viewed products:', err);
+    }
+  };
 
   // Update selected category when URL changes
   useEffect(() => {
@@ -164,26 +215,6 @@ const Products: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Fetch recently viewed products
-  const fetchRecentlyViewed = async () => {
-    try {
-      console.log('Fetching recently viewed products...');
-      const response = await fetch(`${API_BASE_URL}/api/products/recently-viewed`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch recently viewed products');
-      }
-      const data = await response.json();
-      console.log('Recently viewed products:', data);
-      setRecentlyViewed(data);
-    } catch (err) {
-      console.error('Error fetching recently viewed products:', err);
     }
   };
 
@@ -336,8 +367,8 @@ const Products: React.FC = () => {
               <h3 className="font-medium text-base mb-3">Price</h3>
               <div className="px-2">
                 <div className="flex justify-between text-xs text-gray-500 mb-2">
-                  <span>${priceRange[0]}</span>
-                  <span>${priceRange[1]}</span>
+                  <span>₹{priceRange[0]}</span>
+                  <span>₹{priceRange[1]}</span>
                 </div>
                 <div className="relative pt-1">
                   <div className="w-full h-1 bg-gray-200 rounded-lg">
@@ -383,12 +414,17 @@ const Products: React.FC = () => {
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
               {products.map((product) => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product}
-                  isNew={product.isNew}
-                  isBuiltIn={product.isBuiltIn}
-                />
+                <div 
+                  key={product.id}
+                  onClick={() => handleProductClick(product.id)}
+                  className="cursor-pointer"
+                >
+                  <ProductCard 
+                    product={product}
+                    isNew={product.isNew}
+                    isBuiltIn={product.isBuiltIn}
+                  />
+                </div>
               ))}
             </div>
             
@@ -438,11 +474,16 @@ const Products: React.FC = () => {
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {recentlyViewed.map((product) => (
-                <ProductCard
+                <div 
                   key={product.id}
-                  product={product}
-                  isNew={product.isNew}
-                />
+                  onClick={() => handleProductClick(product.id)}
+                  className="cursor-pointer"
+                >
+                  <ProductCard
+                    product={product}
+                    isNew={product.isNew}
+                  />
+                </div>
               ))}
             </div>
           </div>
