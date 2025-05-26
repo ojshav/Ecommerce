@@ -21,6 +21,7 @@ const Navbar: React.FC = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const { totalItems } = useCart();
   const { isAuthenticated, user, logout } = useAuth();
+  const [searchType, setSearchType] = useState<'all' | 'products' | 'categories'>('all');
 
   const desktopSearchRef = useRef<HTMLDivElement>(null);
   const mobileSearchRef = useRef<HTMLDivElement>(null);
@@ -62,55 +63,73 @@ const Navbar: React.FC = () => {
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-    setShowSearchResults(true);
-  };
-
-  const handleSearchInputFocus = () => {
-    if (searchQuery) {
+    if (query.length >= 2) {
       setShowSearchResults(true);
+    } else {
+      setShowSearchResults(false);
     }
   };
 
-  const handleSearchClose = () => {
-    setShowSearchResults(false);
-    setSearchQuery('');
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      const searchParams = new URLSearchParams({
+        q: searchQuery.trim(),
+        type: searchType
+      });
+      window.location.href = `/search?${searchParams.toString()}`;
+      setShowSearchResults(false);
+      setSearchQuery('');
+    }
   };
 
   const searchBarContent = (
     <div ref={desktopSearchRef} className="relative">
-      <div className="flex rounded-md overflow-hidden bg-white">
-        <input
-          type="text"
-          placeholder="What are you looking for?"
-          className="w-full md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none"
-          value={searchQuery}
-          onChange={handleSearchInputChange}
-          onFocus={handleSearchInputFocus}
-        />
-        <div className="relative flex items-center border-l border-gray-200 bg-white">
-          <select 
-            className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none text-sm"
-            onChange={(e) => setSelectedCategory(e.target.value)}
+      <form onSubmit={handleSearchSubmit} className="relative">
+        <div className="flex rounded-md overflow-hidden bg-white">
+          <input
+            type="text"
+            placeholder="What are you looking for?"
+            className="w-full md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none"
+            value={searchQuery}
+            onChange={handleSearchInputChange}
+            onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
+          />
+          <div className="relative flex items-center border-l border-gray-200 bg-white">
+            <select 
+              className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none text-sm"
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
+            >
+              <option value="all">All</option>
+              <option value="products">Products</option>
+              <option value="categories">Categories</option>
+            </select>
+            <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
+          </div>
+          <button 
+            type="submit"
+            className="relative flex items-center border-l border-gray-200 bg-white px-4 hover:bg-gray-50"
           >
-            <option>Category</option>
-            <option>Electronics</option>
-            <option>Clothing</option>
-            <option>Home & Garden</option>
-          </select>
-          <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
+            <Search className="h-4 w-4 text-gray-500" />
+          </button>
         </div>
-      </div>
+      </form>
       <SearchResults 
         isVisible={showSearchResults} 
-        searchQuery={searchQuery} 
-        onItemClick={handleSearchClose}
+        searchQuery={searchQuery}
+        searchType={searchType}
+        onItemClick={() => {
+          setShowSearchResults(false);
+          setSearchQuery('');
+        }}
       />
     </div>
   );
 
   const mobileSearchBar = (
-    <div className="relative mb-4 px-2">
-      <div ref={mobileSearchRef} className="relative">
+    <div ref={mobileSearchRef} className="relative mb-4 px-2">
+      <form onSubmit={handleSearchSubmit} className="relative">
         <div className="flex flex-col rounded-md overflow-hidden bg-white shadow-sm">
           <input
             type="text"
@@ -118,29 +137,37 @@ const Navbar: React.FC = () => {
             className="w-full border-0 py-2.5 px-4 text-gray-900 focus:ring-0 focus:outline-none text-base"
             value={searchQuery}
             onChange={handleSearchInputChange}
-            onFocus={handleSearchInputFocus}
+            onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
           <div className="relative flex items-center border-t border-gray-200 bg-white">
             <select 
               className="w-full h-full appearance-none bg-transparent py-2.5 pl-4 pr-8 text-gray-900 focus:ring-0 focus:outline-none text-base"
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
             >
-              <option>Category</option>
-              <option>Electronics</option>
-              <option>Clothing</option>
-              <option>Home & Garden</option>
+              <option value="all">All</option>
+              <option value="products">Products</option>
+              <option value="categories">Categories</option>
             </select>
             <ChevronDown size={20} className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
           </div>
         </div>
-        <SearchResults isVisible={showSearchResults} searchQuery={searchQuery} onItemClick={handleSearchClose} />
-      </div>
-      <button
-        className="w-full bg-[#F2631F] text-white py-2 rounded-md mt-2 text-base"
-        onClick={handleSearchClose}
-      >
-        Search
-      </button>
+        <SearchResults 
+          isVisible={showSearchResults} 
+          searchQuery={searchQuery}
+          searchType={searchType}
+          onItemClick={() => {
+            setShowSearchResults(false);
+            setSearchQuery('');
+          }}
+        />
+        <button
+          type="submit"
+          className="w-full bg-[#F2631F] text-white py-2 rounded-md mt-2 text-base"
+        >
+          Search
+        </button>
+      </form>
     </div>
   );
 
@@ -200,7 +227,10 @@ const Navbar: React.FC = () => {
                   
                   <button 
                     className="bg-black hover:bg-gray-900 text-white py-1.5 px-2 nav:px-3 mid:px-6 rounded-md border border-white whitespace-nowrap text-sm"
-                    onClick={handleSearchClose}
+                    onClick={() => {
+                      setShowSearchResults(false);
+                      setSearchQuery('');
+                    }}
                   >
                     Search
                   </button>

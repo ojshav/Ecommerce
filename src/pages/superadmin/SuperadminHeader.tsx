@@ -2,15 +2,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Bell, Settings, LogOut, User } from 'lucide-react';
+import { Bell, Settings, LogOut, User, Menu } from 'lucide-react';
 
-const SuperadminHeader: React.FC = () => {
+interface SuperadminHeaderProps {
+  onMenuClick?: () => void;
+}
+
+const SuperadminHeader: React.FC<SuperadminHeaderProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/auth/superadmin-login');
+    navigate('/');
   };
 
   return (
@@ -19,15 +23,19 @@ const SuperadminHeader: React.FC = () => {
         <div className="flex justify-between h-16 items-center">
           {/* Logo and Brand */}
           <div className="flex-shrink-0 flex items-center">
+            {/* Mobile menu button */}
+            <button
+              onClick={onMenuClick}
+              className="md:hidden p-2 mr-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
             <span className="text-xl font-bold text-blue-600">ShopEasy Admin</span>
           </div>
           
           {/* Navigation Links - could be expanded */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              
-              
-            
             </div>
           </div>
           

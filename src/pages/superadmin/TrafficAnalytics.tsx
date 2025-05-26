@@ -143,8 +143,9 @@ const fetchDeviceData = async (): Promise<DeviceTraffic[]> => {
   });
 };
 
-// Define the colors for our charts
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+// Define the colors for our charts - Changed primary color to #4E6688
+const COLORS = ['#4E6688', '#6A8CAF', '#8FB3D9', '#A5C6E5', '#C4D8EC'];
+const MAIN_COLOR = '#4E6688';
 
 const TrafficAnalytics: React.FC = () => {
   const [realtimeData, setRealtimeData] = useState<TrafficData | null>(null);
@@ -220,178 +221,315 @@ const TrafficAnalytics: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Traffic Analytics Dashboard</h1>
-        <div className="flex items-center space-x-4">
-          <div className="flex border rounded-md overflow-hidden">
+    <div className="bg-gray-100 min-h-screen">
+      {/* Updated Header Section */}
+      <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-6">
+        <div className="mb-6 flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Traffic Analytics Dashboard</h1>
+          <div className="flex items-center space-x-4">
+            <div className="flex rounded-md overflow-hidden shadow-lg">
+              <button 
+                className={`px-4 py-2 text-sm font-medium ${selectedPeriod === 'today' ? `bg-${MAIN_COLOR} text-white` : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`} 
+                style={{ backgroundColor: selectedPeriod === 'today' ? MAIN_COLOR : '' }}
+                onClick={() => setSelectedPeriod('today')}
+              >
+                Today
+              </button>
+              <button 
+                className={`px-4 py-2 text-sm font-medium ${selectedPeriod === 'week' ? `bg-${MAIN_COLOR} text-white` : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                style={{ backgroundColor: selectedPeriod === 'week' ? MAIN_COLOR : '' }}
+                onClick={() => setSelectedPeriod('week')}
+              >
+                Week
+              </button>
+              <button 
+                className={`px-4 py-2 text-sm font-medium ${selectedPeriod === 'month' ? `bg-${MAIN_COLOR} text-white` : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                style={{ backgroundColor: selectedPeriod === 'month' ? MAIN_COLOR : '' }}
+                onClick={() => setSelectedPeriod('month')}
+              >
+                Month
+              </button>
+              <button 
+                className={`px-4 py-2 text-sm font-medium ${selectedPeriod === 'quarter' ? `bg-${MAIN_COLOR} text-white` : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                style={{ backgroundColor: selectedPeriod === 'quarter' ? MAIN_COLOR : '' }}
+                onClick={() => setSelectedPeriod('quarter')}
+              >
+                Quarter
+              </button>
+            </div>
             <button 
-              className={`px-4 py-2 text-sm ${selectedPeriod === 'today' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'}`} 
-              onClick={() => setSelectedPeriod('today')}
+              className="flex items-center space-x-1 bg-gray-700 p-2 rounded-md shadow-lg text-white hover:bg-gray-600 transition duration-200"
+              onClick={handleRefresh}
             >
-              Today
-            </button>
-            <button 
-              className={`px-4 py-2 text-sm ${selectedPeriod === 'week' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'}`}
-              onClick={() => setSelectedPeriod('week')}
-            >
-              Week
-            </button>
-            <button 
-              className={`px-4 py-2 text-sm ${selectedPeriod === 'month' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'}`}
-              onClick={() => setSelectedPeriod('month')}
-            >
-              Month
-            </button>
-            <button 
-              className={`px-4 py-2 text-sm ${selectedPeriod === 'quarter' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'}`}
-              onClick={() => setSelectedPeriod('quarter')}
-            >
-              Quarter
+              <RefreshCw size={16} />
+              <span className="text-sm">Refresh</span>
             </button>
           </div>
-          <button 
-            className="flex items-center space-x-1 bg-white p-2 rounded-md border text-gray-700 hover:bg-gray-50"
-            onClick={handleRefresh}
-          >
-            <RefreshCw size={16} />
-            <span className="text-sm">Refresh</span>
-          </button>
         </div>
       </div>
       
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-        </div>
-      ) : (
-        <>
-          {/* Realtime Stats Overview */}
-          <div className="mb-6">
-            <h2 className="flex items-center mb-3 text-lg font-semibold text-gray-700">
-              <Clock size={20} className="mr-2 text-blue-600" />
-              Realtime Statistics 
-              <span className="ml-2 text-sm font-normal text-gray-500">
-                (Last updated: {realtimeData ? new Date(realtimeData.timestamp).toLocaleTimeString() : 'N/A'})
-              </span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="bg-white p-4 rounded-lg shadow">
-                <div className="text-sm text-gray-500 mb-1">Active Visitors</div>
-                <div className="text-2xl font-bold text-gray-800">{realtimeData?.uniqueVisitors || 0}</div>
-                <div className="mt-2 text-xs text-green-600">Live</div>
-              </div>
-              <div className="bg-white p-4 rounded-lg shadow">
-                <div className="text-sm text-gray-500 mb-1">Page Views</div>
-                <div className="text-2xl font-bold text-gray-800">{realtimeData?.pageViews || 0}</div>
-                <div className="mt-2 text-xs text-green-600">Live</div>
-              </div>
-              <div className="bg-white p-4 rounded-lg shadow">
-                <div className="text-sm text-gray-500 mb-1">Bounce Rate</div>
-                <div className="text-2xl font-bold text-gray-800">{realtimeData?.bounceRate.toFixed(1) || 0}%</div>
-                <div className="mt-2 text-xs text-gray-500">Last 5 min avg</div>
-              </div>
-              <div className="bg-white p-4 rounded-lg shadow">
-                <div className="text-sm text-gray-500 mb-1">Avg. Session</div>
-                <div className="text-2xl font-bold text-gray-800">{realtimeData?.avgSessionDuration.toFixed(0) || 0}s</div>
-                <div className="mt-2 text-xs text-gray-500">Last 5 min avg</div>
-              </div>
-              <div className="bg-white p-4 rounded-lg shadow">
-                <div className="text-sm text-gray-500 mb-1">Conversion Rate</div>
-                <div className="text-2xl font-bold text-gray-800">{realtimeData?.conversionRate.toFixed(2) || 0}%</div>
-                <div className="mt-2 text-xs text-gray-500">Last 5 min avg</div>
-              </div>
-            </div>
+      <div className="p-6">
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600" style={{ borderColor: MAIN_COLOR }}></div>
           </div>
-
-          {/* Historical Traffic Trend */}
-          <div className="mb-6 bg-white p-4 rounded-lg shadow">
-            <h2 className="flex items-center mb-3 text-lg font-semibold text-gray-700">
-              <TrendingUp size={20} className="mr-2 text-blue-600" />
-              Traffic Trends
-            </h2>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={historicalData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="timestamp" 
-                    tickFormatter={formatDate}
-                    minTickGap={15}
-                  />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip 
-                    formatter={(value: number, name: string) => {
-                      switch (name) {
-                        case 'pageViews':
-                        case 'uniqueVisitors':
-                          return [value.toLocaleString(), name === 'pageViews' ? 'Page Views' : 'Unique Visitors'];
-                        case 'bounceRate':
-                        case 'conversionRate':
-                          return [`${value.toFixed(2)}%`, name === 'bounceRate' ? 'Bounce Rate' : 'Conversion Rate'];
-                        default:
-                          return [value, name];
-                      }
-                    }}
-                    labelFormatter={(label) => new Date(label).toLocaleString()}
-                  />
-                  <Legend />
-                  <Line yAxisId="left" type="monotone" dataKey="pageViews" stroke="#0088FE" name="Page Views" />
-                  <Line yAxisId="left" type="monotone" dataKey="uniqueVisitors" stroke="#00C49F" name="Unique Visitors" />
-                  <Line yAxisId="right" type="monotone" dataKey="bounceRate" stroke="#FF8042" name="Bounce Rate (%)" />
-                  <Line yAxisId="right" type="monotone" dataKey="conversionRate" stroke="#8884D8" name="Conversion Rate (%)" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Analytics Breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            {/* Top Pages */}
-            <div className="bg-white p-4 rounded-lg shadow">
+        ) : (
+          <>
+            {/* Realtime Stats Overview */}
+            <div className="mb-6">
               <h2 className="flex items-center mb-3 text-lg font-semibold text-gray-700">
-                <BarChart2 size={20} className="mr-2 text-blue-600" />
-                Top Pages
+                <Clock size={20} className="mr-2" style={{ color: MAIN_COLOR }} />
+                Realtime Statistics 
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  (Last updated: {realtimeData ? new Date(realtimeData.timestamp).toLocaleTimeString() : 'N/A'})
+                </span>
               </h2>
-              <div className="overflow-hidden">
-                <div className="h-64">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200">
+                  <div className="text-sm text-gray-500 mb-1">Active Visitors</div>
+                  <div className="text-2xl font-bold text-gray-800">{realtimeData?.uniqueVisitors || 0}</div>
+                  <div className="mt-2 text-xs" style={{ color: MAIN_COLOR }}>Live</div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200">
+                  <div className="text-sm text-gray-500 mb-1">Page Views</div>
+                  <div className="text-2xl font-bold text-gray-800">{realtimeData?.pageViews || 0}</div>
+                  <div className="mt-2 text-xs" style={{ color: MAIN_COLOR }}>Live</div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200">
+                  <div className="text-sm text-gray-500 mb-1">Bounce Rate</div>
+                  <div className="text-2xl font-bold text-gray-800">{realtimeData?.bounceRate.toFixed(1) || 0}%</div>
+                  <div className="mt-2 text-xs text-gray-500">Last 5 min avg</div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200">
+                  <div className="text-sm text-gray-500 mb-1">Avg. Session</div>
+                  <div className="text-2xl font-bold text-gray-800">{realtimeData?.avgSessionDuration.toFixed(0) || 0}s</div>
+                  <div className="mt-2 text-xs text-gray-500">Last 5 min avg</div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200">
+                  <div className="text-sm text-gray-500 mb-1">Conversion Rate</div>
+                  <div className="text-2xl font-bold text-gray-800">{realtimeData?.conversionRate.toFixed(2) || 0}%</div>
+                  <div className="mt-2 text-xs text-gray-500">Last 5 min avg</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Historical Traffic Trend */}
+            <div className="mb-6 bg-white p-6 rounded-lg shadow-md">
+              <h2 className="flex items-center mb-3 text-lg font-semibold text-gray-700">
+                <TrendingUp size={20} className="mr-2" style={{ color: MAIN_COLOR }} />
+                Traffic Trends
+              </h2>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={historicalData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                    <XAxis 
+                      dataKey="timestamp" 
+                      tickFormatter={formatDate}
+                      minTickGap={15}
+                      stroke="#888"
+                    />
+                    <YAxis yAxisId="left" stroke="#888" />
+                    <YAxis yAxisId="right" orientation="right" stroke="#888" />
+                    <Tooltip 
+                      formatter={(value: number, name: string) => {
+                        switch (name) {
+                          case 'pageViews':
+                          case 'uniqueVisitors':
+                            return [value.toLocaleString(), name === 'pageViews' ? 'Page Views' : 'Unique Visitors'];
+                          case 'bounceRate':
+                          case 'conversionRate':
+                            return [`${value.toFixed(2)}%`, name === 'bounceRate' ? 'Bounce Rate' : 'Conversion Rate'];
+                          default:
+                            return [value, name];
+                        }
+                      }}
+                      labelFormatter={(label) => new Date(label).toLocaleString()}
+                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '4px', border: '1px solid #ccc' }}
+                    />
+                    <Legend />
+                    <Line yAxisId="left" type="monotone" dataKey="pageViews" stroke={MAIN_COLOR} strokeWidth={2} name="Page Views" dot={{ stroke: MAIN_COLOR, strokeWidth: 1, r: 3 }} />
+                    <Line yAxisId="left" type="monotone" dataKey="uniqueVisitors" stroke={COLORS[1]} strokeWidth={2} name="Unique Visitors" dot={{ stroke: COLORS[1], strokeWidth: 1, r: 3 }} />
+                    <Line yAxisId="right" type="monotone" dataKey="bounceRate" stroke={COLORS[2]} strokeWidth={2} name="Bounce Rate (%)" dot={{ stroke: COLORS[2], strokeWidth: 1, r: 3 }} />
+                    <Line yAxisId="right" type="monotone" dataKey="conversionRate" stroke={COLORS[3]} strokeWidth={2} name="Conversion Rate (%)" dot={{ stroke: COLORS[3], strokeWidth: 1, r: 3 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Analytics Breakdown */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              {/* Top Pages */}
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="flex items-center mb-3 text-lg font-semibold text-gray-700">
+                  <BarChart2 size={20} className="mr-2" style={{ color: MAIN_COLOR }} />
+                  Top Pages
+                </h2>
+                <div className="overflow-hidden">
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={topPages}
+                        layout="vertical"
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                        <XAxis type="number" stroke="#888" />
+                        <YAxis 
+                          type="category" 
+                          dataKey="page" 
+                          tick={{ fontSize: 12 }}
+                          width={80}
+                          stroke="#888"
+                        />
+                        <Tooltip 
+                          formatter={(value: number) => [value.toLocaleString(), 'Visits']}
+                          contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '4px', border: '1px solid #ccc' }}
+                        />
+                        <Bar dataKey="visits" fill={MAIN_COLOR} radius={[0, 4, 4, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="mt-4">
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2 text-gray-600">Page</th>
+                          <th className="text-right py-2 text-gray-600">Visits</th>
+                          <th className="text-right py-2 text-gray-600">%</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {topPages.map((page, index) => (
+                          <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                            <td className="py-2 text-gray-700 truncate max-w-xs">{page.page}</td>
+                            <td className="py-2 text-right text-gray-700">{page.visits.toLocaleString()}</td>
+                            <td className="py-2 text-right text-gray-700">{page.percentage.toFixed(1)}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              {/* Traffic Sources */}
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="flex items-center mb-3 text-lg font-semibold text-gray-700">
+                  <Users size={20} className="mr-2" style={{ color: MAIN_COLOR }} />
+                  Traffic Sources
+                </h2>
+                <div className="h-64 flex justify-center">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={topPages}
-                      layout="vertical"
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis 
-                        type="category" 
-                        dataKey="page" 
-                        tick={{ fontSize: 12 }}
-                        width={80}
-                      />
+                    <PieChart>
+                      <Pie
+                        data={referrerSources}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="visits"
+                        nameKey="source"
+                        label={({ source, percentage }) => `${source}: ${percentage.toFixed(1)}%`}
+                      >
+                        {referrerSources.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
                       <Tooltip 
-                        formatter={(value: number) => [value.toLocaleString(), 'Visits']}
+                        formatter={(value: number, name: string, props: any) => {
+                          const item = referrerSources.find(source => source.source === props.payload.source);
+                          return [
+                            `${value.toLocaleString()} (${item?.percentage.toFixed(1)}%)`,
+                            'Visits'
+                          ];
+                        }}
+                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '4px', border: '1px solid #ccc' }}
                       />
-                      <Bar dataKey="visits" fill="#0088FE" />
-                    </BarChart>
+                    </PieChart>
                   </ResponsiveContainer>
                 </div>
                 <div className="mt-4">
                   <table className="min-w-full text-sm">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left py-2">Page</th>
-                        <th className="text-right py-2">Visits</th>
-                        <th className="text-right py-2">%</th>
+                        <th className="text-left py-2 text-gray-600">Source</th>
+                        <th className="text-right py-2 text-gray-600">Visits</th>
+                        <th className="text-right py-2 text-gray-600">%</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {topPages.map((page, index) => (
-                        <tr key={index} className="border-b border-gray-100">
-                          <td className="py-2 text-gray-700 truncate max-w-xs">{page.page}</td>
-                          <td className="py-2 text-right text-gray-700">{page.visits.toLocaleString()}</td>
-                          <td className="py-2 text-right text-gray-700">{page.percentage.toFixed(1)}%</td>
+                      {referrerSources.map((source, index) => (
+                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-2 text-gray-700 flex items-center">
+                            <div className="h-3 w-3 rounded-full mr-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                            {source.source}
+                          </td>
+                          <td className="py-2 text-right text-gray-700">{source.visits.toLocaleString()}</td>
+                          <td className="py-2 text-right text-gray-700">{source.percentage.toFixed(1)}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Device Breakdown */}
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="flex items-center mb-3 text-lg font-semibold text-gray-700">
+                  <PieChartIcon size={20} className="mr-2" style={{ color: MAIN_COLOR }} />
+                  Device Breakdown
+                </h2>
+                <div className="h-64 flex justify-center">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={deviceData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="visits"
+                        nameKey="device"
+                        label={({ device, percentage }) => `${device}: ${percentage.toFixed(1)}%`}
+                      >
+                        {deviceData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value: number, name: string, props: any) => {
+                          const item = deviceData.find(device => device.device === props.payload.device);
+                          return [
+                            `${value.toLocaleString()} (${item?.percentage.toFixed(1)}%)`,
+                            'Visits'
+                          ];
+                        }}
+                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '4px', border: '1px solid #ccc' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="mt-4">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2 text-gray-600">Device</th>
+                        <th className="text-right py-2 text-gray-600">Visits</th>
+                        <th className="text-right py-2 text-gray-600">%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {deviceData.map((device, index) => (
+                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-2 text-gray-700 flex items-center">
+                            <div className="h-3 w-3 rounded-full mr-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                            {device.device}
+                          </td>
+                          <td className="py-2 text-right text-gray-700">{device.visits.toLocaleString()}</td>
+                          <td className="py-2 text-right text-gray-700">{device.percentage.toFixed(1)}%</td>
                         </tr>
                       ))}
                     </tbody>
@@ -399,131 +537,9 @@ const TrafficAnalytics: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {/* Traffic Sources */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="flex items-center mb-3 text-lg font-semibold text-gray-700">
-                <Users size={20} className="mr-2 text-blue-600" />
-                Traffic Sources
-              </h2>
-              <div className="h-64 flex justify-center">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={referrerSources}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="visits"
-                      nameKey="source"
-                      label={({ source, percentage }) => `${source}: ${percentage.toFixed(1)}%`}
-                    >
-                      {referrerSources.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(value: number, name: string, props: any) => {
-                        const item = referrerSources.find(source => source.source === props.payload.source);
-                        return [
-                          `${value.toLocaleString()} (${item?.percentage.toFixed(1)}%)`,
-                          'Visits'
-                        ];
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="mt-4">
-                <table className="min-w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2">Source</th>
-                      <th className="text-right py-2">Visits</th>
-                      <th className="text-right py-2">%</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {referrerSources.map((source, index) => (
-                      <tr key={index} className="border-b border-gray-100">
-                        <td className="py-2 text-gray-700 flex items-center">
-                          <div className="h-3 w-3 rounded-full mr-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                          {source.source}
-                        </td>
-                        <td className="py-2 text-right text-gray-700">{source.visits.toLocaleString()}</td>
-                        <td className="py-2 text-right text-gray-700">{source.percentage.toFixed(1)}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Device Breakdown */}
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="flex items-center mb-3 text-lg font-semibold text-gray-700">
-                <PieChartIcon size={20} className="mr-2 text-blue-600" />
-                Device Breakdown
-              </h2>
-              <div className="h-64 flex justify-center">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={deviceData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="visits"
-                      nameKey="device"
-                      label={({ device, percentage }) => `${device}: ${percentage.toFixed(1)}%`}
-                    >
-                      {deviceData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(value: number, name: string, props: any) => {
-                        const item = deviceData.find(device => device.device === props.payload.device);
-                        return [
-                          `${value.toLocaleString()} (${item?.percentage.toFixed(1)}%)`,
-                          'Visits'
-                        ];
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="mt-4">
-                <table className="min-w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2">Device</th>
-                      <th className="text-right py-2">Visits</th>
-                      <th className="text-right py-2">%</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {deviceData.map((device, index) => (
-                      <tr key={index} className="border-b border-gray-100">
-                        <td className="py-2 text-gray-700 flex items-center">
-                          <div className="h-3 w-3 rounded-full mr-2" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                          {device.device}
-                        </td>
-                        <td className="py-2 text-right text-gray-700">{device.visits.toLocaleString()}</td>
-                        <td className="py-2 text-right text-gray-700">{device.percentage.toFixed(1)}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

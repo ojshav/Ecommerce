@@ -33,12 +33,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
     toast.success(`${product.name} added to wishlist`);
   };
   
-  // Generate model number based on product id
-  const getModelNumber = (id: string) => {
-    if (id === '1') return 'MWP42SA/A';
-    if (id === '2') return 'MWT32SA/A Space Grey';
-    if (id === '3') return 'MWTK2SA/A Silver';
-    return `MW${id}${id}SA/A`;
+  // Calculate sale percentage if original price exists
+  const calculateSalePercentage = () => {
+    if (product.originalPrice && product.price) {
+      const percentage = ((product.originalPrice - product.price) / product.originalPrice) * 100;
+      return Math.round(percentage);
+    }
+    return 0;
   };
     
   return (
@@ -54,9 +55,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
           Sold Out
         </div>
       )}
-      {!isNew && product.stock > 0 && salePercentage && (
+      {!isNew && product.stock > 0 && (salePercentage || calculateSalePercentage() > 0) && (
         <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-3 py-1 text-xs rounded">
-          -{salePercentage}%
+          -{salePercentage || calculateSalePercentage()}%
         </div>
       )}
       
@@ -73,9 +74,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <Link to={`/product/${product.id}`} className="flex-grow">
         <div className="p-4 pt-8">
           <img 
-            src={product.image}
+            src={product.primary_image || product.image || '/placeholder-image.png'}
             alt={product.name} 
             className="w-full h-40 object-contain"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/placeholder-image.png';
+            }}
           />
         </div>
         
@@ -83,13 +88,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <h3 className="text-base font-medium line-clamp-1">{product.name}</h3>
           
           <p className="text-xs text-gray-500 mt-1">
-            {getModelNumber(product.id)}
+            SKU: {product.sku}
           </p>
           
           <div className="mt-2 mb-3">
-            <span className="text-base font-bold">${product.price.toFixed(2)}</span>
+            <span className="text-base font-bold">₹{product.price.toFixed(2)}</span>
             {product.originalPrice && (
-              <span className="text-sm text-gray-400 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
+              <span className="text-sm text-gray-400 line-through ml-2">₹{product.originalPrice.toFixed(2)}</span>
             )}
           </div>
         </div>

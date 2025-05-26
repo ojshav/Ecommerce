@@ -123,7 +123,7 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] px-2 pt-10 pb-8">
+    <div className="flex items-center justify-center bg-[#FAFAFA] px-2 pt-10 pb-8 py-8">
       <div className="w-full max-w-5xl bg-transparent flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0">
         {/* Personal Information */}
         <div className="flex-1 bg-white rounded-xl shadow-sm p-8 md:p-10">

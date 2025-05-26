@@ -11,6 +11,7 @@ interface IBrand {
     slug: string;
     icon_url: string | null;
     created_at: string;
+    categories?: ICategory[];
 }
 
 interface ICategory {
@@ -18,6 +19,21 @@ interface ICategory {
     name: string;
     slug: string;
     icon_url: string | null;
+}
+
+interface IBrandRequest {
+    request_id: number;
+    name: string;
+    category_id: number;
+    parent_category_id: number | null;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    created_at: string;
+    category?: {
+        name: string;
+    };
+    parent_category?: {
+        name: string;
+    };
 }
 
 const BrandCreation: React.FC = () => {
@@ -29,7 +45,7 @@ const BrandCreation: React.FC = () => {
     // State for brand creation form
     const [showAddBrandForm, setShowAddBrandForm] = useState<boolean>(false);
     const [newBrandName, setNewBrandName] = useState<string>('');
-    const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+    const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
     const [brandImage, setBrandImage] = useState<File | null>(null);
     const [brandImagePreview, setBrandImagePreview] = useState<string | null>(null);
     const [categories, setCategories] = useState<ICategory[]>([]);
@@ -43,12 +59,19 @@ const BrandCreation: React.FC = () => {
     const [editName, setEditName] = useState<string>('');
     const [editImage, setEditImage] = useState<File | null>(null);
     const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+    const [editSelectedCategories, setEditSelectedCategories] = useState<number[]>([]);
     const [isEditing, setIsEditing] = useState<boolean>(false);
+
+    // Add new state for brand requests
+    const [brandRequests, setBrandRequests] = useState<IBrandRequest[]>([]);
+    const [loadingRequests, setLoadingRequests] = useState<boolean>(true);
+    const [requestError, setRequestError] = useState<string | null>(null);
 
     // Fetch brands and categories on component mount
     useEffect(() => {
         fetchBrands();
         fetchCategories();
+        fetchBrandRequests();
     }, []);
 
     // Fetch brands from API
@@ -98,6 +121,32 @@ const BrandCreation: React.FC = () => {
         }
     };
 
+    // Fetch brand requests from API
+    const fetchBrandRequests = async () => {
+        setLoadingRequests(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/superadmin/brand-requests`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch brand requests');
+            }
+
+            const data = await response.json();
+            setBrandRequests(data);
+            setRequestError(null);
+        } catch (err) {
+            console.error('Error fetching brand requests:', err);
+            setRequestError('Failed to load brand requests. Please try again later.');
+            toast.error('Failed to load brand requests');
+        } finally {
+            setLoadingRequests(false);
+        }
+    };
+
     // Handle image upload
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -140,6 +189,24 @@ const BrandCreation: React.FC = () => {
         setEditImagePreview(null);
     };
 
+    // Add new function to handle category selection
+    const handleCategoryChange = (categoryId: number, isChecked: boolean) => {
+        setSelectedCategories(prev => 
+            isChecked 
+                ? [...prev, categoryId]
+                : prev.filter(id => id !== categoryId)
+        );
+    };
+
+    // Add new function to handle edit category selection
+    const handleEditCategoryChange = (categoryId: number, isChecked: boolean) => {
+        setEditSelectedCategories(prev => 
+            isChecked 
+                ? [...prev, categoryId]
+                : prev.filter(id => id !== categoryId)
+        );
+    };
+
     // Submit new brand
     const handleSubmitBrand = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -176,6 +243,18 @@ const BrandCreation: React.FC = () => {
 
             const newBrand = await response.json();
             
+            // Associate categories with the brand
+            if (selectedCategories.length > 0) {
+                for (const categoryId of selectedCategories) {
+                    await fetch(`${API_BASE_URL}/api/superadmin/brands/${newBrand.brand_id}/categories/${categoryId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                        },
+                    });
+                }
+            }
+            
             // Handle successful creation
             setSubmitSuccess(true);
             setBrands([...brands, newBrand]);
@@ -208,12 +287,13 @@ const BrandCreation: React.FC = () => {
                 formData.append('icon_file', editImage);
             }
 
+            // First update the brand details
             const response = await fetch(`${API_BASE_URL}/api/superadmin/brands/${editingBrand.brand_id}`, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
                 },
-                body: formData,
+                body: formData
             });
 
             if (!response.ok) {
@@ -222,6 +302,33 @@ const BrandCreation: React.FC = () => {
             }
 
             const updatedBrand = await response.json();
+            
+            // Then update category associations
+            const currentCategories = editingBrand.categories?.map(c => c.category_id) || [];
+            
+            // Remove categories that are no longer selected
+            for (const categoryId of currentCategories) {
+                if (!editSelectedCategories.includes(categoryId)) {
+                    await fetch(`${API_BASE_URL}/api/superadmin/brands/${editingBrand.brand_id}/categories/${categoryId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        }
+                    });
+                }
+            }
+            
+            // Add new categories
+            for (const categoryId of editSelectedCategories) {
+                if (!currentCategories.includes(categoryId)) {
+                    await fetch(`${API_BASE_URL}/api/superadmin/brands/${editingBrand.brand_id}/categories/${categoryId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                        }
+                    });
+                }
+            }
             
             // Update the brands list
             setBrands(brands.map(brand => 
@@ -270,6 +377,7 @@ const BrandCreation: React.FC = () => {
         setEditingBrand(brand);
         setEditName(brand.name);
         setEditImagePreview(brand.icon_url);
+        setEditSelectedCategories(brand.categories?.map(c => c.category_id) || []);
         setIsEditing(true);
     };
 
@@ -285,7 +393,7 @@ const BrandCreation: React.FC = () => {
     // Reset form fields
     const resetForm = () => {
         setNewBrandName('');
-        setSelectedCategory(null);
+        setSelectedCategories([]);
         setBrandImage(null);
         setBrandImagePreview(null);
         setShowAddBrandForm(false);
@@ -296,9 +404,116 @@ const BrandCreation: React.FC = () => {
         brand.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Add function to handle brand request approval
+    const handleApproveRequest = async (requestId: number) => {
+        if (!requestId) {
+            toast.error('Invalid request ID');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/superadmin/brand-requests/${requestId}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to approve brand request');
+            }
+
+            toast.success('Brand request approved successfully');
+            fetchBrandRequests(); // Refresh requests
+            fetchBrands(); // Refresh brands list
+        } catch (err: any) {
+            console.error('Error approving brand request:', err);
+            toast.error(err.message || 'Failed to approve brand request');
+        }
+    };
+
+    // Add function to handle brand request rejection
+    const handleRejectRequest = async (requestId: number) => {
+        if (!requestId) {
+            toast.error('Invalid request ID');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/superadmin/brand-requests/${requestId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    notes: 'Rejected by superadmin'
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to reject brand request');
+            }
+
+            toast.success('Brand request rejected successfully');
+            fetchBrandRequests(); // Refresh requests
+        } catch (err: any) {
+            console.error('Error rejecting brand request:', err);
+            toast.error(err.message || 'Failed to reject brand request');
+        }
+    };
+
     return (
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-6">Brand Management</h1>
+
+            {/* Brand Requests Section */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 className="text-lg font-semibold mb-4">Brand Requests</h2>
+                
+                {loadingRequests ? (
+                    <div className="text-center py-4">Loading brand requests...</div>
+                ) : requestError ? (
+                    <div className="text-center py-4 text-red-500">{requestError}</div>
+                ) : brandRequests.length === 0 ? (
+                    <div className="text-center py-4 text-gray-500">No pending brand requests</div>
+                ) : (
+                    <div className="space-y-4">
+                        {brandRequests.map((request) => (
+                            <div key={request.request_id} className="border rounded-lg p-4">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="font-medium">{request.name}</h3>
+                                        <p className="text-sm text-gray-500">
+                                            Category: {request.category?.name}
+                                            {request.parent_category && ` > ${request.parent_category.name}`}
+                                        </p>
+                                        <p className="text-sm text-gray-500">
+                                            Requested on: {new Date(request.created_at).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => handleApproveRequest(request.request_id)}
+                                            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                        >
+                                            Approve
+                                        </button>
+                                        <button
+                                            onClick={() => handleRejectRequest(request.request_id)}
+                                            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                        >
+                                            Reject
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="mb-6">
@@ -384,6 +599,28 @@ const BrandCreation: React.FC = () => {
                                         accept="image/png,image/jpeg,image/jpg,image/gif,image/svg+xml,image/webp"
                                         className="hidden"
                                     />
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Categories
+                                    </label>
+                                    <div className="max-h-48 overflow-y-auto border rounded-md p-2">
+                                        {categories.map((category) => (
+                                            <div key={category.category_id} className="flex items-center space-x-2 py-1">
+                                                <input
+                                                    type="checkbox"
+                                                    id={`category-${category.category_id}`}
+                                                    checked={selectedCategories.includes(category.category_id)}
+                                                    onChange={(e) => handleCategoryChange(category.category_id, e.target.checked)}
+                                                    className="rounded border-gray-300"
+                                                />
+                                                <label htmlFor={`category-${category.category_id}`} className="text-sm">
+                                                    {category.name}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                                 
                                 <div className="flex justify-end space-x-2">
@@ -528,6 +765,28 @@ const BrandCreation: React.FC = () => {
                                     accept="image/png,image/jpeg,image/jpg,image/gif,image/svg+xml,image/webp"
                                     className="hidden"
                                 />
+                            </div>
+                            
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Categories
+                                </label>
+                                <div className="max-h-48 overflow-y-auto border rounded-md p-2">
+                                    {categories.map((category) => (
+                                        <div key={category.category_id} className="flex items-center space-x-2 py-1">
+                                            <input
+                                                type="checkbox"
+                                                id={`edit-category-${category.category_id}`}
+                                                checked={editSelectedCategories.includes(category.category_id)}
+                                                onChange={(e) => handleEditCategoryChange(category.category_id, e.target.checked)}
+                                                className="rounded border-gray-300"
+                                            />
+                                            <label htmlFor={`edit-category-${category.category_id}`} className="text-sm">
+                                                {category.name}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                             
                             <div className="flex justify-end space-x-2">
