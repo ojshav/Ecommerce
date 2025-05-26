@@ -9,7 +9,7 @@ interface ShippingUnit {
 }
 
 interface ShippingDetailsProps {
-  productId: number;
+  productId: number; // Assuming this will always be a valid number when component is rendered interactively
   weight: string;
   weightUnit: string;
   dimensions: {
@@ -19,8 +19,8 @@ interface ShippingDetailsProps {
   };
   dimensionUnit: string;
   shippingClass: string;
-  onShippingChange: (field: string, value: string) => void;
-  onDimensionsChange: (field: string, value: string) => void;
+  onShippingChange: (field: string, value: string) => void; // Handles weight, weightUnit, dimensionUnit, shippingClass
+  onDimensionsChange: (field: 'length' | 'width' | 'height', value: string) => void;
   errors?: {
     weight?: string;
     dimensions?: {
@@ -28,6 +28,7 @@ interface ShippingDetailsProps {
       width?: string;
       height?: string;
     };
+    dimensionUnit?: string;
     shippingClass?: string;
   };
 }
@@ -50,7 +51,7 @@ const shippingClasses = [
   { value: 'standard', label: 'Standard Shipping' },
   { value: 'express', label: 'Express Shipping' },
   { value: 'overnight', label: 'Overnight Shipping' },
-  { value: 'free', label: 'Free Shipping' }
+  { value: 'free', label: 'Free Shipping (if applicable)' }
 ];
 
 const ShippingDetails: React.FC<ShippingDetailsProps> = ({
@@ -64,279 +65,199 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
   onDimensionsChange,
   errors = {},
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [opError, setOpError] = useState<string | null>(null);
+  const [opSuccess, setOpSuccess] = useState<string | null>(null);
 
-  const handleUpdateShipping = async () => {
-    if (!productId || typeof productId !== 'number' || isNaN(productId)) {
-      console.error('Invalid product ID in handleUpdateShipping:', productId);
-      setError('Invalid product ID. Please try again.');
-      return;
+  // Styling helpers
+  const inputBaseClass = "block w-full rounded-md shadow-sm sm:text-sm placeholder-gray-400";
+  const inputBorderClass = "border-gray-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500";
+  const inputErrorBorderClass = "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500 text-red-900 placeholder-red-400";
+  
+  const getInputClass = (hasError?: boolean) => 
+    `${inputBaseClass} px-3 py-2 ${hasError ? inputErrorBorderClass : inputBorderClass}`;
+  
+  const selectBaseClass = "block w-full rounded-md shadow-sm sm:text-sm bg-white";
+  const selectClass = (hasError?: boolean) => 
+    `${selectBaseClass} pl-3 pr-10 py-2 ${hasError ? inputErrorBorderClass : inputBorderClass}`;
+  
+  const labelClass = "block text-sm font-medium text-gray-700 mb-1";
+
+
+  const convertToBaseUnit = (valueStr: string, unit: string, units: ShippingUnit[]): number | null => {
+    const numericValue = parseFloat(valueStr);
+    if (isNaN(numericValue)) return null;
+    const unitConfig = units.find(u => u.value === unit);
+    if (!unitConfig) return numericValue; // Or handle error if unit not found
+    return numericValue * unitConfig.conversion;
+  };
+  
+  const formatNumberForDisplay = (num: number | null | undefined) => 
+    num !== null && num !== undefined && !isNaN(num) ? num.toFixed(2) : 'N/A';
+
+
+  const handleUpdateShippingAPI = async () => {
+    if (!productId) { 
+      setOpError('Product ID is missing. Cannot save shipping details.'); 
+      return; 
     }
-
+    setIsProcessing(true);
+    setOpError(null); 
+    setOpSuccess(null);
     try {
-      setIsLoading(true);
-      setError(null);
-      setSuccess(null);
-
-      // Convert to base units (kg and cm) before sending to API
-      const shippingData = {
+      const payload = {
         weight: convertToBaseUnit(weight, weightUnit, weightUnits),
         dimensions: {
           length: convertToBaseUnit(dimensions.length, dimensionUnit, dimensionUnits),
           width: convertToBaseUnit(dimensions.width, dimensionUnit, dimensionUnits),
           height: convertToBaseUnit(dimensions.height, dimensionUnit, dimensionUnits),
         },
-        shipping_class: shippingClass
+        shipping_class: shippingClass,
+        // Send units if your backend expects/stores them explicitly for shipping records
+        weight_unit: weightUnit, 
+        dimension_unit: dimensionUnit,
       };
 
-      console.log('Sending shipping data for product:', productId, shippingData);
+      // Filter out null values from payload before sending, if backend prefers omitting them
+      const cleanPayload = {
+        ...payload,
+        weight: payload.weight === null ? undefined : payload.weight,
+        dimensions: {
+            length: payload.dimensions.length === null ? undefined : payload.dimensions.length,
+            width: payload.dimensions.width === null ? undefined : payload.dimensions.width,
+            height: payload.dimensions.height === null ? undefined : payload.dimensions.height,
+        }
+      };
+
+      console.log('Sending shipping data for product:', productId, cleanPayload);
 
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/shipping`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          'Content-Type': 'application/json',
+        method: 'POST', // Or PUT if your API updates this way
+        headers: { 
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`, 
+          'Content-Type': 'application/json' 
         },
-        body: JSON.stringify(shippingData),
+        body: JSON.stringify(cleanPayload),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update shipping details');
+        const errorData = await response.json().catch(() => ({ message: 'Failed to update shipping details. Server returned an error.' }));
+        throw new Error(errorData.message || `Failed to update shipping details (Status: ${response.status})`);
       }
-
-      const updatedData = await response.json();
-      console.log('Shipping update response:', updatedData);
-      
-      setSuccess('Shipping details updated successfully');
-    } catch (error) {
-      console.error('Error updating shipping details:', error);
-      setError('Failed to update shipping details. Please try again.');
+      // const updatedData = await response.json(); // Process if API returns updated data
+      setOpSuccess('Shipping details updated successfully!');
+    } catch (err) {
+      console.error('Error updating shipping details:', err);
+      setOpError(err instanceof Error ? err.message : 'An unknown error occurred while updating shipping details.');
     } finally {
-      setIsLoading(false);
+      setIsProcessing(false);
     }
   };
 
-  const convertToBaseUnit = (value: string, unit: string, units: ShippingUnit[]): number => {
-    const numericValue = parseFloat(value) || 0;
-    const unitConfig = units.find(u => u.value === unit);
-    if (!unitConfig) return numericValue;
-    return numericValue * unitConfig.conversion;
-  };
-
-  const convertFromBaseUnit = (value: number, unit: string, units: ShippingUnit[]): number => {
-    if (!value || isNaN(value)) return 0;
-    const unitConfig = units.find(u => u.value === unit);
-    if (!unitConfig) return value;
-    return value / unitConfig.conversion;
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700">{error}</p>
+    <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 space-y-6">
+      {opError && (
+        <div className="p-3 bg-red-100 text-red-700 border border-red-300 rounded-md text-sm">
+          {opError}
+        </div>
+      )}
+      {opSuccess && (
+        <div className="p-3 bg-green-100 text-green-700 border border-green-300 rounded-md text-sm">
+          {opSuccess}
         </div>
       )}
 
-      {success && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-green-700">{success}</p>
-        </div>
-      )}
-
-      {/* Weight */}
       <div>
-        <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
-          Weight
-        </label>
+        <label htmlFor="ship-weight" className={labelClass}>Weight</label>
         <div className="mt-1 flex rounded-md shadow-sm">
-          <input
-            type="number"
-            id="weight"
-            value={weight}
-            onChange={(e) => onShippingChange('weight', e.target.value)}
-            step="0.001"
-            min="0"
-            className={`flex-1 rounded-l-md border-gray-300 focus:border-primary-500 focus:ring-primary-500 sm:text-sm ${
-              errors.weight ? 'border-red-300' : ''
-            }`}
-            placeholder="Enter product weight"
+          <input 
+            type="number" 
+            id="ship-weight" 
+            value={weight} 
+            onChange={(e) => onShippingChange('weight', e.target.value)} 
+            step="0.001" 
+            min="0" 
+            placeholder="0.000"
+            className={`flex-1 rounded-l-md ${getInputClass(!!errors?.weight)}`} 
           />
-          <select
-            value={weightUnit}
-            onChange={(e) => onShippingChange('weightUnit', e.target.value)}
-            className="rounded-r-md border-l-0 border-gray-300 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+          <select 
+            id="ship-weightUnit" 
+            value={weightUnit} 
+            onChange={(e) => onShippingChange('weightUnit', e.target.value)} 
+            className={`${selectClass(!!errors?.weight)} rounded-l-none rounded-r-md border-l-0`}
           >
-            {weightUnits.map(unit => (
-              <option key={unit.value} value={unit.value}>
-                {unit.label}
-              </option>
-            ))}
+            {weightUnits.map(unit => <option key={unit.value} value={unit.value}>{unit.label}</option>)}
           </select>
         </div>
-        {errors.weight && (
-          <p className="mt-1 text-sm text-red-600">{errors.weight}</p>
-        )}
+        {errors?.weight && <p className="mt-1 text-xs text-red-600">{errors.weight}</p>}
       </div>
 
-      {/* Dimensions */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Dimensions
-        </label>
-        <div className="grid grid-cols-3 gap-4">
+        <label className={labelClass}>Dimensions</label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="length" className="block text-xs text-gray-500 mb-1">
-              Length
-            </label>
-            <input
-              type="number"
-              id="length"
-              value={dimensions.length}
-              onChange={(e) => onDimensionsChange('length', e.target.value)}
-              step="0.01"
-              min="0"
-              className={`block w-full rounded-md shadow-sm sm:text-sm ${
-                errors.dimensions?.length
-                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
-              }`}
-              placeholder="Length"
-            />
-            {errors.dimensions?.length && (
-              <p className="mt-1 text-sm text-red-600">{errors.dimensions.length}</p>
-            )}
+            <label htmlFor="ship-length" className="block text-xs text-gray-500 mb-0.5">Length</label>
+            <input type="number" id="ship-length" value={dimensions.length} onChange={(e) => onDimensionsChange('length', e.target.value)} step="0.01" min="0" placeholder="L" className={getInputClass(!!errors?.dimensions?.length)} />
+            {errors?.dimensions?.length && <p className="mt-1 text-xs text-red-600">{errors.dimensions.length}</p>}
           </div>
           <div>
-            <label htmlFor="width" className="block text-xs text-gray-500 mb-1">
-              Width
-            </label>
-            <input
-              type="number"
-              id="width"
-              value={dimensions.width}
-              onChange={(e) => onDimensionsChange('width', e.target.value)}
-              step="0.01"
-              min="0"
-              className={`block w-full rounded-md shadow-sm sm:text-sm ${
-                errors.dimensions?.width
-                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
-              }`}
-              placeholder="Width"
-            />
-            {errors.dimensions?.width && (
-              <p className="mt-1 text-sm text-red-600">{errors.dimensions.width}</p>
-            )}
+            <label htmlFor="ship-width" className="block text-xs text-gray-500 mb-0.5">Width</label>
+            <input type="number" id="ship-width" value={dimensions.width} onChange={(e) => onDimensionsChange('width', e.target.value)} step="0.01" min="0" placeholder="W" className={getInputClass(!!errors?.dimensions?.width)} />
+            {errors?.dimensions?.width && <p className="mt-1 text-xs text-red-600">{errors.dimensions.width}</p>}
           </div>
           <div>
-            <label htmlFor="height" className="block text-xs text-gray-500 mb-1">
-              Height
-            </label>
-            <input
-              type="number"
-              id="height"
-              value={dimensions.height}
-              onChange={(e) => onDimensionsChange('height', e.target.value)}
-              step="0.01"
-              min="0"
-              className={`block w-full rounded-md shadow-sm sm:text-sm ${
-                errors.dimensions?.height
-                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
-              }`}
-              placeholder="Height"
-            />
-            {errors.dimensions?.height && (
-              <p className="mt-1 text-sm text-red-600">{errors.dimensions.height}</p>
-            )}
+            <label htmlFor="ship-height" className="block text-xs text-gray-500 mb-0.5">Height</label>
+            <input type="number" id="ship-height" value={dimensions.height} onChange={(e) => onDimensionsChange('height', e.target.value)} step="0.01" min="0" placeholder="H" className={getInputClass(!!errors?.dimensions?.height)} />
+            {errors?.dimensions?.height && <p className="mt-1 text-xs text-red-600">{errors.dimensions.height}</p>}
           </div>
         </div>
         <div className="mt-2">
-          <select
-            value={dimensionUnit}
-            onChange={(e) => onShippingChange('dimensionUnit', e.target.value)}
-            className="block w-full rounded-md border-gray-300 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+           <label htmlFor="ship-dimensionUnit" className="sr-only">Dimension Unit</label>
+          <select 
+            id="ship-dimensionUnit" 
+            value={dimensionUnit} 
+            onChange={(e) => onShippingChange('dimensionUnit', e.target.value)} 
+            className={selectClass(!!errors?.dimensionUnit)}
           >
-            {dimensionUnits.map(unit => (
-              <option key={unit.value} value={unit.value}>
-                {unit.label}
-              </option>
-            ))}
+            {dimensionUnits.map(unit => <option key={unit.value} value={unit.value}>{unit.label}</option>)}
           </select>
+           {errors?.dimensionUnit && <p className="mt-1 text-xs text-red-600">{errors.dimensionUnit}</p>}
         </div>
       </div>
 
-      {/* Shipping Class */}
       <div>
-        <label htmlFor="shippingClass" className="block text-sm font-medium text-gray-700">
-          Shipping Class
-        </label>
-        <div className="mt-1">
-          <select
-            id="shippingClass"
-            value={shippingClass}
-            onChange={(e) => onShippingChange('shippingClass', e.target.value)}
-            className={`block w-full rounded-md shadow-sm sm:text-sm ${
-              errors.shippingClass
-                ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
-            }`}
-          >
-            <option value="">Select a shipping class</option>
-            {shippingClasses.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          {errors.shippingClass && (
-            <p className="mt-1 text-sm text-red-600">{errors.shippingClass}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Shipping Calculator Preview */}
-      <div className="bg-gray-50 p-4 rounded-md">
-        <h4 className="text-sm font-medium text-gray-700 mb-2">
-          Shipping Calculator Preview
-        </h4>
-        <div className="space-y-2">
-          <div className="text-sm text-gray-600">
-            Weight: {convertToBaseUnit(weight, weightUnit, weightUnits).toFixed(2)} kg
-          </div>
-          <div className="text-sm text-gray-600">
-            Dimensions: {convertToBaseUnit(dimensions.length, dimensionUnit, dimensionUnits).toFixed(2)} x {convertToBaseUnit(dimensions.width, dimensionUnit, dimensionUnits).toFixed(2)} x {convertToBaseUnit(dimensions.height, dimensionUnit, dimensionUnits).toFixed(2)} cm
-          </div>
-          <div className="text-sm text-gray-600">
-            Shipping Class: {shippingClasses.find(c => c.value === shippingClass)?.label || 'Not selected'}
-          </div>
-        </div>
-      </div>
-
-      {/* Update Button */}
-      <div className="flex justify-end">
-        <button
-          onClick={handleUpdateShipping}
-          disabled={isLoading}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+        <label htmlFor="ship-shippingClass" className={labelClass}>Shipping Class</label>
+        <select 
+          id="ship-shippingClass" 
+          value={shippingClass} 
+          onChange={(e) => onShippingChange('shippingClass', e.target.value)} 
+          className={selectClass(!!errors?.shippingClass)}
         >
-          {isLoading ? 'Updating...' : 'Update Shipping'}
+          <option value="">Select shipping class...</option>
+          {shippingClasses.map(sc => <option key={sc.value} value={sc.value}>{sc.label}</option>)}
+        </select>
+        {errors?.shippingClass && <p className="mt-1 text-xs text-red-600">{errors.shippingClass}</p>}
+      </div>
+      
+      <div className="bg-indigo-50 p-4 rounded-md border border-indigo-200 text-sm text-indigo-700 space-y-1">
+        <h4 className="font-medium mb-1 text-indigo-800">Shipping Summary (Base Units):</h4>
+        <p>Weight: <span className="font-semibold">{formatNumberForDisplay(convertToBaseUnit(weight, weightUnit, weightUnits))} kg</span></p>
+        <p>Dimensions (L×W×H): <span className="font-semibold">{formatNumberForDisplay(convertToBaseUnit(dimensions.length, dimensionUnit, dimensionUnits))} × {formatNumberForDisplay(convertToBaseUnit(dimensions.width, dimensionUnit, dimensionUnits))} × {formatNumberForDisplay(convertToBaseUnit(dimensions.height, dimensionUnit, dimensionUnits))} cm</span></p>
+        <p>Selected Class: <span className="font-semibold">{shippingClasses.find(c=>c.value === shippingClass)?.label || 'Not selected'}</span></p>
+      </div>
+
+      <div className="flex justify-end pt-2">
+        <button 
+          type="button" 
+          onClick={handleUpdateShippingAPI} 
+          disabled={isProcessing || !productId} 
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {isProcessing ? 'Updating...' : 'Update Shipping Details'}
         </button>
       </div>
     </div>
   );
 };
 
-export default ShippingDetails; 
+export default ShippingDetails;
