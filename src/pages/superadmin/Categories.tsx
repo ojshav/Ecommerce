@@ -26,12 +26,14 @@ export default function Categories() {
     slug: '',
     parent_id: '',
     icon: null as File | null,
+    iconPreview: '' as string,
   });
   const [formErrors, setFormErrors] = useState({
     name: '',
     slug: '',
   });
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -94,6 +96,7 @@ export default function Categories() {
       slug: '',
       parent_id: '',
       icon: null,
+      iconPreview: '',
     });
     setFormErrors({
       name: '',
@@ -103,6 +106,20 @@ export default function Categories() {
   };
 
   const handleCloseDialog = () => {
+    if (categoryFormData.iconPreview) {
+      URL.revokeObjectURL(categoryFormData.iconPreview);
+    }
+    setCategoryFormData({
+      name: '',
+      slug: '',
+      parent_id: '',
+      icon: null,
+      iconPreview: '',
+    });
+    setFormErrors({
+      name: '',
+      slug: '',
+    });
     setOpenDialog(false);
   };
 
@@ -145,14 +162,48 @@ export default function Categories() {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setCategoryFormData({
-        ...categoryFormData,
-        icon: e.target.files[0],
-      });
+      try {
+        setUploadingImage(true);
+        const file = e.target.files[0];
+        
+        // Validate file size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+          toast.error('Image size should be less than 2MB');
+          return;
+        }
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          toast.error('Please upload an image file');
+          return;
+        }
+
+        // Create preview URL
+        const previewUrl = URL.createObjectURL(file);
+        setCategoryFormData({
+          ...categoryFormData,
+          icon: file,
+          iconPreview: previewUrl,
+        });
+      } catch (error) {
+        console.error('Error processing image:', error);
+        toast.error('Error processing image');
+      } finally {
+        setUploadingImage(false);
+      }
     }
   };
+
+  // Clean up preview URL when component unmounts or dialog closes
+  useEffect(() => {
+    return () => {
+      if (categoryFormData.iconPreview) {
+        URL.revokeObjectURL(categoryFormData.iconPreview);
+      }
+    };
+  }, [categoryFormData.iconPreview]);
 
   const validateForm = () => {
     const errors = {
@@ -296,7 +347,7 @@ export default function Categories() {
                 <img 
                   src={category.icon_url} 
                   alt={category.name}
-                  className="w-8 h-8 mr-2 rounded-full"
+                  className="w-8 h-8 mr-2 object-contain bg-gray-50"
                 />
               )}
               <span className="font-medium">{category.name}</span>
@@ -368,107 +419,141 @@ export default function Categories() {
 
       {/* Modal Dialog for Categories */}
       {openDialog && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Add Category</h2>
-              <button 
-                className="text-gray-400 hover:text-gray-600"
-                onClick={handleCloseDialog}
-              >
-                &times;
-              </button>
-            </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Add New Category</h2>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                 <input
                   type="text"
                   name="name"
                   value={categoryFormData.name}
                   onChange={handleCategoryChange}
-                  className={`w-full px-3 py-2 border rounded-md ${formErrors.name ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Enter category name"
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Category name"
                 />
                 {formErrors.name && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+                  <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
                 )}
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Slug
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
                 <input
                   type="text"
                   name="slug"
                   value={categoryFormData.slug}
                   onChange={handleCategoryChange}
-                  className={`w-full px-3 py-2 border rounded-md ${formErrors.slug ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="Auto-generated from name"
-                  readOnly
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="category-slug"
                 />
                 {formErrors.slug && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.slug}</p>
+                  <p className="text-red-500 text-sm mt-1">{formErrors.slug}</p>
                 )}
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Parent Category
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Parent Category</label>
                 <select
                   name="parent_id"
                   value={categoryFormData.parent_id}
                   onChange={handleCategoryChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">None (Top Level Category)</option>
-                  {getAllCategories(categories).map((cat) => (
-                    <option key={cat.category_id} value={cat.category_id}>
-                      {cat.name}
+                  <option value="">None</option>
+                  {getAllCategories(categories).map((category) => (
+                    <option key={category.category_id} value={category.category_id}>
+                      {category.name}
                     </option>
                   ))}
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category Icon
-                </label>
-                <label className="inline-block px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
-                  Upload Image
-                  <input 
-                    type="file" 
-                    hidden 
-                    accept="image/*" 
-                    onChange={handleImageChange} 
-                  />
-                </label>
-                {categoryFormData.icon && (
-                  <p className="mt-2 text-sm text-gray-600">
-                    {categoryFormData.icon.name}
-                  </p>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category Icon</label>
+                <div className="mt-1 flex items-center space-x-4">
+                  <label className={`
+                    flex-shrink-0 cursor-pointer bg-white px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium
+                    ${uploadingImage ? 'opacity-75 cursor-not-allowed' : 'hover:bg-gray-50'}
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                    transition-all duration-200
+                  `}>
+                    {uploadingImage ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span>Processing...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <span>Choose File</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                          disabled={uploadingImage}
+                        />
+                      </>
+                    )}
+                  </label>
+                  {categoryFormData.icon && !uploadingImage && (
+                    <span className="text-sm text-gray-500">
+                      {categoryFormData.icon.name}
+                    </span>
+                  )}
+                </div>
+                
+                {/* Image Preview */}
+                {categoryFormData.iconPreview && !uploadingImage && (
+                  <div className="mt-4">
+                    <div className="relative w-32 h-32 border rounded-lg overflow-hidden bg-gray-50">
+                      <img
+                        src={categoryFormData.iconPreview}
+                        alt="Category icon preview"
+                        className="w-full h-full object-contain"
+                      />
+                      <button
+                        onClick={() => {
+                          URL.revokeObjectURL(categoryFormData.iconPreview);
+                          setCategoryFormData({
+                            ...categoryFormData,
+                            icon: null,
+                            iconPreview: '',
+                          });
+                        }}
+                        className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none"
+                        title="Remove image"
+                      >
+                        <Trash className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
-            
+
             <div className="mt-6 flex justify-end space-x-3">
               <button
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
                 onClick={handleCloseDialog}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 onClick={handleSubmit}
                 disabled={loading}
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Creating...' : 'Create Category'}
+                {loading ? (
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Creating...
+                  </div>
+                ) : (
+                  'Create Category'
+                )}
               </button>
             </div>
           </div>
