@@ -430,7 +430,6 @@ const Attribute: React.FC = () => {
                             className="p-1 text-blue-500 hover:text-blue-600 rounded mr-2"
                             onClick={() => {
                                 setSelectedCategory(category.category_id);
-                                setShowAddCustomAttribute(true);
                             }}
                             title="Link Attribute"
                         >
