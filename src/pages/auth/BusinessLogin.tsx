@@ -10,21 +10,22 @@ const BusinessLogin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { setAuthState } = useAuth(); // We'll add this function to AuthContext
+  const [showResend, setShowResend] = useState(false);
+
+  // pull in both the login helper and the resend helper
+  const { setAuthState, resendVerificationEmail } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
-    
+    setShowResend(false);
+
     try {
-      // Make the API request to validate credentials
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           business_email: email,
           password: password
@@ -34,41 +35,58 @@ const BusinessLogin: React.FC = () => {
       const data = await response.json();
 
       if (response.status === 200) {
-        // Update auth context with tokens and user info from the API
+        // Successful login → hydrate context & redirect
         const success = await setAuthState({
           accessToken: data.access_token,
           refreshToken: data.refresh_token,
           user: {
-            id: data.merchant?.id || 'unknown',
-            email: email,
-            name: data.merchant?.business_name || 'Business User',
-            role: 'merchant'
+            id: data.user.id || 'unknown',
+            email: data.user.email,
+            name: data.user.first_name + ' ' + data.user.last_name,
+            role: 'merchant',
+            isEmailVerified: true,
+            verificationStatus: data.user.verification_status
           }
         });
-        
+
         if (success) {
-          // Store tokens in localStorage (can be moved to setAuthState)
-          localStorage.setItem('access_token', data.access_token);
-          localStorage.setItem('refresh_token', data.refresh_token);
-          
-          // Store merchant info if available
-          if (data.merchant) {
-            localStorage.setItem('merchant_profile', JSON.stringify(data.merchant));
-          }
-          
-          // Redirect to business dashboard
           navigate('/business/dashboard');
         } else {
-          throw new Error('Failed to update authentication context');
+          throw new Error('Failed to initialize session');
         }
+
       } else {
-        throw new Error(data.error || 'Invalid email or password');
+        // Handle errors
+        if (data.error_code === 'EMAIL_NOT_VERIFIED') {
+          setError('Your business email is not verified.');
+          setShowResend(true);
+        } else {
+          throw new Error(data.error || 'Invalid email or password');
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during login');
       console.error(err);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setIsSubmitting(true);
+    setError('');
+    try {
+      const ok = await resendVerificationEmail(email);
+      if (ok) {
+        setError('Verification email resent! Check your inbox.');
+      } else {
+        throw new Error('Unable to resend verification link');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error sending verification link');
+    } finally {
+      setIsSubmitting(false);
+      setShowResend(false);
     }
   };
 
@@ -91,17 +109,26 @@ const BusinessLogin: React.FC = () => {
               {error}
             </div>
           )}
+
+          {showResend && !isSubmitting && (
+            <div
+              className="mb-4 text-sm text-[#F2631F] cursor-pointer hover:underline"
+              onClick={handleResend}
+            >
+              Didn’t get a verification email? Resend link.
+            </div>
+          )}
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Buisness Email
+                Business Email
               </label>
               <input
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Enter your business email"
@@ -113,7 +140,7 @@ const BusinessLogin: React.FC = () => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <Link to="/forgot-password" className="text-sm text-[#F2631F] hover:text-orange-400 transition-colors">
+                <Link to="/forgot-password" className="text-sm text-[#F2631F] hover:text-orange-400">
                   Forgot your password?
                 </Link>
               </div>
@@ -121,7 +148,7 @@ const BusinessLogin: React.FC = () => {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Enter your password"
@@ -129,11 +156,7 @@ const BusinessLogin: React.FC = () => {
             </div>
             
             <div className="flex items-center">
-              <input
-                id="remember"
-                type="checkbox"
-                className="h-4 w-4 text-[#F2631F] focus:ring-[#F2631F] border-gray-300 rounded"
-              />
+              <input id="remember" type="checkbox" className="h-4 w-4 text-[#F2631F] focus:ring-[#F2631F] border-gray-300 rounded"/>
               <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
                 Remember me
               </label>
@@ -144,15 +167,16 @@ const BusinessLogin: React.FC = () => {
               disabled={isSubmitting}
               className="w-full bg-[#F2631F] text-white py-3 px-4 rounded-md font-medium hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Signing in...
-                </span>
-              ) : 'Sign in to Business Account'}
+              {isSubmitting
+                ? <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                    </svg>
+                    Signing in...
+                  </span>
+                : 'Sign in to Business Account'
+              }
             </button>
           </form>
         </div>
@@ -160,13 +184,13 @@ const BusinessLogin: React.FC = () => {
         <div className="px-8 py-4 bg-gray-50 border-t border-gray-200 text-center">
           <p className="text-sm text-gray-600">
             Don't have a business account?{' '}
-            <Link to="/register-business" className="font-medium text-[#F2631F] hover:text-orange-400 transition-colors">
+            <Link to="/register-business" className="font-medium text-[#F2631F] hover:text-orange-400">
               Register your business
             </Link>
           </p>
           <p className="text-sm text-gray-600 mt-2">
             Need a personal account?{' '}
-            <Link to="/sign-in" className="font-medium text-[#F2631F] hover:text-orange-400 transition-colors">
+            <Link to="/sign-in" className="font-medium text-[#F2631F] hover:text-orange-400">
               Sign in as customer
             </Link>
           </p>
