@@ -319,7 +319,6 @@ const Attribute: React.FC = () => {
 
                 toast.success('Attribute linked to category successfully');
                 setSelectedAttribute(null);
-                setSelectedCategory(null);
                 setRequiredFlag(false);
             } catch (error) {
                 console.error('Error linking attribute to category:', error);
