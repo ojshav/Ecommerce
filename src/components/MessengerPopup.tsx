@@ -69,11 +69,13 @@ const MessengerPopup: React.FC = () => {
 
             {/* Chat Buttons */}
             <div className="flex gap-2 mt-4">
-              <button className="flex-1 py-2 px-4 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+              <button className="flex-1 py-3 bg-[#E6E6E6] rounded-lg hover:bg-[#DADADA] transition-colors">
                 <img src="/whatsapp-icon.svg" alt="WhatsApp" className="w-6 h-6 mx-auto" />
               </button>
-              <button className="flex-1 py-2 px-4 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                <img src="/messenger-icon.svg" alt="Messenger" className="w-6 h-6 mx-auto" />
+              <button className="flex-1 py-4 bg-[#F2F2F2] rounded-2xl hover:bg-[#E6E6E6] transition-colors">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
+                  <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H5.17L4 17.17V4H20V16ZM7 9H9V11H7V9ZM15 9H17V11H15V9ZM11 9H13V11H11V9Z" fill="#333333"/>
+                </svg>
               </button>
             </div>
           </div>
