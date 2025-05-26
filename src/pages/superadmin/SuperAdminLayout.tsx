@@ -290,17 +290,9 @@ const SuperAdminLayout = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Include the SuperadminHeader component */}
-      <SuperadminHeader />
+      <SuperadminHeader onMenuClick={toggleSidebar} />
 
       <div className="flex">
-        {/* Mobile sidebar toggle */}
-        <button
-          className="md:hidden fixed bottom-4 right-4 z-30 p-3 rounded-full bg-gray-800 text-white shadow-lg"
-          onClick={toggleSidebar}
-        >
-          {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
-
         {/* Sidebar */}
         <div className={`
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
@@ -309,9 +301,18 @@ const SuperAdminLayout = () => {
         `}>
           {/* Sidebar Header */}
           <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <Home className="w-6 h-6 text-gray-600" />
-              <h2 className="text-xl font-bold text-gray-800">Super Admin</h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Home className="w-6 h-6 text-gray-600" />
+                <h2 className="text-xl font-bold text-gray-800">Super Admin</h2>
+              </div>
+              {/* Close button inside sidebar header */}
+              <button
+                className="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                onClick={toggleSidebar}
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
           </div>
 
