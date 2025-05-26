@@ -67,6 +67,7 @@ import ReturnRefund from './pages/ReturnRefund';
 import ShippingDelivery from './pages/ShippingDelivery';
 import UserProfile from './pages/UserProfile';
 import PaymentPage from './pages/PaymentPage';
+import MessengerPopup from './components/MessengerPopup';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -305,6 +306,8 @@ function App() {
               </Routes>
 
             </div>
+            {/* Add MessengerPopup here, outside of routes so it appears on all pages */}
+            <MessengerPopup />
           </Router>
 
           <Toaster
