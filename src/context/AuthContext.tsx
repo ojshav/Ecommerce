@@ -31,6 +31,7 @@ interface AuthContextType {
   logout: () => void;
   refreshTokenFunc: () => Promise<boolean>;
   verifyEmail: (token: string) => Promise<boolean>;
+  resendVerificationEmail: (email: string) => Promise<boolean>; 
   fetchVerificationStatus: () => Promise<void>;
   updateVerificationStatus: (status: User['verificationStatus']) => void;
 }
@@ -269,6 +270,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false;
     }
   };
+  
+  // Resend verification email
+  const resendVerificationEmail = async (email: string) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-email/resend`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Unable to resend verification email');
+      return true;
+    } catch (error) {
+      console.error('Resend verification email failed:', error);
+      return false;
+    }
+  };
+
+
 
   const logout = () => {
     // If you want to call the logout API endpoint before clearing local state:
@@ -344,6 +367,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       logout, 
       refreshTokenFunc,
       verifyEmail,
+      resendVerificationEmail,
       fetchVerificationStatus,
       updateVerificationStatus
     }}>
