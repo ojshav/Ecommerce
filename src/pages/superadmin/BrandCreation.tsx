@@ -67,6 +67,9 @@ const BrandCreation: React.FC = () => {
     const [loadingRequests, setLoadingRequests] = useState<boolean>(true);
     const [requestError, setRequestError] = useState<string | null>(null);
 
+    // Add state for category filter
+    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<number | ''>('');
+
     // Fetch brands and categories on component mount
     useEffect(() => {
         fetchBrands();
@@ -291,14 +294,20 @@ const BrandCreation: React.FC = () => {
             const response = await fetch(`${API_BASE_URL}/api/superadmin/brands/${editingBrand.brand_id}`, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    // Remove Content-Type header to let the browser set it automatically with the boundary for FormData
                 },
                 body: formData
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to update brand');
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to update brand');
+                } else {
+                    throw new Error('Failed to update brand');
+                }
             }
 
             const updatedBrand = await response.json();
@@ -309,24 +318,34 @@ const BrandCreation: React.FC = () => {
             // Remove categories that are no longer selected
             for (const categoryId of currentCategories) {
                 if (!editSelectedCategories.includes(categoryId)) {
-                    await fetch(`${API_BASE_URL}/api/superadmin/brands/${editingBrand.brand_id}/categories/${categoryId}`, {
+                    const deleteResponse = await fetch(`${API_BASE_URL}/api/superadmin/brands/${editingBrand.brand_id}/categories/${categoryId}`, {
                         method: 'DELETE',
                         headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'Accept': 'application/json'
                         }
                     });
+
+                    if (!deleteResponse.ok) {
+                        throw new Error('Failed to remove category association');
+                    }
                 }
             }
             
             // Add new categories
             for (const categoryId of editSelectedCategories) {
                 if (!currentCategories.includes(categoryId)) {
-                    await fetch(`${API_BASE_URL}/api/superadmin/brands/${editingBrand.brand_id}/categories/${categoryId}`, {
+                    const addResponse = await fetch(`${API_BASE_URL}/api/superadmin/brands/${editingBrand.brand_id}/categories/${categoryId}`, {
                         method: 'POST',
                         headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                            'Accept': 'application/json'
                         }
                     });
+
+                    if (!addResponse.ok) {
+                        throw new Error('Failed to add category association');
+                    }
                 }
             }
             
@@ -399,10 +418,13 @@ const BrandCreation: React.FC = () => {
         setShowAddBrandForm(false);
     };
 
-    // Filter brands based on search term
-    const filteredBrands = brands.filter(brand => 
-        brand.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Update the filtered brands logic to include category filtering
+    const filteredBrands = brands.filter(brand => {
+        const matchesSearch = brand.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = selectedCategoryFilter === '' || 
+            brand.categories?.some(cat => cat.category_id === selectedCategoryFilter);
+        return matchesSearch && matchesCategory;
+    });
 
     // Add function to handle brand request approval
     const handleApproveRequest = async (requestId: number) => {
@@ -468,6 +490,39 @@ const BrandCreation: React.FC = () => {
     return (
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-6">Brand Management</h1>
+
+            {/* Search and Filter Section */}
+            <div className="mb-6 flex flex-wrap gap-4 items-center">
+                <div className="flex-1 min-w-[200px]">
+                    <input
+                        type="text"
+                        placeholder="Search brands..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                <div className="w-[200px]">
+                    <select
+                        value={selectedCategoryFilter}
+                        onChange={(e) => setSelectedCategoryFilter(e.target.value ? Number(e.target.value) : '')}
+                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="">All Categories</option>
+                        {categories.map(category => (
+                            <option key={category.category_id} value={category.category_id}>
+                                {category.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <button
+                    onClick={() => setShowAddBrandForm(true)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                >
+                    Add New Brand
+                </button>
+            </div>
 
             {/* Brand Requests Section */}
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -644,17 +699,6 @@ const BrandCreation: React.FC = () => {
                         </div>
                     )}
                     
-                    {/* Search */}
-                    <div className="relative mb-4">
-                        <input
-                            type="text"
-                            placeholder="Search brands..."
-                            className="w-full p-2 border rounded-md"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-
                     {/* Loading and Error States */}
                     {loading ? (
                         <div className="text-center py-4">Loading brands...</div>

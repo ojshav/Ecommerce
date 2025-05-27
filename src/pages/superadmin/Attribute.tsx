@@ -319,7 +319,6 @@ const Attribute: React.FC = () => {
 
                 toast.success('Attribute linked to category successfully');
                 setSelectedAttribute(null);
-                setSelectedCategory(null);
                 setRequiredFlag(false);
             } catch (error) {
                 console.error('Error linking attribute to category:', error);
@@ -430,7 +429,6 @@ const Attribute: React.FC = () => {
                             className="p-1 text-blue-500 hover:text-blue-600 rounded mr-2"
                             onClick={() => {
                                 setSelectedCategory(category.category_id);
-                                setShowAddCustomAttribute(true);
                             }}
                             title="Link Attribute"
                         >

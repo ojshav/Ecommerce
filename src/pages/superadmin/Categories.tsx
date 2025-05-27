@@ -34,6 +34,7 @@ export default function Categories() {
   });
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [subcategoryParent, setSubcategoryParent] = useState<Category | null>(null);
 
   useEffect(() => {
     fetchCategories();
@@ -90,11 +91,11 @@ export default function Categories() {
     }
   };
 
-  const handleOpenDialog = () => {
+  const handleOpenDialog = (parentCategory?: Category) => {
     setCategoryFormData({
       name: '',
       slug: '',
-      parent_id: '',
+      parent_id: parentCategory ? String(parentCategory.category_id) : '',
       icon: null,
       iconPreview: '',
     });
@@ -102,6 +103,7 @@ export default function Categories() {
       name: '',
       slug: '',
     });
+    setSubcategoryParent(parentCategory || null);
     setOpenDialog(true);
   };
 
@@ -120,6 +122,7 @@ export default function Categories() {
       name: '',
       slug: '',
     });
+    setSubcategoryParent(null);
     setOpenDialog(false);
   };
 
@@ -351,6 +354,14 @@ export default function Categories() {
                 />
               )}
               <span className="font-medium">{category.name}</span>
+              {/* Create Subcategory Button */}
+              <button
+                className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                onClick={() => handleOpenDialog(category)}
+                title={`Create subcategory under ${category.name}`}
+              >
+                + Subcategory
+              </button>
             </div>
           </td>
           <td className="px-6 py-4">{category.slug}</td>
@@ -394,7 +405,7 @@ export default function Categories() {
         <h1 className="text-2xl font-bold">Categories</h1>
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-blue-700 transition-colors"
-          onClick={handleOpenDialog}
+          onClick={() => handleOpenDialog()}
         >
           <Plus size={18} />
           <span>Add Category</span>
@@ -456,19 +467,16 @@ export default function Categories() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Parent Category</label>
-                <select
-                  name="parent_id"
-                  value={categoryFormData.parent_id}
-                  onChange={handleCategoryChange}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">None</option>
-                  {getAllCategories(categories).map((category) => (
-                    <option key={category.category_id} value={category.category_id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                {subcategoryParent ? (
+                  <div className="w-full px-3 py-2 border rounded-md bg-gray-50">
+                    <span className="text-gray-700">{subcategoryParent.name}</span>
+                    <input type="hidden" name="parent_id" value={subcategoryParent.category_id} />
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-500 italic">
+                    This will be a parent category
+                  </div>
+                )}
               </div>
 
               <div>
