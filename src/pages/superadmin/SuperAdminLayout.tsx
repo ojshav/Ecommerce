@@ -228,6 +228,7 @@ export const getCategoryColorClasses = (categoryName: string) => {
 const SuperAdminLayout = () => {
   const [selectedCategory, setSelectedCategory] = useState(dashboardSections[0].category);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(['Analytics & Reports']); // Default expanded
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
@@ -238,7 +239,6 @@ const SuperAdminLayout = () => {
   }
 
   // Redirect to unauthorized page if authenticated but not a superadmin
-  // Check if the user role includes 'admin' (case insensitive)
   const userRole = user?.role?.toLowerCase() || '';
   const isAdmin = userRole.includes('admin') || userRole === 'super_admin';
   
@@ -252,6 +252,8 @@ const SuperAdminLayout = () => {
     const path = location.pathname;
     if (path.includes("categories") || path.includes("attribute") || path.includes("brands")) {
       setSelectedCategory("Catalog Management");
+    } else if (path.includes("dashboard")) {
+      setSelectedCategory("Dashboard");
     }
   };
 
@@ -269,7 +271,6 @@ const SuperAdminLayout = () => {
     const route = `/superadmin/${item.toLowerCase()}`;
     navigate(route);
     setSelectedCategory("Catalog Management");
-    // Close sidebar on mobile when selecting a category
     if (window.innerWidth < 768) {
       setIsSidebarOpen(false);
     }
@@ -277,7 +278,12 @@ const SuperAdminLayout = () => {
 
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
-    // Close sidebar on mobile when selecting a category
+    // Toggle category expansion
+    setExpandedCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(cat => cat !== category)
+        : [...prev, category]
+    );
     if (window.innerWidth < 768) {
       setIsSidebarOpen(false);
     }
@@ -294,7 +300,7 @@ const SuperAdminLayout = () => {
         <SuperadminHeader onMenuClick={toggleSidebar} />
       </div>
 
-      <div className="flex pt-16"> {/* Add padding-top to account for fixed header */}
+      <div className="flex pt-16">
         {/* Fixed Sidebar */}
         <div className={`
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
@@ -308,7 +314,6 @@ const SuperAdminLayout = () => {
                 <Home className="w-6 h-6 text-gray-600" />
                 <h2 className="text-xl font-bold text-gray-800">Super Admin</h2>
               </div>
-              {/* Close button inside sidebar header */}
               <button
                 className="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                 onClick={toggleSidebar}
@@ -321,10 +326,26 @@ const SuperAdminLayout = () => {
           {/* Scrollable Sidebar Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">
             <ul className="space-y-1">
+              {/* Dashboard Menu Item */}
+              <li>
+                <button
+                  onClick={() => handleNavigation("Dashboard")}
+                  className={`
+                    w-full flex items-center px-4 py-3 rounded-lg text-left
+                    ${selectedCategory === "Dashboard" ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}
+                    transition-all duration-200
+                  `}
+                >
+                  <Home className={`w-5 h-5 ${selectedCategory === "Dashboard" ? '' : 'text-gray-500'} mr-3`} />
+                  <span className="font-medium">Dashboard</span>
+                </button>
+              </li>
+
               {dashboardSections.map((section, index) => {
                 const Icon = section.icon;
                 const colorClasses = getCategoryColorClasses(section.category);
                 const isActive = selectedCategory === section.category;
+                const isExpanded = expandedCategories.includes(section.category);
 
                 return (
                   <li key={index}>
@@ -338,11 +359,11 @@ const SuperAdminLayout = () => {
                     >
                       <Icon className={`w-5 h-5 ${isActive ? '' : 'text-gray-500'} mr-3`} />
                       <span className="font-medium">{section.category}</span>
-                      <ChevronRight className={`w-4 h-4 ml-auto ${isActive ? '' : 'text-gray-400'}`} />
+                      <ChevronRight className={`w-4 h-4 ml-auto transform transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
                     </button>
                     
-                    {/* Show section items when active */}
-                    {isActive && (
+                    {/* Show section items when expanded */}
+                    {isExpanded && (
                       <div className="mt-2 ml-6 space-y-1">
                         {section.items.map((item, itemIndex) => {
                           const ItemIcon = item.icon;
@@ -363,7 +384,7 @@ const SuperAdminLayout = () => {
                 );
               })}
               
-              {/* Add Catalog Management Category */}
+              {/* Catalog Management Category */}
               <li>
                 <button
                   onClick={() => handleCategorySelect("Catalog Management")}
@@ -377,11 +398,11 @@ const SuperAdminLayout = () => {
                 >
                   <FolderOpen className={`w-5 h-5 ${selectedCategory === "Catalog Management" ? '' : 'text-gray-500'} mr-3`} />
                   <span className="font-medium">Catalog Management</span>
-                  <ChevronRight className={`w-4 h-4 ml-auto ${selectedCategory === "Catalog Management" ? '' : 'text-gray-400'}`} />
+                  <ChevronRight className={`w-4 h-4 ml-auto transform transition-transform duration-200 ${expandedCategories.includes("Catalog Management") ? 'rotate-90' : ''}`} />
                 </button>
                 
-                {/* Show catalog items when active */}
-                {selectedCategory === "Catalog Management" && (
+                {/* Show catalog items when expanded */}
+                {expandedCategories.includes("Catalog Management") && (
                   <div className="mt-2 ml-6 space-y-1">
                     {catalogSection.items.map((item, index) => {
                       const ItemIcon = item.icon;

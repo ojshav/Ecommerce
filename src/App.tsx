@@ -220,9 +220,9 @@ function App() {
                 <Route path="/superadmin/login" element={<SuperAdminLogin />} />
                 
                 {/* Superadmin Routes - Protected by role check in the component */}
-
                 <Route path="/superadmin" element={<SuperAdminLayout />}>
-                  <Route index element={<Dashboard />} />
+                  <Route index element={<Navigate to="/superadmin/dashboard" replace />} />
+                  <Route path="dashboard" element={<Dashboard />} />
                   <Route path="user-activity-overview" element={<UserActivity />} />
                   <Route path="user-management" element={<UserManagement />} />
                   <Route path="content-moderation" element={<ContentModeration />} />
@@ -237,8 +237,6 @@ function App() {
                   <Route path="categories" element={<Categories />} />
                   <Route path="brand-creation" element={<BrandCreation />} />
                   <Route path="attribute" element={<Attribute />} />
-
-
                 </Route>
 
                 {/* Business Auth Routes */}
