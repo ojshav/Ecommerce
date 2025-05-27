@@ -426,7 +426,7 @@ const Attribute: React.FC = () => {
                     <td className="px-6 py-4">{category.slug}</td>
                     <td className="px-6 py-4 text-right">
                         <button 
-                            className="p-1 text-blue-500 hover:text-blue-600 rounded mr-2"
+                            className="p-1 text-[#FF5733] hover:text-[#FF4500] rounded mr-2"
                             onClick={() => {
                                 setSelectedCategory(category.category_id);
                             }}
@@ -455,13 +455,13 @@ const Attribute: React.FC = () => {
             <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex border-b mb-6">
                     <button
-                        className={`px-4 py-2 mr-4 ${activeTab === 'custom' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600'}`}
+                        className={`px-4 py-2 mr-4 ${activeTab === 'custom' ? 'border-b-2 border-[#FF5733] text-[#FF5733]' : 'text-gray-600'}`}
                         onClick={() => setActiveTab('custom')}
                     >
                         Custom Attributes
                     </button>
                     <button
-                        className={`px-4 py-2 ${activeTab === 'category' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600'}`}
+                        className={`px-4 py-2 ${activeTab === 'category' ? 'border-b-2 border-[#FF5733] text-[#FF5733]' : 'text-gray-600'}`}
                         onClick={() => setActiveTab('category')}
                     >
                         Category-Specific Attributes
@@ -474,7 +474,7 @@ const Attribute: React.FC = () => {
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-lg font-semibold">Custom Attributes</h2>
                             <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded flex items-center"
+                                className="bg-[#FF5733] text-white px-4 py-2 rounded flex items-center hover:bg-[#FF4500] transition-colors"
                                 onClick={() => setShowAddCustomAttribute(true)}
                             >
                                 <PlusCircle className="w-4 h-4 mr-1" />
@@ -498,7 +498,7 @@ const Attribute: React.FC = () => {
                                             </div>
                                             <div className="flex space-x-2">
                                                 <button 
-                                                    className="text-blue-500 hover:text-blue-600 p-2"
+                                                    className="text-[#FF5733] hover:text-[#FF4500] p-2"
                                                     onClick={() => {
                                                         setSelectedAttribute(attr.attribute_id);
                                                         setShowAddValueModal(true);
@@ -522,7 +522,7 @@ const Attribute: React.FC = () => {
                                             <div className="flex justify-between items-center mb-2">
                                                 <h4 className="font-medium">Values</h4>
                                                 <button
-                                                    className="text-blue-500 text-sm hover:text-blue-600"
+                                                    className="text-[#FF5733] text-sm hover:text-[#FF4500]"
                                                     onClick={() => {
                                                         setSelectedAttribute(attr.attribute_id);
                                                         setShowAddValueModal(true);
@@ -620,7 +620,7 @@ const Attribute: React.FC = () => {
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium mb-2">Select Attribute</label>
                                             <select
-                                                className="w-full p-2 border rounded-md"
+                                                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF5733] focus:border-[#FF5733] [&>option]:bg-white [&>option]:text-gray-900 [&>option:checked]:bg-[#FF5733] [&>option:checked]:text-white"
                                                 value={selectedAttribute || ''}
                                                 onChange={(e) => {
                                                     const attrId = parseInt(e.target.value);
@@ -655,7 +655,7 @@ const Attribute: React.FC = () => {
 
                                         <div className="flex justify-end">
                                             <button
-                                                className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] disabled:opacity-50 disabled:cursor-not-allowed"
                                                 onClick={handleLinkAttributeToCategory}
                                                 disabled={!selectedAttribute || !selectedCategory}
                                             >
@@ -751,13 +751,13 @@ const Attribute: React.FC = () => {
 
                         <div className="flex justify-end">
                             <button
-                                className="bg-gray-300 px-4 py-2 rounded mr-2"
+                                className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors"
                                 onClick={() => setShowAddCustomAttribute(false)}
                             >
                                 Cancel
                             </button>
                             <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                                className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors"
                                 onClick={handleAddCustomAttribute}
                             >
                                 Add Attribute
@@ -819,13 +819,13 @@ const Attribute: React.FC = () => {
 
                         <div className="flex justify-end">
                             <button
-                                className="bg-gray-300 px-4 py-2 rounded mr-2"
+                                className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors"
                                 onClick={() => setShowAddValueModal(false)}
                             >
                                 Cancel
                             </button>
                             <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                                className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors"
                                 onClick={handleAddAttributeValue}
                             >
                                 Add Value

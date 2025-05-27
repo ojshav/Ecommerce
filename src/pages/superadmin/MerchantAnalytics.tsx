@@ -38,8 +38,14 @@ const sampleTopProducts = [
   { name: 'Product B', sales: 72, revenue: 2160 },
 ];
 
-// Changed COLORS array to use #4E6688 as the primary color
-const COLORS = ['#4E6688', '#6E86A8', '#8EA6C8', '#AEC6E8', '#CEE6FF'];
+// Update the COLORS constant
+const CHART_COLORS = {
+  primary: '#FF5733',
+  secondary: '#2DD4BF',
+  tertiary: '#A855F7',
+  quaternary: '#3B82F6',
+  background: '#FFF5E6'
+};
 
 const MerchantAnalytics = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -54,8 +60,8 @@ const MerchantAnalytics = () => {
   
   return (
     <div className="flex flex-col h-full bg-gray-50">
-      {/* Header - Changed background color to #4E6688 */}
-      <div className="bg-[#4E6688] p-6 shadow">
+      {/* Header - Changed background color to #FF5733 */}
+      <div className="bg-[#FF5733] p-6 shadow">
         <h1 className="text-2xl font-bold text-white">Merchant Analytics Dashboard</h1>
         <p className="text-gray-100">Analyze performance based on sales, inventory, and customer feedback</p>
       </div>
@@ -64,13 +70,13 @@ const MerchantAnalytics = () => {
       <div className="bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            {/* Tab Navigation - Changed active tab color to #4E6688 */}
+            {/* Tab Navigation - Changed active tab color to #FF5733 */}
             <div className="flex">
               <button 
                 onClick={() => setActiveTab('overview')}
                 className={`px-5 py-4 border-b-2 font-medium text-sm ${
                   activeTab === 'overview' 
-                  ? 'border-[#4E6688] text-[#4E6688]' 
+                  ? 'border-[#FF5733] text-[#FF5733]' 
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -84,7 +90,7 @@ const MerchantAnalytics = () => {
                 onClick={() => setActiveTab('sales')}
                 className={`ml-8 px-5 py-4 border-b-2 font-medium text-sm ${
                   activeTab === 'sales' 
-                  ? 'border-[#4E6688] text-[#4E6688]' 
+                  ? 'border-[#FF5733] text-[#FF5733]' 
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -98,7 +104,7 @@ const MerchantAnalytics = () => {
                 onClick={() => setActiveTab('inventory')}
                 className={`ml-8 px-5 py-4 border-b-2 font-medium text-sm ${
                   activeTab === 'inventory' 
-                  ? 'border-[#4E6688] text-[#4E6688]' 
+                  ? 'border-[#FF5733] text-[#FF5733]' 
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -112,7 +118,7 @@ const MerchantAnalytics = () => {
                 onClick={() => setActiveTab('feedback')}
                 className={`ml-8 px-5 py-4 border-b-2 font-medium text-sm ${
                   activeTab === 'feedback' 
-                  ? 'border-[#4E6688] text-[#4E6688]' 
+                  ? 'border-[#FF5733] text-[#FF5733]' 
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -123,29 +129,29 @@ const MerchantAnalytics = () => {
               </button>
             </div>
             
-            {/* Time Range Selector - Changed button colors to #4E6688 */}
+            {/* Time Range Selector - Changed button colors to #FF5733 */}
             <div className="flex space-x-2">
               <button 
                 onClick={() => setTimeRange('1m')}
-                className={`px-3 py-1 rounded text-sm ${timeRange === '1m' ? 'bg-[#4E6688] text-white' : 'bg-gray-100'}`}
+                className={`px-3 py-1 rounded text-sm ${timeRange === '1m' ? 'bg-[#FF5733] text-white' : 'bg-gray-100'}`}
               >
                 1M
               </button>
               <button 
                 onClick={() => setTimeRange('3m')}
-                className={`px-3 py-1 rounded text-sm ${timeRange === '3m' ? 'bg-[#4E6688] text-white' : 'bg-gray-100'}`}
+                className={`px-3 py-1 rounded text-sm ${timeRange === '3m' ? 'bg-[#FF5733] text-white' : 'bg-gray-100'}`}
               >
                 3M
               </button>
               <button 
                 onClick={() => setTimeRange('6m')}
-                className={`px-3 py-1 rounded text-sm ${timeRange === '6m' ? 'bg-[#4E6688] text-white' : 'bg-gray-100'}`}
+                className={`px-3 py-1 rounded text-sm ${timeRange === '6m' ? 'bg-[#FF5733] text-white' : 'bg-gray-100'}`}
               >
                 6M
               </button>
               <button 
                 onClick={() => setTimeRange('1y')}
-                className={`px-3 py-1 rounded text-sm ${timeRange === '1y' ? 'bg-[#4E6688] text-white' : 'bg-gray-100'}`}
+                className={`px-3 py-1 rounded text-sm ${timeRange === '1y' ? 'bg-[#FF5733] text-white' : 'bg-gray-100'}`}
               >
                 1Y
               </button>
@@ -161,11 +167,11 @@ const MerchantAnalytics = () => {
           <div>
             <h2 className="text-xl font-semibold mb-6">Performance Overview</h2>
             
-            {/* Key metrics - Changed icon color to #4E6688 */}
+            {/* Key metrics - Changed icon color to #FF5733 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <div className="bg-white p-6 rounded-lg shadow">
                 <div className="flex items-center mb-2">
-                  <DollarSign className="text-[#4E6688]" size={20} />
+                  <DollarSign className="text-[#FF5733]" size={20} />
                   <h3 className="text-lg font-medium ml-2">Total Revenue</h3>
                 </div>
                 <p className="text-2xl font-bold">${totalRevenue.toLocaleString()}</p>
@@ -176,7 +182,7 @@ const MerchantAnalytics = () => {
               
               <div className="bg-white p-6 rounded-lg shadow">
                 <div className="flex items-center mb-2">
-                  <ShoppingBag className="text-[#4E6688]" size={20} />
+                  <ShoppingBag className="text-[#FF5733]" size={20} />
                   <h3 className="text-lg font-medium ml-2">Units Sold</h3>
                 </div>
                 <p className="text-2xl font-bold">{totalUnits}</p>
@@ -187,7 +193,7 @@ const MerchantAnalytics = () => {
               
               <div className="bg-white p-6 rounded-lg shadow">
                 <div className="flex items-center mb-2">
-                  <Inbox className="text-[#4E6688]" size={20} />
+                  <Inbox className="text-[#FF5733]" size={20} />
                   <h3 className="text-lg font-medium ml-2">Low Stock Items</h3>
                 </div>
                 <p className="text-2xl font-bold">{lowStockCount}</p>
@@ -198,7 +204,7 @@ const MerchantAnalytics = () => {
               
               <div className="bg-white p-6 rounded-lg shadow">
                 <div className="flex items-center mb-2">
-                  <Star className="text-[#4E6688]" size={20} />
+                  <Star className="text-[#FF5733]" size={20} />
                   <h3 className="text-lg font-medium ml-2">Avg. Rating</h3>
                 </div>
                 <p className="text-2xl font-bold">{avgRating.toFixed(1)}/5</p>
@@ -207,14 +213,14 @@ const MerchantAnalytics = () => {
                     <Star 
                       key={star}
                       size={16}
-                      className={star <= Math.round(avgRating) ? "text-[#4E6688] fill-[#4E6688]" : "text-gray-300"}
+                      className={star <= Math.round(avgRating) ? "text-[#FF5733] fill-[#FF5733]" : "text-gray-300"}
                     />
                   ))}
                 </div>
               </div>
             </div>
             
-            {/* Revenue chart - Changed line color to #4E6688 */}
+            {/* Revenue chart - Changed line color to #FF5733 */}
             <div className="bg-white p-6 rounded-lg shadow mb-8">
               <h3 className="text-lg font-medium mb-4">Revenue Trend</h3>
               <div className="h-64">
@@ -228,7 +234,7 @@ const MerchantAnalytics = () => {
                     <Line 
                       type="monotone" 
                       dataKey="revenue" 
-                      stroke="#4E6688" 
+                      stroke={CHART_COLORS.primary}
                       activeDot={{ r: 8 }}
                       name="Revenue ($)"
                     />
@@ -277,12 +283,12 @@ const MerchantAnalytics = () => {
                     <BarChart data={sampleSalesData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" />
-                      <YAxis yAxisId="left" orientation="left" stroke="#4E6688" />
-                      <YAxis yAxisId="right" orientation="right" stroke="#6E86A8" />
+                      <YAxis yAxisId="left" orientation="left" stroke={CHART_COLORS.primary} />
+                      <YAxis yAxisId="right" orientation="right" stroke={CHART_COLORS.secondary} />
                       <Tooltip />
                       <Legend />
-                      <Bar yAxisId="left" dataKey="revenue" name="Revenue ($)" fill="#4E6688" />
-                      <Bar yAxisId="right" dataKey="units" name="Units Sold" fill="#6E86A8" />
+                      <Bar yAxisId="left" dataKey="revenue" name="Revenue ($)" fill={CHART_COLORS.primary} />
+                      <Bar yAxisId="right" dataKey="units" name="Units Sold" fill={CHART_COLORS.secondary} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -305,7 +311,7 @@ const MerchantAnalytics = () => {
                         label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                       >
                         {sampleTopProducts.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell key={`cell-${index}`} fill={Object.values(CHART_COLORS)[index % 4]} />
                         ))}
                       </Pie>
                       <Tooltip formatter={(value, name, props) => [value, props.payload.name]} />
@@ -372,7 +378,7 @@ const MerchantAnalytics = () => {
                     <Bar 
                       dataKey="inStock" 
                       name="Units in Stock" 
-                      fill="#4E6688"
+                      fill={CHART_COLORS.primary}
                       radius={[0, 4, 4, 0]}
                     />
                   </BarChart>
@@ -463,7 +469,7 @@ const MerchantAnalytics = () => {
                       <Bar 
                         dataKey="count" 
                         name="Number of Reviews" 
-                        fill="#4E6688"
+                        fill={CHART_COLORS.primary}
                         radius={[4, 4, 0, 0]} 
                       />
                     </BarChart>
@@ -490,9 +496,9 @@ const MerchantAnalytics = () => {
                         dataKey="value"
                         label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                       >
-                        <Cell fill="#4E6688" />
-                        <Cell fill="#6E86A8" />
-                        <Cell fill="#8EA6C8" />
+                        <Cell fill={CHART_COLORS.primary} />
+                        <Cell fill={CHART_COLORS.secondary} />
+                        <Cell fill={CHART_COLORS.tertiary} />
                       </Pie>
                       <Tooltip />
                     </PieChart>
@@ -511,7 +517,7 @@ const MerchantAnalytics = () => {
                         <Star 
                           key={star}
                           size={16}
-                          className={star <= 5 ? "text-[#4E6688] fill-[#4E6688]" : "text-gray-300"}
+                          className={star <= 5 ? "text-[#FF5733] fill-[#FF5733]" : "text-gray-300"}
                         />
                       ))}
                     </div>
@@ -527,7 +533,7 @@ const MerchantAnalytics = () => {
                         <Star 
                           key={star}
                           size={16}
-                          className={star <= 4 ? "text-[#4E6688] fill-[#4E6688]" : "text-gray-300"}
+                          className={star <= 4 ? "text-[#FF5733] fill-[#FF5733]" : "text-gray-300"}
                         />
                       ))}
                     </div>
@@ -543,7 +549,7 @@ const MerchantAnalytics = () => {
                         <Star 
                           key={star}
                           size={16}
-                          className={star <= 3 ? "text-[#4E6688] fill-[#4E6688]" : "text-gray-300"}
+                          className={star <= 3 ? "text-[#FF5733] fill-[#FF5733]" : "text-gray-300"}
                         />
                       ))}
                     </div>

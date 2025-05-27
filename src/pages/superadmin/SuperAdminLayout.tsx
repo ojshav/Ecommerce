@@ -181,48 +181,14 @@ export const catalogSection = {
 
 // Get color classes based on category
 export const getCategoryColorClasses = (categoryName: string) => {
-  switch (categoryName) {
-    case "Management":
-      return {
-        text: "text-emerald-600",
-        bg: "bg-emerald-50",
-        border: "border-emerald-100",
-        hover: "hover:text-emerald-600",
-        active: "bg-emerald-100 text-emerald-700"
-      };
-    case "Operations & Security":
-      return {
-        text: "text-amber-600",
-        bg: "bg-amber-50",
-        border: "border-amber-100",
-        hover: "hover:text-amber-600",
-        active: "bg-amber-100 text-amber-700"
-      };
-    case "Advanced Controls":
-      return {
-        text: "text-purple-600",
-        bg: "bg-purple-50",
-        border: "border-purple-100",
-        hover: "hover:text-purple-600",
-        active: "bg-purple-100 text-purple-700"
-      };
-    case "Catalog Management":
-      return {
-        text: "text-green-600",
-        bg: "bg-green-50",
-        border: "border-green-100",
-        hover: "hover:text-green-600",
-        active: "bg-green-100 text-green-700"
-      };
-    default: // Analytics & Reports
-      return {
-        text: "text-blue-600",
-        bg: "bg-blue-50",
-        border: "border-blue-100",
-        hover: "hover:text-blue-600",
-        active: "bg-blue-100 text-blue-700"
-      };
-  }
+  // Use the same orange theme for all categories
+  return {
+    text: "text-orange-600",
+    bg: "bg-orange-50",
+    border: "border-orange-100",
+    hover: "hover:text-orange-600",
+    active: "bg-orange-200 text-orange-700"
+  };
 };
 
 const SuperAdminLayout = () => {
@@ -362,10 +328,10 @@ const SuperAdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-white to-orange-50">
       {/* Fixed Header */}
-      <div className="fixed top-0 left-0 right-0 z-30">
-        <SuperadminHeader onMenuClick={toggleSidebar} />
+      <div className="fixed top-0 left-0 right-0 z-30 bg-orange-500">
+      <SuperadminHeader onMenuClick={toggleSidebar} />
       </div>
 
       <div className="flex pt-16">
@@ -373,17 +339,17 @@ const SuperAdminLayout = () => {
         <div className={`
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
           fixed md:static z-20 transform md:translate-x-0 transition-transform duration-300 ease-in-out
-          w-64 h-[calc(100vh-4rem)] top-16 bg-white shadow-md flex flex-col
+          w-64 h-[calc(100vh-4rem)] top-16 bg-orange-100 shadow-md flex flex-col
         `}>
           {/* Sidebar Header */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-orange-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Home className="w-6 h-6 text-gray-600" />
-                <h2 className="text-xl font-bold text-gray-800">Super Admin</h2>
+                <Home className="w-6 h-6 text-black" />
+                <h2 className="text-xl font-bold text-black">Super Admin</h2>
               </div>
               <button
-                className="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                className="md:hidden p-2 text-black hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors duration-200"
                 onClick={toggleSidebar}
               >
                 <X className="h-5 w-5" />
@@ -400,7 +366,7 @@ const SuperAdminLayout = () => {
                   onClick={() => handleCategorySelect("Dashboard")}
                   className={`
                     w-full flex items-center px-4 py-3 rounded-lg text-left
-                    ${isCategoryActive("Dashboard") ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}
+                    ${isCategoryActive("Dashboard") ? 'bg-orange-200 text-orange-700' : 'text-black hover:bg-orange-50'}
                     transition-all duration-200
                   `}
                 >
@@ -421,7 +387,7 @@ const SuperAdminLayout = () => {
                       onClick={() => handleCategorySelect(section.category)}
                       className={`
                         w-full flex items-center px-4 py-3 rounded-lg text-left
-                        ${isActive ? colorClasses.active : 'text-gray-700 hover:bg-gray-100'}
+                        ${isActive ? colorClasses.active : 'text-black hover:bg-orange-50'}
                         transition-all duration-200
                       `}
                     >
@@ -442,10 +408,10 @@ const SuperAdminLayout = () => {
                               onClick={() => handleNavigation(item.title)}
                               className={`
                                 w-full flex items-center px-3 py-2 rounded-md text-left
-                                ${isItemActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}
+                                ${isItemActive ? 'bg-orange-50 text-orange-700' : 'text-black hover:bg-orange-50'}
                               `}
                             >
-                              <ItemIcon className={`w-4 h-4 ${isItemActive ? 'text-blue-600' : 'text-gray-500'} mr-2`} />
+                              <ItemIcon className={`w-4 h-4 ${isItemActive ? 'text-orange-600' : 'text-gray-500'} mr-2`} />
                               <span className="text-sm">{item.title}</span>
                             </button>
                           );
@@ -464,7 +430,7 @@ const SuperAdminLayout = () => {
                     w-full flex items-center px-4 py-3 rounded-lg text-left
                     ${isCategoryActive("Catalog Management") ? 
                       getCategoryColorClasses("Catalog Management").active : 
-                      'text-gray-700 hover:bg-gray-100'}
+                      'text-black hover:bg-orange-50'}
                     transition-all duration-200
                   `}
                 >
@@ -485,10 +451,10 @@ const SuperAdminLayout = () => {
                           onClick={() => handleCatalogItemClick(item.title.toLowerCase().replace(/\s+/g, "-"))}
                           className={`
                             w-full flex items-center px-3 py-2 rounded-md text-left
-                            ${isItemActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}
+                            ${isItemActive ? 'bg-orange-50 text-orange-700' : 'text-black hover:bg-orange-50'}
                           `}
                         >
-                          <ItemIcon className={`w-4 h-4 ${isItemActive ? 'text-blue-600' : 'text-gray-500'} mr-2`} />
+                          <ItemIcon className={`w-4 h-4 ${isItemActive ? 'text-orange-600' : 'text-gray-500'} mr-2`} />
                           <span className="text-sm">{item.title}</span>
                         </button>
                       );
