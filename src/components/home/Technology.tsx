@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Heart, ShoppingCart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Product } from '../../types';
+import { toast } from 'react-hot-toast';
 
 const products: Product[] = [
   {
@@ -18,7 +19,8 @@ const products: Product[] = [
     reviews: 245,
     stock: 10,
     tags: ['laptop', 'apple', 'macbook'],
-    isNew: true
+    isNew: true,
+    sku: 'MBP2019-1'
   },
   {
     id: '2',
@@ -34,7 +36,8 @@ const products: Product[] = [
     stock: 15,
     tags: ['watch', 'apple', 'smart watch'],
     featured: false,
-    favourite: true
+    favourite: true,
+    sku: 'AWS5-1'
   },
   {
     id: '3',
@@ -48,7 +51,8 @@ const products: Product[] = [
     reviews: 156,
     stock: 0,
     tags: ['laptop', 'apple', 'macbook'],
-    featured: false
+    featured: false,
+    sku: 'MBP2019-2'
   },
   {
     id: '4',
@@ -62,7 +66,8 @@ const products: Product[] = [
     reviews: 132,
     stock: 8,
     tags: ['watch', 'apple', 'smart watch'],
-    featured: false
+    featured: false,
+    sku: 'AWS5-2'
   }
 ];
 
@@ -72,6 +77,12 @@ const Technology: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const navigate = useNavigate();
   const { addToCart } = useCart();
+
+  const handleWishlist = (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toast.success(`${product.name} added to wishlist`);
+  };
 
   return (
     <section className="pb-12">
@@ -145,11 +156,8 @@ const Technology: React.FC = () => {
                   
                   {/* Favorite button */}
                   <button
-                    className="absolute top-4 right-4 p-1 z-10 text-gray-400 hover:text-[#F2631F]"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Handle favorite toggle if needed
-                    }}
+                    className="absolute top-4 right-4 p-1.5 z-10 text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md rounded-full transition-all duration-300"
+                    onClick={(e) => handleWishlist(e, product)}
                   >
                     <Heart className="w-4 h-4" />
                   </button>
@@ -158,7 +166,7 @@ const Technology: React.FC = () => {
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-contain p-2"
+                    className="w-full h-full object-contain p-2 rounded-lg"
                   />
                 </div>
 
