@@ -289,15 +289,17 @@ const SuperAdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Include the SuperadminHeader component */}
-      <SuperadminHeader onMenuClick={toggleSidebar} />
+      {/* Fixed Header */}
+      <div className="fixed top-0 left-0 right-0 z-30">
+        <SuperadminHeader onMenuClick={toggleSidebar} />
+      </div>
 
-      <div className="flex">
-        {/* Sidebar */}
+      <div className="flex pt-16"> {/* Add padding-top to account for fixed header */}
+        {/* Fixed Sidebar */}
         <div className={`
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
           fixed md:static z-20 transform md:translate-x-0 transition-transform duration-300 ease-in-out
-          w-64 min-h-screen bg-white shadow-md flex flex-col
+          w-64 h-[calc(100vh-4rem)] top-16 bg-white shadow-md flex flex-col
         `}>
           {/* Sidebar Header */}
           <div className="p-4 border-b border-gray-200">
@@ -316,7 +318,7 @@ const SuperAdminLayout = () => {
             </div>
           </div>
 
-          {/* Sidebar Navigation */}
+          {/* Scrollable Sidebar Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">
             <ul className="space-y-1">
               {dashboardSections.map((section, index) => {
@@ -401,8 +403,8 @@ const SuperAdminLayout = () => {
           </nav>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 p-6 md:p-8">
+        {/* Scrollable Main Content */}
+        <div className="flex-1 p-6 md:p-8 overflow-y-auto h-[calc(100vh-4rem)]">
           <Outlet />
         </div>
       </div>
