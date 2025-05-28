@@ -43,36 +43,35 @@ const Exchange: React.FC = () => {
         <span>Exchange</span>
       </div>
 
+      {/* Product Details */}
       <div className="flex justify-center mb-8">
         <div className="text-center">
-          <div className="w-48 h-48 mb-2 mx-auto overflow-hidden rounded-lg">
+          <div className="w-64 h-64 mb-2 mx-auto overflow-hidden rounded-lg bg-orange-500">
             <img
-              src={order.imageUrl || 'https://images.unsplash.com/photo-1617137968427-85924c800a22?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'}
-              alt={order.productName}
+              src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80"
+              alt="Stylish Backpack"
               className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = 'https://images.unsplash.com/photo-1617137968427-85924c800a22?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80';
-              }}
             />
           </div>
-          <h2 className="font-medium">{order.productName}</h2>
+          <h2 className="font-medium">Product Name: Stylish Backpack</h2>
           <p className="text-sm text-gray-600">Order Number: {order.id}</p>
         </div>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6">
         {/* Exchange Status */}
         <div>
-          <h3 className="font-medium mb-4">Exchange Status</h3>
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+          <h3 className="font-medium mb-2">Exchange Status</h3>
+          <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-2">
             <div className="h-full w-1/3 bg-orange-500"></div>
           </div>
-          <div className="flex gap-2 mt-4">
-            <button className="px-4 py-2 bg-orange-500 text-white rounded-lg">Exchange</button>
+          <div className="flex gap-2">
+            <button className="px-4 py-2 bg-orange-500 text-white rounded-lg">
+              Exchange
+            </button>
             <button 
               onClick={handleRefundClick}
-              className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
+              className="px-4 py-2 text-gray-700 hover:text-gray-900"
             >
               Refund
             </button>
@@ -92,6 +91,7 @@ const Exchange: React.FC = () => {
             <option value="color">Wrong Color</option>
             <option value="damaged">Damaged Product</option>
           </select>
+          <p className="text-orange-500 text-sm mt-2 cursor-pointer">View Return Policy</p>
         </div>
 
         {/* Pickup Address */}
@@ -105,7 +105,7 @@ const Exchange: React.FC = () => {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 className="w-full p-2 border rounded-lg"
-                placeholder="Enter address here"
+                placeholder="Ex: ABC Building, 4th LF"
               />
             </div>
             <div>
@@ -125,7 +125,7 @@ const Exchange: React.FC = () => {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 className="w-full p-2 border rounded-lg"
-                placeholder="Enter phone number"
+                placeholder="********"
               />
             </div>
           </div>
@@ -157,8 +157,12 @@ const Exchange: React.FC = () => {
             </label>
           </div>
           <div className="flex gap-2 mt-4">
-            <button className="px-4 py-2 border rounded-lg text-sm">Set Address</button>
-            <button className="px-4 py-2 border rounded-lg text-sm">Add New Address</button>
+            <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm">
+              Set Address
+            </button>
+            <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm">
+              Add New Address
+            </button>
           </div>
         </div>
 
@@ -169,7 +173,7 @@ const Exchange: React.FC = () => {
             <div className="space-y-2">
               <div className="text-sm text-gray-600">
                 <p>Item:</p>
-                <p>{order.productName}</p>
+                <p>Stylish Backpack</p>
               </div>
               <div className="text-sm text-gray-600">
                 <p>Exchange Reason:</p>
@@ -177,14 +181,14 @@ const Exchange: React.FC = () => {
               </div>
               <div className="text-sm text-gray-600">
                 <p>Pickup Address:</p>
-                <p>{address || savedAddresses[selectedAddress as keyof typeof savedAddresses]}</p>
+                <p>{address || '789 Maple Drive, Anytown, USA'}</p>
               </div>
             </div>
           </div>
         </div>
 
         <div className="flex justify-end">
-          <button className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
+          <button className="px-6 py-2 bg-orange-500 text-white rounded-lg">
             Submit Exchange
           </button>
         </div>
