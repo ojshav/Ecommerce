@@ -181,53 +181,20 @@ export const catalogSection = {
 
 // Get color classes based on category
 export const getCategoryColorClasses = (categoryName: string) => {
-  switch (categoryName) {
-    case "Management":
-      return {
-        text: "text-emerald-600",
-        bg: "bg-emerald-50",
-        border: "border-emerald-100",
-        hover: "hover:text-emerald-600",
-        active: "bg-emerald-100 text-emerald-700"
-      };
-    case "Operations & Security":
-      return {
-        text: "text-amber-600",
-        bg: "bg-amber-50",
-        border: "border-amber-100",
-        hover: "hover:text-amber-600",
-        active: "bg-amber-100 text-amber-700"
-      };
-    case "Advanced Controls":
-      return {
-        text: "text-purple-600",
-        bg: "bg-purple-50",
-        border: "border-purple-100",
-        hover: "hover:text-purple-600",
-        active: "bg-purple-100 text-purple-700"
-      };
-    case "Catalog Management":
-      return {
-        text: "text-green-600",
-        bg: "bg-green-50",
-        border: "border-green-100",
-        hover: "hover:text-green-600",
-        active: "bg-green-100 text-green-700"
-      };
-    default: // Analytics & Reports
-      return {
-        text: "text-blue-600",
-        bg: "bg-blue-50",
-        border: "border-blue-100",
-        hover: "hover:text-blue-600",
-        active: "bg-blue-100 text-blue-700"
-      };
-  }
+  // Use the same orange theme for all categories
+  return {
+    text: "text-orange-600",
+    bg: "bg-orange-50",
+    border: "border-orange-100",
+    hover: "hover:text-orange-600",
+    active: "bg-orange-200 text-orange-700"
+  };
 };
 
 const SuperAdminLayout = () => {
   const [selectedCategory, setSelectedCategory] = useState(dashboardSections[0].category);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
@@ -238,7 +205,6 @@ const SuperAdminLayout = () => {
   }
 
   // Redirect to unauthorized page if authenticated but not a superadmin
-  // Check if the user role includes 'admin' (case insensitive)
   const userRole = user?.role?.toLowerCase() || '';
   const isAdmin = userRole.includes('admin') || userRole === 'super_admin';
   
@@ -247,37 +213,111 @@ const SuperAdminLayout = () => {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // Determine active section based on current route
-  const getCurrentRoute = () => {
-    const path = location.pathname;
-    if (path.includes("categories") || path.includes("attribute") || path.includes("brands")) {
-      setSelectedCategory("Catalog Management");
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category);
+    // If dashboard is selected, navigate to dashboard and collapse all expanded menus
+    if (category === "Dashboard") {
+      navigate("/superadmin/dashboard");
+      setExpandedCategories([]); // Collapse all expanded menus
+      return;
     }
+    // Toggle category expansion - only one category can be expanded at a time
+    setExpandedCategories(prev => 
+      prev.includes(category) 
+        ? [] // Close if already expanded
+        : [category] // Open only this category
+    );
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  };
+
+  // Check if a submenu item is active
+  const isSubmenuActive = (itemTitle: string) => {
+    const path = location.pathname;
+    const itemPath = itemTitle.toLowerCase().replace(/\s+/g, "-");
+    return path.includes(itemPath);
+  };
+
+  // Check if a category is active (including its submenus)
+  const isCategoryActive = (category: string) => {
+    // Special case for Dashboard
+    if (category === "Dashboard") {
+      return location.pathname === "/superadmin/dashboard";
+    }
+
+    // Check if any submenu item in the category is active
+    const section = dashboardSections.find(section => section.category === category);
+    if (section) {
+      return section.items.some(item => {
+        const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
+        return location.pathname.includes(itemPath);
+      });
+    }
+
+    // Check Catalog Management items
+    if (category === "Catalog Management") {
+      return catalogSection.items.some(item => {
+        const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
+        return location.pathname.includes(itemPath);
+      });
+    }
+
+    return false;
+  };
+
+  // Get the active category based on current route
+  const getActiveCategory = () => {
+    const path = location.pathname;
+    
+    // Check Dashboard first
+    if (path === "/superadmin/dashboard") {
+      return "Dashboard";
+    }
+
+    // Check all dashboard sections
+    for (const section of dashboardSections) {
+      if (section.items.some(item => {
+        const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
+        return path.includes(itemPath);
+      })) {
+        return section.category;
+      }
+    }
+
+    // Check Catalog Management
+    if (catalogSection.items.some(item => {
+      const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
+      return path.includes(itemPath);
+    })) {
+      return "Catalog Management";
+    }
+
+    return null;
   };
 
   // Update selected category when location changes
   useEffect(() => {
-    getCurrentRoute();
+    const activeCategory = getActiveCategory();
+    if (activeCategory) {
+      setSelectedCategory(activeCategory);
+      // Expand the category if it has an active submenu
+      if (activeCategory !== "Dashboard") {
+        setExpandedCategories([activeCategory]);
+      }
+    }
   }, [location.pathname]);
 
   const handleNavigation = (section: string) => {
     const route = `/superadmin/${section.toLowerCase().replace(/\s+/g, "-")}`;
     navigate(route);
+    setSelectedCategory(section);
   };
 
   const handleCatalogItemClick = (item: string) => {
     const route = `/superadmin/${item.toLowerCase()}`;
     navigate(route);
     setSelectedCategory("Catalog Management");
-    // Close sidebar on mobile when selecting a category
-    if (window.innerWidth < 768) {
-      setIsSidebarOpen(false);
-    }
-  };
-
-  const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category);
-    // Close sidebar on mobile when selecting a category
     if (window.innerWidth < 768) {
       setIsSidebarOpen(false);
     }
@@ -288,27 +328,28 @@ const SuperAdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Include the SuperadminHeader component */}
+    <div className="min-h-screen bg-gradient-to-br from-white to-orange-50">
+      {/* Fixed Header */}
+      <div className="fixed top-0 left-0 right-0 z-30 bg-orange-500">
       <SuperadminHeader onMenuClick={toggleSidebar} />
+      </div>
 
-      <div className="flex">
-        {/* Sidebar */}
+      <div className="flex pt-16">
+        {/* Fixed Sidebar */}
         <div className={`
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
           fixed md:static z-20 transform md:translate-x-0 transition-transform duration-300 ease-in-out
-          w-64 min-h-screen bg-white shadow-md flex flex-col
+          w-64 h-[calc(100vh-4rem)] top-16 bg-orange-100 shadow-md flex flex-col
         `}>
           {/* Sidebar Header */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-orange-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Home className="w-6 h-6 text-gray-600" />
-                <h2 className="text-xl font-bold text-gray-800">Super Admin</h2>
+                <Home className="w-6 h-6 text-black" />
+                <h2 className="text-xl font-bold text-black">Super Admin</h2>
               </div>
-              {/* Close button inside sidebar header */}
               <button
-                className="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                className="md:hidden p-2 text-black hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors duration-200"
                 onClick={toggleSidebar}
               >
                 <X className="h-5 w-5" />
@@ -316,13 +357,29 @@ const SuperAdminLayout = () => {
             </div>
           </div>
 
-          {/* Sidebar Navigation */}
+          {/* Scrollable Sidebar Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">
             <ul className="space-y-1">
+              {/* Dashboard Menu Item */}
+              <li>
+                <button
+                  onClick={() => handleCategorySelect("Dashboard")}
+                  className={`
+                    w-full flex items-center px-4 py-3 rounded-lg text-left
+                    ${isCategoryActive("Dashboard") ? 'bg-orange-200 text-orange-700' : 'text-black hover:bg-orange-50'}
+                    transition-all duration-200
+                  `}
+                >
+                  <Home className={`w-5 h-5 ${isCategoryActive("Dashboard") ? '' : 'text-gray-500'} mr-3`} />
+                  <span className="font-medium">Dashboard</span>
+                </button>
+              </li>
+
               {dashboardSections.map((section, index) => {
                 const Icon = section.icon;
                 const colorClasses = getCategoryColorClasses(section.category);
-                const isActive = selectedCategory === section.category;
+                const isActive = isCategoryActive(section.category);
+                const isExpanded = expandedCategories.includes(section.category);
 
                 return (
                   <li key={index}>
@@ -330,27 +387,31 @@ const SuperAdminLayout = () => {
                       onClick={() => handleCategorySelect(section.category)}
                       className={`
                         w-full flex items-center px-4 py-3 rounded-lg text-left
-                        ${isActive ? colorClasses.active : 'text-gray-700 hover:bg-gray-100'}
+                        ${isActive ? colorClasses.active : 'text-black hover:bg-orange-50'}
                         transition-all duration-200
                       `}
                     >
                       <Icon className={`w-5 h-5 ${isActive ? '' : 'text-gray-500'} mr-3`} />
                       <span className="font-medium">{section.category}</span>
-                      <ChevronRight className={`w-4 h-4 ml-auto ${isActive ? '' : 'text-gray-400'}`} />
+                      <ChevronRight className={`w-4 h-4 ml-auto transform transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
                     </button>
                     
-                    {/* Show section items when active */}
-                    {isActive && (
+                    {/* Show section items when expanded */}
+                    {isExpanded && (
                       <div className="mt-2 ml-6 space-y-1">
                         {section.items.map((item, itemIndex) => {
                           const ItemIcon = item.icon;
+                          const isItemActive = isSubmenuActive(item.title);
                           return (
                             <button
                               key={itemIndex}
                               onClick={() => handleNavigation(item.title)}
-                              className="w-full flex items-center px-3 py-2 rounded-md text-left text-gray-700 hover:bg-gray-100"
+                              className={`
+                                w-full flex items-center px-3 py-2 rounded-md text-left
+                                ${isItemActive ? 'bg-orange-50 text-orange-700' : 'text-black hover:bg-orange-50'}
+                              `}
                             >
-                              <ItemIcon className="w-4 h-4 text-gray-500 mr-2" />
+                              <ItemIcon className={`w-4 h-4 ${isItemActive ? 'text-orange-600' : 'text-gray-500'} mr-2`} />
                               <span className="text-sm">{item.title}</span>
                             </button>
                           );
@@ -361,35 +422,39 @@ const SuperAdminLayout = () => {
                 );
               })}
               
-              {/* Add Catalog Management Category */}
+              {/* Catalog Management Category */}
               <li>
                 <button
                   onClick={() => handleCategorySelect("Catalog Management")}
                   className={`
                     w-full flex items-center px-4 py-3 rounded-lg text-left
-                    ${selectedCategory === "Catalog Management" ? 
+                    ${isCategoryActive("Catalog Management") ? 
                       getCategoryColorClasses("Catalog Management").active : 
-                      'text-gray-700 hover:bg-gray-100'}
+                      'text-black hover:bg-orange-50'}
                     transition-all duration-200
                   `}
                 >
-                  <FolderOpen className={`w-5 h-5 ${selectedCategory === "Catalog Management" ? '' : 'text-gray-500'} mr-3`} />
+                  <FolderOpen className={`w-5 h-5 ${isCategoryActive("Catalog Management") ? '' : 'text-gray-500'} mr-3`} />
                   <span className="font-medium">Catalog Management</span>
-                  <ChevronRight className={`w-4 h-4 ml-auto ${selectedCategory === "Catalog Management" ? '' : 'text-gray-400'}`} />
+                  <ChevronRight className={`w-4 h-4 ml-auto transform transition-transform duration-200 ${expandedCategories.includes("Catalog Management") ? 'rotate-90' : ''}`} />
                 </button>
                 
-                {/* Show catalog items when active */}
-                {selectedCategory === "Catalog Management" && (
+                {/* Show catalog items when expanded */}
+                {expandedCategories.includes("Catalog Management") && (
                   <div className="mt-2 ml-6 space-y-1">
                     {catalogSection.items.map((item, index) => {
                       const ItemIcon = item.icon;
+                      const isItemActive = isSubmenuActive(item.title);
                       return (
                         <button
                           key={index}
                           onClick={() => handleCatalogItemClick(item.title.toLowerCase().replace(/\s+/g, "-"))}
-                          className="w-full flex items-center px-3 py-2 rounded-md text-left text-gray-700 hover:bg-gray-100"
+                          className={`
+                            w-full flex items-center px-3 py-2 rounded-md text-left
+                            ${isItemActive ? 'bg-orange-50 text-orange-700' : 'text-black hover:bg-orange-50'}
+                          `}
                         >
-                          <ItemIcon className="w-4 h-4 text-gray-500 mr-2" />
+                          <ItemIcon className={`w-4 h-4 ${isItemActive ? 'text-orange-600' : 'text-gray-500'} mr-2`} />
                           <span className="text-sm">{item.title}</span>
                         </button>
                       );
@@ -401,8 +466,8 @@ const SuperAdminLayout = () => {
           </nav>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 p-6 md:p-8">
+        {/* Scrollable Main Content */}
+        <div className="flex-1 p-6 md:p-8 overflow-y-auto h-[calc(100vh-4rem)]">
           <Outlet />
         </div>
       </div>

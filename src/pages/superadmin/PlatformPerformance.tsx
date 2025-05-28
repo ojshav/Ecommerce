@@ -5,21 +5,36 @@ import {
 } from 'recharts';
 import { AlertCircle, CheckCircle, Clock, Activity, Server, RefreshCw } from 'lucide-react';
 
+// Define types for state variables
+interface ResponseTimeData {
+  name: string;
+  responseTime: number;
+}
+
+interface ErrorData {
+  name: string;
+  value: number;
+}
+
 export default function PlatformPerformance() {
   // Primary color theme
-  const primaryColor = '#4E6688';
-  const primaryLightColor = '#95A7C4';
-  const primaryDarkerColor = '#364B6B';
-  const primaryLightestBg = '#EEF1F6';
+  const primaryColor = '#FF5733';
+  const primaryLightColor = '#FF8C33';
+  const primaryDarkerColor = '#FF4500';
+  const primaryLightestBg = '#FFF5E6';
 
   // State for various performance metrics
   const [uptimeStatus, setUptimeStatus] = useState('operational');
   const [uptimePercentage, setUptimePercentage] = useState(99.98);
   const [loadingData, setLoadingData] = useState(true);
-  const [responseTimeData, setResponseTimeData] = useState([]);
-  const [errorData, setErrorData] = useState([]);
+  const [responseTimeData, setResponseTimeData] = useState<ResponseTimeData[]>([]);
+  const [errorData, setErrorData] = useState<ErrorData[]>([]);
   const [selectedTimeframe, setSelectedTimeframe] = useState('24h');
-  const [servicesStatus, setServicesStatus] = useState([
+  const [servicesStatus, setServicesStatus] = useState<{
+    name: string;
+    status: string;
+    responseTime: number;
+  }[]>([
     { name: 'API Gateway', status: 'operational', responseTime: 124 },
     { name: 'Authentication Service', status: 'operational', responseTime: 89 },
     { name: 'Database', status: 'operational', responseTime: 45 },
@@ -34,7 +49,7 @@ export default function PlatformPerformance() {
       
       // Generate response time data
       const points = selectedTimeframe === '24h' ? 24 : selectedTimeframe === '7d' ? 7 : 30;
-      const newResponseTimeData = [];
+      const newResponseTimeData: ResponseTimeData[] = [];
       
       for (let i = 0; i < points; i++) {
         const baseTime = selectedTimeframe === '24h' ? 130 : 150;
@@ -53,7 +68,7 @@ export default function PlatformPerformance() {
       setResponseTimeData(newResponseTimeData.reverse());
       
       // Generate error data
-      const newErrorData = [
+      const newErrorData: ErrorData[] = [
         { name: '4xx Errors', value: Math.floor(Math.random() * 50) + 10 },
         { name: '5xx Errors', value: Math.floor(Math.random() * 30) + 5 },
         { name: 'Timeout Errors', value: Math.floor(Math.random() * 15) + 3 },
@@ -84,7 +99,7 @@ export default function PlatformPerformance() {
   }, [selectedTimeframe]);
 
   // Generate status for service health
-  const getSystemHealth = () => {
+  const getSystemHealth = (): string => {
     const criticalServices = servicesStatus.filter(s => s.status === 'critical').length;
     const degradedServices = servicesStatus.filter(s => s.status === 'degraded').length;
     
@@ -96,7 +111,7 @@ export default function PlatformPerformance() {
   const systemHealth = getSystemHealth();
 
   // Helper functions for styling
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case 'operational': return 'text-green-600';
       case 'degraded': return 'text-amber-500';
@@ -105,7 +120,7 @@ export default function PlatformPerformance() {
     }
   };
 
-  const getStatusBgColor = (status) => {
+  const getStatusBgColor = (status: string): string => {
     switch (status) {
       case 'operational': return 'bg-green-50';
       case 'degraded': return 'bg-amber-50';
@@ -114,7 +129,7 @@ export default function PlatformPerformance() {
     }
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string): JSX.Element => {
     switch (status) {
       case 'operational': return <CheckCircle className="w-5 h-5 text-green-600" />;
       case 'degraded': return <AlertCircle className="w-5 h-5 text-amber-500" />;
@@ -124,12 +139,12 @@ export default function PlatformPerformance() {
   };
 
   // Color for bar chart
-  const getBarColor = (entry) => {
-    const colors = {
-      '4xx Errors': '#E67373', // light red
-      '5xx Errors': '#D04545', // darker red
-      'Timeout Errors': '#F0A859', // orange
-      'Network Errors': '#E1AD56', // amber
+  const getBarColor = (entry: ErrorData): string => {
+    const colors: Record<string, string> = {
+      '4xx Errors': '#FF8C33', // lighter orange
+      '5xx Errors': '#FF5733', // primary orange
+      'Timeout Errors': '#FFB366', // light orange
+      'Network Errors': '#FFDAB9', // very light orange
     };
     return colors[entry.name] || '#6b7280'; // gray-500 default
   };
@@ -145,21 +160,30 @@ export default function PlatformPerformance() {
     }, 1000);
   };
 
+  // Update chart colors
+  const CHART_COLORS = {
+    primary: '#FF5733',
+    secondary: '#2DD4BF',
+    tertiary: '#A855F7',
+    quaternary: '#3B82F6',
+    background: '#FFF5E6'
+  };
+
   return (
-    <div className="flex flex-col space-y-6 bg-gray-50 p-6 rounded-xl">
+    <div className="flex flex-col space-y-6 bg-white p-6 rounded-xl">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Platform Performance Dashboard</h1>
+          <h1 className="text-2xl font-bold text-black">Platform Performance Dashboard</h1>
           <p className="text-sm text-gray-500">Monitor real-time metrics and service health</p>
         </div>
         <button 
           onClick={handleRefresh} 
-          className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors"
+          className="flex items-center gap-2 bg-[#FF5733]/20 text-[#FF5733] px-4 py-2 rounded-lg font-medium hover:bg-[#FF5733]/30 transition-all duration-300 group"
           disabled={loadingData}
         >
-          <RefreshCw className={`w-4 h-4 ${loadingData ? 'animate-spin' : ''}`} />
-          Refresh
+          <RefreshCw className={`w-5 h-5 ${loadingData ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
+          Refresh Data
         </button>
       </div>
 
@@ -180,20 +204,20 @@ export default function PlatformPerformance() {
 
         <div className={`p-4 rounded-lg shadow-sm border bg-${primaryLightestBg} flex items-center justify-between`} style={{ backgroundColor: primaryLightestBg }}>
           <div className="flex items-center gap-3">
-            <Activity className="w-5 h-5" style={{ color: primaryColor }} />
+            <Activity className="w-5 h-5" style={{ color: '#FF5733' }} />
             <div>
               <h3 className="font-medium text-gray-700">Uptime</h3>
-              <p className="font-bold" style={{ color: primaryDarkerColor }}>{uptimePercentage}% last 30 days</p>
+              <p className="font-bold" style={{ color: '#FF5733' }}>{uptimePercentage}% last 30 days</p>
             </div>
           </div>
         </div>
 
         <div className={`p-4 rounded-lg shadow-sm border bg-${primaryLightestBg} flex items-center justify-between`} style={{ backgroundColor: primaryLightestBg }}>
           <div className="flex items-center gap-3">
-            <Clock className="w-5 h-5" style={{ color: primaryColor }} />
+            <Clock className="w-5 h-5" style={{ color: '#FF5733' }} />
             <div>
               <h3 className="font-medium text-gray-700">Avg Response Time</h3>
-              <p className="font-bold" style={{ color: primaryDarkerColor }}>
+              <p className="font-bold" style={{ color: '#FF5733' }}>
                 {responseTimeData.length > 0 
                   ? `${Math.round(responseTimeData.reduce((sum, item) => sum + (item.responseTime || 0), 0) / responseTimeData.length)}ms` 
                   : 'Calculating...'}
@@ -212,7 +236,7 @@ export default function PlatformPerformance() {
               ? 'text-white' 
               : 'text-gray-600 hover:bg-gray-100'
           }`}
-          style={{ backgroundColor: selectedTimeframe === '24h' ? primaryColor : '' }}
+          style={{ backgroundColor: selectedTimeframe === '24h' ? '#FF5733' : '' }}
         >
           24 Hours
         </button>
@@ -223,7 +247,7 @@ export default function PlatformPerformance() {
               ? 'text-white' 
               : 'text-gray-600 hover:bg-gray-100'
           }`}
-          style={{ backgroundColor: selectedTimeframe === '7d' ? primaryColor : '' }}
+          style={{ backgroundColor: selectedTimeframe === '7d' ? '#FF5733' : '' }}
         >
           7 Days
         </button>
@@ -234,7 +258,7 @@ export default function PlatformPerformance() {
               ? 'text-white' 
               : 'text-gray-600 hover:bg-gray-100'
           }`}
-          style={{ backgroundColor: selectedTimeframe === '30d' ? primaryColor : '' }}
+          style={{ backgroundColor: selectedTimeframe === '30d' ? '#FF5733' : '' }}
         >
           30 Days
         </button>
@@ -244,10 +268,10 @@ export default function PlatformPerformance() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Response Time Chart */}
         <div className="p-4 rounded-lg shadow bg-white border">
-          <h2 className="text-lg font-medium mb-4 text-gray-800">Response Time Trend</h2>
+          <h2 className="text-lg font-medium mb-4 text-black">Response Time Trend</h2>
           {loadingData ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: primaryColor }}></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#FF5733' }}></div>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
@@ -258,7 +282,7 @@ export default function PlatformPerformance() {
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'white', 
-                    border: `1px solid ${primaryLightColor}`,
+                    border: `1px solid #FF8C33`,
                     borderRadius: '4px'
                   }} 
                 />
@@ -266,11 +290,11 @@ export default function PlatformPerformance() {
                 <Line 
                   type="monotone" 
                   dataKey="responseTime" 
-                  stroke={primaryColor}
+                  stroke={CHART_COLORS.primary}
                   name="Response Time (ms)" 
                   strokeWidth={2}
-                  dot={{ r: 3, fill: primaryColor }}
-                  activeDot={{ r: 6, fill: primaryColor }}
+                  dot={{ r: 3, fill: CHART_COLORS.primary }}
+                  activeDot={{ r: 6, fill: CHART_COLORS.primary }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -279,10 +303,10 @@ export default function PlatformPerformance() {
 
         {/* Error Distribution Chart */}
         <div className="p-4 rounded-lg shadow bg-white border">
-          <h2 className="text-lg font-medium mb-4 text-gray-800">Error Distribution</h2>
+          <h2 className="text-lg font-medium mb-4 text-black">Error Distribution</h2>
           {loadingData ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: primaryColor }}></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#FF5733' }}></div>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
@@ -293,14 +317,14 @@ export default function PlatformPerformance() {
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'white', 
-                    border: `1px solid ${primaryLightColor}`,
+                    border: `1px solid #FF8C33`,
                     borderRadius: '4px'
                   }} 
                 />
                 <Legend />
                 <Bar dataKey="value" name="Count">
                   {errorData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={getBarColor(entry)} />
+                    <Cell key={`cell-${index}`} fill={Object.values(CHART_COLORS)[index % 4]} />
                   ))}
                 </Bar>
               </BarChart>
@@ -311,7 +335,7 @@ export default function PlatformPerformance() {
 
       {/* Services Status Table */}
       <div className="p-4 rounded-lg shadow bg-white border">
-        <h2 className="text-lg font-medium mb-4 text-gray-800">Individual Services Status</h2>
+        <h2 className="text-lg font-medium mb-4 text-black">Individual Services Status</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead style={{ backgroundColor: primaryLightestBg }}>
@@ -328,7 +352,7 @@ export default function PlatformPerformance() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <Server className="flex-shrink-0 h-5 w-5 text-gray-400 mr-2" />
-                      <div className="font-medium text-gray-800">{service.name}</div>
+                      <div className="font-medium text-black">{service.name}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -352,7 +376,7 @@ export default function PlatformPerformance() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button 
                       className="text-sm font-medium hover:underline"
-                      style={{ color: primaryColor }}
+                      style={{ color: '#FF5733' }}
                       onClick={() => alert(`Investigating ${service.name} status...`)}
                     >
                       Investigate
@@ -367,12 +391,12 @@ export default function PlatformPerformance() {
 
       {/* Incidents Log */}
       <div className="p-4 rounded-lg shadow bg-white border">
-        <h2 className="text-lg font-medium mb-4 text-gray-800">Recent Incidents</h2>
+        <h2 className="text-lg font-medium mb-4 text-black">Recent Incidents</h2>
         <div className="space-y-4">
           <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <div className="flex items-center">
               <AlertCircle className="w-5 h-5 text-amber-500 mr-2" />
-              <h3 className="font-medium text-gray-800">Storage Service Degraded Performance</h3>
+              <h3 className="font-medium text-black">Storage Service Degraded Performance</h3>
             </div>
             <p className="text-sm text-gray-600 mt-1">Started 2 hours ago - Ongoing</p>
             <p className="text-sm mt-2 text-gray-700">Our storage service is experiencing higher than normal latency. Our team is investigating the issue.</p>
@@ -381,7 +405,7 @@ export default function PlatformPerformance() {
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
             <div className="flex items-center">
               <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-              <h3 className="font-medium text-gray-800">API Gateway Intermittent 5xx Errors</h3>
+              <h3 className="font-medium text-black">API Gateway Intermittent 5xx Errors</h3>
             </div>
             <p className="text-sm text-gray-600 mt-1">Started 1 day ago - Resolved 18 hours ago</p>
             <p className="text-sm mt-2 text-gray-700">Our API Gateway was returning intermittent 5xx errors. We identified a configuration issue and deployed a fix.</p>
@@ -390,7 +414,7 @@ export default function PlatformPerformance() {
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
             <div className="flex items-center">
               <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-              <h3 className="font-medium text-gray-800">Database Increased Latency</h3>
+              <h3 className="font-medium text-black">Database Increased Latency</h3>
             </div>
             <p className="text-sm text-gray-600 mt-1">Started 3 days ago - Resolved 2 days ago</p>
             <p className="text-sm mt-2 text-gray-700">Our database was experiencing increased latency due to high traffic. We've scaled up the database instances to handle the load.</p>

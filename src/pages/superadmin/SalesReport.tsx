@@ -152,8 +152,14 @@ const sampleSalesData = [
   }
 ];
 
-// Define chart colors with the new primary color
-const COLORS = ['#4E6688', '#6B8CAE', '#8FA7C7', '#B4C7DE', '#D8E3F0'];
+// Update the COLORS constant
+const CHART_COLORS = {
+  primary: '#FF5733',
+  secondary: '#2DD4BF',
+  tertiary: '#A855F7',
+  quaternary: '#3B82F6',
+  background: '#FFF5E6'
+};
 
 export default function SalesReport() {
   const [reportData, setReportData] = useState(sampleSalesData);
@@ -300,25 +306,24 @@ export default function SalesReport() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen p-6">
+    <div className="bg-white min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header with updated styling */}
-        <div className="bg-white rounded-lg shadow-lg mb-8 p-6" style={{background: 'linear-gradient(135deg, #4E6688 0%, #6B8CAE 100%)'}}>
+        <div className="bg-white rounded-lg shadow-lg mb-8 p-6" style={{background: 'linear-gradient(135deg, #FF5733 0%, #FF8C33 100%)'}}>
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold text-white">Sales Performance Report</h1>
             <div className="flex space-x-4">
               <button 
                 onClick={refreshData}
-                className="flex items-center px-4 py-2 bg-white bg-opacity-20 backdrop-blur-sm border border-white border-opacity-30 rounded-md shadow-sm text-sm font-medium text-white hover:bg-opacity-30 transition-all duration-200"
+                className="flex items-center gap-2 bg-white text-[#FF5733] px-4 py-2 rounded-lg font-medium hover:bg-white/80 transition-all duration-300 group border border-[#FF5733]"
               >
-                <RefreshCw className="w-4 h-4 mr-2" />
+                <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
                 Refresh Data
               </button>
               <button 
-                className="flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white hover:opacity-90 transition-all duration-200"
-                style={{backgroundColor: '#4E6688'}}
+                className="flex items-center gap-2 bg-[#FF5733] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#FF4500] transition-all duration-300 border border-[#FF5733]"
               >
-                <Download className="w-4 h-4 mr-2" />
+                <Download className="w-5 h-5" />
                 Export Report
               </button>
             </div>
@@ -327,23 +332,23 @@ export default function SalesReport() {
 
         {/* Summary Cards with enhanced styling */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-lg border-l-4" style={{borderLeftColor: '#4E6688'}}>
+          <div className="bg-white p-6 rounded-lg shadow-lg border-l-4" style={{borderLeftColor: '#FF5733'}}>
             <h3 className="text-gray-500 text-sm font-medium mb-1">Total Revenue</h3>
             <div className="flex items-end">
-              <p className="text-2xl font-bold" style={{color: '#4E6688'}}>{formatCurrency(totalRevenue)}</p>
+              <p className="text-2xl font-bold" style={{color: '#FF5733'}}>{formatCurrency(totalRevenue)}</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-lg border-l-4" style={{borderLeftColor: '#4E6688'}}>
+          <div className="bg-white p-6 rounded-lg shadow-lg border-l-4" style={{borderLeftColor: '#FF5733'}}>
             <h3 className="text-gray-500 text-sm font-medium mb-1">Total Sales</h3>
             <div className="flex items-end">
-              <p className="text-2xl font-bold" style={{color: '#4E6688'}}>{totalSales.toLocaleString()}</p>
+              <p className="text-2xl font-bold" style={{color: '#FF5733'}}>{totalSales.toLocaleString()}</p>
               <p className="text-sm text-gray-500 ml-2 mb-1">units</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-lg border-l-4" style={{borderLeftColor: '#4E6688'}}>
+          <div className="bg-white p-6 rounded-lg shadow-lg border-l-4" style={{borderLeftColor: '#FF5733'}}>
             <h3 className="text-gray-500 text-sm font-medium mb-1">Average Order Value</h3>
             <div className="flex items-end">
-              <p className="text-2xl font-bold" style={{color: '#4E6688'}}>{formatCurrency(averageOrderValue)}</p>
+              <p className="text-2xl font-bold" style={{color: '#FF5733'}}>{formatCurrency(averageOrderValue)}</p>
             </div>
           </div>
         </div>
@@ -351,8 +356,8 @@ export default function SalesReport() {
         {/* Filters with updated styling */}
         <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <h2 className="text-lg font-medium flex items-center" style={{color: '#4E6688'}}>
-              <Filter className="w-5 h-5 mr-2" style={{color: '#4E6688'}} />
+            <h2 className="text-lg font-medium flex items-center" style={{color: '#FF5733'}}>
+              <Filter className="w-5 h-5 mr-2" style={{color: '#FF5733'}} />
               Filter Options
             </h2>
             <div className="flex flex-wrap gap-4">
@@ -362,7 +367,7 @@ export default function SalesReport() {
                   value={filterProduct}
                   onChange={(e) => setFilterProduct(e.target.value)}
                   className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:border-2 focus:border-opacity-50 sm:text-sm rounded-md"
-                  style={{focusBorderColor: '#4E6688'}}
+                  style={{focusBorderColor: '#FF5733'}}
                 >
                   <option value="all">All Products</option>
                   {uniqueProducts.map(product => (
@@ -376,7 +381,7 @@ export default function SalesReport() {
                   value={filterMerchant}
                   onChange={(e) => setFilterMerchant(e.target.value)}
                   className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:border-2 focus:border-opacity-50 sm:text-sm rounded-md"
-                  style={{focusBorderColor: '#4E6688'}}
+                  style={{focusBorderColor: '#FF5733'}}
                 >
                   <option value="all">All Merchants</option>
                   {uniqueMerchants.map(merchant => (
@@ -396,7 +401,7 @@ export default function SalesReport() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search products or merchants"
                     className="focus:ring-2 focus:ring-opacity-50 focus:border-2 focus:border-opacity-50 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md py-2"
-                    style={{focusRingColor: '#4E6688', focusBorderColor: '#4E6688'}}
+                    style={{focusRingColor: '#FF5733', focusBorderColor: '#FF5733'}}
                   />
                 </div>
               </div>
@@ -406,7 +411,7 @@ export default function SalesReport() {
 
         {/* Revenue and Sales Trend Chart with updated colors */}
         <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-          <h2 className="text-lg font-medium mb-4" style={{color: '#4E6688'}}>Revenue & Sales Trend</h2>
+          <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Revenue & Sales Trend</h2>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthlyTrends} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -419,8 +424,8 @@ export default function SalesReport() {
   name === 'revenue' ? 'Revenue' : 'Units Sold'
 ]} />
                 <Legend />
-                <Line yAxisId="left" type="monotone" dataKey="revenue" name="Revenue" stroke="#4E6688" strokeWidth={3} activeDot={{ r: 8, fill: '#4E6688' }} />
-                <Line yAxisId="right" type="monotone" dataKey="sales" name="Units Sold" stroke="#6B8CAE" strokeWidth={2} />
+                <Line yAxisId="left" type="monotone" dataKey="revenue" name="Revenue" stroke={CHART_COLORS.primary} strokeWidth={3} activeDot={{ r: 8, fill: CHART_COLORS.primary }} />
+                <Line yAxisId="right" type="monotone" dataKey="sales" name="Units Sold" stroke={CHART_COLORS.secondary} strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -430,12 +435,12 @@ export default function SalesReport() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium" style={{color: '#4E6688'}}>Product Performance</h2>
+              <h2 className="text-lg font-medium" style={{color: '#FF5733'}}>Product Performance</h2>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="block pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:border-2 focus:border-opacity-50 rounded-md"
-                style={{focusBorderColor: '#4E6688'}}
+                style={{focusBorderColor: '#FF5733'}}
               >
                 <option value="revenue">Sort by Revenue</option>
                 <option value="sales">Sort by Sales</option>
@@ -449,7 +454,7 @@ export default function SalesReport() {
                   <YAxis />
                   <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                   <Legend />
-                  <Bar dataKey="revenue" name="Revenue" fill="#4E6688" />
+                  <Bar dataKey="revenue" name="Revenue" fill={CHART_COLORS.primary} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -457,7 +462,7 @@ export default function SalesReport() {
 
           {/* Category Distribution with updated colors */}
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-lg font-medium mb-4" style={{color: '#4E6688'}}>Revenue by Category</h2>
+            <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Revenue by Category</h2>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -472,7 +477,7 @@ export default function SalesReport() {
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
                     {categoryPieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell-${index}`} fill={Object.values(CHART_COLORS)[index % 4]} />
                     ))}
                   </Pie>
                   <Tooltip formatter={(value: number) => formatCurrency(value)} />
@@ -485,10 +490,10 @@ export default function SalesReport() {
 
         {/* Merchant Performance Table with updated styling */}
         <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-          <h2 className="text-lg font-medium mb-4" style={{color: '#4E6688'}}>Merchant Performance</h2>
+          <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Merchant Performance</h2>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead style={{backgroundColor: '#4E6688'}}>
+              <thead style={{backgroundColor: '#FF5733'}}>
                 <tr>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Merchant
@@ -507,7 +512,7 @@ export default function SalesReport() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {merchantPerformance.map((merchant, idx) => (
                   <tr key={merchant.name} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
                       {merchant.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -534,10 +539,10 @@ export default function SalesReport() {
 
         {/* Detailed Sales Table with updated styling */}
         <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-lg font-medium mb-4" style={{color: '#4E6688'}}>Detailed Sales Data</h2>
+          <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Detailed Sales Data</h2>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead style={{backgroundColor: '#4E6688'}}>
+              <thead style={{backgroundColor: '#FF5733'}}>
                 <tr>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Month
@@ -568,7 +573,7 @@ export default function SalesReport() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {item.month}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
                       {item.productName}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -593,7 +598,7 @@ export default function SalesReport() {
           </div>
           {isLoading && (
             <div className="flex justify-center items-center py-4">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{borderColor: '#4E6688'}}></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{borderColor: '#FF5733'}}></div>
               <span className="ml-2 text-gray-500">Loading data...</span>
             </div>
           )}

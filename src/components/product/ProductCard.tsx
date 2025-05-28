@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { Heart, ShoppingCart } from 'lucide-react';
 import { Product } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-hot-toast';
@@ -43,71 +43,73 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
     
   return (
-    <div className="bg-white group relative flex flex-col h-full border border-gray-100 hover:shadow-md transition-shadow">
-      {/* Status label (New or Sold Out) */}
-      {isNew && (
-        <div className="absolute top-2 left-2 z-10 bg-orange-500 text-white px-3 py-1 text-xs rounded">
-          New
+    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col max-w-[280px] w-full mx-auto">
+      <div className="relative h-[160px] w-full">
+        {/* Product badges */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
+          {isNew && (
+            <span className="bg-[#F2631F] text-white text-[10px] px-1.5 py-0.5 rounded">
+              New
+            </span>
+          )}
+          {product.stock === 0 && (
+            <span className="bg-gray-400 text-black text-[10px] px-1.5 py-0.5 rounded">
+              Sold Out
+            </span>
+          )}
+          {!isNew && product.stock > 0 && (salePercentage || calculateSalePercentage() > 0) && (
+            <span className="bg-[#F2631F] text-white text-[10px] px-1.5 py-0.5 rounded">
+              -{salePercentage || calculateSalePercentage()}%
+            </span>
+          )}
         </div>
-      )}
-      {product.stock === 0 && (
-        <div className="absolute top-2 left-2 z-10 bg-gray-700 text-white px-3 py-1 text-xs rounded">
-          Sold Out
-        </div>
-      )}
-      {!isNew && product.stock > 0 && (salePercentage || calculateSalePercentage() > 0) && (
-        <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-3 py-1 text-xs rounded">
-          -{salePercentage || calculateSalePercentage()}%
-        </div>
-      )}
-      
-      {/* Wishlist button */}
-      <div className="absolute top-2 right-2 z-10">
-        <button 
-          className="bg-white rounded-full p-1.5 hover:bg-gray-100 shadow-sm"
+        
+        {/* Wishlist button */}
+        <button
+          className="absolute top-2 right-2 p-1.5 z-10 text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md rounded-full transition-all duration-300"
           onClick={handleWishlist}
         >
-          <Heart className="h-4 w-4 text-gray-500" />
+          <Heart className="w-4 h-4" />
         </button>
-      </div>
-      
-      <Link to={`/product/${product.id}`} className="flex-grow">
-        <div className="p-4 pt-8">
+        
+        {/* Product image */}
+        <Link to={`/product/${product.id}`} className="block h-full">
           <img 
             src={product.primary_image || product.image || '/placeholder-image.png'}
             alt={product.name} 
-            className="w-full h-40 object-contain"
+            className="w-full h-full object-contain p-2 rounded-lg"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src = '/placeholder-image.png';
             }}
           />
-        </div>
-        
-        <div className="px-4 pb-2">
-          <h3 className="text-base font-medium line-clamp-1">{product.name}</h3>
-          
-          <p className="text-xs text-gray-500 mt-1">
+        </Link>
+      </div>
+
+      <div className="p-3 flex flex-col flex-grow">
+        <Link to={`/product/${product.id}`} className="block">
+          <h3 className="text-sm font-medium mb-1 line-clamp-1">{product.name}</h3>
+          <p className="text-xs text-gray-500">
             SKU: {product.sku}
           </p>
-          
-          <div className="mt-2 mb-3">
+        </Link>
+        
+        <div className="mt-auto">
+          <div className="flex items-center space-x-2 mb-2">
             <span className="text-base font-bold">₹{product.price.toFixed(2)}</span>
             {product.originalPrice && (
-              <span className="text-sm text-gray-400 line-through ml-2">₹{product.originalPrice.toFixed(2)}</span>
+              <span className="text-gray-400 text-sm line-through">₹{product.originalPrice.toFixed(2)}</span>
             )}
           </div>
+          <button
+            className="w-1/2 bg-[#F2631F] text-white py-1.5 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-1.5 text-sm"
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+          >
+            <ShoppingCart className="w-4 h-4" />
+            {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
+          </button>
         </div>
-      </Link>
-      
-      <div className="px-4 pb-4 mt-auto">
-        <button 
-          className="w-full bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 transition-colors font-medium"
-          onClick={handleAddToCart}
-          disabled={product.stock === 0}
-        >
-          {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
-        </button>
       </div>
     </div>
   );
