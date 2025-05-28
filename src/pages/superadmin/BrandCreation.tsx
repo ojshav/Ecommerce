@@ -503,7 +503,7 @@ const BrandCreation: React.FC = () => {
                 <button
                     onClick={() => setShowAddBrandForm(true)}
 
-<!--                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors" -->
+
 
                     className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors"
 
