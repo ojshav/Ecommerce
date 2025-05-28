@@ -1,124 +1,148 @@
 import React, { useState } from 'react';
 
-const TrackOrder: React.FC = () => {
-  const [orderNumber, setOrderNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [isTracking, setIsTracking] = useState(false);
-  const [trackingResult, setTrackingResult] = useState<null | {
-    status: string;
-    date: string;
-    location: string;
-  }>(null);
+interface Order {
+  id: string;
+  status: string;
+  deliveryDate: string;
+  orderDate: string;
+  productName: string;
+  imageUrl: string;
+}
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsTracking(true);
-    
-    // Simulate API call to track order
-    setTimeout(() => {
-      // Mock response - in a real app, this would come from a backend
-      setTrackingResult({
-        status: 'In Transit',
-        date: new Date().toLocaleDateString(),
-        location: 'Distribution Center'
-      });
-      setIsTracking(false);
-    }, 1500);
-  };
+const TrackOrder: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Mock orders data - in a real app this would come from an API
+  const orders: Order[] = [
+    {
+      id: '2468135790',
+      status: 'Delivered',
+      deliveryDate: 'Nov 12, 2024',
+      orderDate: 'Nov 7, 2024',
+      productName: "Women's Fashion",
+      imageUrl: '/path-to-womens-fashion-image.jpg'
+    },
+    {
+      id: '1357924680',
+      status: 'Delivered',
+      deliveryDate: 'Nov 2, 2024',
+      orderDate: 'Oct 28, 2024',
+      productName: "Men's Fashion",
+      imageUrl: '/path-to-mens-fashion-image.jpg'
+    }
+  ];
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-6">Track Your Order</h1>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Your Orders</h1>
       
-      <div className="max-w-xl mx-auto bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600 mb-6">
-          Enter your order number and email address to track your package.
-        </p>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="orderNumber" className="block text-gray-700 mb-1">Order Number</label>
-            <input
-              type="text"
-              id="orderNumber"
-              value={orderNumber}
-              onChange={(e) => setOrderNumber(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="e.g. ORD-12345"
-              required
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="email" className="block text-gray-700 mb-1">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Enter the email used for the order"
-              required
-            />
-          </div>
-          
-          <div className="pt-2">
-            <button
-              type="submit"
-              className="w-full bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition"
-              disabled={isTracking}
-            >
-              {isTracking ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Tracking Order...
-                </span>
-              ) : (
-                'Track Order'
-              )}
-            </button>
-          </div>
-        </form>
-        
-        {trackingResult && (
-          <div className="mt-8 border-t pt-6">
-            <h2 className="text-xl font-semibold mb-4">Order Status</h2>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="flex justify-between mb-4">
-                <span className="text-gray-700">Status:</span>
-                <span className="font-medium">{trackingResult.status}</span>
-              </div>
-              <div className="flex justify-between mb-4">
-                <span className="text-gray-700">Last Updated:</span>
-                <span className="font-medium">{trackingResult.date}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-700">Current Location:</span>
-                <span className="font-medium">{trackingResult.location}</span>
-              </div>
-            </div>
-            
-            <div className="mt-6">
-              <div className="relative">
-                <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-200">
-                  <div 
-                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-black"
-                    style={{ width: '60%' }}
-                  ></div>
-                </div>
-                <div className="flex justify-between text-xs mt-2">
-                  <span>Order Placed</span>
-                  <span>Processing</span>
-                  <span className="font-bold">In Transit</span>
-                  <span className="text-gray-400">Delivered</span>
+      {/* Search and Filter */}
+      <div className="flex gap-4 mb-8">
+        <div className="flex-1 relative">
+          <input
+            type="text"
+            placeholder="Search all orders"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-4 py-2 pl-10 border rounded-lg"
+          />
+          <svg
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </div>
+        <button className="px-4 py-2 border rounded-lg flex items-center gap-2">
+          Filter
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Orders List */}
+      <h2 className="text-xl font-semibold mb-4">Orders</h2>
+      <div className="space-y-6">
+        {orders.map((order) => (
+          <div key={order.id} className="border rounded-lg p-6 space-y-4">
+            <div className="flex justify-between items-start">
+              <div className="flex gap-4">
+                <img
+                  src={order.imageUrl}
+                  alt={order.productName}
+                  className="w-20 h-20 object-cover rounded"
+                />
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold">Status: {order.status}</span>
+                  </div>
+                  <p className="text-gray-600 text-sm">Your order has been delivered</p>
+                  <p className="text-gray-600 text-sm">Delivered on {order.deliveryDate}</p>
                 </div>
               </div>
+              <button className="px-4 py-1 bg-gray-100 rounded-lg text-sm">
+                Rate
+              </button>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-medium">{order.productName}</h3>
+                <p className="text-gray-600 text-sm">Order #{order.id}</p>
+                <p className="text-gray-600 text-sm">Order placed on {order.orderDate}</p>
+              </div>
+              <button className="px-4 py-1 bg-gray-100 rounded-lg text-sm">
+                Invoice
+              </button>
+            </div>
+
+            <div className="flex justify-between pt-4">
+              <button className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition">
+                Reorder
+              </button>
+              <button className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition">
+                Tracking
+              </button>
             </div>
           </div>
-        )}
+        ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center items-center gap-4 mt-8">
+        <button className="p-2 border rounded">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <button className="w-8 h-8 flex items-center justify-center border rounded bg-black text-white">1</button>
+        <button className="w-8 h-8 flex items-center justify-center">2</button>
+        <button className="w-8 h-8 flex items-center justify-center">3</button>
+        <button className="p-2 border rounded">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+      </div>
+
+      <div className="flex justify-center mt-6">
+        <button className="px-6 py-2 bg-black text-white rounded-lg">
+          View All Orders
+        </button>
       </div>
     </div>
   );
