@@ -70,6 +70,12 @@ import PaymentPage from './pages/PaymentPage';
 import MessengerPopup from './components/MessengerPopup';
 import Refund from './pages/Refund';
 import Exchange from './pages/Exchange';
+import LiveShop from './pages/LiveShop';
+import Fashion from './components/sections/Fashion';
+import AoinLive from './components/sections/AoinLive';
+import ComingSoon from './components/sections/ComingSoon';
+import FashionFactory from './components/sections/FashionFactory';
+import SundayFunday from './components/sections/SundayFunday';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -298,6 +304,12 @@ function App() {
                            <Route path="/shipping-delivery" element={<ShippingDelivery />} />
                           <Route path="/brands/:brandId" element={<Brands />} />
                           <Route path="/profile" element={<UserProfile />} />
+                          <Route path="/live-shop" element={<LiveShop />} />
+                          <Route path="/live-shop/fashion" element={<Fashion />} />
+                          <Route path="/live-shop/aoin-live" element={<AoinLive />} />
+                          <Route path="/live-shop/coming-soon" element={<ComingSoon />} />
+                          <Route path="/live-shop/fashion-factory" element={<FashionFactory />} />
+                          <Route path="/live-shop/sunday-funday" element={<SundayFunday />} />
 
                         </Routes>
                       </main>
