@@ -104,17 +104,17 @@ const AdminLayout: React.FC = () => {
       <div
         className={`${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen overflow-hidden`}
+        } fixed inset-y-0 left-0 z-30 w-64 bg-[#fdf6ee] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen overflow-hidden`}
       >
         {/* Sidebar Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-orange-200">
           <div className="flex items-center">
-            <span className="text-xl font-semibold text-gray-800">Merchant Portal</span>
+            <span className="text-xl font-semibold text-orange-800">Merchant Portal</span>
           </div>
           {isMobile && (
             <button 
               onClick={toggleSidebar}
-              className="ml-4 md:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+              className="ml-4 md:hidden text-orange-500 hover:text-orange-700 focus:outline-none"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -142,14 +142,14 @@ const AdminLayout: React.FC = () => {
                         onClick={() => toggleSubmenu(item.name)}
                         className={`${
                           isMenuActive
-                            ? 'bg-primary-50 text-primary-700'
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            ? 'bg-orange-50 text-orange-700'
+                            : 'text-gray-600 hover:bg-orange-50 hover:text-orange-700'
                         } w-full group flex items-center justify-between px-2 py-2 text-base font-medium rounded-md transition-colors`}
                       >
                         <div className="flex items-center">
                           <item.icon
                             className={`${
-                              isMenuActive ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-500'
+                              isMenuActive ? 'text-orange-700' : 'text-gray-400 group-hover:text-orange-500'
                             } mr-3 flex-shrink-0 h-6 w-6 transition-colors`}
                           />
                           {item.name}
@@ -157,7 +157,7 @@ const AdminLayout: React.FC = () => {
                         <ChevronDownIcon
                           className={`${
                             isExpanded ? 'transform rotate-180' : ''
-                          } h-4 w-4 text-gray-500 transition-transform`}
+                          } h-4 w-4 text-orange-500 transition-transform`}
                         />
                       </button>
                       
@@ -172,13 +172,13 @@ const AdminLayout: React.FC = () => {
                                 to={subItem.path}
                                 className={`${
                                   isSubItemActive
-                                    ? 'bg-primary-50 text-primary-700'
-                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                    ? 'bg-orange-50 text-orange-700'
+                                    : 'text-gray-600 hover:bg-orange-50 hover:text-orange-700'
                                 } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`}
                               >
                                 <subItem.icon
                                   className={`${
-                                    isSubItemActive ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-500'
+                                    isSubItemActive ? 'text-orange-700' : 'text-gray-400 group-hover:text-orange-500'
                                   } mr-3 flex-shrink-0 h-5 w-5 transition-colors`}
                                 />
                                 {subItem.name}
@@ -194,13 +194,13 @@ const AdminLayout: React.FC = () => {
                       to={item.path}
                       className={`${
                         isMenuActive
-                          ? 'bg-primary-50 text-primary-700'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          ? 'bg-orange-50 text-orange-700'
+                          : 'text-gray-600 hover:bg-orange-50 hover:text-orange-700'
                       } group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors`}
                     >
                       <item.icon
                         className={`${
-                          isMenuActive ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-500'
+                          isMenuActive ? 'text-orange-700' : 'text-gray-400 group-hover:text-orange-500'
                         } mr-3 flex-shrink-0 h-6 w-6 transition-colors`}
                       />
                       {item.name}
@@ -216,11 +216,11 @@ const AdminLayout: React.FC = () => {
       {/* Main Content - fixed height, no overflow */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Navigation - fixed height */}
-        <header className="bg-white shadow z-10 h-16 flex-shrink-0">
+        <header className="bg-black shadow z-10 h-16 flex-shrink-0">
           <div className="h-full px-4 flex items-center justify-between">
             {/* Left: Hamburger Menu (mobile) */}
             <button
-              className="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
+              className="md:hidden text-orange-500 hover:text-orange-700 focus:outline-none"
               onClick={toggleSidebar}
             >
               <Bars3Icon className="h-6 w-6" />
@@ -231,10 +231,10 @@ const AdminLayout: React.FC = () => {
               {/* Notifications */}
               <div className="relative">
                 <button
-                  className="p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none"
+                  className="p-1 rounded-full text-orange-400 hover:text-orange-500 focus:outline-none"
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 >
-                  <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+                  <span className="absolute top-0 right-0 h-2 w-2 bg-orange-500 rounded-full"></span>
                   <BellIcon className="h-6 w-6" />
                 </button>
                 
@@ -242,15 +242,15 @@ const AdminLayout: React.FC = () => {
                 {isNotificationsOpen && (
                   <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                     <div className="py-1" role="menu" aria-orientation="vertical">
-                      <div className="px-4 py-2 border-b border-gray-200">
-                        <p className="text-sm font-medium text-gray-700">Notifications</p>
+                      <div className="px-4 py-2 border-b border-orange-200">
+                        <p className="text-sm font-medium text-orange-800">Notifications</p>
                       </div>
                       
                       <div className="max-h-60 overflow-y-auto">
                         {[1, 2, 3].map((item) => (
                           <div
                             key={item}
-                            className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            className="px-4 py-3 hover:bg-orange-50 cursor-pointer border-b border-orange-100 last:border-b-0"
                           >
                             <p className="text-sm font-medium text-gray-900">New Order #{1000 + item}</p>
                             <p className="text-xs text-gray-500 mt-1">
@@ -261,8 +261,8 @@ const AdminLayout: React.FC = () => {
                         ))}
                       </div>
                       
-                      <div className="px-4 py-2 border-t border-gray-200">
-                        <Link to="/business/notifications" className="text-sm font-medium text-primary-600 hover:text-primary-700">
+                      <div className="px-4 py-2 border-t border-orange-200">
+                        <Link to="/business/notifications" className="text-sm font-medium text-orange-600 hover:text-orange-700">
                           View all notifications
                         </Link>
                       </div>
@@ -277,13 +277,13 @@ const AdminLayout: React.FC = () => {
                   className="flex items-center space-x-2 text-sm focus:outline-none"
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-medium">
+                  <div className="w-8 h-8 rounded-full bg-orange-600 flex items-center justify-center text-white font-medium">
                     {user?.name?.charAt(0) || user?.email?.charAt(0) || 'M'}
                   </div>
-                  <span className="hidden md:block text-gray-700 font-medium">
+                  <span className="hidden md:block text-orange-800 font-medium">
                     {user?.name || user?.email?.split('@')[0] || 'Merchant'}
                   </span>
-                  <ChevronDownIcon className="h-4 w-4 text-gray-500" />
+                  <ChevronDownIcon className="h-4 w-4 text-orange-500" />
                 </button>
                 
                 {/* Profile Dropdown */}
@@ -292,21 +292,21 @@ const AdminLayout: React.FC = () => {
                     <div className="py-1" role="menu" aria-orientation="vertical">
                       <Link
                         to="/business/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700"
                         role="menuitem"
                       >
                         Your Profile
                       </Link>
                       <Link
                         to="/business/settings"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700"
                         role="menuitem"
                       >
                         Settings
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700"
                         role="menuitem"
                       >
                         Sign out

@@ -131,12 +131,12 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   
   switch (status) {
     case 'Active':
-      bgColor = 'bg-green-100';
-      textColor = 'text-green-800';
+      bgColor = 'bg-emerald-100';
+      textColor = 'text-emerald-800';
       break;
     case 'Inactive':
-      bgColor = 'bg-red-100';
-      textColor = 'text-red-800';
+      bgColor = 'bg-rose-100';
+      textColor = 'text-rose-800';
       break;
     default:
       bgColor = 'bg-gray-100';
@@ -254,15 +254,19 @@ const Customers: React.FC = () => {
   
   return (
     <div className="space-y-6">
-      {/* Page Title */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Customers</h1>
-        <Link
-          to="/business/customers/export"
-          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
-        >
-          Export Customers
-        </Link>
+        <div className="flex space-x-3">
+          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+            <EnvelopeIcon className="h-4 w-4 mr-2" />
+            Export
+          </button>
+          <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+            <UserIcon className="h-4 w-4 mr-2" />
+            Add Customer
+          </button>
+        </div>
       </div>
       
       {/* Customer Stats */}
@@ -278,169 +282,73 @@ const Customers: React.FC = () => {
         ))}
       </div>
       
-      {/* Search, Filter, and Sort */}
-      <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-        <div className="p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            {/* Search */}
-            <div className="relative flex-grow">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-              </div>
+      {/* Filters */}
+      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="relative">
               <input
                 type="text"
+              placeholder="Search customers..."
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Search customers by name, email, or phone..."
-              />
-            </div>
-            
-            {/* Filter Button */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
-            >
-              <FunnelIcon className="h-4 w-4 mr-2" />
-              {showFilters ? 'Hide Filters' : 'Show Filters'}
-            </button>
+            />
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute right-3 top-2.5" />
           </div>
-          
-          {/* Filters */}
-          {showFilters && (
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
                 <select
-                  id="status"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 >
-                  <option value="All">All</option>
+            <option value="All">All Status</option>
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
-              </div>
-              
-              <div>
-                <label htmlFor="orders" className="block text-sm font-medium text-gray-700 mb-1">
-                  Orders
-                </label>
-                <select
-                  id="orders"
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                >
-                  <option>Any</option>
-                  <option>0 orders</option>
-                  <option>1+ orders</option>
-                  <option>5+ orders</option>
-                  <option>10+ orders</option>
+          <select className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm">
+            <option value="">Sort By</option>
+            <option value="name">Name</option>
+            <option value="dateJoined">Date Joined</option>
+            <option value="ordersCount">Orders Count</option>
+            <option value="totalSpent">Total Spent</option>
                 </select>
-              </div>
-              
-              <div>
-                <label htmlFor="spent" className="block text-sm font-medium text-gray-700 mb-1">
-                  Total Spent
-                </label>
-                <select
-                  id="spent"
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                >
-                  <option>Any</option>
-                  <option>$0 - $50</option>
-                  <option>$50 - $100</option>
-                  <option>$100 - $500</option>
-                  <option>$500+</option>
-                </select>
-              </div>
-              
-              <div>
-                <label htmlFor="date-joined" className="block text-sm font-medium text-gray-700 mb-1">
-                  Date Joined
-                </label>
-                <select
-                  id="date-joined"
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                >
-                  <option>Any Time</option>
-                  <option>Last 7 days</option>
-                  <option>Last 30 days</option>
-                  <option>Last 3 months</option>
-                  <option>Last year</option>
-                </select>
-              </div>
-            </div>
-          )}
+          <button className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+            <FunnelIcon className="h-4 w-4 mr-2" />
+            More Filters
+          </button>
+        </div>
         </div>
         
-        {/* Customers List */}
+      {/* Customers Table */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('name')}>
-                    Customer
-                    {getSortIndicator('name')}
+                {['Customer', 'Contact', 'Date Joined', 'Orders', 'Total Spent', 'Last Order', 'Status', 'Actions'].map((header) => (
+                  <th
+                    key={header}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-orange-600"
+                    onClick={() => requestSort(header.toLowerCase() as keyof Customer)}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>{header}</span>
+                      {getSortIndicator(header.toLowerCase() as keyof Customer)}
                   </div>
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('email')}>
-                    Contact
-                    {getSortIndicator('email')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('dateJoined')}>
-                    Date Joined
-                    {getSortIndicator('dateJoined')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('ordersCount')}>
-                    Orders
-                    {getSortIndicator('ordersCount')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('totalSpent')}>
-                    Total Spent
-                    {getSortIndicator('totalSpent')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('lastOrderDate')}>
-                    Last Order
-                    {getSortIndicator('lastOrderDate')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('status')}>
-                    Status
-                    {getSortIndicator('status')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                ))}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedCustomers.map((customer) => (
-                <tr key={customer.id} className="hover:bg-gray-50">
+                <tr key={customer.id} className="hover:bg-orange-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        {customer.avatar ? (
-                          <img className="h-10 w-10 rounded-full" src={customer.avatar} alt={customer.name} />
-                        ) : (
-                          <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-                            <UserIcon className="h-6 w-6 text-primary-600" />
-                          </div>
-                        )}
+                      <div className="h-10 w-10 flex-shrink-0">
+                        <img
+                          className="h-10 w-10 rounded-full"
+                          src={customer.avatar}
+                          alt={customer.name}
+                        />
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{customer.name}</div>
@@ -449,19 +357,13 @@ const Customers: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 flex items-center">
-                      <EnvelopeIcon className="h-4 w-4 text-gray-400 mr-1" />
-                      {customer.email}
-                    </div>
-                    <div className="text-sm text-gray-500 flex items-center mt-1">
-                      <PhoneIcon className="h-4 w-4 text-gray-400 mr-1" />
-                      {customer.phone}
-                    </div>
+                    <div className="text-sm text-gray-900">{customer.email}</div>
+                    <div className="text-sm text-gray-500">{customer.phone}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {customer.dateJoined}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {customer.ordersCount}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -473,13 +375,16 @@ const Customers: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <StatusBadge status={customer.status} />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end space-x-3">
-                      <Link to={`/business/customers/${customer.id}`} className="text-gray-600 hover:text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex space-x-2">
+                      <button className="text-orange-600 hover:text-orange-900">
                         <EyeIcon className="h-5 w-5" />
-                      </Link>
-                      <button className="text-gray-600 hover:text-gray-900">
+                      </button>
+                      <button className="text-orange-600 hover:text-orange-900">
                         <EnvelopeIcon className="h-5 w-5" />
+                      </button>
+                      <button className="text-orange-600 hover:text-orange-900">
+                        <PhoneIcon className="h-5 w-5" />
                       </button>
                     </div>
                   </td>
@@ -487,54 +392,6 @@ const Customers: React.FC = () => {
               ))}
             </tbody>
           </table>
-          
-          {/* Empty State */}
-          {sortedCustomers.length === 0 && (
-            <div className="px-6 py-10 text-center">
-              <p className="text-gray-500 text-lg">No customers found matching your filters.</p>
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedStatus('All');
-                }}
-                className="mt-2 text-primary-600 font-medium hover:text-primary-700"
-              >
-                Clear all filters
-              </button>
-            </div>
-          )}
-        </div>
-        
-        {/* Pagination */}
-        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">1</span> to{' '}
-                <span className="font-medium">{sortedCustomers.length}</span> of{' '}
-                <span className="font-medium">{sortedCustomers.length}</span> results
-              </p>
-            </div>
-            <div>
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                <button
-                  disabled
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  Previous
-                </button>
-                <button className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary-50 text-sm font-medium text-primary-700 hover:bg-gray-50">
-                  1
-                </button>
-                <button
-                  disabled
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  Next
-                </button>
-              </nav>
-            </div>
-          </div>
         </div>
       </div>
     </div>
