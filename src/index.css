@@ -26,12 +26,27 @@
 
 @layer components {
   .content-container {
-    @apply pt-[120px] pb-0 sm:pt-[150px] md:pt-[150px] lg:pt-[160px]; /* Responsive padding-top for fixed navbar */
+    @apply pt-[120px] pb-0 sm:pt-[150px] md:pt-[150px] lg:pt-[160px]; /* Responsive padding-top for fixed navbar */
   }
 }
 
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
 
+/* Custom styles for live shop */
+.live-shop-section {
+  scroll-behavior: smooth;
+}
 
 @keyframes progressBarAnimation {
   0% { width: 0%; }
