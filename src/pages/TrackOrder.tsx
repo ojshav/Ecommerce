@@ -22,7 +22,7 @@ const TrackOrder: React.FC = () => {
       deliveryDate: 'Nov 12, 2024',
       orderDate: 'Nov 7, 2024',
       productName: "Women's Fashion",
-      imageUrl: '/path-to-womens-fashion-image.jpg'
+      imageUrl: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'
     },
     {
       id: '1357924680',
@@ -30,7 +30,7 @@ const TrackOrder: React.FC = () => {
       deliveryDate: 'Nov 2, 2024',
       orderDate: 'Oct 28, 2024',
       productName: "Men's Fashion",
-      imageUrl: '/path-to-mens-fashion-image.jpg'
+      imageUrl: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'
     }
   ];
 

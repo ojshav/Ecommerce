@@ -45,11 +45,17 @@ const Exchange: React.FC = () => {
 
       <div className="flex justify-center mb-8">
         <div className="text-center">
-          <img
-            src={order.imageUrl}
-            alt={order.productName}
-            className="w-48 h-48 object-cover rounded-lg bg-orange-500 mb-2"
-          />
+          <div className="w-48 h-48 mb-2 mx-auto overflow-hidden rounded-lg">
+            <img
+              src={order.imageUrl || 'https://images.unsplash.com/photo-1617137968427-85924c800a22?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80'}
+              alt={order.productName}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = 'https://images.unsplash.com/photo-1617137968427-85924c800a22?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80';
+              }}
+            />
+          </div>
           <h2 className="font-medium">{order.productName}</h2>
           <p className="text-sm text-gray-600">Order Number: {order.id}</p>
         </div>
