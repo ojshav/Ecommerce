@@ -502,7 +502,11 @@ const BrandCreation: React.FC = () => {
                 </div>
                 <button
                     onClick={() => setShowAddBrandForm(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+
+<!--                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors" -->
+
+                    className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors"
+
                 >
                     Add New Brand
                 </button>
@@ -536,13 +540,13 @@ const BrandCreation: React.FC = () => {
                                     <div className="flex space-x-2">
                                         <button
                                             onClick={() => handleApproveRequest(request.request_id)}
-                                            className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                            className="px-3 py-1 bg-[#FF5733] text-white rounded hover:bg-[#FF4500] transition-colors"
                                         >
                                             Approve
                                         </button>
                                         <button
                                             onClick={() => handleRejectRequest(request.request_id)}
-                                            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
                                         >
                                             Reject
                                         </button>
@@ -559,7 +563,7 @@ const BrandCreation: React.FC = () => {
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-lg font-semibold">Brands</h2>
                         <button
-                            className="flex items-center text-blue-500 hover:text-blue-700"
+                            className="flex items-center text-[#FF5733] hover:text-[#FF4500]"
                             onClick={() => setShowAddBrandForm(!showAddBrandForm)}
                         >
                             <PlusCircle className="w-4 h-4 mr-1" />
@@ -666,17 +670,15 @@ const BrandCreation: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={resetForm}
-                                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                                        disabled={submitting}
+                                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-                                        disabled={submitting}
+                                        className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors"
                                     >
-                                        {submitting ? 'Creating...' : 'Create Brand'}
+                                        Create Brand
                                     </button>
                                 </div>
                             </form>
@@ -715,7 +717,7 @@ const BrandCreation: React.FC = () => {
                                         <div className="flex space-x-2">
                                             <button 
                                                 onClick={() => startEdit(brand)}
-                                                className="text-blue-500 hover:text-blue-700 text-sm flex items-center"
+                                                className="text-[#FF5733] hover:text-[#FF4500] text-sm flex items-center"
                                             >
                                                 <Edit2 className="w-4 h-4 mr-1" />
                                                 Edit

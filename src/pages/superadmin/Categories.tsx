@@ -34,6 +34,7 @@ export default function Categories() {
   });
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [subcategoryParent, setSubcategoryParent] = useState<Category | null>(null);
 
   useEffect(() => {
     fetchCategories();
@@ -90,11 +91,11 @@ export default function Categories() {
     }
   };
 
-  const handleOpenDialog = () => {
+  const handleOpenDialog = (parentCategory?: Category) => {
     setCategoryFormData({
       name: '',
       slug: '',
-      parent_id: '',
+      parent_id: parentCategory ? String(parentCategory.category_id) : '',
       icon: null,
       iconPreview: '',
     });
@@ -102,6 +103,7 @@ export default function Categories() {
       name: '',
       slug: '',
     });
+    setSubcategoryParent(parentCategory || null);
     setOpenDialog(true);
   };
 
@@ -120,6 +122,7 @@ export default function Categories() {
       name: '',
       slug: '',
     });
+    setSubcategoryParent(null);
     setOpenDialog(false);
   };
 
@@ -351,6 +354,14 @@ export default function Categories() {
                 />
               )}
               <span className="font-medium">{category.name}</span>
+              {/* Create Subcategory Button */}
+              <button
+                className="ml-2 px-2 py-1 text-xs bg-[#FF5733]/10 text-[#FF5733] rounded hover:bg-[#FF5733]/20 transition-colors"
+                onClick={() => handleOpenDialog(category)}
+                title={`Create subcategory under ${category.name}`}
+              >
+                + Subcategory
+              </button>
             </div>
           </td>
           <td className="px-6 py-4">{category.slug}</td>
@@ -393,8 +404,8 @@ export default function Categories() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Categories</h1>
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-blue-700 transition-colors"
-          onClick={handleOpenDialog}
+          className="bg-[#FF5733] text-white px-4 py-2 rounded flex items-center space-x-2 hover:bg-[#FF4500] transition-colors"
+          onClick={() => handleOpenDialog()}
         >
           <Plus size={18} />
           <span>Add Category</span>
@@ -456,19 +467,16 @@ export default function Categories() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Parent Category</label>
-                <select
-                  name="parent_id"
-                  value={categoryFormData.parent_id}
-                  onChange={handleCategoryChange}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">None</option>
-                  {getAllCategories(categories).map((category) => (
-                    <option key={category.category_id} value={category.category_id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                {subcategoryParent ? (
+                  <div className="w-full px-3 py-2 border rounded-md bg-gray-50">
+                    <span className="text-gray-700">{subcategoryParent.name}</span>
+                    <input type="hidden" name="parent_id" value={subcategoryParent.category_id} />
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-500 italic">
+                    This will be a parent category
+                  </div>
+                )}
               </div>
 
               <div>
@@ -537,14 +545,14 @@ export default function Categories() {
             <div className="mt-6 flex justify-end space-x-3">
               <button
                 onClick={handleCloseDialog}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF5733]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#FF5733] hover:bg-[#FF4500] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF5733] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <div className="flex items-center">

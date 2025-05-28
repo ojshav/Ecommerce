@@ -81,11 +81,11 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-white p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <UserPlus className="text-green-600 w-8 h-8" />
-          <h1 className="text-3xl font-bold text-gray-800">User Management</h1>
+          <UserPlus className="text-orange-500 w-8 h-8" />
+          <h1 className="text-3xl font-bold text-black">User Management</h1>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
@@ -97,13 +97,13 @@ const UserManagement = () => {
                 placeholder="Search name or email..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:outline-none"
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:outline-none"
               />
             </div>
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:outline-none"
             >
               <option value="All">All Roles</option>
               <option value="Admin">Admin</option>
@@ -114,7 +114,7 @@ const UserManagement = () => {
 
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md shadow hover:bg-green-700 transition"
+            className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-md shadow hover:bg-orange-600 transition"
           >
             <Download className="w-5 h-5" />
             Export CSV
@@ -126,7 +126,7 @@ const UserManagement = () => {
         ) : (
           <div className="overflow-x-auto bg-white rounded-xl shadow">
             <table className="min-w-full text-left">
-              <thead className="bg-green-100 text-green-800">
+              <thead className="bg-orange-500/10 text-orange-500/90">
                 <tr>
                   <th className="p-4">Name</th>
                   <th className="p-4">Email</th>
@@ -138,7 +138,7 @@ const UserManagement = () => {
               <tbody>
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="border-t hover:bg-gray-50">
-                    <td className="p-4 text-gray-800">{user.name}</td>
+                    <td className="p-4 text-black">{user.name}</td>
                     <td className="p-4 text-gray-600">{user.email}</td>
                     <td className="p-4 text-gray-500">{user.role}</td>
                     <td className="p-4">
@@ -201,7 +201,7 @@ const UserManagement = () => {
             <p><strong>Profile:</strong> {selectedUser.profile}</p>
             <button
               onClick={() => setSelectedUser(null)}
-              className="mt-4 bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
+              className="mt-4 bg-gray-300 text-black px-4 py-2 rounded-md"
             >
               Close
             </button>

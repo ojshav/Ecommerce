@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, ShoppingCart } from 'lucide-react';
 import { Product } from '../../types';
 
 interface RecentlyViewedProductsProps {
@@ -88,9 +88,8 @@ const RecentlyViewedProducts: React.FC<RecentlyViewedProductsProps> = ({ product
         </div>
       </div>
       
-      <div className="grid grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {products.map((product) => {
-          // Get the product details from our map with a fallback
           const productDetails = productDetailsMap[product.id] || {
             name: product.name,
             model: '',
@@ -98,75 +97,70 @@ const RecentlyViewedProducts: React.FC<RecentlyViewedProductsProps> = ({ product
             originalPrice: product.originalPrice ? `$${product.originalPrice.toFixed(2)}` : null
           };
           
-          // Determine if product has a "New" tag or discount percentage
           let tagContent = null;
-          let tagColor = "bg-orange-500";
+          let tagColor = "bg-[#F2631F]";
           
           if (product.id === '4' || product.id === '5') {
             tagContent = "New";
           } else if (productDetails.discountPercent) {
-            tagContent = `- ${productDetails.discountPercent}`;
+            tagContent = `-${productDetails.discountPercent}`;
           }
           
           return (
-            <div key={product.id} className="bg-white rounded-md overflow-hidden group relative shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
-              {/* Wishlist Icon */}
-              <button className="absolute top-2 right-2 z-10 text-gray-400 hover:text-red-500 transition-colors">
-                <Heart className="h-5 w-5" />
-              </button>
-              
-              {/* Label */}
-              {tagContent && (
-                <div className={`absolute top-2 left-2 ${tagColor} text-white text-xs px-2 py-0.5 rounded-sm z-10`}>
-                  {tagContent}
-                </div>
-              )}
-              
-              {/* Product Image */}
-              <Link to={`/product/${product.id}`} className="block">
-                <div className="h-[130px] w-full flex items-center justify-center bg-gray-50 p-4">
+            <div key={product.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col max-w-[280px] w-full mx-auto">
+              <div className="relative h-[130px] w-full">
+                {/* Product badges */}
+                {tagContent && (
+                  <div className="absolute top-2 left-2 z-10">
+                    <span className={`${tagColor} text-white text-[10px] px-1.5 py-0.5 rounded`}>
+                      {tagContent}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Wishlist button */}
+                <button className="absolute top-2 right-2 p-1.5 z-10 text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md rounded-full transition-all duration-300">
+                  <Heart className="w-4 h-4" />
+                </button>
+                
+                {/* Product image */}
+                <Link to={`/product/${product.id}`} className="block h-full">
                   <img 
                     src={getImageUrl(product.id)} 
                     alt={productDetails.name} 
-                    className="max-h-full max-w-full object-contain"
+                    className="w-full h-full object-contain p-2 rounded-lg"
                   />
-                </div>
-              </Link>
-              
-              <div className="p-3 flex flex-col h-[calc(100%-130px)]">
-                {/* Product Name and Model Number */}
-                <Link to={`/product/${product.id}`} className="block flex-grow">
-                  <h3 className="text-sm font-medium text-gray-800 mb-1 line-clamp-2 h-10">
-                    {productDetails.name}
-                  </h3>
+                </Link>
+              </div>
+
+              <div className="p-3 flex flex-col flex-grow">
+                <Link to={`/product/${product.id}`} className="block">
+                  <h3 className="text-sm font-medium mb-1 line-clamp-1">{productDetails.name}</h3>
                   {productDetails.model && (
-                    <p className="text-xs text-gray-500 mb-2">{productDetails.model}</p>
+                    <p className="text-xs text-gray-500">{productDetails.model}</p>
                   )}
                 </Link>
                 
-                {/* Price */}
-                <div className="flex items-baseline mb-3">
-                  <span className="text-base font-semibold text-gray-900">
-                    ${productDetails.price}
-                  </span>
-                  {productDetails.originalPrice && (
-                    <span className="text-xs text-gray-400 line-through ml-2">
-                      {productDetails.originalPrice}
-                    </span>
-                  )}
+                <div className="mt-auto">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="text-base font-bold">${productDetails.price}</span>
+                    {productDetails.originalPrice && (
+                      <span className="text-gray-400 text-sm line-through">{productDetails.originalPrice}</span>
+                    )}
+                  </div>
+                  
+                  {/* Color options */}
+                  <div className="flex space-x-1 mb-2">
+                    <div className="w-4 h-4 rounded-full bg-black ring-1 ring-gray-200"></div>
+                    <div className="w-4 h-4 rounded-full bg-gray-400 ring-1 ring-gray-200"></div>
+                    <div className="w-4 h-4 rounded-full bg-yellow-200 ring-1 ring-gray-200"></div>
+                  </div>
+                  
+                  <button className="w-1/2 bg-[#F2631F] text-white py-1.5 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-1.5 text-sm">
+                    <ShoppingCart className="w-4 h-4" />
+                    Add to Cart
+                  </button>
                 </div>
-                
-                {/* Color options */}
-                <div className="flex space-x-1 mb-3">
-                  <div className="w-4 h-4 rounded-full bg-black ring-1 ring-gray-200"></div>
-                  <div className="w-4 h-4 rounded-full bg-gray-400 ring-1 ring-gray-200"></div>
-                  <div className="w-4 h-4 rounded-full bg-yellow-200 ring-1 ring-gray-200"></div>
-                </div>
-                
-                {/* Add to Cart Button */}
-                <button className="w-full bg-orange-500 text-white text-xs py-2 px-3 rounded hover:bg-orange-600 transition-colors font-medium">
-                  Add to Cart
-                </button>
               </div>
             </div>
           );

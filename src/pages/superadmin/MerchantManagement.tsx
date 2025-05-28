@@ -56,23 +56,24 @@ interface Merchant {
 
 // Status badge component
 const StatusBadge = ({ status }: { status: string }) => {
-  let bgColor = "bg-gray-100";
-  let textColor = "text-gray-800";
-
-  if (status === "approved") {
-    bgColor = "bg-green-100";
-    textColor = "text-green-800";
-  } else if (status === "rejected") {
-    bgColor = "bg-red-100";
-    textColor = "text-red-800";
-  } else if (status === "pending") {
-    bgColor = "bg-yellow-100";
-    textColor = "text-yellow-800";
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'suspended':
+        return 'bg-red-100 text-red-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
   }
+  };
 
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${bgColor} ${textColor}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+      {status}
     </span>
   );
 };
@@ -307,7 +308,7 @@ const MerchantManagement: React.FC = () => {
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-[#FF5733]/10 text-[#FF5733]/90">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Merchant</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Applied</th>
@@ -336,9 +337,8 @@ const MerchantManagement: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       <button
                         onClick={() => viewMerchantDetails(merchant)}
-                        className="text-blue-600 hover:text-blue-900 flex items-center"
+                        className="text-[#FF5733] hover:text-[#FF4500] transition-colors"
                       >
-                        <Eye size={16} className="mr-1" />
                         View Details
                       </button>
                       {merchant.status === "pending" && (
@@ -348,7 +348,7 @@ const MerchantManagement: React.FC = () => {
                               setSelectedMerchant(merchant);
                               setShowApprovalModal(true);
                             }}
-                            className="text-green-600 hover:text-green-900"
+                            className="bg-[#FF5733] text-white px-3 py-1 rounded hover:bg-[#FF4500] transition-colors"
                           >
                             Approve
                           </button>
@@ -357,7 +357,7 @@ const MerchantManagement: React.FC = () => {
                               setSelectedMerchant(merchant);
                               setShowRejectionModal(true);
                             }}
-                            className="text-red-600 hover:text-red-900"
+                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
                           >
                             Reject
                           </button>
