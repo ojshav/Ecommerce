@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface Order {
   id: string;
@@ -11,6 +12,7 @@ interface Order {
 
 const TrackOrder: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
   
   // Mock orders data - in a real app this would come from an API
   const orders: Order[] = [
@@ -31,6 +33,21 @@ const TrackOrder: React.FC = () => {
       imageUrl: '/path-to-mens-fashion-image.jpg'
     }
   ];
+
+  const handleOrderClick = (order: Order) => {
+    // You can implement logic here to determine whether to show refund or exchange based on order status
+    navigate(`/refund/${order.id}`, { state: { order } });
+  };
+
+  const handleExchangeClick = (e: React.MouseEvent, order: Order) => {
+    e.stopPropagation(); // Prevent triggering the order click
+    navigate(`/exchange/${order.id}`, { state: { order } });
+  };
+
+  const handleRefundClick = (e: React.MouseEvent, order: Order) => {
+    e.stopPropagation(); // Prevent triggering the order click
+    navigate(`/refund/${order.id}`, { state: { order } });
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -78,7 +95,11 @@ const TrackOrder: React.FC = () => {
       <h2 className="text-xl font-semibold mb-4">Orders</h2>
       <div className="space-y-6">
         {orders.map((order) => (
-          <div key={order.id} className="border rounded-lg p-6 space-y-4">
+          <div
+            key={order.id}
+            onClick={() => handleOrderClick(order)}
+            className="border rounded-lg p-6 space-y-4 cursor-pointer hover:border-orange-500 transition-colors"
+          >
             <div className="flex justify-between items-start">
               <div className="flex gap-4">
                 <img
@@ -94,7 +115,10 @@ const TrackOrder: React.FC = () => {
                   <p className="text-gray-600 text-sm">Delivered on {order.deliveryDate}</p>
                 </div>
               </div>
-              <button className="px-4 py-1 bg-gray-100 rounded-lg text-sm">
+              <button
+                onClick={(e) => e.stopPropagation()}
+                className="px-4 py-1 bg-gray-100 rounded-lg text-sm"
+              >
                 Rate
               </button>
             </div>
@@ -105,17 +129,26 @@ const TrackOrder: React.FC = () => {
                 <p className="text-gray-600 text-sm">Order #{order.id}</p>
                 <p className="text-gray-600 text-sm">Order placed on {order.orderDate}</p>
               </div>
-              <button className="px-4 py-1 bg-gray-100 rounded-lg text-sm">
+              <button
+                onClick={(e) => e.stopPropagation()}
+                className="px-4 py-1 bg-gray-100 rounded-lg text-sm"
+              >
                 Invoice
               </button>
             </div>
 
             <div className="flex justify-between pt-4">
-              <button className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition">
-                Reorder
+              <button
+                onClick={(e) => handleExchangeClick(e, order)}
+                className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
+              >
+                Exchange
               </button>
-              <button className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition">
-                Tracking
+              <button
+                onClick={(e) => handleRefundClick(e, order)}
+                className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
+              >
+                Refund
               </button>
             </div>
           </div>

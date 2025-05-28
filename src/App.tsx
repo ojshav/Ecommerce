@@ -68,6 +68,8 @@ import ShippingDelivery from './pages/ShippingDelivery';
 import UserProfile from './pages/UserProfile';
 import PaymentPage from './pages/PaymentPage';
 import MessengerPopup from './components/MessengerPopup';
+import Refund from './pages/Refund';
+import Exchange from './pages/Exchange';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -278,6 +280,8 @@ function App() {
                           <Route path="/register" element={<Register />} />
                           <Route path="/become-merchant" element={<BecomeMerchant />} />
                           <Route path="/track-order" element={<TrackOrder />} />
+                          <Route path="/refund/:orderId" element={<Refund />} />
+                          <Route path="/exchange/:orderId" element={<Exchange />} />
                           <Route path="/categories/:categoryId" element={<Products />} />
                           <Route path="/categories/:categoryId/:brandId" element={<Products />} />
                           <Route path="/faq" element={<FAQ />} />
