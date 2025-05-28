@@ -330,25 +330,42 @@ const Attribute: React.FC = () => {
         }
     };
 
-    // Delete attribute
+        // Delete attribute
     const handleDeleteAttribute = async (attributeId: number) => {
         if (!window.confirm('Are you sure you want to delete this attribute?')) return;
 
         try {
             setLoading(true);
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                toast.error('Authentication token not found. Please login again.');
+                setLoading(false); // Ensure loading is set to false
+                return;
+            }
+
             const response = await fetch(`${API_BASE_URL}/api/superadmin/attributes/${attributeId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Authorization': `Bearer ${token}`, // Use the token fetched within the function
                 },
             });
+
+            if (response.status === 401) {
+                toast.error('Session expired. Please login again.');
+                // Optionally redirect to login page
+                setLoading(false); // Ensure loading is set to false
+                return;
+            }
 
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Failed to delete attribute');
             }
 
-            setCustomAttributes(customAttributes.filter(attr => attr.attribute_id !== attributeId));
+            // Corrected state update using functional form
+            setCustomAttributes(prevAttributes =>
+                prevAttributes.filter(attr => attr.attribute_id !== attributeId)
+            );
             toast.success('Attribute deleted successfully');
         } catch (error) {
             console.error('Error deleting attribute:', error);
