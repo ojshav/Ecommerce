@@ -175,6 +175,11 @@ export const catalogSection = {
       title: "Attribute",
       icon: Settings,
       description: "Manage product attributes and specifications"
+    },
+    {
+      title: "Homepage Settings",
+      icon: Home,
+      description: "Manage categories displayed on homepage"
     }
   ]
 };

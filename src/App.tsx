@@ -46,6 +46,7 @@ import Notification from './pages/superadmin/Notifications';
 import Categories from './pages/superadmin/Categories';
 import Attribute from './pages/superadmin/Attribute';
 import BrandCreation from './pages/superadmin/BrandCreation';
+import HomepageSettings from './pages/superadmin/HomepageSettings';
 
 import FAQ from './pages/FAQ';
 import About from './pages/About';
@@ -284,6 +285,7 @@ function App() {
                   <Route path="categories" element={<Categories />} />
                   <Route path="brand-creation" element={<BrandCreation />} />
                   <Route path="attribute" element={<Attribute />} />
+                  <Route path="homepage-settings" element={<HomepageSettings />} />
                 </Route>
 
                 {/* Business Auth Routes */}

@@ -358,13 +358,13 @@ const Products: React.FC = () => {
         <div className="flex space-x-3">
           <Link
             to="/business/catalog/products/import"
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
           >
             Import Products
           </Link>
           <Link
             to="/business/catalog/product/new"
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
           >
             <PlusIcon className="h-4 w-4 mr-2" />
             Add Product
@@ -385,7 +385,7 @@ const Products: React.FC = () => {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                 placeholder="Search products by name or SKU..."
               />
             </div>
@@ -395,7 +395,7 @@ const Products: React.FC = () => {
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="block pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="block pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
               >
                 <option value="All">All Status</option>
                 <option value="Active">Active</option>
@@ -406,7 +406,7 @@ const Products: React.FC = () => {
             {/* Filter Button */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none"
             >
               <FunnelIcon className="h-4 w-4 mr-2" />
               {showFilters ? 'Hide Filters' : 'Show Filters'}
@@ -427,7 +427,7 @@ const Products: React.FC = () => {
                     placeholder="Min"
                     value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
-                    className="block w-full pl-3 pr-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    className="block w-full pl-3 pr-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                   />
                   <input
                     type="number"
@@ -435,7 +435,7 @@ const Products: React.FC = () => {
                     placeholder="Max"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
-                    className="block w-full pl-3 pr-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    className="block w-full pl-3 pr-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -443,13 +443,13 @@ const Products: React.FC = () => {
               <div className="sm:col-span-2 lg:col-span-4 flex justify-end">
                 <button
                   onClick={clearFilters}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none mr-2"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none mr-2"
                 >
                   Reset
                 </button>
                 <button
                   onClick={() => setShowFilters(false)}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none"
                 >
                   Apply Filters
                 </button>
@@ -484,7 +484,7 @@ const Products: React.FC = () => {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8">
                   <input
                     type="checkbox"
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                     checked={selectedItems.length === sortedProducts.length && sortedProducts.length > 0}
                     onChange={toggleSelectAll}
                   />
@@ -518,11 +518,11 @@ const Products: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedProducts.map((product) => (
                 <React.Fragment key={product.product_id}>
-                  <tr className="hover:bg-gray-50">
+                  <tr className="hover:bg-orange-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap w-8">
                       <input
                         type="checkbox"
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                         checked={selectedItems.includes(product.product_id)}
                         onChange={() => toggleSelectItem(product.product_id)}
                       />
@@ -568,11 +568,13 @@ const Products: React.FC = () => {
                                   <div className="font-medium">SKU: {variant.sku || 'N/A'}</div>
                                   <div>Price: ${formatPrice(variant.price)}</div>
                                   <div>Stock: {formatStock(variant.stock)}</div>
-                                  {variant.attribute && (
+                                  {variant.attributes && variant.attributes.length > 0 && (
                                     <div className="mt-1">
-                                      <span className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-700 mr-1 mb-1">
-                                        {variant.attribute}
-                                      </span>
+                                      {variant.attributes.map((attr, index) => (
+                                        <span key={index} className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-700 mr-1 mb-1">
+                                          {attr.name}: {attr.value}
+                                        </span>
+                                      ))}
                                     </div>
                                   )}
                                 </div>
@@ -587,15 +589,15 @@ const Products: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-3">
-                        <Link to={`/business/catalog/product/${product.product_id}/view`} className="text-gray-600 hover:text-gray-900">
+                        <Link to={`/business/catalog/product/${product.product_id}/view`} className="text-orange-600 hover:text-orange-700">
                           <EyeIcon className="h-5 w-5" />
                         </Link>
-                        <Link to={`/business/catalog/product/${product.product_id}/edit`} className="text-blue-600 hover:text-blue-900">
+                        <Link to={`/business/catalog/product/${product.product_id}/edit`} className="text-orange-600 hover:text-orange-700">
                           <PencilIcon className="h-5 w-5" />
                         </Link>
                         <button 
                           onClick={() => handleDeleteProduct(product.product_id)}
-                          className="text-red-600 hover:text-red-900"
+                          className="text-orange-600 hover:text-orange-900"
                         >
                           <TrashIcon className="h-5 w-5" />
                         </button>
@@ -613,7 +615,7 @@ const Products: React.FC = () => {
               <p className="text-gray-500 text-lg">No products found matching your filters.</p>
               <button
                 onClick={clearFilters}
-                className="mt-2 text-primary-600 font-medium hover:text-primary-700"
+                className="mt-2 text-orange-600 font-medium hover:text-orange-700"
               >
                 Clear all filters
               </button>
