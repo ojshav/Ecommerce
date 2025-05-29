@@ -316,16 +316,20 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
 
         {/* Product Name */}
         <div>
+
           <label htmlFor="name" className={labelClassName}>Product Name</label>
           <input type="text" id="name" value={name} onChange={(e) => onInfoChange('name', e.target.value)} className={inputClassName(!!errors.name)} placeholder="e.g., Premium Cotton T-Shirt" required/>
           {errors.name && <p className={errorTextClassName}>{errors.name}</p>}
+
         </div>
 
         {/* Description */}
         <div>
+
           <label htmlFor="description" className={labelClassName}>Short Description (for product card)</label>
           <textarea id="description" rows={3} value={description} onChange={(e) => onInfoChange('description', e.target.value)} className={inputClassName(!!errors.description)} placeholder="Briefly describe your product..." />
           {errors.description && <p className={errorTextClassName}>{errors.description}</p>}
+
         </div>
 
         {/* SKU */}
@@ -339,30 +343,83 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
         {/* Pricing */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
+
             <label htmlFor="costPrice" className={labelClassName}>Cost Price (Your cost)</label>
             <input type="number" id="costPrice" value={costPrice} onChange={(e) => onInfoChange('costPrice', e.target.value)} step="0.01" min="0" className={inputClassName(!!errors.costPrice)} placeholder="0.00" required/>
             {errors.costPrice && <p className={errorTextClassName}>{errors.costPrice}</p>}
+
           </div>
           <div>
+
             <label htmlFor="sellingPrice" className={labelClassName}>Selling Price (Customer price)</label>
             <input type="number" id="sellingPrice" value={sellingPrice} onChange={(e) => onInfoChange('sellingPrice', e.target.value)} step="0.01" min="0" className={inputClassName(!!errors.sellingPrice)} placeholder="0.00" required/>
             {errors.sellingPrice && <p className={errorTextClassName}>{errors.sellingPrice}</p>}
+
           </div>
         </div>
 
         {/* Discount Display */}
-        {(parseFloat(costPrice) > 0 && parseFloat(sellingPrice) > 0) && (
-            <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
-                <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-blue-700">Calculated {discount >= 0 ? 'Discount' : 'Markup'}</span>
-                    <span className={`text-lg font-semibold ${discount >= 0 ? (discount > 0 ? 'text-green-600' : 'text-gray-600') : 'text-red-600'}`}>
-                    {discount > 0 ? `${discount}%` : (discount < 0 ? `${Math.abs(discount)}% Markup` : 'No discount/markup')}
-                    </span>
-                </div>
-                {discount !== 0 && (
-                    <p className="mt-1 text-sm text-blue-600">
-                    Based on cost price of ${parseFloat(costPrice).toFixed(2)} and selling price of ${parseFloat(sellingPrice).toFixed(2)}.
-                    </p>
+{(parseFloat(costPrice) > 0 && parseFloat(sellingPrice) > 0) && (
+  <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
+    <div className="flex items-center justify-between">
+      <span className="text-sm font-medium text-blue-700">
+        Calculated {discount >= 0 ? 'Discount' : 'Markup'}
+      </span>
+      <span
+        className={`text-lg font-semibold ${
+          discount >= 0
+            ? discount > 0
+              ? 'text-green-600'
+              : 'text-gray-600'
+            : 'text-red-600'
+        }`}
+      >
+        {discount > 0
+          ? `${discount}%`
+          : discount < 0
+          ? `${Math.abs(discount)}% Markup`
+          : 'No discount/markup'}
+      </span>
+    </div>
+    {discount !== 0 && (
+      <p className="mt-1 text-sm text-blue-600">
+        Based on cost price of ${parseFloat(costPrice).toFixed(2)} and selling
+        price of ${parseFloat(sellingPrice).toFixed(2)}.
+      </p>
+    )}
+  </div>
+)}
+
+{/* Special Price */}
+<div className="space-y-4">
+  <h3 className="text-sm font-medium text-gray-700">Special Price</h3>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <label
+        htmlFor="specialPrice"
+        className="block text-sm font-medium text-gray-700"
+      >
+        Special Price
+      </label>
+      <div className="mt-1">
+        <input
+          type="number"
+          id="specialPrice"
+          value={specialPrice}
+          onChange={(e) => onInfoChange('specialPrice', e.target.value)}
+          step="0.01"
+          min="0"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
+          placeholder="Enter special price"
+        />
+        {errors.specialPrice && (
+          <p className="mt-1 text-sm text-red-600">{errors.specialPrice}</p>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
+
                 )}
             </div>
         )}
@@ -372,11 +429,14 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
           <h3 className="text-md font-semibold text-gray-700 mb-2">Special Price (Optional)</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 border rounded-md bg-gray-50">
             <div>
+
               <label htmlFor="specialPrice" className={labelClassName}>Special Price</label>
               <input type="number" id="specialPrice" value={specialPrice} onChange={(e) => onInfoChange('specialPrice', e.target.value)} step="0.01" min="0" className={inputClassName(!!errors.specialPrice)} placeholder="0.00" />
               {errors.specialPrice && <p className={errorTextClassName}>{errors.specialPrice}</p>}
+
             </div>
             <div>
+
               <label htmlFor="specialPriceStart" className={labelClassName}>Start Date</label>
               <input type="datetime-local" id="specialPriceStart" value={specialPriceStart} onChange={(e) => onInfoChange('specialPriceStart', e.target.value)} className={inputClassName(!!errors.specialPriceStart)} />
               {errors.specialPriceStart && <p className={errorTextClassName}>{errors.specialPriceStart}</p>}
@@ -385,6 +445,7 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
               <label htmlFor="specialPriceEnd" className={labelClassName}>End Date</label>
               <input type="datetime-local" id="specialPriceEnd" value={specialPriceEnd} onChange={(e) => onInfoChange('specialPriceEnd', e.target.value)} className={inputClassName(!!errors.specialPriceEnd)} />
               {errors.specialPriceEnd && <p className={errorTextClassName}>{errors.specialPriceEnd}</p>}
+
             </div>
           </div>
         </div>
@@ -399,7 +460,9 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
           <button
             type="submit"
             disabled={isSubmitting || !categoryId || !brandId}
+
             className="px-6 py-2.5 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+
           >
             {isSubmitting ? 'Saving Core Info...' : (productId ? 'Update Core Info' : 'Save Core Info & Continue')}
           </button>
@@ -467,19 +530,23 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
+
                   <label htmlFor="stock_qty" className={labelClassName}>Stock Quantity</label>
                   <input type="number" id="stock_qty" value={stockQty} onChange={(e) => setStockQty(e.target.value)} min="0" className={inputClassName()} />
                 </div>
                 <div>
                   <label htmlFor="low_stock_threshold" className={labelClassName}>Low Stock Threshold</label>
                   <input type="number" id="low_stock_threshold" value={lowStockThreshold} onChange={(e) => setLowStockThreshold(e.target.value)} min="0" className={inputClassName()} />
+
                 </div>
               </div>
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={handleUpdateStock}
                   disabled={isUpdatingStock}
+
                   className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+
                 >
                   {isUpdatingStock ? 'Updating Stock...' : 'Update Stock'}
                 </button>

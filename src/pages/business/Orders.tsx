@@ -171,32 +171,32 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   
   switch (status) {
     case 'Delivered':
-      bgColor = 'bg-green-100';
-      textColor = 'text-green-800';
+      bgColor = 'bg-emerald-100';
+      textColor = 'text-emerald-800';
       break;
     case 'Shipped':
-      bgColor = 'bg-blue-100';
-      textColor = 'text-blue-800';
+      bgColor = 'bg-sky-100';
+      textColor = 'text-sky-800';
       break;
     case 'Processing':
-      bgColor = 'bg-yellow-100';
-      textColor = 'text-yellow-800';
+      bgColor = 'bg-amber-100';
+      textColor = 'text-amber-800';
       break;
     case 'Pending':
       bgColor = 'bg-orange-100';
       textColor = 'text-orange-800';
       break;
     case 'Cancelled':
-      bgColor = 'bg-red-100';
-      textColor = 'text-red-800';
+      bgColor = 'bg-rose-100';
+      textColor = 'text-rose-800';
       break;
     case 'Completed':
-      bgColor = 'bg-green-100';
-      textColor = 'text-green-800';
+      bgColor = 'bg-emerald-100';
+      textColor = 'text-emerald-800';
       break;
     case 'Failed':
-      bgColor = 'bg-red-100';
-      textColor = 'text-red-800';
+      bgColor = 'bg-rose-100';
+      textColor = 'text-rose-800';
       break;
     case 'Refunded':
       bgColor = 'bg-purple-100';
@@ -215,6 +215,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
 };
 
 const Orders: React.FC = () => {
+  const [orders, setOrders] = useState(ORDERS);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [selectedPayment, setSelectedPayment] = useState('All');
@@ -333,181 +334,127 @@ const Orders: React.FC = () => {
   
   return (
     <div className="space-y-6">
-      {/* Page Title */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">Orders</h1>
         <div className="flex space-x-3">
-          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
             <PrinterIcon className="h-4 w-4 mr-2" />
-            Print Orders
+            Export
           </button>
-          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+          <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
             <DocumentTextIcon className="h-4 w-4 mr-2" />
-            Export CSV
+            New Order
           </button>
         </div>
       </div>
       
-      {/* Search, Filter, and Sort */}
-      <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-        <div className="p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            {/* Search */}
-            <div className="relative flex-grow">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-              </div>
+      {/* Filters */}
+      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="relative">
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                placeholder="Search orders by ID or customer..."
+              placeholder="Search orders..."
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
               />
-            </div>
-            
-            {/* Filter Button */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
-            >
-              <FunnelIcon className="h-4 w-4 mr-2" />
-              {showFilters ? 'Hide Filters' : 'Show Filters'}
-            </button>
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute right-3 top-2.5" />
           </div>
-          
-          {/* Filters */}
-          {showFilters && (
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-                  Order Status
-                </label>
                 <select
-                  id="status"
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
                 >
+            <option value="All">All Status</option>
                   {STATUS_OPTIONS.map((status) => (
                     <option key={status} value={status}>
                       {status}
                     </option>
                   ))}
                 </select>
-              </div>
-              
-              <div>
-                <label htmlFor="payment" className="block text-sm font-medium text-gray-700 mb-1">
-                  Payment Status
-                </label>
                 <select
-                  id="payment"
                   value={selectedPayment}
                   onChange={(e) => setSelectedPayment(e.target.value)}
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
                 >
+            <option value="All">All Payment Status</option>
                   {PAYMENT_OPTIONS.map((status) => (
                     <option key={status} value={status}>
                       {status}
                     </option>
                   ))}
                 </select>
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+          >
+            <FunnelIcon className="h-4 w-4 mr-2" />
+            More Filters
+          </button>
               </div>
               
+        {/* Advanced Filters */}
+        {showFilters && (
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="date-start" className="block text-sm font-medium text-gray-700 mb-1">
-                  From Date
+              <label htmlFor="date-range" className="block text-sm font-medium text-gray-700 mb-1">
+                Date Range
                 </label>
+              <div className="flex space-x-2">
                 <input
                   type="date"
                   id="date-start"
                   value={dateRange.start}
                   onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                  className="block w-full pl-3 pr-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
                 />
-              </div>
-              
-              <div>
-                <label htmlFor="date-end" className="block text-sm font-medium text-gray-700 mb-1">
-                  To Date
-                </label>
                 <input
                   type="date"
                   id="date-end"
                   value={dateRange.end}
                   onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                  className="block w-full pl-3 pr-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
                 />
+              </div>
               </div>
             </div>
           )}
         </div>
         
-        {/* Orders List */}
+      {/* Orders Table */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('id')}>
-                    Order ID
-                    {getSortIndicator('id')}
+                {['Order ID', 'Date', 'Customer', 'Items', 'Total', 'Status', 'Payment', 'Actions'].map((header) => (
+                  <th
+                    key={header}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-orange-600"
+                    onClick={() => requestSort(header.toLowerCase())}
+                  >
+                    <div className="flex items-center space-x-1">
+                      <span>{header}</span>
+                      {getSortIndicator(header.toLowerCase())}
                   </div>
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('date')}>
-                    Date
-                    {getSortIndicator('date')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('customer.name')}>
-                    Customer
-                    {getSortIndicator('customer.name')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('items')}>
-                    Items
-                    {getSortIndicator('items')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('total')}>
-                    Total
-                    {getSortIndicator('total')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('status')}>
-                    Status
-                    {getSortIndicator('status')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('payment')}>
-                    Payment
-                    {getSortIndicator('payment')}
-                  </div>
-                </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                ))}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary-600">
+                <tr key={order.id} className="hover:bg-orange-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {order.id}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {order.date}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{order.customer.name}</div>
-                    <div className="text-xs text-gray-500">{order.customer.email}</div>
+                    <div className="text-sm text-gray-900">{order.customer.name}</div>
+                    <div className="text-sm text-gray-500">{order.customer.email}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {order.items}
@@ -521,16 +468,13 @@ const Orders: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <StatusBadge status={order.payment} />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end space-x-3">
-                      <Link to={`/business/orders/${order.id}`} className="text-gray-600 hover:text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="flex space-x-2">
+                      <button className="text-orange-600 hover:text-orange-900">
                         <EyeIcon className="h-5 w-5" />
-                      </Link>
-                      <Link to={`/business/orders/${order.id}/edit`} className="text-blue-600 hover:text-blue-900">
+                      </button>
+                      <button className="text-orange-600 hover:text-orange-900">
                         <PencilIcon className="h-5 w-5" />
-                      </Link>
-                      <button className="text-gray-600 hover:text-gray-900">
-                        <PrinterIcon className="h-5 w-5" />
                       </button>
                     </div>
                   </td>
@@ -538,56 +482,6 @@ const Orders: React.FC = () => {
               ))}
             </tbody>
           </table>
-          
-          {/* Empty State */}
-          {sortedOrders.length === 0 && (
-            <div className="px-6 py-10 text-center">
-              <p className="text-gray-500 text-lg">No orders found matching your filters.</p>
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedStatus('All');
-                  setSelectedPayment('All');
-                  setDateRange({ start: '', end: '' });
-                }}
-                className="mt-2 text-primary-600 font-medium hover:text-primary-700"
-              >
-                Clear all filters
-              </button>
-            </div>
-          )}
-        </div>
-        
-        {/* Pagination */}
-        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">1</span> to{' '}
-                <span className="font-medium">{sortedOrders.length}</span> of{' '}
-                <span className="font-medium">{sortedOrders.length}</span> results
-              </p>
-            </div>
-            <div>
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                <button
-                  disabled
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  Previous
-                </button>
-                <button className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary-50 text-sm font-medium text-primary-700 hover:bg-gray-50">
-                  1
-                </button>
-                <button
-                  disabled
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  Next
-                </button>
-              </nav>
-            </div>
-          </div>
         </div>
       </div>
     </div>
