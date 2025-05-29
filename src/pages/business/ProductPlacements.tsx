@@ -4,9 +4,7 @@ import { toast } from 'react-hot-toast';
 import { PlusIcon, TrashIcon, EyeIcon, StarIcon as SolidStarIcon, ShoppingBagIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import { StarIcon as OutlineStarIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'; 
 
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
 interface MerchantProduct {
   product_id: number;
   name: string;
@@ -16,30 +14,25 @@ interface ProductPlacement {
   placement_id: number;
   product_id: number;
   merchant_id: number;
-  placement_type: 'featured' | 'promoted';
+  placement_type: 'featured' | 'promoted' | 'animated_product'; // Updated: API should return this new value in lowercase
   sort_order: number;
   is_active: boolean;
   expires_at: string | null;
   added_at: string;
-  product_details: {
+  product_details: { // API sends product_details
     product_id: number;
-    product_name: string;
+    product_name: string; // API sends product_name inside product_details
   };
 }
 
-
-
-interface MerchantProfileData { // For the fetched merchant profile
+interface MerchantProfileData {
     id: number;
-    // ... other fields from your /merchant/profile endpoint ...
     can_place_premium: boolean; 
-    // Add other relevant fields like business_name if you want to display them
 }
 
 const ProductPlacements: React.FC = () => {
   const { accessToken, user } = useAuth();
   
-  // State for the fetched merchant profile
   const [merchantProfile, setMerchantProfile] = useState<MerchantProfileData | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -47,29 +40,31 @@ const ProductPlacements: React.FC = () => {
   const [placements, setPlacements] = useState<ProductPlacement[]>([]);
   const [merchantProducts, setMerchantProducts] = useState<MerchantProduct[]>([]);
   
-  const [isLoadingData, setIsLoadingData] = useState(true); // For products and placements
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
 
-  const [selectedPlacementTypeToAdd, setSelectedPlacementTypeToAdd] = useState<'FEATURED' | 'PROMOTED'>('FEATURED');
+  // Updated state for selected placement type to add
+  const [selectedPlacementTypeToAdd, setSelectedPlacementTypeToAdd] = useState<'FEATURED' | 'PROMOTED' | 'ANIMATED_PRODUCT'>('FEATURED');
   const [selectedProductIdToAdd, setSelectedProductIdToAdd] = useState<string>('');
   const [sortOrderToAdd, setSortOrderToAdd] = useState<number>(0);
 
-  const [filterType, setFilterType] = useState<'ALL' | 'FEATURED' | 'PROMOTED'>('ALL');
+  // Updated state for filter type
+  const [filterType, setFilterType] = useState<'ALL' | 'FEATURED' | 'PROMOTED' | 'ANIMATED_PRODUCT'>('ALL');
   
-  const PLACEMENT_LIMIT = 10;
+  const PLACEMENT_LIMIT = 10; // This limit applies per type based on  backend controller
 
   useEffect(() => {
     const fetchMerchantProfile = async () => {
       if (!accessToken || !user) {
         setIsProfileLoading(false);
-        setProfileError("User not authenticated."); // Should be handled by AdminLayout, but good to have a check
+        setProfileError("User not authenticated.");
         return;
       }
       setIsProfileLoading(true);
       setProfileError(null);
       try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/merchant/profile`, { // Ensure this is the correct endpoint
+        const response = await fetch(`${API_BASE_URL}/api/auth/merchant/profile`, {
           headers: { 'Authorization': `Bearer ${accessToken}` },
         });
         if (!response.ok) {
@@ -86,27 +81,26 @@ const ProductPlacements: React.FC = () => {
         setIsProfileLoading(false);
       }
     };
-
     fetchMerchantProfile();
   }, [accessToken, user]);
 
-
   const fetchData = useCallback(async () => {
     if (!accessToken) return;
-    setIsLoadingData(true); // Use isLoadingData for products/placements
+    setIsLoadingData(true);
     try {
-      // Fetch merchant products
-      const productsResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products`, {
+      const productsPromise = fetch(`${API_BASE_URL}/api/merchant-dashboard/products`, {
         headers: { 'Authorization': `Bearer ${accessToken}` },
       });
+      const placementsPromise = fetch(`${API_BASE_URL}/api/merchant-dashboard/product-placements`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+      });
+
+      const [productsResponse, placementsResponse] = await Promise.all([productsPromise, placementsPromise]);
+
       if (!productsResponse.ok) throw new Error('Failed to fetch merchant products');
       const productsData = await productsResponse.json();
       setMerchantProducts(productsData.map((p: any) => ({ product_id: p.product_id, name: p.product_name })));
 
-      // Fetch current placements
-      const placementsResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/product-placements`, {
-        headers: { 'Authorization': `Bearer ${accessToken}` },
-      });
       if (!placementsResponse.ok) throw new Error('Failed to fetch product placements');
       const placementsData = await placementsResponse.json();
       setPlacements(placementsData);
@@ -118,14 +112,12 @@ const ProductPlacements: React.FC = () => {
       setIsLoadingData(false);
     }
   }, [accessToken]);
-
+  
   useEffect(() => {
-    // Only fetch products/placements if merchant profile is loaded (or if not dependent on it)
-    // If profile loading fails, you might not want to proceed or handle it gracefully
     if (!isProfileLoading && !profileError) {
         fetchData();
     }
-  }, [fetchData, isProfileLoading, profileError]); // Add dependencies
+  }, [fetchData, isProfileLoading, profileError]);
 
   const canPlacePremium = useMemo(() => merchantProfile?.can_place_premium ?? false, [merchantProfile]);
 
@@ -135,13 +127,16 @@ const ProductPlacements: React.FC = () => {
       toast.error('Please select a product.');
       return;
     }
-    if (!canPlacePremium) { // Use the memoized value
+    if (!canPlacePremium) {
         toast.error('Your subscription does not allow adding premium placements.');
         return;
     }
 
     setIsSubmitting(true);
     try {
+     
+      const placementTypeToSend = selectedPlacementTypeToAdd; 
+
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/product-placements`, {
         method: 'POST',
         headers: {
@@ -150,7 +145,7 @@ const ProductPlacements: React.FC = () => {
         },
         body: JSON.stringify({
           product_id: parseInt(selectedProductIdToAdd),
-          placement_type: selectedPlacementTypeToAdd,
+          placement_type: placementTypeToSend, 
           sort_order: sortOrderToAdd,
         }),
       });
@@ -199,11 +194,12 @@ const ProductPlacements: React.FC = () => {
 
   const filteredPlacements = useMemo(() => {
     if (filterType === 'ALL') return placements;
+    // Compare with uppercase version from filterType state
     return placements.filter(p => p.placement_type.toUpperCase() === filterType);
   }, [placements, filterType]);
 
-  const getSlotInfo = useCallback((type: 'featured' | 'promoted') => {
-    const count = placements.filter(p => p.placement_type === type).length;
+  const getSlotInfo = useCallback((type: 'featured' | 'promoted' | 'animated_product') => {
+    const count = placements.filter(p => p.placement_type.toLowerCase() === type.toLowerCase()).length;
     return {
       used: count,
       remaining: PLACEMENT_LIMIT - count,
@@ -213,10 +209,17 @@ const ProductPlacements: React.FC = () => {
 
   const featuredSlots = getSlotInfo('featured');
   const promotedSlots = getSlotInfo('promoted');
+  const animatedProductSlots = getSlotInfo('animated_product'); // Use the exact lowercase string from your backend enum
   
-  const currentSlotsInfo = selectedPlacementTypeToAdd === 'FEATURED' ? featuredSlots : promotedSlots;
+  let currentSlotsInfo;
+  if (selectedPlacementTypeToAdd === 'FEATURED') {
+    currentSlotsInfo = featuredSlots;
+  } else if (selectedPlacementTypeToAdd === 'PROMOTED') {
+    currentSlotsInfo = promotedSlots;
+  } else { // ANIMATED_PRODUCT
+    currentSlotsInfo = animatedProductSlots;
+  }
 
- // Combined loading state for initial page readiness
   if (isProfileLoading || (isLoadingData && merchantProducts.length === 0 && placements.length === 0)) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -226,14 +229,14 @@ const ProductPlacements: React.FC = () => {
     );
   }
   
-  if (profileError) {
+  if (profileError && !isProfileLoading) {
     return (
         <div className="p-6 bg-red-50 border border-red-200 rounded-lg text-center">
             <ExclamationTriangleIcon className="h-12 w-12 text-red-500 mx-auto mb-3" />
             <p className="text-red-700 font-medium">Could not load merchant permissions.</p>
             <p className="text-red-600 text-sm mt-1">{profileError}</p>
             <button 
-                onClick={() => window.location.reload()} // Simple reload for now
+                onClick={() => window.location.reload()}
                 className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
             >
                 Try Again
@@ -242,17 +245,18 @@ const ProductPlacements: React.FC = () => {
     )
   }
 
+  const formatPlacementTypeForDisplay = (type: string) => {
+    return type.replace('_', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
 
-
-
-return (
+  return (
     <div className="space-y-8">
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Manage Featured & Promoted Products</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Manage Product Placements</h1>
 
       <div className="bg-white p-6 rounded-lg shadow-md border border-orange-200">
         <h2 className="text-xl font-semibold text-gray-700 mb-1">Add Product to Placement</h2>
         
-        {!canPlacePremium && ( // Check the fetched & memoized value
+        {!canPlacePremium && (
             <div className="mt-4 p-3 bg-orange-50 text-orange-700 border border-orange-200 rounded-md text-sm">
                 <p>
                     <OutlineStarIcon className="h-5 w-5 inline-block mr-2 text-orange-500" />
@@ -269,12 +273,13 @@ return (
                 <select
                 id="placementTypeToAdd"
                 value={selectedPlacementTypeToAdd}
-                onChange={(e) => setSelectedPlacementTypeToAdd(e.target.value as 'FEATURED' | 'PROMOTED')}
+                onChange={(e) => setSelectedPlacementTypeToAdd(e.target.value as 'FEATURED' | 'PROMOTED' | 'ANIMATED_PRODUCT')}
                 className="w-full p-2 pr-8 border border-gray-300 rounded-md shadow-sm focus:ring-accent-500 focus:border-accent-500 appearance-none"
                 disabled={!canPlacePremium || isSubmitting}
                 >
                 <option value="FEATURED">Featured</option>
                 <option value="PROMOTED">Promoted</option>
+                <option value="ANIMATED_PRODUCT">Animated Product</option> {/* Changed from CHARACTER_MERCH */}
                 </select>
                 <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
             </div>
@@ -292,8 +297,8 @@ return (
                 >
                 <option value="">-- Select a Product --</option>
                 {merchantProducts.map(product => (
-                    <option key={product.product_id} value={product.product_id} title={product.name}>
-                    {product.name}
+                    <option key={product.product_id} value={product.product_id.toString()} title={product.name}>
+                      {product.name.length > 50 ? `${product.name.substring(0, 47)}...` : product.name}
                     </option>
                 ))}
                 </select>
@@ -319,7 +324,7 @@ return (
           </div>
 
           <div className="text-sm text-gray-600 p-3 bg-orange-50 rounded-md border border-orange-100">
-            <p>Slots for <span className="font-medium">{selectedPlacementTypeToAdd.toLowerCase()}</span>: <span className="font-semibold">{currentSlotsInfo.used} / {PLACEMENT_LIMIT}</span></p>
+            <p>Slots for <span className="font-medium">{formatPlacementTypeForDisplay(selectedPlacementTypeToAdd)}</span>: <span className="font-semibold">{currentSlotsInfo.used} / {PLACEMENT_LIMIT}</span></p>
             <p className={`font-semibold ${currentSlotsInfo.remaining > 0 ? 'text-green-600' : 'text-red-600'}`}>
               Remaining Slots: {currentSlotsInfo.remaining}
             </p>
@@ -340,17 +345,36 @@ return (
               </>
             ) : (
                 <>
-                    <PlusIcon className="h-5 w-5 mr-2"/> Add to {selectedPlacementTypeToAdd.toLowerCase()}
+                    <PlusIcon className="h-5 w-5 mr-2"/> Add to {formatPlacementTypeForDisplay(selectedPlacementTypeToAdd)}
                 </>
             )}
           </button>
           {currentSlotsInfo.limitReached && canPlacePremium && (
             <p className="text-xs text-red-600 mt-2 text-center">
-                Slot limit reached for {selectedPlacementTypeToAdd.toLowerCase()} products.
+                Slot limit reached for {formatPlacementTypeForDisplay(selectedPlacementTypeToAdd)} products.
             </p>
           )}
         </form>
       </div>
+
+      {/* Slot Counts Display */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="bg-orange-50 p-3 rounded-md border border-orange-200 text-center md:text-left">
+                <p className="font-medium text-orange-700">Featured Slots</p>
+                <p>Used: <span className="font-semibold">{featuredSlots.used} / {PLACEMENT_LIMIT}</span></p>
+                <p className={`${featuredSlots.remaining > 0 ? 'text-green-600' : 'text-red-600'}`}>Remaining: {featuredSlots.remaining}</p>
+            </div>
+            <div className="bg-orange-50 p-3 rounded-md border border-orange-200 text-center md:text-left">
+                <p className="font-medium text-orange-700">Promoted Slots</p>
+                <p>Used: <span className="font-semibold">{promotedSlots.used} / {PLACEMENT_LIMIT}</span></p>
+                <p className={`${promotedSlots.remaining > 0 ? 'text-green-600' : 'text-red-600'}`}>Remaining: {promotedSlots.remaining}</p>
+            </div>
+            <div className="bg-orange-50 p-3 rounded-md border border-orange-200 text-center md:text-left">
+                <p className="font-medium text-orange-700">Animated Product Slots</p> {/* Updated Label */}
+                <p>Used: <span className="font-semibold">{animatedProductSlots.used} / {PLACEMENT_LIMIT}</span></p>
+                <p className={`${animatedProductSlots.remaining > 0 ? 'text-green-600' : 'text-red-600'}`}>Remaining: {animatedProductSlots.remaining}</p>
+            </div>
+        </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md border border-orange-200">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
@@ -359,12 +383,13 @@ return (
             <select
               id="filterPlacementType"
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as 'ALL' | 'FEATURED' | 'PROMOTED')}
+              onChange={(e) => setFilterType(e.target.value as 'ALL' | 'FEATURED' | 'PROMOTED' | 'ANIMATED_PRODUCT')} // Updated
               className="w-full sm:w-auto p-2 pr-8 border border-gray-300 rounded-md shadow-sm focus:ring-accent-500 focus:border-accent-500 appearance-none"
             >
               <option value="ALL">All Placements</option>
               <option value="FEATURED">Featured Only</option>
               <option value="PROMOTED">Promoted Only</option>
+              <option value="ANIMATED_PRODUCT">Animated Product Only</option> {/* Updated */}
             </select>
             <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
           </div>
@@ -406,10 +431,13 @@ return (
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        placement.placement_type === 'featured' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        placement.placement_type === 'featured' ? 'bg-blue-100 text-blue-800' :
+                        placement.placement_type === 'promoted' ? 'bg-purple-100 text-purple-800' :
+                        placement.placement_type === 'animated_product' ? 'bg-teal-100 text-teal-800' : // New style for animated_product
+                        'bg-gray-100 text-gray-800'
                       }`}>
-                        {placement.placement_type.toUpperCase()}
+                        {formatPlacementTypeForDisplay(placement.placement_type)}
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{placement.sort_order}</td>
