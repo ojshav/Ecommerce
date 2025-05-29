@@ -95,7 +95,7 @@ const AdminLayout: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/business-login');
+    navigate('/');
   };
 
   return (
