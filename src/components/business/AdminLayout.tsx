@@ -42,7 +42,7 @@ const navigationItems = [
 ];
 
 const AdminLayout: React.FC = () => {
-  const { isAuthenticated, isMerchant, isMerchantVerified, logout, user } = useAuth();
+  const { isAuthenticated, isMerchant, logout, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -99,22 +99,134 @@ const AdminLayout: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-100">
+    <div className="h-screen flex flex-col overflow-hidden bg-gray-100">
+      {/* Top Navigation - fixed height */}
+      <header className="bg-black shadow z-10 h-16 flex-shrink-0 w-full">
+        <div className="h-full px-4 flex items-center justify-between">
+          {/* Left: Menu Button and Logo */}
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={toggleSidebar}
+              className="md:hidden text-orange-500 hover:text-orange-400 focus:outline-none"
+            >
+              <Bars3Icon className="h-6 w-6" />
+            </button>
+            <img 
+              src="/assets/images/logo.svg" 
+              alt="ShopEasy Logo" 
+              className="h-8 w-auto"
+            />
+          </div>
+          
+          {/* Right: Notifications, Profile */}
+          <div className="flex items-center space-x-4">
+            {/* Notifications */}
+            <div className="relative">
+              <button
+                className="p-1 rounded-full text-orange-500 hover:text-orange-400 focus:outline-none"
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              >
+                <span className="absolute top-0 right-0 h-2 w-2 bg-orange-500 rounded-full"></span>
+                <BellIcon className="h-6 w-6" />
+              </button>
+              
+              {/* Notifications Dropdown */}
+              {isNotificationsOpen && (
+                <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-black ring-1 ring-gray-800 ring-opacity-5 focus:outline-none z-50">
+                  <div className="py-1" role="menu" aria-orientation="vertical">
+                    <div className="px-4 py-2 border-b border-gray-800">
+                      <p className="text-sm font-medium text-orange-500">Notifications</p>
+                    </div>
+                    
+                    <div className="max-h-60 overflow-y-auto">
+                      {[1, 2, 3].map((item) => (
+                        <div
+                          key={item}
+                          className="px-4 py-3 hover:bg-gray-800 cursor-pointer border-b border-gray-800 last:border-b-0"
+                        >
+                          <p className="text-sm font-medium text-orange-500">New Order #{1000 + item}</p>
+                          <p className="text-xs text-orange-400 mt-1">
+                            A new order has been placed by Customer {item}
+                          </p>
+                          <p className="text-xs text-orange-300 mt-1">Just now</p>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="px-4 py-2 border-t border-gray-800">
+                      <Link to="/business/notifications" className="text-sm font-medium text-orange-500 hover:text-orange-400">
+                        View all notifications
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Profile Menu */}
+            <div className="relative">
+              <button
+                className="flex items-center space-x-2 text-sm focus:outline-none"
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+              >
+                <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-orange-500 font-medium">
+                  {user?.name?.charAt(0) || user?.email?.charAt(0) || 'M'}
+                </div>
+                <span className="hidden md:block text-orange-500 font-medium">
+                  {user?.name || user?.email?.split('@')[0] || 'Merchant'}
+                </span>
+                <ChevronDownIcon className="h-4 w-4 text-orange-500" />
+              </button>
+              
+              {/* Profile Dropdown */}
+              {isProfileMenuOpen && (
+                <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-black ring-1 ring-gray-800 ring-opacity-5 focus:outline-none z-50">
+                  <div className="py-1" role="menu" aria-orientation="vertical">
+                    <Link
+                      to="/business/profile"
+                      className="block px-4 py-2 text-sm text-orange-500 hover:bg-gray-800 hover:text-orange-400"
+                      role="menuitem"
+                    >
+                      Your Profile
+                    </Link>
+                    <Link
+                      to="/business/settings"
+                      className="block px-4 py-2 text-sm text-orange-500 hover:bg-gray-800 hover:text-orange-400"
+                      role="menuitem"
+                    >
+                      Settings
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left block px-4 py-2 text-sm text-orange-500 hover:bg-gray-800 hover:text-orange-400"
+                      role="menuitem"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex-1 flex overflow-hidden">
       {/* Sidebar */}
       <div
         className={`${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-30 w-64 bg-[#fdf6ee] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen overflow-hidden`}
+          } fixed inset-y-0 left-0 z-30 w-64 bg-[#ffedd5] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen overflow-hidden`}
       >
         {/* Sidebar Header */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-orange-200">
-          <div className="flex items-center">
-            <span className="text-xl font-semibold text-orange-800">Merchant Portal</span>
+            <div className="flex flex-col items-center w-full">
+              <span className="text-lg font-semibold text-orange-800">Merchant Portal</span>
           </div>
           {isMobile && (
             <button 
               onClick={toggleSidebar}
-              className="ml-4 md:hidden text-orange-500 hover:text-orange-700 focus:outline-none"
+                className="ml-4 md:hidden text-orange-500 hover:text-orange-400 focus:outline-none"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -142,14 +254,14 @@ const AdminLayout: React.FC = () => {
                         onClick={() => toggleSubmenu(item.name)}
                         className={`${
                           isMenuActive
-                            ? 'bg-orange-50 text-orange-700'
-                            : 'text-gray-600 hover:bg-orange-50 hover:text-orange-700'
+                              ? 'bg-[#fed7aa] text-orange-800'
+                              : 'text-orange-800 hover:bg-[#fed7aa] hover:text-orange-800'
                         } w-full group flex items-center justify-between px-2 py-2 text-base font-medium rounded-md transition-colors`}
                       >
                         <div className="flex items-center">
                           <item.icon
                             className={`${
-                              isMenuActive ? 'text-orange-700' : 'text-gray-400 group-hover:text-orange-500'
+                                isMenuActive ? 'text-orange-800' : 'text-orange-600 group-hover:text-orange-800'
                             } mr-3 flex-shrink-0 h-6 w-6 transition-colors`}
                           />
                           {item.name}
@@ -157,7 +269,7 @@ const AdminLayout: React.FC = () => {
                         <ChevronDownIcon
                           className={`${
                             isExpanded ? 'transform rotate-180' : ''
-                          } h-4 w-4 text-orange-500 transition-transform`}
+                            } h-4 w-4 text-orange-600 transition-transform`}
                         />
                       </button>
                       
@@ -172,13 +284,13 @@ const AdminLayout: React.FC = () => {
                                 to={subItem.path}
                                 className={`${
                                   isSubItemActive
-                                    ? 'bg-orange-50 text-orange-700'
-                                    : 'text-gray-600 hover:bg-orange-50 hover:text-orange-700'
+                                      ? 'bg-[#fed7aa] text-orange-800'
+                                      : 'text-orange-800 hover:bg-[#fed7aa] hover:text-orange-800'
                                 } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`}
                               >
                                 <subItem.icon
                                   className={`${
-                                    isSubItemActive ? 'text-orange-700' : 'text-gray-400 group-hover:text-orange-500'
+                                      isSubItemActive ? 'text-orange-800' : 'text-orange-600 group-hover:text-orange-800'
                                   } mr-3 flex-shrink-0 h-5 w-5 transition-colors`}
                                 />
                                 {subItem.name}
@@ -194,13 +306,13 @@ const AdminLayout: React.FC = () => {
                       to={item.path}
                       className={`${
                         isMenuActive
-                          ? 'bg-orange-50 text-orange-700'
-                          : 'text-gray-600 hover:bg-orange-50 hover:text-orange-700'
+                            ? 'bg-[#fed7aa] text-orange-800'
+                            : 'text-orange-800 hover:bg-[#fed7aa] hover:text-orange-800'
                       } group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors`}
                     >
                       <item.icon
                         className={`${
-                          isMenuActive ? 'text-orange-700' : 'text-gray-400 group-hover:text-orange-500'
+                            isMenuActive ? 'text-orange-800' : 'text-orange-600 group-hover:text-orange-800'
                         } mr-3 flex-shrink-0 h-6 w-6 transition-colors`}
                       />
                       {item.name}
@@ -213,113 +325,7 @@ const AdminLayout: React.FC = () => {
         </div>
       </div>
       
-      {/* Main Content - fixed height, no overflow */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Navigation - fixed height */}
-        <header className="bg-black shadow z-10 h-16 flex-shrink-0">
-          <div className="h-full px-4 flex items-center justify-between">
-            {/* Left: Hamburger Menu (mobile) */}
-            <button
-              className="md:hidden text-orange-500 hover:text-orange-700 focus:outline-none"
-              onClick={toggleSidebar}
-            >
-              <Bars3Icon className="h-6 w-6" />
-            </button>
-            
-            {/* Right: Notifications, Profile */}
-            <div className="ml-auto flex items-center space-x-4">
-              {/* Notifications */}
-              <div className="relative">
-                <button
-                  className="p-1 rounded-full text-orange-400 hover:text-orange-500 focus:outline-none"
-                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                >
-                  <span className="absolute top-0 right-0 h-2 w-2 bg-orange-500 rounded-full"></span>
-                  <BellIcon className="h-6 w-6" />
-                </button>
-                
-                {/* Notifications Dropdown */}
-                {isNotificationsOpen && (
-                  <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                    <div className="py-1" role="menu" aria-orientation="vertical">
-                      <div className="px-4 py-2 border-b border-orange-200">
-                        <p className="text-sm font-medium text-orange-800">Notifications</p>
-                      </div>
-                      
-                      <div className="max-h-60 overflow-y-auto">
-                        {[1, 2, 3].map((item) => (
-                          <div
-                            key={item}
-                            className="px-4 py-3 hover:bg-orange-50 cursor-pointer border-b border-orange-100 last:border-b-0"
-                          >
-                            <p className="text-sm font-medium text-gray-900">New Order #{1000 + item}</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              A new order has been placed by Customer {item}
-                            </p>
-                            <p className="text-xs text-gray-400 mt-1">Just now</p>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="px-4 py-2 border-t border-orange-200">
-                        <Link to="/business/notifications" className="text-sm font-medium text-orange-600 hover:text-orange-700">
-                          View all notifications
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Profile Menu */}
-              <div className="relative">
-                <button
-                  className="flex items-center space-x-2 text-sm focus:outline-none"
-                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                >
-                  <div className="w-8 h-8 rounded-full bg-orange-600 flex items-center justify-center text-white font-medium">
-                    {user?.name?.charAt(0) || user?.email?.charAt(0) || 'M'}
-                  </div>
-                  <span className="hidden md:block text-orange-800 font-medium">
-                    {user?.name || user?.email?.split('@')[0] || 'Merchant'}
-                  </span>
-                  <ChevronDownIcon className="h-4 w-4 text-orange-500" />
-                </button>
-                
-                {/* Profile Dropdown */}
-                {isProfileMenuOpen && (
-                  <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                    <div className="py-1" role="menu" aria-orientation="vertical">
-                      <Link
-                        to="/business/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700"
-                        role="menuitem"
-                      >
-                        Your Profile
-                      </Link>
-                      <Link
-                        to="/business/settings"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700"
-                        role="menuitem"
-                      >
-                        Settings
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700"
-                        role="menuitem"
-                      >
-                        Sign out
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
-        
-        {/* Page Content - allows scrolling within content area */}
+        {/* Main Content - allows scrolling within content area */}
         <main className="flex-1 overflow-auto relative">
           <div className="p-6">
             <Outlet />
