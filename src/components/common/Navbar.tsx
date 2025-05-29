@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, Heart, Search, Facebook, Instagram, Twitter, Mail, LogOut, User, ChevronDown, Menu, X } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -22,9 +22,12 @@ const Navbar: React.FC = () => {
   const { totalItems } = useCart();
   const { isAuthenticated, user, logout } = useAuth();
   const [searchType, setSearchType] = useState<'all' | 'products' | 'categories'>('all');
+  const location = useLocation();
 
   const desktopSearchRef = useRef<HTMLDivElement>(null);
   const mobileSearchRef = useRef<HTMLDivElement>(null);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+  const newProductDropdownRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(desktopSearchRef, () => {
     setShowSearchResults(false);
@@ -33,6 +36,21 @@ const Navbar: React.FC = () => {
   useClickOutside(mobileSearchRef, () => {
     setShowSearchResults(false);
   });
+
+  useClickOutside(categoryDropdownRef, () => {
+    setIsCategoryDropdownOpen(false);
+  });
+
+  useClickOutside(newProductDropdownRef, () => {
+    setIsNewProductDropdownOpen(false);
+  });
+
+  // Close dropdowns when route changes
+  useEffect(() => {
+    setIsCategoryDropdownOpen(false);
+    setIsNewProductDropdownOpen(false);
+    setShowSearchResults(false);
+  }, [location.pathname]);
 
   const toggleCategoryDropdown = () => {
     setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
@@ -493,18 +511,22 @@ const Navbar: React.FC = () => {
 
       {/* Category dropdown - for desktop */}
       {isCategoryDropdownOpen && !lowerMobileMenuOpen && (
+        <div ref={categoryDropdownRef}>
         <CategoryDropdown 
           isOpen={isCategoryDropdownOpen} 
           closeDropdown={() => setIsCategoryDropdownOpen(false)} 
         />
+        </div>
       )}
       
       {/* New Product dropdown */}
-      {isNewProductDropdownOpen && (
+      {isNewProductDropdownOpen && !lowerMobileMenuOpen && (
+        <div ref={newProductDropdownRef}>
         <NewProductDropdown 
           isOpen={isNewProductDropdownOpen} 
           closeDropdown={() => setIsNewProductDropdownOpen(false)} 
         />
+        </div>
       )}
     </header>
   );

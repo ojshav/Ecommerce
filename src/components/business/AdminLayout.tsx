@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import useClickOutside from '../../hooks/useClickOutside';
 import { 
   ChevronDownIcon, 
   Bars3Icon, 
@@ -50,6 +51,18 @@ const AdminLayout: React.FC = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
+  
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+  
+  useClickOutside(profileMenuRef, () => {
+    setIsProfileMenuOpen(false);
+  });
+
+  // Close dropdowns when route changes
+  useEffect(() => {
+    setIsProfileMenuOpen(false);
+    setIsNotificationsOpen(false);
+  }, [location.pathname]);
 
   // Handle window resize
   useEffect(() => {
@@ -164,7 +177,7 @@ const AdminLayout: React.FC = () => {
             </div>
             
             {/* Profile Menu */}
-            <div className="relative">
+            <div className="relative" ref={profileMenuRef}>
               <button
                 className="flex items-center space-x-2 text-sm focus:outline-none"
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
@@ -180,25 +193,25 @@ const AdminLayout: React.FC = () => {
               
               {/* Profile Dropdown */}
               {isProfileMenuOpen && (
-                <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-black ring-1 ring-gray-800 ring-opacity-5 focus:outline-none z-50">
+                <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-[#ffedd5] ring-1 ring-gray-800 ring-opacity-5 focus:outline-none z-50">
                   <div className="py-1" role="menu" aria-orientation="vertical">
                     <Link
                       to="/business/profile"
-                      className="block px-4 py-2 text-sm text-orange-500 hover:bg-gray-800 hover:text-orange-400"
+                      className="block px-4 py-2 text-sm text-orange-800 hover:bg-[#fed7aa] hover:text-orange-900"
                       role="menuitem"
                     >
                       Your Profile
                     </Link>
                     <Link
                       to="/business/settings"
-                      className="block px-4 py-2 text-sm text-orange-500 hover:bg-gray-800 hover:text-orange-400"
+                      className="block px-4 py-2 text-sm text-orange-800 hover:bg-[#fed7aa] hover:text-orange-900"
                       role="menuitem"
                     >
                       Settings
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left block px-4 py-2 text-sm text-orange-500 hover:bg-gray-800 hover:text-orange-400"
+                      className="w-full text-left block px-4 py-2 text-sm text-orange-800 hover:bg-[#fed7aa] hover:text-orange-900"
                       role="menuitem"
                     >
                       Sign out
