@@ -709,16 +709,7 @@ const Attribute: React.FC = () => {
                             </button>
                         </div>
 
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">Attribute Code *</label>
-                            <input
-                                type="text"
-                                className="w-full p-2 border rounded-md"
-                                placeholder="Enter attribute code"
-                                value={newCustomAttribute.code}
-                                onChange={(e) => setNewCustomAttribute({ ...newCustomAttribute, code: e.target.value })}
-                            />
-                        </div>
+                        
 
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-1">Attribute Name *</label>
@@ -727,8 +718,30 @@ const Attribute: React.FC = () => {
                                 className="w-full p-2 border rounded-md"
                                 placeholder="Enter attribute name"
                                 value={newCustomAttribute.name}
-                                onChange={(e) => setNewCustomAttribute({ ...newCustomAttribute, name: e.target.value })}
+                                onChange={(e) => {
+                                    const name = e.target.value;
+                                    const code = name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+                                    setNewCustomAttribute({ 
+                                        ...newCustomAttribute, 
+                                        name: name,
+                                        code: code 
+                                    });
+                                }}
                             />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium mb-1">Attribute Code *</label>
+                            <input
+                                type="text"
+                                className="w-full p-2 border rounded-md"
+                                placeholder="Enter attribute code"
+                                value={newCustomAttribute.code}
+                                onChange={(e) => setNewCustomAttribute({ ...newCustomAttribute, code: e.target.value })}
+                                readOnly
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Code is automatically generated from the attribute name
+                            </p>
                         </div>
 
                         <div className="mb-4">
