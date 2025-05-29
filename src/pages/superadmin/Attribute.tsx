@@ -87,6 +87,13 @@ const Attribute: React.FC = () => {
         fetchCategories();
     }, []);
 
+    // Fetch attribute values for all attributes when customAttributes changes
+    useEffect(() => {
+        customAttributes.forEach(attr => {
+            fetchAttributeValues(attr.attribute_id);
+        });
+    }, [customAttributes]);
+
     const fetchAttributes = async () => {
         try {
             setLoading(true);
@@ -196,12 +203,6 @@ const Attribute: React.FC = () => {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        if (selectedAttribute) {
-            fetchAttributeValues(selectedAttribute);
-        }
-    }, [selectedAttribute]);
 
     // Create new attribute
     const handleAddCustomAttribute = async () => {
