@@ -18,7 +18,9 @@ const TrendingDeals: React.FC = () => {
       stock: 15,
       description: "GPS, 41mm, health tracking features",
       image: "https://images.unsplash.com/photo-1551816230-ef5deaed4a26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=765&q=80",
-      category: "electronics"
+      category: "electronics",
+      isNew: true,
+      sku: "AWS8-1"
     },
     {
       id: '2',
@@ -31,7 +33,8 @@ const TrendingDeals: React.FC = () => {
       stock: 45,
       description: "Classic straight fit denim",
       image: "https://images.unsplash.com/photo-1582552938357-32b906df40cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80",
-      category: "clothing"
+      category: "clothing",
+      sku: "LEV501-1"
     },
     {
       id: '3',
@@ -44,7 +47,8 @@ const TrendingDeals: React.FC = () => {
       stock: 28,
       description: "Minimalist design for home decor",
       image: "https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
-      category: "home-decor"
+      category: "home-decor",
+      sku: "CVS-1"
     },
     {
       id: '4',
@@ -54,10 +58,11 @@ const TrendingDeals: React.FC = () => {
       currency: "USD",
       rating: 4.9,
       reviews: 320,
-      stock: 60,
+      stock: 0,
       description: "Brightening skin treatment",
       image: "https://images.unsplash.com/photo-1593487568720-92097fb460fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-      category: "beauty"
+      category: "beauty",
+      sku: "VCS-1"
     },
     {
       id: '5',
@@ -88,37 +93,42 @@ const TrendingDeals: React.FC = () => {
   ];
 
   return (
-    <section className="py-10">
+    <section className="pb-12">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Trending Deals</h2>
-          <div className="flex items-center space-x-4">
-            <Link to="/trending" className="text-sm hover:underline">
-              See all
-            </Link>
-            <div className="flex space-x-2">
-              <button className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-100">
-                <ChevronLeft size={16} />
-              </button>
-              <button className="p-2 rounded-full bg-white border border-gray-300 hover:bg-gray-100">
-                <ChevronRight size={16} />
-              </button>
+        <div className="flex flex-col space-y-6">
+          {/* Header with navigation */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+            <h2 className="text-2xl font-semibold">Trending Deals</h2>
+            
+            {/* Navigation */}
+            <div className="flex items-center w-full md:w-auto space-x-4">
+              <Link to="/trending" className="text-sm hover:underline">
+                See all
+              </Link>
+              <div className="flex items-center space-x-2">
+                <button className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors">
+                  <ChevronLeft size={20} />
+                </button>
+                <button className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors">
+                  <ChevronRight size={20} />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Trending Deals Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-          {trendingDeals.map((product) => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              salePercentage={product.originalPrice && product.price < product.originalPrice 
-                ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
-                : undefined}
-              isNew={product.id === '1'} // Optional: mark first product as new
-            />
-          ))}
+          {/* Products grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {trendingDeals.map((product) => (
+              <ProductCard 
+                key={product.id} 
+                product={product}
+                isNew={product.isNew}
+                salePercentage={product.originalPrice && product.price < product.originalPrice 
+                  ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
+                  : undefined}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -18,7 +18,7 @@ const SuperadminHeader: React.FC<SuperadminHeaderProps> = ({ onMenuClick }) => {
   };
 
   return (
-    <header className="bg-orange-500 border-b border-orange-200 sticky top-0 z-30">
+    <header className="bg-black border-b border-gray-800 sticky top-0 z-30">
       <div className="px-6">
         <div className="flex justify-between h-16 items-center">
           {/* Logo and Brand */}
@@ -26,11 +26,15 @@ const SuperadminHeader: React.FC<SuperadminHeaderProps> = ({ onMenuClick }) => {
             {/* Mobile menu button */}
             <button
               onClick={onMenuClick}
-              className="md:hidden p-2 mr-2 text-white hover:text-orange-200 hover:bg-orange-600 rounded-lg transition-colors duration-200"
+              className="md:hidden p-2 mr-2 text-orange-500 hover:text-orange-400 hover:bg-gray-900 rounded-lg transition-colors duration-200"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <span className="text-xl font-bold text-white">ShopEasy Admin</span>
+            <img 
+              src="/assets/images/logo.svg" 
+              alt="ShopEasy Logo" 
+              className="h-8 w-auto"
+            />
           </div>
           
           {/* Navigation Links - could be expanded */}
@@ -41,10 +45,10 @@ const SuperadminHeader: React.FC<SuperadminHeaderProps> = ({ onMenuClick }) => {
           
           {/* Right side icons and profile */}
           <div className="flex items-center space-x-4">
-            <button className="text-white hover:text-orange-200 p-1 rounded-full">
+            <button className="text-orange-500 hover:text-orange-400 p-1 rounded-full">
               <Bell className="h-6 w-6" />
             </button>
-            <button className="text-white hover:text-orange-200 p-1 rounded-full">
+            <button className="text-orange-500 hover:text-orange-400 p-1 rounded-full">
               <Settings className="h-6 w-6" />
             </button>
             
@@ -52,16 +56,16 @@ const SuperadminHeader: React.FC<SuperadminHeaderProps> = ({ onMenuClick }) => {
             <div className="relative">
               <div className="flex items-center">
                 <div className="flex items-center cursor-pointer">
-                  <div className="bg-orange-100 p-2 rounded-full text-orange-600">
+                  <div className="bg-gray-800 p-2 rounded-full text-orange-500">
                     <User className="h-5 w-5" />
                   </div>
                   <div className="ml-2 hidden md:block">
-                    <div className="text-sm font-medium text-white">{user?.name || user?.email}</div>
-                    <div className="text-xs text-orange-200">Superadmin</div>
+                    <div className="text-sm font-medium text-orange-500">{user?.name || user?.email}</div>
+                    <div className="text-xs text-orange-400">Superadmin</div>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="ml-4 text-white hover:text-red-600"
+                    className="ml-4 text-orange-500 hover:text-red-500"
                     title="Logout"
                   >
                     <LogOut className="h-5 w-5" />

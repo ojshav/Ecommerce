@@ -85,47 +85,53 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   );
 };
 
+interface Stat {
+  name: string;
+  value: string;
+  change: string;
+  trend: number;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  iconBg: string;
+  iconColor: string;
+}
+
 const Dashboard: React.FC = () => {
   const [timeframe, setTimeframe] = useState('weekly');
   
   // Stats summary for KPIs
-  const stats = [
+  const stats: Stat[] = [
     {
-      id: 1,
       name: 'Total Sales',
-      value: '$21,500',
-      change: '+12.5%',
-      trend: 'up',
+      value: '$24,500',
+      change: 'vs last month',
+      trend: 12.5,
       icon: CurrencyDollarIcon,
-      iconBg: 'bg-primary-100',
-      iconColor: 'text-primary-700',
+      iconBg: 'bg-orange-100',
+      iconColor: 'text-orange-700',
     },
     {
-      id: 2,
-      name: 'Orders',
-      value: '356',
-      change: '+8.2%',
-      trend: 'up',
+      name: 'Total Orders',
+      value: '1,234',
+      change: 'vs last month',
+      trend: -2.4,
       icon: ShoppingBagIcon,
-      iconBg: 'bg-indigo-100',
-      iconColor: 'text-indigo-700',
+      iconBg: 'bg-orange-100',
+      iconColor: 'text-orange-700',
     },
     {
-      id: 3,
-      name: 'Customers',
-      value: '283',
-      change: '+5.1%',
-      trend: 'up',
-      icon: UserGroupIcon,
-      iconBg: 'bg-blue-100',
-      iconColor: 'text-blue-700',
+      name: 'Average Order Value',
+      value: '$19.85',
+      change: 'vs last month',
+      trend: 5.2,
+      icon: ShoppingBagIcon,
+      iconBg: 'bg-orange-100',
+      iconColor: 'text-orange-700',
     },
     {
-      id: 4,
       name: 'Conversion Rate',
       value: '3.2%',
-      change: '-0.4%',
-      trend: 'down',
+      change: 'vs last month',
+      trend: 1.8,
       icon: ClipboardDocumentCheckIcon,
       iconBg: 'bg-orange-100',
       iconColor: 'text-orange-700',
@@ -143,8 +149,8 @@ const Dashboard: React.FC = () => {
             onClick={() => setTimeframe('daily')}
             className={`px-4 py-2 text-sm font-medium rounded-l-md ${
               timeframe === 'daily'
-                ? 'bg-primary-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+                ? 'bg-orange-600 text-white'
+                : 'bg-white text-gray-700 hover:bg-orange-50'
             } border border-gray-300`}
           >
             Daily
@@ -154,8 +160,8 @@ const Dashboard: React.FC = () => {
             onClick={() => setTimeframe('weekly')}
             className={`px-4 py-2 text-sm font-medium ${
               timeframe === 'weekly'
-                ? 'bg-primary-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+                ? 'bg-orange-600 text-white'
+                : 'bg-white text-gray-700 hover:bg-orange-50'
             } border-t border-b border-gray-300`}
           >
             Weekly
@@ -165,8 +171,8 @@ const Dashboard: React.FC = () => {
             onClick={() => setTimeframe('monthly')}
             className={`px-4 py-2 text-sm font-medium rounded-r-md ${
               timeframe === 'monthly'
-                ? 'bg-primary-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+                ? 'bg-orange-600 text-white'
+                : 'bg-white text-gray-700 hover:bg-orange-50'
             } border border-gray-300`}
           >
             Monthly
@@ -178,8 +184,8 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map((stat) => (
           <div
-            key={stat.id}
-            className="bg-white rounded-lg shadow-sm p-5 border border-gray-200"
+            key={stat.name}
+            className="bg-white rounded-lg shadow-sm p-5 border border-gray-200 hover:border-orange-300 transition-colors"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -191,17 +197,15 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <div className="mt-4 flex items-center">
-              {stat.trend === 'up' ? (
-                <ArrowUpIcon className="h-3 w-3 text-green-500 mr-1" />
+              {stat.trend > 0 ? (
+                <ArrowUpIcon className="h-4 w-4 text-green-500" />
               ) : (
-                <ArrowDownIcon className="h-3 w-3 text-red-500 mr-1" />
+                <ArrowDownIcon className="h-4 w-4 text-red-500" />
               )}
-              <span
-                className={`text-xs ${
-                  stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                }`}
-              >
-                {stat.change} from last period
+              <span className={`ml-2 text-sm font-medium ${
+                stat.trend > 0 ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {Math.abs(stat.trend)}%
               </span>
             </div>
           </div>
@@ -276,7 +280,7 @@ const Dashboard: React.FC = () => {
       <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-medium text-gray-900">Recent Orders</h2>
-          <button className="text-sm text-primary-600 hover:text-primary-700 font-medium">
+          <button className="text-sm text-orange-600 hover:text-orange-700 font-medium">
             View all
           </button>
         </div>
@@ -324,8 +328,8 @@ const Dashboard: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {recentOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary-600">
+                <tr key={order.id} className="hover:bg-orange-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-600 hover:text-orange-700">
                     {order.id}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -341,10 +345,10 @@ const Dashboard: React.FC = () => {
                     <StatusBadge status={order.status} />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button className="text-primary-600 hover:text-primary-700 mr-3">
+                    <button className="text-orange-600 hover:text-orange-700 mr-3">
                       View
                     </button>
-                    <button className="text-gray-600 hover:text-gray-700">
+                    <button className="text-orange-600 hover:text-orange-700">
                       Print
                     </button>
                   </td>
