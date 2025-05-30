@@ -65,7 +65,11 @@ const documentTypeMap: Record<string, string> = {
   esign_certificate: 'eSign Certificate',
   return_policy: 'Return Policy',
   shipping_details: 'Shipping Details',
+  product_list: 'Product List',
+  category_list: 'Category List',
+  brand_approval: 'Brand Approval',
   brand_authorization: 'Brand Authorization',
+  product_images: 'Product Images',
   other: 'Other Document'
 };
 
