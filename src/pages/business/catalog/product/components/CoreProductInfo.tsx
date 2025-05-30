@@ -420,9 +420,7 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
   </div>
 </div>
 
-                )}
-            </div>
-        )}
+         
 
         {/* Special Price Section */}
         <div>
