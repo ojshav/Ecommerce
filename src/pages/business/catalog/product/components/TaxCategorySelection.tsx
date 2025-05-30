@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { CheckCircleIcon } from '@heroicons/react/24/solid';
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface TaxCategory {
   id: number;
   name: string;
-  rate: number;
+  tax_rate: number; // Corrected from rate to tax_rate
   description: string;
 }
 
 interface TaxCategorySelectionProps {
   selectedTaxCategoryId: number | null;
   onTaxCategorySelect: (taxCategoryId: number) => void;
-  errors?: Record<string, any>;
+  errors?: Record<string, any>; // Keep for consistency
 }
 
 const TaxCategorySelection: React.FC<TaxCategorySelectionProps> = ({
   onTaxCategorySelect,
   selectedTaxCategoryId,
+  // errors, // Keep for consistency
 }) => {
   const [taxCategories, setTaxCategories] = useState<TaxCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,24 +56,9 @@ const TaxCategorySelection: React.FC<TaxCategorySelectionProps> = ({
     }
   };
 
-  // Debug: Check the structure of tax categories
-  useEffect(() => {
-    console.log('Current tax categories state:', taxCategories);
-    if (taxCategories.length > 0) {
-      console.log('Sample category object:', taxCategories[0]);
-      console.log('Category ID type:', typeof taxCategories[0].id);
-      
-      // Check if tax_category_id is undefined for any item
-      const missingIds = taxCategories.filter(cat => cat.id === undefined);
-      if (missingIds.length > 0) {
-        console.warn('Warning: Found categories without tax_category_id:', missingIds);
-      }
-    }
-  }, [taxCategories]);
-
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-8">
+      <div className="flex justify-center items-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
       </div>
     );
@@ -90,52 +78,41 @@ const TaxCategorySelection: React.FC<TaxCategorySelectionProps> = ({
     );
   }
   
-  console.log('Before rendering - tax categories:', taxCategories);
-
   return (
     <div className="space-y-4">
-      <div className="border rounded-lg overflow-hidden">
+       <div className="bg-gray-50 px-4 py-3 border-b rounded-t-lg">
+         <h3 className="text-md font-semibold text-gray-800">Select Tax Category</h3>
+      </div>
+      <div className="border rounded-b-lg overflow-hidden shadow-sm">
         {taxCategories.length > 0 ? (
-          taxCategories.map((category, index) => {
-            console.log(`Rendering category at index ${index}:`, category);
-            return (
+          <div className="divide-y divide-gray-200">
+            {taxCategories.map((category) => (
               <div
-                key={category.id || `temp-key-${index}`}
-                className={`flex items-center justify-between px-4 py-3 hover:bg-gray-50 cursor-pointer ${
-                  selectedTaxCategoryId === category.id ? 'bg-primary-50' : ''
+                key={category.id}
+                className={`flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer ${
+                  selectedTaxCategoryId === category.id ? 'bg-primary-100 text-primary-700' : 'text-gray-900'
                 }`}
                 onClick={() => onTaxCategorySelect(category.id)}
               >
                 <div>
-                  <div className="text-sm font-medium text-gray-900">{category.name}</div>
+                  <div className={`text-sm font-medium ${selectedTaxCategoryId === category.id ? 'text-primary-700' : 'text-gray-900'}`}>{category.name}</div>
                   {category.description && (
-                    <div className="text-xs text-gray-500">{category.description}</div>
+                    <div className={`text-xs ${selectedTaxCategoryId === category.id ? 'text-primary-600' : 'text-gray-500'}`}>{category.description}</div>
                   )}
                 </div>
-                <div className="flex items-center">
-                  <span className="text-sm font-medium text-gray-900">
-                    {category.rate}%
+                <div className="flex items-center space-x-3">
+                  <span className={`text-sm font-semibold px-2 py-1 rounded-full ${selectedTaxCategoryId === category.id ? 'bg-primary-200 text-primary-800' : 'bg-gray-200 text-gray-800'}`}>
+                    {category.tax_rate.toFixed(1)}%
                   </span>
                   {selectedTaxCategoryId === category.id && (
-                    <svg
-                      className="ml-2 h-5 w-5 text-primary-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <CheckCircleIcon className="h-6 w-6 text-primary-600" />
                   )}
                 </div>
               </div>
-            );
-          })
+            ))}
+          </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-12 text-gray-500">
             No tax categories available.
           </div>
         )}

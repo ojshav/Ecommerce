@@ -215,15 +215,15 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
     return categories.map(category => (
       <div key={category.category_id}>
         <div
-          className={`flex items-center py-2 px-4 hover:bg-gray-50 cursor-pointer ${
-            selectedCategoryId === category.category_id ? 'bg-primary-50' : ''
+          className={`flex items-center py-2 px-4 hover:bg-gray-100 cursor-pointer ${
+            selectedCategoryId === category.category_id ? 'bg-primary-100 text-primary-700 font-medium' : 'text-gray-900'
           }`}
           style={{ paddingLeft: `${level * 1.5 + 1}rem` }}
         >
           {category.children && category.children.length > 0 && (
             <button
-              onClick={() => toggleCategory(category.category_id)}
-              className="p-1 hover:bg-gray-100 rounded"
+              onClick={(e) => { e.stopPropagation(); toggleCategory(category.category_id); }}
+              className="p-1 hover:bg-gray-200 rounded-full mr-2"
             >
               {expandedCategories.has(category.category_id) ? (
                 <ChevronDownIcon className="h-4 w-4 text-gray-500" />
@@ -233,10 +233,10 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
             </button>
           )}
           <div
-            className={`flex-1 ${!category.children?.length ? 'ml-6' : ''}`}
+            className={`flex-1 ${!category.children?.length && level === 0 ? 'ml-6' : ''} ${!category.children?.length && level > 0 ? 'ml-1' : ''}`} // Adjusted margin for items without children
             onClick={() => handleCategorySelect(category)}
           >
-            <span className="text-sm text-gray-900">{category.name}</span>
+            <span className="text-sm">{category.name}</span>
           </div>
         </div>
         {expandedCategories.has(category.category_id) && category.children && (
@@ -259,7 +259,7 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
             value={brandRequest.brand_name}
             onChange={(e) => setBrandRequest(prev => ({ ...prev, brand_name: e.target.value }))}
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm p-2"
           />
         </div>
         <div>
@@ -272,7 +272,7 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
             onChange={(e) => setBrandRequest(prev => ({ ...prev, description: e.target.value }))}
             required
             rows={3}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm p-2"
           />
         </div>
         <div>
@@ -284,24 +284,27 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
             id="website"
             value={brandRequest.website}
             onChange={(e) => setBrandRequest(prev => ({ ...prev, website: e.target.value }))}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm p-2"
           />
         </div>
         {requestError && (
           <div className="text-red-600 text-sm">{requestError}</div>
         )}
+        {requestSuccess && (
+          <div className="text-green-600 text-sm">Brand request submitted successfully.</div>
+        )}
         <div className="flex justify-end space-x-3">
           <button
             type="button"
             onClick={() => setShowBrandRequestForm(false)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmittingRequest}
-            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 disabled:bg-gray-400"
+            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
           >
             {isSubmittingRequest ? 'Submitting...' : 'Submit Request'}
           </button>
@@ -333,20 +336,20 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Breadcrumbs */}
       {breadcrumbs.length > 0 && (
-        <div className="flex items-center space-x-2 text-sm text-gray-500">
+        <div className="flex items-center space-x-1 text-sm text-gray-500 p-2 bg-gray-50 rounded-md">
           {breadcrumbs.map((category, index) => (
             <React.Fragment key={category.category_id}>
               <span
-                className="hover:text-primary-600 cursor-pointer"
+                className="hover:text-primary-600 cursor-pointer px-2 py-1 rounded hover:bg-gray-200"
                 onClick={() => handleCategorySelect(category)}
               >
                 {category.name}
               </span>
               {index < breadcrumbs.length - 1 && (
-                <ChevronRightIcon className="h-4 w-4" />
+                <ChevronRightIcon className="h-4 w-4 text-gray-400" />
               )}
             </React.Fragment>
           ))}
@@ -354,25 +357,30 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
       )}
 
       {/* Category Tree */}
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border rounded-lg overflow-hidden shadow-sm">
+        <div className="bg-gray-50 px-4 py-3 border-b">
+             <h3 className="text-md font-semibold text-gray-800">Select Category</h3>
+        </div>
         {categories.length === 0 ? (
           <div className="p-4 text-center text-gray-500">
             No categories available
           </div>
         ) : (
-          renderCategoryTree(categories)
+          <div className="max-h-72 overflow-y-auto">
+            {renderCategoryTree(categories)}
+          </div>
         )}
       </div>
 
       {/* Brands Section */}
       {selectedCategoryId && (
-        <div className="border rounded-lg overflow-hidden">
-          <div className="bg-gray-50 px-4 py-2 border-b flex justify-between items-center">
-            <h3 className="text-sm font-medium text-gray-900">Associated Brands</h3>
-            {!showBrandRequestForm && brands.length === 0 && (
+        <div className="border rounded-lg overflow-hidden shadow-sm">
+          <div className="bg-gray-50 px-4 py-3 border-b flex justify-between items-center">
+            <h3 className="text-md font-semibold text-gray-800">Associated Brands</h3>
+            {!showBrandRequestForm && !isLoadingBrands && !brandsError && (
               <button
                 onClick={() => setShowBrandRequestForm(true)}
-                className="text-sm text-primary-600 hover:text-primary-700"
+                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
               >
                 Request Brand
               </button>
@@ -395,21 +403,21 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
           ) : showBrandRequestForm ? (
             renderBrandRequestForm()
           ) : (
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-gray-200 max-h-60 overflow-y-auto">
               {brands.map((brand) => (
                 <div
                   key={brand.brand_id}
                   onClick={() => onBrandSelect?.(brand.brand_id)}
-                  className={`px-4 py-2 hover:bg-gray-50 cursor-pointer ${
-                    selectedBrandId === brand.brand_id ? 'bg-primary-50' : ''
+                  className={`px-4 py-3 hover:bg-gray-100 cursor-pointer ${
+                    selectedBrandId === brand.brand_id ? 'bg-primary-100 text-primary-700 font-medium' : 'text-gray-900'
                   }`}
                 >
-                  <span className="text-sm text-gray-900">{brand.name}</span>
+                  <span className="text-sm">{brand.name}</span>
                 </div>
               ))}
               {brands.length === 0 && !showBrandRequestForm && (
-                <div className="p-4 text-center text-gray-500">
-                  <p>No brands available for this category</p>
+                <div className="p-6 text-center text-gray-500">
+                  <p>No brands available for this category.</p>
                   <button
                     onClick={() => setShowBrandRequestForm(true)}
                     className="mt-2 text-primary-600 hover:text-primary-700 text-sm font-medium"
@@ -426,4 +434,4 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
   );
 };
 
-export default CategorySelection; 
+export default CategorySelection;

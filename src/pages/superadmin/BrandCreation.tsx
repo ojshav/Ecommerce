@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent, useRef } from 'react';
 import { PlusCircle, Upload, X, Check, AlertCircle, Edit2, Trash2 } from 'lucide-react';
 import SuperAdminLayout from './SuperAdminLayout';
 import { toast } from 'react-hot-toast';
@@ -41,7 +41,7 @@ const BrandCreation: React.FC = () => {
     const [brands, setBrands] = useState<IBrand[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    
+    const [currentRequestId, setCurrentRequestId] = useState<number | null>(null);
     // State for brand creation form
     const [showAddBrandForm, setShowAddBrandForm] = useState<boolean>(false);
     const [newBrandName, setNewBrandName] = useState<string>('');
@@ -53,7 +53,7 @@ const BrandCreation: React.FC = () => {
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState<string>('');
-
+    const formRef = useRef<HTMLFormElement>(null);
     // State for edit mode
     const [editingBrand, setEditingBrand] = useState<IBrand | null>(null);
     const [editName, setEditName] = useState<string>('');
@@ -210,68 +210,57 @@ const BrandCreation: React.FC = () => {
         );
     };
 
-    // Submit new brand
+    // Submit new brand (also handles approving request)
     const handleSubmitBrand = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        if (!newBrandName.trim()) {
-            setSubmitError('Brand name is required');
-            return;
-        }
+        if (!newBrandName.trim()) return setSubmitError('Brand name is required');
 
         setSubmitting(true);
-        setSubmitError(null);
-        setSubmitSuccess(false);
-
         try {
+            // Create brand
             const formData = new FormData();
             formData.append('name', newBrandName.trim());
-            
-            if (brandImage) {
-                formData.append('icon_file', brandImage);
-            }
+            if (brandImage) formData.append('icon_file', brandImage);
 
             const response = await fetch(`${API_BASE_URL}/api/superadmin/brands`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
                 body: formData,
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to create brand');
-            }
+            if (!response.ok) throw new Error((await response.json()).message || 'Failed to create brand');
 
             const newBrand = await response.json();
-            
-            // Associate categories with the brand
-            if (selectedCategories.length > 0) {
-                for (const categoryId of selectedCategories) {
-                    await fetch(`${API_BASE_URL}/api/superadmin/brands/${newBrand.brand_id}/categories/${categoryId}`, {
+
+            // Associate categories (only valid IDs)
+            const validCats = selectedCategories.filter(id => id != null);
+            await Promise.all(validCats.map(catId =>
+                fetch(
+                    `${API_BASE_URL}/api/superadmin/brands/${newBrand.brand_id}/categories/${catId}`,
+                    {
                         method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                        },
-                    });
-                }
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+                    }
+                )
+            ));
+
+            // Approve original request if exists
+            if (currentRequestId) {
+                const resp = await fetch(
+                    `${API_BASE_URL}/api/superadmin/brand-requests/${currentRequestId}/approve`,
+                    { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } }
+                );
+                if (!resp.ok) throw new Error((await resp.json()).message || 'Failed to approve request');
+                toast.success('Brand request approved and brand created');
+            } else {
+                toast.success('Brand created');
             }
-            
-            // Handle successful creation
-            setSubmitSuccess(true);
-            setBrands([...brands, newBrand]);
-            toast.success('Brand created successfully');
-            
-            // Reset form
-            resetForm();
-            
-            // Refresh brands list
+
+            // Refresh
             fetchBrands();
+            fetchBrandRequests();
+            resetForm();
         } catch (err: any) {
-            console.error('Error creating brand:', err);
-            setSubmitError(err.message || 'Failed to create brand. Please try again.');
-            toast.error(err.message || 'Failed to create brand');
+            toast.error(err.message);
         } finally {
             setSubmitting(false);
         }
@@ -410,12 +399,13 @@ const BrandCreation: React.FC = () => {
     };
 
     // Reset form fields
-    const resetForm = () => {
+     const resetForm = () => {
         setNewBrandName('');
         setSelectedCategories([]);
         setBrandImage(null);
         setBrandImagePreview(null);
         setShowAddBrandForm(false);
+        setCurrentRequestId(null);
     };
 
     // Update the filtered brands logic to include category filtering
@@ -427,33 +417,27 @@ const BrandCreation: React.FC = () => {
     });
 
     // Add function to handle brand request approval
-    const handleApproveRequest = async (requestId: number) => {
-        if (!requestId) {
-            toast.error('Invalid request ID');
+    const handleApproveRequest = (requestId: number) => {
+        const req = brandRequests.find(r => r.request_id === requestId);
+        if (!req) {
+            toast.error('Invalid request');
             return;
         }
+        // Prefill form with request data
+        setNewBrandName(req.name);
+        setSelectedCategories([req.category_id]);
+        setBrandImage(null);
+        setBrandImagePreview(null);
+        setCurrentRequestId(requestId);
+        setShowAddBrandForm(true);
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/superadmin/brand-requests/${requestId}/approve`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                },
-            });
+        // Scroll form into view
+        setTimeout(() => {
+            formRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to approve brand request');
-            }
-
-            toast.success('Brand request approved successfully');
-            fetchBrandRequests(); // Refresh requests
-            fetchBrands(); // Refresh brands list
-        } catch (err: any) {
-            console.error('Error approving brand request:', err);
-            toast.error(err.message || 'Failed to approve brand request');
-        }
     };
+
 
     // Add function to handle brand request rejection
     const handleRejectRequest = async (requestId: number) => {
@@ -518,7 +502,11 @@ const BrandCreation: React.FC = () => {
                 </div>
                 <button
                     onClick={() => setShowAddBrandForm(true)}
+
+
+
                     className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors"
+
                 >
                     Add New Brand
                 </button>
@@ -602,7 +590,7 @@ const BrandCreation: React.FC = () => {
                                 </div>
                             )}
                             
-                            <form onSubmit={handleSubmitBrand}>
+                            <form ref={formRef} onSubmit={handleSubmitBrand}>
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Brand Name *
