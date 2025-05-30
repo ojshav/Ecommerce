@@ -140,20 +140,18 @@ const Hero: React.FC = () => {
       <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative">
           <div className="relative overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-              {/* Category navigation - vertical on left that extends to the bottom */}
-              <div className="hidden md:block md:col-span-2 lg:col-span-2 md:row-span-2">
-                <div className="h-full">
-                  <TopSellingCarousel />
-                </div>
+            {/* Responsive flex: column on mobile, row on desktop */}
+            <div className="flex flex-col md:flex-row gap-4 items-stretch">
+              {/* Side carousel - always visible, responsive width */}
+              <div className="w-full md:w-1/5 min-w-[220px] max-w-xs mx-auto md:mx-0">
+                <TopSellingCarousel />
               </div>
-              
-              <div className="col-span-1 md:col-span-10 lg:col-span-10">
-                <div className="flex flex-col space-y-4">
-                  {/* Main content area with carousel and right sidebar */}
-                  <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
+              {/* Main carousel - always visible, responsive width */}
+              <div className="flex-1">
+                <div className="w-full">
+                  <div className="flex flex-col">
                     {/* Main carousel - center */}
-                    <div className="col-span-1 lg:col-span-7">
+                    <div className="w-full">
                       <div className={`${currentSlideData.bgColor} rounded-lg overflow-hidden relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px]`}>
                         <div className="absolute inset-0 p-4 sm:p-6 md:p-8 flex flex-col justify-center text-white">
                           <div className="z-10 max-w-[60%] md:max-w-[50%]">
@@ -204,64 +202,8 @@ const Hero: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Right sidebar panels */}
-                    <div className="hidden lg:flex lg:col-span-3 flex-col gap-4">
-                      {featuredCategories.map((category) => (
-                        <Link 
-                          key={category.id}
-                          to={category.link}
-                          className={`${category.bgColor} rounded-lg p-4 sm:p-6 h-[165px] md:h-[215px] relative overflow-hidden group`}
-                        >
-                          <div className="relative z-10">
-                            <span className="text-sm">{category.title}</span>
-                            <h3 className="text-xl font-bold mt-1">{category.subtitle}</h3>
-                            <p className="mt-1">{category.description}</p>
-                            {category.extraText && (
-                              <p className="mt-1">{category.extraText}</p>
-                            )}
-                          </div>
-                          <div className="absolute right-0 top-0 h-full flex items-center">
-                            <img 
-                              src={category.image}
-                              alt={category.title}
-                              className="h-full w-auto object-cover"
-                            />
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Bottom Categories */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-                    {categoryPanels.map((panel) => (
-                      <Link
-                        key={panel.id}
-                        to={panel.link}
-                        className={`${panel.bgColor} rounded-lg p-3 sm:p-4 relative overflow-hidden h-28 sm:h-32 md:h-36`}
-                      >
-                        <div className="relative z-10 text-white">
-                          <span className="text-xs sm:text-sm">{panel.title}</span>
-                          <h3 className="text-base sm:text-lg md:text-xl font-bold mt-0.5 sm:mt-1">{panel.subtitle}</h3>
-                          <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm">{panel.extraText}</p>
-                        </div>
-                        <div className="absolute right-0 bottom-0 h-full">
-                          <img 
-                            src={panel.image}
-                            alt={panel.title}
-                            className="h-full w-auto object-cover"
-                          />
-                        </div>
-                      </Link>
-                    ))}
                   </div>
                 </div>
-              </div>
-
-              {/* Show TopSellingCarousel on mobile at the bottom */}
-              <div className="md:hidden col-span-1 mt-4">
-                <TopSellingCarousel />
               </div>
             </div>
           </div>
