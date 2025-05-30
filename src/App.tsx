@@ -34,6 +34,7 @@ import Dashboard from "./pages/superadmin/Dashboard";
 import UserActivity from './pages/superadmin/UserActivity';
 import UserManagement from './pages/superadmin/Usermanagement';
 import ContentModeration from './pages/superadmin/ContentModeration';
+import ProductMonitoring from './pages/superadmin/ProductMonitoring';
 
 import TrafficAnalytics from './pages/superadmin/TrafficAnalytics';
 import SalesReport from './pages/superadmin/SalesReport';
@@ -235,6 +236,7 @@ function App() {
                   <Route path="user-activity-overview" element={<UserActivity />} />
                   <Route path="user-management" element={<UserManagement />} />
                   <Route path="content-moderation" element={<ContentModeration />} />
+                  <Route path="product-monitoring" element={<ProductMonitoring />} />
                   <Route path="site-traffic-analytics" element={<TrafficAnalytics />} />
                   <Route path="sales-reports" element={<SalesReport />} />
                   <Route path="fraud-detection" element={<FraudDetection />} />

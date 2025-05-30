@@ -31,6 +31,10 @@ interface CoreProductInfoProps {
   specialPriceEnd: string;
   categoryId: number | null;
   brandId: number | null;
+  approval_status?: 'pending' | 'approved' | 'rejected';
+  approved_at?: string | null;
+  approved_by?: number | null;
+  rejection_reason?: string | null;
   onInfoChange: (field: string, value: string) => void;
   onProductCreated?: (productId: number) => void;
   errors?: {
@@ -58,6 +62,10 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
   specialPriceEnd,
   categoryId,
   brandId,
+  approval_status = 'pending',
+  approved_at = null,
+  approved_by = null,
+  rejection_reason = null,
   onInfoChange,
   onProductCreated,
   errors = {},
@@ -307,8 +315,66 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
     }));
   };
 
+  // Add approval status display component
+  const ApprovalStatusDisplay = () => {
+    const getStatusStyles = () => {
+      switch (approval_status) {
+        case 'approved':
+          return 'bg-green-50 border-green-200 text-green-800';
+        case 'rejected':
+          return 'bg-red-50 border-red-200 text-red-800';
+        case 'pending':
+        default:
+          return 'bg-yellow-50 border-yellow-200 text-yellow-800';
+      }
+    };
+
+    const getStatusText = () => {
+      switch (approval_status) {
+        case 'approved':
+          return 'Approved';
+        case 'rejected':
+          return 'Rejected';
+        case 'pending':
+        default:
+          return 'Pending Approval';
+      }
+    };
+
+    return (
+      <div className={`p-4 rounded-lg border ${getStatusStyles()}`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-medium">Approval Status</h3>
+            <p className="text-sm mt-1">{getStatusText()}</p>
+            {approval_status === 'approved' && approved_at && (
+              <p className="text-xs mt-1">Approved on: {new Date(approved_at).toLocaleDateString()}</p>
+            )}
+            {approval_status === 'rejected' && rejection_reason && (
+              <p className="text-xs mt-1 text-red-600">Reason: {rejection_reason}</p>
+            )}
+          </div>
+          {approval_status === 'rejected' && (
+            <button
+              onClick={() => {
+                // Reset approval status to pending when resubmitting
+                onInfoChange('approval_status', 'pending');
+              }}
+              className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+            >
+              Resubmit for Approval
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-8">
+      {/* Add Approval Status Display at the top */}
+      <ApprovalStatusDisplay />
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Category and Brand Selection Status */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -570,7 +636,7 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
             disabled={isSubmitting || !categoryId || !brandId}
             className="px-4 py-2 text-sm font-medium text-white bg-orange-600 border border-transparent rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:bg-gray-400"
           >
-            {isSubmitting ? 'Saving...' : 'Save Product'}
+            {isSubmitting ? 'Saving...' : approval_status === 'rejected' ? 'Resubmit Product' : 'Save Product'}
           </button>
         </div>
       </form>

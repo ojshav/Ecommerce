@@ -27,6 +27,10 @@ interface Product {
   special_start: string | null;
   special_end: string | null;
   active_flag: boolean;
+  approval_status: 'pending' | 'approved' | 'rejected';
+  approved_at: string | null;
+  approved_by: number | null;
+  rejection_reason: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -71,6 +75,44 @@ const StatusBadge: React.FC<{ active: boolean }> = ({ active }) => {
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor}`}>
       {status}
     </span>
+  );
+};
+
+// Approval Status Badge component
+const ApprovalStatusBadge: React.FC<{ status: 'pending' | 'approved' | 'rejected', reason?: string | null }> = ({ status, reason }) => {
+  const getStatusStyles = () => {
+    switch (status) {
+      case 'approved':
+        return 'bg-green-100 text-green-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      case 'pending':
+      default:
+        return 'bg-yellow-100 text-yellow-800';
+    }
+  };
+
+  const getStatusText = () => {
+    switch (status) {
+      case 'approved':
+        return 'Approved';
+      case 'rejected':
+        return 'Rejected';
+      case 'pending':
+      default:
+        return 'Pending';
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-1">
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusStyles()}`}>
+        {getStatusText()}
+      </span>
+      {status === 'rejected' && reason && (
+        <span className="text-xs text-red-600">{reason}</span>
+      )}
+    </div>
   );
 };
 
@@ -510,6 +552,12 @@ const Products: React.FC = () => {
                     {getSortIndicator('active_flag')}
                   </div>
                 </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('approval_status')}>
+                    Approval
+                    {getSortIndicator('approval_status')}
+                  </div>
+                </th>
                 <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -586,6 +634,9 @@ const Products: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <StatusBadge active={product.active_flag} />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <ApprovalStatusBadge status={product.approval_status} reason={product.rejection_reason} />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-3">

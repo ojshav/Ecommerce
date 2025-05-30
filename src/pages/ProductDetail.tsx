@@ -55,7 +55,7 @@ interface ProductDetails {
 }
 
 // Extend the Product type to match what the cart expects
-interface CartProduct extends Omit<ProductDetails, 'category'> {
+interface CartProduct extends Omit<ProductDetails, 'category' | 'brand'> {
   id: string;
   name: string;
   price: number;
@@ -65,9 +65,10 @@ interface CartProduct extends Omit<ProductDetails, 'category'> {
   isNew: boolean;
   isBuiltIn: boolean;
   rating: number;
-  reviews: any[];
+  reviews: number;
   sku: string;
   category: string;
+  brand: string;
 }
 
 const ProductDetail: React.FC = () => {
@@ -161,9 +162,10 @@ const ProductDetail: React.FC = () => {
       isNew: true,
       isBuiltIn: false,
       rating: 0,
-      reviews: [],
+      reviews: 0,
       sku: `SKU-${product.product_id}`,
-      category: product.category?.name || ''
+      category: product.category?.name || '',
+      brand: product.brand?.name || ''
     };
     
     addToCart(cartProduct, quantity);
@@ -205,7 +207,10 @@ const ProductDetail: React.FC = () => {
             {/* Short Description */}
             {product.meta?.short_desc && (
               <div className="mb-4">
-                <p className="text-gray-700">{product.meta.short_desc}</p>
+                <div 
+                  className="prose prose-sm max-w-none text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: product.meta.short_desc }}
+                />
               </div>
             )}
             {/* Full Description */}
@@ -213,7 +218,7 @@ const ProductDetail: React.FC = () => {
               <div className="mt-6">
                 <h4 className="text-lg font-medium mb-3 text-gray-900">Full Description</h4>
                 <div 
-                  className="prose max-w-none text-gray-700"
+                  className="prose prose-sm max-w-none text-gray-700"
                   dangerouslySetInnerHTML={{ __html: product.meta.full_desc }}
                 />
               </div>
@@ -222,9 +227,10 @@ const ProductDetail: React.FC = () => {
             {!product.meta?.full_desc && product.description && (
               <div className="mt-6">
                 <h4 className="text-lg font-medium mb-3 text-gray-900">Description</h4>
-                <div className="prose max-w-none text-gray-700">
-                  {product.description}
-                </div>
+                <div 
+                  className="prose prose-sm max-w-none text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: product.description }}
+                />
               </div>
             )}
           </div>
@@ -362,7 +368,10 @@ const ProductDetail: React.FC = () => {
               {/* Short Description */}
               {product.meta?.short_desc && (
                 <div className="mb-4">
-                  <p className="text-sm text-gray-600">{product.meta.short_desc}</p>
+                  <div 
+                    className="text-sm text-gray-600 prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: product.meta.short_desc }}
+                  />
                 </div>
               )}
               
