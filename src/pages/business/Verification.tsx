@@ -64,13 +64,51 @@ interface ValidationErrors {
   vatNumber?: string;
   salesTaxNumber?: string;
   accountNumber?: string;
+  bankName?: string;
   ifscCode?: string;
   swiftCode?: string;
   routingNumber?: string;
   iban?: string;
-  // Potentially add a general documents error key if needed
-  // documents?: string; 
+  documents?: string;
 }
+
+const documentTypeMap: Record<string, string> = {
+  business_registration_in: 'Shop & Establishment Certificate',
+  business_registration_global: 'Business License',
+  pan_card: 'PAN Card',
+  gstin: 'GSTIN Certificate',
+  tax_id_global: 'Tax ID',
+  vat_id: 'VAT ID',
+  sales_tax_reg: 'Sales Tax Registration',
+  import_export_license: 'Import/Export License',
+  aadhar: 'Aadhar Card',
+  voter_id: 'Voter ID',
+  passport: 'Passport',
+  national_id: 'National ID',
+  driving_license: 'Driving License',
+  business_address_proof_in: 'Business Address Proof (India)',
+  business_address_proof_global: 'Business Address Proof (Global)',
+  cancelled_cheque: 'Cancelled Cheque',
+  bank_statement: 'Bank Statement',
+  void_cheque: 'Void Cheque',
+  bank_letter: 'Bank Letter',
+  bank_account_in: 'Bank Account Details (India)',
+  bank_account_global: 'Bank Account Details (Global)',
+  gst_certificate: 'GST Certificate',
+  vat_certificate: 'VAT Certificate',
+  sales_tax_permit: 'Sales Tax Permit',
+  msme_certificate: 'MSME Certificate',
+  small_business_cert: 'Small Business Certification',
+  dsc: 'Digital Signature Certificate',
+  esign_certificate: 'eSign Certificate',
+  return_policy: 'Return Policy',
+  shipping_details: 'Shipping Details',
+  product_list: 'Product List',
+  category_list: 'Category List',
+  brand_approval: 'Brand Approval',
+  brand_authorization: 'Brand Authorization',
+  other: 'Other Document'
+};
 
 const Verification: React.FC = () => {
   const navigate = useNavigate();
@@ -460,7 +498,7 @@ const Verification: React.FC = () => {
         GLOBAL: "Enter your GST/VAT number"
       },
       taxId: {
-        IN: "Enter your tax identification number", // This might be confusing for IN, PAN is primary
+        IN: "Enter your tax identification number",
         GLOBAL: "Enter your tax ID (e.g., EIN for US)"
       },
       ifscCode: {
@@ -481,6 +519,18 @@ const Verification: React.FC = () => {
       },
       routingNumber: {
         GLOBAL: "Enter your bank's routing number (e.g., ABA for US banks)"
+      },
+      product_list: {
+        IN: "Upload a list of products you plan to sell",
+        GLOBAL: "Upload a list of products you plan to sell"
+      },
+      category_list: {
+        IN: "Upload a list of product categories you plan to sell in",
+        GLOBAL: "Upload a list of product categories you plan to sell in"
+      },
+      brand_approval: {
+        IN: "Upload brand authorization and approval documents",
+        GLOBAL: "Upload brand authorization and approval documents"
       }
     };
     return helpers[fieldName]?.[countryCode] || helpers[fieldName]?.['GLOBAL'] || "";
@@ -763,96 +813,131 @@ const Verification: React.FC = () => {
             </div>
           </div>
 
-          {/* Document Upload Section - Updated Styling & Functionality */}
+          {/* Document Upload Section */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
               Required Documents
             </h2>
             <div className="space-y-6">
               {countryConfig && Object.keys(documents).length > 0 ? (
-                 Object.values(documents).map((doc) => (
-                    <div key={doc.id} className="bg-white p-4 rounded-lg shadow">
+                Object.values(documents).map((doc) => (
+                  <div key={doc.id} className="bg-white p-4 rounded-lg shadow">
                     <label className="block mb-2 font-medium text-gray-700">
-                        {doc.name}
-                        {doc.required && <span className="text-red-500 ml-1">*</span>}
+                      {doc.name}
+                      {doc.required && <span className="text-red-500 ml-1">*</span>}
                     </label>
 
-                    {doc.status === 'uploaded' && doc.fileUrl ? (
-                        // Uploaded State: Show file info, View, and Update buttons
-                        <div className="mt-1">
-                            <div className="flex items-center p-2 bg-green-50 border border-green-200 rounded-md">
-                                <CheckCircleIcon className="h-5 w-5 mr-2 text-green-600 flex-shrink-0" />
-                                <p className="text-sm text-green-700 font-medium truncate flex-grow" title={doc.file?.name || 'Document uploaded'}>
-                                {doc.file?.name 
-                                    ? (doc.file.name.length > 30 ? doc.file.name.substring(0,27) + '...' : doc.file.name) 
-                                    : 'Uploaded'}
-                                </p>
-                            </div>
-                            <div className="flex items-center space-x-3 mt-2">
-                                <button
-                                type="button"
-                                onClick={() => window.open(doc.fileUrl!, '_blank', 'noopener,noreferrer')}
-                                className="text-sm text-primary-600 hover:text-primary-700 font-medium py-1 px-2 rounded-md hover:bg-primary-50 transition-colors"
-                                disabled={isSubmitting}
-                                >
-                                View
-                                </button>
-                                <label className={`text-sm font-medium py-1 px-2 rounded-md transition-colors ${isSubmitting ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer'}`}>
-                                Update
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    accept=".pdf,.jpg,.jpeg,.png"
-                                    onChange={(e) => !isSubmitting && handleFileChange(doc.id, e)}
-                                    disabled={isSubmitting}
-                                />
-                                </label>
-                            </div>
-                            <p className="mt-1 text-xs text-gray-500">PDF, JPG, PNG (Max 10MB)</p>
+                    {/* Document Type Specific Instructions */}
+                    {(doc.documentType === 'product_list' || doc.documentType === 'category_list') && (
+                      <div className="mb-3 p-3 bg-blue-50 rounded-md">
+                        <div className="flex items-start">
+                          <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm text-blue-700 font-medium">
+                              {doc.documentType === 'product_list' 
+                                ? 'Please provide a detailed list of products you plan to sell'
+                                : 'Please provide a list of product categories you plan to sell in'}
+                            </p>
+                            <p className="text-xs text-blue-600 mt-1">
+                              Include product names, descriptions, and categories. For categories, specify the main categories and subcategories.
+                            </p>
+                          </div>
                         </div>
+                      </div>
+                    )}
+
+                    {doc.documentType === 'brand_approval' && (
+                      <div className="mb-3 p-3 bg-blue-50 rounded-md">
+                        <div className="flex items-start">
+                          <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm text-blue-700 font-medium">
+                              Brand Authorization Documents
+                            </p>
+                            <p className="text-xs text-blue-600 mt-1">
+                              Please provide authorization letters, brand agreements, or any official documentation proving your right to sell these brands.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {doc.status === 'uploaded' && doc.fileUrl ? (
+                      // Uploaded State: Show file info, View, and Update buttons
+                      <div className="mt-1">
+                        <div className="flex items-center p-2 bg-green-50 border border-green-200 rounded-md">
+                          <CheckCircleIcon className="h-5 w-5 mr-2 text-green-600 flex-shrink-0" />
+                          <p className="text-sm text-green-700 font-medium truncate flex-grow" title={doc.file?.name || 'Document uploaded'}>
+                            {doc.file?.name 
+                              ? (doc.file.name.length > 30 ? doc.file.name.substring(0,27) + '...' : doc.file.name) 
+                              : 'Uploaded'}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-3 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => window.open(doc.fileUrl!, '_blank', 'noopener,noreferrer')}
+                            className="text-sm text-primary-600 hover:text-primary-700 font-medium py-1 px-2 rounded-md hover:bg-primary-50 transition-colors"
+                            disabled={isSubmitting}
+                          >
+                            View
+                          </button>
+                          <label className={`text-sm font-medium py-1 px-2 rounded-md transition-colors ${isSubmitting ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 cursor-pointer'}`}>
+                            Update
+                            <input
+                              type="file"
+                              className="hidden"
+                              accept=".pdf,.jpg,.jpeg,.png"
+                              onChange={(e) => !isSubmitting && handleFileChange(doc.id, e)}
+                              disabled={isSubmitting}
+                            />
+                          </label>
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">PDF, JPG, PNG (Max 10MB)</p>
+                      </div>
                     ) : (
-                        // Pending or Error State: Show Upload button/area (original style)
-                        <>
+                      // Pending or Error State: Show Upload button/area
+                      <>
                         <div className="flex items-center">
-                            <label className={`
+                          <label className={`
                             flex justify-center items-center px-4 py-2 border-2 rounded-md 
                             ${doc.status === 'error' ? 'border-red-300 bg-red-50 text-red-600' : 'border-gray-300 bg-white text-gray-600'}
                             ${isSubmitting ? 'cursor-not-allowed opacity-70' : 'hover:bg-gray-50 cursor-pointer'}
                             w-full max-w-xs 
-                            `}
-                            >
+                          `}
+                          >
                             {doc.status === 'error' ? (
-                                <span className="flex items-center">
+                              <span className="flex items-center">
                                 <ExclamationCircleIcon className="h-5 w-5 mr-2" />
                                 Upload failed. Retry?
-                                </span>
+                              </span>
                             ) : (
-                                <span className="flex items-center">
+                              <span className="flex items-center">
                                 <CloudArrowUpIcon className="h-5 w-5 mr-2" />
                                 Upload File
-                                </span>
+                              </span>
                             )}
                             <input
-                                type="file"
-                                className="hidden"
-                                accept=".pdf,.jpg,.jpeg,.png"
-                                onChange={(e) => !isSubmitting && handleFileChange(doc.id, e)}
-                                disabled={isSubmitting}
+                              type="file"
+                              className="hidden"
+                              accept=".pdf,.jpg,.jpeg,.png"
+                              onChange={(e) => !isSubmitting && handleFileChange(doc.id, e)}
+                              disabled={isSubmitting}
                             />
-                            </label>
+                          </label>
                         </div>
                         {doc.status === 'error' && (
-                            <p className="mt-1 text-sm text-red-600">
+                          <p className="mt-1 text-sm text-red-600">
                             Please try uploading again. {doc.file?.name ? `(${doc.file.name})` : ''}
-                            </p>
+                          </p>
                         )}
                         <p className="mt-1 text-xs text-gray-500">PDF, JPG, PNG (Max 10MB)</p>
-                        </>
+                      </>
                     )}
-                    </div>
+                  </div>
                 ))
               ) : countryConfig && Object.keys(documents).length === 0 ? (
-                 <p className="text-gray-500 text-sm">No documents are currently required for {countryConfig.country_name}.</p>
+                <p className="text-gray-500 text-sm">No documents are currently required for {countryConfig.country_name}.</p>
               ) : (
                 <p className="text-gray-500 text-sm">Select a country to view document requirements.</p>
               )}
