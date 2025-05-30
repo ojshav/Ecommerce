@@ -20,42 +20,42 @@ const LiveCard: React.FC<LiveCardProps> = ({
   type
 }) => {
   return (
-    <div className="relative flex-shrink-0 w-[220px] group cursor-pointer">
+    <div className="relative flex-shrink-0 w-[240px] group cursor-pointer">
       {/* Image Container */}
-      <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+      <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
         <img
           src={thumbnail}
           alt={title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         
         {/* Play Button Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
-            <Play className="w-5 h-5 text-gray-900" fill="currentColor" />
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center transform scale-90 group-hover:scale-100 transition-transform duration-300">
+            <Play className="w-6 h-6 text-gray-900" fill="currentColor" />
           </div>
         </div>
 
         {/* Live Badge */}
         {isLive && (
-          <div className="absolute top-2 left-2 px-2 py-0.5 bg-red-500 text-white text-xs font-medium rounded">
+          <div className="absolute top-3 left-3 px-2 py-0.5 bg-red-500 text-white text-xs font-medium rounded">
             LIVE
           </div>
         )}
 
         {/* Viewer Count */}
         {viewers && (
-          <div className="absolute top-2 right-2 px-2 py-1 bg-black/20 backdrop-blur-sm text-white text-xs rounded-full flex items-center gap-1">
-            <div className="w-1 h-1 rounded-full bg-white"></div>
-            {viewers}
+          <div className="absolute top-3 right-3 px-2.5 py-1 bg-black/30 backdrop-blur-sm text-white text-xs rounded-full flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
+            {viewers.toLocaleString()}
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="mt-3">
-        <h3 className="text-sm font-medium text-gray-900">{title}</h3>
-        <p className="text-xs text-gray-500 mt-0.5">{host}</p>
+      <div className="mt-3 px-1">
+        <h3 className="text-sm font-medium text-gray-900 line-clamp-1">{title}</h3>
+        <p className="text-xs text-gray-500 mt-1">{host}</p>
       </div>
     </div>
   );
