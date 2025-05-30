@@ -6,6 +6,11 @@ import ProductVariants from './ProductVariants';
 import AttributeSelection from './AttributeSelection';
 import { CheckCircleIcon, ShieldExclamationIcon } from '@heroicons/react/24/solid';
 
+// Add className constants
+const labelClassName = "block text-sm font-medium text-gray-700";
+const inputClassName = (hasError: boolean = false) => `mt-1 block w-full rounded-md ${hasError ? 'border-red-300' : 'border-gray-300'} shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm`;
+const errorTextClassName = "mt-1 text-sm text-red-600";
+const sectionTitleClassName = "text-lg font-medium text-gray-900 mb-4";
 
 interface VariantAttribute {
   name: string;
