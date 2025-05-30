@@ -34,6 +34,7 @@ import Dashboard from "./pages/superadmin/Dashboard";
 import UserActivity from './pages/superadmin/UserActivity';
 import UserManagement from './pages/superadmin/Usermanagement';
 import ContentModeration from './pages/superadmin/ContentModeration';
+import ProductMonitoring from './pages/superadmin/ProductMonitoring';
 
 import TrafficAnalytics from './pages/superadmin/TrafficAnalytics';
 import SalesReport from './pages/superadmin/SalesReport';
@@ -72,11 +73,11 @@ import MessengerPopup from './components/MessengerPopup';
 import Refund from './pages/Refund';
 import Exchange from './pages/Exchange';
 import LiveShop from './pages/LiveShop';
-import Fashion from './components/sections/Fashion';
-import AoinLive from './components/sections/AoinLive';
-import ComingSoon from './components/sections/ComingSoon';
-import FashionFactory from './components/sections/FashionFactory';
-import SundayFunday from './components/sections/SundayFunday';
+import FashionPage from './components/sections/Fashionpage';
+import AoinLivePage from './components/sections/AoinLivePage';
+import ComingSoonPage from './components/sections/ComingSoonPage';
+import FashionFactoryPage from './components/sections/FashionFactoryPage';
+import SundayFundayPage from './components/sections/SundayFundayPage';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -84,7 +85,7 @@ const BusinessProducts = lazy(() => import('./pages/business/catalog/Products'))
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
 const Verification = lazy(() => import('./pages/business/Verification'));
-
+const ProductPlacements = lazy(() => import('./pages/business/ProductPlacements')); 
 // Lazy-loaded catalog pages
 const CatalogProducts = lazy(() => import('./pages/business/catalog/Products'));
 const AddProducts = lazy(() => import('./pages/business/catalog/product/steps/AddProducts'));
@@ -121,11 +122,13 @@ function App() {
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <Router>
             <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
-
               <Routes>
                 {/* Business Dashboard Routes */}
                 <Route path="/business" element={<AdminLayout />}>
-                  <Route index element={<Navigate to="/business/dashboard" replace />} />
+                  <Route
+                    index
+                    element={<Navigate to="/business/dashboard" replace />}
+                  />
                   <Route
                     path="dashboard"
                     element={
@@ -183,7 +186,6 @@ function App() {
                     }
                   />
 
-
                   {/* Catalog Routes */}
                   <Route path="catalog">
                     <Route
@@ -218,31 +220,66 @@ function App() {
                         </Suspense>
                       }
                     />
+
+                    
                   </Route>
 
+                 
+                    <Route
+                      path="product-placements" 
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <ProductPlacements />
+                        </Suspense>
+                      }
+                    />
+                  
+
                   {/* Add more business routes here */}
-
-
                 </Route>
 
                 {/* Superadmin Login Route */}
                 <Route path="/superadmin/login" element={<SuperAdminLogin />} />
-                
+
                 {/* Superadmin Routes - Protected by role check in the component */}
                 <Route path="/superadmin" element={<SuperAdminLayout />}>
-                  <Route index element={<Navigate to="/superadmin/dashboard" replace />} />
+                  <Route
+                    index
+                    element={<Navigate to="/superadmin/dashboard" replace />}
+                  />
                   <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="user-activity-overview" element={<UserActivity />} />
+                  <Route
+                    path="user-activity-overview"
+                    element={<UserActivity />}
+                  />
                   <Route path="user-management" element={<UserManagement />} />
+
                   <Route path="content-moderation" element={<ContentModeration />} />
+                  <Route path="product-monitoring" element={<ProductMonitoring />} />
                   <Route path="site-traffic-analytics" element={<TrafficAnalytics />} />
+
                   <Route path="sales-reports" element={<SalesReport />} />
                   <Route path="fraud-detection" element={<FraudDetection />} />
-                  <Route path="marketplace-health" element={<MarketplaceHealth />} />
-                  <Route path="merchant-analytics" element={<MerchantAnalytics />} />
-                  <Route path="platform-performance" element={<PlatformPerformance />} />
-                  <Route path="merchant-management" element={<MerchantManagement />} />
-                  <Route path="merchant-management/:id" element={<MerchantDetails />} />
+                  <Route
+                    path="marketplace-health"
+                    element={<MarketplaceHealth />}
+                  />
+                  <Route
+                    path="merchant-analytics"
+                    element={<MerchantAnalytics />}
+                  />
+                  <Route
+                    path="platform-performance"
+                    element={<PlatformPerformance />}
+                  />
+                  <Route
+                    path="merchant-management"
+                    element={<MerchantManagement />}
+                  />
+                  <Route
+                    path="merchant-management/:id"
+                    element={<MerchantDetails />}
+                  />
                   <Route path="categories" element={<Categories />} />
                   <Route path="brand-creation" element={<BrandCreation />} />
                   <Route path="attribute" element={<Attribute />} />
@@ -259,7 +296,6 @@ function App() {
                 {/* Public Routes with header/footer */}
                 <Route
                   path="/*"
-
                   element={
                     <>
                       <Navbar />
@@ -267,51 +303,100 @@ function App() {
                         <Routes>
                           <Route path="/" element={<Home />} />
                           <Route path="/all-products" element={<Products />} />
-                          <Route path="/products/:categoryId" element={<Products />} />
-                          <Route path="/product/:productId" element={<ProductDetail />} />
+                          <Route
+                            path="/products/:categoryId"
+                            element={<Products />}
+                          />
+                          <Route
+                            path="/product/:productId"
+                            element={<ProductDetail />}
+                          />
                           <Route path="/new-product" element={<NewProduct />} />
                           <Route path="/cart" element={<Cart />} />
                           <Route path="/payment" element={<PaymentPage />} />
 
                           <Route path="/signin" element={<SignIn />} />
                           <Route path="/signup" element={<SignUp />} />
-                          <Route path="/verification-pending" element={<VerificationPending />} />
-                          <Route path="/verify-email/:token" element={<VerifyEmail />} />
-                          <Route path="/business/login" element={<BusinessLogin />} />
-                          <Route path="/register-business" element={<RegisterBusiness />} />
+                          <Route
+                            path="/verification-pending"
+                            element={<VerificationPending />}
+                          />
+                          <Route
+                            path="/verify-email/:token"
+                            element={<VerifyEmail />}
+                          />
+                          <Route
+                            path="/business/login"
+                            element={<BusinessLogin />}
+                          />
+                          <Route
+                            path="/register-business"
+                            element={<RegisterBusiness />}
+                          />
 
-                          <Route path="/password/reset" element={<PasswordReset />} />
+                          <Route
+                            path="/password/reset"
+                            element={<PasswordReset />}
+                          />
 
                           <Route path="/wishlist" element={<WishList />} />
                           <Route path="/promotion" element={<Promotion />} />
                           <Route path="/sign-in" element={<SignIn />} />
                           <Route path="/register" element={<Register />} />
-                          <Route path="/become-merchant" element={<BecomeMerchant />} />
+                          <Route
+                            path="/become-merchant"
+                            element={<BecomeMerchant />}
+                          />
                           <Route path="/track-order" element={<TrackOrder />} />
                           <Route path="/refund/:orderId" element={<Refund />} />
-                          <Route path="/exchange/:orderId" element={<Exchange />} />
-                          <Route path="/categories/:categoryId" element={<Products />} />
-                          <Route path="/categories/:categoryId/:brandId" element={<Products />} />
+                          <Route
+                            path="/exchange/:orderId"
+                            element={<Exchange />}
+                          />
+                          <Route
+                            path="/categories/:categoryId"
+                            element={<Products />}
+                          />
+                          <Route
+                            path="/categories/:categoryId/:brandId"
+                            element={<Products />}
+                          />
                           <Route path="/faq" element={<FAQ />} />
                           <Route path="/about" element={<About />} />
                           <Route path="/contact" element={<Contact />} />
-                          <Route path="/shipping" element={<ShippingPolicy />} />
+                          <Route
+                            path="/shipping"
+                            element={<ShippingPolicy />}
+                          />
                           <Route path="/returns" element={<Returns />} />
                           <Route path="/privacy" element={<Privacy />} />
                           <Route path="/cookies" element={<Cookies />} />
                           <Route path="/terms" element={<Terms />} />
-                           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                           <Route path="/cancellation-policy" element={<CancellationPolicy />} />
-                           <Route path="/return-refund" element={<ReturnRefund />} />
-                           <Route path="/shipping-delivery" element={<ShippingDelivery />} />
+                          <Route
+                            path="/privacy-policy"
+                            element={<PrivacyPolicy />}
+                          />
+                          <Route
+                            path="/cancellation-policy"
+                            element={<CancellationPolicy />}
+                          />
+                          <Route
+                            path="/return-refund"
+                            element={<ReturnRefund />}
+                          />
+                          <Route
+                            path="/shipping-delivery"
+                            element={<ShippingDelivery />}
+                          />
                           <Route path="/brands/:brandId" element={<Brands />} />
                           <Route path="/profile" element={<UserProfile />} />
                           <Route path="/live-shop" element={<LiveShop />} />
-                          <Route path="/live-shop/fashion" element={<Fashion />} />
-                          <Route path="/live-shop/aoin-live" element={<AoinLive />} />
-                          <Route path="/live-shop/coming-soon" element={<ComingSoon />} />
-                          <Route path="/live-shop/fashion-factory" element={<FashionFactory />} />
-                          <Route path="/live-shop/sunday-funday" element={<SundayFunday />} />
+                          <Route path="/live-shop/fashion" element={<FashionPage />} />
+                          <Route path="/live-shop/aoin-live" element={<AoinLivePage />} />
+                          <Route path="/live-shop/coming-soon" element={<ComingSoonPage />} />
+                          <Route path="/live-shop/fashion-factory" element={<FashionFactoryPage />} />
+                          <Route path="/live-shop/sunday-funday" element={<SundayFundayPage />} />
+
 
                         </Routes>
                       </main>
@@ -320,7 +405,6 @@ function App() {
                   }
                 />
               </Routes>
-
             </div>
             {/* Add MessengerPopup here, outside of routes so it appears on all pages */}
             <MessengerPopup />
@@ -330,8 +414,8 @@ function App() {
             position="top-right"
             toastOptions={{
               style: {
-                background: '#363636',
-                color: '#fff',
+                background: "#363636",
+                color: "#fff",
               },
               success: {
                 duration: 3000,

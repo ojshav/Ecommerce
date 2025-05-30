@@ -13,224 +13,131 @@ interface AddProductsProps {
 const steps = [
   'Category & Brand',
   'Tax Category',
-  'Core Info',
-  
+  'Product Details', // Changed from 'Core Info'
 ];
 
 const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams(); // For edit/view mode
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, any>>({});
 
-  // Form Data
+  // This state will hold the ID of the product once its core info is created
+  const [createdProductId, setCreatedProductId] = useState<number | null>(null);
+
+  // Form Data - simplified for initial steps, CoreProductInfo manages its own more complex state
   const [formData, setFormData] = useState({
     categoryId: null as number | null,
     brandId: null as number | null,
-    attributes: {} as Record<number, string | string[]>,
     taxCategoryId: null as number | null,
+    // CoreProductInfo fields are now managed within CoreProductInfo component initially
+    // but we can pre-populate them here if needed, or pass them up on save from CoreProductInfo
     name: '',
-    description: '',
-    shortDescription: '',
-    fullDescription: '',
+    description: '', // This is the short description for the product card
     sku: '',
     costPrice: '',
     sellingPrice: '',
     specialPrice: '',
     specialPriceStart: '',
     specialPriceEnd: '',
-    media: [] as File[],
-    weight: '',
-    dimensions: {
-      length: '',
-      width: '',
-      height: '',
-    },
-    shippingClass: '',
-    metaTitle: '',
-    metaDescription: '',
-    metaKeywords: '',
-    variants: [] as any[],
+    // Fields managed by sub-components of CoreProductInfo (or CoreProductInfo itself)
+    // media: [] as File[],
+    // weight: '',
+    // dimensions: { length: '', width: '', height: '' },
+    // shippingClass: '',
+    // metaTitle: '',
+    // metaDescription: '',
+    // metaKeywords: '',
+    // variants: [] as any[],
   });
 
   useEffect(() => {
     if (mode !== 'new' && id) {
       console.log('Fetching product data for ID:', id);
-      fetchProductData(id);
+      // For edit mode, you would typically fetch all product data and populate
+      // not just formData but also states within CoreProductInfo and its sub-components.
+      // This might involve a more complex data loading strategy.
+      // For now, this POC focuses on 'new' mode structure.
+      // fetchProductData(id); // Implement if edit mode needs full pre-population here
+      setCreatedProductId(parseInt(id)); // Assume ID is the created product ID for edit mode
     }
   }, [mode, id]);
 
-  const fetchProductData = async (productId: string) => {
-    try {
-      setLoading(true);
-      console.log('Fetching product data from API');
-      const response = await fetch(`/api/merchant/products/${productId}`);
-      const data = await response.json();
-      
-      console.log('Product data received:', data);
-      
-      if (response.ok) {
-        setFormData({
-          ...formData,
-          ...data,
-          media: [], // Handle existing media separately
-        });
-        console.log('Form data updated with product data');
-      } else {
-        console.error('Failed to fetch product data:', data);
-      }
-    } catch (error) {
-      console.error('Error fetching product data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+  // const fetchProductData = async (productId: string) => {
+  //   // ... (implementation for fetching and setting ALL form data for edit mode)
+  // };
 
   const handleNext = () => {
-    console.log('Moving to next step from:', activeStep);
     if (validateStep()) {
       setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
     }
   };
 
   const handleBack = () => {
-    console.log('Moving to previous step from:', activeStep);
     setActiveStep((prev) => Math.max(prev - 1, 0));
   };
 
   const validateStep = () => {
-    console.log('Validating step:', activeStep);
     const newErrors: Record<string, any> = {};
-
     switch (activeStep) {
       case 0: // Category & Brand
-        console.log('Validating Category & Brand step');
-        if (!formData.categoryId) {
-          newErrors.categoryId = 'Category is required';
-        }
-        if (!formData.brandId) {
-          newErrors.brandId = 'Brand is required';
-        }
+        if (!formData.categoryId) newErrors.categoryId = 'Category is required';
+        // Brand validation might be conditional if a category doesn't require a brand
+        if (formData.categoryId && !formData.brandId) newErrors.brandId = 'Brand is required';
         break;
-      case 1: // Attributes
-        // Add attribute validation if needed
+      case 1: // Tax Category
+        if (!formData.taxCategoryId) newErrors.taxCategoryId = 'Tax category is required';
         break;
-      case 2: // Tax Category
-        console.log('Validating Tax Category step');
-        if (!formData.taxCategoryId) {
-          newErrors.taxCategoryId = 'Tax category is required';
-        }
-        break;
-      case 3: // Core Info
-        console.log('Validating Core Info step');
-        if (!formData.name) {
-          newErrors.name = 'Product name is required';
-        }
-        if (!formData.sku) {
-          newErrors.sku = 'SKU is required';
-        }
-        if (!formData.sellingPrice) {
-          newErrors.sellingPrice = 'Selling price is required';
-        }
-        break;
-      case 4: // Media
-        if (formData.media.length === 0) {
-          newErrors.media = 'At least one image is required';
-        }
-        break;
-      case 5: // Shipping
-        if (!formData.weight) {
-          newErrors.weight = 'Weight is required';
-        }
-        if (!formData.shippingClass) {
-          newErrors.shippingClass = 'Shipping class is required';
-        }
-        break;
-      case 6: // Meta
-        if (!formData.metaTitle) {
-          newErrors.metaTitle = 'Meta title is required';
-        }
-        break;
-      case 7: // Variants
-        if (formData.variants.length === 0) {
-          newErrors.variants = 'At least one variant is required';
-        }
+      case 2: // Product Details (Core Info)
+        // Validation for CoreProductInfo fields like name, SKU, price would ideally happen
+        // within CoreProductInfo or be triggered from there.
+        // For simplicity in AddProducts, we might only check if the product was "created" (i.e., createdProductId is set)
+        // if CoreProductInfo handles its own save.
+        // If CoreProductInfo data is passed up to AddProducts, then validate here:
+        if (!formData.name) newErrors.name = 'Product name is required';
+        if (!formData.sku) newErrors.sku = 'SKU is required';
+        if (!formData.sellingPrice) newErrors.sellingPrice = 'Selling price is required';
+        // If CoreProductInfo has its own save button, this step might not need explicit validation here
+        // if the "Next" button is replaced by a "Finish" or "Save Product" button on the last step.
         break;
     }
-
-    console.log('Validation errors:', newErrors);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateStep()) return;
+  // This handleSubmit is for the final "Create Product" or "Update Product" action for the whole flow
+  const handleFinalSubmit = async () => {
+    // This function would be more complex, potentially gathering data from CoreProductInfo
+    // if it hasn't saved its sections individually.
+    // For this structure, CoreProductInfo and its children handle their own saves.
+    // So, this might just be a "Finish" action.
 
-    try {
-      setLoading(true);
-      console.log('Starting form submission with data:', formData);
-      
-      const formDataToSend = new FormData();
+    if (!validateStep()) return; // Validate the current step's requirements if any
 
-      // Debug: Log each field being added to FormData
-      Object.entries(formData).forEach(([key, value]) => {
-        console.log(`Processing field: ${key}`, value);
-        
-        if (key === 'media') {
-          formData.media.forEach((file, index) => {
-            console.log(`Adding media file ${index}:`, file.name);
-            formDataToSend.append('media', file);
-          });
-        } else if (key === 'dimensions') {
-          console.log('Adding dimensions:', value);
-          formDataToSend.append('dimensions', JSON.stringify(value));
-        } else if (key === 'variants') {
-          console.log('Adding variants:', value);
-          formDataToSend.append('variants', JSON.stringify(value));
-        } else {
-          formDataToSend.append(key, value as string);
-        }
-      });
-
-      const url = mode === 'edit' && id
-        ? `/api/merchant/products/${id}`
-        : '/api/merchant/products';
-
-      const method = mode === 'edit' ? 'PUT' : 'POST';
-      console.log(`Making ${method} request to:`, url);
-
-      const response = await fetch(url, {
-        method,
-        body: formDataToSend,
-      });
-
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
-      // Check if response is ok, regardless of JSON content
-      if (response.ok) {
-        console.log('Request successful, redirecting to products page');
-        navigate('/business/catalog/products');
-      } else {
-        // Try to get error message from response
-        try {
-          const data = await response.json();
-          console.error('Error response data:', data);
-          setErrors(data.errors || {});
-        } catch (e) {
-          console.error('Error parsing response:', e);
-          // If JSON parsing fails, set a generic error
-          setErrors({ submit: 'Failed to save product. Please try again.' });
-        }
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      setErrors({ submit: 'Failed to save product. Please try again.' });
-    } finally {
-      setLoading(false);
-    }
+    // Assuming all data is saved by sub-components or CoreProductInfo.
+    // Navigate to product list or product view page.
+    setLoading(true);
+    console.log('Finalizing product creation/update...');
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setLoading(false);
+    navigate('/business/catalog/products'); // Or to the new/edited product's page
   };
+
+  // Callback for CoreProductInfo to inform AddProducts that the product's core details are saved
+  const handleProductCreated = (productId: number) => {
+    setCreatedProductId(productId);
+    console.log('Product core created with ID:', productId);
+    // Potentially auto-advance to next relevant section or enable further actions
+  };
+  
+  // Callback for CoreProductInfo to update parent's formData if needed
+  const handleCoreInfoChange = (field: string, value: string | number | null) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
 
   const renderStepContent = () => {
     switch (activeStep) {
@@ -239,41 +146,42 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
           <div className="space-y-6">
             <CategorySelection
               selectedCategoryId={formData.categoryId}
-              onCategorySelect={(categoryId) =>
-                setFormData({ ...formData, categoryId })
-              }
+              onCategorySelect={(catId) => setFormData({ ...formData, categoryId: catId, brandId: null })} // Reset brand on category change
+              selectedBrandId={formData.brandId} // Pass this for UI update in CategorySelection
+              onBrandSelect={(brandId) => setFormData({ ...formData, brandId })} // Pass this for UI update in CategorySelection
               errors={errors}
             />
-            {formData.categoryId && (
-              <BrandSelection
-                categoryId={formData.categoryId}
-                selectedBrandId={formData.brandId}
-                onBrandSelect={(brandId) =>
-                  setFormData({ ...formData, brandId })
-                }
-                errors={errors}
-              />
-            )}
+            {/* BrandSelection is now part of CategorySelection component display logic */}
           </div>
         );
       case 1:
         return (
           <TaxCategorySelection
             selectedTaxCategoryId={formData.taxCategoryId}
-            onTaxCategorySelect={(taxCategoryId) =>
-              setFormData({ ...formData, taxCategoryId })
-            }
+            onTaxCategorySelect={(taxId) => setFormData({ ...formData, taxCategoryId: taxId })}
             errors={errors}
           />
         );
       case 2:
         return (
           <CoreProductInfo
-            {...formData}
-            onInfoChange={(field, value) =>
-              setFormData({ ...formData, [field]: value })
-            }
-            errors={errors}
+            // Pass existing core fields from formData
+            name={formData.name}
+            description={formData.description}
+            sku={formData.sku}
+            costPrice={formData.costPrice}
+            sellingPrice={formData.sellingPrice}
+            specialPrice={formData.specialPrice}
+            specialPriceStart={formData.specialPriceStart}
+            specialPriceEnd={formData.specialPriceEnd}
+            // Pass IDs needed by CoreProductInfo
+            categoryId={formData.categoryId}
+            brandId={formData.brandId}
+            // Callback to update formData in AddProducts
+            onInfoChange={handleCoreInfoChange}
+            // Callback to set createdProductId
+            onProductCreated={handleProductCreated}
+            errors={errors} // Pass down general errors for core fields
           />
         );
       default:
@@ -281,7 +189,7 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
     }
   };
 
-  if (loading) {
+  if (loading && mode === 'new') { // Keep loading for initial fetch if edit/view
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
@@ -289,18 +197,37 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
     );
   }
 
+  const currentStepTitle = steps[activeStep];
+
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Step Content as Card */}
-      <div className="bg-white shadow rounded-lg p-6">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6 p-4 bg-white shadow rounded-lg border border-gray-200">
+            <h1 className="text-2xl font-semibold text-gray-800">
+                {mode === 'edit' ? 'Edit Product' : mode === 'view' ? 'View Product' : 'Add New Product'}
+            </h1>
+            <p className="text-sm text-gray-500">Step {activeStep + 1} of {steps.length}: {currentStepTitle}</p>
+            {/* Progress Bar (Optional) */}
+            <div className="mt-3 bg-gray-200 rounded-full h-2.5">
+                <div className="bg-primary-600 h-2.5 rounded-full" style={{ width: `${((activeStep + 1) / steps.length) * 100}%` }}></div>
+            </div>
+        </div>
+
+      <div className="bg-white shadow-xl rounded-lg p-6 md:p-8 border border-gray-200">
         {renderStepContent()}
-        <div className="mt-8 flex justify-between">
+        {errors.submit && ( // General submit error for the whole form
+            <div className="mt-6 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                {errors.submit}
+            </div>
+        )}
+        <div className="mt-8 pt-6 border-t flex justify-between items-center">
           <button
             type="button"
             onClick={handleBack}
-            disabled={activeStep === 0}
-            className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ${
-              activeStep === 0 ? 'opacity-50 cursor-not-allowed' : ''
+
+            disabled={activeStep === 0 || loading}
+            className={`px-6 py-2.5 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-opacity ${
+              activeStep === 0 || loading ? 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+
             }`}
           >
             Back
@@ -308,17 +235,22 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
           {activeStep === steps.length - 1 ? (
             <button
               type="button"
-              onClick={handleSubmit}
-              disabled={loading}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+
+              onClick={handleFinalSubmit} // Changed from handleSubmit to handleFinalSubmit
+              disabled={loading || (mode === 'new' && !createdProductId && activeStep === steps.length-1) } // Disable if core product not saved in 'new' mode on last step
+              className="px-6 py-2.5 text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+
             >
-              {loading ? 'Saving...' : mode === 'edit' ? 'Update Product' : 'Create Product'}
+              {loading ? 'Saving...' : (mode === 'edit' ? 'Update Product' : 'Finish & Create Product')}
             </button>
           ) : (
             <button
               type="button"
               onClick={handleNext}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+
+              disabled={loading}
+              className="px-6 py-2.5 text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+
             >
               Next
             </button>

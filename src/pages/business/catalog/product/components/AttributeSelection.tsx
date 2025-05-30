@@ -12,15 +12,15 @@ interface Attribute {
   attribute_id: number;
   name: string;
   type: 'text' | 'number' | 'select' | 'multiselect' | 'boolean';
-  options: string[] | null;
+  options: string[] | null; 
   required: boolean;
   help_text: string | null;
-  values?: AttributeValue[];
+  values?: AttributeValue[]; 
 }
 
 interface AttributeSelectionProps {
   categoryId: number | null;
-  productId: number | null;
+  productId: number | null; // productId is crucial for saving attribute values
   selectedAttributes: Record<number, string | string[]>;
   onAttributeSelect: (attributeId: number, value: string | string[]) => void;
   errors?: Record<string, any>;
@@ -31,11 +31,19 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
   productId,
   onAttributeSelect,
   selectedAttributes,
+  // errors, // Keep for potential future use
 }) => {
   const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedAttributes, setExpandedAttributes] = useState<Set<number>>(new Set());
+
+  const inputClassName = (hasError?: boolean) => // Define consistent input styling
+    `block w-full rounded-md shadow-sm sm:text-sm p-2.5 ${
+      hasError
+        ? 'border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500'
+        : 'border-gray-300 focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
+    }`;
 
   useEffect(() => {
     if (categoryId) {
@@ -60,11 +68,11 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
         throw new Error('Failed to fetch attributes');
       }
 
-      const data = await response.json();
-      // Fetch attribute values for each attribute
-      const attributesWithValues = await Promise.all(
-        data.map(async (attr: Attribute) => {
-          if (attr.type === 'select' || attr.type === 'multiselect') {
+      let data: Attribute[] = await response.json();
+      
+      const attributesWithValuesPromises = data.map(async (attr) => {
+        if ((attr.type === 'select' || attr.type === 'multiselect') && !attr.options?.length) { 
+          try {
             const valuesResponse = await fetch(
               `${API_BASE_URL}/api/merchant-dashboard/attributes/${attr.attribute_id}/values`,
               {
@@ -75,16 +83,21 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
               }
             );
             if (valuesResponse.ok) {
-              const values = await valuesResponse.json();
-              return { ...attr, values };
+              const fetchedValues: AttributeValue[] = await valuesResponse.json();
+              return { ...attr, values: fetchedValues, options: fetchedValues.map(v => v.value_label) };
             }
+          } catch (valueError) {
+            console.error(`Failed to fetch values for attribute ${attr.attribute_id}:`, valueError);
           }
-          return attr;
-        })
-      );
+        }
+        return attr;
+      });
+      
+      const attributesWithValues = await Promise.all(attributesWithValuesPromises);
       setAttributes(attributesWithValues);
-    } catch (error) {
-      console.error('Error fetching attributes:', error);
+
+    } catch (err) {
+      console.error('Error fetching attributes:', err);
       setError('Failed to load attributes. Please try again later.');
     } finally {
       setIsLoading(false);
@@ -103,105 +116,105 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
     });
   }, []);
 
-  const handleValueSelect = useCallback((attribute: Attribute, value: string) => {
+  const handleValueChange = useCallback((attributeId: number, value: string | string[]) => {
+    onAttributeSelect(attributeId, value);
+  }, [onAttributeSelect]);
+
+
+  const handleValueSelectAndSave = useCallback(async (attribute: Attribute, value: string | string[]) => {
     if (!onAttributeSelect) {
       console.error('onAttributeSelect is not provided');
+      setError('Configuration error: onAttributeSelect is missing.');
       return;
     }
-
     if (!productId) {
       console.error('Product ID is required to save attribute values');
+      setError('Product must be saved first to set attributes. Please go back to "Product Details" and save.');
       return;
     }
 
+    onAttributeSelect(attribute.attribute_id, value); 
+
     try {
-      // Find the attribute value object for the selected value
-      const attributeValue = attribute.values?.find(v => v.value_label === value);
-      
-      if (!attributeValue && attribute.type !== 'text' && attribute.type !== 'number') {
-        console.error('Selected value not found in attribute values');
-        return;
-      }
-
-      // Update local state first
+      let valueToSend: any;
       if (attribute.type === 'multiselect') {
-        const currentValues = (selectedAttributes[attribute.attribute_id] as string[]) || [];
-        const newValues = currentValues.includes(value)
-          ? currentValues.filter(v => v !== value)
-          : [...currentValues, value];
-        onAttributeSelect(attribute.attribute_id, newValues);
+        valueToSend = (value as string[]).map(label => {
+          const attrValueObj = attribute.values?.find(v => v.value_label === label);
+          return attrValueObj ? attrValueObj.value_code : label; 
+        });
+      } else if (attribute.type === 'select') {
+        const attrValueObj = attribute.values?.find(v => v.value_label === (value as string));
+        valueToSend = attrValueObj ? attrValueObj.value_code : value; 
       } else {
-        onAttributeSelect(attribute.attribute_id, value);
+        valueToSend = value;
       }
-
-      // Prepare the data for the backend
-      // For select/multiselect, we need to send the value_code
-      const data = {
-        [attribute.attribute_id]: attribute.type === 'multiselect'
-          ? (selectedAttributes[attribute.attribute_id] as string[] || []).includes(value)
-            ? (selectedAttributes[attribute.attribute_id] as string[]).filter(v => v !== value)
-            : [...(selectedAttributes[attribute.attribute_id] as string[] || []), value]
-          : attributeValue?.value_code || value // Use value_code for select/multiselect, value for text/number
+      
+      // Corrected payload structure:
+      // The backend expects a flat dictionary where keys are attribute_ids.
+      const payload = {
+        [attribute.attribute_id]: valueToSend
       };
 
-      // Send to backend
-      fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/attributes/values`, {
-        method: 'POST',
+      console.log("Sending attribute payload:", JSON.stringify(payload));
+
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/attributes/values`, {
+        method: 'POST', 
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
-      })
-      .then(async response => {
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to save attribute values');
-        }
-        
-        console.log('Attribute values saved successfully:', data);
-      })
-      .catch(error => {
-        console.error('Error saving attribute values:', error);
-        // Revert the local state change if the API call fails
-        if (attribute.type === 'multiselect') {
-          const currentValues = (selectedAttributes[attribute.attribute_id] as string[]) || [];
-          onAttributeSelect(attribute.attribute_id, currentValues);
-        } else {
-          onAttributeSelect(attribute.attribute_id, selectedAttributes[attribute.attribute_id] as string);
-        }
+        body: JSON.stringify(payload),
       });
 
-    } catch (error) {
-      console.error('Error handling attribute selection:', error);
+      const responseData = await response.json(); 
+      if (!response.ok) {
+        console.error('Error response data:', responseData);
+        throw new Error(responseData.message || responseData.error || `Failed to save attribute value (Status: ${response.status})`);
+      }
+      console.log('Attribute value saved successfully:', responseData);
+      setError(null); 
+
+    } catch (err) {
+      console.error('Error saving attribute value:', err);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred while saving attribute.');
+      // Optionally revert the local state change if the API call fails
+      // This can be complex if the original value isn't easily available or if multiple changes happened fast
+      // For now, we'll rely on the user to correct if an error occurs.
+      // Example: onAttributeSelect(attribute.attribute_id, selectedAttributes[attribute.attribute_id]);
     }
-  }, [onAttributeSelect, selectedAttributes, productId]);
+  }, [onAttributeSelect, productId, API_BASE_URL]); // selectedAttributes removed to avoid stale closures if not needed for revert
+
 
   const renderAttributeValue = useCallback((attribute: Attribute) => {
+    const currentValue = selectedAttributes[attribute.attribute_id];
+
     switch (attribute.type) {
       case 'multiselect':
         return (
           <div className="mt-2 space-y-2">
-            {attribute.options?.map((option, index) => {
-              const selectedValues = (selectedAttributes[attribute.attribute_id] as string[]) || [];
+            {(attribute.options || []).map((option, index) => {
+              const selectedValues = (currentValue as string[]) || [];
               const isSelected = selectedValues.includes(option);
               return (
-                <div
+                <label
                   key={index}
-                  className={`px-3 py-2 rounded-md cursor-pointer flex items-center ${
-                    isSelected ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50'
+                  className={`block px-3 py-2.5 rounded-md cursor-pointer border flex items-center transition-colors duration-150 ${
+                    isSelected ? 'bg-primary-100 border-primary-300 text-primary-700' : 'hover:bg-gray-50 border-gray-300'
                   }`}
-                  onClick={() => handleValueSelect(attribute, option)}
                 >
                   <input
                     type="checkbox"
                     checked={isSelected}
-                    onChange={() => {}}
+                    onChange={() => {
+                      const newValues = isSelected
+                        ? selectedValues.filter(v => v !== option)
+                        : [...selectedValues, option];
+                      handleValueSelectAndSave(attribute, newValues);
+                    }}
                     className="mr-2 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   />
                   {option}
-                </div>
+                </label>
               );
             })}
           </div>
@@ -210,15 +223,15 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
       case 'select':
         return (
           <div className="mt-2 space-y-2">
-            {attribute.options?.map((option, index) => (
+            {(attribute.options || []).map((option, index) => (
               <div
                 key={index}
-                className={`px-3 py-2 rounded-md cursor-pointer ${
-                  selectedAttributes[attribute.attribute_id] === option
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'hover:bg-gray-50'
+                className={`px-3 py-2.5 rounded-md cursor-pointer border transition-colors duration-150 ${
+                  currentValue === option
+                    ? 'bg-primary-100 border-primary-300 text-primary-700 font-medium'
+                    : 'hover:bg-gray-50 border-gray-300'
                 }`}
-                onClick={() => handleValueSelect(attribute, option)}
+                onClick={() => handleValueSelectAndSave(attribute, option)}
               >
                 {option}
               </div>
@@ -231,25 +244,29 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
           <div className="mt-2">
             <input
               type="number"
-              value={selectedAttributes[attribute.attribute_id] as string || ''}
-              onChange={(e) => handleValueSelect(attribute, e.target.value)}
+              value={(currentValue as string) || ''}
+              onChange={(e) => handleValueChange(attribute.attribute_id, e.target.value)} 
+              onBlur={(e) => handleValueSelectAndSave(attribute, e.target.value)} 
               placeholder={`Enter ${attribute.name.toLowerCase()}`}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className={inputClassName()} 
             />
           </div>
         );
 
       case 'boolean':
         return (
-          <div className="mt-2">
-            <label className="inline-flex items-center">
+          <div className="mt-3 flex items-center">
+            <label className="inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                checked={selectedAttributes[attribute.attribute_id] === 'true'}
-                onChange={(e) => handleValueSelect(attribute, e.target.checked.toString())}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                checked={currentValue === 'true'}
+                onChange={(e) => handleValueSelectAndSave(attribute, e.target.checked.toString())}
+                className="sr-only peer"
               />
-              <span className="ml-2 text-gray-700">Yes</span>
+              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+              <span className="ms-3 text-sm font-medium text-gray-700">
+                {currentValue === 'true' ? 'Yes' : 'No'}
+              </span>
             </label>
           </div>
         );
@@ -259,15 +276,24 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
           <div className="mt-2">
             <input
               type="text"
-              value={selectedAttributes[attribute.attribute_id] as string || ''}
-              onChange={(e) => handleValueSelect(attribute, e.target.value)}
+              value={(currentValue as string) || ''}
+              onChange={(e) => handleValueChange(attribute.attribute_id, e.target.value)} 
+              onBlur={(e) => handleValueSelectAndSave(attribute, e.target.value)} 
               placeholder={`Enter ${attribute.name.toLowerCase()}`}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className={inputClassName()} 
             />
           </div>
         );
     }
-  }, [handleValueSelect, selectedAttributes]);
+  }, [handleValueChange, handleValueSelectAndSave, selectedAttributes, inputClassName]);
+
+  if (!categoryId) {
+    return (
+      <div className="p-4 text-center text-gray-500 bg-gray-50 rounded-md">
+        Please select a category to see available attributes.
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -277,7 +303,12 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
     );
   }
 
-  if (error) {
+  // Persistent error related to loading attributes
+  const loadingError = error && !attributes.length; 
+  // Non-critical error (e.g. save error)
+  const saveError = error && attributes.length > 0;
+
+  if (loadingError) { 
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
         <p className="text-red-700">{error}</p>
@@ -290,42 +321,53 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
       </div>
     );
   }
-
-  if (attributes.length === 0) {
+  
+  if (attributes.length === 0 && !isLoading) {
     return (
-      <div className="p-4 text-center text-gray-500">
-        No attributes available for this category
+      <div className="p-4 text-center text-gray-500 bg-gray-50 rounded-md">
+        No attributes available for this category.
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
+      {saveError && ( 
+        <div className="p-3 mb-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          {error}
+          <button 
+            onClick={() => setError(null)} 
+            className="ml-2 text-xs font-semibold text-red-800 hover:text-red-900"
+          >
+            DISMISS
+          </button>
+        </div>
+      )}
       {attributes.map((attribute) => (
-        <div key={attribute.attribute_id} className="border rounded-lg overflow-hidden">
+        <div key={attribute.attribute_id} className="border rounded-lg overflow-hidden shadow-sm">
           <div
-            className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
+            className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => toggleAttribute(attribute.attribute_id)}
           >
             <div>
               <h3 className="text-sm font-medium text-gray-900">{attribute.name}</h3>
               {attribute.required && (
-                <span className="text-xs text-red-600">Required</span>
+                <span className="text-xs text-red-500 font-semibold">Required</span>
               )}
               {attribute.help_text && (
                 <p className="text-xs text-gray-500 mt-1">{attribute.help_text}</p>
               )}
             </div>
-            <button className="p-1 hover:bg-gray-100 rounded">
+            <button type="button" className="p-1.5 hover:bg-gray-100 rounded-full text-gray-500 hover:text-gray-700">
               {expandedAttributes.has(attribute.attribute_id) ? (
-                <ChevronDownIcon className="h-4 w-4 text-gray-500" />
+                <ChevronDownIcon className="h-5 w-5" />
               ) : (
-                <ChevronRightIcon className="h-4 w-4 text-gray-500" />
+                <ChevronRightIcon className="h-5 w-5" />
               )}
             </button>
           </div>
           {expandedAttributes.has(attribute.attribute_id) && (
-            <div className="px-4 pb-4">
+            <div className="px-4 pb-4 border-t pt-4 bg-white">
               {renderAttributeValue(attribute)}
             </div>
           )}
@@ -335,4 +377,4 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
   );
 };
 
-export default AttributeSelection; 
+export default AttributeSelection;

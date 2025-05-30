@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -32,6 +34,26 @@ const ProductMeta: React.FC<ProductMetaProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Quill editor modules configuration
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      ['link'],
+      ['clean']
+    ],
+  };
+
+  // Quill editor formats configuration
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'indent',
+    'link'
+  ];
 
   const handleUpdateMeta = async () => {
     try {
@@ -147,47 +169,48 @@ const ProductMeta: React.FC<ProductMetaProps> = ({
 
       {/* Short Description */}
       <div>
-        <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700 mb-2">
           Short Description
         </label>
-        <textarea
-          id="shortDescription"
-          value={shortDescription}
-          onChange={(e) => handleDescriptionChange('shortDescription', e.target.value)}
-          rows={3}
-          className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
-            errors.shortDescription
-              ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-              : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
-          }`}
-          placeholder="Enter a brief description (max 255 characters)"
-          maxLength={255}
-        />
+        <div className={`${errors.shortDescription ? 'border-red-300' : 'border-gray-300'} rounded-md`}>
+          <ReactQuill
+            value={shortDescription}
+            onChange={(content) => handleDescriptionChange('shortDescription', content)}
+            modules={modules}
+            formats={formats}
+            placeholder="Enter a brief description (max 255 characters)"
+            className="h-32 mb-12"
+          />
+        </div>
         {errors.shortDescription && (
           <p className="mt-1 text-sm text-red-600">{errors.shortDescription}</p>
         )}
+        <p className="mt-1 text-xs text-gray-500">
+          You can use formatting options like bold, italic, bullet points, etc.
+        </p>
       </div>
 
       {/* Full Description */}
       <div>
-        <label htmlFor="fullDescription" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="fullDescription" className="block text-sm font-medium text-gray-700 mb-2">
           Full Description
         </label>
-        <textarea
-          id="fullDescription"
-          value={fullDescription}
-          onChange={(e) => handleDescriptionChange('fullDescription', e.target.value)}
-          rows={6}
-          className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
-            errors.fullDescription
-              ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-              : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
-          }`}
-          placeholder="Enter detailed product description"
-        />
+        <div className={`${errors.fullDescription ? 'border-red-300' : 'border-gray-300'} rounded-md`}>
+          <ReactQuill
+            value={fullDescription}
+            onChange={(content) => handleDescriptionChange('fullDescription', content)}
+            modules={modules}
+            formats={formats}
+            placeholder="Enter detailed product description"
+            className="h-64 mb-12"
+          />
+        </div>
         {errors.fullDescription && (
           <p className="mt-1 text-sm text-red-600">{errors.fullDescription}</p>
         )}
+        <p className="mt-1 text-xs text-gray-500">
+          Use the toolbar above to format your text with bullet points, headings, and other styles.
+        </p>
       </div>
 
       {/* Meta Title */}
