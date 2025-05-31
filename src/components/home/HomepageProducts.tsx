@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { toast } from 'react-hot-toast';
 import { Product as CartProduct } from '../../types';
+import { useHorizontalScroll } from '../../hooks/useHorizontalScroll';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const PRODUCTS_PER_PAGE = 4;
@@ -75,6 +76,17 @@ const HomepageProducts: React.FC = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const hasFetched = useRef(false);
+  const {
+    containerRef,
+    isDragging,
+    handleMouseDown,
+    handleMouseUp,
+    handleMouseMove,
+    handleTouchStart,
+    handleTouchMove,
+    handleWheel,
+    scroll
+  } = useHorizontalScroll();
 
   // Update items per view based on screen size
   useEffect(() => {
@@ -368,7 +380,7 @@ const HomepageProducts: React.FC = () => {
                           ? 'border-gray-200 text-gray-400 cursor-not-allowed' 
                           : 'border-gray-300 hover:bg-gray-100 transition-colors'
                       }`}
-                      onClick={() => handlePrevPage(categoryData.category.category_id)}
+                      onClick={() => scroll('left')}
                       disabled={categoryStates[categoryData.category.category_id]?.currentPage === 1}
                       aria-label="Previous products"
                     >
@@ -383,7 +395,7 @@ const HomepageProducts: React.FC = () => {
                           ? 'border-gray-200 text-gray-400 cursor-not-allowed'
                           : 'border-gray-300 hover:bg-gray-100 transition-colors'
                       }`}
-                      onClick={() => handleNextPage(categoryData.category.category_id)}
+                      onClick={() => scroll('right')}
                       disabled={categoryStates[categoryData.category.category_id]?.currentPage === getTotalPages(categoryData)}
                       aria-label="Next products"
                     >
@@ -395,8 +407,27 @@ const HomepageProducts: React.FC = () => {
 
               {/* Products carousel */}
               <div className="relative">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 transition-transform duration-300">
-                  {getVisibleProducts(categoryData).map(renderProductCard)}
+                <div
+                  ref={containerRef}
+                  className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide"
+                  onMouseDown={handleMouseDown}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                  onMouseMove={handleMouseMove}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onWheel={handleWheel}
+                  style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+                >
+                  {getVisibleProducts(categoryData).map((product) => (
+                    <div 
+                      key={product.product_id} 
+                      className="flex-none"
+                      style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 16 / itemsPerView}px)` }}
+                    >
+                      {renderProductCard(product)}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

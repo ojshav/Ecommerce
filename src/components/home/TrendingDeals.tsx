@@ -3,10 +3,41 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
 import { Product } from '../../types';
+import { useHorizontalScroll } from '../../hooks/useHorizontalScroll';
 
 const TrendingDeals: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(4);
+  const {
+    containerRef,
+    isDragging,
+    handleMouseDown,
+    handleMouseUp,
+    handleMouseMove,
+    handleTouchStart,
+    handleTouchMove,
+    handleWheel,
+    scroll
+  } = useHorizontalScroll();
+
+  // Update items per view based on screen size
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      const width = window.innerWidth;
+      if (width < 640) { // sm breakpoint
+        setItemsPerView(1);
+      } else if (width < 768) { // md breakpoint
+        setItemsPerView(2);
+      } else if (width < 1024) { // lg breakpoint
+        setItemsPerView(3);
+      } else {
+        setItemsPerView(4);
+      }
+    };
+
+    updateItemsPerView();
+    window.addEventListener('resize', updateItemsPerView);
+    return () => window.removeEventListener('resize', updateItemsPerView);
+  }, []);
 
   // Convert trending deals to Product format
   const trendingDeals: Product[] = [
@@ -97,44 +128,6 @@ const TrendingDeals: React.FC = () => {
     }
   ];
 
-  // Update items per view based on screen size
-  useEffect(() => {
-    const updateItemsPerView = () => {
-      const width = window.innerWidth;
-      if (width < 640) { // sm breakpoint
-        setItemsPerView(1);
-      } else if (width < 768) { // md breakpoint
-        setItemsPerView(2);
-      } else if (width < 1024) { // lg breakpoint
-        setItemsPerView(3);
-      } else {
-        setItemsPerView(4);
-      }
-    };
-
-    updateItemsPerView();
-    window.addEventListener('resize', updateItemsPerView);
-    return () => window.removeEventListener('resize', updateItemsPerView);
-  }, []);
-
-  const handlePrevious = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? trendingDeals.length - itemsPerView : prevIndex - 1
-    );
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex + itemsPerView >= trendingDeals.length ? 0 : prevIndex + 1
-    );
-  };
-
-  // Calculate visible products
-  const visibleProducts = trendingDeals.slice(
-    currentIndex,
-    currentIndex + itemsPerView
-  );
-
   return (
     <section className="pb-12">
       <div className="container mx-auto px-4">
@@ -150,14 +143,14 @@ const TrendingDeals: React.FC = () => {
               </Link>
               <div className="flex items-center space-x-2">
                 <button 
-                  onClick={handlePrevious}
+                  onClick={() => scroll('left')}
                   className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors"
                   aria-label="Previous deals"
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <button 
-                  onClick={handleNext}
+                  onClick={() => scroll('right')}
                   className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors"
                   aria-label="Next deals"
                 >
@@ -169,16 +162,32 @@ const TrendingDeals: React.FC = () => {
 
           {/* Products carousel */}
           <div className="relative">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 transition-transform duration-300">
-              {visibleProducts.map((product) => (
-                <ProductCard 
+            <div
+              ref={containerRef}
+              className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide"
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onMouseMove={handleMouseMove}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onWheel={handleWheel}
+              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+            >
+              {trendingDeals.map((product) => (
+                <div 
                   key={product.id} 
-                  product={product}
-                  isNew={product.isNew}
-                  salePercentage={product.originalPrice && product.price < product.originalPrice 
-                    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
-                    : undefined}
-                />
+                  className="flex-none"
+                  style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 16 / itemsPerView}px)` }}
+                >
+                  <ProductCard 
+                    product={product}
+                    isNew={product.isNew}
+                    salePercentage={product.originalPrice && product.price < product.originalPrice 
+                      ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
+                      : undefined}
+                  />
+                </div>
               ))}
             </div>
           </div>
