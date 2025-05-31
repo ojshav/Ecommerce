@@ -378,40 +378,42 @@ const ProductDetail: React.FC = () => {
               {/* Attribute Options */}
               {renderAttributeOptions()}
               
+              {/* Quantity Selector and Add to Cart Row */}
               <div className="mb-3">
-                <div className="text-sm font-medium mb-1">Amount:</div>
-                <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
-                  <button 
-                    className="px-2 py-1 bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-                    onClick={() => handleQuantityChange(-1)}
-                    disabled={quantity <= 1}
+                <div className="text-sm font-medium mb-1">Quantity:</div>
+                <div className="flex items-center gap-3">
+                  {/* Quantity Changer */}
+                  <div className="flex items-center border border-gray-300 rounded-md overflow-hidden w-[90px] h-9">
+                    <button 
+                      className="w-8 h-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-lg"
+                      onClick={() => handleQuantityChange(-1)}
+                      disabled={quantity <= 1}
+                    >
+                      -
+                    </button>
+                    <span className="w-8 text-center text-sm select-none">{quantity}</span>
+                    <button 
+                      className="w-8 h-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-lg"
+                      onClick={() => handleQuantityChange(1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                  {/* Add to Cart Button */}
+                  <button
+                    onClick={handleAddToCart}
+                    className="bg-orange-500 text-white px-5 py-2 rounded-md hover:bg-orange-600 transition-colors font-medium text-sm min-w-[120px]"
                   >
-                    -
+                    Add To Cart
                   </button>
-                  <span className="w-8 text-center text-sm">{quantity}</span>
+                  {/* Favourites Button */}
                   <button 
-                    className="px-2 py-1 bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-                    onClick={() => handleQuantityChange(1)}
+                    className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px]"
+                    aria-label="Add to Wishlist"
                   >
-                    +
+                    <Heart size={18} className="text-gray-600" />
                   </button>
                 </div>
-              </div>
-              
-              <div className="flex space-x-2">
-                <button
-                  onClick={handleAddToCart}
-                  className="flex-1 bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors font-medium text-sm"
-                >
-                  Add To Cart
-                </button>
-                
-                <button 
-                  className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-                  aria-label="Add to Wishlist"
-                >
-                  <Heart size={16} className="text-gray-600" />
-                </button>
               </div>
             </div>
           </div>
