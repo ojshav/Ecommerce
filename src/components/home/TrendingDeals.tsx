@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
 import { Product } from '../../types';
 
 const TrendingDeals: React.FC = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(4);
+
   // Convert trending deals to Product format
   const trendingDeals: Product[] = [
     {
@@ -75,7 +78,8 @@ const TrendingDeals: React.FC = () => {
       stock: 32,
       description: "Complete 7-book collection",
       image: "https://images.unsplash.com/photo-1551269901-5c5e14c25df7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80",
-      category: "books"
+      category: "books",
+      sku: "HPBS-1"
     },
     {
       id: '6',
@@ -88,9 +92,48 @@ const TrendingDeals: React.FC = () => {
       stock: 75,
       description: "5-piece home workout kit",
       image: "https://images.unsplash.com/photo-1598447559311-88c21ee17fc7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
-      category: "sports"
+      category: "sports",
+      sku: "RBS-1"
     }
   ];
+
+  // Update items per view based on screen size
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      const width = window.innerWidth;
+      if (width < 640) { // sm breakpoint
+        setItemsPerView(1);
+      } else if (width < 768) { // md breakpoint
+        setItemsPerView(2);
+      } else if (width < 1024) { // lg breakpoint
+        setItemsPerView(3);
+      } else {
+        setItemsPerView(4);
+      }
+    };
+
+    updateItemsPerView();
+    window.addEventListener('resize', updateItemsPerView);
+    return () => window.removeEventListener('resize', updateItemsPerView);
+  }, []);
+
+  const handlePrevious = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? trendingDeals.length - itemsPerView : prevIndex - 1
+    );
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex + itemsPerView >= trendingDeals.length ? 0 : prevIndex + 1
+    );
+  };
+
+  // Calculate visible products
+  const visibleProducts = trendingDeals.slice(
+    currentIndex,
+    currentIndex + itemsPerView
+  );
 
   return (
     <section className="pb-12">
@@ -102,32 +145,42 @@ const TrendingDeals: React.FC = () => {
             
             {/* Navigation */}
             <div className="flex items-center w-full md:w-auto space-x-4">
-              <Link to="/trending" className="text-sm hover:underline">
+              <Link to="/trending" className="text-orange-500 text-sm hover:underline">
                 See all
               </Link>
               <div className="flex items-center space-x-2">
-                <button className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors">
+                <button 
+                  onClick={handlePrevious}
+                  className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors"
+                  aria-label="Previous deals"
+                >
                   <ChevronLeft size={20} />
                 </button>
-                <button className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors">
+                <button 
+                  onClick={handleNext}
+                  className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors"
+                  aria-label="Next deals"
+                >
                   <ChevronRight size={20} />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Products grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {trendingDeals.map((product) => (
-              <ProductCard 
-                key={product.id} 
-                product={product}
-                isNew={product.isNew}
-                salePercentage={product.originalPrice && product.price < product.originalPrice 
-                  ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
-                  : undefined}
-              />
-            ))}
+          {/* Products carousel */}
+          <div className="relative">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 transition-transform duration-300">
+              {visibleProducts.map((product) => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product}
+                  isNew={product.isNew}
+                  salePercentage={product.originalPrice && product.price < product.originalPrice 
+                    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) 
+                    : undefined}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -71,9 +71,30 @@ const HomepageProducts: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [categoryStates, setCategoryStates] = useState<Record<number, CategoryState>>({});
+  const [itemsPerView, setItemsPerView] = useState(4);
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const hasFetched = useRef(false);
+
+  // Update items per view based on screen size
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      const width = window.innerWidth;
+      if (width < 640) { // sm breakpoint
+        setItemsPerView(1);
+      } else if (width < 768) { // md breakpoint
+        setItemsPerView(2);
+      } else if (width < 1024) { // lg breakpoint
+        setItemsPerView(3);
+      } else {
+        setItemsPerView(4);
+      }
+    };
+
+    updateItemsPerView();
+    window.addEventListener('resize', updateItemsPerView);
+    return () => window.removeEventListener('resize', updateItemsPerView);
+  }, []);
 
   // Convert API product to cart product format
   const convertToCartProduct = (product: Product): CartProduct => ({
@@ -248,20 +269,20 @@ const HomepageProducts: React.FC = () => {
     return [];
   };
 
-  // Get paginated products for a specific category
-  const getPaginatedProducts = (categoryData: CategoryWithProducts) => {
+  // Get visible products for a specific category
+  const getVisibleProducts = (categoryData: CategoryWithProducts) => {
     const categoryState = categoryStates[categoryData.category.category_id];
     const currentPage = categoryState?.currentPage || 1;
     const allProducts = getActiveCategoryProducts(categoryData);
-    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
-    const endIndex = startIndex + PRODUCTS_PER_PAGE;
+    const startIndex = (currentPage - 1) * itemsPerView;
+    const endIndex = startIndex + itemsPerView;
     return allProducts.slice(startIndex, endIndex);
   };
 
   // Calculate total pages for a specific category
   const getTotalPages = (categoryData: CategoryWithProducts) => {
     const totalProducts = getActiveCategoryProducts(categoryData).length;
-    return Math.ceil(totalProducts / PRODUCTS_PER_PAGE);
+    return Math.ceil(totalProducts / itemsPerView);
   };
 
   // Handle category change for a specific section
@@ -349,6 +370,7 @@ const HomepageProducts: React.FC = () => {
                       }`}
                       onClick={() => handlePrevPage(categoryData.category.category_id)}
                       disabled={categoryStates[categoryData.category.category_id]?.currentPage === 1}
+                      aria-label="Previous products"
                     >
                       <ChevronLeft size={20} />
                     </button>
@@ -363,6 +385,7 @@ const HomepageProducts: React.FC = () => {
                       }`}
                       onClick={() => handleNextPage(categoryData.category.category_id)}
                       disabled={categoryStates[categoryData.category.category_id]?.currentPage === getTotalPages(categoryData)}
+                      aria-label="Next products"
                     >
                       <ChevronRight size={20} />
                     </button>
@@ -370,9 +393,11 @@ const HomepageProducts: React.FC = () => {
                 </div>
               </div>
 
-              {/* Products grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {getPaginatedProducts(categoryData).map(renderProductCard)}
+              {/* Products carousel */}
+              <div className="relative">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 transition-transform duration-300">
+                  {getVisibleProducts(categoryData).map(renderProductCard)}
+                </div>
               </div>
             </div>
           </div>
