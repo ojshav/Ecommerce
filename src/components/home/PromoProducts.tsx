@@ -123,7 +123,7 @@ const PromoProducts: React.FC = () => {
                 className="flex-none"
                 style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 24 / itemsPerView}px)` }}
               >
-                <div className="bg-white rounded-lg overflow-hidden border border-gray-100 flex flex-col md:flex-row relative">
+                <div className="bg-white rounded-lg overflow-hidden border border-orange-100 hover:border-orange-300 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col md:flex-row relative">
                   {/* Discount Badge */}
                   <div className="absolute top-2 left-2 z-10">
                     <span className="bg-orange-500 text-white text-xs py-1 px-2 rounded">

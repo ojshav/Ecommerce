@@ -186,7 +186,7 @@ const HomepageProducts: React.FC = () => {
     return (
       <div
         key={product.product_id}
-        className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col max-w-[280px] w-full mx-auto"
+        className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col max-w-[280px] w-full mx-auto border border-orange-100 hover:border-orange-300"
         onClick={() => navigate(`/product/${product.product_id}`)}
       >
         <div className="relative aspect-[3/2] w-full">
