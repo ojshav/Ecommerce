@@ -239,7 +239,13 @@ function App() {
                 </Route>
 
                 {/* Superadmin Login Route */}
-                <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+                <Route path="/superadmin/login" element={
+                  <>
+                    <Navbar />
+                    <SuperAdminLogin />
+                    <Footer />
+                  </>
+                } />
 
                 {/* Superadmin Routes - Protected by role check in the component */}
                 <Route path="/superadmin" element={<SuperAdminLayout />}>
