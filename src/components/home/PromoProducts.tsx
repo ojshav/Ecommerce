@@ -1,9 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useHorizontalScroll } from '../../hooks/useHorizontalScroll';
 
 const PromoProducts: React.FC = () => {
+  const [itemsPerView, setItemsPerView] = useState(2);
+  const {
+    containerRef,
+    isDragging,
+    handleMouseDown,
+    handleMouseUp,
+    handleMouseMove,
+    handleTouchStart,
+    handleTouchMove,
+    handleWheel,
+    scroll
+  } = useHorizontalScroll();
+
+  // Update items per view based on screen size
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      const width = window.innerWidth;
+      if (width < 1024) { // lg breakpoint
+        setItemsPerView(1);
+      } else {
+        setItemsPerView(2);
+      }
+    };
+
+    updateItemsPerView();
+    window.addEventListener('resize', updateItemsPerView);
+    return () => window.removeEventListener('resize', updateItemsPerView);
+  }, []);
+
   // Promo products data matching the image
   const promoProducts = [
     {
@@ -55,10 +85,18 @@ const PromoProducts: React.FC = () => {
               See All
             </Link>
             <div className="flex space-x-2">
-              <button className="p-1 rounded-full border border-gray-300">
+              <button 
+                onClick={() => scroll('left')}
+                className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors"
+                aria-label="Previous products"
+              >
                 <ChevronLeft size={20} />
               </button>
-              <button className="p-1 rounded-full border border-gray-300">
+              <button 
+                onClick={() => scroll('right')}
+                className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors"
+                aria-label="Next products"
+              >
                 <ChevronRight size={20} />
               </button>
             </div>
@@ -66,115 +104,132 @@ const PromoProducts: React.FC = () => {
         </div>
 
         {/* Promo Products Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-          {promoProducts.map((product) => (
-            <div key={product.id} className="bg-white rounded-lg overflow-hidden border border-gray-100 flex flex-col md:flex-row relative">
-              {/* Discount Badge */}
-              <div className="absolute top-2 left-2 z-10">
-                <span className="bg-orange-500 text-white text-xs py-1 px-2 rounded">
-                  - {product.discount}%
-                </span>
-              </div>
-              
-              {/* Wishlist Button */}
-              <button className="absolute top-2 right-2 z-10 p-1.5 bg-white rounded-full shadow-sm">
-                <Heart size={18} className="text-gray-500" />
-              </button>
-              
-              {/* Product Image */}
-              <div className="md:w-2/5 h-64 md:h-auto relative">
-                <img 
-                  src={product.image} 
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              {/* Product Details */}
-              <div className="md:w-3/5 p-6 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-medium text-base mb-2">{product.name}</h3>
-                  <div className="flex items-baseline mb-4">
-                    <span className="text-xl font-bold">${product.price.toFixed(2)}</span>
-                    <span className="text-sm text-gray-500 line-through ml-3">${product.originalPrice.toFixed(2)}</span>
+        <div className="relative">
+          <div
+            ref={containerRef}
+            className="flex overflow-x-auto gap-6 mb-10 scrollbar-hide"
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onWheel={handleWheel}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          >
+            {promoProducts.map((product) => (
+              <div 
+                key={product.id} 
+                className="flex-none"
+                style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 24 / itemsPerView}px)` }}
+              >
+                <div className="bg-white rounded-lg overflow-hidden border border-orange-100 hover:border-orange-300 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col md:flex-row relative">
+                  {/* Discount Badge */}
+                  <div className="absolute top-2 left-2 z-10">
+                    <span className="bg-orange-500 text-white text-xs py-1 px-2 rounded">
+                      - {product.discount}%
+                    </span>
                   </div>
                   
-                  {/* Sold/Stock Indicator */}
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Sold: {product.sold}</span>
-                      <span>In Stock: {product.stock}</span>
-                    </div>
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full"
-                        style={{ width: `${(product.sold / (product.sold + product.stock)) * 100}%` }}
-                      ></div>
-                    </div>
+                  {/* Wishlist Button */}
+                  <button className="absolute top-2 right-2 z-10 p-1.5 bg-white rounded-full shadow-sm">
+                    <Heart size={18} className="text-gray-500" />
+                  </button>
+                  
+                  {/* Product Image */}
+                  <div className="md:w-2/5 h-64 md:h-auto relative">
+                    <img 
+                      src={product.image} 
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   
-                  {/* Countdown Timer */}
-                  <div className="grid grid-cols-4 gap-2 mb-6">
-                    <div className="text-center">
-                      <div className="bg-gray-100 p-2 rounded">
-                        <span className="text-base font-medium">{product.countdownDays}</span>
+                  {/* Product Details */}
+                  <div className="md:w-3/5 p-6 flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-medium text-base mb-2">{product.name}</h3>
+                      <div className="flex items-baseline mb-4">
+                        <span className="text-xl font-bold">${product.price.toFixed(2)}</span>
+                        <span className="text-sm text-gray-500 line-through ml-3">${product.originalPrice.toFixed(2)}</span>
                       </div>
-                      <span className="text-xs text-gray-500">Day</span>
-                    </div>
-                    <div className="text-center">
-                      <div className="bg-gray-100 p-2 rounded">
-                        <span className="text-base font-medium">{product.countdownHours}</span>
+                      
+                      {/* Sold/Stock Indicator */}
+                      <div className="mb-4">
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>Sold: {product.sold}</span>
+                          <span>In Stock: {product.stock}</span>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full"
+                            style={{ width: `${(product.sold / (product.sold + product.stock)) * 100}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      <span className="text-xs text-gray-500">Hour</span>
-                    </div>
-                    <div className="text-center">
-                      <div className="bg-gray-100 p-2 rounded">
-                        <span className="text-base font-medium">{product.countdownMinutes.toString().padStart(2, '0')}</span>
+                      
+                      {/* Countdown Timer */}
+                      <div className="grid grid-cols-4 gap-2 mb-6">
+                        <div className="text-center">
+                          <div className="bg-gray-100 p-2 rounded">
+                            <span className="text-base font-medium">{product.countdownDays}</span>
+                          </div>
+                          <span className="text-xs text-gray-500">Day</span>
+                        </div>
+                        <div className="text-center">
+                          <div className="bg-gray-100 p-2 rounded">
+                            <span className="text-base font-medium">{product.countdownHours}</span>
+                          </div>
+                          <span className="text-xs text-gray-500">Hour</span>
+                        </div>
+                        <div className="text-center">
+                          <div className="bg-gray-100 p-2 rounded">
+                            <span className="text-base font-medium">{product.countdownMinutes.toString().padStart(2, '0')}</span>
+                          </div>
+                          <span className="text-xs text-gray-500">Min</span>
+                        </div>
+                        <div className="text-center">
+                          <div className="bg-gray-100 p-2 rounded">
+                            <span className="text-base font-medium">{product.countdownSeconds.toString().padStart(2, '0')}</span>
+                          </div>
+                          <span className="text-xs text-gray-500">Sec</span>
+                        </div>
                       </div>
-                      <span className="text-xs text-gray-500">Min</span>
                     </div>
-                    <div className="text-center">
-                      <div className="bg-gray-100 p-2 rounded">
-                        <span className="text-base font-medium">{product.countdownSeconds.toString().padStart(2, '0')}</span>
-                      </div>
-                      <span className="text-xs text-gray-500">Sec</span>
-                    </div>
+                    
+                    {/* Add to Cart Button */}
+                    <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded transition">
+                      Add To Cart
+                    </button>
                   </div>
                 </div>
-                
-                {/* Add to Cart Button */}
-                <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded transition">
-                  Add To Cart
-                </button>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Full-width Banner */}
-      </div>
-      <div className="relative overflow-hidden h-96 w-screen -ml-[calc((100vw-100%)/2)]">
-        <img 
-          src={banner.image}
-          alt="Promo banner" 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 flex items-center p-8">
-          <div className="container mx-auto px-4">
-            <div className="ml-auto mr-8">
-              <span className="inline-block bg-white bg-opacity-90 px-3 py-1 text-sm mb-4">
-                {banner.tag}
-              </span>
-              <h3 className="text-white text-3xl font-bold mb-2">{banner.title}</h3>
-              <h4 className="text-white text-2xl font-bold mb-6">{banner.subtitle}</h4>
-              <button className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition">
-                Order Now
-              </button>
+        <div className="relative overflow-hidden h-96 w-screen -ml-[calc((100vw-100%)/2)]">
+          <img 
+            src={banner.image}
+            alt="Promo banner" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 flex items-center p-8">
+            <div className="container mx-auto px-4">
+              <div className="ml-auto mr-8">
+                <span className="inline-block bg-white bg-opacity-90 px-3 py-1 text-sm mb-4">
+                  {banner.tag}
+                </span>
+                <h3 className="text-white text-3xl font-bold mb-2">{banner.title}</h3>
+                <h4 className="text-white text-2xl font-bold mb-6">{banner.subtitle}</h4>
+                <button className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition">
+                  Order Now
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className="container mx-auto px-4">
       </div>
     </section>
   );

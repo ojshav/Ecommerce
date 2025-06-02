@@ -37,7 +37,7 @@ import ContentModeration from './pages/superadmin/ContentModeration';
 import ProductMonitoring from './pages/superadmin/ProductMonitoring';
 
 import TrafficAnalytics from './pages/superadmin/TrafficAnalytics';
-import SalesReport from './pages/superadmin/SalesReport';
+import SalesReportPage from './pages/superadmin/SalesReport';
 import FraudDetection from './pages/superadmin/FraudDetection';
 import MarketplaceHealth from './pages/superadmin/MarketplaceHealth';
 import MerchantAnalytics from './pages/superadmin/MerchantAnalytics';
@@ -78,6 +78,12 @@ import AoinLivePage from './components/sections/AoinLivePage';
 import ComingSoonPage from './components/sections/ComingSoonPage';
 import FashionFactoryPage from './components/sections/FashionFactoryPage';
 import SundayFundayPage from './components/sections/SundayFundayPage';
+import Reviews from './pages/business/Reviews';
+import SalesReport from './pages/business/reports/SalesReport';
+import CustomersReport from './pages/business/reports/CustomersReport';
+import ProductsReport from './pages/business/reports/ProductsReport';
+import Settings from './pages/business/Settings';
+import Support from './pages/business/Support';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -185,6 +191,59 @@ function App() {
                       </Suspense>
                     }
                   />
+                  <Route
+                    path="reviews"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Reviews />
+                      </Suspense>
+                    }
+                  />
+
+                  <Route
+                    path="reports/sales"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <SalesReportPage />
+                      </Suspense>
+                    }
+                  />
+
+                  <Route
+                    path="reports/customers"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <CustomersReport />
+                      </Suspense>
+                    }
+                  />
+
+                  <Route
+                    path="reports/products"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <ProductsReport />
+                      </Suspense>
+                    }
+                  />
+
+                  <Route
+                    path="settings"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Settings />
+                      </Suspense>
+                    }
+                  />
+
+                  <Route
+                    path="support"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Support />
+                      </Suspense>
+                    }
+                  />
 
                   {/* Catalog Routes */}
                   <Route path="catalog">
@@ -239,7 +298,13 @@ function App() {
                 </Route>
 
                 {/* Superadmin Login Route */}
-                <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+                <Route path="/superadmin/login" element={
+                  <>
+                    <Navbar />
+                    <SuperAdminLogin />
+                    <Footer />
+                  </>
+                } />
 
                 {/* Superadmin Routes - Protected by role check in the component */}
                 <Route path="/superadmin" element={<SuperAdminLayout />}>
@@ -258,7 +323,7 @@ function App() {
                   <Route path="product-monitoring" element={<ProductMonitoring />} />
                   <Route path="site-traffic-analytics" element={<TrafficAnalytics />} />
 
-                  <Route path="sales-reports" element={<SalesReport />} />
+                  <Route path="sales-reports" element={<SalesReportPage />} />
                   <Route path="fraud-detection" element={<FraudDetection />} />
                   <Route
                     path="marketplace-health"

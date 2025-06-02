@@ -64,40 +64,40 @@ const ComingSoon: React.FC<ComingSoonProps> = ({ layout = 'row' }) => {
 
   // Row layout (for LiveShop page)
   if (layout === 'row') {
-    return (
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-[28px] font-medium text-gray-900">Coming Soon</h2>
-          <a href="/live-shop/coming-soon" className="text-sm text-gray-600 hover:text-gray-900">
-            See All
-          </a>
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-[28px] font-medium text-gray-900">Coming Soon</h2>
+        <a href="/live-shop/coming-soon" className="text-sm text-gray-600 hover:text-gray-900">
+          See All
+        </a>
+      </div>
+      
+      <div className="relative px-12">
+        <button 
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-[#FF4D00] hover:bg-[#FF4D00]/90 rounded-full flex items-center justify-center shadow-md z-10 transition-colors duration-200"
+          aria-label="Previous"
+          onClick={() => handleScroll('left')}
+        >
+          <ChevronLeft className="w-5 h-5 text-white" />
+        </button>
+
+        <div 
+          ref={scrollContainerRef}
+          className="flex gap-6 overflow-x-auto pb-4 no-scrollbar scroll-smooth"
+        >
+          {upcomingContent.map((item) => (
+            <LiveCard key={item.id} {...item} />
+          ))}
         </div>
-        
-        <div className="relative px-12">
-          <button 
-            className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-[#FF4D00] hover:bg-[#FF4D00]/90 rounded-full flex items-center justify-center shadow-md z-10 transition-colors duration-200"
-            aria-label="Previous"
-            onClick={() => handleScroll('left')}
-          >
-            <ChevronLeft className="w-5 h-5 text-white" />
-          </button>
 
-          <div 
-            ref={scrollContainerRef}
-            className="flex gap-6 overflow-x-auto pb-4 no-scrollbar scroll-smooth"
-          >
-            {upcomingContent.map((item) => (
-              <LiveCard key={item.id} {...item} />
-            ))}
-          </div>
-
-          <button 
-            className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-[#FF4D00] hover:bg-[#FF4D00]/90 rounded-full flex items-center justify-center shadow-md z-10 transition-colors duration-200"
-            aria-label="Next"
-            onClick={() => handleScroll('right')}
-          >
-            <ChevronRight className="w-5 h-5 text-white" />
-          </button>
+        <button 
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-[#FF4D00] hover:bg-[#FF4D00]/90 rounded-full flex items-center justify-center shadow-md z-10 transition-colors duration-200"
+          aria-label="Next"
+          onClick={() => handleScroll('right')}
+        >
+          <ChevronRight className="w-5 h-5 text-white" />
+        </button>
         </div>
       </div>
     );

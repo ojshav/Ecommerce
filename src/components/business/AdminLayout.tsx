@@ -20,11 +20,10 @@ import {
   ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
-// Modified navigation items - removed Categories and Attributes from Catalog submenu
+// Modified navigation items - updated Reports section
 const navigationItems = [
   { name: 'Dashboard', path: '/business/dashboard', icon: ChartBarIcon },
-  // Catalog is now a direct link instead of having a submenu
-{ 
+  { 
     name: 'Catalog', 
     icon: CubeIcon,
     submenu: [
@@ -37,7 +36,15 @@ const navigationItems = [
   { name: 'Payments', path: '/business/payments', icon: CreditCardIcon },
   { name: 'Promotions', path: '/business/product-placements', icon: TagIcon },
   { name: 'Reviews', path: '/business/reviews', icon: StarIcon },
-  { name: 'Reports', path: '/business/reports', icon: DocumentChartBarIcon },
+  { 
+    name: 'Reports', 
+    icon: DocumentChartBarIcon,
+    submenu: [
+      { name: 'Sales Report', path: '/business/reports/sales', icon: ChartBarIcon },
+      { name: 'Customers Report', path: '/business/reports/customers', icon: UserGroupIcon },
+      { name: 'Products Report', path: '/business/reports/products', icon: CubeIcon },
+    ]
+  },
   { name: 'Support', path: '/business/support', icon: ChatBubbleLeftIcon },
   { name: 'Settings', path: '/business/settings', icon: CogIcon },
 ];
