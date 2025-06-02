@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Heart, ShoppingCart } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../../context/CartContext';
-import { toast } from 'react-hot-toast';
+import ProductCard from '../product/ProductCard';
 import { Product as CartProduct } from '../../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -72,7 +71,6 @@ const HomepageProducts: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [categoryStates, setCategoryStates] = useState<Record<number, CategoryState>>({});
   const navigate = useNavigate();
-  const { addToCart } = useCart();
   const hasFetched = useRef(false);
 
   // Convert API product to cart product format
@@ -82,7 +80,7 @@ const HomepageProducts: React.FC = () => {
     description: product.product_description,
     price: product.selling_price,
     originalPrice: product.special_price || undefined,
-    image: product.media?.[0]?.url || product.image, // Use first media image or fallback to image
+    image: product.media?.[0]?.url || product.image,
     stock: product.stock,
     isNew: product.isNew,
     featured: product.featured,
@@ -96,7 +94,6 @@ const HomepageProducts: React.FC = () => {
 
   useEffect(() => {
     const fetchHomepageProducts = async () => {
-      // Prevent duplicate fetches
       if (hasFetched.current) return;
       hasFetched.current = true;
 
@@ -116,7 +113,6 @@ const HomepageProducts: React.FC = () => {
 
         if (data.status === 'success') {
           setCategoriesWithProducts(data.data);
-          // Initialize states for each category with 'All' as default
           const initialStates: Record<number, CategoryState> = {};
           data.data.forEach((category: CategoryWithProducts) => {
             initialStates[category.category.category_id] = {
@@ -138,88 +134,14 @@ const HomepageProducts: React.FC = () => {
     fetchHomepageProducts();
   }, []);
 
-  const handleWishlist = (e: React.MouseEvent, product: Product) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toast.success(`${product.product_name} added to wishlist`);
-  };
-
   const renderProductCard = (product: Product) => {
-    // Calculate price with discount if applicable
-    const price = product.special_price || product.selling_price;
-    const originalPrice = product.special_price ? product.selling_price : undefined;
-    const productImage = product.media?.[0]?.url || product.image;
-
     return (
-      <div
+      <ProductCard
         key={product.product_id}
-        className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col max-w-[280px] w-full mx-auto"
-        onClick={() => navigate(`/product/${product.product_id}`)}
-      >
-        <div className="relative aspect-[3/2] w-full">
-          {/* Product badges */}
-          <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10">
-            {product.isNew && (
-              <span className="bg-[#F2631F] text-white text-[10px] px-1.5 py-0.5 rounded">
-                New
-              </span>
-            )}
-            {product.featured && (
-              <span className="bg-[#F2631F] text-white text-[10px] px-1.5 py-0.5 rounded">
-                Featured
-              </span>
-            )}
-            {product.favourite && (
-              <span className="bg-yellow-400 text-black text-[10px] px-1.5 py-0.5 rounded">
-                Favourite
-              </span>
-            )}
-            {product.stock === 0 && (
-              <span className="bg-gray-400 text-black text-[10px] px-1.5 py-0.5 rounded">
-                Sold Out
-              </span>
-            )}
-          </div>
-          
-          {/* Favorite button */}
-          <button
-            className="absolute top-4 right-4 p-1.5 z-10 text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md rounded-full transition-all duration-300"
-            onClick={(e) => handleWishlist(e, product)}
-          >
-            <Heart className="w-4 h-4" />
-          </button>
-          
-          {/* Product image */}
-          <img
-            src={productImage}
-            alt={product.product_name}
-            className="w-full h-full object-contain p-2 rounded-lg"
-          />
-        </div>
-
-        <div className="p-3 flex flex-col flex-grow">
-          <h3 className="text-sm font-medium mb-1 line-clamp-1">{product.product_name}</h3>
-          <div className="mt-auto">
-            <div className="flex items-center space-x-2 mb-2">
-              <span className="text-base font-bold">₹{price.toFixed(2)}</span>
-              {originalPrice && (
-                <span className="text-gray-400 text-sm line-through">₹{originalPrice.toFixed(2)}</span>
-              )}
-            </div>
-            <button
-              className="w-1/2 bg-[#F2631F] text-white py-1.5 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-1.5 text-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                addToCart(convertToCartProduct(product));
-              }}
-              disabled={product.stock === 0}
-            >
-              <ShoppingCart className="w-4 h-4" />
-              {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
-            </button>
-          </div>
-        </div>
-      </div>
+        product={convertToCartProduct(product)}
+        isNew={product.isNew}
+        salePercentage={product.discount_pct}
+      />
     );
   };
 
@@ -229,22 +151,17 @@ const HomepageProducts: React.FC = () => {
     const activeCategory = categoryState?.activeCategory || categoryData.category.name;
 
     if (activeCategory === 'All') {
-      // Return all products from all subcategories
       return categoryData.subcategories.flatMap(sub => sub.products || []);
     }
 
-    // Find the selected subcategory
     const selectedSubcategory = categoryData.subcategories.find(
       sub => sub.category.name === activeCategory
     );
 
     if (selectedSubcategory) {
-      // Return products from the selected subcategory
-      // Note: These products now include both direct products and products from sub-subcategories
       return selectedSubcategory.products || [];
     }
 
-    // If no subcategory is found, return empty array
     return [];
   };
 
@@ -271,7 +188,7 @@ const HomepageProducts: React.FC = () => {
       [categoryId]: {
         ...prev[categoryId],
         activeCategory: categoryName,
-        currentPage: 1 // Reset to first page when changing category
+        currentPage: 1
       }
     }));
   };

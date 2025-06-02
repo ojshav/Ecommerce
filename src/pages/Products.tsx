@@ -105,6 +105,8 @@ const Products: React.FC = () => {
           [String(category.parent_id)]: true
         }));
       }
+      // Reset to first page when category changes
+      setCurrentPage(1);
     } else {
       setSelectedCategory('');
     }
