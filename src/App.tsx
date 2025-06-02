@@ -78,6 +78,7 @@ import AoinLivePage from './components/sections/AoinLivePage';
 import ComingSoonPage from './components/sections/ComingSoonPage';
 import FashionFactoryPage from './components/sections/FashionFactoryPage';
 import SundayFundayPage from './components/sections/SundayFundayPage';
+import Reviews from './pages/business/Reviews';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -182,6 +183,14 @@ function App() {
                     element={
                       <Suspense fallback={<LoadingFallback />}>
                         <BusinessCustomers />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="reviews"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Reviews />
                       </Suspense>
                     }
                   />
