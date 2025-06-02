@@ -102,7 +102,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </div>
           <button
-            className="w-1/2 bg-[#F2631F] text-white py-1.5 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-1.5 text-sm"
+            className="w-full bg-[#F2631F] text-white py-1.5 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-1.5 text-sm"
             onClick={handleAddToCart}
             disabled={product.stock === 0}
           >
