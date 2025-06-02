@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight, Share2 } from 'lucide-react';
+import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight, ChevronLeft, Share2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-hot-toast';
 
@@ -332,7 +332,7 @@ const ProductDetail: React.FC = () => {
                     className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
                     aria-label="Previous image"
                   >
-                    <ArrowLeft size={20} />
+                    <ChevronLeft size={20} />
                   </button>
 
                   <div className="flex space-x-3 overflow-x-auto scrollbar-hide">
