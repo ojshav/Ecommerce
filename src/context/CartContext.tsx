@@ -32,7 +32,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   
   // Calculate derived values
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -41,7 +41,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Fetch cart from backend
   const fetchCart = async () => {
-    if (!accessToken) return;
+    if (!accessToken || user?.role !== 'customer') {
+      setCart([]);
+      setLoading(false);
+      return;
+    }
     
     try {
       console.log('Fetching cart items...');
@@ -60,25 +64,19 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.log('Cart API Response:', data);
 
       if (data.status === 'success') {
-        const formattedCart = data.data.map((item: any) => {
-          console.log('Processing cart item:', item);
-          console.log('Product image URL:', item.product?.image_url);
-          
-          return {
-            cart_item_id: item.cart_item_id,
-            quantity: item.quantity,
-            product: {
-              id: item.product.id,
-              name: item.product.name,
-              price: item.product.price,
-              image_url: item.product.image_url,
-              stock: item.product.stock,
-              is_deleted: item.product.is_deleted
-            }
-          };
-        });
+        const formattedCart = data.data.map((item: any) => ({
+          cart_item_id: item.cart_item_id,
+          quantity: item.quantity,
+          product: {
+            id: item.product.id,
+            name: item.product.name,
+            price: item.product.price,
+            image_url: item.product.image_url,
+            stock: item.product.stock,
+            is_deleted: item.product.is_deleted
+          }
+        }));
 
-        console.log('Formatted cart items:', formattedCart);
         setCart(formattedCart);
       }
     } catch (error) {
@@ -89,24 +87,23 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // Load cart when auth token changes
+  // Load cart when auth token or user role changes
   useEffect(() => {
-    if (accessToken) {
+    if (accessToken && user?.role === 'customer') {
       fetchCart();
     } else {
       setCart([]);
       setLoading(false);
     }
-  }, [accessToken]);
+  }, [accessToken, user?.role]);
 
   const addToCart = async (product: Product, quantity = 1) => {
-    if (!accessToken) {
-      toast.error('Please sign in to add items to cart');
+    if (!accessToken || user?.role !== 'customer') {
+      toast.error('Only customers can add items to cart');
       return;
     }
 
     try {
-      console.log('Adding product to cart:', product);
       const payload = {
         product_id: product.id,
         quantity
@@ -127,10 +124,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       const data = await response.json();
-      console.log('Add to cart response:', data);
-      
       if (data.status === 'success') {
-        await fetchCart(); // Refresh cart after adding item
+        await fetchCart();
         toast.success(`${product.name} added to cart`);
       }
     } catch (error) {
@@ -140,7 +135,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const removeFromCart = async (cartItemId: number) => {
-    if (!accessToken) return;
+    if (!accessToken || user?.role !== 'customer') return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/cart/remove/${cartItemId}`, {
@@ -158,7 +153,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const data = await response.json();
       if (data.status === 'success') {
-        await fetchCart(); // Refresh cart after removing item
+        await fetchCart();
         toast.success('Item removed from cart');
       }
     } catch (error) {
@@ -168,7 +163,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const updateQuantity = async (cartItemId: number, quantity: number) => {
-    if (!accessToken) return;
+    if (!accessToken || user?.role !== 'customer') return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/cart/update/${cartItemId}`, {
@@ -187,7 +182,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const data = await response.json();
       if (data.status === 'success') {
-        await fetchCart(); // Refresh cart after updating quantity
+        await fetchCart();
       }
     } catch (error) {
       console.error('Error updating cart:', error);
@@ -196,7 +191,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const clearCart = async () => {
-    if (!accessToken) return;
+    if (!accessToken || user?.role !== 'customer') return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/cart/clear`, {
