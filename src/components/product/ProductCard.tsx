@@ -1,8 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart } from 'lucide-react';
 import { Product } from '../../types';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
 interface ProductCardProps {
@@ -19,17 +20,46 @@ const ProductCard: React.FC<ProductCardProps> = ({
   salePercentage
 }) => {
   const { addToCart } = useCart();
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product, 1);
-    toast.success(`${product.name} added to cart`);
+    
+    if (!isAuthenticated) {
+      toast.error('Please sign in to add items to cart');
+      // Store the current URL to redirect back after sign in
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      navigate(`/sign-in?returnUrl=${returnUrl}`);
+      return;
+    }
+
+    // Check if user is a merchant or admin (they shouldn't be able to add to cart)
+    if (user?.role === 'merchant' || user?.role === 'admin') {
+      toast.error('Merchants and admins cannot add items to cart');
+      return;
+    }
+    
+    try {
+      await addToCart(product, 1);
+      toast.success(`${product.name} added to cart`);
+    } catch (error) {
+      toast.error('Failed to add item to cart');
+    }
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      toast.error('Please sign in to add items to wishlist');
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      navigate(`/sign-in?returnUrl=${returnUrl}`);
+      return;
+    }
+    
     toast.success(`${product.name} added to wishlist`);
   };
   
@@ -104,7 +134,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <button
             className="w-full bg-[#F2631F] text-white py-1.5 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-1.5 text-sm"
             onClick={handleAddToCart}
-            disabled={product.stock === 0}
+            disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
           >
             <ShoppingCart className="w-4 h-4" />
             {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}

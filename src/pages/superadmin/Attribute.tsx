@@ -710,73 +710,77 @@ const Attribute: React.FC = () => {
                             </button>
                         </div>
 
-                        
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            handleAddCustomAttribute();
+                        }}>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">Attribute Name *</label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded-md"
+                                    placeholder="Enter attribute name"
+                                    value={newCustomAttribute.name}
+                                    onChange={(e) => {
+                                        const name = e.target.value;
+                                        const code = name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+                                        setNewCustomAttribute({ 
+                                            ...newCustomAttribute, 
+                                            name: name,
+                                            code: code 
+                                        });
+                                    }}
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">Attribute Code *</label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded-md"
+                                    placeholder="Enter attribute code"
+                                    value={newCustomAttribute.code}
+                                    onChange={(e) => setNewCustomAttribute({ ...newCustomAttribute, code: e.target.value })}
+                                    readOnly
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Code is automatically generated from the attribute name
+                                </p>
+                            </div>
 
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">Attribute Name *</label>
-                            <input
-                                type="text"
-                                className="w-full p-2 border rounded-md"
-                                placeholder="Enter attribute name"
-                                value={newCustomAttribute.name}
-                                onChange={(e) => {
-                                    const name = e.target.value;
-                                    const code = name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-                                    setNewCustomAttribute({ 
-                                        ...newCustomAttribute, 
-                                        name: name,
-                                        code: code 
-                                    });
-                                }}
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">Attribute Code *</label>
-                            <input
-                                type="text"
-                                className="w-full p-2 border rounded-md"
-                                placeholder="Enter attribute code"
-                                value={newCustomAttribute.code}
-                                onChange={(e) => setNewCustomAttribute({ ...newCustomAttribute, code: e.target.value })}
-                                readOnly
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                                Code is automatically generated from the attribute name
-                            </p>
-                        </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">Attribute Type *</label>
+                                <select
+                                    className="w-full p-2 border rounded-md"
+                                    value={newCustomAttribute.input_type}
+                                    onChange={(e) => setNewCustomAttribute({
+                                        ...newCustomAttribute,
+                                        input_type: e.target.value as AttributeInputType
+                                    })}
+                                >
+                                    {Object.values(AttributeInputType).map((type) => (
+                                        <option key={type} value={type}>
+                                            {type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">Attribute Type *</label>
-                            <select
-                                className="w-full p-2 border rounded-md"
-                                value={newCustomAttribute.input_type}
-                                onChange={(e) => setNewCustomAttribute({
-                                    ...newCustomAttribute,
-                                    input_type: e.target.value as AttributeInputType
-                                })}
-                            >
-                                {Object.values(AttributeInputType).map((type) => (
-                                    <option key={type} value={type}>
-                                        {type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' ')}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="flex justify-end">
-                            <button
-                                className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors"
-                                onClick={() => setShowAddCustomAttribute(false)}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors"
-                                onClick={handleAddCustomAttribute}
-                            >
-                                Add Attribute
-                            </button>
-                        </div>
+                            <div className="flex justify-end">
+                                <button
+                                    type="button"
+                                    className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors"
+                                    onClick={() => setShowAddCustomAttribute(false)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors"
+                                >
+                                    Add Attribute
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
@@ -799,52 +803,58 @@ const Attribute: React.FC = () => {
                             </button>
                         </div>
 
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">Value Label *</label>
-                            <input
-                                type="text"
-                                className="w-full p-2 border rounded-md"
-                                placeholder="Enter value label"
-                                value={newAttributeValue.value_label}
-                                onChange={(e) => setNewAttributeValue({
-                                    ...newAttributeValue,
-                                    value_label: e.target.value,
-                                    value_code: e.target.value.toLowerCase().replace(/\s+/g, '_')
-                                })}
-                            />
-                        </div>
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            handleAddAttributeValue();
+                        }}>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">Value Label *</label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded-md"
+                                    placeholder="Enter value label"
+                                    value={newAttributeValue.value_label}
+                                    onChange={(e) => setNewAttributeValue({
+                                        ...newAttributeValue,
+                                        value_label: e.target.value,
+                                        value_code: e.target.value.toLowerCase().replace(/\s+/g, '_')
+                                    })}
+                                />
+                            </div>
 
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">Value Code</label>
-                            <input
-                                type="text"
-                                className="w-full p-2 border rounded-md"
-                                placeholder="Enter value code (optional)"
-                                value={newAttributeValue.value_code}
-                                onChange={(e) => setNewAttributeValue({
-                                    ...newAttributeValue,
-                                    value_code: e.target.value.toLowerCase().replace(/\s+/g, '_')
-                                })}
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                                If not provided, will be generated from the label
-                            </p>
-                        </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-1">Value Code</label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded-md"
+                                    placeholder="Enter value code (optional)"
+                                    value={newAttributeValue.value_code}
+                                    onChange={(e) => setNewAttributeValue({
+                                        ...newAttributeValue,
+                                        value_code: e.target.value.toLowerCase().replace(/\s+/g, '_')
+                                    })}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    If not provided, will be generated from the label
+                                </p>
+                            </div>
 
-                        <div className="flex justify-end">
-                            <button
-                                className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors"
-                                onClick={() => setShowAddValueModal(false)}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors"
-                                onClick={handleAddAttributeValue}
-                            >
-                                Add Value
-                            </button>
-                        </div>
+                            <div className="flex justify-end">
+                                <button
+                                    type="button"
+                                    className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors"
+                                    onClick={() => setShowAddValueModal(false)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors"
+                                >
+                                    Add Value
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
