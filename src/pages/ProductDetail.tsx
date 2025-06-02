@@ -311,17 +311,13 @@ const ProductDetail: React.FC = () => {
             {/* Product Images */}
             <div className="space-y-2">
               <div className="flex flex-col items-center">
-                {/* Main Product Image */}
-                <div className="mb-6 w-full max-w-lg flex justify-center">
+                {/* Main Product Image with Navigation */}
+                <div className="mb-6 w-full max-w-lg flex justify-center relative">
                   <img 
                     src={selectedImage}
                     alt={product.product_name}
-                    className="rounded-lg shadow-md object-contain max-h-96"
+                    className="rounded-lg shadow-md object-contain max-h-96 w-full"
                   />
-                </div>
-
-                {/* Thumbnail Images with Navigation */}
-                <div className="flex items-center space-x-2">
                   {/* Left Arrow Button */}
                   <button
                     onClick={() => {
@@ -329,25 +325,11 @@ const ProductDetail: React.FC = () => {
                       const previousIndex = (currentIndex - 1 + product.media.length) % product.media.length;
                       setSelectedImage(product.media[previousIndex].url);
                     }}
-                    className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 p-3 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-100 transition-colors z-10"
                     aria-label="Previous image"
                   >
-                    <ChevronLeft size={20} />
+                    <ChevronLeft size={24} />
                   </button>
-
-                  <div className="flex space-x-3 overflow-x-auto scrollbar-hide">
-                    {product.media.map((media) => (
-                      <img
-                        key={media.media_id}
-                        src={media.url}
-                        alt={`${product.product_name} thumbnail`}
-                        className={`w-20 h-20 object-cover rounded-md cursor-pointer border-2 ${
-                          selectedImage === media.url ? 'border-primary-500' : 'border-transparent'
-                        }`}
-                        onClick={() => setSelectedImage(media.url)}
-                      />
-                    ))}
-                  </div>
 
                   {/* Right Arrow Button */}
                   <button
@@ -356,11 +338,26 @@ const ProductDetail: React.FC = () => {
                       const nextIndex = (currentIndex + 1) % product.media.length;
                       setSelectedImage(product.media[nextIndex].url);
                     }}
-                    className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-100 transition-colors z-10"
                     aria-label="Next image"
                   >
-                    <ChevronRight size={20} />
+                    <ChevronRight size={24} />
                   </button>
+                </div>
+
+                {/* Thumbnail Images */}
+                <div className="flex space-x-3 overflow-x-auto scrollbar-hide">
+                  {product.media.map((media) => (
+                    <img
+                      key={media.media_id}
+                      src={media.url}
+                      alt={`${product.product_name} thumbnail`}
+                      className={`w-20 h-20 object-cover rounded-md cursor-pointer border-2 ${
+                        selectedImage === media.url ? 'border-orange-500' : 'border-transparent'
+                      }`}
+                      onClick={() => setSelectedImage(media.url)}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
