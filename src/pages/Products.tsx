@@ -95,6 +95,8 @@ const Products: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const categoryId = params.get('category');
+    const brandSlug = params.get('brand');
+    
     if (categoryId) {
       setSelectedCategory(categoryId);
       // Expand the parent category if it exists
@@ -110,7 +112,20 @@ const Products: React.FC = () => {
     } else {
       setSelectedCategory('');
     }
-  }, [location.search, categories]);
+
+    // Handle brand filter from URL
+    if (brandSlug) {
+      // Find the brand by slug and set its ID
+      const brand = brands.find(b => b.slug === brandSlug);
+      if (brand) {
+        setSelectedBrands([String(brand.brand_id || brand.id)]);
+        // Reset to first page when brand changes
+        setCurrentPage(1);
+      }
+    } else {
+      setSelectedBrands([]);
+    }
+  }, [location.search, categories, brands]);
 
   // Toggle category expansion
   const toggleCategoryExpand = (categoryId: number) => {
@@ -216,7 +231,18 @@ const Products: React.FC = () => {
         params.append('search', searchQuery);
       }
 
-      const apiUrl = `${API_BASE_URL}/api/products?${params}`;
+      // Determine which endpoint to use based on URL parameters
+      const brandSlug = new URLSearchParams(location.search).get('brand');
+      const categoryId = new URLSearchParams(location.search).get('category');
+      let apiUrl = `${API_BASE_URL}/api/products`;
+      
+      if (brandSlug) {
+        apiUrl = `${API_BASE_URL}/api/products/brand/${brandSlug}`;
+      } else if (categoryId) {
+        apiUrl = `${API_BASE_URL}/api/products/category/${categoryId}`;
+      }
+
+      apiUrl = `${apiUrl}?${params}`;
       console.log('Fetching products with URL:', apiUrl);
 
       const response = await fetch(apiUrl, {
@@ -233,9 +259,16 @@ const Products: React.FC = () => {
       const data = await response.json();
       console.log('Products response:', data);
       
-      setProducts(data.products);
-      setTotalPages(data.pagination.pages);
-      setTotalProducts(data.pagination.total);
+      // Handle both regular products endpoint and specific endpoint responses
+      if (data.products) {
+        setProducts(data.products);
+        setTotalPages(data.pagination.pages);
+        setTotalProducts(data.pagination.total);
+      } else {
+        setProducts(data);
+        setTotalPages(Math.ceil(data.length / perPage));
+        setTotalProducts(data.length);
+      }
     } catch (err) {
       console.error('Error in fetchProducts:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
@@ -244,16 +277,15 @@ const Products: React.FC = () => {
     }
   };
 
-  // Update fetchCategories to use the new categories endpoint
+  // Fetch categories with icons
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/categories/all`);
+      const response = await fetch(`${API_BASE_URL}/api/categories/with-icons`);
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }
       const data = await response.json();
       console.log('Categories data:', data);
-      // No need to organize categories as they come pre-organized from the backend
       setCategories(data);
     } catch (err) {
       console.error('Error fetching categories:', err);
