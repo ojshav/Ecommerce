@@ -82,6 +82,7 @@ import Reviews from './pages/business/Reviews';
 import SalesReport from './pages/business/reports/SalesReport';
 import CustomersReport from './pages/business/reports/CustomersReport';
 import ProductsReport from './pages/business/reports/ProductsReport';
+import Settings from './pages/business/Settings';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -221,6 +222,15 @@ function App() {
                     element={
                       <Suspense fallback={<LoadingFallback />}>
                         <ProductsReport />
+                      </Suspense>
+                    }
+                  />
+
+                  <Route
+                    path="settings"
+                    element={
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Settings />
                       </Suspense>
                     }
                   />
