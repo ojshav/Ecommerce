@@ -420,9 +420,9 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
 
         {/* Discount Display */}
 {(parseFloat(costPrice) > 0 && parseFloat(sellingPrice) > 0) && (
-  <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
+  <div className="bg-orange-50 p-4 rounded-md border border-orange-200">
     <div className="flex items-center justify-between">
-      <span className="text-sm font-medium text-blue-700">
+      <span className="text-sm font-medium text-orange-700">
         Calculated {discount >= 0 ? 'Discount' : 'Markup'}
       </span>
       <span
@@ -442,7 +442,7 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
       </span>
     </div>
     {discount !== 0 && (
-      <p className="mt-1 text-sm text-blue-600">
+      <p className="mt-1 text-sm text-orange-600">
         Based on cost price of ${parseFloat(costPrice).toFixed(2)} and selling
         price of ${parseFloat(sellingPrice).toFixed(2)}.
       </p>
@@ -518,13 +518,9 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
           <button
             type="submit"
             disabled={isSubmitting || !categoryId || !brandId}
-
-            className="px-6 py-2.5 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-
+            className="px-6 py-2.5 text-sm font-medium text-white bg-orange-600 border border-transparent rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-
             {isSubmitting ? 'Saving...' : approval_status === 'rejected' ? 'Resubmit Product' : 'Save Product'}
-
           </button>
         </div>
       </form>
