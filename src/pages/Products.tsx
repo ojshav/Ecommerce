@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, Heart, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Heart, ChevronDown, ChevronUp, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import { Product } from '../types';
 import ProductCard from '../components/product/ProductCard';
 
@@ -31,6 +31,11 @@ const Products: React.FC = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
+  
+  // Mobile filter states
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const [selectedSort, setSelectedSort] = useState('newest');
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -325,6 +330,143 @@ const Products: React.FC = () => {
     setCurrentPage(1);
   };
 
+  // Sort options
+  const sortOptions = [
+    { value: 'newest', label: 'Newest First' },
+    { value: 'price_low', label: 'Price: Low to High' },
+    { value: 'price_high', label: 'Price: High to Low' },
+    { value: 'popularity', label: 'Popularity' },
+    { value: 'discount', label: 'Discount' }
+  ];
+
+  // Handle sort selection
+  const handleSort = (value: string) => {
+    setSelectedSort(value);
+    setIsSortOpen(false);
+    // Add your sorting logic here
+  };
+
+  // Mobile filter sidebar component
+  const MobileFilterSidebar = () => (
+    <div className={`fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out ${isFilterOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className="h-full flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-semibold">Filters</h2>
+          <button onClick={() => setIsFilterOpen(false)} className="p-2">
+            <X size={24} />
+          </button>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto p-4">
+          {/* Category Filter */}
+          <div className="mb-6">
+            <h3 className="font-semibold text-base mb-3 text-black">Category</h3>
+            <div className="space-y-1">
+              {categories.map(category => renderCategoryTree(category))}
+            </div>
+          </div>
+          
+          {/* Brand Filter */}
+          <div className="mb-6">
+            <h3 className="font-semibold text-base mb-3 text-black">Brand</h3>
+            <div className="flex flex-wrap gap-2">
+              {brands && brands.map((brand) => {
+                const isSelected = selectedBrands.includes(String(brand.brand_id || brand.id));
+                return (
+                  <button
+                    key={brand.brand_id || brand.id}
+                    onClick={() => toggleBrand(String(brand.brand_id || brand.id))}
+                    className={`px-3 py-1.5 rounded-full border text-xs font-normal transition-colors focus:outline-none ${
+                      isSelected
+                        ? 'bg-[#F2631F] text-white border-[#F2631F] shadow'
+                        : 'bg-gray-100 border-gray-200 text-black hover:border-[#F2631F] hover:text-[#F2631F]'
+                    }`}
+                  >
+                    {brand.name || brand.brand_name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Price Range */}
+          <div className="mb-6">
+            <h3 className="font-semibold text-base mb-3 text-black">Price</h3>
+            <div className="px-2">
+              <div className="flex justify-between text-xs text-gray-700 mb-2 font-normal">
+                <span>₹{priceRange[0]}</span>
+                <span>₹{priceRange[1]}</span>
+              </div>
+              <div className="relative pt-1">
+                <div className="w-full h-1 bg-gray-200 rounded-lg">
+                  <div
+                    className="absolute h-1 bg-[#F2631F] rounded-lg"
+                    style={{ width: `${(priceRange[1] / 1000000) * 100}%` }}
+                  ></div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1000000"
+                  step="10000"
+                  value={priceRange[1]}
+                  onChange={e => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                  className="absolute top-0 w-full h-2 opacity-0 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-4 border-t">
+          <button
+            onClick={resetFilters}
+            className="w-full px-4 py-2 text-sm font-normal text-[#F2631F] border border-[#F2631F] rounded hover:bg-orange-50 transition-colors mb-2"
+          >
+            Reset Filters
+          </button>
+          <button
+            onClick={() => setIsFilterOpen(false)}
+            className="w-full px-4 py-2 text-sm font-normal text-white bg-[#F2631F] rounded hover:bg-[#e55a1a] transition-colors"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Mobile sort dropdown component
+  const MobileSortDropdown = () => (
+    <div className={`fixed inset-0 bg-black bg-opacity-50 z-40 ${isSortOpen ? 'block' : 'hidden'}`}>
+      <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl transform transition-transform duration-300 ease-in-out">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Sort By</h3>
+            <button onClick={() => setIsSortOpen(false)} className="p-2">
+              <X size={24} />
+            </button>
+          </div>
+          <div className="space-y-2">
+            {sortOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleSort(option.value)}
+                className={`w-full text-left px-4 py-3 rounded-lg ${
+                  selectedSort === option.value
+                    ? 'bg-orange-50 text-[#F2631F]'
+                    : 'hover:bg-gray-50'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   if (loading && products.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -359,8 +501,8 @@ const Products: React.FC = () => {
         </div>
         
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Category Sidebar */}
-          <aside className="w-full md:w-64 pr-4 border-r border-gray-100">
+          {/* Category Sidebar - Hidden on mobile */}
+          <aside className="hidden md:block w-64 pr-4 border-r border-gray-100">
             <div className="mb-8">
               <h3 className="font-semibold text-base mb-3 text-black">Category</h3>
               <div className="space-y-1">
@@ -430,6 +572,24 @@ const Products: React.FC = () => {
           
           {/* Products Grid */}
           <div className="flex-1">
+            {/* Mobile Filter and Sort Bar */}
+            <div className="md:hidden flex items-center gap-2 mb-4">
+              <button
+                onClick={() => setIsFilterOpen(true)}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg"
+              >
+                <SlidersHorizontal size={20} />
+                <span>Filters</span>
+              </button>
+              <button
+                onClick={() => setIsSortOpen(true)}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg"
+              >
+                <ArrowUpDown size={20} />
+                <span>Sort</span>
+              </button>
+            </div>
+
             {/* Search Bar */}
             <div className="mb-6">
               <input
@@ -493,6 +653,12 @@ const Products: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Mobile Filter Sidebar */}
+        <MobileFilterSidebar />
+        
+        {/* Mobile Sort Dropdown */}
+        <MobileSortDropdown />
 
         {/* Recently Viewed */}
         {recentlyViewed.length > 0 && (
