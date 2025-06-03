@@ -351,7 +351,6 @@ const Navbar: React.FC = () => {
                 <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span>Menu</span>
-              <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${lowerMobileMenuOpen ? 'rotate-180' : ''}`} />
             </button>
             
             <div className="flex items-center space-x-2">
@@ -386,9 +385,6 @@ const Navbar: React.FC = () => {
                   onClick={toggleCategoryDropdown}
                 >
                   <span className="flex items-center font-medium">
-                    <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none">
-                      <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
                     Categories
                   </span>
                   <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
@@ -415,7 +411,6 @@ const Navbar: React.FC = () => {
                   onClick={toggleNewProductDropdown}
                 >
                   <span>New Product</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isNewProductDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isNewProductDropdownOpen && lowerMobileMenuOpen && (
                   <div className="bg-gray-50 py-2 px-3 ml-3 rounded">

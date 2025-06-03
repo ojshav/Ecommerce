@@ -680,7 +680,7 @@ const EditProduct: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
       </div>
     );
   }
@@ -691,7 +691,7 @@ const EditProduct: React.FC = () => {
         <p className="text-red-700">{error}</p>
         <button
           onClick={fetchProduct}
-          className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium"
+          className="mt-2 text-sm text-orange-600 hover:text-orange-700 font-medium"
         >
           Try again
         </button>
@@ -700,7 +700,7 @@ const EditProduct: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
         <button
           onClick={() => navigate('/business/catalog/products')}
@@ -898,7 +898,7 @@ const EditProduct: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <label
                   htmlFor="media-upload"
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none cursor-pointer"
+                  className="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none cursor-pointer"
                 >
                   <PlusIcon className="h-4 w-4 mr-2" />
                   Add Media
@@ -1108,7 +1108,7 @@ const EditProduct: React.FC = () => {
           <div className="mt-4 flex justify-end">
             <button
               onClick={handleUpdateShipping}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
             >
               Update Shipping
             </button>
@@ -1275,4 +1275,4 @@ const EditProduct: React.FC = () => {
   );
 };
 
-export default EditProduct; 
+export default EditProduct;
