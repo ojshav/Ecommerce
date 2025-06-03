@@ -17,6 +17,8 @@ const Navbar: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('Category');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lowerMobileMenuOpen, setLowerMobileMenuOpen] = useState(false);
+  const [isMobileCategoryDropdownOpen, setIsMobileCategoryDropdownOpen] = useState(false);
+  const [isMobileNewProductDropdownOpen, setIsMobileNewProductDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
   const { totalItems } = useCart();
@@ -28,27 +30,56 @@ const Navbar: React.FC = () => {
   const mobileSearchRef = useRef<HTMLDivElement>(null);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
   const newProductDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const lowerMobileMenuRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(desktopSearchRef, () => {
+  // Refs for toggle buttons to exclude them from outside click detection
+  const desktopCategoryButtonRef = useRef<HTMLButtonElement>(null);
+  const desktopNewProductButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const lowerMobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileCategoryButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileNewProductButtonRef = useRef<HTMLButtonElement>(null);
+
+  useClickOutside(desktopSearchRef, (event: MouseEvent) => {
     setShowSearchResults(false);
   });
 
-  useClickOutside(mobileSearchRef, () => {
+  useClickOutside(mobileSearchRef, (event: MouseEvent) => {
     setShowSearchResults(false);
   });
 
-  useClickOutside(categoryDropdownRef, () => {
-    setIsCategoryDropdownOpen(false);
+  useClickOutside(categoryDropdownRef, (event: MouseEvent) => {
+    if (desktopCategoryButtonRef.current && !desktopCategoryButtonRef.current.contains(event.target as Node)) {
+      setIsCategoryDropdownOpen(false);
+    }
   });
 
-  useClickOutside(newProductDropdownRef, () => {
-    setIsNewProductDropdownOpen(false);
+  useClickOutside(newProductDropdownRef, (event: MouseEvent) => {
+    if (desktopNewProductButtonRef.current && !desktopNewProductButtonRef.current.contains(event.target as Node)) {
+      setIsNewProductDropdownOpen(false);
+    }
   });
 
-  // Close dropdowns when route changes
+  useClickOutside(mobileMenuRef, (event: MouseEvent) => {
+    if (mobileMenuButtonRef.current && !mobileMenuButtonRef.current.contains(event.target as Node)) {
+      setMobileMenuOpen(false);
+    }
+  });
+
+  useClickOutside(lowerMobileMenuRef, (event: MouseEvent) => {
+    if (lowerMobileMenuButtonRef.current && !lowerMobileMenuButtonRef.current.contains(event.target as Node)) {
+      setLowerMobileMenuOpen(false);
+    }
+  });
+
   useEffect(() => {
     setIsCategoryDropdownOpen(false);
     setIsNewProductDropdownOpen(false);
+    setMobileMenuOpen(false);
+    setLowerMobileMenuOpen(false);
+    setIsMobileCategoryDropdownOpen(false);
+    setIsMobileNewProductDropdownOpen(false);
     setShowSearchResults(false);
   }, [location.pathname]);
 
@@ -64,10 +95,28 @@ const Navbar: React.FC = () => {
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+    setLowerMobileMenuOpen(false);
+    setIsCategoryDropdownOpen(false);
+    setIsNewProductDropdownOpen(false);
+    setIsMobileCategoryDropdownOpen(false);
+    setIsMobileNewProductDropdownOpen(false);
+    setShowSearchResults(false);
   };
 
   const toggleLowerMobileMenu = () => {
     setLowerMobileMenuOpen(!lowerMobileMenuOpen);
+    setIsMobileCategoryDropdownOpen(false);
+    setIsMobileNewProductDropdownOpen(false);
+  };
+
+  const toggleMobileCategoryDropdown = () => {
+    setIsMobileCategoryDropdownOpen(!isMobileCategoryDropdownOpen);
+    if (isMobileNewProductDropdownOpen) setIsMobileNewProductDropdownOpen(false);
+  };
+
+  const toggleMobileNewProductDropdown = () => {
+    setIsMobileNewProductDropdownOpen(!isMobileNewProductDropdownOpen);
+    if (isMobileCategoryDropdownOpen) setIsMobileCategoryDropdownOpen(false);
   };
 
   const handleLogout = () => {
@@ -76,6 +125,7 @@ const Navbar: React.FC = () => {
 
   const closeNewProductDropdown = () => {
     setIsNewProductDropdownOpen(false);
+    setIsMobileNewProductDropdownOpen(false);
   };
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,6 +282,7 @@ const Navbar: React.FC = () => {
                 className="block nav:hidden text-white p-2 sm:ml-auto" 
                 onClick={toggleMobileMenu}
                 aria-label="Toggle mobile menu"
+                ref={mobileMenuButtonRef}
               >
                 {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
@@ -346,6 +397,7 @@ const Navbar: React.FC = () => {
               className="flex items-center py-1.5 text-black" 
               onClick={toggleLowerMobileMenu}
               aria-label="Toggle lower navigation"
+              ref={lowerMobileMenuButtonRef}
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none">
                 <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -378,18 +430,19 @@ const Navbar: React.FC = () => {
           
           {/* Mobile lower navigation dropdown - use custom breakpoint at 968px */}
           {lowerMobileMenuOpen && (
-            <div className="nav:hidden border-t border-gray-200 pt-2 pb-1">
+            <div className="nav:hidden border-t border-gray-200 pt-2 pb-1" ref={lowerMobileMenuRef}>
               <div className="mb-2">
                 <button
                   className="flex items-center justify-between py-1.5 px-2 text-sm w-full text-left hover:bg-gray-50 rounded"
-                  onClick={toggleCategoryDropdown}
+                  onClick={toggleMobileCategoryDropdown}
+                  ref={mobileCategoryButtonRef}
                 >
                   <span className="flex items-center font-medium">
                     Categories
                   </span>
-                  <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-200 ${isMobileCategoryDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
-                {isCategoryDropdownOpen && (
+                {isMobileCategoryDropdownOpen && (
                   <div className="pl-4 py-1.5 space-y-1.5">
                     <Link to="/category/electronics" className="block py-1 text-sm hover:text-[#F2631F]">Electronics</Link>
                     <Link to="/category/clothing" className="block py-1 text-sm hover:text-[#F2631F]">Clothing</Link>
@@ -408,11 +461,12 @@ const Navbar: React.FC = () => {
                 </Link>
                 <button 
                   className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded w-full text-left"
-                  onClick={toggleNewProductDropdown}
+                  onClick={toggleMobileNewProductDropdown}
+                  ref={mobileNewProductButtonRef}
                 >
                   <span>New Product</span>
                 </button>
-                {isNewProductDropdownOpen && lowerMobileMenuOpen && (
+                {isMobileNewProductDropdownOpen && (
                   <div className="bg-gray-50 py-2 px-3 ml-3 rounded">
                     <div className="space-y-2">
                       <Link to="/new-product?category=smart-watch" className="block text-sm hover:text-[#F2631F]" onClick={closeNewProductDropdown}>
@@ -449,6 +503,7 @@ const Navbar: React.FC = () => {
                 className="flex items-center py-1.5 px-3 md:px-4 text-black hover:text-gray-700"
                 onClick={toggleCategoryDropdown}
                 aria-expanded={isCategoryDropdownOpen}
+                ref={desktopCategoryButtonRef}
               >
                 <span className="inline">Category</span>
                 <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
@@ -466,6 +521,7 @@ const Navbar: React.FC = () => {
               <button 
                 className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F] flex items-center bg-transparent border-none cursor-pointer"
                 onClick={toggleNewProductDropdown}
+                ref={desktopNewProductButtonRef}
               >
                 New Product
                 <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isNewProductDropdownOpen ? 'rotate-180' : ''}`} />
@@ -511,8 +567,8 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* Category dropdown - for desktop */}
-      {isCategoryDropdownOpen && !lowerMobileMenuOpen && (
-        <div ref={categoryDropdownRef}>
+      {isCategoryDropdownOpen && !mobileMenuOpen && !lowerMobileMenuOpen && (
+        <div ref={categoryDropdownRef} className="z-40">
         <CategoryDropdown 
           isOpen={isCategoryDropdownOpen} 
           closeDropdown={() => setIsCategoryDropdownOpen(false)} 
@@ -520,9 +576,9 @@ const Navbar: React.FC = () => {
         </div>
       )}
       
-      {/* New Product dropdown */}
-      {isNewProductDropdownOpen && !lowerMobileMenuOpen && (
-        <div ref={newProductDropdownRef}>
+      {/* New Product dropdown - for desktop */}
+      {isNewProductDropdownOpen && !mobileMenuOpen && !lowerMobileMenuOpen && (
+        <div ref={newProductDropdownRef} className="z-40">
         <NewProductDropdown 
           isOpen={isNewProductDropdownOpen} 
           closeDropdown={() => setIsNewProductDropdownOpen(false)} 
