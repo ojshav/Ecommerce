@@ -77,20 +77,15 @@ const SuperAdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center pt-52 pb-10 px-4">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center pt-52 pb-10 px-4">
       <motion.div 
-        className="max-w-md w-full bg-white rounded-xl shadow-lg overflow-hidden"
+        className="max-w-md w-full bg-white rounded-xl shadow-sm overflow-hidden"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <div className="p-8">
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
-                <Shield className="w-8 h-8 text-[#F2631F]" />
-              </div>
-            </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Super Admin Portal</h1>
             <p className="text-gray-600">Access the administrative dashboard</p>
           </div>

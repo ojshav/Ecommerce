@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight, Share2 } from 'lucide-react';
+import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight, ChevronLeft, Share2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-hot-toast';
 
@@ -310,34 +310,58 @@ const ProductDetail: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
             {/* Product Images */}
             <div className="space-y-2">
-              <div className="rounded-lg overflow-hidden bg-gray-100 h-64 md:h-80 flex items-center justify-center border border-gray-200">
-                <img 
-                  src={selectedImage} 
-                  alt={product.product_name} 
-                  className="max-w-full max-h-full object-contain"
-                />
-              </div>
-              
-              <div className="flex space-x-2 justify-start">
-                {product.media && product.media.length > 0 && (
-                  <div className="flex space-x-2">
+              <div className="flex flex-col items-center">
+                {/* Main Product Image */}
+                <div className="mb-6 w-full max-w-lg flex justify-center">
+                  <img 
+                    src={selectedImage}
+                    alt={product.product_name}
+                    className="rounded-lg shadow-md object-contain max-h-96"
+                  />
+                </div>
+
+                {/* Thumbnail Images with Navigation */}
+                <div className="flex items-center space-x-2">
+                  {/* Left Arrow Button */}
+                  <button
+                    onClick={() => {
+                      const currentIndex = product.media.findIndex(media => media.url === selectedImage);
+                      const previousIndex = (currentIndex - 1 + product.media.length) % product.media.length;
+                      setSelectedImage(product.media[previousIndex].url);
+                    }}
+                    className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+
+                  <div className="flex space-x-3 overflow-x-auto scrollbar-hide">
                     {product.media.map((media) => (
-                      <button
+                      <img
                         key={media.media_id}
-                        className={`rounded-md overflow-hidden flex-shrink-0 w-16 h-16 border-2 ${
-                          selectedImage === media.url ? 'border-primary-500' : 'border-gray-200'
+                        src={media.url}
+                        alt={`${product.product_name} thumbnail`}
+                        className={`w-20 h-20 object-cover rounded-md cursor-pointer border-2 ${
+                          selectedImage === media.url ? 'border-primary-500' : 'border-transparent'
                         }`}
                         onClick={() => setSelectedImage(media.url)}
-                      >
-                        <img 
-                          src={media.url} 
-                          alt={`${product.product_name} - view ${media.sort_order}`} 
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
+                      />
                     ))}
                   </div>
-                )}
+
+                  {/* Right Arrow Button */}
+                  <button
+                    onClick={() => {
+                      const currentIndex = product.media.findIndex(media => media.url === selectedImage);
+                      const nextIndex = (currentIndex + 1) % product.media.length;
+                      setSelectedImage(product.media[nextIndex].url);
+                    }}
+                    className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
               </div>
             </div>
             
