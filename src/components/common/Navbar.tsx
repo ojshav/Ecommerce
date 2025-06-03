@@ -121,11 +121,15 @@ const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
+    setMobileMenuOpen(false);
+    setLowerMobileMenuOpen(false);
   };
 
   const closeNewProductDropdown = () => {
     setIsNewProductDropdownOpen(false);
     setIsMobileNewProductDropdownOpen(false);
+    setMobileMenuOpen(false);
+    setLowerMobileMenuOpen(false);
   };
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -339,16 +343,16 @@ const Navbar: React.FC = () => {
       
       {/* Mobile menu dropdown - use custom breakpoint at 968px */}
       {mobileMenuOpen && (
-        <div className="nav:hidden bg-black text-white border-t border-gray-800 py-3 px-4">
+        <div className="nav:hidden bg-black text-white border-t border-gray-800 py-3 px-4" ref={mobileMenuRef}>
           {mobileSearchBar}
           
           {/* Mobile action links */}
           <div className="grid grid-cols-3 gap-3 mb-3">
-            <Link to="/wishlist" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]">
+            <Link to="/wishlist" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
               <Heart className="w-4 h-4 mb-1" />
               <span>Wishlist</span>
             </Link>
-            <Link to="/cart" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F] relative">
+            <Link to="/cart" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F] relative" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
               <ShoppingCart className="w-4 h-4 mb-1" />
               {totalItems > 0 && (
                 <span className="absolute top-0 right-6 bg-[#F2631F] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
@@ -357,7 +361,7 @@ const Navbar: React.FC = () => {
               )}
               <span>Cart</span>
             </Link>
-            <Link to="/profile" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]">
+            <Link to="/profile" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
               <User className="w-4 h-4 mb-1" />
               <span>Account</span>
             </Link>
@@ -366,6 +370,7 @@ const Navbar: React.FC = () => {
           <Link 
             to="/business/login" 
             className="w-full block text-center bg-[#F2631F] text-white rounded-md px-4 py-1.5 hover:bg-orange-600 mb-3 text-sm"
+            onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}
           >
             Become a Merchant
           </Link>
@@ -406,7 +411,7 @@ const Navbar: React.FC = () => {
             </button>
             
             <div className="flex items-center space-x-2">
-              <Link to="/track-order" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]">
+              <Link to="/track-order" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                 <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -420,7 +425,7 @@ const Navbar: React.FC = () => {
                   <LogOut className="w-4 h-4 mr-1" />
                 </button>
               ) : (
-                <Link to="/sign-in" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]">
+                <Link to="/sign-in" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   <User className="w-4 h-4 mr-1" />
                   <span>Sign In</span>
                 </Link>
@@ -444,19 +449,19 @@ const Navbar: React.FC = () => {
                 </button>
                 {isMobileCategoryDropdownOpen && (
                   <div className="pl-4 py-1.5 space-y-1.5">
-                    <Link to="/category/electronics" className="block py-1 text-sm hover:text-[#F2631F]">Electronics</Link>
-                    <Link to="/category/clothing" className="block py-1 text-sm hover:text-[#F2631F]">Clothing</Link>
-                    <Link to="/category/home-garden" className="block py-1 text-sm hover:text-[#F2631F]">Home & Garden</Link>
-                    <Link to="/categories" className="block py-1 text-sm text-[#F2631F]">View All Categories</Link>
+                    <Link to="/category/electronics" className="block py-1 text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>Electronics</Link>
+                    <Link to="/category/clothing" className="block py-1 text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>Clothing</Link>
+                    <Link to="/category/home-garden" className="block py-1 text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>Home & Garden</Link>
+                    <Link to="/categories" className="block py-1 text-sm text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>View All Categories</Link>
                   </div>
                 )}
               </div>
               
               <nav className="space-y-1.5">
-                <Link to="/" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
+                <Link to="/" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   Home
                 </Link>
-                <Link to="/all-products" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
+                <Link to="/all-products" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   All Products
                 </Link>
                 <button 
@@ -484,11 +489,11 @@ const Navbar: React.FC = () => {
                     </div>
                   </div>
                 )}
-                <Link to="/promotion" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
+                <Link to="/promotion" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   <span>Promotion</span>
                   <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
                 </Link>
-                <Link to="/wholesale" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
+                <Link to="/wholesale" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   Wholesale
                 </Link>
               </nav>
