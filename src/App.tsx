@@ -301,116 +301,7 @@ function App() {
                   </Route>
 
                   {/* Superadmin Login Route */}
-                  <Route path="/superadmin/login" element={
-                    <>
-                      <Navbar />
-
-                      <main className="flex-grow content-container">
-                        <Routes>
-                          <Route path="/" element={<Home />} />
-                          <Route path="/all-products" element={<Products />} />
-                          <Route path="shop/:shopId" element={<ShopProducts />} />
-                          <Route
-                            path="/products/:categoryId"
-                            element={<Products />}
-                          />
-                          <Route
-                            path="/product/:productId"
-                            element={<ProductDetail />}
-                          />
-                          <Route path="/new-product" element={<NewProduct />} />
-                          <Route path="/cart" element={<Cart />} />
-                          <Route path="/payment" element={<PaymentPage />} />
-
-                          <Route path="/signin" element={<SignIn />} />
-                          <Route path="/signup" element={<SignUp />} />
-                          <Route
-                            path="/verification-pending"
-                            element={<VerificationPending />}
-                          />
-                          <Route
-                            path="/verify-email/:token"
-                            element={<VerifyEmail />}
-                          />
-                          <Route
-                            path="/business/login"
-                            element={<BusinessLogin />}
-                          />
-                          <Route
-                            path="/register-business"
-                            element={<RegisterBusiness />}
-                          />
-
-                          <Route
-                            path="/password/reset"
-                            element={<PasswordReset />}
-                          />
-
-                          <Route path="/wishlist" element={<WishList />} />
-                          <Route path="/promotion" element={<Promotion />} />
-                          <Route path="/sign-in" element={<SignIn />} />
-                          <Route path="/register" element={<Register />} />
-                          <Route
-                            path="/become-merchant"
-                            element={<BecomeMerchant />}
-                          />
-                          <Route path="/track-order" element={<TrackOrder />} />
-                          <Route path="/refund/:orderId" element={<Refund />} />
-                          <Route
-                            path="/exchange/:orderId"
-                            element={<Exchange />}
-                          />
-                          <Route
-                            path="/categories/:categoryId"
-                            element={<Products />}
-                          />
-                          <Route
-                            path="/categories/:categoryId/:brandId"
-                            element={<Products />}
-                          />
-                          <Route path="/faq" element={<FAQ />} />
-                          <Route path="/about" element={<About />} />
-                          <Route path="/contact" element={<Contact />} />
-                          <Route
-                            path="/shipping"
-                            element={<ShippingPolicy />}
-                          />
-                          <Route path="/returns" element={<Returns />} />
-                          <Route path="/privacy" element={<Privacy />} />
-                          <Route path="/cookies" element={<Cookies />} />
-                          <Route path="/terms" element={<Terms />} />
-                          <Route
-                            path="/privacy-policy"
-                            element={<PrivacyPolicy />}
-                          />
-                          <Route
-                            path="/cancellation-policy"
-                            element={<CancellationPolicy />}
-                          />
-                          <Route
-                            path="/return-refund"
-                            element={<ReturnRefund />}
-                          />
-                          <Route
-                            path="/shipping-delivery"
-                            element={<ShippingDelivery />}
-                          />
-                          <Route path="/brands/:brandId" element={<Brands />} />
-                          <Route path="/profile" element={<UserProfile />} />
-                          <Route path="/live-shop" element={<LiveShop />} />
-                          <Route path="/live-shop/fashion" element={<FashionPage />} />
-                          <Route path="/live-shop/aoin-live" element={<AoinLivePage />} />
-                          <Route path="/live-shop/coming-soon" element={<ComingSoonPage />} />
-                          <Route path="/live-shop/fashion-factory" element={<FashionFactoryPage />} />
-                          <Route path="/live-shop/sunday-funday" element={<SundayFundayPage />} />
-
-
-                        </Routes>
-                      </main>
-
-                      <Footer />
-                    </>
-                  } />
+                  <Route path="/superadmin/login" element={<SuperAdminLogin />} />
 
                   {/* Superadmin Routes - Protected by role check in the component */}
                   <Route path="/superadmin" element={<SuperAdminLayout />}>
@@ -457,14 +348,7 @@ function App() {
                     <Route path="homepage-settings" element={<HomepageSettings />} />
                   </Route>
 
-                  {/* Business Auth Routes */}
-                  {/* <Route path="/business/login" element={<BusinessLogin />} />
-                  <Route path="/register-business" element={<RegisterBusiness />} /> */}
-
-                  {/* Auth Routes without header/footer */}
-                  {/* <Route path="/signup" element={<SignUp />} /> */}
-
-                  {/* Public Routes with header/footer */}
+                
                   <Route
                     path="/*"
                     element={
