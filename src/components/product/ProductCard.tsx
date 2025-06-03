@@ -4,6 +4,7 @@ import { Heart, ShoppingCart } from 'lucide-react';
 import { Product } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useWishlist } from '../../context/WishlistContext';
 import { toast } from 'react-hot-toast';
 
 interface ProductCardProps {
@@ -21,6 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { addToCart } = useCart();
   const { isAuthenticated, user } = useAuth();
+  const { addToWishlist, isInWishlist, loading: wishlistLoading } = useWishlist();
   const navigate = useNavigate();
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -49,7 +51,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const handleWishlist = (e: React.MouseEvent) => {
+  const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -59,8 +61,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
       navigate(`/sign-in?returnUrl=${returnUrl}`);
       return;
     }
+
+    // Check if user is a merchant or admin
+    if (user?.role === 'merchant' || user?.role === 'admin') {
+      toast.error('Merchants and admins cannot add items to wishlist');
+      return;
+    }
     
-    toast.success(`${product.name} added to wishlist`);
+    try {
+      await addToWishlist(Number(product.id));
+    } catch (error) {
+      // Error is already handled in the context
+      console.error('Wishlist error:', error);
+    }
   };
   
   // Calculate sale percentage if original price exists
@@ -96,10 +109,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
         
         {/* Wishlist button */}
         <button
-          className="absolute top-2 right-2 p-1.5 z-10 text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md rounded-full transition-all duration-300"
+          className={`absolute top-2 right-2 p-1.5 z-10 rounded-full transition-all duration-300 ${
+            isInWishlist(Number(product.id)) 
+              ? 'text-[#F2631F] bg-white shadow-md' 
+              : 'text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md'
+          }`}
           onClick={handleWishlist}
+          disabled={wishlistLoading}
         >
-          <Heart className="w-4 h-4" />
+          <Heart className={`w-4 h-4 ${isInWishlist(Number(product.id)) ? 'fill-current' : ''}`} />
         </button>
         
         {/* Product image */}
