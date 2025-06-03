@@ -3,64 +3,74 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ShopBanner {
   id: number;
-  name: string;
+  title: string;
+  subtitle: string;
+  discount: string;
   description: string;
   image: string;
-  category: string;
-  discount?: string;
+  brands: string[];
+  cta: string;
+  openingTime: string;
+  closingTime: string;
 }
 
 const Shop = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Mock data for shop banners - you can replace this with API data
+  // Updated banner data to match the style shown
   const shopBanners: ShopBanner[] = [
     {
       id: 1,
-      name: "Electronics Mega Store",
-      description: "Latest gadgets and electronics with amazing deals",
-      image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-      category: "Electronics",
-      discount: "Up to 50% OFF"
+      title: "MIN. 50% OFF",
+      subtitle: "Extra 20% off on",
+      discount: "Indianwear for 9 to 5",
+      description: "Ethnic elegance meets workplace chic",
+      image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
+      brands: ["Libas", "W", "Biba", "Global Desi"],
+      cta: "SHOP NOW",
+      openingTime: "10:00 AM",
+      closingTime: "10:00 PM"
     },
     {
       id: 2,
-      name: "Fashion Hub",
-      description: "Trendy clothing and accessories for every style",
-      image: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-      category: "Fashion",
-      discount: "New Collection"
+      title: "UP TO 80% OFF",
+      subtitle: "Stylish dials that will",
+      discount: "get you compliments",
+      description: "Premium timepieces for every occasion",
+      image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
+      brands: ["TITAN", "FOSSIL", "TIMEX", "CASIO"],
+      cta: "SHOP NOW",
+      openingTime: "9:00 AM",
+      closingTime: "9:00 PM"
     },
     {
       id: 3,
-      name: "Home & Garden",
-      description: "Transform your space with our home decor collection",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-      category: "Home & Garden",
-      discount: "30% OFF"
+      title: "FLAT 60% OFF",
+      subtitle: "Smart tech that",
+      discount: "transforms your lifestyle",
+      description: "Latest gadgets and electronics",
+      image: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
+      brands: ["SAMSUNG", "APPLE", "XIAOMI", "SONY"],
+      cta: "SHOP NOW",
+      openingTime: "8:00 AM",
+      closingTime: "11:00 PM"
     },
     {
       id: 4,
-      name: "Sports & Fitness",
-      description: "Gear up for your fitness journey with top brands",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-      category: "Sports",
-      discount: "Free Shipping"
-    },
-    {
-      id: 5,
-      name: "Beauty & Health",
-      description: "Premium beauty products and health essentials",
-      image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-      category: "Beauty",
-      discount: "Buy 2 Get 1"
+      title: "UPTO 70% OFF",
+      subtitle: "Footwear that speaks",
+      discount: "your style language",
+      description: "Step up your shoe game",
+      image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
+      brands: ["NIKE", "ADIDAS", "PUMA", "REEBOK"],
+      cta: "SHOP NOW",
+      openingTime: "10:00 AM",
+      closingTime: "9:30 PM"
     }
   ];
 
   const totalSlides = shopBanners.length;
-  const slidesToShow = 3; // Number of banners to show at once
-  const maxIndex = Math.max(0, totalSlides - slidesToShow);
 
   // Auto-play functionality
   useEffect(() => {
@@ -68,120 +78,119 @@ const Shop = () => {
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => 
-        prevIndex >= maxIndex ? 0 : prevIndex + 1
+        prevIndex >= totalSlides - 1 ? 0 : prevIndex + 1
       );
-    }, 4000);
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, maxIndex]);
+  }, [isAutoPlaying, totalSlides]);
 
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) => 
-      prevIndex <= 0 ? maxIndex : prevIndex - 1
+      prevIndex <= 0 ? totalSlides - 1 : prevIndex - 1
     );
   };
 
   const goToNext = () => {
     setCurrentIndex((prevIndex) => 
-      prevIndex >= maxIndex ? 0 : prevIndex + 1
+      prevIndex >= totalSlides - 1 ? 0 : prevIndex + 1
     );
   };
 
   const handleMouseEnter = () => setIsAutoPlaying(false);
   const handleMouseLeave = () => setIsAutoPlaying(true);
 
-  return (
-    <section className="py-8 bg-gray-50">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900">Shop by Category</h2>
-            <p className="text-gray-600 mt-2">Discover amazing deals across all categories</p>
-          </div>
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={goToPrevious}
-              className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow duration-200 border border-gray-200"
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            >
-              <ChevronLeft size={20} className="text-gray-600" />
-            </button>
-            <button
-              onClick={goToNext}
-              className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow duration-200 border border-gray-200"
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            >
-              <ChevronRight size={20} className="text-gray-600" />
-            </button>
-          </div>
-        </div>
+  const currentBanner = shopBanners[currentIndex];
 
-        {/* Carousel Container */}
+  return (
+    <section className="py-8">
+      <div className="container mx-auto px-4">
+        {/* Main Banner Container */}
         <div 
-          className="relative overflow-hidden"
+          className="relative overflow-hidden rounded-2xl shadow-2xl"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <div 
-            className="flex transition-transform duration-500 ease-out"
-            style={{ 
-              transform: `translateX(-${currentIndex * (100 / slidesToShow)}%)`,
-              width: `${(totalSlides / slidesToShow) * 100}%`
-            }}
-          >
-            {shopBanners.map((shop) => (
-              <div
-                key={shop.id}
-                className="w-full px-3"
-                style={{ width: `${100 / totalSlides}%` }}
-              >
-                <div className="relative rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer transform hover:scale-105 transition-transform">
-                  <div className="relative h-64">
-                    <img
-                      src={shop.image}
-                      alt={shop.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-                    
-                    {/* Content Overlay */}
-                    <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
-                      <div className="space-y-2">
-                        <span className="inline-block px-3 py-1 bg-orange-500 text-white text-xs font-medium rounded-full">
-                          {shop.category}
-                        </span>
-                        <h3 className="text-xl font-bold">{shop.name}</h3>
-                        <p className="text-sm text-gray-200 line-clamp-2">{shop.description}</p>
-                        {shop.discount && (
-                          <div className="flex items-center space-x-2">
-                            <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                              {shop.discount}
-                            </span>
-                          </div>
-                        )}
-                        <button className="mt-3 bg-white text-gray-900 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition-colors w-fit">
-                          Shop Now
-                        </button>
-                      </div>
-                    </div>
+          {/* Banner Image and Content */}
+          <div className="relative h-80 md:h-96">
+            <img
+              src={currentBanner.image}
+              alt={currentBanner.title}
+              className="w-full h-full object-cover transition-all duration-1000"
+            />
+            
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-purple-900/30"></div>
+            
+            {/* Content Overlay */}
+            <div className="absolute inset-0 flex items-center">
+              <div className="container mx-auto px-8">
+                {/* Left Content */}
+                <div className="text-white max-w-lg">
+                  <h1 className="text-4xl md:text-5xl font-bold mb-2">
+                    {currentBanner.title}
+                  </h1>
+                  <p className="text-xl md:text-2xl mb-1 font-medium">
+                    {currentBanner.subtitle}
+                  </p>
+                  <p className="text-xl md:text-2xl mb-4 font-medium">
+                    {currentBanner.discount}
+                  </p>
+                  
+                  {/* Opening Hours */}
+                  <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 mb-6 inline-block">
+                    <p className="text-sm font-medium text-white">
+                      <span className="text-green-300">● Open:</span> {currentBanner.openingTime} - {currentBanner.closingTime}
+                    </p>
                   </div>
+                  
+                  <button className="bg-white text-black px-8 py-3 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors duration-300 shadow-lg">
+                    {currentBanner.cta}
+                  </button>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Navigation Arrows */}
+            <button
+              onClick={goToPrevious}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-all duration-200"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button
+              onClick={goToNext}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-all duration-200"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
+
+          {/* Brand Logos Section */}
+          <div className="bg-white py-4 px-8 border-t">
+            <div className="flex justify-center items-center space-x-8 md:space-x-12">
+              {currentBanner.brands.map((brand, index) => (
+                <div
+                  key={index}
+                  className="text-gray-700 font-bold text-lg md:text-xl tracking-wide hover:text-orange-500 transition-colors cursor-pointer"
+                >
+                  {brand}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Dots Indicator */}
-        <div className="flex justify-center mt-6 space-x-2">
-          {Array.from({ length: maxIndex + 1 }, (_, index) => (
+        <div className="flex justify-center mt-6 space-x-3">
+          {shopBanners.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-3 h-3 rounded-full transition-colors duration-200 ${
-                currentIndex === index ? 'bg-orange-500' : 'bg-gray-300'
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                currentIndex === index 
+                  ? 'bg-orange-500 scale-125' 
+                  : 'bg-gray-300 hover:bg-gray-400'
               }`}
             />
           ))}
