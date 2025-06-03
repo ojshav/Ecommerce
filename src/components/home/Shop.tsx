@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ShopBanner {
   id: number;
@@ -12,11 +13,13 @@ interface ShopBanner {
   cta: string;
   openingTime: string;
   closingTime: string;
+  shopId: string;
 }
 
 const Shop = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const navigate = useNavigate();
 
   // Updated banner data to match the style shown
   const shopBanners: ShopBanner[] = [
@@ -30,7 +33,8 @@ const Shop = () => {
       brands: ["Libas", "W", "Biba", "Global Desi"],
       cta: "SHOP NOW",
       openingTime: "10:00 AM",
-      closingTime: "10:00 PM"
+      closingTime: "10:00 PM",
+      shopId: "fashion"
     },
     {
       id: 2,
@@ -42,7 +46,8 @@ const Shop = () => {
       brands: ["TITAN", "FOSSIL", "TIMEX", "CASIO"],
       cta: "SHOP NOW",
       openingTime: "9:00 AM",
-      closingTime: "9:00 PM"
+      closingTime: "9:00 PM",
+      shopId: "watches"
     },
     {
       id: 3,
@@ -54,7 +59,8 @@ const Shop = () => {
       brands: ["SAMSUNG", "APPLE", "XIAOMI", "SONY"],
       cta: "SHOP NOW",
       openingTime: "8:00 AM",
-      closingTime: "11:00 PM"
+      closingTime: "11:00 PM",
+      shopId: "electronics"
     },
     {
       id: 4,
@@ -66,7 +72,8 @@ const Shop = () => {
       brands: ["NIKE", "ADIDAS", "PUMA", "REEBOK"],
       cta: "SHOP NOW",
       openingTime: "10:00 AM",
-      closingTime: "9:30 PM"
+      closingTime: "9:30 PM",
+      shopId: "footwear"
     }
   ];
 
@@ -100,6 +107,14 @@ const Shop = () => {
   const handleMouseEnter = () => setIsAutoPlaying(false);
   const handleMouseLeave = () => setIsAutoPlaying(true);
 
+  const handleShopClick = (shopId: string) => {
+    navigate(`/shop/${shopId}`);
+  };
+
+  const handleBannerClick = (shopId: string) => {
+    navigate(`/shop/${shopId}`);
+  };
+
   const currentBanner = shopBanners[currentIndex];
 
   return (
@@ -107,9 +122,10 @@ const Shop = () => {
       <div className="container mx-auto px-4">
         {/* Main Banner Container */}
         <div 
-          className="relative overflow-hidden rounded-2xl shadow-2xl"
+          className="relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
+          onClick={() => handleBannerClick(currentBanner.shopId)}
         >
           {/* Banner Image and Content */}
           <div className="relative h-80 md:h-96">
@@ -144,7 +160,13 @@ const Shop = () => {
                     </p>
                   </div>
                   
-                  <button className="bg-white text-black px-8 py-3 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors duration-300 shadow-lg">
+                  <button 
+                    className="bg-orange-500 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-orange-600 transition-colors duration-300 shadow-lg"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShopClick(currentBanner.shopId);
+                    }}
+                  >
                     {currentBanner.cta}
                   </button>
                 </div>
@@ -153,13 +175,19 @@ const Shop = () => {
 
             {/* Navigation Arrows */}
             <button
-              onClick={goToPrevious}
+              onClick={(e) => {
+                e.stopPropagation();
+                goToPrevious();
+              }}
               className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-all duration-200"
             >
               <ChevronLeft size={24} />
             </button>
             <button
-              onClick={goToNext}
+              onClick={(e) => {
+                e.stopPropagation();
+                goToNext();
+              }}
               className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-all duration-200"
             >
               <ChevronRight size={24} />
@@ -173,6 +201,10 @@ const Shop = () => {
                 <div
                   key={index}
                   className="text-gray-700 font-bold text-lg md:text-xl tracking-wide hover:text-orange-500 transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // You can add brand-specific navigation here if needed
+                  }}
                 >
                   {brand}
                 </div>
