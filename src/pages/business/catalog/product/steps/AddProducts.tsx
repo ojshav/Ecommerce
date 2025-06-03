@@ -192,7 +192,7 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
   if (loading && mode === 'new') { // Keep loading for initial fetch if edit/view
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
       </div>
     );
   }
@@ -200,7 +200,7 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
   const currentStepTitle = steps[activeStep];
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-4 py-8">
         <div className="mb-6 p-4 bg-white shadow rounded-lg border border-gray-200">
             <h1 className="text-2xl font-semibold text-gray-800">
                 {mode === 'edit' ? 'Edit Product' : mode === 'view' ? 'View Product' : 'Add New Product'}
@@ -208,7 +208,7 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
             <p className="text-sm text-gray-500">Step {activeStep + 1} of {steps.length}: {currentStepTitle}</p>
             {/* Progress Bar (Optional) */}
             <div className="mt-3 bg-gray-200 rounded-full h-2.5">
-                <div className="bg-primary-600 h-2.5 rounded-full" style={{ width: `${((activeStep + 1) / steps.length) * 100}%` }}></div>
+                <div className="bg-orange-600 h-2.5 rounded-full" style={{ width: `${((activeStep + 1) / steps.length) * 100}%` }}></div>
             </div>
         </div>
 
@@ -225,7 +225,7 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
             onClick={handleBack}
 
             disabled={activeStep === 0 || loading}
-            className={`px-6 py-2.5 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-opacity ${
+            className={`px-6 py-2.5 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-opacity ${
               activeStep === 0 || loading ? 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50' : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
 
             }`}
@@ -238,7 +238,7 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
 
               onClick={handleFinalSubmit} // Changed from handleSubmit to handleFinalSubmit
               disabled={loading || (mode === 'new' && !createdProductId && activeStep === steps.length-1) } // Disable if core product not saved in 'new' mode on last step
-              className="px-6 py-2.5 text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
 
             >
               {loading ? 'Saving...' : (mode === 'edit' ? 'Update Product' : 'Finish & Create Product')}
@@ -249,7 +249,7 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
               onClick={handleNext}
 
               disabled={loading}
-              className="px-6 py-2.5 text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              className="px-6 py-2.5 text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
 
             >
               Next

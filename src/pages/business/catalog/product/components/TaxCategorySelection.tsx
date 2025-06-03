@@ -59,7 +59,7 @@ const TaxCategorySelection: React.FC<TaxCategorySelectionProps> = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-600"></div>
       </div>
     );
   }
@@ -90,22 +90,22 @@ const TaxCategorySelection: React.FC<TaxCategorySelectionProps> = ({
               <div
                 key={category.id}
                 className={`flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer ${
-                  selectedTaxCategoryId === category.id ? 'bg-primary-100 text-primary-700' : 'text-gray-900'
+                  selectedTaxCategoryId === category.id ? 'bg-orange-100 text-orange-800' : 'text-gray-900'
                 }`}
                 onClick={() => onTaxCategorySelect(category.id)}
               >
                 <div>
-                  <div className={`text-sm font-medium ${selectedTaxCategoryId === category.id ? 'text-primary-700' : 'text-gray-900'}`}>{category.name}</div>
+                  <div className={`text-sm font-medium ${selectedTaxCategoryId === category.id ? 'text-orange-700' : 'text-gray-900'}`}>{category.name}</div>
                   {category.description && (
-                    <div className={`text-xs ${selectedTaxCategoryId === category.id ? 'text-primary-600' : 'text-gray-500'}`}>{category.description}</div>
+                    <div className={`text-xs ${selectedTaxCategoryId === category.id ? 'text-orange-600' : 'text-gray-500'}`}>{category.description}</div>
                   )}
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span className={`text-sm font-semibold px-2 py-1 rounded-full ${selectedTaxCategoryId === category.id ? 'bg-primary-200 text-primary-800' : 'bg-gray-200 text-gray-800'}`}>
+                  <span className={`text-sm font-semibold px-2 py-1 rounded-full ${selectedTaxCategoryId === category.id ? 'bg-orange-200 text-orange-800' : 'bg-gray-200 text-gray-800'}`}>
                     {category.tax_rate.toFixed(1)}%
                   </span>
                   {selectedTaxCategoryId === category.id && (
-                    <CheckCircleIcon className="h-6 w-6 text-primary-600" />
+                    <CheckCircleIcon className="h-6 w-6 text-orange-600" />
                   )}
                 </div>
               </div>
