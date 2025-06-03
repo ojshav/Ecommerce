@@ -20,6 +20,7 @@ import VerifyEmail from './pages/auth/VerifyEmail';
 import Register from './pages/auth/Register';
 import WishList from './pages/WishList';
 import Promotion from './pages/Promotion';
+import Wholesale from './pages/Wholesale';
 import BecomeMerchant from './pages/BecomeMerchant';
 import TrackOrder from './pages/TrackOrder';
 import NewProduct from './pages/NewProduct';
@@ -408,6 +409,7 @@ function App() {
 
                           <Route path="/wishlist" element={<WishList />} />
                           <Route path="/promotion" element={<Promotion />} />
+                          <Route path="/wholesale" element={<Wholesale />} />
                           <Route path="/sign-in" element={<SignIn />} />
                           <Route path="/register" element={<Register />} />
                           <Route
