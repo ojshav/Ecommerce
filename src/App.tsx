@@ -84,6 +84,7 @@ import CustomersReport from './pages/business/reports/CustomersReport';
 import ProductsReport from './pages/business/reports/ProductsReport';
 import Settings from './pages/business/Settings';
 import Support from './pages/business/Support';
+import { WishlistProvider } from './context/WishlistContext';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -125,372 +126,374 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-          <Router>
-            <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
-              <Routes>
-                {/* Business Dashboard Routes */}
-                <Route path="/business" element={<AdminLayout />}>
-                  <Route
-                    index
-                    element={<Navigate to="/business/dashboard" replace />}
-                  />
-                  <Route
-                    path="dashboard"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <BusinessDashboard />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="products"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <BusinessProducts />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="inventory"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <Inventory />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="verification"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <Verification />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="verification-pending"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <VerificationStatus />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="orders"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <BusinessOrders />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="customers"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <BusinessCustomers />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="reviews"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <Reviews />
-                      </Suspense>
-                    }
-                  />
-
-                  <Route
-                    path="reports/sales"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <SalesReportPage />
-                      </Suspense>
-                    }
-                  />
-
-                  <Route
-                    path="reports/customers"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <CustomersReport />
-                      </Suspense>
-                    }
-                  />
-
-                  <Route
-                    path="reports/products"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <ProductsReport />
-                      </Suspense>
-                    }
-                  />
-
-                  <Route
-                    path="settings"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <Settings />
-                      </Suspense>
-                    }
-                  />
-
-                  <Route
-                    path="support"
-                    element={
-                      <Suspense fallback={<LoadingFallback />}>
-                        <Support />
-                      </Suspense>
-                    }
-                  />
-
-                  {/* Catalog Routes */}
-                  <Route path="catalog">
+        <WishlistProvider>
+          <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+            <Router>
+              <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
+                <Routes>
+                  {/* Business Dashboard Routes */}
+                  <Route path="/business" element={<AdminLayout />}>
+                    <Route
+                      index
+                      element={<Navigate to="/business/dashboard" replace />}
+                    />
+                    <Route
+                      path="dashboard"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <BusinessDashboard />
+                        </Suspense>
+                      }
+                    />
                     <Route
                       path="products"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <CatalogProducts />
+                          <BusinessProducts />
                         </Suspense>
                       }
                     />
                     <Route
-                      path="product/new"
+                      path="inventory"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <AddProducts />
+                          <Inventory />
                         </Suspense>
                       }
                     />
                     <Route
-                      path="product/:id/view"
+                      path="verification"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <AddProducts mode="view" />
+                          <Verification />
                         </Suspense>
                       }
                     />
                     <Route
-                      path="product/:id/edit"
+                      path="verification-pending"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <EditProduct />
+                          <VerificationStatus />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="orders"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <BusinessOrders />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="customers"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <BusinessCustomers />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="reviews"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <Reviews />
                         </Suspense>
                       }
                     />
 
+                    <Route
+                      path="reports/sales"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <SalesReportPage />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="reports/customers"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <CustomersReport />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="reports/products"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <ProductsReport />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="settings"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <Settings />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="support"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <Support />
+                        </Suspense>
+                      }
+                    />
+
+                    {/* Catalog Routes */}
+                    <Route path="catalog">
+                      <Route
+                        path="products"
+                        element={
+                          <Suspense fallback={<LoadingFallback />}>
+                            <CatalogProducts />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="product/new"
+                        element={
+                          <Suspense fallback={<LoadingFallback />}>
+                            <AddProducts />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="product/:id/view"
+                        element={
+                          <Suspense fallback={<LoadingFallback />}>
+                            <AddProducts mode="view" />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="product/:id/edit"
+                        element={
+                          <Suspense fallback={<LoadingFallback />}>
+                            <EditProduct />
+                          </Suspense>
+                        }
+                      />
+
+                      
+                    </Route>
+
+                   
+                      <Route
+                        path="product-placements" 
+                        element={
+                          <Suspense fallback={<LoadingFallback />}>
+                            <ProductPlacements />
+                          </Suspense>
+                        }
+                      />
                     
+
+                    {/* Add more business routes here */}
                   </Route>
 
-                 
-                    <Route
-                      path="product-placements" 
-                      element={
-                        <Suspense fallback={<LoadingFallback />}>
-                          <ProductPlacements />
-                        </Suspense>
-                      }
-                    />
-                  
-
-                  {/* Add more business routes here */}
-                </Route>
-
-                {/* Superadmin Login Route */}
-                <Route path="/superadmin/login" element={
-                  <>
-                    <Navbar />
-                    <SuperAdminLogin />
-                    <Footer />
-                  </>
-                } />
-
-                {/* Superadmin Routes - Protected by role check in the component */}
-                <Route path="/superadmin" element={<SuperAdminLayout />}>
-                  <Route
-                    index
-                    element={<Navigate to="/superadmin/dashboard" replace />}
-                  />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route
-                    path="user-activity-overview"
-                    element={<UserActivity />}
-                  />
-                  <Route path="user-management" element={<UserManagement />} />
-
-                  <Route path="content-moderation" element={<ContentModeration />} />
-                  <Route path="product-monitoring" element={<ProductMonitoring />} />
-                  <Route path="site-traffic-analytics" element={<TrafficAnalytics />} />
-
-                  <Route path="sales-reports" element={<SalesReportPage />} />
-                  <Route path="fraud-detection" element={<FraudDetection />} />
-                  <Route
-                    path="marketplace-health"
-                    element={<MarketplaceHealth />}
-                  />
-                  <Route
-                    path="merchant-analytics"
-                    element={<MerchantAnalytics />}
-                  />
-                  <Route
-                    path="platform-performance"
-                    element={<PlatformPerformance />}
-                  />
-                  <Route
-                    path="merchant-management"
-                    element={<MerchantManagement />}
-                  />
-                  <Route
-                    path="merchant-management/:id"
-                    element={<MerchantDetails />}
-                  />
-                  <Route path="categories" element={<Categories />} />
-                  <Route path="brand-creation" element={<BrandCreation />} />
-                  <Route path="attribute" element={<Attribute />} />
-                  <Route path="homepage-settings" element={<HomepageSettings />} />
-                </Route>
-
-                {/* Business Auth Routes */}
-                {/* <Route path="/business/login" element={<BusinessLogin />} />
-                <Route path="/register-business" element={<RegisterBusiness />} /> */}
-
-                {/* Auth Routes without header/footer */}
-                {/* <Route path="/signup" element={<SignUp />} /> */}
-
-                {/* Public Routes with header/footer */}
-                <Route
-                  path="/*"
-                  element={
+                  {/* Superadmin Login Route */}
+                  <Route path="/superadmin/login" element={
                     <>
                       <Navbar />
-                      <main className="flex-grow content-container">
-                        <Routes>
-                          <Route path="/" element={<Home />} />
-                          <Route path="/all-products" element={<Products />} />
-                          <Route
-                            path="/products/:categoryId"
-                            element={<Products />}
-                          />
-                          <Route
-                            path="/product/:productId"
-                            element={<ProductDetail />}
-                          />
-                          <Route path="/new-product" element={<NewProduct />} />
-                          <Route path="/cart" element={<Cart />} />
-                          <Route path="/payment" element={<PaymentPage />} />
-
-                          <Route path="/signin" element={<SignIn />} />
-                          <Route path="/signup" element={<SignUp />} />
-                          <Route
-                            path="/verification-pending"
-                            element={<VerificationPending />}
-                          />
-                          <Route
-                            path="/verify-email/:token"
-                            element={<VerifyEmail />}
-                          />
-                          <Route
-                            path="/business/login"
-                            element={<BusinessLogin />}
-                          />
-                          <Route
-                            path="/register-business"
-                            element={<RegisterBusiness />}
-                          />
-
-                          <Route
-                            path="/password/reset"
-                            element={<PasswordReset />}
-                          />
-
-                          <Route path="/wishlist" element={<WishList />} />
-                          <Route path="/promotion" element={<Promotion />} />
-                          <Route path="/sign-in" element={<SignIn />} />
-                          <Route path="/register" element={<Register />} />
-                          <Route
-                            path="/become-merchant"
-                            element={<BecomeMerchant />}
-                          />
-                          <Route path="/track-order" element={<TrackOrder />} />
-                          <Route path="/refund/:orderId" element={<Refund />} />
-                          <Route
-                            path="/exchange/:orderId"
-                            element={<Exchange />}
-                          />
-                          <Route
-                            path="/categories/:categoryId"
-                            element={<Products />}
-                          />
-                          <Route
-                            path="/categories/:categoryId/:brandId"
-                            element={<Products />}
-                          />
-                          <Route path="/faq" element={<FAQ />} />
-                          <Route path="/about" element={<About />} />
-                          <Route path="/contact" element={<Contact />} />
-                          <Route
-                            path="/shipping"
-                            element={<ShippingPolicy />}
-                          />
-                          <Route path="/returns" element={<Returns />} />
-                          <Route path="/privacy" element={<Privacy />} />
-                          <Route path="/cookies" element={<Cookies />} />
-                          <Route path="/terms" element={<Terms />} />
-                          <Route
-                            path="/privacy-policy"
-                            element={<PrivacyPolicy />}
-                          />
-                          <Route
-                            path="/cancellation-policy"
-                            element={<CancellationPolicy />}
-                          />
-                          <Route
-                            path="/return-refund"
-                            element={<ReturnRefund />}
-                          />
-                          <Route
-                            path="/shipping-delivery"
-                            element={<ShippingDelivery />}
-                          />
-                          <Route path="/brands/:brandId" element={<Brands />} />
-                          <Route path="/profile" element={<UserProfile />} />
-                          <Route path="/live-shop" element={<LiveShop />} />
-                          <Route path="/live-shop/fashion" element={<FashionPage />} />
-                          <Route path="/live-shop/aoin-live" element={<AoinLivePage />} />
-                          <Route path="/live-shop/coming-soon" element={<ComingSoonPage />} />
-                          <Route path="/live-shop/fashion-factory" element={<FashionFactoryPage />} />
-                          <Route path="/live-shop/sunday-funday" element={<SundayFundayPage />} />
-
-
-                        </Routes>
-                      </main>
+                      <SuperAdminLogin />
                       <Footer />
                     </>
-                  }
-                />
-              </Routes>
-            </div>
-            {/* Add MessengerPopup here, outside of routes so it appears on all pages */}
-            <MessengerPopup />
-          </Router>
+                  } />
 
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: "#363636",
-                color: "#fff",
-              },
-              success: {
-                duration: 3000,
-              },
-              error: {
-                duration: 4000,
-              },
-            }}
-          />
-        </GoogleOAuthProvider>
+                  {/* Superadmin Routes - Protected by role check in the component */}
+                  <Route path="/superadmin" element={<SuperAdminLayout />}>
+                    <Route
+                      index
+                      element={<Navigate to="/superadmin/dashboard" replace />}
+                    />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route
+                      path="user-activity-overview"
+                      element={<UserActivity />}
+                    />
+                    <Route path="user-management" element={<UserManagement />} />
+
+                    <Route path="content-moderation" element={<ContentModeration />} />
+                    <Route path="product-monitoring" element={<ProductMonitoring />} />
+                    <Route path="site-traffic-analytics" element={<TrafficAnalytics />} />
+
+                    <Route path="sales-reports" element={<SalesReportPage />} />
+                    <Route path="fraud-detection" element={<FraudDetection />} />
+                    <Route
+                      path="marketplace-health"
+                      element={<MarketplaceHealth />}
+                    />
+                    <Route
+                      path="merchant-analytics"
+                      element={<MerchantAnalytics />}
+                    />
+                    <Route
+                      path="platform-performance"
+                      element={<PlatformPerformance />}
+                    />
+                    <Route
+                      path="merchant-management"
+                      element={<MerchantManagement />}
+                    />
+                    <Route
+                      path="merchant-management/:id"
+                      element={<MerchantDetails />}
+                    />
+                    <Route path="categories" element={<Categories />} />
+                    <Route path="brand-creation" element={<BrandCreation />} />
+                    <Route path="attribute" element={<Attribute />} />
+                    <Route path="homepage-settings" element={<HomepageSettings />} />
+                  </Route>
+
+                  {/* Business Auth Routes */}
+                  {/* <Route path="/business/login" element={<BusinessLogin />} />
+                  <Route path="/register-business" element={<RegisterBusiness />} /> */}
+
+                  {/* Auth Routes without header/footer */}
+                  {/* <Route path="/signup" element={<SignUp />} /> */}
+
+                  {/* Public Routes with header/footer */}
+                  <Route
+                    path="/*"
+                    element={
+                      <>
+                        <Navbar />
+                        <main className="flex-grow content-container">
+                          <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/all-products" element={<Products />} />
+                            <Route
+                              path="/products/:categoryId"
+                              element={<Products />}
+                            />
+                            <Route
+                              path="/product/:productId"
+                              element={<ProductDetail />}
+                            />
+                            <Route path="/new-product" element={<NewProduct />} />
+                            <Route path="/cart" element={<Cart />} />
+                            <Route path="/payment" element={<PaymentPage />} />
+
+                            <Route path="/signin" element={<SignIn />} />
+                            <Route path="/signup" element={<SignUp />} />
+                            <Route
+                              path="/verification-pending"
+                              element={<VerificationPending />}
+                            />
+                            <Route
+                              path="/verify-email/:token"
+                              element={<VerifyEmail />}
+                            />
+                            <Route
+                              path="/business/login"
+                              element={<BusinessLogin />}
+                            />
+                            <Route
+                              path="/register-business"
+                              element={<RegisterBusiness />}
+                            />
+
+                            <Route
+                              path="/password/reset"
+                              element={<PasswordReset />}
+                            />
+
+                            <Route path="/wishlist" element={<WishList />} />
+                            <Route path="/promotion" element={<Promotion />} />
+                            <Route path="/sign-in" element={<SignIn />} />
+                            <Route path="/register" element={<Register />} />
+                            <Route
+                              path="/become-merchant"
+                              element={<BecomeMerchant />}
+                            />
+                            <Route path="/track-order" element={<TrackOrder />} />
+                            <Route path="/refund/:orderId" element={<Refund />} />
+                            <Route
+                              path="/exchange/:orderId"
+                              element={<Exchange />}
+                            />
+                            <Route
+                              path="/categories/:categoryId"
+                              element={<Products />}
+                            />
+                            <Route
+                              path="/categories/:categoryId/:brandId"
+                              element={<Products />}
+                            />
+                            <Route path="/faq" element={<FAQ />} />
+                            <Route path="/about" element={<About />} />
+                            <Route path="/contact" element={<Contact />} />
+                            <Route
+                              path="/shipping"
+                              element={<ShippingPolicy />}
+                            />
+                            <Route path="/returns" element={<Returns />} />
+                            <Route path="/privacy" element={<Privacy />} />
+                            <Route path="/cookies" element={<Cookies />} />
+                            <Route path="/terms" element={<Terms />} />
+                            <Route
+                              path="/privacy-policy"
+                              element={<PrivacyPolicy />}
+                            />
+                            <Route
+                              path="/cancellation-policy"
+                              element={<CancellationPolicy />}
+                            />
+                            <Route
+                              path="/return-refund"
+                              element={<ReturnRefund />}
+                            />
+                            <Route
+                              path="/shipping-delivery"
+                              element={<ShippingDelivery />}
+                            />
+                            <Route path="/brands/:brandId" element={<Brands />} />
+                            <Route path="/profile" element={<UserProfile />} />
+                            <Route path="/live-shop" element={<LiveShop />} />
+                            <Route path="/live-shop/fashion" element={<FashionPage />} />
+                            <Route path="/live-shop/aoin-live" element={<AoinLivePage />} />
+                            <Route path="/live-shop/coming-soon" element={<ComingSoonPage />} />
+                            <Route path="/live-shop/fashion-factory" element={<FashionFactoryPage />} />
+                            <Route path="/live-shop/sunday-funday" element={<SundayFundayPage />} />
+
+
+                          </Routes>
+                        </main>
+                        <Footer />
+                      </>
+                    }
+                  />
+                </Routes>
+              </div>
+              {/* Add MessengerPopup here, outside of routes so it appears on all pages */}
+              <MessengerPopup />
+            </Router>
+
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: "#363636",
+                  color: "#fff",
+                },
+                success: {
+                  duration: 3000,
+                },
+                error: {
+                  duration: 4000,
+                },
+              }}
+            />
+          </GoogleOAuthProvider>
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   );
