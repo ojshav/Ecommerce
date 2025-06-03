@@ -6,6 +6,7 @@ import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import Home from './pages/Home';
 import Products from './pages/Products';
+import ShopProducts from './pages/ShopProducts';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import SignIn from './pages/auth/SignIn';
@@ -368,6 +369,7 @@ function App() {
                         <Routes>
                           <Route path="/" element={<Home />} />
                           <Route path="/all-products" element={<Products />} />
+                          <Route path="shop/:shopId" element={<ShopProducts />} />
                           <Route
                             path="/products/:categoryId"
                             element={<Products />}
