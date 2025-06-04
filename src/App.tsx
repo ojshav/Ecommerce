@@ -74,6 +74,7 @@ import PaymentPage from './pages/PaymentPage';
 import MessengerPopup from './components/MessengerPopup';
 import Refund from './pages/Refund';
 import Exchange from './pages/Exchange';
+import Review from './pages/Review';
 import LiveShop from './pages/LiveShop';
 import FashionPage from './components/sections/Fashionpage';
 import AoinLivePage from './components/sections/AoinLivePage';
@@ -398,10 +399,8 @@ function App() {
                             />
                             <Route path="/track-order" element={<TrackOrder />} />
                             <Route path="/refund/:orderId" element={<Refund />} />
-                            <Route
-                              path="/exchange/:orderId"
-                              element={<Exchange />}
-                            />
+                            <Route path="/exchange/:orderId" element={<Exchange />} />
+                            <Route path="/review/:orderId" element={<Review />} />
                             <Route
                               path="/categories/:categoryId"
                               element={<Products />}
