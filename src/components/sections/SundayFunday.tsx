@@ -31,7 +31,8 @@ const SundayFunday: React.FC<SundayFundayProps> = ({ layout = 'row' }) => {
       host: 'Emma',
       thumbnail: 'https://images.unsplash.com/photo-1542596768-5d1d21f1cf98?w=500&h=500&fit=crop',
       viewers: 423,
-      type: 'Sunday'
+      type: 'Sunday',
+      productId: 'sunday-product-1'
     },
     {
       id: 'sunday-2',
@@ -39,7 +40,8 @@ const SundayFunday: React.FC<SundayFundayProps> = ({ layout = 'row' }) => {
       host: 'Sophie',
       thumbnail: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=500&h=500&fit=crop',
       viewers: 423,
-      type: 'Sunday'
+      type: 'Sunday',
+      productId: 'sunday-product-2'
     },
     {
       id: 'sunday-3',
@@ -47,7 +49,8 @@ const SundayFunday: React.FC<SundayFundayProps> = ({ layout = 'row' }) => {
       host: 'Sophie',
       thumbnail: 'https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?w=500&h=500&fit=crop',
       viewers: 423,
-      type: 'Sunday'
+      type: 'Sunday',
+      productId: 'sunday-product-3'
     },
     {
       id: 'sunday-4',
@@ -55,7 +58,8 @@ const SundayFunday: React.FC<SundayFundayProps> = ({ layout = 'row' }) => {
       host: 'Sophie',
       thumbnail: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=500&h=500&fit=crop',
       viewers: 423,
-      type: 'Sunday'
+      type: 'Sunday',
+      productId: 'sunday-product-4'
     },
     {
       id: 'sunday-5',
@@ -63,7 +67,8 @@ const SundayFunday: React.FC<SundayFundayProps> = ({ layout = 'row' }) => {
       host: 'Sophie',
       thumbnail: 'https://images.unsplash.com/photo-1523359346063-d879354c0ea5?w=500&h=500&fit=crop',
       viewers: 423,
-      type: 'Sunday'
+      type: 'Sunday',
+      productId: 'sunday-product-5'
     }
   ];
 

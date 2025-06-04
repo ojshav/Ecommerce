@@ -80,6 +80,7 @@ import AoinLivePage from './components/sections/AoinLivePage';
 import ComingSoonPage from './components/sections/ComingSoonPage';
 import FashionFactoryPage from './components/sections/FashionFactoryPage';
 import SundayFundayPage from './components/sections/SundayFundayPage';
+import LiveShopProductDetailPage from './pages/LiveShopProductDetailPage';
 import Reviews from './pages/business/Reviews';
 import SalesReport from './pages/business/reports/SalesReport';
 import CustomersReport from './pages/business/reports/CustomersReport';
@@ -354,14 +355,8 @@ function App() {
                             <Route path="/" element={<Home />} />
                             <Route path="/all-products" element={<Products />} />
                             <Route path="shop/:shopId" element={<ShopProducts />} />
-                            <Route
-                              path="/products/:categoryId"
-                              element={<Products />}
-                            />
-                            <Route
-                              path="/product/:productId"
-                              element={<ProductDetail />}
-                            />
+                            <Route path="/products/:categoryId" element={<Products />} />
+                            <Route path="/product/:productId" element={<ProductDetail />} />
                             <Route path="/new-product" element={<NewProduct />} />
                             <Route path="/cart" element={<Cart />} />
                             <Route path="/payment" element={<PaymentPage />} />
@@ -448,6 +443,7 @@ function App() {
                             <Route path="/live-shop/coming-soon" element={<ComingSoonPage />} />
                             <Route path="/live-shop/fashion-factory" element={<FashionFactoryPage />} />
                             <Route path="/live-shop/sunday-funday" element={<SundayFundayPage />} />
+                            <Route path="/live-shop/product/:productId" element={<LiveShopProductDetailPage />} />
                           </Routes>
                         </main>
                         <Footer />
