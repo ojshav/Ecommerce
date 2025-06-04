@@ -60,7 +60,7 @@ interface ApiResponse {
   message?: string;
 }
 
-const TrackOrder: React.FC = () => {
+const Order: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -428,4 +428,4 @@ const TrackOrder: React.FC = () => {
   );
 };
 
-export default TrackOrder; 
+export default Order; 
