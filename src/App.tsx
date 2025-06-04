@@ -20,6 +20,7 @@ import VerifyEmail from './pages/auth/VerifyEmail';
 import Register from './pages/auth/Register';
 import WishList from './pages/WishList';
 import Promotion from './pages/Promotion';
+import Wholesale from './pages/Wholesale';
 import BecomeMerchant from './pages/BecomeMerchant';
 import TrackOrder from './pages/TrackOrder';
 import NewProduct from './pages/NewProduct';
@@ -282,22 +283,16 @@ function App() {
                           </Suspense>
                         }
                       />
-
-                      
                     </Route>
 
-                   
-                      <Route
-                        path="product-placements" 
-                        element={
-                          <Suspense fallback={<LoadingFallback />}>
-                            <ProductPlacements />
-                          </Suspense>
-                        }
-                      />
-                    
-
-                    {/* Add more business routes here */}
+                    <Route
+                      path="product-placements" 
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <ProductPlacements />
+                        </Suspense>
+                      }
+                    />
                   </Route>
 
                   {/* Superadmin Login Route */}
@@ -348,7 +343,7 @@ function App() {
                     <Route path="homepage-settings" element={<HomepageSettings />} />
                   </Route>
 
-                
+                  {/* Public Routes with header/footer */}
                   <Route
                     path="/*"
                     element={
@@ -358,6 +353,7 @@ function App() {
                           <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/all-products" element={<Products />} />
+                            <Route path="shop/:shopId" element={<ShopProducts />} />
                             <Route
                               path="/products/:categoryId"
                               element={<Products />}
@@ -396,6 +392,7 @@ function App() {
 
                             <Route path="/wishlist" element={<WishList />} />
                             <Route path="/promotion" element={<Promotion />} />
+                            <Route path="/wholesale" element={<Wholesale />} />
                             <Route path="/sign-in" element={<SignIn />} />
                             <Route path="/register" element={<Register />} />
                             <Route
@@ -451,8 +448,6 @@ function App() {
                             <Route path="/live-shop/coming-soon" element={<ComingSoonPage />} />
                             <Route path="/live-shop/fashion-factory" element={<FashionFactoryPage />} />
                             <Route path="/live-shop/sunday-funday" element={<SundayFundayPage />} />
-
-
                           </Routes>
                         </main>
                         <Footer />
