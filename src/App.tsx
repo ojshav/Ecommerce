@@ -88,6 +88,7 @@ import Settings from './pages/business/Settings';
 import Support from './pages/business/Support';
 import { WishlistProvider } from './context/WishlistContext';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
+import Subscription from './pages/business/Subscription';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -171,6 +172,14 @@ function App() {
                       element={
                         <Suspense fallback={<LoadingFallback />}>
                           <BusinessDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="subscription"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <Subscription />
                         </Suspense>
                       }
                     />
