@@ -21,6 +21,7 @@ import WishList from './pages/WishList';
 import Promotion from './pages/Promotion';
 import Wholesale from './pages/Wholesale';
 import BecomeMerchant from './pages/BecomeMerchant';
+import Order from './pages/Order';
 import TrackOrder from './pages/TrackOrder';
 import NewProduct from './pages/NewProduct';
 import BusinessLogin from './pages/auth/BusinessLogin';
@@ -73,6 +74,7 @@ import PaymentPage from './pages/PaymentPage';
 import MessengerPopup from './components/MessengerPopup';
 import Refund from './pages/Refund';
 import Exchange from './pages/Exchange';
+import Review from './pages/Review';
 import LiveShop from './pages/LiveShop';
 import FashionPage from './components/sections/Fashionpage';
 import AoinLivePage from './components/sections/AoinLivePage';
@@ -430,12 +432,12 @@ function App() {
                               path="/become-merchant"
                               element={<BecomeMerchant />}
                             />
+                            <Route path="/orders" element={<Order />} />
                             <Route path="/track-order" element={<TrackOrder />} />
+                            <Route path="/track/:orderId" element={<TrackOrder />} />
                             <Route path="/refund/:orderId" element={<Refund />} />
-                            <Route
-                              path="/exchange/:orderId"
-                              element={<Exchange />}
-                            />
+                            <Route path="/exchange/:orderId" element={<Exchange />} />
+                            <Route path="/review/:orderId" element={<Review />} />
                             <Route
                               path="/categories/:categoryId"
                               element={<Products />}
