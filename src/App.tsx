@@ -88,6 +88,7 @@ import ProductsReport from './pages/business/reports/ProductsReport';
 import Settings from './pages/business/Settings';
 import Support from './pages/business/Support';
 import { WishlistProvider } from './context/WishlistContext';
+import OrderConfirmationPage from './pages/OrderConfirmationPage';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -360,6 +361,7 @@ function App() {
                             <Route path="/new-product" element={<NewProduct />} />
                             <Route path="/cart" element={<Cart />} />
                             <Route path="/payment" element={<PaymentPage />} />
+                            <Route path="/payment/orderconfirmation" element={<OrderConfirmationPage />} />
 
                             <Route path="/signin" element={<SignIn />} />
                             <Route path="/signup" element={<SignUp />} />
