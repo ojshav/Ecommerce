@@ -543,11 +543,11 @@ const Navbar: React.FC = () => {
             
             {/* Right side links */}
             <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-6">
-              <Link to="/track-order" className="flex items-center py-1.5 text-sm hover:text-[#F2631F]">
+              <Link to="/orders" className="flex items-center py-1.5 text-sm hover:text-[#F2631F]">
                 <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span>Track Your Order</span>
+                <span>Your Orders</span>
               </Link>
               {isAuthenticated ? (
                 <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
