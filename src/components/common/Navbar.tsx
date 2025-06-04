@@ -43,33 +43,33 @@ const Navbar: React.FC = () => {
   const mobileCategoryButtonRef = useRef<HTMLButtonElement>(null);
   const mobileNewProductButtonRef = useRef<HTMLButtonElement>(null);
 
-  useClickOutside(desktopSearchRef, (event: MouseEvent) => {
+  useClickOutside(desktopSearchRef, (event: MouseEvent | TouchEvent) => {
     setShowSearchResults(false);
   });
 
-  useClickOutside(mobileSearchRef, (event: MouseEvent) => {
+  useClickOutside(mobileSearchRef, (event: MouseEvent | TouchEvent) => {
     setShowSearchResults(false);
   });
 
-  useClickOutside(categoryDropdownRef, (event: MouseEvent) => {
+  useClickOutside(categoryDropdownRef, (event: MouseEvent | TouchEvent) => {
     if (desktopCategoryButtonRef.current && !desktopCategoryButtonRef.current.contains(event.target as Node)) {
       setIsCategoryDropdownOpen(false);
     }
   });
 
-  useClickOutside(newProductDropdownRef, (event: MouseEvent) => {
+  useClickOutside(newProductDropdownRef, (event: MouseEvent | TouchEvent) => {
     if (desktopNewProductButtonRef.current && !desktopNewProductButtonRef.current.contains(event.target as Node)) {
       setIsNewProductDropdownOpen(false);
     }
   });
 
-  useClickOutside(mobileMenuRef, (event: MouseEvent) => {
+  useClickOutside(mobileMenuRef, (event: MouseEvent | TouchEvent) => {
     if (mobileMenuButtonRef.current && !mobileMenuButtonRef.current.contains(event.target as Node)) {
       setMobileMenuOpen(false);
     }
   });
 
-  useClickOutside(lowerMobileMenuRef, (event: MouseEvent) => {
+  useClickOutside(lowerMobileMenuRef, (event: MouseEvent | TouchEvent) => {
     if (lowerMobileMenuButtonRef.current && !lowerMobileMenuButtonRef.current.contains(event.target as Node)) {
       setLowerMobileMenuOpen(false);
     }
@@ -160,7 +160,7 @@ const Navbar: React.FC = () => {
   const searchBarContent = (
     <div ref={desktopSearchRef} className="relative">
       <form onSubmit={handleSearchSubmit} className="relative">
-        <div className="flex rounded-md overflow-hidden bg-white">
+        <div className="flex rounded-md overflow-hidden bg-white border border-gray-300 shadow-sm">
           <input
             type="text"
             placeholder="What are you looking for?"
@@ -169,7 +169,7 @@ const Navbar: React.FC = () => {
             onChange={handleSearchInputChange}
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
-          <div className="relative flex items-center border-l border-gray-200 bg-white">
+          <div className="relative flex items-center bg-gray-100">
             <select 
               className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none text-sm"
               value={searchType}
@@ -179,14 +179,7 @@ const Navbar: React.FC = () => {
               <option value="products">Products</option>
               <option value="categories">Categories</option>
             </select>
-            <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
           </div>
-          <button 
-            type="submit"
-            className="relative flex items-center border-l border-gray-200 bg-white px-4 hover:bg-gray-50"
-          >
-            <Search className="h-4 w-4 text-gray-500" />
-          </button>
         </div>
       </form>
       <SearchResults 
