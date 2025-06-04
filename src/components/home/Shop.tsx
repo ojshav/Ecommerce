@@ -79,77 +79,75 @@ const Shop = () => {
   };
 
   return (
-    <section className="py-8">
+    <section className="py-8 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="space-y-8">
+        <div className="space-y-6">
           {shopBanners.map((shop) => (
             <div 
               key={shop.id}
-              className="bg-white rounded-2xl shadow-xl overflow-hidden cursor-pointer transform transition-transform duration-300 hover:scale-[1.02]"
+              className="bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-md"
               onClick={() => handleShopClick(shop.shopId)}
             >
-              {/* Shop Card */}
-              <div className="relative h-80">
-                <img
-                  src={shop.image}
-                  alt={shop.title}
-                  className="w-full h-full object-cover"
-                />
-                
-                {/* Dark Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-purple-900/30"></div>
-                
-                {/* Content Overlay */}
-                <div className="absolute inset-0 flex items-center">
-                  <div className="px-8">
-                    {/* Left Content */}
-                    <div className="text-white max-w-lg">
-                      <h2 className="text-4xl md:text-5xl font-bold mb-2">
-                        {shop.title}
-                      </h2>
-                      <p className="text-xl md:text-2xl mb-1 font-medium">
-                        {shop.subtitle}
-                      </p>
-                      <p className="text-xl md:text-2xl mb-4 font-medium">
-                        {shop.discount}
-                      </p>
-                      
-                      {/* Opening Hours */}
-                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 mb-6 inline-block">
-                        <p className="text-sm font-medium text-white">
-                          <span className="text-green-300">● Open:</span> {shop.openingTime} - {shop.closingTime}
-                        </p>
-                      </div>
-                      
-                      <button 
-                        className="bg-orange-500 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-orange-600 transition-colors duration-300 shadow-lg"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleShopClick(shop.shopId);
-                        }}
-                      >
-                        {shop.cta}
-                      </button>
-                    </div>
+              <div className="flex flex-col md:flex-row">
+                {/* Left Side - Image */}
+                <div className="w-full md:w-1/2 relative h-64 md:h-auto">
+                  <img
+                    src={shop.image}
+                    alt={shop.title}
+                    className="w-full h-full object-cover"
+                  />
+                  
+                  {/* Opening Hours Badge */}
+                  <div className="absolute top-4 left-4 bg-black/30 backdrop-blur-sm rounded-full px-4 py-1.5">
+                    <p className="text-sm font-medium text-white flex items-center">
+                      <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                      {shop.openingTime} - {shop.closingTime}
+                    </p>
                   </div>
                 </div>
-              </div>
 
-              {/* Brand Logos Section */}
-              <div className="py-4 px-8 border-t">
-                <div className="flex justify-center items-center space-x-8 md:space-x-12">
-                  {shop.brands.map((brand, index) => (
-                    <div
-                      key={index}
-                      className="text-gray-700 font-bold text-lg md:text-xl tracking-wide hover:text-orange-500 transition-colors cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // You can add brand-specific navigation here if needed
-                      }}
-                    >
-                      {brand}
+                {/* Right Side - Content */}
+                <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
+                  <div>
+                    {/* Header */}
+                    <div className="mb-4">
+                      <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                        {shop.title}
+                      </h2>
+                      <p className="text-lg text-gray-600">
+                        {shop.subtitle} <br />
+                        {shop.discount}
+                      </p>
                     </div>
-                  ))}
+
+                    {/* Description */}
+                    <p className="text-gray-600 mb-6">
+                      {shop.description}
+                    </p>
+
+                    {/* Brands */}
+                    <div className="flex flex-wrap gap-3 mb-6">
+                      {shop.brands.map((brand, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+                        >
+                          {brand}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <button 
+                    className="w-full bg-[#FF4D00] text-white py-3 rounded-lg font-semibold hover:bg-[#FF4D00]/90 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShopClick(shop.shopId);
+                    }}
+                  >
+                    {shop.cta}
+                  </button>
                 </div>
               </div>
             </div>
