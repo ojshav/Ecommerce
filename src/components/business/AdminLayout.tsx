@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import useClickOutside from '../../hooks/useClickOutside';
+import LogoutConfirmationPopup from '../LogoutConfirmationPopup';
 import { 
   ChevronDownIcon, 
   Bars3Icon, 
@@ -58,6 +59,7 @@ const AdminLayout: React.FC = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
+  const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
   
@@ -113,8 +115,14 @@ const AdminLayout: React.FC = () => {
     setExpandedMenus(prev => ({ ...prev, [name]: !prev[name] }));
   };
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setIsLogoutPopupOpen(true);
+    setIsProfileMenuOpen(false);
+  };
+
+  const handleLogoutConfirm = () => {
     logout();
+    setIsLogoutPopupOpen(false);
     navigate('/');
   };
 
@@ -217,7 +225,7 @@ const AdminLayout: React.FC = () => {
                       Settings
                     </Link>
                     <button
-                      onClick={handleLogout}
+                      onClick={handleLogoutClick}
                       className="w-full text-left block px-4 py-2 text-sm text-orange-800 hover:bg-[#fed7aa] hover:text-orange-900"
                       role="menuitem"
                     >
@@ -360,6 +368,13 @@ const AdminLayout: React.FC = () => {
           onClick={toggleSidebar}
         ></div>
       )}
+
+      {/* Add the LogoutConfirmationPopup */}
+      <LogoutConfirmationPopup
+        isOpen={isLogoutPopupOpen}
+        onClose={() => setIsLogoutPopupOpen(false)}
+        onConfirm={handleLogoutConfirm}
+      />
     </div>
   );
 };

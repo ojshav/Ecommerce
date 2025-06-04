@@ -7,6 +7,7 @@ import CategoryDropdown from '../home/CategoryDropdown';
 import NewProductDropdown from '../home/NewProductDropdown';
 import SearchResults from './SearchResults';
 import useClickOutside from '../../hooks/useClickOutside';
+import LogoutConfirmationPopup from '../LogoutConfirmationPopup';
 
 // Custom breakpoint for 968px
 const customBreakpoint = '@media (max-width: 968px)';
@@ -25,6 +26,7 @@ const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const [searchType, setSearchType] = useState<'all' | 'products' | 'categories'>('all');
   const location = useLocation();
+  const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
 
   const desktopSearchRef = useRef<HTMLDivElement>(null);
   const mobileSearchRef = useRef<HTMLDivElement>(null);
@@ -119,15 +121,15 @@ const Navbar: React.FC = () => {
     if (isMobileCategoryDropdownOpen) setIsMobileCategoryDropdownOpen(false);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogoutClick = () => {
+    setIsLogoutPopupOpen(true);
     setMobileMenuOpen(false);
     setLowerMobileMenuOpen(false);
   };
 
-  const closeNewProductDropdown = () => {
-    setIsNewProductDropdownOpen(false);
-    setIsMobileNewProductDropdownOpen(false);
+  const handleLogoutConfirm = () => {
+    logout();
+    setIsLogoutPopupOpen(false);
     setMobileMenuOpen(false);
     setLowerMobileMenuOpen(false);
   };
@@ -419,7 +421,7 @@ const Navbar: React.FC = () => {
               </Link>
               {isAuthenticated ? (
                 <button
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                   className="flex items-center py-1.5 text-xs text-red-600 hover:text-red-700"
                 >
                   <LogOut className="w-4 h-4 mr-1" />
@@ -474,16 +476,16 @@ const Navbar: React.FC = () => {
                 {isMobileNewProductDropdownOpen && (
                   <div className="bg-gray-50 py-2 px-3 ml-3 rounded">
                     <div className="space-y-2">
-                      <Link to="/new-product?category=smart-watch" className="block text-sm hover:text-[#F2631F]" onClick={closeNewProductDropdown}>
+                      <Link to="/new-product?category=smart-watch" className="block text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                         Smart Watch
                       </Link>
-                      <Link to="/new-product?category=tablet" className="block text-sm hover:text-[#F2631F]" onClick={closeNewProductDropdown}>
+                      <Link to="/new-product?category=tablet" className="block text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                         Tablet
                       </Link>
-                      <Link to="/new-product?category=accessories" className="block text-sm hover:text-[#F2631F]" onClick={closeNewProductDropdown}>
+                      <Link to="/new-product?category=accessories" className="block text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                         Accessories
                       </Link>
-                      <Link to="/new-product?promotion=october-sale" className="block text-sm text-[#F2631F] font-medium" onClick={closeNewProductDropdown}>
+                      <Link to="/new-product?promotion=october-sale" className="block text-sm text-[#F2631F] font-medium" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                         Special Offers
                       </Link>
                     </div>
@@ -553,7 +555,7 @@ const Navbar: React.FC = () => {
                     Welcome, {user?.name || 'User'}
                   </span>
                   <button
-                    onClick={handleLogout}
+                    onClick={handleLogoutClick}
                     className="flex items-center py-1.5 text-sm text-red-600 hover:text-red-700"
                   >
                     <LogOut className="w-4 h-4 mr-1" />
@@ -590,6 +592,13 @@ const Navbar: React.FC = () => {
         />
         </div>
       )}
+
+      {/* Logout Confirmation Popup */}
+      <LogoutConfirmationPopup
+        isOpen={isLogoutPopupOpen}
+        onClose={() => setIsLogoutPopupOpen(false)}
+        onConfirm={handleLogoutConfirm}
+      />
     </header>
   );
 };
