@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import TaxCategorySelection from './TaxCategorySelection';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -57,6 +58,11 @@ interface ProductMeta {
   meta_title: string;
   meta_desc: string;
   meta_keywords: string;
+}
+
+interface ProductTax {
+  product_id: number;
+  tax_rate: number;
 }
 
 interface Product {
@@ -151,6 +157,8 @@ const EditProduct: React.FC = () => {
     meta_desc: '',
     meta_keywords: ''
   });
+  const [taxData, setTaxData] = useState<ProductTax | null>(null);
+  const [selectedTaxCategoryId, setSelectedTaxCategoryId] = useState<number | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -161,6 +169,7 @@ const EditProduct: React.FC = () => {
       fetchShipping();
       fetchProductStock();
       fetchProductMeta();
+      fetchProductTax();
     }
   }, [id]);
 
@@ -384,6 +393,27 @@ const EditProduct: React.FC = () => {
     } catch (error) {
       console.error('Error fetching product meta:', error);
       setError('Failed to load product meta. Please try again later.');
+    }
+  };
+
+  const fetchProductTax = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${id}/tax`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch product tax');
+      }
+
+      const data = await response.json();
+      setTaxData(data);
+    } catch (error) {
+      console.error('Error fetching product tax:', error);
+      setError('Failed to load product tax. Please try again later.');
     }
   };
 
@@ -621,6 +651,10 @@ const EditProduct: React.FC = () => {
       console.error('Error updating meta data:', error);
       setError('Failed to update meta data. Please try again.');
     }
+  };
+
+  const handleTaxCategorySelect = async (taxCategoryId: number) => {
+    setSelectedTaxCategoryId(taxCategoryId);
   };
 
   const convertFromBaseUnit = (value: number, unit: string, units: ShippingUnit[]): number => {
@@ -1252,6 +1286,24 @@ const EditProduct: React.FC = () => {
                 Update Meta
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Add Tax Category Section */}
+        <div className="mt-8 bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Tax Category</h3>
+          <div className="space-y-4">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="text-sm font-medium text-gray-700 mb-1">Current Tax Rate</h4>
+              <p className="text-lg font-semibold text-gray-900">
+                {taxData ? `${taxData.tax_rate}%` : 'Not set'}
+              </p>
+            </div>
+            <TaxCategorySelection
+              selectedTaxCategoryId={selectedTaxCategoryId}
+              onTaxCategorySelect={handleTaxCategorySelect}
+              productId={id ? parseInt(id) : undefined}
+            />
           </div>
         </div>
 

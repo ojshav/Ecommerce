@@ -5,6 +5,7 @@ import ProductMeta from './ProductMeta';
 import ProductVariants from './ProductVariants';
 import AttributeSelection from './AttributeSelection';
 import { CheckCircleIcon, ShieldExclamationIcon } from '@heroicons/react/24/solid';
+import TaxCategorySelection from './TaxCategorySelection';
 
 // Add className constants
 const labelClassName = "block text-sm font-medium text-gray-700";
@@ -125,6 +126,10 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
   // Add new state for attributes
   const [selectedAttributes, setSelectedAttributes] = useState<Record<number, string | string[]>>({});
   const [attributeErrors, setAttributeErrors] = useState<Record<string, any>>({});
+
+  // Add tax category selection state
+  const [selectedTaxCategoryId, setSelectedTaxCategoryId] = useState<number | null>(null);
+  const [taxError, setTaxError] = useState<string | null>(null);
 
   // Function to generate SKU from product name
   const generateSKU = (productName: string) => {
@@ -282,6 +287,60 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
     setSelectedAttributes(prev => ({ ...prev, [attributeId]: value }));
   };
 
+  // Add tax category selection handler
+  const handleTaxCategorySelect = async (taxCategoryId: number) => {
+    if (!productId) {
+      setTaxError('Please save the product first before selecting a tax category');
+      return;
+    }
+
+    try {
+      setTaxError(null);
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/tax`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tax_rate: taxCategoryId // The tax rate will be set based on the selected category
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update product tax');
+      }
+
+      setSelectedTaxCategoryId(taxCategoryId);
+    } catch (error) {
+      console.error('Error updating product tax:', error);
+      setTaxError(error instanceof Error ? error.message : 'Failed to update product tax');
+    }
+  };
+
+  // Add useEffect to fetch current tax category when product is created
+  useEffect(() => {
+    const fetchProductTax = async () => {
+      if (!productId) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/tax`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setSelectedTaxCategoryId(data.tax_rate);
+        }
+      } catch (error) {
+        console.error('Error fetching product tax:', error);
+      }
+    };
+
+    fetchProductTax();
+  }, [productId]);
 
   // Add approval status display component
   const ApprovalStatusDisplay = () => {
@@ -635,6 +694,22 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
                 onVariantsChange={handleVariantsChange}
                 errors={variantErrors}
                 categoryId={categoryId}
+              />
+            </div>
+          </div>
+
+          {/* Add Tax Category Selection after product creation */}
+          <div>
+            <h2 className={sectionTitleClassName}>Tax Category</h2>
+            <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+              {taxError && (
+                <div className="p-3 mb-4 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-red-700 text-sm">{taxError}</p>
+                </div>
+              )}
+              <TaxCategorySelection
+                selectedTaxCategoryId={selectedTaxCategoryId}
+                onTaxCategorySelect={handleTaxCategorySelect}
               />
             </div>
           </div>

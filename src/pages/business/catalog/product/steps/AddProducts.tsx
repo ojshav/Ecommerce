@@ -12,8 +12,8 @@ interface AddProductsProps {
 
 const steps = [
   'Category & Brand',
+  'Product Details',
   'Tax Category',
-  'Product Details', // Changed from 'Core Info'
 ];
 
 const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
@@ -87,20 +87,13 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
         // Brand validation might be conditional if a category doesn't require a brand
         if (formData.categoryId && !formData.brandId) newErrors.brandId = 'Brand is required';
         break;
-      case 1: // Tax Category
-        if (!formData.taxCategoryId) newErrors.taxCategoryId = 'Tax category is required';
-        break;
-      case 2: // Product Details (Core Info)
-        // Validation for CoreProductInfo fields like name, SKU, price would ideally happen
-        // within CoreProductInfo or be triggered from there.
-        // For simplicity in AddProducts, we might only check if the product was "created" (i.e., createdProductId is set)
-        // if CoreProductInfo handles its own save.
-        // If CoreProductInfo data is passed up to AddProducts, then validate here:
+      case 1: // Product Details
         if (!formData.name) newErrors.name = 'Product name is required';
         if (!formData.sku) newErrors.sku = 'SKU is required';
         if (!formData.sellingPrice) newErrors.sellingPrice = 'Selling price is required';
-        // If CoreProductInfo has its own save button, this step might not need explicit validation here
-        // if the "Next" button is replaced by a "Finish" or "Save Product" button on the last step.
+        break;
+      case 2: // Tax Category
+        if (!formData.taxCategoryId) newErrors.taxCategoryId = 'Tax category is required';
         break;
     }
     setErrors(newErrors);
@@ -109,21 +102,18 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
 
   // This handleSubmit is for the final "Create Product" or "Update Product" action for the whole flow
   const handleFinalSubmit = async () => {
-    // This function would be more complex, potentially gathering data from CoreProductInfo
-    // if it hasn't saved its sections individually.
-    // For this structure, CoreProductInfo and its children handle their own saves.
-    // So, this might just be a "Finish" action.
+    if (!validateStep()) return;
 
-    if (!validateStep()) return; // Validate the current step's requirements if any
-
-    // Assuming all data is saved by sub-components or CoreProductInfo.
-    // Navigate to product list or product view page.
     setLoading(true);
-    console.log('Finalizing product creation/update...');
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setLoading(false);
-    navigate('/business/catalog/products'); // Or to the new/edited product's page
+    try {
+      // Here you would typically make an API call to finalize the product
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      navigate('/business/catalog/products');
+    } catch (error) {
+      setErrors(prev => ({ ...prev, submit: 'Failed to save product' }));
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Callback for CoreProductInfo to inform AddProducts that the product's core details are saved
@@ -156,14 +146,6 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
         );
       case 1:
         return (
-          <TaxCategorySelection
-            selectedTaxCategoryId={formData.taxCategoryId}
-            onTaxCategorySelect={(taxId) => setFormData({ ...formData, taxCategoryId: taxId })}
-            errors={errors}
-          />
-        );
-      case 2:
-        return (
           <CoreProductInfo
             // Pass existing core fields from formData
             name={formData.name}
@@ -183,6 +165,22 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
             onProductCreated={handleProductCreated}
             errors={errors} // Pass down general errors for core fields
           />
+        );
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+              <h2 className="text-lg font-medium text-gray-900 mb-4">Select Tax Category</h2>
+              <p className="text-sm text-gray-500 mb-6">
+                Choose the appropriate tax category for your product. This will determine the tax rate applied to sales.
+              </p>
+              <TaxCategorySelection
+                selectedTaxCategoryId={formData.taxCategoryId}
+                onTaxCategorySelect={(taxId) => setFormData({ ...formData, taxCategoryId: taxId })}
+                errors={errors}
+              />
+            </div>
+          </div>
         );
       default:
         return null;

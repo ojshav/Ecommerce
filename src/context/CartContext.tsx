@@ -66,6 +66,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (data.status === 'success') {
         const formattedCart = data.data.map((item: any) => ({
           cart_item_id: item.cart_item_id,
+          product_id: item.product_id,
+          merchant_id: item.merchant_id,
           quantity: item.quantity,
           product: {
             id: item.product.id,
