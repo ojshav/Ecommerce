@@ -94,16 +94,19 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      <div className="space-y-8">
-        <Hero />
-        <Categories />
-        <Brands />
-        <Shop />
-        <FeaturedProducts />
-        <PromoProducts />
-        <TrendingDeals />
-        <HomepageProducts />
-        <Services />
+      {/* Content sections below mobile search bar */}
+      <div className="nav:pt-8">
+        <div className="space-y-8">
+          <Hero />
+          <Categories />
+          <Brands />
+          <Shop />
+          <FeaturedProducts />
+          <PromoProducts />
+          <TrendingDeals />
+          <HomepageProducts />
+          <Services />
+        </div>
       </div>
     </div>
   );
