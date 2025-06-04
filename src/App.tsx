@@ -95,6 +95,7 @@ import Subscription from './pages/business/Subscription';
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
 const BusinessProducts = lazy(() => import('./pages/business/catalog/Products'));
+const BusinessWholesale = lazy(() => import('./pages/business/catalog/Wholesale'));
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
 const Verification = lazy(() => import('./pages/business/Verification'));
@@ -103,6 +104,7 @@ const ProductPlacements = lazy(() => import('./pages/business/ProductPlacements'
 const CatalogProducts = lazy(() => import('./pages/business/catalog/Products'));
 const AddProducts = lazy(() => import('./pages/business/catalog/product/steps/AddProducts'));
 const EditProduct = lazy(() => import('./pages/business/catalog/product/components/EditProduct'));
+const AddWholesaleProduct = lazy(() => import('./pages/business/catalog/wholesale/components/AddWholesaleProduct'));
 
 const LoadingFallback = () => (
   <div className="w-full h-full min-h-screen flex items-center justify-center">
@@ -322,6 +324,24 @@ function App() {
                         }
                       />
                     </Route>
+
+                    <Route
+                      path="catalog/wholesale"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <BusinessWholesale />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="catalog/wholesale/new"
+                      element={(
+                        <Suspense fallback={<LoadingFallback />}>
+                          <AddWholesaleProduct />
+                        </Suspense>
+                      )}
+                    />
 
                     <Route
                       path="product-placements" 

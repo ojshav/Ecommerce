@@ -29,6 +29,7 @@ const navigationItems = [
     icon: CubeIcon,
     submenu: [
       { name: 'Products', path: '/business/catalog/products', icon: CubeIcon },
+      { name: 'Wholesale', path: '/business/catalog/wholesale', icon: CubeIcon },
     ]
   },
   { name: 'Orders', path: '/business/orders', icon: ShoppingBagIcon },
