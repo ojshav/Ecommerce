@@ -1,6 +1,5 @@
 import { ReactNode, useEffect, lazy, Suspense } from 'react';
-
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
@@ -108,31 +107,57 @@ const LoadingFallback = () => (
   </div>
 );
 
+// Custom hook for scroll management
+const useScrollToTop = () => {
+  const location = useLocation();
+  const navigationType = useNavigationType();
 
+  useEffect(() => {
+    // Force scroll reset on every navigation
+    const resetScroll = () => {
+      // Reset scroll position using multiple methods for maximum compatibility
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+      
+      // Force layout recalculation
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        document.body.style.overflow = '';
+      }, 0);
+    };
 
+    // Reset scroll immediately
+    resetScroll();
+
+    // Reset scroll again after a short delay to ensure it works
+    const timeoutId = setTimeout(resetScroll, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [location.pathname, navigationType]);
+};
+
+// ScrollToTop component to handle scroll behavior
+const ScrollToTop = () => {
+  useScrollToTop();
+  return null;
+};
 
 interface ProtectedRouteProps {
   children: ReactNode;
 }
 
-
-
-
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 // Main App component
 function App() {
-  // Scroll to top on route change
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   return (
     <AuthProvider>
       <CartProvider>
         <WishlistProvider>
           <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <Router>
+              <ScrollToTop />
               <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                 <Routes>
                   {/* Business Dashboard Routes */}
