@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface ShopBanner {
@@ -17,11 +16,9 @@ interface ShopBanner {
 }
 
 const Shop = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const navigate = useNavigate();
 
-  // Updated banner data to match the style shown
+  // Shop data
   const shopBanners: ShopBanner[] = [
     {
       id: 1,
@@ -77,154 +74,85 @@ const Shop = () => {
     }
   ];
 
-  const totalSlides = shopBanners.length;
-
-  // Auto-play functionality
-  useEffect(() => {
-    if (!isAutoPlaying) return;
-
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => 
-        prevIndex >= totalSlides - 1 ? 0 : prevIndex + 1
-      );
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, totalSlides]);
-
-  const goToPrevious = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex <= 0 ? totalSlides - 1 : prevIndex - 1
-    );
-  };
-
-  const goToNext = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex >= totalSlides - 1 ? 0 : prevIndex + 1
-    );
-  };
-
-  const handleMouseEnter = () => setIsAutoPlaying(false);
-  const handleMouseLeave = () => setIsAutoPlaying(true);
-
   const handleShopClick = (shopId: string) => {
     navigate(`/shop/${shopId}`);
   };
 
-  const handleBannerClick = (shopId: string) => {
-    navigate(`/shop/${shopId}`);
-  };
-
-  const currentBanner = shopBanners[currentIndex];
-
   return (
     <section className="py-8">
       <div className="container mx-auto px-4">
-        {/* Main Banner Container */}
-        <div 
-          className="relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          onClick={() => handleBannerClick(currentBanner.shopId)}
-        >
-          {/* Banner Image and Content */}
-          <div className="relative h-80 md:h-96">
-            <img
-              src={currentBanner.image}
-              alt={currentBanner.title}
-              className="w-full h-full object-cover transition-all duration-1000"
-            />
-            
-            {/* Dark Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-purple-900/30"></div>
-            
-            {/* Content Overlay */}
-            <div className="absolute inset-0 flex items-center">
-              <div className="container mx-auto px-8">
-                {/* Left Content */}
-                <div className="text-white max-w-lg">
-                  <h1 className="text-4xl md:text-5xl font-bold mb-2">
-                    {currentBanner.title}
-                  </h1>
-                  <p className="text-xl md:text-2xl mb-1 font-medium">
-                    {currentBanner.subtitle}
-                  </p>
-                  <p className="text-xl md:text-2xl mb-4 font-medium">
-                    {currentBanner.discount}
-                  </p>
-                  
-                  {/* Opening Hours */}
-                  <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 mb-6 inline-block">
-                    <p className="text-sm font-medium text-white">
-                      <span className="text-green-300">● Open:</span> {currentBanner.openingTime} - {currentBanner.closingTime}
-                    </p>
+        <div className="space-y-8">
+          {shopBanners.map((shop) => (
+            <div 
+              key={shop.id}
+              className="bg-white rounded-2xl shadow-xl overflow-hidden cursor-pointer transform transition-transform duration-300 hover:scale-[1.02]"
+              onClick={() => handleShopClick(shop.shopId)}
+            >
+              {/* Shop Card */}
+              <div className="relative h-80">
+                <img
+                  src={shop.image}
+                  alt={shop.title}
+                  className="w-full h-full object-cover"
+                />
+                
+                {/* Dark Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-purple-900/30"></div>
+                
+                {/* Content Overlay */}
+                <div className="absolute inset-0 flex items-center">
+                  <div className="px-8">
+                    {/* Left Content */}
+                    <div className="text-white max-w-lg">
+                      <h2 className="text-4xl md:text-5xl font-bold mb-2">
+                        {shop.title}
+                      </h2>
+                      <p className="text-xl md:text-2xl mb-1 font-medium">
+                        {shop.subtitle}
+                      </p>
+                      <p className="text-xl md:text-2xl mb-4 font-medium">
+                        {shop.discount}
+                      </p>
+                      
+                      {/* Opening Hours */}
+                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 mb-6 inline-block">
+                        <p className="text-sm font-medium text-white">
+                          <span className="text-green-300">● Open:</span> {shop.openingTime} - {shop.closingTime}
+                        </p>
+                      </div>
+                      
+                      <button 
+                        className="bg-orange-500 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-orange-600 transition-colors duration-300 shadow-lg"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShopClick(shop.shopId);
+                        }}
+                      >
+                        {shop.cta}
+                      </button>
+                    </div>
                   </div>
-                  
-                  <button 
-                    className="bg-orange-500 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-orange-600 transition-colors duration-300 shadow-lg"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleShopClick(currentBanner.shopId);
-                    }}
-                  >
-                    {currentBanner.cta}
-                  </button>
+                </div>
+              </div>
+
+              {/* Brand Logos Section */}
+              <div className="py-4 px-8 border-t">
+                <div className="flex justify-center items-center space-x-8 md:space-x-12">
+                  {shop.brands.map((brand, index) => (
+                    <div
+                      key={index}
+                      className="text-gray-700 font-bold text-lg md:text-xl tracking-wide hover:text-orange-500 transition-colors cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // You can add brand-specific navigation here if needed
+                      }}
+                    >
+                      {brand}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-
-            {/* Navigation Arrows */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goToPrevious();
-              }}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-all duration-200"
-            >
-              <ChevronLeft size={24} />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goToNext();
-              }}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white p-3 rounded-full hover:bg-white/30 transition-all duration-200"
-            >
-              <ChevronRight size={24} />
-            </button>
-          </div>
-
-          {/* Brand Logos Section */}
-          <div className="bg-white py-4 px-8 border-t">
-            <div className="flex justify-center items-center space-x-8 md:space-x-12">
-              {currentBanner.brands.map((brand, index) => (
-                <div
-                  key={index}
-                  className="text-gray-700 font-bold text-lg md:text-xl tracking-wide hover:text-orange-500 transition-colors cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // You can add brand-specific navigation here if needed
-                  }}
-                >
-                  {brand}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Dots Indicator */}
-        <div className="flex justify-center mt-6 space-x-3">
-          {shopBanners.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                currentIndex === index 
-                  ? 'bg-orange-500 scale-125' 
-                  : 'bg-gray-300 hover:bg-gray-400'
-              }`}
-            />
           ))}
         </div>
       </div>
