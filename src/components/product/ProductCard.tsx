@@ -22,7 +22,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { addToCart } = useCart();
   const { isAuthenticated, user } = useAuth();
-  const { addToWishlist, isInWishlist, loading: wishlistLoading } = useWishlist();
+  const { 
+    addToWishlist, 
+    removeFromWishlist, 
+    isInWishlist, 
+    loading: wishlistLoading,
+    wishlistItems 
+  } = useWishlist();
   const navigate = useNavigate();
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -69,10 +75,24 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
     
     try {
-      await addToWishlist(Number(product.id));
+      const productId = Number(product.id);
+      const isInWishlistItem = isInWishlist(productId);
+      
+      if (isInWishlistItem) {
+        // Find the wishlist item ID from the wishlist items
+        const wishlistItem = wishlistItems.find(item => item.product_id === productId);
+        if (wishlistItem) {
+          await removeFromWishlist(wishlistItem.wishlist_item_id);
+          toast.success('Product removed from wishlist');
+        }
+      } else {
+        console.log('Attempting to add to wishlist, product ID:', productId);
+        await addToWishlist(productId);
+        toast.success('Product added to wishlist');
+      }
     } catch (error) {
-      // Error is already handled in the context
-      console.error('Wishlist error:', error);
+      console.error('Wishlist error details:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update wishlist');
     }
   };
   

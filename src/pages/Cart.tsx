@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import { CartItem as CartItemType } from '../types';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const Cart: React.FC = () => {
   }
 
   // Filter out deleted items
-  const activeCartItems = cart.filter(item => !item.is_deleted);
+  const activeCartItems = cart.filter(item => !item.product.is_deleted);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
