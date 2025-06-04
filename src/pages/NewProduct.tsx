@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, SlidersHorizontal, ArrowUpDown, X, Check, ChevronDown } from 'lucide-react';
 import ProductCard from '../components/product/ProductCard';
 import { Product } from '../types';
 
@@ -9,6 +9,14 @@ const NewProduct: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isDesktopSortOpen, setIsDesktopSortOpen] = useState(false);
+  const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
+  const [selectedSort, setSelectedSort] = useState('date-desc'); // Default sort
+
+  // Refs for dropdowns to detect outside clicks
+  const desktopSortRef = useRef<HTMLDivElement>(null); // Ref for desktop sort dropdown container
+  const mobileSortRef = useRef<HTMLDivElement>(null); // Ref for mobile sort dropdown container
 
   // Sample new products data with real images
   const newProducts: Product[] = [
@@ -101,6 +109,152 @@ const NewProduct: React.FC = () => {
 
   const displayProducts = filteredProducts.length > 0 ? filteredProducts : newProducts;
 
+  // Get unique categories from newProducts
+  const categories = Array.from(new Set(newProducts.map(p => p.category)));
+
+  // Sort options for mobile
+  const sortOptions = [
+    { value: 'date-desc', label: 'Newest First' },
+    { value: 'date-asc', label: 'Oldest First' },
+    { value: 'price-desc', label: 'Price: High to Low' },
+    { value: 'price-asc', label: 'Price: Low to High' },
+  ];
+
+  // Handle sort selection (used by mobile dropdown)
+  const handleSort = (value: string) => {
+    setSelectedSort(value);
+    setIsMobileSortOpen(false); // Close mobile sort dropdown after selection
+    setIsDesktopSortOpen(false); // Also close desktop sort dropdown if open (safety measure)
+    // Add sorting logic here if needed, or rely on displayProducts sorting
+  };
+
+  // Reset filters (for mobile)
+  const resetFilters = () => {
+    setActiveFilter(null);
+    setFilterType(null);
+    setIsFilterOpen(false);
+    // Reset sort as well if desired
+    setSelectedSort('date-desc');
+  };
+
+  // Close dropdowns/modals when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Close desktop sort dropdown
+      if (desktopSortRef.current && !(desktopSortRef.current as Node).contains(event.target as Node)) {
+        setIsDesktopSortOpen(false);
+      }
+      // Close mobile sort dropdown
+      if (mobileSortRef.current && !(mobileSortRef.current as Node).contains(event.target as Node)) {
+        setIsMobileSortOpen(false);
+      }
+      // The mobile filter sidebar does not close on outside click
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDesktopSortOpen, isMobileSortOpen]); // Dependency array updated
+
+  // Mobile Filter Sidebar Component
+  const MobileFilterSidebar = () => (
+    <div className={`fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out ${isFilterOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className="h-full flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-semibold">Filters</h2>
+          <button onClick={() => setIsFilterOpen(false)} className="p-2">
+            <X size={24} />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4">
+          {/* Category Filter */}
+          <div className="mb-6">
+            <h3 className="font-semibold text-base mb-3 text-black">Category</h3>
+            <div className="space-y-1">
+              {categories.map(category => (
+                <button
+                  key={category}
+                  className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-100 ${
+                    activeFilter === category ? 'bg-gray-100' : ''
+                  }`}
+                  onClick={() => {
+                    setActiveFilter(category);
+                    setFilterType('category');
+                    // setIsFilterOpen(false); // Keep filter open to apply multiple filters
+                  }}
+                >
+                  {activeFilter === category && <Check size={16} className="mr-2 text-[#F2631F]" />}
+                  <span className="capitalize">{category}</span>
+                </button>
+              ))}
+              {/* Add option to show all */}
+              <button
+                className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-100 ${
+                  activeFilter === null ? 'bg-gray-100' : ''
+                }`}
+                onClick={() => {
+                  setActiveFilter(null);
+                  setFilterType(null);
+                }}
+              >
+                {activeFilter === null && <Check size={16} className="mr-2 text-[#F2631F]" />}
+                <span>All Categories</span>
+              </button>
+            </div>
+          </div>
+          {/* Add other potential filters here if needed for New Products */}
+        </div>
+        <div className="p-4 border-t">
+          <button
+            onClick={resetFilters}
+            className="w-full px-4 py-2 text-sm font-normal text-[#F2631F] border border-[#F2631F] rounded hover:bg-orange-50 transition-colors mb-2"
+          >
+            Reset Filters
+          </button>
+          <button
+            onClick={() => setIsFilterOpen(false)}
+            className="w-full px-4 py-2 text-sm font-normal text-white bg-[#F2631F] rounded hover:bg-[#e55a1a] transition-colors"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Mobile Sort Dropdown Component
+  const MobileSortDropdown = () => (
+    <div className={`fixed inset-0 bg-black bg-opacity-50 z-40 ${isMobileSortOpen ? 'block' : 'hidden'}`}>
+      <div ref={mobileSortRef} className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl transform transition-transform duration-300 ease-in-out">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Sort By</h3>
+            <button onClick={() => setIsMobileSortOpen(false)} className="p-2">
+              <X size={24} />
+            </button>
+          </div>
+          <div className="space-y-2">
+            {sortOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleSort(option.value)}
+                className={`w-full text-left px-4 py-3 rounded-lg ${
+                  selectedSort === option.value
+                    ? 'bg-orange-50 text-[#F2631F]'
+                    : 'hover:bg-gray-50'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -114,18 +268,60 @@ const NewProduct: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="flex items-center w-full sm:w-auto">
-            <label htmlFor="sort" className="mr-2 text-gray-600 text-sm whitespace-nowrap">Sort by:</label>
-            <select 
-              id="sort" 
-              className="border border-gray-300 rounded-md py-1.5 px-3 focus:outline-none focus:ring-1 focus:ring-gray-500 text-sm w-full sm:w-auto bg-white"
+          {/* Desktop Sort Dropdown */}
+          <div className="hidden sm:flex relative" ref={desktopSortRef}>
+            <button
+              className="flex items-center gap-2 px-4 py-2 border rounded-md bg-white"
+              onClick={() => setIsDesktopSortOpen(!isDesktopSortOpen)}
             >
-              <option value="date-desc">Newest First</option>
-              <option value="date-asc">Oldest First</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="price-asc">Price: Low to High</option>
-            </select>
+              <span>Sort By: </span>
+              <span>
+                {selectedSort === 'date-desc' && 'Newest First'}
+                {selectedSort === 'date-asc' && 'Oldest First'}
+                {selectedSort === 'price-desc' && 'Price: High to Low'}
+                {selectedSort === 'price-asc' && 'Price: Low to High'}
+              </span>
+              <ChevronDown size={16} />
+            </button>
+
+            {isDesktopSortOpen && (
+              <div className="absolute z-20 w-full bg-white border rounded-md shadow-lg top-full">
+                {sortOptions.map(option => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setSelectedSort(option.value);
+                      setIsDesktopSortOpen(false);
+                    }}
+                    className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-100 ${
+                      selectedSort === option.value ? 'bg-gray-100' : ''
+                    }`}
+                  >
+                    {selectedSort === option.value && <Check size={16} className="mr-2 text-primary-600" />}
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+        </div>
+
+        {/* Mobile Filter and Sort Bar */}
+        <div className="sm:hidden flex items-center gap-2 mb-4">
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg"
+          >
+            <SlidersHorizontal size={20} />
+            <span>Filters</span>
+          </button>
+          <button
+            onClick={() => setIsMobileSortOpen(true)}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg"
+          >
+            <ArrowUpDown size={20} />
+            <span>Sort</span>
+          </button>
         </div>
 
         {displayProducts.length === 0 ? (
@@ -185,6 +381,12 @@ const NewProduct: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Mobile Filter Sidebar */}
+      <MobileFilterSidebar />
+
+      {/* Mobile Sort Dropdown */}
+      <MobileSortDropdown />
     </div>
   );
 };

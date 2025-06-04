@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Filter, ShoppingCart, Heart, ChevronDown, Check } from 'lucide-react';
+import { Filter, ShoppingCart, Heart, ChevronDown, Check, SlidersHorizontal, ArrowUpDown, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import ProductCard from '../components/product/ProductCard';
 import { Product } from '../types';
@@ -16,6 +16,13 @@ const Promotion: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('popularity');
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
+
+  // Refs for dropdowns to detect outside clicks
+  const categoryRef = useRef<HTMLDivElement>(null);
+  const sortRef = useRef<HTMLDivElement>(null);
+  const mobileSortRef = useRef<HTMLDivElement>(null);
 
   // Enhanced promotional products with more items for the dedicated page
   const promoProducts: PromoProduct[] = [
@@ -171,6 +178,132 @@ const Promotion: React.FC = () => {
     }
   });
 
+  // Sort options for mobile
+  const sortOptions = [
+    { value: 'popularity', label: 'Popularity' },
+    { value: 'price-low', label: 'Price: Low to High' },
+    { value: 'price-high', label: 'Price: High to Low' },
+    { value: 'discount', label: 'Discount' }
+  ];
+
+  // Handle sort selection
+  const handleSort = (value: string) => {
+    setSortBy(value);
+    setIsSortOpen(false); // Close desktop dropdown
+    setIsMobileSortOpen(false); // Close mobile dropdown
+  };
+
+  // Reset filters (for mobile)
+  const resetFilters = () => {
+    setSelectedCategory('all');
+    setSortBy('popularity'); // Or a default sort
+    setIsFilterOpen(false);
+  };
+
+  // Close dropdowns/modals when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (categoryRef.current && !(categoryRef.current as Node).contains(event.target as Node)) {
+        setIsCategoryOpen(false);
+      }
+      if (sortRef.current && !(sortRef.current as Node).contains(event.target as Node)) {
+        setIsSortOpen(false);
+      }
+      if (mobileSortRef.current && !(mobileSortRef.current as Node).contains(event.target as Node)) {
+        setIsMobileSortOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isCategoryOpen, isSortOpen, isMobileSortOpen]);
+
+  // Mobile Filter Sidebar Component
+  const MobileFilterSidebar = () => (
+    <div className={`fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out ${isFilterOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className="h-full flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-semibold">Filters</h2>
+          <button onClick={() => setIsFilterOpen(false)} className="p-2">
+            <X size={24} />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4">
+          {/* Category Filter */}
+          <div className="mb-6">
+            <h3 className="font-semibold text-base mb-3 text-black">Category</h3>
+            <div className="space-y-1">
+              {categories.map(category => (
+                <button
+                  key={category}
+                  className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-100 ${
+                    selectedCategory === category ? 'bg-gray-100' : ''
+                  }`}
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    // setIsFilterOpen(false); // Keep filter open to apply multiple filters
+                  }}
+                >
+                  {selectedCategory === category && <Check size={16} className="mr-2 text-[#F2631F]" />}
+                  <span className="capitalize">{category}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Add other potential filters here if needed for Promotions */}
+        </div>
+        <div className="p-4 border-t">
+          <button
+            onClick={resetFilters}
+            className="w-full px-4 py-2 text-sm font-normal text-[#F2631F] border border-[#F2631F] rounded hover:bg-orange-50 transition-colors mb-2"
+          >
+            Reset Filters
+          </button>
+          <button
+            onClick={() => setIsFilterOpen(false)}
+            className="w-full px-4 py-2 text-sm font-normal text-white bg-[#F2631F] rounded hover:bg-[#e55a1a] transition-colors"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Mobile Sort Dropdown Component
+  const MobileSortDropdown = () => (
+    <div className={`fixed inset-0 bg-black bg-opacity-50 z-40 ${isMobileSortOpen ? 'block' : 'hidden'}`}>
+      <div ref={mobileSortRef} className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl transform transition-transform duration-300 ease-in-out">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Sort By</h3>
+            <button onClick={() => setIsSortOpen(false)} className="p-2">
+              <X size={24} />
+            </button>
+          </div>
+          <div className="space-y-2">
+            {sortOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleSort(option.value)}
+                className={`w-full text-left px-4 py-3 rounded-lg ${
+                  sortBy === option.value
+                    ? 'bg-orange-50 text-[#F2631F]'
+                    : 'hover:bg-gray-50'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   // Function to render star ratings
   const renderRating = (rating: number) => {
     const fullStars = Math.floor(rating);
@@ -208,13 +341,14 @@ const Promotion: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-10">
         {/* Filter and Sort Controls */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div className="flex flex-wrap gap-4 items-center">
             <h2 className="text-2xl font-bold">Promotional Products</h2>
             <span className="text-gray-500">({filteredProducts.length} products)</span>
           </div>
           
-          <div className="flex flex-wrap gap-4">
+          {/* Desktop Filter and Sort */}
+          <div className="hidden md:flex flex-wrap gap-4">
             {/* Category Filter */}
             <div className="relative">
               <button 
@@ -227,7 +361,10 @@ const Promotion: React.FC = () => {
               </button>
               
               {isCategoryOpen && (
-                <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+                <div
+                  ref={categoryRef}
+                  className="absolute z-20 mt-1 w-full bg-white border rounded-md shadow-lg max-h-60 overflow-auto"
+                >
                   {categories.map(category => (
                     <button
                       key={category}
@@ -239,7 +376,7 @@ const Promotion: React.FC = () => {
                         setIsCategoryOpen(false);
                       }}
                     >
-                      {selectedCategory === category && <Check size={16} className="mr-2 text-primary-600" />}
+                      {selectedCategory === category && <Check size={16} className="mr-2 text-[#F2631F]" />}
                       <span className="capitalize">{category}</span>
                     </button>
                   ))}
@@ -264,13 +401,11 @@ const Promotion: React.FC = () => {
               </button>
               
               {isSortOpen && (
-                <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg">
-                  {[
-                    { value: 'popularity', label: 'Popularity' },
-                    { value: 'price-low', label: 'Price: Low to High' },
-                    { value: 'price-high', label: 'Price: High to Low' },
-                    { value: 'discount', label: 'Discount' }
-                  ].map(option => (
+                <div
+                  ref={sortRef}
+                  className="absolute z-20 mt-1 w-full bg-white border rounded-md shadow-lg"
+                >
+                  {sortOptions.map(option => (
                     <button
                       key={option.value}
                       className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-100 ${
@@ -291,8 +426,26 @@ const Promotion: React.FC = () => {
           </div>
         </div>
 
+        {/* Mobile Filter and Sort Bar */}
+        <div className="md:hidden flex items-center gap-2 mb-4">
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg"
+          >
+            <SlidersHorizontal size={20} />
+            <span>Filters</span>
+          </button>
+          <button
+            onClick={() => setIsMobileSortOpen(true)}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg"
+          >
+            <ArrowUpDown size={20} />
+            <span>Sort</span>
+          </button>
+        </div>
+
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
           {sortedProducts.map((product) => (
             <ProductCard
               key={product.id}
@@ -308,7 +461,7 @@ const Promotion: React.FC = () => {
             <h3 className="text-xl font-medium text-gray-700 mb-2">No promotional products found</h3>
             <p className="text-gray-500 mb-6">Try changing your filter options to find products</p>
             <button 
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+              className="px-4 py-2 bg-[#F2631F] text-white rounded-md hover:bg-[#e55a1a] transition-colors"
               onClick={() => setSelectedCategory('all')}
             >
               Reset Filters
@@ -316,6 +469,12 @@ const Promotion: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Mobile Filter Sidebar */}
+      <MobileFilterSidebar />
+
+      {/* Mobile Sort Dropdown */}
+      <MobileSortDropdown />
     </div>
   );
 };

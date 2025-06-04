@@ -17,6 +17,8 @@ const Navbar: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('Category');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lowerMobileMenuOpen, setLowerMobileMenuOpen] = useState(false);
+  const [isMobileCategoryDropdownOpen, setIsMobileCategoryDropdownOpen] = useState(false);
+  const [isMobileNewProductDropdownOpen, setIsMobileNewProductDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
   const { totalItems } = useCart();
@@ -28,27 +30,56 @@ const Navbar: React.FC = () => {
   const mobileSearchRef = useRef<HTMLDivElement>(null);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
   const newProductDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const lowerMobileMenuRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(desktopSearchRef, () => {
+  // Refs for toggle buttons to exclude them from outside click detection
+  const desktopCategoryButtonRef = useRef<HTMLButtonElement>(null);
+  const desktopNewProductButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const lowerMobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileCategoryButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileNewProductButtonRef = useRef<HTMLButtonElement>(null);
+
+  useClickOutside(desktopSearchRef, (event: MouseEvent) => {
     setShowSearchResults(false);
   });
 
-  useClickOutside(mobileSearchRef, () => {
+  useClickOutside(mobileSearchRef, (event: MouseEvent) => {
     setShowSearchResults(false);
   });
 
-  useClickOutside(categoryDropdownRef, () => {
-    setIsCategoryDropdownOpen(false);
+  useClickOutside(categoryDropdownRef, (event: MouseEvent) => {
+    if (desktopCategoryButtonRef.current && !desktopCategoryButtonRef.current.contains(event.target as Node)) {
+      setIsCategoryDropdownOpen(false);
+    }
   });
 
-  useClickOutside(newProductDropdownRef, () => {
-    setIsNewProductDropdownOpen(false);
+  useClickOutside(newProductDropdownRef, (event: MouseEvent) => {
+    if (desktopNewProductButtonRef.current && !desktopNewProductButtonRef.current.contains(event.target as Node)) {
+      setIsNewProductDropdownOpen(false);
+    }
   });
 
-  // Close dropdowns when route changes
+  useClickOutside(mobileMenuRef, (event: MouseEvent) => {
+    if (mobileMenuButtonRef.current && !mobileMenuButtonRef.current.contains(event.target as Node)) {
+      setMobileMenuOpen(false);
+    }
+  });
+
+  useClickOutside(lowerMobileMenuRef, (event: MouseEvent) => {
+    if (lowerMobileMenuButtonRef.current && !lowerMobileMenuButtonRef.current.contains(event.target as Node)) {
+      setLowerMobileMenuOpen(false);
+    }
+  });
+
   useEffect(() => {
     setIsCategoryDropdownOpen(false);
     setIsNewProductDropdownOpen(false);
+    setMobileMenuOpen(false);
+    setLowerMobileMenuOpen(false);
+    setIsMobileCategoryDropdownOpen(false);
+    setIsMobileNewProductDropdownOpen(false);
     setShowSearchResults(false);
   }, [location.pathname]);
 
@@ -64,18 +95,41 @@ const Navbar: React.FC = () => {
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+    setLowerMobileMenuOpen(false);
+    setIsCategoryDropdownOpen(false);
+    setIsNewProductDropdownOpen(false);
+    setIsMobileCategoryDropdownOpen(false);
+    setIsMobileNewProductDropdownOpen(false);
+    setShowSearchResults(false);
   };
 
   const toggleLowerMobileMenu = () => {
     setLowerMobileMenuOpen(!lowerMobileMenuOpen);
+    setIsMobileCategoryDropdownOpen(false);
+    setIsMobileNewProductDropdownOpen(false);
+  };
+
+  const toggleMobileCategoryDropdown = () => {
+    setIsMobileCategoryDropdownOpen(!isMobileCategoryDropdownOpen);
+    if (isMobileNewProductDropdownOpen) setIsMobileNewProductDropdownOpen(false);
+  };
+
+  const toggleMobileNewProductDropdown = () => {
+    setIsMobileNewProductDropdownOpen(!isMobileNewProductDropdownOpen);
+    if (isMobileCategoryDropdownOpen) setIsMobileCategoryDropdownOpen(false);
   };
 
   const handleLogout = () => {
     logout();
+    setMobileMenuOpen(false);
+    setLowerMobileMenuOpen(false);
   };
 
   const closeNewProductDropdown = () => {
     setIsNewProductDropdownOpen(false);
+    setIsMobileNewProductDropdownOpen(false);
+    setMobileMenuOpen(false);
+    setLowerMobileMenuOpen(false);
   };
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,6 +286,7 @@ const Navbar: React.FC = () => {
                 className="block nav:hidden text-white p-2 sm:ml-auto" 
                 onClick={toggleMobileMenu}
                 aria-label="Toggle mobile menu"
+                ref={mobileMenuButtonRef}
               >
                 {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
@@ -288,16 +343,16 @@ const Navbar: React.FC = () => {
       
       {/* Mobile menu dropdown - use custom breakpoint at 968px */}
       {mobileMenuOpen && (
-        <div className="nav:hidden bg-black text-white border-t border-gray-800 py-3 px-4">
+        <div className="nav:hidden bg-black text-white border-t border-gray-800 py-3 px-4" ref={mobileMenuRef}>
           {mobileSearchBar}
           
           {/* Mobile action links */}
           <div className="grid grid-cols-3 gap-3 mb-3">
-            <Link to="/wishlist" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]">
+            <Link to="/wishlist" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
               <Heart className="w-4 h-4 mb-1" />
               <span>Wishlist</span>
             </Link>
-            <Link to="/cart" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F] relative">
+            <Link to="/cart" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F] relative" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
               <ShoppingCart className="w-4 h-4 mb-1" />
               {totalItems > 0 && (
                 <span className="absolute top-0 right-6 bg-[#F2631F] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
@@ -306,7 +361,7 @@ const Navbar: React.FC = () => {
               )}
               <span>Cart</span>
             </Link>
-            <Link to="/profile" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]">
+            <Link to="/profile" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
               <User className="w-4 h-4 mb-1" />
               <span>Account</span>
             </Link>
@@ -315,6 +370,7 @@ const Navbar: React.FC = () => {
           <Link 
             to="/business/login" 
             className="w-full block text-center bg-[#F2631F] text-white rounded-md px-4 py-1.5 hover:bg-orange-600 mb-3 text-sm"
+            onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}
           >
             Become a Merchant
           </Link>
@@ -346,6 +402,7 @@ const Navbar: React.FC = () => {
               className="flex items-center py-1.5 text-black" 
               onClick={toggleLowerMobileMenu}
               aria-label="Toggle lower navigation"
+              ref={lowerMobileMenuButtonRef}
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none">
                 <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -354,7 +411,7 @@ const Navbar: React.FC = () => {
             </button>
             
             <div className="flex items-center space-x-2">
-              <Link to="/track-order" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]">
+              <Link to="/track-order" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                 <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -368,7 +425,7 @@ const Navbar: React.FC = () => {
                   <LogOut className="w-4 h-4 mr-1" />
                 </button>
               ) : (
-                <Link to="/sign-in" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]">
+                <Link to="/sign-in" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   <User className="w-4 h-4 mr-1" />
                   <span>Sign In</span>
                 </Link>
@@ -378,41 +435,43 @@ const Navbar: React.FC = () => {
           
           {/* Mobile lower navigation dropdown - use custom breakpoint at 968px */}
           {lowerMobileMenuOpen && (
-            <div className="nav:hidden border-t border-gray-200 pt-2 pb-1">
+            <div className="nav:hidden border-t border-gray-200 pt-2 pb-1" ref={lowerMobileMenuRef}>
               <div className="mb-2">
                 <button
                   className="flex items-center justify-between py-1.5 px-2 text-sm w-full text-left hover:bg-gray-50 rounded"
-                  onClick={toggleCategoryDropdown}
+                  onClick={toggleMobileCategoryDropdown}
+                  ref={mobileCategoryButtonRef}
                 >
                   <span className="flex items-center font-medium">
                     Categories
                   </span>
-                  <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-200 ${isMobileCategoryDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
-                {isCategoryDropdownOpen && (
+                {isMobileCategoryDropdownOpen && (
                   <div className="pl-4 py-1.5 space-y-1.5">
-                    <Link to="/category/electronics" className="block py-1 text-sm hover:text-[#F2631F]">Electronics</Link>
-                    <Link to="/category/clothing" className="block py-1 text-sm hover:text-[#F2631F]">Clothing</Link>
-                    <Link to="/category/home-garden" className="block py-1 text-sm hover:text-[#F2631F]">Home & Garden</Link>
-                    <Link to="/categories" className="block py-1 text-sm text-[#F2631F]">View All Categories</Link>
+                    <Link to="/category/electronics" className="block py-1 text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>Electronics</Link>
+                    <Link to="/category/clothing" className="block py-1 text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>Clothing</Link>
+                    <Link to="/category/home-garden" className="block py-1 text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>Home & Garden</Link>
+                    <Link to="/categories" className="block py-1 text-sm text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>View All Categories</Link>
                   </div>
                 )}
               </div>
               
               <nav className="space-y-1.5">
-                <Link to="/" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
+                <Link to="/" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   Home
                 </Link>
-                <Link to="/all-products" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
+                <Link to="/all-products" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   All Products
                 </Link>
                 <button 
                   className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded w-full text-left"
-                  onClick={toggleNewProductDropdown}
+                  onClick={toggleMobileNewProductDropdown}
+                  ref={mobileNewProductButtonRef}
                 >
                   <span>New Product</span>
                 </button>
-                {isNewProductDropdownOpen && lowerMobileMenuOpen && (
+                {isMobileNewProductDropdownOpen && (
                   <div className="bg-gray-50 py-2 px-3 ml-3 rounded">
                     <div className="space-y-2">
                       <Link to="/new-product?category=smart-watch" className="block text-sm hover:text-[#F2631F]" onClick={closeNewProductDropdown}>
@@ -430,11 +489,11 @@ const Navbar: React.FC = () => {
                     </div>
                   </div>
                 )}
-                <Link to="/promotion" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
+                <Link to="/promotion" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   <span>Promotion</span>
                   <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
                 </Link>
-                <Link to="/wholesale" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded">
+                <Link to="/wholesale" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   Wholesale
                 </Link>
               </nav>
@@ -449,6 +508,7 @@ const Navbar: React.FC = () => {
                 className="flex items-center py-1.5 px-3 md:px-4 text-black hover:text-gray-700"
                 onClick={toggleCategoryDropdown}
                 aria-expanded={isCategoryDropdownOpen}
+                ref={desktopCategoryButtonRef}
               >
                 <span className="inline">Category</span>
                 <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
@@ -466,6 +526,7 @@ const Navbar: React.FC = () => {
               <button 
                 className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F] flex items-center bg-transparent border-none cursor-pointer"
                 onClick={toggleNewProductDropdown}
+                ref={desktopNewProductButtonRef}
               >
                 New Product
                 <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isNewProductDropdownOpen ? 'rotate-180' : ''}`} />
@@ -511,8 +572,8 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* Category dropdown - for desktop */}
-      {isCategoryDropdownOpen && !lowerMobileMenuOpen && (
-        <div ref={categoryDropdownRef}>
+      {isCategoryDropdownOpen && !mobileMenuOpen && !lowerMobileMenuOpen && (
+        <div ref={categoryDropdownRef} className="z-40">
         <CategoryDropdown 
           isOpen={isCategoryDropdownOpen} 
           closeDropdown={() => setIsCategoryDropdownOpen(false)} 
@@ -520,9 +581,9 @@ const Navbar: React.FC = () => {
         </div>
       )}
       
-      {/* New Product dropdown */}
-      {isNewProductDropdownOpen && !lowerMobileMenuOpen && (
-        <div ref={newProductDropdownRef}>
+      {/* New Product dropdown - for desktop */}
+      {isNewProductDropdownOpen && !mobileMenuOpen && !lowerMobileMenuOpen && (
+        <div ref={newProductDropdownRef} className="z-40">
         <NewProductDropdown 
           isOpen={isNewProductDropdownOpen} 
           closeDropdown={() => setIsNewProductDropdownOpen(false)} 

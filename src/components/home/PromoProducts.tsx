@@ -123,7 +123,7 @@ const PromoProducts: React.FC = () => {
                 className="flex-none"
                 style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 24 / itemsPerView}px)` }}
               >
-                <div className="bg-white rounded-lg overflow-hidden border border-orange-100 hover:border-orange-300 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col md:flex-row relative">
+                <div className="bg-white rounded-lg overflow-hidden border border-orange-100 hover:border-orange-300 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col md:flex-row relative h-full">
                   {/* Discount Badge */}
                   <div className="absolute top-2 left-2 z-10">
                     <span className="bg-orange-500 text-white text-xs py-1 px-2 rounded">
@@ -137,7 +137,7 @@ const PromoProducts: React.FC = () => {
                   </button>
                   
                   {/* Product Image */}
-                  <div className="md:w-2/5 h-64 md:h-auto relative">
+                  <div className="md:w-2/5 h-64 md:h-auto relative flex-shrink-0">
                     <img 
                       src={product.image} 
                       alt={product.name}
@@ -146,7 +146,7 @@ const PromoProducts: React.FC = () => {
                   </div>
                   
                   {/* Product Details */}
-                  <div className="md:w-3/5 p-6 flex flex-col justify-between">
+                  <div className="md:w-3/5 p-6 flex flex-col justify-between flex-grow">
                     <div>
                       <h3 className="font-medium text-base mb-2">{product.name}</h3>
                       <div className="flex items-baseline mb-4">

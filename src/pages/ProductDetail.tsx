@@ -313,9 +313,9 @@ const ProductDetail: React.FC = () => {
               <div className="flex flex-col items-center">
                 {/* Main Product Image with Navigation */}
                 <div className="mb-6 w-full max-w-lg flex justify-center relative">
-                  <img 
-                    src={selectedImage}
-                    alt={product.product_name}
+                <img 
+                  src={selectedImage} 
+                  alt={product.product_name} 
                     className="rounded-lg shadow-md object-contain max-h-96 w-full"
                   />
                   {/* Left Arrow Button */}
@@ -343,22 +343,22 @@ const ProductDetail: React.FC = () => {
                   >
                     <ChevronRight size={24} />
                   </button>
-                </div>
-
+              </div>
+              
                 {/* Thumbnail Images */}
                 <div className="flex space-x-3 overflow-x-auto scrollbar-hide">
-                  {product.media.map((media) => (
+                    {product.media.map((media) => (
                     <img
-                      key={media.media_id}
+                        key={media.media_id}
                       src={media.url}
                       alt={`${product.product_name} thumbnail`}
                       className={`w-20 h-20 object-cover rounded-md cursor-pointer border-2 ${
                         selectedImage === media.url ? 'border-orange-500' : 'border-transparent'
-                      }`}
-                      onClick={() => setSelectedImage(media.url)}
-                    />
-                  ))}
-                </div>
+                        }`}
+                        onClick={() => setSelectedImage(media.url)}
+                        />
+                    ))}
+                  </div>
               </div>
             </div>
             
