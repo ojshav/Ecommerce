@@ -23,6 +23,7 @@ import Promotion from './pages/Promotion';
 import Wholesale from './pages/Wholesale';
 import BecomeMerchant from './pages/BecomeMerchant';
 import Order from './pages/Order';
+import TrackOrder from './pages/TrackOrder';
 import NewProduct from './pages/NewProduct';
 import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
@@ -397,7 +398,9 @@ function App() {
                               path="/become-merchant"
                               element={<BecomeMerchant />}
                             />
-                            <Route path="/track-order" element={<Order />} />
+                            <Route path="/orders" element={<Order />} />
+                            <Route path="/track-order" element={<TrackOrder />} />
+                            <Route path="/track/:orderId" element={<TrackOrder />} />
                             <Route path="/refund/:orderId" element={<Refund />} />
                             <Route path="/exchange/:orderId" element={<Exchange />} />
                             <Route path="/review/:orderId" element={<Review />} />

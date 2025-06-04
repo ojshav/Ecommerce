@@ -190,7 +190,7 @@ const Order: React.FC = () => {
         navigate(`/review/${order.id}`, { state: { order } });
         break;
       case 'track':
-        navigate(`/track/${order.id}`, { state: { order } });
+        navigate(`/track/${order.order_number}`);
         break;
     }
   };
