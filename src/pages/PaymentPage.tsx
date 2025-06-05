@@ -55,7 +55,7 @@ const PaymentPage: React.FC = () => {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [deliveryToAnother, setDeliveryToAnother] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('visa');
+  const [paymentMethod, setPaymentMethod] = useState('credit_card');
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [showCountryCodes, setShowCountryCodes] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
@@ -771,31 +771,31 @@ const PaymentPage: React.FC = () => {
               <input
                 type="radio"
                 name="paymentMethod"
-                value="visa"
-                checked={paymentMethod === 'visa'}
-                onChange={() => setPaymentMethod('visa')}
+                value="credit_card"
+                checked={paymentMethod === 'credit_card'}
+                onChange={() => setPaymentMethod('credit_card')}
                 className="accent-orange-500"
               />
-              Visa/Master Card
+              Credit Card
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 name="paymentMethod"
-                value="atm"
-                checked={paymentMethod === 'atm'}
-                onChange={() => setPaymentMethod('atm')}
+                value="debit_card"
+                checked={paymentMethod === 'debit_card'}
+                onChange={() => setPaymentMethod('debit_card')}
                 className="accent-orange-500"
               />
-              ATM Card
+              Debit Card
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
                 name="paymentMethod"
-                value="cod"
-                checked={paymentMethod === 'cod'}
-                onChange={() => setPaymentMethod('cod')}
+                value="cash_on_delivery"
+                checked={paymentMethod === 'cash_on_delivery'}
+                onChange={() => setPaymentMethod('cash_on_delivery')}
                 className="accent-orange-500"
               />
               Cash on Delivery
