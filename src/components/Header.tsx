@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import LogoutConfirmationPopup from './LogoutConfirmationPopup';
 
 const Header = () => {
@@ -16,9 +16,25 @@ const Header = () => {
   return (
     <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div className="flex items-center">
+        <div className="flex items-center space-x-6">
           {/* Your logo or brand name */}
           <img src="/logo.png" alt="Logo" className="h-8 w-auto" />
+          
+          {/* Navigation Links */}
+          <nav className="hidden md:flex space-x-6">
+            <Link to="/products" className="text-gray-600 hover:text-orange-500 transition-colors">
+              Products
+            </Link>
+            <Link to="/new-product" className="text-gray-600 hover:text-orange-500 transition-colors">
+              New Product
+            </Link>
+            <Link to="/promotion" className="text-gray-600 hover:text-orange-500 transition-colors">
+              Promotion
+            </Link>
+            <Link to="/wholesale" className="text-gray-600 hover:text-orange-500 transition-colors">
+              Wholesale
+            </Link>
+          </nav>
         </div>
 
         <div className="flex items-center space-x-4">
