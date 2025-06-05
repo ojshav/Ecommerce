@@ -77,7 +77,7 @@ const SuperAdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center pt-52 pb-10 px-4">
+    <div className="flex flex-col items-center py-12 px-4">
       <motion.div 
         className="max-w-md w-full bg-white rounded-xl shadow-sm overflow-hidden"
         initial={{ opacity: 0, y: 20 }}
