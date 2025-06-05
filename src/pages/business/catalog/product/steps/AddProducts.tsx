@@ -38,9 +38,6 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
     sku: '',
     costPrice: '',
     sellingPrice: '',
-    specialPrice: '',
-    specialPriceStart: '',
-    specialPriceEnd: '',
     // Fields managed by sub-components of CoreProductInfo (or CoreProductInfo itself)
     // media: [] as File[],
     // weight: '',
@@ -153,9 +150,6 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
             sku={formData.sku}
             costPrice={formData.costPrice}
             sellingPrice={formData.sellingPrice}
-            specialPrice={formData.specialPrice}
-            specialPriceStart={formData.specialPriceStart}
-            specialPriceEnd={formData.specialPriceEnd}
             // Pass IDs needed by CoreProductInfo
             categoryId={formData.categoryId}
             brandId={formData.brandId}
