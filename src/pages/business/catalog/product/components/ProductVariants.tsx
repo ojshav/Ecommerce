@@ -56,6 +56,7 @@ interface ProductVariantsProps {
     };
   };
   categoryId: number | null;
+  baseSku: string;
 }
 
 interface AddVariantModalProps {
@@ -68,6 +69,7 @@ interface AddVariantModalProps {
     attributes: Record<number, string | string[]>;
   }) => void;
   categoryId: number | null;
+  baseSku: string;
 }
 
 const AddVariantModal: React.FC<AddVariantModalProps> = ({
@@ -75,6 +77,7 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
   onClose,
   onAdd,
   categoryId,
+  baseSku,
 }) => {
   const [sku, setSku] = useState('');
   const [price, setPrice] = useState('');
@@ -89,6 +92,23 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
       fetchAttributes(categoryId);
     }
   }, [categoryId]);
+
+  useEffect(() => {
+    if (baseSku && Object.keys(selectedAttributes).length > 0) {
+      const attributeValues = Object.entries(selectedAttributes)
+        .map(([_, value]) => {
+          if (Array.isArray(value)) {
+            return value.map(v => v.slice(0, 3).toUpperCase()).join('-');
+          }
+          return value.slice(0, 3).toUpperCase();
+        })
+        .join('-');
+      
+      setSku(`${baseSku}-${attributeValues}`);
+    } else {
+      setSku(baseSku || '');
+    }
+  }, [selectedAttributes, baseSku]);
 
   const fetchAttributes = async (categoryId: number) => {
     try {
@@ -193,9 +213,13 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({
                 id="sku"
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm bg-gray-50"
                 required
+                readOnly
               />
+              <p className="text-xs text-gray-500 mt-1">
+                SKU is automatically generated based on base SKU and selected attributes
+              </p>
             </div>
 
             <div>
@@ -334,13 +358,14 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
   onVariantsChange,
   errors = {},
   categoryId,
+  baseSku,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mediaStats, setMediaStats] = useState<{[key: string]: any}>({});
-  const [isUploading, setIsUploading] = useState<{[key: string]: File[]}>({});
+  const [isUploading, setIsUploading] = useState<{[key: string]: boolean}>({});
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -354,29 +379,32 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/variants`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // Only fetch variants if there are existing variants
+      if (variants.length > 0) {
+        const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/variants`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch variants');
+        if (!response.ok) {
+          throw new Error('Failed to fetch variants');
+        }
+
+        const data = await response.json();
+        const formattedVariants = data.map((variant: any) => ({
+          variant_id: variant.product_id,
+          id: variant.product_id.toString(),
+          sku: variant.sku || '',
+          price: variant.selling_price?.toString() || '',
+          stock: variant.stock_qty?.toString() || '',
+          attributes: variant.attributes || {},
+          media: variant.media || []
+        }));
+
+        onVariantsChange(formattedVariants);
       }
-
-      const data = await response.json();
-      const formattedVariants = data.map((variant: any) => ({
-        variant_id: variant.product_id,
-        id: variant.product_id.toString(),
-        sku: variant.sku || '',
-        price: variant.selling_price?.toString() || '',
-        stock: variant.stock_qty?.toString() || '',
-        attributes: variant.attributes || {},
-        media: variant.media || []
-      }));
-
-      onVariantsChange(formattedVariants);
     } catch (error) {
       console.error('Error fetching variants:', error);
       setError('Failed to load variants. Please try again.');
@@ -440,15 +468,6 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
       
       // Fetch media stats for the new variant
       await fetchMediaStats(newProductId);
-      
-      // If there are any pending media uploads, process them
-      const pendingUploads = Object.entries(isUploading).filter(([_, files]) => files.length > 0);
-      if (pendingUploads.length > 0) {
-        const files = pendingUploads.map(([_, files]) => files).flat();
-        if (files.length > 0) {
-          await onDrop(files, newProductId);
-        }
-      }
 
       setSuccess('Variant created successfully');
       setIsModalOpen(false);
@@ -573,58 +592,69 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
       return;
     }
 
-    setIsUploading(prev => ({ ...prev, [productId]: acceptedFiles }));
+    setIsUploading(prev => ({ ...prev, [productId]: true }));
     setError(null);
 
-    for (const file of acceptedFiles) {
-      try {
-        setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
-        
-        const formData = new FormData();
-        formData.append('media_file', file);
-        formData.append('type', file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE');
-        formData.append('sort_order', '0');
+    let updatedVariants = [...variants];
+    try {
+      for (const file of acceptedFiles) {
+        try {
+          setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
+          
+          const formData = new FormData();
+          formData.append('media_file', file);
+          formData.append('type', file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE');
+          formData.append('sort_order', '0');
 
-        const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/media`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          },
-          body: formData,
-        });
+          const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/media`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            },
+            body: formData,
+          });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || `Failed to upload ${file.name}`);
-        }
-
-        const newMedia = await response.json();
-        const updatedVariants = variants.map(v => {
-          if (v.variant_id === productId) {
-            return {
-              ...v,
-              media: [...(v.media || []), {
-                media_id: newMedia.media_id,
-                media_url: newMedia.url,
-                media_type: newMedia.type,
-                is_primary: newMedia.is_primary,
-                display_order: newMedia.sort_order
-              }]
-            };
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Failed to upload ${file.name}`);
           }
-          return v;
-        });
 
-        onVariantsChange(updatedVariants);
-        await fetchMediaStats(productId);
-        setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
-      } catch (error) {
-        console.error(`Error uploading ${file.name}:`, error);
-        setError(`Failed to upload ${file.name}. Please try again.`);
+          const newMedia = await response.json();
+          // Update variants with new media
+          updatedVariants = updatedVariants.map(v => {
+            if (v.variant_id === productId) {
+              return {
+                ...v,
+                media: [...(v.media || []), {
+                  media_id: newMedia.media_id,
+                  media_url: newMedia.url,
+                  media_type: newMedia.type,
+                  is_primary: newMedia.is_primary,
+                  display_order: newMedia.sort_order
+                }]
+              };
+            }
+            return v;
+          });
+          onVariantsChange(updatedVariants);
+          await fetchMediaStats(productId);
+          setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
+        } catch (error) {
+          console.error(`Error uploading ${file.name}:`, error);
+          setError(`Failed to upload ${file.name}. Please try again.`);
+        }
       }
+    } finally {
+      setIsUploading(prev => ({ ...prev, [productId]: false }));
+      // Clear upload progress for this variant after a short delay
+      setTimeout(() => {
+        setUploadProgress(prev => {
+          const newProgress = { ...prev };
+          acceptedFiles.forEach(f => { delete newProgress[f.name]; });
+          return newProgress;
+        });
+      }, 1000);
     }
-
-    setIsUploading(prev => ({ ...prev, [productId]: [] }));
   }, [variants, mediaStats, onVariantsChange]);
 
   const removeMedia = async (productId: number, mediaId: number) => {
@@ -759,11 +789,12 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
                   onChange={(e) =>
                     handleVariantChange(variant.id, 'sku', e.target.value)
                   }
-                  className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
+                  className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm bg-gray-50 ${
                     errors.variants?.[variant.id]?.sku
                       ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                       : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
                   }`}
+                  readOnly
                 />
                 {errors.variants?.[variant.id]?.sku && (
                   <p className="mt-1 text-sm text-red-600">
@@ -891,9 +922,9 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
                 {mediaStats[variant.variant_id || '']?.remaining_slots > 0 && (
                   <VariantDropzone
                     variantId={variant.variant_id!}
-                    isUploading={!!isUploading[variant.variant_id || '']}
+                    isUploading={isUploading[variant.variant_id || '']}
                     onDrop={onDrop}
-                    disabled={!!isUploading[variant.variant_id || '']}
+                    disabled={isUploading[variant.variant_id || '']}
                   />
                 )}
               </div>
@@ -929,6 +960,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
         onClose={() => setIsModalOpen(false)}
         onAdd={handleAddVariant}
         categoryId={categoryId}
+        baseSku={baseSku}
       />
     </div>
   );
@@ -946,26 +978,28 @@ const VariantDropzone: React.FC<{
       'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
       'video/*': ['.mp4', '.mov', '.avi'],
     },
-    maxSize: 10 * 1024 * 1024,
-    disabled,
+    maxSize: 10 * 1024 * 1024, // 10MB
+    disabled: disabled || isUploading,
   });
 
   return (
     <div
       {...getRootProps()}
-      className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${
-        isDragActive
-          ? 'border-primary-500 bg-primary-50'
-          : isUploading
+      className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center transition-colors ${
+        disabled || isUploading
           ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
-          : 'border-gray-300 hover:border-primary-500'
+          : isDragActive
+          ? 'border-primary-500 bg-primary-50 cursor-pointer'
+          : 'border-gray-300 hover:border-primary-500 cursor-pointer'
       }`}
     >
       <input {...getInputProps()} />
-      <CloudArrowUpIcon className={`h-8 w-8 ${isUploading ? 'text-gray-400' : 'text-gray-400'}`} />
+      <CloudArrowUpIcon className={`h-8 w-8 ${disabled || isUploading ? 'text-gray-400' : 'text-gray-400'}`} />
       <span className="mt-2 text-sm text-gray-600">
         {isUploading
           ? 'Uploading...'
+          : disabled
+          ? 'Maximum files reached'
           : isDragActive
           ? 'Drop files here'
           : 'Click or drag files'}

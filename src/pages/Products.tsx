@@ -443,13 +443,13 @@ const Products: React.FC = () => {
               {products.map((product) => (
                 <div 
                   key={product.id}
-                  onClick={() => handleProductClick(product.id)}
+                  onClick={() => handleProductClick(String(product.id))}
                   className="cursor-pointer"
                 >
                   <ProductCard 
                     product={product}
-                    isNew={product.isNew}
-                    isBuiltIn={product.isBuiltIn}
+                    isNew={product.isNew ?? false}
+                    isBuiltIn={product.isBuiltIn ?? false}
                   />
                 </div>
               ))}
@@ -503,12 +503,13 @@ const Products: React.FC = () => {
               {recentlyViewed.map((product) => (
                 <div 
                   key={product.id}
-                  onClick={() => handleProductClick(product.id)}
+                  onClick={() => handleProductClick(String(product.id))}
                   className="cursor-pointer"
                 >
                   <ProductCard
                     product={product}
-                    isNew={product.isNew}
+                    isNew={product.isNew ?? false}
+                    isBuiltIn={product.isBuiltIn ?? false}
                   />
                 </div>
               ))}

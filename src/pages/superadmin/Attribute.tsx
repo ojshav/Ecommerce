@@ -43,6 +43,11 @@ interface ICategoryAttribute {
     category_id: number;
     attribute_id: number;
     required_flag: boolean;
+    attribute_details?: {
+        attribute_id: number;
+        name: string;
+        code: string;
+    };
 }
 
 const Attribute: React.FC = () => {
@@ -80,6 +85,8 @@ const Attribute: React.FC = () => {
         value_code: '',
         value_label: ''
     });
+
+    const [linkedAttributes, setLinkedAttributes] = useState<ICategoryAttribute[]>([]);
 
     // Fetch data on component mount
     useEffect(() => {
@@ -260,6 +267,9 @@ const Attribute: React.FC = () => {
                 return;
             }
 
+            // Store current scroll position
+            const scrollPosition = window.scrollY;
+
             const response = await fetch(`${API_BASE_URL}/api/superadmin/attribute-values`, {
                 method: 'POST',
                 headers: {
@@ -288,6 +298,11 @@ const Attribute: React.FC = () => {
             setNewAttributeValue({ value_code: '', value_label: '' });
             setShowAddValueModal(false);
             toast.success('Attribute value added successfully');
+
+            // Restore scroll position after state updates
+            requestAnimationFrame(() => {
+                window.scrollTo(0, scrollPosition);
+            });
         } catch (error) {
             console.error('Error adding attribute value:', error);
             toast.error(error instanceof Error ? error.message : 'Failed to create attribute value');
@@ -395,6 +410,49 @@ const Attribute: React.FC = () => {
         });
     };
 
+    // Add new function to fetch linked attributes
+    const fetchLinkedAttributes = async (categoryId: number) => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                toast.error('Authentication token not found. Please login again.');
+                return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/api/superadmin/categories/${categoryId}/attributes`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status === 401) {
+                toast.error('Session expired. Please login again.');
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch linked attributes');
+            }
+
+            const data = await response.json();
+            setLinkedAttributes(data);
+        } catch (error) {
+            console.error('Error fetching linked attributes:', error);
+            toast.error('Failed to fetch linked attributes');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Update the category selection handler
+    const handleCategorySelect = (categoryId: number) => {
+        setSelectedCategory(categoryId);
+        fetchLinkedAttributes(categoryId);
+    };
+
+    // Update the renderCategoryRows function to use the new handler
     const renderCategoryRows = (category: ICategory, level: number = 0) => {
         const isExpanded = expandedCategories[category.category_id] || false;
         const hasSubcategories = category.subcategories && category.subcategories.length > 0;
@@ -428,9 +486,7 @@ const Attribute: React.FC = () => {
                     <td className="px-6 py-4 text-right">
                         <button 
                             className="p-1 text-[#FF5733] hover:text-[#FF4500] rounded mr-2"
-                            onClick={() => {
-                                setSelectedCategory(category.category_id);
-                            }}
+                            onClick={() => handleCategorySelect(category.category_id)}
                             title="Link Attribute"
                         >
                             <Link size={16} />
@@ -443,6 +499,41 @@ const Attribute: React.FC = () => {
                 )}
             </React.Fragment>
         );
+    };
+
+    // Add function to handle unlinking attributes
+    const handleUnlinkAttribute = async (attributeId: number) => {
+        if (!selectedCategory) return;
+
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                toast.error('Authentication token not found. Please login again.');
+                return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/api/superadmin/categories/${selectedCategory}/attributes/${attributeId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to unlink attribute');
+            }
+
+            // Update the linked attributes list
+            setLinkedAttributes(linkedAttributes.filter(attr => attr.attribute_id !== attributeId));
+            toast.success('Attribute unlinked successfully');
+        } catch (error) {
+            console.error('Error unlinking attribute:', error);
+            toast.error('Failed to unlink attribute');
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (loading) {
@@ -618,6 +709,32 @@ const Attribute: React.FC = () => {
                                             </div>
                                         </div>
 
+                                        {/* Display Linked Attributes */}
+                                        {linkedAttributes.length > 0 && (
+                                            <div className="mb-6">
+                                                <h4 className="font-medium mb-2">Linked Attributes</h4>
+                                                <div className="space-y-2">
+                                                    {linkedAttributes.map((linkedAttr) => (
+                                                        <div key={linkedAttr.attribute_id} className="bg-gray-50 rounded-lg p-3 flex justify-between items-center">
+                                                            <div>
+                                                                <p className="font-medium">{linkedAttr.attribute_details?.name}</p>
+                                                                <p className="text-xs text-gray-500">{linkedAttr.attribute_details?.code}</p>
+                                                                {linkedAttr.required_flag && (
+                                                                    <span className="text-xs text-[#FF5733] font-medium">Required</span>
+                                                                )}
+                                                            </div>
+                                                            <button
+                                                                className="text-red-500 hover:text-red-600"
+                                                                onClick={() => handleUnlinkAttribute(linkedAttr.attribute_id)}
+                                                            >
+                                                                <X className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium mb-2">Select Attribute</label>
                                             <select
@@ -632,27 +749,27 @@ const Attribute: React.FC = () => {
                                                 }}
                                             >
                                                 <option value="">Select an attribute...</option>
-                                                {customAttributes.map(attr => (
-                                                    <option key={attr.attribute_id} value={attr.attribute_id}>
-                                                        {attr.name} ({attr.input_type})
-                                                    </option>
-                                                ))}
+                                                {customAttributes
+                                                    .filter(attr => !linkedAttributes.some(linked => linked.attribute_id === attr.attribute_id))
+                                                    .map(attr => (
+                                                        <option key={attr.attribute_id} value={attr.attribute_id}>
+                                                            {attr.name} ({attr.input_type})
+                                                        </option>
+                                                    ))}
                                             </select>
                                         </div>
 
-                                        {selectedAttribute && (
-                                            <div className="mb-4">
-                                                <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={requiredFlag}
-                                                        onChange={(e) => setRequiredFlag(e.target.checked)}
-                                                        className="rounded border-gray-300"
-                                                    />
-                                                    <span className="text-sm">Required for this category</span>
-                                                </label>
-                                            </div>
-                                        )}
+                                        <div className="mb-4">
+                                            <label className="flex items-center space-x-2">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={requiredFlag}
+                                                    onChange={(e) => setRequiredFlag(e.target.checked)}
+                                                    className="rounded border-gray-300 text-[#FF5733] focus:ring-[#FF5733]"
+                                                />
+                                                <span className="text-sm font-medium">Mark as Required</span>
+                                            </label>
+                                        </div>
 
                                         <div className="flex justify-end">
                                             <button

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight, ChevronLeft, Share2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
 import { toast } from 'react-hot-toast';
 
 
@@ -73,9 +75,29 @@ interface CartProduct extends Omit<ProductDetails, 'category' | 'brand'> {
   is_deleted: boolean;
 }
 
+// Add new interface for variants
+interface ProductVariant {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice: number;
+  primary_image: string;
+  isVariant: boolean;
+  parentProductId: string;
+}
+
 const ProductDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const { addToCart } = useCart();
+  const { isAuthenticated, user } = useAuth();
+  const { 
+    addToWishlist, 
+    removeFromWishlist, 
+    isInWishlist, 
+    loading: wishlistLoading,
+    wishlistItems 
+  } = useWishlist();
+  const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('product-details');
@@ -83,6 +105,32 @@ const ProductDetail: React.FC = () => {
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [loadingVariants, setLoadingVariants] = useState(false);
+
+  // Add function to fetch variants
+  const fetchProductVariants = async (productId: string) => {
+    try {
+      setLoadingVariants(true);
+      const response = await fetch(`${API_BASE_URL}/api/products/${productId}/variants`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch product variants');
+      }
+
+      const data = await response.json();
+      setVariants(data.variants);
+    } catch (error) {
+      console.error('Error fetching variants:', error);
+    } finally {
+      setLoadingVariants(false);
+    }
+  };
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -108,6 +156,11 @@ const ProductDetail: React.FC = () => {
         setProduct(data);
         if (data.media && data.media.length > 0) {
           setSelectedImage(data.media[0].url);
+        }
+
+        // Fetch variants after getting product details
+        if (productId) {
+          fetchProductVariants(productId);
         }
       } catch (err) {
         setError('Failed to fetch product details');
@@ -180,6 +233,42 @@ const ProductDetail: React.FC = () => {
     const newQuantity = quantity + value;
     if (newQuantity >= 1) {
       setQuantity(newQuantity);
+    }
+  };
+
+  const handleWishlist = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please sign in to add items to wishlist');
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      navigate(`/sign-in?returnUrl=${returnUrl}`);
+      return;
+    }
+
+    // Check if user is a merchant or admin
+    if (user?.role === 'merchant' || user?.role === 'admin') {
+      toast.error('Merchants and admins cannot add items to wishlist');
+      return;
+    }
+    
+    try {
+      const productId = Number(product?.product_id);
+      const isInWishlistItem = isInWishlist(productId);
+      
+      if (isInWishlistItem) {
+        // Find the wishlist item ID from the wishlist items
+        const wishlistItem = wishlistItems.find(item => item.product_id === productId);
+        if (wishlistItem) {
+          await removeFromWishlist(wishlistItem.wishlist_item_id);
+          toast.success('Product removed from wishlist');
+        }
+      } else {
+        console.log('Attempting to add to wishlist, product ID:', productId);
+        await addToWishlist(productId);
+        toast.success('Product added to wishlist');
+      }
+    } catch (error) {
+      console.error('Wishlist error details:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update wishlist');
     }
   };
 
@@ -324,6 +413,46 @@ const ProductDetail: React.FC = () => {
     }
   };
 
+  // Replace the dummy variant selector with real variants
+  const renderVariants = () => {
+    if (loadingVariants) {
+      return (
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+        </div>
+      );
+    }
+
+    if (variants.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="mb-4">
+        <div className="text-sm font-medium mb-2">Available Variants:</div>
+        <div className="flex flex-wrap gap-4">
+          {variants.map((variant) => (
+            <div
+              key={variant.id}
+              className="w-24 h-32 border rounded-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-2"
+              onClick={() => {
+                // Navigate to the variant's detail page
+                window.location.href = `/product/${variant.id}`;
+              }}
+            >
+              <img
+                src={variant.primary_image || product.media[0]?.url || 'https://via.placeholder.com/64'}
+                alt={variant.name}
+                className="w-16 h-16 object-cover rounded-md mb-1"
+              />
+              <span className="text-xs font-semibold text-gray-800">₹{variant.price}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -464,45 +593,23 @@ const ProductDetail: React.FC = () => {
                   </button>
                   {/* Favourites Button */}
                   <button 
-                    className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px]"
+                    className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px] ${
+                      isInWishlist(Number(product?.product_id)) ? 'text-[#F2631F]' : 'text-gray-600'
+                    }`}
+                    onClick={handleWishlist}
+                    disabled={wishlistLoading}
                     aria-label="Add to Wishlist"
                   >
-                    <Heart size={18} className="text-gray-600" />
+                    <Heart 
+                      size={18} 
+                      className={isInWishlist(Number(product?.product_id)) ? 'fill-current' : ''} 
+                    />
                   </button>
                 </div>
               </div>
 
-              {/* Dummy Variant Selector */}
-              <div className="mb-4">
-                <div className="text-sm font-medium mb-2">Available Variants:</div>
-                <div className="flex flex-wrap gap-4">
-                  {/* Dummy Variant Card 1 */}
-                  <div
-                    className="w-24 h-32 border rounded-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-2"
-                    onClick={() => console.log('Dummy Variant 1 clicked')}
-                  >
-                    <img
-                      src={product.media[0]?.url || 'https://via.placeholder.com/64'} // Use first product image as placeholder or a generic placeholder
-                      alt="Dummy Variant 1"
-                      className="w-16 h-16 object-cover rounded-md mb-1"
-                    />
-                    <span className="text-xs font-semibold text-gray-800">₹10,000</span>
-                  </div>
-                  {/* Dummy Variant Card 2 */}
-                  <div
-                    className="w-24 h-32 border rounded-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-2"
-                    onClick={() => console.log('Dummy Variant 2 clicked')}
-                  >
-                    <img
-                      src={product.media[0]?.url || 'https://via.placeholder.com/64'} // Use first product image as placeholder or a generic placeholder
-                      alt="Dummy Variant 2"
-                      className="w-16 h-16 object-cover rounded-md mb-1"
-                    />
-                    <span className="text-xs font-semibold text-gray-800">₹12,000</span>
-                  </div>
-                  {/* Add more dummy variants as needed */}
-                </div>
-              </div>
+              {/* Replace the dummy variant selector with the new renderVariants function */}
+              {renderVariants()}
 
             </div>
           </div>
