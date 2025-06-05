@@ -49,61 +49,106 @@ const Home: React.FC = () => {
 
   return (
     <div className="pb-10">
-      {/* Mobile Search Bar */}
+      {/* Mobile Search Bar (Copied from Navbar) */}
       <div className="container mx-auto px-4 nav:hidden mt-2 mb-2 py-2">
         <div ref={searchRef} className="relative">
           <form onSubmit={handleSearchSubmit} className="relative">
-            <div className="flex rounded-md overflow-hidden bg-white border border-gray-300">
-              <input
-                type="text"
-                placeholder="What are you looking for?"
-                className="w-full border-0 py-2 px-4 text-gray-900 focus:ring-0 focus:outline-none"
-                value={searchQuery}
-                onChange={handleSearchInputChange}
-                onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
-              />
-              <div className="relative flex items-center border-l border-gray-200 bg-white">
-                <select 
-                  className="h-full appearance-none bg-transparent py-2 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none text-sm"
-                  value={searchType}
-                  onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
-                >
-                  <option value="all">All</option>
-                  <option value="products">Products</option>
-                  <option value="categories">Categories</option>
-                </select>
-                <ChevronDown size={16} className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
+            {/* Layout for screens >= sm and < nav */}
+            <div className="hidden sm:flex items-center gap-2">
+              {/* Search Input and Category Select Group */}
+              <div className="flex flex-1 rounded-md overflow-hidden bg-white border border-gray-300 shadow-sm">
+                <input
+                  type="text"
+                  placeholder="What are you looking for?"
+                  className="w-full border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none"
+                  value={searchQuery}
+                  onChange={handleSearchInputChange}
+                  onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
+                />
+                {/* Category Select */}
+                <div className="relative flex items-center bg-gray-100">
+                  <select 
+                    className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none text-sm"
+                    value={searchType}
+                    onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
+                  >
+                    <option value="all">All</option>
+                    <option value="products">Products</option>
+                    <option value="categories">Categories</option>
+                  </select>
+                </div>
               </div>
+              {/* Search Button */}
               <button 
                 type="submit"
-                className="relative flex items-center border-l border-gray-200 bg-white px-4 hover:bg-gray-50"
+                className="bg-[#F2631F] text-white py-1.5 px-6 rounded-md text-base hover:bg-orange-600 transition-colors"
               >
-                <Search className="h-4 w-4 text-gray-500" />
+                Search
               </button>
             </div>
+
+            {/* Layout for screens < sm */}
+            <div className="sm:hidden space-y-2">
+              {/* Search Input */}
+              <div>
+                <input
+                  type="text"
+                  placeholder="What are you looking for?"
+                  className="w-full rounded-md border border-gray-300 shadow-sm py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none text-base"
+                  value={searchQuery}
+                  onChange={handleSearchInputChange}
+                  onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
+                />
+              </div>
+              {/* Category Dropdown Button and Search Button */}              
+              <div className="flex items-center gap-2">
+                 {/* Category Select - styled as a button */}
+                 <select
+                    className="flex-1 appearance-none bg-gray-100 border border-gray-300 rounded-md shadow-sm py-2 px-4 text-base text-gray-900 focus:ring-0 focus:outline-none pr-8"
+                    value={searchType}
+                    onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
+                 >
+                    <option value="all">All</option>
+                    <option value="products">Products</option>
+                    <option value="categories">Categories</option>
+                 </select>
+                 {/* Search Button */}
+                 <button 
+                   type="submit"
+                   className="flex-1 bg-[#F2631F] text-white py-2 px-4 rounded-md text-base hover:bg-orange-600 transition-colors"
+                 >
+                   Search
+                 </button>
+              </div>
+            </div>
+
+            {/* SearchResults positioned below the flex container */}
+            <SearchResults 
+              isVisible={showSearchResults} 
+              searchQuery={searchQuery}
+              searchType={searchType}
+              onItemClick={() => {
+                setShowSearchResults(false);
+                setSearchQuery('');
+              }}
+            />
           </form>
-          <SearchResults 
-            isVisible={showSearchResults} 
-            searchQuery={searchQuery}
-            searchType={searchType}
-            onItemClick={() => {
-              setShowSearchResults(false);
-              setSearchQuery('');
-            }}
-          />
         </div>
       </div>
 
-      <div className="space-y-8">
-        <Hero />
-        <Categories />
-        <Brands />
-        <Shop />
-        <FeaturedProducts />
-        <PromoProducts />
-        <TrendingDeals />
-        <HomepageProducts />
-        <Services />
+      {/* Content sections below mobile search bar */}
+      <div className="nav:pt-8">
+        <div className="space-y-8">
+          <Hero />
+          <Categories />
+          <Brands />
+          <Shop />
+          <FeaturedProducts />
+          <PromoProducts />
+          <TrendingDeals />
+          <HomepageProducts />
+          <Services />
+        </div>
       </div>
     </div>
   );

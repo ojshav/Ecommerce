@@ -1,6 +1,5 @@
 import { ReactNode, useEffect, lazy, Suspense } from 'react';
-
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
@@ -91,10 +90,12 @@ import Settings from './pages/business/Settings';
 import Support from './pages/business/Support';
 import { WishlistProvider } from './context/WishlistContext';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
+import Subscription from './pages/business/Subscription';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
 const BusinessProducts = lazy(() => import('./pages/business/catalog/Products'));
+const BusinessWholesale = lazy(() => import('./pages/business/catalog/Wholesale'));
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
 const Verification = lazy(() => import('./pages/business/Verification'));
@@ -103,6 +104,7 @@ const ProductPlacements = lazy(() => import('./pages/business/ProductPlacements'
 const CatalogProducts = lazy(() => import('./pages/business/catalog/Products'));
 const AddProducts = lazy(() => import('./pages/business/catalog/product/steps/AddProducts'));
 const EditProduct = lazy(() => import('./pages/business/catalog/product/components/EditProduct'));
+const AddWholesaleProduct = lazy(() => import('./pages/business/catalog/wholesale/components/AddWholesaleProduct'));
 
 const LoadingFallback = () => (
   <div className="w-full h-full min-h-screen flex items-center justify-center">
@@ -110,31 +112,57 @@ const LoadingFallback = () => (
   </div>
 );
 
+// Custom hook for scroll management
+const useScrollToTop = () => {
+  const location = useLocation();
+  const navigationType = useNavigationType();
 
+  useEffect(() => {
+    // Force scroll reset on every navigation
+    const resetScroll = () => {
+      // Reset scroll position using multiple methods for maximum compatibility
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+      
+      // Force layout recalculation
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        document.body.style.overflow = '';
+      }, 0);
+    };
 
+    // Reset scroll immediately
+    resetScroll();
+
+    // Reset scroll again after a short delay to ensure it works
+    const timeoutId = setTimeout(resetScroll, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [location.pathname, navigationType]);
+};
+
+// ScrollToTop component to handle scroll behavior
+const ScrollToTop = () => {
+  useScrollToTop();
+  return null;
+};
 
 interface ProtectedRouteProps {
   children: ReactNode;
 }
 
-
-
-
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 // Main App component
 function App() {
-  // Scroll to top on route change
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   return (
     <AuthProvider>
       <CartProvider>
         <WishlistProvider>
           <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <Router>
+              <ScrollToTop />
               <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                 <Routes>
                   {/* Business Dashboard Routes */}
@@ -148,6 +176,14 @@ function App() {
                       element={
                         <Suspense fallback={<LoadingFallback />}>
                           <BusinessDashboard />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="subscription"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <Subscription />
                         </Suspense>
                       }
                     />
@@ -288,6 +324,24 @@ function App() {
                         }
                       />
                     </Route>
+
+                    <Route
+                      path="catalog/wholesale"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <BusinessWholesale />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="catalog/wholesale/new"
+                      element={(
+                        <Suspense fallback={<LoadingFallback />}>
+                          <AddWholesaleProduct />
+                        </Suspense>
+                      )}
+                    />
 
                     <Route
                       path="product-placements" 

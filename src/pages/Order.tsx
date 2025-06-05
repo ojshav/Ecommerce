@@ -236,17 +236,17 @@ const Order: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold">Your Orders</h1>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-2 sm:gap-4">
           <button 
-            className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors"
+            className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors text-sm sm:text-base"
             onClick={() => navigate('/return-refund')}
           >
             Returns Policy
           </button>
           <button 
-            className="px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors"
+            className="px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors text-sm sm:text-base"
             onClick={() => navigate('/track-order')}
           >
             Track Package
@@ -255,20 +255,20 @@ const Order: React.FC = () => {
       </div>
       
       {/* Search and Filter */}
-      <div className="flex gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="flex-1 relative">
           <input
             type="text"
             placeholder="Search orders by product name or order ID"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF4D00]"
+            className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF4D00] text-sm sm:text-base"
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
         </div>
         <div className="relative">
           <button 
-            className="px-4 py-2 border rounded-lg flex items-center gap-2 hover:border-[#FF4D00] transition-colors"
+            className="w-full sm:w-auto px-4 py-2 border rounded-lg flex items-center justify-center gap-2 hover:border-[#FF4D00] transition-colors text-sm sm:text-base"
             onClick={() => setFilterOpen(!filterOpen)}
           >
             <Filter size={20} />
@@ -276,12 +276,12 @@ const Order: React.FC = () => {
             <ChevronDown size={16} />
           </button>
           {filterOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
+            <div className="absolute right-0 mt-2 w-full sm:w-48 bg-white border rounded-lg shadow-lg z-10">
               <div className="p-2">
                 {['all', 'delivered', 'in transit', 'processing', 'cancelled'].map((filter) => (
                   <button 
                     key={filter}
-                    className={`w-full text-left px-3 py-2 rounded capitalize ${
+                    className={`w-full text-left px-3 py-2 rounded capitalize text-sm sm:text-base ${
                       selectedFilter === filter ? 'bg-[#FF4D00] text-white' : 'hover:bg-gray-100'
                     }`}
                     onClick={() => {
@@ -309,39 +309,39 @@ const Order: React.FC = () => {
             <div
               key={order.id}
               onClick={() => handleOrderClick(order)}
-              className="border rounded-lg p-6 space-y-4 cursor-pointer hover:border-[#FF4D00] transition-colors bg-white shadow-sm"
+              className="border rounded-lg p-4 sm:p-6 space-y-4 cursor-pointer hover:border-[#FF4D00] transition-colors bg-white shadow-sm"
             >
-              <div className="flex justify-between items-start">
-                <div className="flex gap-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                   <img
                     src={order.imageUrl}
                     alt={order.productName}
-                    className="w-24 h-24 object-cover rounded-lg"
+                    className="w-full sm:w-24 h-24 object-cover rounded-lg"
                   />
                   <div>
-                    <h3 className="font-medium text-lg mb-1">{order.productName}</h3>
-                    <p className="text-gray-600 text-sm mb-1">Order #{order.order_number}</p>
+                    <h3 className="font-medium text-base sm:text-lg mb-1">{order.productName}</h3>
+                    <p className="text-gray-600 text-xs sm:text-sm mb-1">Order #{order.order_number}</p>
                     <div className="flex items-center gap-2">
                       <span className={`w-2 h-2 rounded-full ${getStatusColor(order.status)}`}></span>
-                      <span className="font-medium">{order.status}</span>
+                      <span className="font-medium text-sm sm:text-base">{order.status}</span>
                     </div>
-                    <p className="text-gray-600 text-sm mt-1">
+                    <p className="text-gray-600 text-xs sm:text-sm mt-1">
                       {order.status === 'Delivered' ? `Delivered on ${order.deliveryDate}` : order.deliveryDate}
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-lg">${order.price.toFixed(2)}</p>
-                  <p className="text-gray-600 text-sm">Ordered on {formatDate(order.created_at)}</p>
+                <div className="text-left sm:text-right w-full sm:w-auto">
+                  <p className="font-semibold text-base sm:text-lg">${order.price.toFixed(2)}</p>
+                  <p className="text-gray-600 text-xs sm:text-sm">Ordered on {formatDate(order.created_at)}</p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   {order.canReturn && (
                     <button
                       onClick={(e) => handleAction(e, 'return', order)}
-                      className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2"
+                      className="px-3 sm:px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2 text-sm"
                     >
                       <RotateCcw size={16} />
                       Return
@@ -350,7 +350,7 @@ const Order: React.FC = () => {
                   {order.canExchange && (
                     <button
                       onClick={(e) => handleAction(e, 'exchange', order)}
-                      className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2"
+                      className="px-3 sm:px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2 text-sm"
                     >
                       <Package size={16} />
                       Exchange
@@ -359,17 +359,17 @@ const Order: React.FC = () => {
                   {order.canReview && (
                     <button
                       onClick={(e) => handleAction(e, 'review', order)}
-                      className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2"
+                      className="px-3 sm:px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2 text-sm"
                     >
                       <Star size={16} />
                       Review
                     </button>
                   )}
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
                   <button
                     onClick={(e) => handleAction(e, 'track', order)}
-                    className="px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors flex items-center gap-2"
+                    className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors flex items-center justify-center gap-2 text-sm"
                   >
                     Track Order
                   </button>
@@ -378,7 +378,7 @@ const Order: React.FC = () => {
                       e.stopPropagation();
                       // Handle invoice download
                     }}
-                    className="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                    className="w-full sm:w-auto px-3 sm:px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-sm"
                   >
                     <FileText size={16} />
                     Invoice
@@ -405,7 +405,7 @@ const Order: React.FC = () => {
             <button
               key={i + 1}
               onClick={() => setCurrentPage(i + 1)}
-              className={`w-8 h-8 flex items-center justify-center border rounded-lg ${
+              className={`w-8 h-8 flex items-center justify-center border rounded-lg text-sm sm:text-base ${
                 currentPage === i + 1
                   ? 'bg-[#FF4D00] text-white'
                   : 'hover:border-[#FF4D00]'
