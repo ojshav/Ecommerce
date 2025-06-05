@@ -353,9 +353,6 @@ function App() {
                     />
                   </Route>
 
-                  {/* Superadmin Login Route */}
-                  <Route path="/superadmin/login" element={<SuperAdminLogin />} />
-
                   {/* Superadmin Routes - Protected by role check in the component */}
                   <Route path="/superadmin" element={<SuperAdminLayout />}>
                     <Route
@@ -448,6 +445,7 @@ function App() {
                             <Route path="/wholesale" element={<Wholesale />} />
                             <Route path="/sign-in" element={<SignIn />} />
                             <Route path="/register" element={<Register />} />
+                            <Route path="/superadmin/login" element={<SuperAdminLogin />} />
                             <Route
                               path="/become-merchant"
                               element={<BecomeMerchant />}

@@ -56,11 +56,12 @@ interface ProductDetails {
 
 // Extend the Product type to match what the cart expects
 interface CartProduct extends Omit<ProductDetails, 'category' | 'brand'> {
-  id: string;
+  id: number;
   name: string;
   price: number;
   currency: string;
   image: string;
+  image_url: string;
   stock: number;
   isNew: boolean;
   isBuiltIn: boolean;
@@ -69,6 +70,7 @@ interface CartProduct extends Omit<ProductDetails, 'category' | 'brand'> {
   sku: string;
   category: string;
   brand: string;
+  is_deleted: boolean;
 }
 
 const ProductDetail: React.FC = () => {
@@ -153,11 +155,12 @@ const ProductDetail: React.FC = () => {
     // Convert ProductDetails to CartProduct format
     const cartProduct: CartProduct = {
       ...product,
-      id: String(product.product_id),
+      id: product.product_id,
       name: product.product_name,
       price: product.selling_price,
       currency: 'INR',
       image: product.media[0]?.url || '',
+      image_url: product.media[0]?.url || '',
       stock: 100,
       isNew: true,
       isBuiltIn: false,
@@ -165,7 +168,8 @@ const ProductDetail: React.FC = () => {
       reviews: 0,
       sku: `SKU-${product.product_id}`,
       category: product.category?.name || '',
-      brand: product.brand?.name || ''
+      brand: product.brand?.name || '',
+      is_deleted: false,
     };
     
     addToCart(cartProduct, quantity);
@@ -182,10 +186,41 @@ const ProductDetail: React.FC = () => {
   const renderAttributeOptions = () => {
     if (!product?.attributes || product.attributes.length === 0) return null;
 
+    // Separate RAM and Storage attributes from others
+    const ramAttribute = product.attributes.find(attr => attr.attribute_name === 'RAM');
+    const storageAttribute = product.attributes.find(attr => attr.attribute_name === 'Storage SSD');
+    const otherAttributes = product.attributes.filter(attr => attr.attribute_name !== 'RAM' && attr.attribute_name !== 'Storage SSD');
+
     return (
-      <div className="mb-4">
-        {product.attributes.map((attr) => (
-          <div key={attr.attribute_id} className="mb-3">
+      <div className="mb-4 space-y-3">
+        {/* RAM and Storage in a flex row if they exist */}
+        {(ramAttribute || storageAttribute) && (
+          <div className="flex flex-row gap-6">
+            {ramAttribute && (
+              <div>
+                <div className="text-sm font-medium mb-1">{ramAttribute.attribute_name}:</div>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white">
+                    {ramAttribute.is_text_based ? ramAttribute.value_text : ramAttribute.value_label || ramAttribute.value_text}
+                  </span>
+                </div>
+              </div>
+            )}
+            {storageAttribute && (
+              <div>
+                <div className="text-sm font-medium mb-1">{storageAttribute.attribute_name}:</div>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white">
+                    {storageAttribute.is_text_based ? storageAttribute.value_text : storageAttribute.value_label || storageAttribute.value_text}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {/* Other attributes rendered as before */}
+        {otherAttributes.map((attr) => (
+          <div key={attr.attribute_id}>
             <div className="text-sm font-medium mb-1">{attr.attribute_name}:</div>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white">
@@ -436,6 +471,39 @@ const ProductDetail: React.FC = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Dummy Variant Selector */}
+              <div className="mb-4">
+                <div className="text-sm font-medium mb-2">Available Variants:</div>
+                <div className="flex flex-wrap gap-4">
+                  {/* Dummy Variant Card 1 */}
+                  <div
+                    className="w-24 h-32 border rounded-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-2"
+                    onClick={() => console.log('Dummy Variant 1 clicked')}
+                  >
+                    <img
+                      src={product.media[0]?.url || 'https://via.placeholder.com/64'} // Use first product image as placeholder or a generic placeholder
+                      alt="Dummy Variant 1"
+                      className="w-16 h-16 object-cover rounded-md mb-1"
+                    />
+                    <span className="text-xs font-semibold text-gray-800">₹10,000</span>
+                  </div>
+                  {/* Dummy Variant Card 2 */}
+                  <div
+                    className="w-24 h-32 border rounded-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-2"
+                    onClick={() => console.log('Dummy Variant 2 clicked')}
+                  >
+                    <img
+                      src={product.media[0]?.url || 'https://via.placeholder.com/64'} // Use first product image as placeholder or a generic placeholder
+                      alt="Dummy Variant 2"
+                      className="w-16 h-16 object-cover rounded-md mb-1"
+                    />
+                    <span className="text-xs font-semibold text-gray-800">₹12,000</span>
+                  </div>
+                  {/* Add more dummy variants as needed */}
+                </div>
+              </div>
+
             </div>
           </div>
         </div>

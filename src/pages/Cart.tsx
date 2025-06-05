@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { CartItem as CartItemType } from '../types';
+import { ShoppingCart } from 'lucide-react';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const Cart: React.FC = () => {
   };
 
   const handleContinueShopping = () => {
-    navigate('/products');
+    navigate('/all-products');
   };
 
   const handleUpdateCart = async () => {
@@ -53,25 +54,26 @@ const Cart: React.FC = () => {
   const activeCartItems = cart.filter(item => !item.product.is_deleted);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-8">Cart</h1>
+    <div className="max-w-7xl mx-auto px-12 py-8">
+      <h1 className="text-2xl font-bold mb-8">Your Cart</h1>
       
       {activeCartItems.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-600 mb-4">Your cart is empty</p>
+        <div className="text-center py-12 flex flex-col items-center justify-center">
+          <ShoppingCart className="w-16 h-16 text-gray-400 mb-4" />
+          <p className="text-gray-600 mb-4 text-lg">Your cart is empty</p>
           <button 
             onClick={handleContinueShopping}
-            className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors"
+            className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors w-full sm:w-auto max-w-xs"
           >
             Continue Shopping
           </button>
         </div>
       ) : (
-        <div className="lg:grid lg:grid-cols-3 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           <div className="lg:col-span-2 mb-8 lg:mb-0">
             <div className="bg-white rounded-lg p-6">
               {/* Cart header */}
-              <div className="hidden lg:flex text-sm text-gray-500 mb-2">
+              <div className="hidden md:flex text-sm text-gray-500 mb-2">
                 <div className="w-8"></div>
                 <div className="flex-1 ml-4">
                   <span className="ml-20">Product</span>
@@ -97,17 +99,17 @@ const Cart: React.FC = () => {
               ))}
               
               {/* Cart actions */}
-              <div className="flex flex-col sm:flex-row mt-6 gap-4">
+              <div className="flex flex-col sm:flex-row mt-6 gap-4 w-full">
                 <button 
                   onClick={handleContinueShopping}
-                  className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors sm:w-auto w-full"
+                  className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors w-full sm:w-auto"
                 >
                   Continue Shopping
                 </button>
                 <button 
                   onClick={handleUpdateCart}
                   disabled={loading}
-                  className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors sm:w-auto w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Updating...' : 'Update Cart'}
                 </button>
@@ -116,7 +118,7 @@ const Cart: React.FC = () => {
           </div>
           
           {/* Cart summary */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 sticky top-4">
             <CartSummary
               subtotal={totalPrice}
               shipping={0} // TODO: Implement shipping calculation when backend is ready

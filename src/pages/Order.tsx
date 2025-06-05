@@ -245,12 +245,6 @@ const Order: React.FC = () => {
           >
             Returns Policy
           </button>
-          <button 
-            className="px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors text-sm sm:text-base"
-            onClick={() => navigate('/track-order')}
-          >
-            Track Package
-          </button>
         </div>
       </div>
       

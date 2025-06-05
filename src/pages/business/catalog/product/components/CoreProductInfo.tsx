@@ -33,9 +33,6 @@ interface CoreProductInfoProps {
   sku: string;
   costPrice: string;
   sellingPrice: string;
-  specialPrice: string;
-  specialPriceStart: string;
-  specialPriceEnd: string;
   categoryId: number | null;
   brandId: number | null;
   approval_status?: 'pending' | 'approved' | 'rejected';
@@ -50,9 +47,6 @@ interface CoreProductInfoProps {
     sku?: string;
     costPrice?: string;
     sellingPrice?: string;
-    specialPrice?: string;
-    specialPriceStart?: string;
-    specialPriceEnd?: string;
     categoryId?: string;
     brandId?: string;
   };
@@ -64,9 +58,6 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
   sku,
   costPrice,
   sellingPrice,
-  specialPrice,
-  specialPriceStart,
-  specialPriceEnd,
   categoryId,
   brandId,
   approval_status = 'pending',
@@ -185,9 +176,6 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
           sku: sku,
           cost_price: parseFloat(costPrice) || 0,
           selling_price: parseFloat(sellingPrice) || 0,
-          special_price: specialPrice ? parseFloat(specialPrice) : null,
-          special_start: specialPriceStart || null,
-          special_end: specialPriceEnd || null,
           category_id: categoryId,
           brand_id: brandId,
           discount_percentage: discount,
@@ -449,67 +437,9 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
   </div>
 )}
 
-{/* Special Price */}
-<div className="space-y-4">
-  <h3 className="text-sm font-medium text-gray-700">Special Price</h3>
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div>
-      <label
-        htmlFor="specialPrice"
-        className="block text-sm font-medium text-gray-700"
-      >
-        Special Price
-      </label>
-      <div className="mt-1">
-        <input
-          type="number"
-          id="specialPrice"
-          value={specialPrice}
-          onChange={(e) => onInfoChange('specialPrice', e.target.value)}
-          step="0.01"
-          min="0"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-          placeholder="Enter special price"
-        />
-        {errors.specialPrice && (
-          <p className="mt-1 text-sm text-red-600">{errors.specialPrice}</p>
-        )}
-      </div>
-    </div>
-  </div>
-</div>
-
-         
-
-        {/* Special Price Section */}
-        <div>
-          <h3 className="text-md font-semibold text-gray-700 mb-2">Special Price (Optional)</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 border rounded-md bg-gray-50">
-            <div>
-
-              <label htmlFor="specialPrice" className={labelClassName}>Special Price</label>
-              <input type="number" id="specialPrice" value={specialPrice} onChange={(e) => onInfoChange('specialPrice', e.target.value)} step="0.01" min="0" className={inputClassName(!!errors.specialPrice)} placeholder="0.00" />
-              {errors.specialPrice && <p className={errorTextClassName}>{errors.specialPrice}</p>}
-
-            </div>
-            <div>
-
-              <label htmlFor="specialPriceStart" className={labelClassName}>Start Date</label>
-              <input type="datetime-local" id="specialPriceStart" value={specialPriceStart} onChange={(e) => onInfoChange('specialPriceStart', e.target.value)} className={inputClassName(!!errors.specialPriceStart)} />
-              {errors.specialPriceStart && <p className={errorTextClassName}>{errors.specialPriceStart}</p>}
-            </div>
-            <div>
-              <label htmlFor="specialPriceEnd" className={labelClassName}>End Date</label>
-              <input type="datetime-local" id="specialPriceEnd" value={specialPriceEnd} onChange={(e) => onInfoChange('specialPriceEnd', e.target.value)} className={inputClassName(!!errors.specialPriceEnd)} />
-              {errors.specialPriceEnd && <p className={errorTextClassName}>{errors.specialPriceEnd}</p>}
-
-            </div>
-          </div>
-        </div>
-
         {submitError && (
-          <div className="p-4 my-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-700 text-sm">{submitError}</p>
+          <div className="mt-6 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+            {submitError}
           </div>
         )}
 

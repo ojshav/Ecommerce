@@ -22,9 +22,6 @@ interface FormData {
   sku: string;
   costPrice: string; // Use string for input binding
   sellingPrice: string; // Use string for input binding
-  specialPrice: string; // Changed to string, handle null conversion when passing to input/API
-  specialPriceStart: string; // Changed to string, handle null conversion when passing to input/API
-  specialPriceEnd: string; // Changed to string, handle null conversion when passing to input/API
   active_flag: boolean;
   metaTitle: string;
   metaDescription: string;
@@ -67,9 +64,6 @@ const AddWholesaleProduct: React.FC = () => {
     sku: '',
     costPrice: '',
     sellingPrice: '',
-    specialPrice: '',
-    specialPriceStart: '',
-    specialPriceEnd: '',
     active_flag: true,
     metaTitle: '',
     metaDescription: '',
@@ -116,7 +110,6 @@ const AddWholesaleProduct: React.FC = () => {
         // Example: Basic validation for number fields if they are required and expected to be numbers
          if (formData.costPrice !== '' && isNaN(Number(formData.costPrice))) newErrors.costPrice = 'Cost price must be a number';
          if (isNaN(Number(formData.sellingPrice))) newErrors.sellingPrice = 'Selling price must be a number';
-         if (formData.specialPrice !== '' && isNaN(Number(formData.specialPrice))) newErrors.specialPrice = 'Special price must be a number';
          // Add similar checks for weight, dimensions if required
         break;
       case 2: // Tax Category
@@ -139,7 +132,6 @@ const AddWholesaleProduct: React.FC = () => {
         // Convert string numbers to actual numbers where necessary before sending to API
         cost_price: Number(formData.costPrice) || 0, // Match API expected key
         selling_price: Number(formData.sellingPrice) || 0, // Match API expected key
-        special_price: formData.specialPrice !== '' ? Number(formData.specialPrice) || null : null, // Match API expected key, handle empty string
          // Convert weight and dimensions
         shipping_details: {
            weight: Number(formData.weight) || 0,
@@ -193,7 +185,7 @@ const AddWholesaleProduct: React.FC = () => {
 
   // Callback for CoreProductInfo to update parent's formData fields
   const handleCoreInfoChange = (
-    field: keyof Omit<FormData, 'categoryId' | 'brandId' | 'taxCategoryId' | 'media' | 'variants' | 'attributes'>,
+    field: keyof Omit<FormData, 'categoryId' | 'brandId' | 'taxCategoryId' | 'media' | 'variants' | 'attributes' | 'specialPrice' | 'specialPriceStart' | 'specialPriceEnd'>,
     value: FormData[typeof field]
   ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -242,9 +234,6 @@ const AddWholesaleProduct: React.FC = () => {
                 sku={formData.sku}
                 costPrice={formData.costPrice || ''} // Pass empty string for input if null/undefined
                 sellingPrice={formData.sellingPrice || ''} // Pass empty string for input if null/undefined
-                specialPrice={formData.specialPrice || ''} // Pass empty string for input if null/undefined
-                specialPriceStart={formData.specialPriceStart || ''}
-                specialPriceEnd={formData.specialPriceEnd || ''}
                 activeFlag={formData.active_flag}
                 metaTitle={formData.metaTitle}
                 metaDescription={formData.metaDescription}
@@ -254,6 +243,9 @@ const AddWholesaleProduct: React.FC = () => {
                 width={formData.width || ''} // Pass empty string for input if null/undefined
                 height={formData.height || ''} // Pass empty string for input if null/undefined
                 shippingClassId={formData.shippingClassId}
+                stockSet={formData.stockSet} // Pass the new stockSet field
+                stockQty={formData.stockQty}
+                lowStockThreshold={formData.lowStockThreshold}
                 media={formData.media}
                 variants={formData.variants}
                 attributes={formData.attributes}
