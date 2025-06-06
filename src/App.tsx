@@ -90,6 +90,9 @@ import Support from './pages/business/Support';
 import { WishlistProvider } from './context/WishlistContext';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import Subscription from './pages/business/Subscription';
+import UserSupport from './pages/superadmin/UserSupport';
+import MerchantSupport from './pages/superadmin/MerchantSupport';
+import RaiseTicket from './pages/RaiseTicket';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -376,6 +379,8 @@ function App() {
                     <Route path="brand-creation" element={<BrandCreation />} />
                     <Route path="attribute" element={<Attribute />} />
                     <Route path="homepage-settings" element={<HomepageSettings />} />
+                    <Route path="user-support" element={<UserSupport />} />
+                    <Route path="merchant-support" element={<MerchantSupport />} />
                   </Route>
 
                   {/* Public Routes with header/footer */}
@@ -470,6 +475,7 @@ function App() {
                               path="/shipping-delivery"
                               element={<ShippingDelivery />}
                             />
+                            <Route path="/RaiseTicket" element={<RaiseTicket />} />
                             <Route path="/brands/:brandId" element={<Brands />} />
                             <Route path="/profile" element={<UserProfile />} />
                             <Route path="/live-shop" element={<LiveShop />} />
@@ -485,6 +491,9 @@ function App() {
                       </>
                     }
                   />
+
+                  {/* Add this route outside of /business and /superadmin, so it's public */}
+                  
                 </Routes>
               </div>
               {/* Add MessengerPopup here, outside of routes so it appears on all pages */}

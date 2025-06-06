@@ -5,10 +5,7 @@ import {
   MessageSquare,
   Send,
   Clock,
-  CheckCircle,
-  XCircle,
   Plus,
-  ChevronDown,
   Search
 } from 'lucide-react';
 
@@ -41,6 +38,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000
 
 const Support: React.FC = () => {
   const { accessToken, user } = useAuth();
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -55,6 +53,8 @@ const Support: React.FC = () => {
     description: '',
     priority: 'medium'
   });
+
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   // Fetch tickets
   useEffect(() => {
@@ -86,13 +86,22 @@ const Support: React.FC = () => {
     e.preventDefault();
     
     try {
+      const formData = new FormData();
+      formData.append('subject', newTicket.subject);
+      formData.append('description', newTicket.description);
+      formData.append('priority', newTicket.priority);
+      
+      // Append all attachments
+      attachments.forEach((file, index) => {
+        formData.append(`attachments`, file);
+      });
+
       const response = await fetch(`${API_BASE_URL}/api/merchant/support-tickets`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newTicket)
+        body: formData
       });
 
       if (!response.ok) throw new Error('Failed to create ticket');
@@ -101,6 +110,7 @@ const Support: React.FC = () => {
       setTickets(prev => [createdTicket, ...prev]);
       setShowNewTicketForm(false);
       setNewTicket({ subject: '', description: '', priority: 'medium' });
+      setAttachments([]);
       toast.success('Support ticket created successfully');
     } catch (error) {
       console.error('Error creating ticket:', error);
@@ -305,7 +315,7 @@ const Support: React.FC = () => {
             <h2 className="text-lg font-medium text-gray-900 mb-4">Create New Support Ticket</h2>
             <form onSubmit={handleCreateTicket} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Subject</label>
+                <label className="block text-sm font-medium text-gray-700">Title</label>
                 <input
                   type="text"
                   value={newTicket.subject}
@@ -336,6 +346,44 @@ const Support: React.FC = () => {
                   <option value="high">High</option>
                 </select>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Attach Images</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    setAttachments(prev => [...prev, ...files]);
+                  }}
+                  className="mt-1 block w-full text-sm text-gray-700"
+                />
+                {attachments.length > 0 && (
+                  <div className="mt-2 space-y-2">
+                    {attachments.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between text-xs text-gray-500 gap-2">
+                        <span>{file.name}</span>
+                        {file.type.startsWith('image/') && (
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={file.name}
+                            className="h-12 w-12 object-cover rounded border border-gray-200 mr-2 cursor-pointer"
+                            onClick={() => setPreviewImage(URL.createObjectURL(file))}
+                          />
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setAttachments(prev => prev.filter((_, i) => i !== index))}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="flex justify-end space-x-3 mt-6">
                 <button
                   type="button"
@@ -352,6 +400,22 @@ const Support: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={() => setPreviewImage(null)}>
+          <div className="relative" onClick={e => e.stopPropagation()}>
+            <img src={previewImage} alt="Preview" className="max-w-full max-h-[80vh] rounded-lg shadow-lg border-4 border-white" />
+            <button
+              className="absolute top-2 right-2 bg-white rounded-full p-1 shadow hover:bg-gray-200"
+              onClick={() => setPreviewImage(null)}
+              aria-label="Close preview"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
           </div>
         </div>
       )}
