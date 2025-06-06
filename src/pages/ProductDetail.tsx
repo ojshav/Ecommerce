@@ -138,7 +138,7 @@ const ProductDetail: React.FC = () => {
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Product Not Found</h2>
           <p className="text-gray-600 mb-6">{error || "The product you're looking for does not exist or has been removed."}</p>
           <Link 
-            to="/products" 
+            to="/wholesale" 
             className="inline-flex items-center space-x-2 bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 transition-colors"
           >
             <ArrowLeft size={18} />
