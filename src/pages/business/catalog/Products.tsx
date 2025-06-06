@@ -142,6 +142,10 @@ const formatStock = (stock: string | number | undefined): string => {
   return stock.toString();
 };
 
+// Add INR formatter
+const formatINR = (amount: number) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
+
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -578,10 +582,10 @@ const Products: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        ${product.selling_price.toFixed(2)}
+                        {formatINR(product.selling_price)}
                         {product.special_price && (
                           <span className="ml-2 text-red-600">
-                            Special: ${product.special_price.toFixed(2)}
+                            Special: {formatINR(product.special_price)}
                           </span>
                         )}
                       </div>
@@ -650,7 +654,7 @@ const Products: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          ${variant.selling_price.toFixed(2)}
+                          {formatINR(variant.selling_price)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

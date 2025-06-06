@@ -110,12 +110,22 @@ const ProductMeta: React.FC<ProductMetaProps> = ({
     }
   };
 
+  // Function to remove HTML tags from text
+  const stripHtmlTags = (html: string): string => {
+    const tmp = document.createElement('DIV');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   // Function to generate meta keywords from description
   const generateMetaKeywords = (text: string): string => {
     if (!text) return '';
     
+    // Remove HTML tags first
+    const textWithoutHtml = stripHtmlTags(text);
+    
     // Remove special characters and convert to lowercase
-    const cleanText = text.toLowerCase().replace(/[^\w\s]/g, '');
+    const cleanText = textWithoutHtml.toLowerCase().replace(/[^\w\s]/g, '');
     
     // Split into words and remove common words
     const commonWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'about', 'as'];
@@ -135,12 +145,14 @@ const ProductMeta: React.FC<ProductMetaProps> = ({
     
     // Generate meta title from short description
     if (field === 'shortDescription') {
-      onMetaChange('metaTitle', value.slice(0, 100));
+      const cleanText = stripHtmlTags(value);
+      onMetaChange('metaTitle', cleanText.slice(0, 100));
     }
     
     // Generate meta description and keywords from full description
     if (field === 'fullDescription') {
-      onMetaChange('metaDescription', value.slice(0, 255));
+      const cleanText = stripHtmlTags(value);
+      onMetaChange('metaDescription', cleanText.slice(0, 255));
       onMetaChange('metaKeywords', generateMetaKeywords(value));
     }
   };

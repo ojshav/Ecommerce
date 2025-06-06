@@ -21,6 +21,8 @@ import {
   ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 // Modified navigation items - updated Reports section
 const navigationItems = [
   { name: 'Dashboard', path: '/business/dashboard', icon: ChartBarIcon },
@@ -52,7 +54,7 @@ const navigationItems = [
 ];
 
 const AdminLayout: React.FC = () => {
-  const { isAuthenticated, isMerchant, logout, user } = useAuth();
+  const { isAuthenticated, isMerchant, logout, user, accessToken } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -61,12 +63,51 @@ const AdminLayout: React.FC = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
   const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
   
   useClickOutside(profileMenuRef, () => {
     setIsProfileMenuOpen(false);
   });
+
+  // Check verification status
+  useEffect(() => {
+    const checkVerificationStatus = async () => {
+      if (!user || !accessToken) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/merchants/verification-status`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch verification status');
+        }
+
+        const data = await response.json();
+        setVerificationStatus(data.verification_status);
+        
+        // If not verified and not already on verification pages, redirect
+        if (data.verification_status !== 'approved' && 
+            !location.pathname.includes('/business/verification') && 
+            !location.pathname.includes('/business/verification-status')) {
+          navigate('/business/verification');
+        }
+      } catch (error) {
+        console.error('Error checking verification status:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (isAuthenticated && isMerchant) {
+      checkVerificationStatus();
+    }
+  }, [user, accessToken, isAuthenticated, isMerchant, location.pathname, navigate]);
 
   // Close dropdowns when route changes
   useEffect(() => {
@@ -106,6 +147,22 @@ const AdminLayout: React.FC = () => {
   // Handle unauthorized access
   if (!isAuthenticated || !isMerchant) {
     return <Navigate to="/business-login" state={{ from: location }} replace />;
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  // Block access if not verified and not on verification pages
+  if (verificationStatus !== 'approved' && 
+      !location.pathname.includes('/business/verification') && 
+      !location.pathname.includes('/business/verification-status')) {
+    return <Navigate to="/business/verification" replace />;
   }
 
   const toggleSidebar = () => {

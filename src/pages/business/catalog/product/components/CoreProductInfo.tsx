@@ -558,6 +558,7 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
                 onVariantsChange={handleVariantsChange}
                 errors={variantErrors}
                 categoryId={categoryId}
+                baseSku={sku}
               />
             </div>
           </div>

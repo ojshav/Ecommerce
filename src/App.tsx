@@ -414,7 +414,7 @@ function App() {
                             <Route path="/new-product" element={<NewProduct />} />
                             <Route path="/cart" element={<Cart />} />
                             <Route path="/payment" element={<PaymentPage />} />
-                            <Route path="/payment/orderconfirmation" element={<OrderConfirmationPage />} />
+                            <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
 
                             <Route path="/signin" element={<SignIn />} />
                             <Route path="/signup" element={<SignUp />} />
