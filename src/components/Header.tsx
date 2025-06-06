@@ -31,9 +31,6 @@ const Header = () => {
             <Link to="/promotion" className="text-gray-600 hover:text-orange-500 transition-colors">
               Promotion
             </Link>
-            <Link to="/wholesale" className="text-gray-600 hover:text-orange-500 transition-colors">
-              Wholesale
-            </Link>
           </nav>
         </div>
 
