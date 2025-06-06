@@ -72,6 +72,8 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [productId, setProductId] = useState<number | null>(null);
   const [discount, setDiscount] = useState<number>(0);
+  const [categoryName, setCategoryName] = useState<string>('');
+  const [brandName, setBrandName] = useState<string>('');
   
   // Shipping state
   const [weight, setWeight] = useState('');
@@ -116,6 +118,54 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
   // Add new state for attributes
   const [selectedAttributes, setSelectedAttributes] = useState<Record<number, string | string[]>>({});
   const [attributeErrors, setAttributeErrors] = useState<Record<string, any>>({});
+
+  // Fetch category and brand names when IDs change
+  useEffect(() => {
+    const fetchCategoryName = async () => {
+      if (categoryId) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/categories/${categoryId}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setCategoryName(data.name);
+          }
+        } catch (error) {
+          console.error('Error fetching category name:', error);
+        }
+      } else {
+        setCategoryName('');
+      }
+    };
+
+    const fetchBrandName = async () => {
+      if (brandId) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/brands/${brandId}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setBrandName(data.name);
+          }
+        } catch (error) {
+          console.error('Error fetching brand name:', error);
+        }
+      } else {
+        setBrandName('');
+      }
+    };
+
+    fetchCategoryName();
+    fetchBrandName();
+  }, [categoryId, brandId]);
 
   // Function to generate SKU from product name
   const generateSKU = (productName: string) => {
@@ -340,9 +390,9 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
                 !categoryId ? 'bg-yellow-50 border-yellow-300 text-yellow-700' : 'bg-green-50 border-green-300 text-green-700'
               }`}>
               {categoryId ? <CheckCircleIcon className="h-5 w-5 mr-2 text-green-500" /> : <ShieldExclamationIcon className="h-5 w-5 mr-2 text-yellow-500" />}
-              {categoryId ? `Category Selected (ID: ${categoryId})` : 'Please select a category'}
+              {categoryId ? `Category: ${categoryName}` : 'Please select a category'}
             </div>
-            {errors.categoryId && !categoryId && ( // Show error only if not selected
+            {errors.categoryId && !categoryId && (
               <p className={errorTextClassName}>{errors.categoryId}</p>
             )}
           </div>
@@ -353,9 +403,9 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
                 !brandId ? 'bg-yellow-50 border-yellow-300 text-yellow-700' : 'bg-green-50 border-green-300 text-green-700'
               }`}>
               {brandId ? <CheckCircleIcon className="h-5 w-5 mr-2 text-green-500" /> : <ShieldExclamationIcon className="h-5 w-5 mr-2 text-yellow-500" />}
-              {brandId ? `Brand Selected (ID: ${brandId})` : 'Please select a brand'}
+              {brandId ? `Brand: ${brandName}` : 'Please select a brand'}
             </div>
-            {errors.brandId && !brandId && ( // Show error only if not selected
+            {errors.brandId && !brandId && (
               <p className={errorTextClassName}>{errors.brandId}</p>
             )}
           </div>
