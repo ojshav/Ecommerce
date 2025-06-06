@@ -67,7 +67,7 @@ const FeaturedProducts: React.FC = () => {
             
             {/* Navigation */}
             <div className="flex items-center w-full md:w-auto space-x-4">
-              <Link to="/products" className="text-sm hover:underline">
+              <Link to="/all-products" className="text-sm hover:underline">
                 See all
               </Link>
               <div className="flex items-center space-x-2">

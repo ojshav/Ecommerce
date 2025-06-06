@@ -22,7 +22,7 @@ const Header = () => {
           
           {/* Navigation Links */}
           <nav className="hidden md:flex space-x-6">
-            <Link to="/products" className="text-gray-600 hover:text-orange-500 transition-colors">
+            <Link to="/all-products" className="text-gray-600 hover:text-orange-500 transition-colors">
               Products
             </Link>
             <Link to="/new-product" className="text-gray-600 hover:text-orange-500 transition-colors">

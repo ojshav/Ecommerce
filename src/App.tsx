@@ -408,7 +408,7 @@ function App() {
                           <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/all-products" element={<Products />} />
-                            <Route path="shop/:shopId" element={<ShopProducts />} />
+                            <Route path="/shop/:shopId" element={<ShopProducts />} />
                             <Route path="/products/:categoryId" element={<Products />} />
                             <Route path="/product/:productId" element={<ProductDetail />} />
                             <Route path="/new-product" element={<NewProduct />} />
