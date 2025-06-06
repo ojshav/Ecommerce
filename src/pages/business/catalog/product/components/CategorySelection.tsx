@@ -43,7 +43,6 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
   const [brandRequest, setBrandRequest] = useState({
     brand_name: '',
     description: '',
-    website: '',
   });
   const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
   const [requestError, setRequestError] = useState<string | null>(null);
@@ -139,7 +138,6 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
       setBrandRequest({
         brand_name: '',
         description: '',
-        website: '',
       });
       setShowBrandRequestForm(false);
     } catch (error) {
@@ -272,18 +270,6 @@ const CategorySelection: React.FC<CategorySelectionProps> = ({
             onChange={(e) => setBrandRequest(prev => ({ ...prev, description: e.target.value }))}
             required
             rows={3}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 sm:text-sm p-2"
-          />
-        </div>
-        <div>
-          <label htmlFor="website" className="block text-sm font-medium text-gray-700">
-            Website
-          </label>
-          <input
-            type="url"
-            id="website"
-            value={brandRequest.website}
-            onChange={(e) => setBrandRequest(prev => ({ ...prev, website: e.target.value }))}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 sm:text-sm p-2"
           />
         </div>

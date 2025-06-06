@@ -104,7 +104,8 @@ const Brands = () => {
             <div
               key={brand.brand_id}
               onClick={() => {
-                navigate(`/all-products?brand=${brand.slug}`);
+                // Navigate to products page with brand filter
+                navigate(`/all-products?brand=${brand.brand_id}`);
               }}
               className="flex-shrink-0 w-36 h-40 bg-[#f5f7f2] rounded-lg flex flex-col items-center justify-center text-center p-4 transition duration-200 hover:scale-105 hover:border-2 hover:border-orange-500 hover:relative cursor-pointer"
             >

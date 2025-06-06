@@ -159,6 +159,10 @@ const Products: React.FC = () => {
               toggleCategoryExpand(category.category_id);
             } else {
               setSelectedCategory(String(category.category_id));
+              // Update URL with selected category
+              const params = new URLSearchParams(location.search);
+              params.set('category', String(category.category_id));
+              navigate(`?${params.toString()}`);
             }
           }}
           className={btnClass}
@@ -197,11 +201,20 @@ const Products: React.FC = () => {
         order: 'desc'
       });
 
+      // Get URL parameters
+      const urlParams = new URLSearchParams(location.search);
+      const categoryId = urlParams.get('category');
+      const brandId = urlParams.get('brand');
+
       // Add filters if they exist
-      if (selectedCategory) {
-        params.append('category_id', selectedCategory);
+      if (categoryId) {
+        params.append('category_id', categoryId);
       }
-      if (selectedBrands.length > 0) {
+      if (brandId) {
+        params.append('brand_id', brandId);
+        // If brand is selected via URL, update selectedBrands
+        setSelectedBrands([brandId]);
+      } else if (selectedBrands.length > 0) {
         params.append('brand_id', selectedBrands.join(','));
       }
       if (priceRange[0] > 0) {
@@ -214,7 +227,9 @@ const Products: React.FC = () => {
         params.append('search', searchQuery);
       }
 
+      // Always use the main products endpoint with filters
       const apiUrl = `${API_BASE_URL}/api/products?${params}`;
+
       console.log('Fetching products with URL:', apiUrl);
 
       const response = await fetch(apiUrl, {
@@ -234,13 +249,32 @@ const Products: React.FC = () => {
       setProducts(data.products);
       setTotalPages(data.pagination.pages);
       setTotalProducts(data.pagination.total);
+
+      // Update selected category if coming from navigation
+      if (categoryId && !selectedCategory) {
+        setSelectedCategory(categoryId);
+      }
     } catch (err) {
-      console.error('Error in fetchProducts:', err);
+      console.error('Error fetching products:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
     } finally {
       setLoading(false);
     }
   };
+
+  // Update URL when brand selection changes
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (selectedBrands.length > 0) {
+      const brand = brands.find(b => String(b.brand_id) === selectedBrands[0]);
+      if (brand) {
+        params.set('brand', brand.slug);
+      }
+    } else {
+      params.delete('brand');
+    }
+    navigate(`?${params.toString()}`);
+  }, [selectedBrands, brands, navigate, location.search]);
 
   // Update fetchCategories to use the new categories endpoint
   const fetchCategories = async () => {
@@ -297,11 +331,22 @@ const Products: React.FC = () => {
   
   // Toggle brand selection
   const toggleBrand = (brand: string) => {
-    setSelectedBrands(prev => 
-      prev.includes(brand) 
-        ? prev.filter(b => b !== brand)
-        : [...prev, brand]
-    );
+    setSelectedBrands(prev => {
+      const newBrands = prev.includes(brand)
+        ? [] // Clear selection if clicking the same brand
+        : [brand]; // Select only one brand at a time
+      
+      // Update URL with selected brand
+      const params = new URLSearchParams(location.search);
+      if (newBrands.length > 0) {
+        params.set('brand', newBrands[0]);
+      } else {
+        params.delete('brand');
+      }
+      navigate(`?${params.toString()}`);
+      
+      return newBrands;
+    });
   };
 
   // Toggle color selection
@@ -321,6 +366,13 @@ const Products: React.FC = () => {
     setSelectedColors([]);
     setPriceRange([0, 1000000]);
     setCurrentPage(1);
+    
+    // Clear URL parameters
+    const params = new URLSearchParams(location.search);
+    params.delete('category');
+    params.delete('brand');
+    params.delete('search');
+    navigate(`?${params.toString()}`);
   };
 
   if (loading && products.length === 0) {
