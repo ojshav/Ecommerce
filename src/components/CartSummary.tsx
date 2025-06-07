@@ -14,7 +14,6 @@ const formatCurrency = (amount: number) => {
 
 interface CartSummaryProps {
   subtotal: number;
-  shipping: number;
   total: number;
   onCheckout: () => void;
   onApplyPromo: (code: string) => Promise<void>;
@@ -23,13 +22,11 @@ interface CartSummaryProps {
 
 const CartSummary: React.FC<CartSummaryProps> = ({
   subtotal,
-  shipping,
   total,
   onCheckout,
   onApplyPromo,
   loading = false
 }) => {
-  const [isShippingOpen, setIsShippingOpen] = useState(false);
   const [isPromoOpen, setIsPromoOpen] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
@@ -58,58 +55,6 @@ const CartSummary: React.FC<CartSummaryProps> = ({
       <div className="flex justify-between mb-4">
         <p className="text-gray-600">Sub Total</p>
         <p className="font-medium">{formatCurrency(subtotal)}</p>
-      </div>
-      
-      <div className="border-b border-gray-200 pb-3 mb-3">
-        <div 
-          className="flex items-center justify-between cursor-pointer py-2"
-          onClick={() => setIsShippingOpen(!isShippingOpen)}
-        >
-          <p className="text-gray-600">Fee Shipping</p>
-          <div className="flex items-center">
-            {isShippingOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </div>
-        </div>
-        
-        {isShippingOpen && (
-          <div className="mt-2 space-y-3">
-            <select className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
-              <option value="">US</option>
-              <option value="uk">UK</option>
-              <option value="ca">Canada</option>
-            </select>
-            
-            <select className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
-              <option value="">Select City</option>
-              <option value="ny">New York</option>
-              <option value="la">Los Angeles</option>
-            </select>
-            
-            <select className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
-              <option value="">Select District</option>
-              <option value="manhattan">Manhattan</option>
-              <option value="brooklyn">Brooklyn</option>
-            </select>
-            
-            <select className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
-              <option value="">Select Ward</option>
-              <option value="ward1">Ward 1</option>
-              <option value="ward2">Ward 2</option>
-            </select>
-
-            <div className="flex justify-between items-center mt-3">
-              <span className="text-gray-600">Fee Shipping:</span>
-              <span>{formatCurrency(shipping)}</span>
-            </div>
-
-            <button 
-              className="w-full bg-gray-200 text-gray-700 py-2 rounded font-medium hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={loading}
-            >
-              Update
-            </button>
-          </div>
-        )}
       </div>
       
       <div className="border-b border-gray-200 pb-3 mb-4">

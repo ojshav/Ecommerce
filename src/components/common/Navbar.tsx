@@ -433,7 +433,7 @@ const Navbar: React.FC = () => {
                 <Link to="/new-product" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   New Product
                 </Link>
-                <Link to="/promotion" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
+                <Link to="/promo-products" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   <span>Promotion</span>
                   <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
                 </Link>
@@ -470,7 +470,7 @@ const Navbar: React.FC = () => {
               <Link to="/new-product" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F]">
                 New Product
               </Link>
-              <Link to="/promotion" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F] flex items-center">
+              <Link to="/promo-products" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F] flex items-center">
                 Promotion <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
               </Link>
               <Link to="/wholesale" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F]">
