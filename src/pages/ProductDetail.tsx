@@ -70,8 +70,14 @@ interface CartProduct extends Omit<ProductDetails, 'category' | 'brand'> {
   rating: number;
   reviews: number;
   sku: string;
-  category: string;
-  brand: string;
+  category: {
+    category_id: number;
+    name: string;
+  };
+  brand: {
+    brand_id: number;
+    name: string;
+  };
   is_deleted: boolean;
 }
 
@@ -205,7 +211,6 @@ const ProductDetail: React.FC = () => {
   }
 
   const handleAddToCart = () => {
-    // Convert ProductDetails to CartProduct format
     const cartProduct: CartProduct = {
       ...product,
       id: product.product_id,
@@ -220,8 +225,8 @@ const ProductDetail: React.FC = () => {
       rating: 0,
       reviews: 0,
       sku: `SKU-${product.product_id}`,
-      category: product.category?.name || '',
-      brand: product.brand?.name || '',
+      category: product.category || { category_id: 0, name: '' },
+      brand: product.brand || { brand_id: 0, name: '' },
       is_deleted: false,
     };
     
@@ -362,7 +367,7 @@ const ProductDetail: React.FC = () => {
       case 'information':
         return (
           <div className="py-6">
-            <h3 className="text-xl font-medium mb-6 text-gray-900">Technical Specifications</h3>
+            <h3 className="text-xl font-medium mb-6 text-gray-900">Specifications</h3>
             <div className="border-t border-gray-200">
               <table className="min-w-full">
                 <tbody>
@@ -637,7 +642,7 @@ const ProductDetail: React.FC = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 } transition-colors`}
               >
-                Technical Specifications
+                 Specifications
               </button>
               <button
                 onClick={() => setActiveTab('reviews')}

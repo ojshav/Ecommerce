@@ -18,7 +18,10 @@ import VerifyEmail from './pages/auth/VerifyEmail';
 
 import Register from './pages/auth/Register';
 import WishList from './pages/WishList';
-import Promotion from './pages/Promotion';
+
+
+import Wholesale from './pages/Wholesale';
+
 import BecomeMerchant from './pages/BecomeMerchant';
 import Order from './pages/Order';
 import TrackOrder from './pages/TrackOrder';
@@ -90,9 +93,14 @@ import Support from './pages/business/Support';
 import { WishlistProvider } from './context/WishlistContext';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import Subscription from './pages/business/Subscription';
+
+import FeaturedProductsPage from './pages/FeaturedProductsPage';
+import PromoProductsPage from './pages/PromoProductsPage';
+
 import UserSupport from './pages/superadmin/UserSupport';
 import MerchantSupport from './pages/superadmin/MerchantSupport';
 import RaiseTicket from './pages/RaiseTicket';
+
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -156,7 +164,7 @@ interface ProtectedRouteProps {
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 // Main App component
-function App() {
+const App: React.FC = () => {
   return (
     <AuthProvider>
       <CartProvider>
@@ -393,6 +401,8 @@ function App() {
                           <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/all-products" element={<Products />} />
+                            <Route path="/featured-products" element={<FeaturedProductsPage />} />
+                            <Route path="/promo-products" element={<PromoProductsPage />} />
                             <Route path="/shop/:shopId" element={<ShopProducts />} />
                             <Route path="/products/:categoryId" element={<Products />} />
                             <Route path="/product/:productId" element={<ProductDetail />} />
@@ -426,7 +436,10 @@ function App() {
                             />
 
                             <Route path="/wishlist" element={<WishList />} />
-                            <Route path="/promotion" element={<Promotion />} />
+
+                           
+                            <Route path="/wholesale" element={<Wholesale />} />
+
                             <Route path="/sign-in" element={<SignIn />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/superadmin/login" element={<SuperAdminLogin />} />
@@ -520,6 +533,6 @@ function App() {
       </CartProvider>
     </AuthProvider>
   );
-}
+};
 
 export default App;
