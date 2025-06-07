@@ -19,7 +19,9 @@ import VerifyEmail from './pages/auth/VerifyEmail';
 import Register from './pages/auth/Register';
 import WishList from './pages/WishList';
 
+
 import Wholesale from './pages/Wholesale';
+
 import BecomeMerchant from './pages/BecomeMerchant';
 import Order from './pages/Order';
 import TrackOrder from './pages/TrackOrder';
@@ -91,22 +93,27 @@ import Support from './pages/business/Support';
 import { WishlistProvider } from './context/WishlistContext';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import Subscription from './pages/business/Subscription';
+
 import FeaturedProductsPage from './pages/FeaturedProductsPage';
 import PromoProductsPage from './pages/PromoProductsPage';
+
+import UserSupport from './pages/superadmin/UserSupport';
+import MerchantSupport from './pages/superadmin/MerchantSupport';
+import RaiseTicket from './pages/RaiseTicket';
+
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
 const BusinessProducts = lazy(() => import('./pages/business/catalog/Products'));
-const BusinessWholesale = lazy(() => import('./pages/business/catalog/Wholesale'));
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
 const Verification = lazy(() => import('./pages/business/Verification'));
 const ProductPlacements = lazy(() => import('./pages/business/ProductPlacements')); 
+
 // Lazy-loaded catalog pages
 const CatalogProducts = lazy(() => import('./pages/business/catalog/Products'));
 const AddProducts = lazy(() => import('./pages/business/catalog/product/steps/AddProducts'));
 const EditProduct = lazy(() => import('./pages/business/catalog/product/components/EditProduct'));
-const AddWholesaleProduct = lazy(() => import('./pages/business/catalog/wholesale/components/AddWholesaleProduct'));
 
 const LoadingFallback = () => (
   <div className="w-full h-full min-h-screen flex items-center justify-center">
@@ -328,24 +335,6 @@ const App: React.FC = () => {
                     </Route>
 
                     <Route
-                      path="catalog/wholesale"
-                      element={
-                        <Suspense fallback={<LoadingFallback />}>
-                          <BusinessWholesale />
-                        </Suspense>
-                      }
-                    />
-
-                    <Route
-                      path="catalog/wholesale/new"
-                      element={(
-                        <Suspense fallback={<LoadingFallback />}>
-                          <AddWholesaleProduct />
-                        </Suspense>
-                      )}
-                    />
-
-                    <Route
                       path="product-placements" 
                       element={
                         <Suspense fallback={<LoadingFallback />}>
@@ -398,6 +387,8 @@ const App: React.FC = () => {
                     <Route path="brand-creation" element={<BrandCreation />} />
                     <Route path="attribute" element={<Attribute />} />
                     <Route path="homepage-settings" element={<HomepageSettings />} />
+                    <Route path="user-support" element={<UserSupport />} />
+                    <Route path="merchant-support" element={<MerchantSupport />} />
                   </Route>
 
                   {/* Public Routes with header/footer */}
@@ -445,8 +436,10 @@ const App: React.FC = () => {
                             />
 
                             <Route path="/wishlist" element={<WishList />} />
+
                            
                             <Route path="/wholesale" element={<Wholesale />} />
+
                             <Route path="/sign-in" element={<SignIn />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/superadmin/login" element={<SuperAdminLogin />} />
@@ -495,6 +488,7 @@ const App: React.FC = () => {
                               path="/shipping-delivery"
                               element={<ShippingDelivery />}
                             />
+                            <Route path="/RaiseTicket" element={<RaiseTicket />} />
                             <Route path="/brands/:brandId" element={<Brands />} />
                             <Route path="/profile" element={<UserProfile />} />
                             <Route path="/live-shop" element={<LiveShop />} />
@@ -510,6 +504,9 @@ const App: React.FC = () => {
                       </>
                     }
                   />
+
+                  {/* Add this route outside of /business and /superadmin, so it's public */}
+                  
                 </Routes>
               </div>
               {/* Add MessengerPopup here, outside of routes so it appears on all pages */}
