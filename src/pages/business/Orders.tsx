@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  MagnifyingGlassIcon, 
   FunnelIcon, 
   ArrowUpIcon, 
   ArrowDownIcon,
@@ -365,7 +364,6 @@ const Orders: React.FC = () => {
               placeholder="Search orders..."
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
             />
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute right-3 top-2.5" />
           </div>
           <select
             value={selectedStatus}

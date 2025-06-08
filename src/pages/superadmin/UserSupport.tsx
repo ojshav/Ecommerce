@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye } from 'lucide-react';
+import { Eye, X } from 'lucide-react';
 
 const userSupportData = [
   {
@@ -43,7 +43,7 @@ const userSupportData = [
 const UserSupport: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('All');
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
 
   const filteredData = userSupportData.filter((item) => {
     const matchesSearch =
@@ -57,16 +57,8 @@ const UserSupport: React.FC = () => {
     return matchesSearch && matchesPriority;
   });
 
-  const toggleExpand = (index: number) => {
-    if (expandedIndex === index) {
-      setExpandedIndex(null);
-    } else {
-      setExpandedIndex(index);
-    }
-  };
-
   return (
-    <div className="p-8">
+    <div className="p-8 relative">
       <h1 className="text-2xl font-bold mb-6">User Support</h1>
 
       {/* Filters */}
@@ -106,65 +98,39 @@ const UserSupport: React.FC = () => {
           </thead>
           <tbody className="text-gray-700">
             {filteredData.map((item, index) => (
-              <React.Fragment key={index}>
-                <tr className="border-t hover:bg-gray-50">
-                  <td className="px-6 py-4">{item.name}</td>
-                  <td className="px-6 py-4">{item.email}</td>
-                  <td className="px-6 py-4">{item.mobile}</td>
-                  <td className="px-6 py-4">{item.title}</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        item.priority === 'High'
-                          ? 'bg-red-100 text-red-600'
-                          : item.priority === 'Medium'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-green-100 text-green-700'
-                      }`}
-                    >
-                      {item.priority}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 flex gap-2 flex-wrap">
-                    <button className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded">
-                      Approve
-                    </button>
-                    <button className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded">
-                      Resolve
-                    </button>
-                    <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded"
-                      onClick={() => toggleExpand(index)}
-                      aria-label="View Details"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-
-                {/* Expanded row with details */}
-                {expandedIndex === index && (
-                  <tr className="bg-gray-50">
-                    <td colSpan={6} className="px-6 py-4 border-t border-gray-300">
-                      <div className="flex flex-col md:flex-row gap-4">
-                        <div className="md:flex-1">
-                          <h3 className="font-semibold mb-2">Description</h3>
-                          <p>{item.description}</p>
-                        </div>
-                        {item.image && (
-                          <div className="md:flex-1">
-                            <img
-                              src={item.image}
-                              alt={`Attachment for ${item.title}`}
-                              className="max-w-xs rounded shadow"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </React.Fragment>
+              <tr key={index} className="border-t hover:bg-gray-50">
+                <td className="px-6 py-4">{item.name}</td>
+                <td className="px-6 py-4">{item.email}</td>
+                <td className="px-6 py-4">{item.mobile}</td>
+                <td className="px-6 py-4">{item.title}</td>
+                <td className="px-6 py-4">
+                  <span
+                    className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      item.priority === 'High'
+                        ? 'bg-red-100 text-red-600'
+                        : item.priority === 'Medium'
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-green-100 text-green-700'
+                    }`}
+                  >
+                    {item.priority}
+                  </span>
+                </td>
+                <td className="px-4 py-4 flex gap-2 flex-wrap">
+                  <button className="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded">
+                    Resolve
+                  </button>
+                  <button className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded">
+                    Reject
+                  </button>
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded"
+                    onClick={() => setSelectedItem(item)}
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                </td>
+              </tr>
             ))}
             {filteredData.length === 0 && (
               <tr>
@@ -176,6 +142,46 @@ const UserSupport: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Modal */}
+      {/* Modal */}
+{selectedItem && (
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center px-4">
+    <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
+      <button
+        onClick={() => setSelectedItem(null)}
+        className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
+      >
+        <X className="w-5 h-5" />
+      </button>
+
+      <h2 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Support Ticket Details</h2>
+
+      <div className="mb-4">
+        <span className="block text-sm text-gray-500 font-medium mb-1">Title</span>
+        <div className="text-gray-800 text-sm">{selectedItem.title}</div>
+      </div>
+
+      <div className="mb-4">
+        <span className="block text-sm text-gray-500 font-medium mb-1">Description</span>
+        <div className="text-gray-800 text-sm">{selectedItem.description}</div>
+      </div>
+
+      {selectedItem.image && (
+        <div className="mb-2">
+          <span className="block text-sm text-gray-500 font-medium mb-1">Image</span>
+          <img
+            src={selectedItem.image}
+            alt="Attached"
+            className="w-full rounded-md border border-gray-200 shadow"
+          />
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 };

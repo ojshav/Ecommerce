@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye } from 'lucide-react';
+import { Eye, X } from 'lucide-react';
 
 const merchantSupportData = [
   {
@@ -8,6 +8,8 @@ const merchantSupportData = [
     mobile: '9012345678',
     store: 'TechKart',
     title: 'Payment Gateway Issue',
+    description: 'Payments failing intermittently during checkout.',
+    image: 'https://via.placeholder.com/300x150?text=Payment+Issue',
     priority: 'High',
   },
   {
@@ -16,6 +18,8 @@ const merchantSupportData = [
     mobile: '9876543210',
     store: 'ShopZone',
     title: 'Late Delivery Complaints',
+    description: 'Multiple complaints about delayed shipments.',
+    image: 'https://via.placeholder.com/300x150?text=Delivery+Issue',
     priority: 'Medium',
   },
   {
@@ -24,6 +28,8 @@ const merchantSupportData = [
     mobile: '9988776655',
     store: 'WearIndia',
     title: 'Product Listing Error',
+    description: 'Unable to update product prices on dashboard.',
+    image: 'https://via.placeholder.com/300x150?text=Listing+Error',
     priority: 'Low',
   },
   {
@@ -32,6 +38,8 @@ const merchantSupportData = [
     mobile: '9865321470',
     store: 'DailyCart',
     title: 'Store Dashboard Bug',
+    description: 'Dashboard freezes when accessing order history.',
+    image: 'https://via.placeholder.com/300x150?text=Dashboard+Bug',
     priority: 'High',
   },
 ];
@@ -39,6 +47,7 @@ const merchantSupportData = [
 const MerchantSupport: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('All');
+  const [selectedItem, setSelectedItem] = useState<any>(null); // To hold modal data
 
   const filteredData = merchantSupportData.filter((item) => {
     const matchesSearch =
@@ -115,13 +124,14 @@ const MerchantSupport: React.FC = () => {
                   </span>
                 </td>
                 <td className="px-9 py-6 flex gap-1 flex-wrap">
-                  <button className="bg-yellow-500 hover:bg-yellow-600 text-white text-[10px] px-2 py-0.5 rounded">
-                    Approve
-                  </button>
-                  <button className="bg-red-500 hover:bg-red-600 text-white text-[10px] px-2 py-0.5 rounded">
+                  <button className="bg-green-500 hover:bg-green-600 text-white text-[10px] px-2 py-0.5 rounded">
                     Resolve
                   </button>
+                  <button className="bg-red-500 hover:bg-red-600 text-white text-[10px] px-2 py-0.5 rounded">
+                    Reject
+                  </button>
                   <button
+                    onClick={() => setSelectedItem(item)}
                     className="bg-blue-500 hover:bg-blue-600 text-white p-1 rounded"
                     aria-label="View Details"
                   >
@@ -140,6 +150,43 @@ const MerchantSupport: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Modal */}
+      {selectedItem && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center px-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
+            <button
+              onClick={() => setSelectedItem(null)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h2 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Merchant Ticket Details</h2>
+
+            <div className="mb-4">
+              <span className="block text-sm text-gray-500 font-medium mb-1">Title</span>
+              <div className="text-gray-800 text-sm">{selectedItem.title}</div>
+            </div>
+
+            <div className="mb-4">
+              <span className="block text-sm text-gray-500 font-medium mb-1">Description</span>
+              <div className="text-gray-800 text-sm">{selectedItem.description}</div>
+            </div>
+
+            {selectedItem.image && (
+              <div className="mb-2">
+                <span className="block text-sm text-gray-500 font-medium mb-1">Image</span>
+                <img
+                  src={selectedItem.image}
+                  alt="Attached"
+                  className="w-full rounded-md border border-gray-200 shadow"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
@@ -38,6 +38,51 @@ interface UserInfo {
   authProvider: 'local' | 'google';
 }
 
+const AVATAR_OPTIONS = [
+  {
+    label: 'Colorful Blob',
+    render: () => (
+      <svg width="64" height="64" viewBox="0 0 64 64" className="animate-pulse">
+        <defs>
+          <radialGradient id="grad1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#ffb347" />
+            <stop offset="100%" stopColor="#ff5e62" />
+          </radialGradient>
+        </defs>
+        <ellipse cx="32" cy="32" rx="28" ry="28" fill="url(#grad1)" />
+      </svg>
+    )
+  },
+  {
+    label: 'Animated Face',
+    render: () => (
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="28" fill="#6EE7B7" />
+        <circle cx="24" cy="28" r="4" fill="#fff" className="animate-bounce" />
+        <circle cx="40" cy="28" r="4" fill="#fff" className="animate-bounce" />
+        <ellipse cx="32" cy="40" rx="10" ry="4" fill="#fff" className="animate-pulse" />
+      </svg>
+    )
+  },
+  {
+    label: 'Star',
+    render: () => (
+      <svg width="64" height="64" viewBox="0 0 64 64" className="animate-spin-slow">
+        <polygon points="32,8 39,26 58,26 42,38 48,56 32,45 16,56 22,38 6,26 25,26" fill="#facc15" />
+      </svg>
+    )
+  },
+  {
+    label: 'Minimal',
+    render: () => (
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="28" fill="#a5b4fc" />
+        <rect x="20" y="40" width="24" height="8" rx="4" fill="#fff" />
+      </svg>
+    )
+  },
+];
+
 const UserProfile: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -67,6 +112,17 @@ const UserProfile: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  // Profile image states
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [avatarIndex, setAvatarIndex] = useState(0);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const profileImageUrl = profileImage ? URL.createObjectURL(profileImage) : null;
+
+  // Add a fade/scale-in animation class
+  const popoverAnim = "transition-all duration-200 ease-out transform opacity-100 scale-100 animate-fade-in";
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check authentication on component mount
   useEffect(() => {
@@ -122,7 +178,7 @@ const UserProfile: React.FC = () => {
           country: firstAddress.country_code || '',
           state: firstAddress.state_province || '',
           zipCode: firstAddress.postal_code || '',
-          authProvider: user?.provider || 'local'
+          authProvider: 'local'
         }));
       }
     } catch (err) {
@@ -272,9 +328,99 @@ const UserProfile: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-4">
+      {/* Profile Image/Avatar */}
+      <div className="flex flex-col items-center mb-8">
+        <div className="relative mb-2">
+          {profileImageUrl ? (
+            <img
+              src={profileImageUrl}
+              alt="Profile"
+              className="w-24 h-24 rounded-full object-cover border-4 border-orange-200 shadow"
+            />
+          ) : (
+            <button
+              type="button"
+              className="w-24 h-24 rounded-full flex items-center justify-center bg-gray-100 border-4 border-orange-200 shadow text-gray-400 text-5xl hover:bg-gray-200"
+              onClick={() => setShowAvatarPicker(v => !v)}
+              title="Click to choose avatar"
+            >
+              {AVATAR_OPTIONS[avatarIndex].render()}
+            </button>
+          )}
+          {profileImageUrl && (
+            <button
+              type="button"
+              className="absolute -top-2 -right-2 bg-white border border-gray-300 rounded-full p-1 text-xs text-red-500 hover:bg-red-100"
+              onClick={() => {
+                setProfileImage(null);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+              }}
+              title="Remove image"
+            >
+              &times;
+            </button>
+          )}
+          {/* Avatar Picker Popover */}
+          {showAvatarPicker && !profileImageUrl && (
+            <>
+              {/* Overlay to close popover on outside click */}
+              <div
+                className="fixed inset-0 z-10 bg-transparent"
+                onClick={() => setShowAvatarPicker(false)}
+              />
+              <div className={`absolute left-1/2 top-full z-20 mt-3 -translate-x-1/2 bg-white border border-gray-200 rounded-xl shadow-2xl px-6 pt-4 pb-3 flex flex-col items-center ${popoverAnim}`} style={{ minWidth: 220 }}>
+                {/* Arrow */}
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 overflow-hidden">
+                  <div className="w-4 h-4 bg-white border-l border-t border-gray-200 rotate-45 shadow-md"></div>
+                </div>
+                <div className="grid grid-cols-2 gap-5 mb-2">
+                  {AVATAR_OPTIONS.map((opt, idx) => (
+                    <button
+                      key={opt.label}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center border-2 focus:outline-none focus:ring-2 focus:ring-orange-400 ${avatarIndex === idx ? 'border-orange-500 ring-2 ring-orange-200' : 'border-transparent'} bg-gray-50 hover:bg-orange-100 transition`}
+                      onClick={() => { setAvatarIndex(idx); setShowAvatarPicker(false); }}
+                      title={opt.label}
+                      aria-label={opt.label}
+                    >
+                      {opt.render()}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className="text-xs text-gray-500 hover:text-orange-500 mt-1 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  onClick={() => setShowAvatarPicker(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+        <input
+          type="file"
+          accept="image/*"
+          id="profile-image-upload"
+          className="hidden"
+          ref={fileInputRef}
+          onChange={e => {
+            if (e.target.files && e.target.files[0]) {
+              setProfileImage(e.target.files[0]);
+            }
+          }}
+        />
+        <label
+          htmlFor="profile-image-upload"
+          className="cursor-pointer text-orange-500 hover:text-orange-600 text-sm font-medium"
+        >
+          {profileImage ? 'Change Image' : 'Upload Image'}
+        </label>
+        {!profileImage && (
+          <div className="text-xs text-gray-400 mt-1">or click avatar to choose style</div>
+        )}
+      </div>
       {/* User Info */}
       <div className="mb-8">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Full Name</label>
             <input 
@@ -288,14 +434,6 @@ const UserProfile: React.FC = () => {
             <input 
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
               value={userInfo.email} 
-              readOnly 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Secondary Email</label>
-            <input 
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
-              value={userInfo.secondaryEmail} 
               readOnly 
             />
           </div>
@@ -315,23 +453,21 @@ const UserProfile: React.FC = () => {
               readOnly 
             />
           </div>
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700">State</label>
-              <input 
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
-                value={userInfo.state} 
-                readOnly 
-              />
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700">Zip Code</label>
-              <input 
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
-                value={userInfo.zipCode} 
-                readOnly 
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">State</label>
+            <input 
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
+              value={userInfo.state} 
+              readOnly 
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Zip Code</label>
+            <input 
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
+              value={userInfo.zipCode} 
+              readOnly 
+            />
           </div>
         </div>
       </div>
