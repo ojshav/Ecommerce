@@ -22,6 +22,7 @@ interface Product {
     status: string;
     cost_price: number;
     selling_price: number;
+    parent_product_id: number | null;
     brand?: {
         brand_id: number;
         name: string;
@@ -54,6 +55,7 @@ interface Product {
         meta_desc: string;
         meta_keywords: string;
     };
+    variants?: Product[];
 }
 
 interface ProductViewerProps {
@@ -74,7 +76,7 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
     getStatusBadgeClass
 }) => {
     const [showRejectModal, setShowRejectModal] = useState(false);
-    const [rejectionReason, setRejectionReason] = useState('');
+    const [rejectionReason, setRejectionReason] = useState("");
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const handleApprove = () => {
@@ -85,31 +87,26 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
         if (rejectionReason.trim()) {
             onReject(product.product_id, rejectionReason);
             setShowRejectModal(false);
-            setRejectionReason('');
+            setRejectionReason("");
         }
     };
 
     const nextImage = () => {
-        if (product.media && currentImageIndex < product.media.length - 1) {
-            setCurrentImageIndex(currentImageIndex + 1);
+        if (product.media && product.media.length > 0) {
+            setCurrentImageIndex((prev) => (prev + 1) % product.media!.length);
         }
     };
 
     const previousImage = () => {
-        if (currentImageIndex > 0) {
-            setCurrentImageIndex(currentImageIndex - 1);
+        if (product.media && product.media.length > 0) {
+            setCurrentImageIndex((prev) => (prev - 1 + product.media!.length) % product.media!.length);
         }
     };
 
     const getActionButtonText = () => {
-        switch (product.status) {
-            case 'APPROVED':
-                return 'Reapprove Product';
-            case 'REJECTED':
-                return 'Approve Product';
-            default:
-                return 'Approve Product';
-        }
+        if (product.status === 'pending') return 'Approve Product';
+        if (product.status === 'rejected') return 'Approve Anyway';
+        return 'Approve';
     };
 
     return (
@@ -143,23 +140,21 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                                             <>
                                                 <button
                                                     onClick={previousImage}
-                                                    disabled={currentImageIndex === 0}
-                                                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full disabled:opacity-30"
+                                                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75"
                                                 >
-                                                    <ChevronLeft size={20} />
+                                                    <ChevronLeft size={24} />
                                                 </button>
                                                 <button
                                                     onClick={nextImage}
-                                                    disabled={currentImageIndex === product.media.length - 1}
-                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full disabled:opacity-30"
+                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75"
                                                 >
-                                                    <ChevronRight size={20} />
+                                                    <ChevronRight size={24} />
                                                 </button>
                                             </>
                                         )}
                                     </>
                                 ) : (
-                                    <div className="flex items-center justify-center text-gray-400">
+                                    <div className="flex items-center justify-center h-full text-gray-400">
                                         No images available
                                     </div>
                                 )}
@@ -170,7 +165,7 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                                         <button
                                             key={media.media_id}
                                             onClick={() => setCurrentImageIndex(index)}
-                                            className={`aspect-w-1 aspect-h-1 rounded-lg overflow-hidden ${
+                                            className={`relative aspect-w-1 aspect-h-1 rounded-lg overflow-hidden ${
                                                 currentImageIndex === index ? 'ring-2 ring-blue-500' : ''
                                             }`}
                                         >
@@ -251,6 +246,25 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                                     </div>
                                 </div>
                             )}
+
+                            {/* Variants Section */}
+                            {product.variants && product.variants.length > 0 && (
+                                <div className="mt-6">
+                                    <h4 className="text-sm font-medium text-gray-500 mb-3">Product Variants</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {product.variants.map((variant) => (
+                                            <div key={variant.product_id} className="border rounded-lg p-4">
+                                                <h5 className="font-medium text-sm">{variant.product_name}</h5>
+                                                <p className="text-xs text-gray-600">SKU: {variant.sku}</p>
+                                                <p className="text-xs">Price: ${variant.selling_price.toFixed(2)}</p>
+                                                <span className={`inline-block px-2 py-1 rounded text-xs mt-2 ${getStatusBadgeClass(variant.status)}`}>
+                                                    {variant.status}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -262,7 +276,7 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                             disabled={isActionLoading}
                             className="px-4 py-2 text-sm font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500"
                         >
-                            {product.status === 'REJECTED' ? 'Reject Again' : 'Reject Product'}
+                            {product.status === 'rejected' ? 'Reject Again' : 'Reject Product'}
                         </button>
                         <button
                             onClick={handleApprove}
@@ -282,7 +296,7 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                         <div className="flex items-start text-red-600 mb-4">
                             <AlertCircle size={22} className="mr-2 mt-0.5 flex-shrink-0" />
                             <h3 className="text-lg font-semibold">
-                                {product.status === 'REJECTED' ? 'Reject Again' : 'Reject Product'}
+                                {product.status === 'rejected' ? 'Reject Again' : 'Reject Product'}
                             </h3>
                         </div>
                         <p className="mb-1 text-sm text-gray-700">
