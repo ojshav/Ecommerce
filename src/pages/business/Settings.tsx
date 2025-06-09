@@ -411,399 +411,412 @@ const Settings: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="min-h-screen flex justify-center items-center bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF4D00]"></div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
-        <p className="mt-1 text-sm text-gray-500">Manage your account settings and preferences.</p>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          <button
-            onClick={() => setActiveTab('account')}
-            className={`${
-              activeTab === 'account'
-                ? 'border-[#FF4D00] text-[#FF4D00]'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-          >
-            Account Settings
-          </button>
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`${
-              activeTab === 'profile'
-                ? 'border-[#FF4D00] text-[#FF4D00]'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-          >
-            Business Profile
-          </button>
-        </nav>
-      </div>
-
-      {/* Account Settings Section */}
-      {activeTab === 'account' && (
-        <div className="space-y-8">
-          {/* Account Details */}
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Account Details</h2>
-            <form onSubmit={handleAccountSubmit} className="space-y-6">
-              {/* Email Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <div className="mt-1 relative">
-                  <input
-                    type="email"
-                    name="email"
-                    value={accountData.email}
-                    onChange={(e) => {
-                      handleAccountChange(e);
-                      setAccountData(prev => ({ ...prev, is_email_verified: false }));
-                    }}
-                    className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-24 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                  />
-                  <div className="absolute inset-y-0 right-0 flex items-center">
-                    {accountData.is_email_verified ? (
-                      <span className="text-green-600 flex items-center px-3">
-                        <Check className="h-5 w-5 mr-1" />
-                        Verified
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleSendVerificationCode('email')}
-                        disabled={isSendingCode || !accountData.email}
-                        className="text-[#FF4D00] hover:text-[#FF6B00] px-3 py-1 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isSendingCode ? 'Sending...' : 'Verify Email'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {showEmailVerification && (
-                  <div className="mt-2">
-                    <label className="block text-sm font-medium text-gray-700">Verification Code</label>
-                    <div className="mt-1 flex space-x-2">
-                      <input
-                        type="text"
-                        name="email_code"
-                        value={verificationData.email_code}
-                        onChange={handleVerificationChange}
-                        placeholder="Enter code"
-                        className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleVerifyCode('email')}
-                        disabled={isVerifyingEmail || !verificationData.email_code}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
-                      >
-                        {isVerifyingEmail ? 'Verifying...' : 'Submit'}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Phone Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Phone</label>
-                <div className="mt-1 relative">
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={accountData.phone}
-                    onChange={(e) => {
-                      handleAccountChange(e);
-                      setAccountData(prev => ({ ...prev, is_phone_verified: false }));
-                    }}
-                    className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-24 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                  />
-                  <div className="absolute inset-y-0 right-0 flex items-center">
-                    {accountData.is_phone_verified ? (
-                      <span className="text-green-600 flex items-center px-3">
-                        <Check className="h-5 w-5 mr-1" />
-                        Verified
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleSendVerificationCode('phone')}
-                        disabled={isSendingCode || !accountData.phone}
-                        className="text-[#FF4D00] hover:text-[#FF6B00] px-3 py-1 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isSendingCode ? 'Sending...' : 'Verify Phone'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {showPhoneVerification && (
-                  <div className="mt-2">
-                    <label className="block text-sm font-medium text-gray-700">Verification Code</label>
-                    <div className="mt-1 flex space-x-2">
-                      <input
-                        type="text"
-                        name="phone_code"
-                        value={verificationData.phone_code}
-                        onChange={handleVerificationChange}
-                        placeholder="Enter code"
-                        className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleVerifyCode('phone')}
-                        disabled={isVerifyingPhone || !verificationData.phone_code}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
-                      >
-                        {isVerifyingPhone ? 'Verifying...' : 'Submit'}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <button
-                  type="submit"
-                  disabled={isSaving || !accountData.is_email_verified || !accountData.is_phone_verified}
-                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
-                >
-                  {isSaving ? 'Saving...' : 'Save Account Details'}
-                </button>
-                {(!accountData.is_email_verified || !accountData.is_phone_verified) && (
-                  <p className="mt-2 text-sm text-red-600">
-                    Please verify both email and phone number before saving
-                  </p>
-                )}
-              </div>
-            </form>
-          </div>
-
-          {/* Bank Account Details */}
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Bank Account Details</h2>
-            <form onSubmit={handleBankAccountSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Account Name</label>
-                  <input
-                    type="text"
-                    name="account_name"
-                    value={bankAccountData.account_name}
-                    onChange={handleBankAccountChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Account Number</label>
-                  <input
-                    type="text"
-                    name="account_number"
-                    value={bankAccountData.account_number}
-                    onChange={handleBankAccountChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Reenter Account Number</label>
-                  <input
-                    type="text"
-                    name="account_number"
-                    value={bankAccountData.account_number}
-                    onChange={handleBankAccountChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Bank Name</label>
-                  <input
-                    type="text"
-                    name="bank_name"
-                    value={bankAccountData.bank_name}
-                    onChange={handleBankAccountChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Branch Name</label>
-                  <input
-                    type="text"
-                    name="branch_name"
-                    value={bankAccountData.branch_name}
-                    onChange={handleBankAccountChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              </div>
-
-              <div>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
-                >
-                  {isSaving ? 'Saving...' : 'Save Bank Details'}
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Password Change Section */}
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Change Password</h2>
-            <form onSubmit={handlePasswordSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Current Password</label>
-                <div className="relative mt-1">
-                  <input
-                    type={showCurrentPassword ? 'text' : 'password'}
-                    name="current_password"
-                    value={passwordData.current_password}
-                    onChange={handlePasswordChange}
-                    className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-10 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute inset-y-0 right-0 px-3 flex items-center"
-                  >
-                    {showCurrentPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">New Password</label>
-                <div className="relative mt-1">
-                  <input
-                    type={showNewPassword ? 'text' : 'password'}
-                    name="new_password"
-                    value={passwordData.new_password}
-                    onChange={handlePasswordChange}
-                    className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-10 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute inset-y-0 right-0 px-3 flex items-center"
-                  >
-                    {showNewPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Confirm New Password</label>
-                <div className="relative mt-1">
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    name="confirm_password"
-                    value={passwordData.confirm_password}
-                    onChange={handlePasswordChange}
-                    className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-10 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute inset-y-0 right-0 px-3 flex items-center"
-                  >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <button
-                  type="submit"
-                  disabled={isChangingPassword}
-                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
-                >
-                  {isChangingPassword ? 'Changing Password...' : 'Change Password'}
-                </button>
-              </div>
-            </form>
-          </div>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Manage your account settings, business profile, and banking information.
+          </p>
         </div>
-      )}
 
-      {/* Profile Settings Section */}
-      {activeTab === 'profile' && (
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Business Profile</h2>
-          <form onSubmit={handleProfileSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">First Name</label>
-                <input
-                  type="text"
-                  name="first_name"
-                  value={profileData.first_name}
-                  onChange={handleProfileChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Last Name</label>
-                <input
-                  type="text"
-                  name="last_name"
-                  value={profileData.last_name}
-                  onChange={handleProfileChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Business Name</label>
-              <input
-                type="text"
-                name="business_name"
-                value={profileData.business_name}
-                onChange={handleProfileChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Business Address</label>
-              <textarea
-                name="business_address"
-                value={profileData.business_address}
-                onChange={handleProfileChange}
-                rows={3}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-              />
-            </div>
-
-            <div>
+        {/* Navigation Tabs */}
+        <div className="mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
               <button
-                type="submit"
-                disabled={isSaving}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
+                onClick={() => setActiveTab('account')}
+                className={`${
+                  activeTab === 'account'
+                    ? 'border-[#FF4D00] text-[#FF4D00]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
               >
-                {isSaving ? 'Saving...' : 'Save Profile'}
+                Account Settings
               </button>
-            </div>
-          </form>
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`${
+                  activeTab === 'profile'
+                    ? 'border-[#FF4D00] text-[#FF4D00]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+              >
+                Business Profile
+              </button>
+            </nav>
+          </div>
         </div>
-      )}
+
+        {/* Content Sections */}
+        <div className="grid grid-cols-1 gap-8">
+          {activeTab === 'account' && (
+            <>
+              {/* Account Details Section */}
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-6 sm:p-8">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Account Details</h2>
+                  <form onSubmit={handleAccountSubmit} className="space-y-6">
+                    {/* Email Field */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                      <div className="relative">
+                        <input
+                          type="email"
+                          name="email"
+                          value={accountData.email}
+                          onChange={(e) => {
+                            handleAccountChange(e);
+                            setAccountData(prev => ({ ...prev, is_email_verified: false }));
+                          }}
+                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-24 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center">
+                          {accountData.is_email_verified ? (
+                            <span className="text-green-600 flex items-center px-3">
+                              <Check className="h-5 w-5 mr-1" />
+                              Verified
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleSendVerificationCode('email')}
+                              disabled={isSendingCode || !accountData.email}
+                              className="text-[#FF4D00] hover:text-[#FF6B00] px-3 py-1 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isSendingCode ? 'Sending...' : 'Verify Email'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      {showEmailVerification && (
+                        <div className="mt-3">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Verification Code</label>
+                          <div className="flex space-x-2">
+                            <input
+                              type="text"
+                              name="email_code"
+                              value={verificationData.email_code}
+                              onChange={handleVerificationChange}
+                              placeholder="Enter code"
+                              className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleVerifyCode('email')}
+                              disabled={isVerifyingEmail || !verificationData.email_code}
+                              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
+                            >
+                              {isVerifyingEmail ? 'Verifying...' : 'Submit'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Phone Field */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                      <div className="relative">
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={accountData.phone}
+                          onChange={(e) => {
+                            handleAccountChange(e);
+                            setAccountData(prev => ({ ...prev, is_phone_verified: false }));
+                          }}
+                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-24 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center">
+                          {accountData.is_phone_verified ? (
+                            <span className="text-green-600 flex items-center px-3">
+                              <Check className="h-5 w-5 mr-1" />
+                              Verified
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleSendVerificationCode('phone')}
+                              disabled={isSendingCode || !accountData.phone}
+                              className="text-[#FF4D00] hover:text-[#FF6B00] px-3 py-1 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isSendingCode ? 'Sending...' : 'Verify Phone'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      {showPhoneVerification && (
+                        <div className="mt-3">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Verification Code</label>
+                          <div className="flex space-x-2">
+                            <input
+                              type="text"
+                              name="phone_code"
+                              value={verificationData.phone_code}
+                              onChange={handleVerificationChange}
+                              placeholder="Enter code"
+                              className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleVerifyCode('phone')}
+                              disabled={isVerifyingPhone || !verificationData.phone_code}
+                              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
+                            >
+                              {isVerifyingPhone ? 'Verifying...' : 'Submit'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <button
+                        type="submit"
+                        disabled={isSaving || !accountData.is_email_verified || !accountData.is_phone_verified}
+                        className="w-full sm:w-auto inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
+                      >
+                        {isSaving ? 'Saving...' : 'Save Account Details'}
+                      </button>
+                      {(!accountData.is_email_verified || !accountData.is_phone_verified) && (
+                        <p className="mt-2 text-sm text-red-600">
+                          Please verify both email and phone number before saving
+                        </p>
+                      )}
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              {/* Bank Account Details Section */}
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-6 sm:p-8">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Bank Account Details</h2>
+                  <form onSubmit={handleBankAccountSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
+                        <input
+                          type="text"
+                          name="account_name"
+                          value={bankAccountData.account_name}
+                          onChange={handleBankAccountChange}
+                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+                        <input
+                          type="text"
+                          name="account_number"
+                          value={bankAccountData.account_number}
+                          onChange={handleBankAccountChange}
+                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Reenter Account Number</label>
+                        <input
+                          type="text"
+                          name="reenter_account_number"
+                          value={bankAccountData.account_number}
+                          onChange={handleBankAccountChange}
+                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
+                        <input
+                          type="text"
+                          name="bank_name"
+                          value={bankAccountData.bank_name}
+                          onChange={handleBankAccountChange}
+                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Branch Name</label>
+                        <input
+                          type="text"
+                          name="branch_name"
+                          value={bankAccountData.branch_name}
+                          onChange={handleBankAccountChange}
+                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <button
+                        type="submit"
+                        disabled={isSaving}
+                        className="w-full sm:w-auto inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
+                      >
+                        {isSaving ? 'Saving...' : 'Save Bank Details'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              {/* Password Change Section */}
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-6 sm:p-8">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">Change Password</h2>
+                  <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                      <div className="relative">
+                        <input
+                          type={showCurrentPassword ? 'text' : 'password'}
+                          name="current_password"
+                          value={passwordData.current_password}
+                          onChange={handlePasswordChange}
+                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-10 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute inset-y-0 right-0 px-3 flex items-center"
+                        >
+                          {showCurrentPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                      <div className="relative">
+                        <input
+                          type={showNewPassword ? 'text' : 'password'}
+                          name="new_password"
+                          value={passwordData.new_password}
+                          onChange={handlePasswordChange}
+                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-10 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute inset-y-0 right-0 px-3 flex items-center"
+                        >
+                          {showNewPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                      <div className="relative">
+                        <input
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          name="confirm_password"
+                          value={passwordData.confirm_password}
+                          onChange={handlePasswordChange}
+                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-10 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute inset-y-0 right-0 px-3 flex items-center"
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <button
+                        type="submit"
+                        disabled={isChangingPassword}
+                        className="w-full sm:w-auto inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
+                      >
+                        {isChangingPassword ? 'Changing Password...' : 'Change Password'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Profile Settings Section */}
+          {activeTab === 'profile' && (
+            <div className="bg-white rounded-lg shadow">
+              <div className="p-6 sm:p-8">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Business Profile</h2>
+                <form onSubmit={handleProfileSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                      <input
+                        type="text"
+                        name="first_name"
+                        value={profileData.first_name}
+                        onChange={handleProfileChange}
+                        className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                      <input
+                        type="text"
+                        name="last_name"
+                        value={profileData.last_name}
+                        onChange={handleProfileChange}
+                        className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
+                    <input
+                      type="text"
+                      name="business_name"
+                      value={profileData.business_name}
+                      onChange={handleProfileChange}
+                      className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Business Address</label>
+                    <textarea
+                      name="business_address"
+                      value={profileData.business_address}
+                      onChange={handleProfileChange}
+                      rows={3}
+                      className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                    />
+                  </div>
+
+                  <div>
+                    <button
+                      type="submit"
+                      disabled={isSaving}
+                      className="w-full sm:w-auto inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
+                    >
+                      {isSaving ? 'Saving...' : 'Save Profile'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
