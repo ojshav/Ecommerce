@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight, ChevronLeft, Share2 } from 'lucide-react';
+import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight, ChevronLeft, Share2, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -92,6 +92,43 @@ interface ProductVariant {
   parentProductId: string;
 }
 
+// Add Review interface
+interface Review {
+  review_id: number;
+  product_id: number;
+  user_id: number;
+  order_id: string;
+  rating: number;
+  title: string;
+  body: string;
+  created_at: string;
+  updated_at: string;
+  images: {
+    image_id: number;
+    image_url: string;
+    sort_order: number;
+    type: string;
+    created_at: string;
+    updated_at: string;
+  }[];
+  user: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+}
+
+interface ReviewResponse {
+  status: string;
+  data: {
+    reviews: Review[];
+    total: number;
+    pages: number;
+    current_page: number;
+  };
+}
+
 const ProductDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const { addToCart } = useCart();
@@ -113,6 +150,13 @@ const ProductDetail: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [loadingVariants, setLoadingVariants] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewPage, setReviewPage] = useState(1);
+  const [totalReviewPages, setTotalReviewPages] = useState(1);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [selectedPreviewImage, setSelectedPreviewImage] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
 
   // Add function to fetch variants
   const fetchProductVariants = async (productId: string) => {
@@ -135,6 +179,61 @@ const ProductDetail: React.FC = () => {
       console.error('Error fetching variants:', error);
     } finally {
       setLoadingVariants(false);
+    }
+  };
+
+  // Add function to fetch reviews
+  const fetchProductReviews = async (page: number = 1) => {
+    try {
+      setLoadingReviews(true);
+      console.log('Fetching reviews for product:', productId, 'page:', page);
+      
+      const response = await fetch(`${API_BASE_URL}/api/reviews/product/${productId}?page=${page}&per_page=5`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      console.log('Review API Response Status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Review API Error Response:', errorData);
+        throw new Error(errorData.message || 'Failed to fetch reviews');
+      }
+
+      const data: ReviewResponse = await response.json();
+      console.log('Review API Success Response:', data);
+      
+      if (data.status === 'success' && data.data) {
+        console.log('Reviews Data:', data.data.reviews);
+        console.log('Total Reviews:', data.data.total);
+        console.log('Total Pages:', data.data.pages);
+        
+        setReviews(data.data.reviews);
+        setTotalReviewPages(data.data.pages);
+        setReviewPage(page);
+
+        // Calculate average rating
+        if (data.data.reviews.length > 0) {
+          const totalRating = data.data.reviews.reduce((sum, review) => sum + review.rating, 0);
+          const avgRating = totalRating / data.data.reviews.length;
+          setAverageRating(Number(avgRating.toFixed(1)));
+        }
+      } else {
+        console.error('Unexpected API Response Format:', data);
+        throw new Error('Invalid response format from review API');
+      }
+    } catch (error) {
+      console.error('Error in fetchProductReviews:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      toast.error('Failed to load reviews');
+    } finally {
+      setLoadingReviews(false);
     }
   };
 
@@ -178,6 +277,13 @@ const ProductDetail: React.FC = () => {
 
     if (productId) {
       fetchProductDetails();
+    }
+  }, [productId]);
+
+  // Update useEffect to fetch reviews when product changes
+  useEffect(() => {
+    if (productId) {
+      fetchProductReviews();
     }
   }, [productId]);
 
@@ -327,6 +433,24 @@ const ProductDetail: React.FC = () => {
     );
   };
 
+  // Add function to render star rating
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex items-center">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            size={16}
+            className={`${
+              star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  // Update the reviews tab content
   const renderTabContent = () => {
     switch(activeTab) {
       case 'product-details':
@@ -408,9 +532,70 @@ const ProductDetail: React.FC = () => {
       case 'reviews':
         return (
           <div className="py-6">
-            <div className="text-center text-gray-500">
-              No reviews available yet.
-            </div>
+            {loadingReviews ? (
+              <div className="flex justify-center items-center h-32">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+              </div>
+            ) : reviews.length > 0 ? (
+              <div className="space-y-6">
+                {reviews.map((review) => (
+                  <div key={review.review_id} className="border-b border-gray-200 pb-6 last:border-b-0">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h4 className="font-medium text-gray-900">{review.title}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          {renderStars(review.rating)}
+                          <span className="text-sm text-gray-500">
+                            by {review.user?.first_name || 'Anonymous'} {review.user?.last_name || ''}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        {new Date(review.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-gray-700 mt-2">{review.body}</p>
+                    {renderReviewImages(review.images)}
+                  </div>
+                ))}
+                
+                {/* Pagination */}
+                {totalReviewPages > 1 && (
+                  <div className="flex justify-center gap-2 mt-6">
+                    <button
+                      onClick={() => fetchProductReviews(reviewPage - 1)}
+                      disabled={reviewPage === 1}
+                      className="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-1 text-sm">
+                      Page {reviewPage} of {totalReviewPages}
+                    </span>
+                    <button
+                      onClick={() => fetchProductReviews(reviewPage + 1)}
+                      disabled={reviewPage === totalReviewPages}
+                      className="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center text-gray-500">
+                No reviews available yet.
+              </div>
+            )}
+            
+            {/* Image Preview Modal */}
+            <ImagePreviewModal
+              imageUrl={selectedPreviewImage}
+              onClose={() => setSelectedPreviewImage(null)}
+              images={reviews[activeTab === 'reviews' ? reviewPage - 1 : 0]?.images}
+              currentImageIndex={selectedImageIndex}
+              onImageChange={handleImageChange}
+            />
           </div>
         );
       default:
@@ -454,6 +639,159 @@ const ProductDetail: React.FC = () => {
             </div>
           ))}
         </div>
+      </div>
+    );
+  };
+
+  // Update the ImagePreviewModal component
+  const ImagePreviewModal: React.FC<{ 
+    imageUrl: string | null; 
+    onClose: () => void;
+    images?: Review['images'];
+    currentImageIndex?: number;
+    onImageChange?: (index: number) => void;
+  }> = ({ imageUrl, onClose, images = [], currentImageIndex = 0, onImageChange }) => {
+    if (!imageUrl) return null;
+
+    const handlePrevious = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (images.length > 1 && onImageChange) {
+        const newIndex = (currentImageIndex - 1 + images.length) % images.length;
+        onImageChange(newIndex);
+      }
+    };
+
+    const handleNext = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (images.length > 1 && onImageChange) {
+        const newIndex = (currentImageIndex + 1) % images.length;
+        onImageChange(newIndex);
+      }
+    };
+
+    // Add keyboard event listener
+    useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'ArrowLeft') {
+          handlePrevious(e as any);
+        } else if (e.key === 'ArrowRight') {
+          handleNext(e as any);
+        } else if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [currentImageIndex, images.length]);
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" onClick={onClose}>
+        <div className="relative max-w-4xl w-full mx-4 bg-white rounded-lg overflow-hidden" onClick={e => e.stopPropagation()}>
+          {/* Header */}
+          <div className="flex justify-between items-center p-4 border-b">
+            <h3 className="text-lg font-medium text-gray-900">
+              Review Image {images.length > 1 ? `(${currentImageIndex + 1}/${images.length})` : ''}
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+          
+          {/* Image Container */}
+          <div className="relative p-4">
+            <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
+              <img
+                src={imageUrl}
+                alt="Review"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  console.error('Error loading preview image:', imageUrl);
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/placeholder-image.jpg';
+                }}
+              />
+            </div>
+
+            {/* Navigation Arrows */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={handlePrevious}
+                  className="absolute left-6 top-1/2 -translate-y-1/2 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft size={24} className="text-gray-700" />
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="absolute right-6 top-1/2 -translate-y-1/2 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                  aria-label="Next image"
+                >
+                  <ChevronRight size={24} className="text-gray-700" />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="p-4 border-t bg-gray-50">
+            <p className="text-sm text-gray-500 text-center">
+              {images.length > 1 ? (
+                <>
+                  Use arrow keys or click the arrows to navigate between images.
+                  <br />
+                  Press ESC or click outside to close
+                </>
+              ) : (
+                'Click outside to close'
+              )}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Update the review images section to handle image navigation
+  const handleImageClick = (images: Review['images'], index: number) => {
+    setSelectedImageIndex(index);
+    setSelectedPreviewImage(images[index].image_url);
+  };
+
+  const handleImageChange = (index: number) => {
+    setSelectedImageIndex(index);
+    setSelectedPreviewImage(reviews[activeTab === 'reviews' ? reviewPage - 1 : 0].images[index].image_url);
+  };
+
+  // Update the renderReviewImages function
+  const renderReviewImages = (images: Review['images']) => {
+    if (!images || images.length === 0) return null;
+
+    return (
+      <div className="mt-3 grid grid-cols-4 gap-2">
+        {images.map((image, index) => (
+          <div
+            key={image.image_id}
+            className="relative group cursor-pointer aspect-square"
+            onClick={() => handleImageClick(images, index)}
+          >
+            <img
+              src={image.image_url}
+              alt="Review"
+              className="w-full h-full object-cover rounded-md hover:opacity-90 transition-opacity"
+              onError={(e) => {
+                console.error('Error loading review image:', image.image_url);
+                const target = e.target as HTMLImageElement;
+                target.src = '/placeholder-image.jpg';
+              }}
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity rounded-md" />
+          </div>
+        ))}
       </div>
     );
   };
@@ -553,6 +891,12 @@ const ProductDetail: React.FC = () => {
               <div className="mb-2">
                 <div className="text-sm font-medium mb-1">Category: {product.category?.name}</div>
                 <div className="text-sm font-medium mb-1">Brand: {product.brand?.name}</div>
+                <div className="flex items-center gap-2 mt-1">
+                  {renderStars(averageRating)}
+                  <span className="text-sm text-gray-600">
+                    {averageRating > 0 ? `${averageRating} (${reviews.length} reviews)` : 'No reviews yet'}
+                  </span>
+                </div>
               </div>
 
               {/* Short Description */}
