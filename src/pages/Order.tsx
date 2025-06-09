@@ -8,24 +8,23 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface OrderItem {
-  id: number;
-  product_name: string;
+  order_item_id: number;
+  product_name_at_purchase: string;
   quantity: number;
-  price: string;
-  image_url: string;
+  unit_price_at_purchase: string;
+  final_price_for_item: string;
+  product_image: string;
+  item_status: string;
 }
 
 interface Order {
-  id: string;
   order_id: string;
-  order_number: string;
   order_status: string;
-  payment_status: string;
+  order_date: string;
   total_amount: string;
-  created_at: string;
-  updated_at: string;
+  currency: string;
   items: OrderItem[];
-  shipping_address: {
+  shipping_address_details: {
     address_line1: string;
     address_line2?: string;
     city: string;
@@ -33,32 +32,31 @@ interface Order {
     postal_code: string;
     country: string;
   };
-  currency: string;
-  status: 'Delivered' | 'In Transit' | 'Processing' | 'Cancelled';
-  deliveryDate: string;
-  orderDate: string;
-  productName: string;
-  imageUrl: string;
-  price: number;
-  canReturn: boolean;
-  canExchange: boolean;
-  canReview: boolean;
-  trackingNumber?: string;
+  status_history: {
+    status: string;
+    changed_at: string;
+    notes: string;
+  }[];
 }
 
 interface ApiResponse {
   status: string;
   data: {
     orders: Order[];
-    pagination?: {
-      total: number;
-      current_page: number;
-      per_page: number;
-      pages: number;
-    };
+    total: number;
+    pages: number;
+    current_page: number;
   };
   message?: string;
 }
+
+// Add currency symbol mapping
+const CURRENCY_SYMBOLS: { [key: string]: string } = {
+  'IN': '₹',
+  'US': '$',
+  'EUR': '€',
+  'GBP': '£'
+};
 
 const Order: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,132 +71,177 @@ const Order: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  // Mock initial data
-  const mockOrders: Order[] = [
-    {
-      id: '2468135790',
-      order_id: '2468135790',
-      order_number: '2468135790',
-      order_status: 'Delivered',
-      payment_status: 'Paid',
-      total_amount: '129.99',
-      created_at: '2024-11-07',
-      updated_at: '2024-11-12',
-      items: [{
-        id: 1,
-        product_name: "Women's Fashion Dress",
-        quantity: 1,
-        price: '129.99',
-        image_url: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105'
-      }],
-      shipping_address: {
-        address_line1: '123 Fashion St',
-        city: 'Fashion City',
-        state: 'FC',
-        postal_code: '12345',
-        country: 'USA'
-      },
-      currency: 'USD',
-      status: 'Delivered',
-      deliveryDate: 'Nov 12, 2024',
-      orderDate: 'Nov 7, 2024',
-      productName: "Women's Fashion Dress",
-      imageUrl: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105',
-      price: 129.99,
-      canReturn: true,
-      canExchange: true,
-      canReview: true,
-      trackingNumber: 'TN123456789'
-    },
-    {
-      id: '1357924680',
-      order_id: '1357924680',
-      order_number: '1357924680',
-      order_status: 'In Transit',
-      payment_status: 'Paid',
-      total_amount: '299.99',
-      created_at: '2024-11-10',
-      updated_at: '2024-11-10',
-      items: [{
-        id: 2,
-        product_name: "Men's Premium Watch",
-        quantity: 1,
-        price: '299.99',
-        image_url: 'https://images.unsplash.com/photo-1617137968427-85924c800a22'
-      }],
-      shipping_address: {
-        address_line1: '456 Watch Ave',
-        city: 'Watch City',
-        state: 'WC',
-        postal_code: '67890',
-        country: 'USA'
-      },
-      currency: 'USD',
-      status: 'In Transit',
-      deliveryDate: 'Expected Nov 15, 2024',
-      orderDate: 'Nov 10, 2024',
-      productName: "Men's Premium Watch",
-      imageUrl: 'https://images.unsplash.com/photo-1617137968427-85924c800a22',
-      price: 299.99,
-      canReturn: false,
-      canExchange: false,
-      canReview: false,
-      trackingNumber: 'TN987654321'
+  const getCurrencySymbol = (currencyCode: string): string => {
+    return CURRENCY_SYMBOLS[currencyCode] || currencyCode;
+  };
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        per_page: perPage.toString()
+      });
+
+      if (selectedFilter !== 'all') {
+        params.append('status', selectedFilter);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/orders/user?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch orders: ${response.status}`);
+      }
+
+      const data: ApiResponse = await response.json();
+      console.log('Orders API Response:', data);
+      
+      if (data.status === 'success') {
+        // Get tracking info for each order to get product images
+        const ordersWithImages = await Promise.all(
+          data.data.orders.map(async (order) => {
+            try {
+              const trackingResponse = await fetch(`${API_BASE_URL}/api/orders/${order.order_id}/track`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json'
+                }
+              });
+              
+              if (trackingResponse.ok) {
+                const trackingData = await trackingResponse.json();
+                if (trackingData.status === 'success') {
+                  // Map tracking items to order items
+                  order.items = order.items.map(item => {
+                    const trackingItem = trackingData.data.items.find(
+                      (ti: any) => ti.order_item_id === item.order_item_id
+                    );
+                    return {
+                      ...item,
+                      product_image: trackingItem?.product_image || '/placeholder-image.jpg'
+                    };
+                  });
+                }
+              }
+            } catch (error) {
+              console.error(`Error fetching tracking info for order ${order.order_id}:`, error);
+            }
+            return order;
+          })
+        );
+
+        console.log('Orders with images:', ordersWithImages);
+        setOrders(ordersWithImages);
+        setTotalPages(data.data.pages);
+      } else {
+        throw new Error(data.message || 'Failed to fetch orders');
+      }
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch orders');
+      toast.error('Failed to load orders');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const fetchOrderTracking = async (orderId: string) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/track`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch order tracking: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Order Tracking Response:', data);
+      return data.data;
+    } catch (err) {
+      console.error('Error fetching order tracking:', err);
+      toast.error('Failed to load order tracking information');
+      return null;
+    }
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/sign-in');
       return;
     }
-    // Initialize with mock data for development
-    setOrders(mockOrders);
-    setLoading(false);
-    // In production, you would call fetchOrders() here instead
-  }, [isAuthenticated, navigate]);
+    fetchOrders();
+  }, [isAuthenticated, navigate, currentPage, selectedFilter]);
 
-  const getStatusColor = (status: Order['status']) => {
-    switch (status) {
-      case 'Delivered':
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'delivered':
         return 'bg-green-500';
-      case 'In Transit':
+      case 'in_transit':
+      case 'shipped':
         return 'bg-blue-500';
-      case 'Processing':
+      case 'processing':
         return 'bg-yellow-500';
-      case 'Cancelled':
+      case 'cancelled':
         return 'bg-red-500';
       default:
         return 'bg-gray-500';
     }
   };
 
-  const handleOrderClick = (order: Order) => {
-    navigate(`/order/${order.id}`, { state: { order } });
+  const handleOrderClick = async (order: Order) => {
+    const trackingInfo = await fetchOrderTracking(order.order_id);
+    navigate(`/order/${order.order_id}`, { state: { order, trackingInfo } });
   };
 
-  const handleAction = (e: React.MouseEvent, type: string, order: Order) => {
+  const handleAction = async (e: React.MouseEvent, type: string, order: Order) => {
     e.stopPropagation();
+    const trackingInfo = await fetchOrderTracking(order.order_id);
+    
     switch (type) {
       case 'exchange':
-        navigate(`/exchange/${order.id}`, { state: { order } });
+        navigate(`/exchange/${order.order_id}`, { state: { order, trackingInfo } });
         break;
       case 'return':
-        navigate(`/refund/${order.id}`, { state: { order } });
+        navigate(`/refund/${order.order_id}`, { state: { order, trackingInfo } });
         break;
       case 'review':
-        navigate(`/review/${order.id}`, { state: { order } });
+        navigate(`/review/${order.order_id}`, { state: { order, trackingInfo } });
         break;
       case 'track':
-        navigate(`/track/${order.id}`, { state: { order } });
+        navigate(`/track/${order.order_id}`, { state: { trackingInfo } });
         break;
     }
   };
 
   const filteredOrders = orders.filter(order => 
-    (selectedFilter === 'all' || order.status.toLowerCase() === selectedFilter) &&
-    (order.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     order.id.includes(searchQuery))
+    order.items.some(item => 
+      item.product_name_at_purchase.toLowerCase().includes(searchQuery.toLowerCase())
+    ) ||
+    order.order_id.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const formatDate = (dateString: string) => {
@@ -224,7 +267,7 @@ const Order: React.FC = () => {
           <p className="text-xl font-semibold mb-2">Error Loading Orders</p>
           <p>{error}</p>
           <button 
-            onClick={() => setError(null)}
+            onClick={() => fetchOrders()}
             className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
           >
             Try Again
@@ -236,32 +279,38 @@ const Order: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Your Orders</h1>
-        <div className="flex flex-wrap gap-2 sm:gap-4">
+        <div className="flex gap-4">
           <button 
-            className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors text-sm sm:text-base"
+            className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors"
             onClick={() => navigate('/return-refund')}
           >
             Returns Policy
+          </button>
+          <button 
+            className="px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors"
+            onClick={() => navigate('/track-order')}
+          >
+            Track Package
           </button>
         </div>
       </div>
       
       {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+      <div className="flex gap-4 mb-8">
         <div className="flex-1 relative">
           <input
             type="text"
             placeholder="Search orders by product name or order ID"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF4D00] text-sm sm:text-base"
+            className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF4D00]"
           />
         </div>
         <div className="relative">
           <button 
-            className="w-full sm:w-auto px-4 py-2 border rounded-lg flex items-center justify-center gap-2 hover:border-[#FF4D00] transition-colors text-sm sm:text-base"
+            className="px-4 py-2 border rounded-lg flex items-center gap-2 hover:border-[#FF4D00] transition-colors"
             onClick={() => setFilterOpen(!filterOpen)}
           >
             <Filter size={20} />
@@ -269,12 +318,12 @@ const Order: React.FC = () => {
             <ChevronDown size={16} />
           </button>
           {filterOpen && (
-            <div className="absolute right-0 mt-2 w-full sm:w-48 bg-white border rounded-lg shadow-lg z-10">
+            <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
               <div className="p-2">
-                {['all', 'delivered', 'in transit', 'processing', 'cancelled'].map((filter) => (
+                {['all', 'delivered', 'in_transit', 'processing', 'cancelled'].map((filter) => (
                   <button 
                     key={filter}
-                    className={`w-full text-left px-3 py-2 rounded capitalize text-sm sm:text-base ${
+                    className={`w-full text-left px-3 py-2 rounded capitalize ${
                       selectedFilter === filter ? 'bg-[#FF4D00] text-white' : 'hover:bg-gray-100'
                     }`}
                     onClick={() => {
@@ -282,7 +331,7 @@ const Order: React.FC = () => {
                       setFilterOpen(false);
                     }}
                   >
-                    {filter === 'all' ? 'All Orders' : filter}
+                    {filter === 'all' ? 'All Orders' : filter.replace('_', ' ')}
                   </button>
                 ))}
               </div>
@@ -298,88 +347,92 @@ const Order: React.FC = () => {
             <p className="text-gray-500">No orders found</p>
           </div>
         ) : (
-          filteredOrders.map((order) => (
-            <div
-              key={order.id}
-              onClick={() => handleOrderClick(order)}
-              className="border rounded-lg p-4 sm:p-6 space-y-4 cursor-pointer hover:border-[#FF4D00] transition-colors bg-white shadow-sm"
-            >
-              <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                  <img
-                    src={order.imageUrl}
-                    alt={order.productName}
-                    className="w-full sm:w-24 h-24 object-cover rounded-lg"
-                  />
-                  <div>
-                    <h3 className="font-medium text-base sm:text-lg mb-1">{order.productName}</h3>
-                    <p className="text-gray-600 text-xs sm:text-sm mb-1">Order #{order.order_number}</p>
-                    <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${getStatusColor(order.status)}`}></span>
-                      <span className="font-medium text-sm sm:text-base">{order.status}</span>
+          filteredOrders.map((order) => {
+            console.log('Rendering order:', order);
+            return (
+              <div
+                key={order.order_id}
+                onClick={() => handleOrderClick(order)}
+                className="border rounded-lg p-6 space-y-4 cursor-pointer hover:border-[#FF4D00] transition-colors bg-white shadow-sm"
+              >
+                {order.items.map((item) => (
+                  <div key={item.order_item_id} className="flex justify-between items-start">
+                    <div className="flex gap-6">
+                      <img
+                        src={item.product_image || '/placeholder-image.jpg'}
+                        alt={item.product_name_at_purchase}
+                        className="w-24 h-24 object-cover rounded-lg"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder-image.jpg';
+                        }}
+                      />
+                      <div>
+                        <h3 className="font-medium text-lg mb-1">{item.product_name_at_purchase}</h3>
+                        <p className="text-gray-600 text-sm mb-1">Order #{order.order_id}</p>
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${getStatusColor(order.order_status)}`}></span>
+                          <span className="font-medium">{order.order_status.replace('_', ' ')}</span>
+                        </div>
+                        <p className="text-gray-600 text-sm mt-1">
+                          {order.status_history && order.status_history.length > 0 
+                            ? order.status_history[0].notes 
+                            : 'Order placed'}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-gray-600 text-xs sm:text-sm mt-1">
-                      {order.status === 'Delivered' ? `Delivered on ${order.deliveryDate}` : order.deliveryDate}
-                    </p>
+                    <div className="text-right">
+                      <p className="font-semibold text-lg">
+                        {getCurrencySymbol(order.currency)} {item.final_price_for_item}
+                      </p>
+                      <p className="text-gray-600 text-sm">Ordered on {formatDate(order.order_date)}</p>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div className="flex gap-3">
+                    {order.order_status === 'delivered' && (
+                      <>
+                        <button
+                          onClick={(e) => handleAction(e, 'return', order)}
+                          className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2"
+                        >
+                          <RotateCcw size={16} />
+                          Return
+                        </button>
+                        <button
+                          onClick={(e) => handleAction(e, 'review', order)}
+                          className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2"
+                        >
+                          <Star size={16} />
+                          Review
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={(e) => handleAction(e, 'track', order)}
+                      className="px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors flex items-center gap-2"
+                    >
+                      Track Order
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Handle invoice download
+                      }}
+                      className="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                    >
+                      <FileText size={16} />
+                      Invoice
+                    </button>
                   </div>
                 </div>
-                <div className="text-left sm:text-right w-full sm:w-auto">
-                  <p className="font-semibold text-base sm:text-lg">${order.price.toFixed(2)}</p>
-                  <p className="text-gray-600 text-xs sm:text-sm">Ordered on {formatDate(order.created_at)}</p>
-                </div>
               </div>
-
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t">
-                <div className="flex flex-wrap gap-2 sm:gap-3">
-                  {order.canReturn && (
-                    <button
-                      onClick={(e) => handleAction(e, 'return', order)}
-                      className="px-3 sm:px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2 text-sm"
-                    >
-                      <RotateCcw size={16} />
-                      Return
-                    </button>
-                  )}
-                  {order.canExchange && (
-                    <button
-                      onClick={(e) => handleAction(e, 'exchange', order)}
-                      className="px-3 sm:px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2 text-sm"
-                    >
-                      <Package size={16} />
-                      Exchange
-                    </button>
-                  )}
-                  {order.canReview && (
-                    <button
-                      onClick={(e) => handleAction(e, 'review', order)}
-                      className="px-3 sm:px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2 text-sm"
-                    >
-                      <Star size={16} />
-                      Review
-                    </button>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
-                  <button
-                    onClick={(e) => handleAction(e, 'track', order)}
-                    className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors flex items-center justify-center gap-2 text-sm"
-                  >
-                    Track Order
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Handle invoice download
-                    }}
-                    className="w-full sm:w-auto px-3 sm:px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-sm"
-                  >
-                    <FileText size={16} />
-                    Invoice
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -398,7 +451,7 @@ const Order: React.FC = () => {
             <button
               key={i + 1}
               onClick={() => setCurrentPage(i + 1)}
-              className={`w-8 h-8 flex items-center justify-center border rounded-lg text-sm sm:text-base ${
+              className={`w-8 h-8 flex items-center justify-center border rounded-lg ${
                 currentPage === i + 1
                   ? 'bg-[#FF4D00] text-white'
                   : 'hover:border-[#FF4D00]'
