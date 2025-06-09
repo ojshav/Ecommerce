@@ -5,9 +5,11 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ICarouselItem {
   id: number;
+  type: 'brand' | 'product' | 'promo' | 'new' | 'featured';
   image_url: string;
   shareable_link: string;
   display_order: number;
+  is_active: boolean;
 }
 
 const TopSellingCarousel: React.FC = () => {
@@ -30,10 +32,15 @@ const TopSellingCarousel: React.FC = () => {
 
   const fetchCarouselItems = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/homepage/carousels?type=product`);
+      // Fetch all product group types
+      const response = await fetch(`${API_BASE_URL}/api/homepage/carousels?type=promo,new,featured`);
       if (!response.ok) throw new Error('Failed to fetch carousel items');
       const data = await response.json();
-      setCarouselItems(data);
+      // Filter active items and sort by display_order
+      const activeItems = data
+        .filter((item: ICarouselItem) => item.is_active)
+        .sort((a: ICarouselItem, b: ICarouselItem) => a.display_order - b.display_order);
+      setCarouselItems(activeItems);
     } catch (error) {
       console.error('Error fetching carousel items:', error);
     }
@@ -96,7 +103,9 @@ const TopSellingCarousel: React.FC = () => {
             {/* Full background image */}
             <img
               src={item.image_url}
-              alt="Product"
+              alt={item.type === 'promo' ? 'Promo Products' : 
+                   item.type === 'new' ? 'New Products' : 
+                   'Featured Products'}
               className="absolute inset-0 w-full h-full object-cover z-0"
               style={{ borderRadius: 'inherit' }}
             />
@@ -108,7 +117,9 @@ const TopSellingCarousel: React.FC = () => {
                 rel="noopener noreferrer"
                 className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-medium px-6 py-2 rounded-md transition-colors shadow-lg mb-4"
               >
-                Order Now
+                {item.type === 'promo' ? 'View Promo Products' :
+                 item.type === 'new' ? 'View New Products' :
+                 'View Featured Products'}
               </a>
               {/* Navigation dots */}
               <div className="flex justify-center items-center mb-2">

@@ -55,4 +55,5 @@ export interface Product {
   category_id?: number;
   brand_id?: number;
   attributes?: any[];
+  created_at?: string;
 } 

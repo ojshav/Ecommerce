@@ -20,7 +20,7 @@ import Register from './pages/auth/Register';
 import WishList from './pages/WishList';
 
 
-import Wholesale from './pages/Wholesale';
+// import Wholesale from './pages/Wholesale';
 
 import BecomeMerchant from './pages/BecomeMerchant';
 import Order from './pages/Order';
@@ -438,7 +438,7 @@ const App: React.FC = () => {
                             <Route path="/wishlist" element={<WishList />} />
 
                            
-                            <Route path="/wholesale" element={<Wholesale />} />
+                            {/* <Route path="/wholesale" element={<Wholesale />} /> */}
 
                             <Route path="/sign-in" element={<SignIn />} />
                             <Route path="/register" element={<Register />} />

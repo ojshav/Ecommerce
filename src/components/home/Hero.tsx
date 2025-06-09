@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import TopSellingCarousel from './TopSellingCarousel';
 
@@ -13,6 +13,7 @@ interface ICarouselItem {
 }
 
 const Hero: React.FC = () => {
+  const navigate = useNavigate();
   const [carouselItems, setCarouselItems] = useState<ICarouselItem[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   
@@ -52,6 +53,16 @@ const Hero: React.FC = () => {
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
+  };
+
+  const handleOrderNowClick = (url: string) => {
+    // Check if the URL is external (starts with http:// or https://)
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      // If it's an internal URL, use React Router navigation
+      navigate(url);
+    }
   };
 
   if (carouselItems.length === 0) {
@@ -94,14 +105,12 @@ const Hero: React.FC = () => {
                               className="w-full h-full object-cover rounded-lg"
                               style={{ objectPosition: 'center' }}
                             />
-                            <a 
-                              href={current.shareable_link}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                            <button 
+                              onClick={() => handleOrderNowClick(current.shareable_link)}
                               className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 sm:px-6 py-2 rounded font-medium hover:bg-gray-100 transition-colors text-sm sm:text-base shadow-lg"
                             >
                               Order Now
-                            </a>
+                            </button>
                           </div>
                         </div>
                         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-2">

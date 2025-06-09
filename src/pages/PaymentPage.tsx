@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import OrderSummary from '../components/OrderSummary';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { MapPin, Edit2, Trash2, ChevronDown } from 'lucide-react';
+import { MapPin, Edit2, Trash2, ChevronDown, CreditCard, Plus, Star, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { CartItem } from '../types';
@@ -49,6 +49,29 @@ interface Address {
   is_default_billing: boolean;
 }
 
+// Add new interface for payment card
+interface PaymentCard {
+  card_id: number;
+  user_id: number;
+  card_type: 'credit' | 'debit';
+  last_four_digits: string;
+  card_holder_name: string;
+  card_brand: string;
+  status: 'active' | 'expired' | 'suspended' | 'deleted';
+  is_default: boolean;
+  billing_address: Address | null;
+  last_used_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Add PaymentMethodEnum mapping
+const PAYMENT_METHOD_MAP = {
+  'credit_card': 'credit_card',
+  'debit_card': 'debit_card',
+  'cash_on_delivery': 'cash_on_delivery'
+} as const;
+
 const PaymentPage: React.FC = () => {
   const { user } = useAuth();
   const { cart, totalPrice, totalItems, clearCart } = useCart();
@@ -73,6 +96,27 @@ const PaymentPage: React.FC = () => {
     address_type: 'shipping' as 'shipping' | 'billing',
     is_default_shipping: true,
     is_default_billing: false
+  });
+  const [cardDetails, setCardDetails] = useState({
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardHolderName: ''
+  });
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const [savedCards, setSavedCards] = useState<PaymentCard[]>([]);
+  const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+  const [showCardForm, setShowCardForm] = useState(false);
+  const [savingCard, setSavingCard] = useState(false);
+  const [cardFormData, setCardFormData] = useState({
+    card_number: '',
+    cvv: '',
+    expiry_month: '',
+    expiry_year: '',
+    card_holder_name: '',
+    card_type: 'credit' as 'credit' | 'debit',
+    billing_address_id: null as number | null,
+    is_default: false
   });
   const navigate = useNavigate();
 
@@ -122,8 +166,75 @@ const PaymentPage: React.FC = () => {
     }
   };
 
+  const handleCardInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setCardFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const processCardPayment = async (orderId: string, cardId: number): Promise<boolean> => {
+    try {
+      setProcessingPayment(true);
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        toast.error('Please login to continue');
+        return false;
+      }
+
+      // Here you would integrate with your payment gateway
+      // For now, we'll simulate a successful payment
+      const paymentSuccess = true;
+
+      if (paymentSuccess) {
+        // Update payment status
+        const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/payment`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            payment_status: 'successful',
+            transaction_id: `TXN-${Date.now()}`,
+            gateway_name: 'Test Gateway'
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Payment failed: ${response.status} ${JSON.stringify(errorData)}`);
+        }
+
+        const data = await response.json();
+        if (data.status === 'success') {
+          toast.success('Payment processed successfully');
+          return true;
+        } else {
+          throw new Error(data.message || 'Payment failed');
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      // Debug: Log the full error object
+      console.error('Full error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      toast.error(error instanceof Error ? error.message : 'Payment failed');
+      return false;
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
   useEffect(() => {
     fetchAddresses();
+    fetchSavedCards();
   }, []);
 
   const fetchAddresses = async () => {
@@ -301,45 +412,57 @@ const PaymentPage: React.FC = () => {
         return;
       }
 
+      // Validate card details if credit/debit card is selected
+      if (paymentMethod === 'credit_card' || paymentMethod === 'debit_card') {
+        if (!selectedCardId && !showCardForm) {
+          toast.error('Please select a saved card or add a new one');
+          return;
+        }
+      }
+
       const baseUrl = API_BASE_URL.replace(/\/+$/, '');
       const url = `${baseUrl}/api/orders`;
 
       // Calculate subtotal from cart items
       const subtotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
       
+      // Format order data according to API requirements
       const orderData = {
-        shipping_address_id: selectedAddressId,
-        payment_method: paymentMethod,
-        items: cart.map(item => {
-          console.log('Cart Item Debug:', {
-            product_id: item.product_id,
-            merchant_id: item.merchant_id,
-            product_name: item.product.name,
-            product_details: item.product
-          });
-          
-          return {
-            product_id: item.product_id,
-            merchant_id: item.merchant_id,
-            product_name_at_purchase: item.product.name,
-            sku_at_purchase: item.product.sku || '',
-            quantity: item.quantity,
-            unit_price_at_purchase: item.product.price,
-            item_subtotal_amount: item.product.price * item.quantity,
-            final_price_for_item: item.product.price * item.quantity
-          };
-        }),
-        subtotal_amount: subtotal,
-        discount_amount: 0,
-        tax_amount: 0,
-        shipping_amount: 0,
-        total_amount: totalPrice,
+        items: cart.map(item => ({
+          product_id: item.product_id,
+          merchant_id: item.merchant_id,
+          product_name_at_purchase: item.product.name,
+          sku_at_purchase: item.product.sku || '',
+          quantity: item.quantity,
+          unit_price_at_purchase: item.product.price.toString(),
+          item_subtotal_amount: (item.product.price * item.quantity).toString(),
+          final_price_for_item: (item.product.price * item.quantity).toString()
+        })),
+        subtotal_amount: subtotal.toString(),
+        discount_amount: "0.00",
+        tax_amount: "0.00",
+        shipping_amount: "0.00",
+        total_amount: totalPrice.toString(),
         currency: selectedCountry.code,
+        payment_method: PAYMENT_METHOD_MAP[paymentMethod as keyof typeof PAYMENT_METHOD_MAP],
+        shipping_address_id: selectedAddressId,
+        billing_address_id: selectedAddressId,
+        shipping_method_name: 'Standard Shipping',
         customer_notes: '',
-        shipping_method_name: 'Standard Shipping'
+        internal_notes: '',
+        payment_card_id: (paymentMethod === 'credit_card' || paymentMethod === 'debit_card') ? selectedCardId : undefined
       };
 
-      console.log('Final Order Data:', orderData);
+      // Debug: Log the request data
+      console.log('Sending order data:', {
+        ...orderData,
+        items: orderData.items.map(item => ({
+          ...item,
+          unit_price_at_purchase: parseFloat(item.unit_price_at_purchase).toFixed(2),
+          item_subtotal_amount: parseFloat(item.item_subtotal_amount).toFixed(2),
+          final_price_for_item: parseFloat(item.final_price_for_item).toFixed(2)
+        }))
+      });
 
       const response = await fetch(url, {
         method: 'POST',
@@ -351,25 +474,46 @@ const PaymentPage: React.FC = () => {
         body: JSON.stringify(orderData)
       });
 
+      // Debug: Log the response status and headers
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+      const responseData = await response.json();
+      // Debug: Log the full response data
+      console.log('Response data:', responseData);
+
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Order creation error response:', errorText);
-        throw new Error(`Failed to create order: ${response.status} ${errorText}`);
+        throw new Error(responseData.message || `Failed to create order: ${response.status}`);
       }
 
-      const data = await response.json();
-      if (data.status === 'success') {
+      if (responseData.status === 'success') {
+        const orderId = responseData.data.order_id;
+        
+        // Process payment if credit/debit card is selected
+        if (paymentMethod === 'credit_card' || paymentMethod === 'debit_card') {
+          const paymentSuccess = await processCardPayment(orderId, selectedCardId || 0);
+          if (!paymentSuccess) {
+            return;
+          }
+        }
+
         // Clear the cart after successful order
         await clearCart();
         toast.success('Order placed successfully');
         // Redirect to order confirmation page
-        navigate('/order-confirmation', { state: { orderId: data.order_id } });
+        navigate('/order-confirmation', { state: { orderId } });
       } else {
-        throw new Error(data.message || 'Failed to place order');
+        throw new Error(responseData.message || 'Failed to place order');
       }
       
     } catch (error) {
       console.error('Error in handleOrder:', error);
+      // Debug: Log the full error object
+      console.error('Full error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
       toast.error(error instanceof Error ? error.message : 'Failed to place order');
     }
   };
@@ -484,6 +628,406 @@ const PaymentPage: React.FC = () => {
     }
   };
 
+  // Add function to fetch saved cards
+  const fetchSavedCards = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+
+      const baseUrl = API_BASE_URL.replace(/\/+$/, '');
+      const response = await fetch(`${baseUrl}/api/payment-cards`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch saved cards');
+      }
+
+      const data = await response.json();
+      setSavedCards(data.data);
+    } catch (error) {
+      console.error('Error fetching saved cards:', error);
+      toast.error('Failed to load saved cards');
+    }
+  };
+
+  // Add function to save new card
+  const handleSaveCard = async () => {
+    try {
+      setSavingCard(true);
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        toast.error('Please login to continue');
+        return;
+      }
+
+      if (!selectedAddressId) {
+        toast.error('Please select a billing address');
+        return;
+      }
+
+      // Format the expiry year to be a full 4-digit year
+      const currentYear = new Date().getFullYear();
+      const shortYear = parseInt(cardFormData.expiry_year);
+      const fullYear = shortYear < 100 ? 2000 + shortYear : shortYear;
+
+      // Format the card data according to the API requirements
+      const cardData = {
+        card_type: cardFormData.card_type,
+        card_holder_name: cardFormData.card_holder_name,
+        billing_address_id: selectedAddressId,
+        is_default: cardFormData.is_default,
+        // These fields will be handled by the model's setter methods
+        card_number: cardFormData.card_number.replace(/\s/g, ''), // Remove spaces and ensure we're sending the actual number
+        cvv: cardFormData.cvv,
+        expiry_month: cardFormData.expiry_month.padStart(2, '0'), // Ensure 2 digits
+        expiry_year: fullYear.toString() // Use full 4-digit year
+      };
+
+      // Debug: Log the request data (masked for security)
+      console.log('Sending card data:', {
+        ...cardData,
+        card_number: '****' + cardData.card_number.slice(-4), // Only log last 4 digits for security
+        cvv: '***' // Mask CVV
+      });
+
+      const baseUrl = API_BASE_URL.replace(/\/+$/, '');
+      const response = await fetch(`${baseUrl}/api/payment-cards`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(cardData)
+      });
+
+      // Debug: Log the response status and headers
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+      const responseData = await response.json();
+      // Debug: Log the full response data
+      console.log('Response data:', responseData);
+
+      if (!response.ok) {
+        throw new Error(`Failed to save card: ${response.status} ${JSON.stringify(responseData)}`);
+      }
+
+      if (responseData.status === 'success') {
+        setSavedCards(prev => [...prev, responseData.data]);
+        setShowCardForm(false);
+        setCardFormData({
+          card_number: '',
+          cvv: '',
+          expiry_month: '',
+          expiry_year: '',
+          card_holder_name: '',
+          card_type: 'credit',
+          billing_address_id: null,
+          is_default: false
+        });
+        toast.success('Card saved successfully');
+      } else {
+        throw new Error(responseData.message || 'Failed to save card');
+      }
+    } catch (error) {
+      console.error('Error saving card:', error);
+      // Debug: Log the full error object
+      console.error('Full error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      toast.error(error instanceof Error ? error.message : 'Failed to save card');
+    } finally {
+      setSavingCard(false);
+    }
+  };
+
+  // Add function to delete card
+  const handleDeleteCard = async (cardId: number) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        toast.error('Please login to continue');
+        return;
+      }
+
+      const baseUrl = API_BASE_URL.replace(/\/+$/, '');
+      const response = await fetch(`${baseUrl}/api/payment-cards/${cardId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete card');
+      }
+
+      setSavedCards(prev => prev.filter(card => card.card_id !== cardId));
+      if (selectedCardId === cardId) {
+        setSelectedCardId(null);
+      }
+      toast.success('Card deleted successfully');
+    } catch (error) {
+      console.error('Error deleting card:', error);
+      toast.error('Failed to delete card');
+    }
+  };
+
+  // Add function to set default card
+  const handleSetDefaultCard = async (cardId: number) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        toast.error('Please login to continue');
+        return;
+      }
+
+      const baseUrl = API_BASE_URL.replace(/\/+$/, '');
+      const response = await fetch(`${baseUrl}/api/payment-cards/${cardId}/default`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to set default card');
+      }
+
+      const data = await response.json();
+      setSavedCards(prev => prev.map(card => ({
+        ...card,
+        is_default: card.card_id === cardId
+      })));
+      toast.success('Default card updated successfully');
+    } catch (error) {
+      console.error('Error setting default card:', error);
+      toast.error('Failed to set default card');
+    }
+  };
+
+  // Add renderSavedCards function
+  const renderSavedCards = () => {
+    if (savedCards.length === 0) {
+      return (
+        <div className="mb-6">
+          <h3 className="text-sm font-medium mb-3">Saved Cards</h3>
+          <div className="text-sm text-gray-500">No saved cards found</div>
+          <button
+            onClick={() => setShowCardForm(true)}
+            className="mt-2 flex items-center gap-2 text-orange-500 hover:text-orange-600"
+          >
+            <Plus className="w-4 h-4" />
+            Add New Card
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-medium">Saved Cards</h3>
+          <button
+            onClick={() => setShowCardForm(true)}
+            className="flex items-center gap-2 text-orange-500 hover:text-orange-600"
+          >
+            <Plus className="w-4 h-4" />
+            Add New Card
+          </button>
+        </div>
+        <div className="grid grid-cols-1 gap-3">
+          {savedCards.map((card) => (
+            <div
+              key={card.card_id}
+              className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                selectedCardId === card.card_id
+                  ? 'border-orange-500 bg-orange-50'
+                  : 'border-gray-200 hover:border-orange-300'
+              }`}
+              onClick={() => setSelectedCardId(card.card_id)}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  <CreditCard className="w-5 h-5 text-orange-500 mt-0.5" />
+                  <div>
+                    <p className="font-medium">{card.card_holder_name}</p>
+                    <p className="text-sm text-gray-600">
+                      {card.card_brand} •••• {card.last_four_digits}
+                    </p>
+                    <div className="flex gap-2 mt-2">
+                      <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                        {card.card_type}
+                      </span>
+                      {card.is_default && (
+                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                          Default
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  {!card.is_default && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSetDefaultCard(card.card_id);
+                      }}
+                      className="p-1 text-gray-500 hover:text-orange-500"
+                      title="Set as default"
+                    >
+                      <Star className="w-4 h-4" />
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm('Are you sure you want to delete this card?')) {
+                        handleDeleteCard(card.card_id);
+                      }
+                    }}
+                    className="p-1 text-gray-500 hover:text-red-500"
+                    title="Delete card"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Add renderCardForm function
+  const renderCardForm = () => {
+    return (
+      <div className="mb-6 p-4 border border-gray-200 rounded-lg">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium">Add New Card</h3>
+          <button
+            onClick={() => setShowCardForm(false)}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Card Number</label>
+            <input
+              type="text"
+              name="card_number"
+              value={cardFormData.card_number}
+              onChange={handleCardInputChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+              placeholder="1234 5678 9012 3456"
+              maxLength={19}
+              required
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Expiry Date</label>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  name="expiry_month"
+                  value={cardFormData.expiry_month}
+                  onChange={handleCardInputChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="MM"
+                  maxLength={2}
+                  required
+                />
+                <input
+                  type="text"
+                  name="expiry_year"
+                  value={cardFormData.expiry_year}
+                  onChange={handleCardInputChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="YY"
+                  maxLength={2}
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">CVV</label>
+              <input
+                type="text"
+                name="cvv"
+                value={cardFormData.cvv}
+                onChange={handleCardInputChange}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="123"
+                maxLength={4}
+                required
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Card Holder Name</label>
+            <input
+              type="text"
+              name="card_holder_name"
+              value={cardFormData.card_holder_name}
+              onChange={handleCardInputChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+              placeholder="John Doe"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Card Type</label>
+            <select
+              name="card_type"
+              value={cardFormData.card_type}
+              onChange={handleCardInputChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+              required
+            >
+              <option value="credit">Credit Card</option>
+              <option value="debit">Debit Card</option>
+            </select>
+          </div>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              name="is_default"
+              checked={cardFormData.is_default}
+              onChange={(e) => setCardFormData(prev => ({ ...prev, is_default: e.target.checked }))}
+              className="mr-2 accent-orange-500"
+            />
+            <label className="text-sm font-medium">Set as default payment method</label>
+          </div>
+          <button
+            onClick={handleSaveCard}
+            disabled={savingCard}
+            className={`w-full py-2 rounded font-medium transition-colors ${
+              savingCard
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-orange-500 text-white hover:bg-orange-600'
+            }`}
+          >
+            {savingCard ? 'Saving...' : 'Save Card'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 flex items-center justify-center">
@@ -570,6 +1114,14 @@ const PaymentPage: React.FC = () => {
               ))}
             </div>
           </div>
+        )}
+
+        {/* Saved Cards */}
+        {(paymentMethod === 'credit_card' || paymentMethod === 'debit_card') && (
+          <>
+            {renderSavedCards()}
+            {showCardForm && renderCardForm()}
+          </>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -804,14 +1356,14 @@ const PaymentPage: React.FC = () => {
         </div>
         <button
           onClick={handleOrder}
-          disabled={!selectedAddressId}
+          disabled={!selectedAddressId || processingPayment}
           className={`w-full py-3 rounded font-medium transition-colors ${
-            selectedAddressId 
+            selectedAddressId && !processingPayment
               ? 'bg-orange-500 text-white hover:bg-orange-600' 
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
         >
-          Place Order
+          {processingPayment ? 'Processing Payment...' : 'Place Order'}
         </button>
       </div>
     </div>
