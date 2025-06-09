@@ -85,7 +85,7 @@ import FashionFactoryPage from './components/sections/FashionFactoryPage';
 import SundayFundayPage from './components/sections/SundayFundayPage';
 import LiveShopProductDetailPage from './pages/LiveShopProductDetailPage';
 import Reviews from './pages/business/Reviews';
-import SalesReport from './pages/business/reports/SalesReport';
+import Sales from './pages/business/reports/Sales';
 import CustomersReport from './pages/business/reports/CustomersReport';
 import ProductsReport from './pages/business/reports/ProductsReport';
 import Settings from './pages/business/Settings';
@@ -257,7 +257,7 @@ const App: React.FC = () => {
                       path="reports/sales"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <SalesReportPage />
+                          <Sales/>
                         </Suspense>
                       }
                     />
