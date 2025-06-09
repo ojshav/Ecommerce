@@ -20,6 +20,7 @@ import Register from './pages/auth/Register';
 import WishList from './pages/WishList';
 
 
+// import Wholesale from './pages/Wholesale';
 
 import BecomeMerchant from './pages/BecomeMerchant';
 import Order from './pages/Order';
@@ -29,7 +30,7 @@ import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
 
 import { CartProvider } from './context/CartContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AdminLayout from './components/business/AdminLayout';
 
@@ -84,11 +85,12 @@ import FashionFactoryPage from './components/sections/FashionFactoryPage';
 import SundayFundayPage from './components/sections/SundayFundayPage';
 import LiveShopProductDetailPage from './pages/LiveShopProductDetailPage';
 import Reviews from './pages/business/Reviews';
-import SalesReport from './pages/business/reports/SalesReport';
+import Sales from './pages/business/reports/Sales';
 import CustomersReport from './pages/business/reports/CustomersReport';
 import ProductsReport from './pages/business/reports/ProductsReport';
 import Settings from './pages/business/Settings';
 import Support from './pages/business/Support';
+import Profile from './pages/business/Profile';
 import { WishlistProvider } from './context/WishlistContext';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import Subscription from './pages/business/Subscription';
@@ -99,10 +101,7 @@ import PromoProductsPage from './pages/PromoProductsPage';
 import UserSupport from './pages/superadmin/UserSupport';
 import MerchantSupport from './pages/superadmin/MerchantSupport';
 import RaiseTicket from './pages/RaiseTicket';
-import Setting from './pages/superadmin/Settings';
-import RefundAndReturnManagement from './pages/superadmin/RefundAndReturnManagement';
-import PaymentAndTransactionMonitoring from './pages/superadmin/PaymentAndTransaction';
-import PromotionsAndDiscounts from './pages/superadmin/Promotions';
+
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -159,7 +158,10 @@ const ScrollToTop = () => {
   return null;
 };
 
-// Add this line before the App component
+interface ProtectedRouteProps {
+  children: ReactNode;
+}
+
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 // Main App component
@@ -256,7 +258,7 @@ const App: React.FC = () => {
                       path="reports/sales"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <SalesReportPage />
+                          <Sales/>
                         </Suspense>
                       }
                     />
@@ -293,6 +295,15 @@ const App: React.FC = () => {
                       element={
                         <Suspense fallback={<LoadingFallback />}>
                           <Support />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="profile"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <Profile />
                         </Suspense>
                       }
                     />
@@ -379,10 +390,6 @@ const App: React.FC = () => {
                       element={<MerchantManagement />}
                     />
                     <Route
-                      path="Settings"
-                      element={<Setting />}
-                    />
-                    <Route
                       path="merchant-management/:id"
                       element={<MerchantDetails />}
                     />
@@ -392,9 +399,6 @@ const App: React.FC = () => {
                     <Route path="homepage-settings" element={<HomepageSettings />} />
                     <Route path="user-support" element={<UserSupport />} />
                     <Route path="merchant-support" element={<MerchantSupport />} />
-                    <Route path="refund-and-return-management" element={<RefundAndReturnManagement />} />
-                    <Route path="payment-and-transaction-monitoring" element={<PaymentAndTransactionMonitoring />} />
-                    <Route path="promotions-and-discounts-management" element={<PromotionsAndDiscounts />} />
                   </Route>
 
                   {/* Public Routes with header/footer */}
@@ -444,7 +448,7 @@ const App: React.FC = () => {
                             <Route path="/wishlist" element={<WishList />} />
 
                            
-                           
+                            {/* <Route path="/wholesale" element={<Wholesale />} /> */}
 
                             <Route path="/sign-in" element={<SignIn />} />
                             <Route path="/register" element={<Register />} />
@@ -520,30 +524,20 @@ const App: React.FC = () => {
             </Router>
 
             <Toaster
-  position="bottom-center"
-  toastOptions={{
-    style: {
-      background: "#FFF7ED",          // Tailwind orange-50 (soft and clean)
-      color: "#D97706",               // Tailwind amber-600 (professional orange tone)
-      padding: "14px 20px",
-      borderRadius: "0.75rem",        // rounded-xl for soft, elegant curves
-      boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)", // softer, modern shadow
-      fontWeight: "500",
-      fontSize: "0.9rem",             // between sm and base
-      border: "1px solid #D97706",    // amber-300 border for polish
-      minWidth: "300px",
-      textAlign: "center",
-    },
-    success: {
-      duration: 2000,
-    },
-    error: {
-      duration: 4000,
-    },
-  }}
-/>
-
-
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: "#363636",
+                  color: "#fff",
+                },
+                success: {
+                  duration: 3000,
+                },
+                error: {
+                  duration: 4000,
+                },
+              }}
+            />
           </GoogleOAuthProvider>
         </WishlistProvider>
       </CartProvider>

@@ -354,7 +354,7 @@ export default function SalesReport() {
         </div>
 
         {/* Filters with updated styling */}
-       
+        {/* Filter section removed as per request */}
 
         {/* Revenue and Sales Trend Chart with updated colors */}
         <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
@@ -436,7 +436,53 @@ export default function SalesReport() {
         </div>
 
         {/* Merchant Performance Table with updated styling */}
-        
+        <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+          <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Merchant Performance</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead style={{backgroundColor: '#FF5733'}}>
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    Merchant
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    Revenue
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    Units Sold
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    Rating
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {merchantPerformance.map((merchant, idx) => (
+                  <tr key={merchant.name} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
+                      {merchant.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatCurrency(merchant.revenue)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {merchant.sales.toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="flex items-center">
+                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                          merchant.rating >= 4.5 ? 'bg-green-500' : 
+                          merchant.rating >= 4.0 ? 'bg-yellow-500' : 'bg-red-500'
+                        }`}></span>
+                        {merchant.rating.toFixed(1)}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         {/* Detailed Sales Table with updated styling */}
         <div className="bg-white p-6 rounded-lg shadow-lg">

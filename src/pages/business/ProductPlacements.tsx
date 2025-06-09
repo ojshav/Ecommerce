@@ -307,6 +307,25 @@ const ProductPlacements: React.FC = () => {
       <div className="bg-white p-6 rounded-lg shadow-md border border-orange-200">
         <h2 className="text-xl font-semibold text-gray-700 mb-1">Add Product to Placement</h2>
         
+        {subscriptionStatus?.is_subscribed && (
+          <div className="mt-4 p-3 bg-orange-50 text-orange-700 border border-orange-200 rounded-md text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-orange-600">
+                Current Plan: {subscriptionStatus.plan?.name}
+              </span>
+              <a 
+                href="/business/subscription" 
+                className="inline-flex items-center px-3 py-1 bg-orange-100 text-orange-700 rounded-md hover:bg-orange-200 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+                Change Plan
+              </a>
+            </div>
+          </div>
+        )}
+
         {!canPlacePremium && (
           <div className="mt-4 p-3 bg-orange-50 text-orange-700 border border-orange-200 rounded-md text-sm">
             <p>

@@ -27,54 +27,414 @@ import {
   ArrowUpIcon,
   ArrowDownIcon,
   UserPlus,
-  ShoppingCart
+  ShoppingCart,
+  Loader2
 } from "lucide-react";
+import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
-// Sample data for charts
-const monthlyRevenueData = [
-  { month: 'Jan', revenue: 65000, orders: 420, merchants: 15 },
-  { month: 'Feb', revenue: 78000, orders: 520, merchants: 18 },
-  { month: 'Mar', revenue: 85000, orders: 580, merchants: 22 },
-  { month: 'Apr', revenue: 92000, orders: 640, merchants: 25 },
-  { month: 'May', revenue: 105000, orders: 720, merchants: 28 },
-  { month: 'Jun', revenue: 118000, orders: 800, merchants: 32 }
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const userGrowthData = [
-  { month: 'Jan', customers: 1200, merchants: 45 },
-  { month: 'Feb', customers: 1450, merchants: 52 },
-  { month: 'Mar', customers: 1680, merchants: 58 },
-  { month: 'Apr', customers: 1920, merchants: 65 },
-  { month: 'May', customers: 2250, merchants: 72 },
-  { month: 'Jun', customers: 2580, merchants: 78 }
-];
+interface DashboardMetrics {
+  revenue: {
+    current: number;
+    previous: number;
+    change_percentage: number;
+    currency: string;
+  };
+  active_users: {
+    current: number;
+    previous: number;
+    change_percentage: number;
+  };
+  total_merchants: {
+    current: number;
+    previous: number;
+    change_percentage: number;
+  };
+  monthly_orders: {
+    count: {
+      current: number;
+      previous: number;
+      change_percentage: number;
+    };
+    amount: {
+      current: number;
+      previous: number;
+      change_percentage: number;
+      currency: string;
+    };
+    month: string;
+  };
+  average_order_value: {
+    current: number;
+    previous: number;
+    change_percentage: number;
+    currency: string;
+  };
+  total_products: {
+    current: number;
+    previous: number;
+    total_active: number;
+    change_percentage: number;
+  };
+}
 
-const categoryData = [
-  { name: 'Electronics', value: 35, color: '#FF6B35' },
-  { name: 'Clothing', value: 28, color: '#F7931E' },
-  { name: 'Books', value: 18, color: '#FFD23F' },
-  { name: 'Home & Garden', value: 12, color: '#06FFA5' },
-  { name: 'Sports', value: 7, color: '#4ECDC4' }
-];
+interface TrendData {
+  month: string;
+  revenue: number;
+  orders: number;
+  average_order_value: number;
+}
 
-const topMerchants = [
-  { name: 'TechStore Pro', revenue: '$45,230', orders: 156, growth: '+23%' },
-  { name: 'Fashion Hub', revenue: '$38,940', orders: 142, growth: '+18%' },
-  { name: 'Book Haven', revenue: '$32,110', orders: 98, growth: '+15%' },
-  { name: 'Sports Gear', revenue: '$28,560', orders: 87, growth: '+12%' },
-  { name: 'Home Essentials', revenue: '$25,890', orders: 76, growth: '+8%' }
-];
+interface TrendResponse {
+  status: string;
+  data: {
+    trend: TrendData[];
+    summary: {
+      total_revenue: number;
+      total_orders: number;
+      average_order_value: number;
+      currency: string;
+    };
+  };
+  message?: string;
+}
 
+interface UserGrowthData {
+  month: string;
+  customers: number;
+  merchants: number;
+  customer_growth: number;
+  merchant_growth: number;
+}
 
+interface UserGrowthResponse {
+  status: string;
+  data: {
+    trend: UserGrowthData[];
+    summary: {
+      total_customers: number;
+      total_merchants: number;
+      total_users: number;
+      average_customer_growth: number;
+      average_merchant_growth: number;
+    };
+  };
+  message?: string;
+}
+
+interface CategoryDistribution {
+  name: string;
+  value: number;
+  count: number;
+  color: string;
+}
+
+interface CategoryDistributionResponse {
+  status: string;
+  data: {
+    categories: CategoryDistribution[];
+    total_products: number;
+  };
+  message?: string;
+}
+
+interface TopMerchant {
+  name: string;
+  revenue: string;
+  orders: number;
+  growth: string;
+}
+
+interface TopMerchantsResponse {
+  status: string;
+  data: {
+    merchants: TopMerchant[];
+  };
+  message?: string;
+}
 
 const Dashboard = () => {
   const [timeRange, setTimeRange] = useState('6months');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [trendData, setTrendData] = useState<TrendData[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const { accessToken, user } = useAuth();
+  const [userGrowthData, setUserGrowthData] = useState<UserGrowthData[]>([]);
+  const [averageOrderValue, setAverageOrderValue] = useState<{
+    current: number;
+    previous: number;
+    change_percentage: number;
+    currency: string;
+  } | null>(null);
+  const [totalProducts, setTotalProducts] = useState<{
+    current: number;
+    previous: number;
+    total_active: number;
+    change_percentage: number;
+  } | null>(null);
+  const [categoryData, setCategoryData] = useState<CategoryDistribution[]>([]);
+  const [topMerchants, setTopMerchants] = useState<TopMerchant[]>([]);
+
+  const formatMonth = (dateStr: string) => {
+    const [year, month] = dateStr.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1);
+    return date.toLocaleString('default', { month: 'short' });
+  };
+
+  const fetchMetrics = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/dashboard`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard metrics');
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        setMetrics(data.data);
+      } else {
+        throw new Error(data.message || 'Failed to fetch metrics');
+      }
+    } catch (error) {
+      console.error('Error fetching metrics:', error);
+      setError('Failed to load dashboard metrics. Please try again later.');
+      toast.error('Failed to load dashboard metrics');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTrendData = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/revenue-orders-trend?months=${timeRange === '1month' ? 1 : timeRange === '3months' ? 3 : timeRange === '6months' ? 6 : 12}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch trend data');
+      }
+
+      const data: TrendResponse = await response.json();
+      if (data.status === 'success') {
+        // Format the month display in the trend data
+        const formattedData = data.data.trend.map(item => ({
+          ...item,
+          month: formatMonth(item.month)
+        }));
+        setTrendData(formattedData);
+      } else {
+        throw new Error(data.message || 'Failed to fetch trend data');
+      }
+    } catch (error) {
+      console.error('Error fetching trend data:', error);
+      toast.error('Failed to load trend data');
+    }
+  };
+
+  const fetchUserGrowthData = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/user-growth-trend?months=${timeRange === '1month' ? 1 : timeRange === '3months' ? 3 : timeRange === '6months' ? 6 : 12}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch user growth data');
+      }
+
+      const data: UserGrowthResponse = await response.json();
+      if (data.status === 'success' && data.data?.trend) {
+        // Format the month display in the user growth data
+        const formattedData = data.data.trend.map(item => ({
+          ...item,
+          month: formatMonth(item.month)
+        }));
+        setUserGrowthData(formattedData);
+      } else {
+        throw new Error(data.message || 'Invalid response format');
+      }
+    } catch (error) {
+      console.error('Error fetching user growth data:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to load user growth data');
+      // Set empty data on error
+      setUserGrowthData([]);
+    }
+  };
+
+  const fetchAverageOrderValue = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/average-order-value`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch average order value');
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        setAverageOrderValue(data.data);
+      } else {
+        throw new Error(data.message || 'Failed to fetch average order value');
+      }
+    } catch (error) {
+      console.error('Error fetching average order value:', error);
+      toast.error('Failed to load average order value');
+    }
+  };
+
+  const fetchTotalProducts = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/total-products`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch total products');
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        setTotalProducts(data.data);
+      } else {
+        throw new Error(data.message || 'Failed to fetch total products');
+      }
+    } catch (error) {
+      console.error('Error fetching total products:', error);
+      toast.error('Failed to load total products');
+    }
+  };
+
+  const fetchCategoryDistribution = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/category-distribution`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch category distribution data');
+      }
+
+      const data: CategoryDistributionResponse = await response.json();
+      if (data.status === 'success') {
+        setCategoryData(data.data.categories);
+      } else {
+        throw new Error(data.message || 'Failed to fetch category distribution data');
+      }
+    } catch (error) {
+      console.error('Error fetching category distribution data:', error);
+      toast.error('Failed to load category distribution data');
+      setCategoryData([]);
+    }
+  };
+
+  const fetchTopMerchants = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/top-merchants`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch top merchants data');
+      }
+
+      const data: TopMerchantsResponse = await response.json();
+      if (data.status === 'success') {
+        setTopMerchants(data.data.merchants);
+      } else {
+        throw new Error(data.message || 'Failed to fetch top merchants data');
+      }
+    } catch (error) {
+      console.error('Error fetching top merchants data:', error);
+      toast.error('Failed to load top merchants data');
+      setTopMerchants([]);
+    }
+  };
+
+  useEffect(() => {
+    if (!user || !['admin', 'superadmin'].includes(user.role.toLowerCase())) {
+      toast.error('Access denied. Admin role required.');
+      return;
+    }
+    fetchMetrics();
+    fetchTrendData();
+    fetchUserGrowthData();
+    fetchAverageOrderValue();
+    fetchTotalProducts();
+    fetchCategoryDistribution();
+    fetchTopMerchants();
+  }, [user, timeRange]);
 
   const refreshData = () => {
-    setLoading(true);
-    setTimeout(() => setLoading(false), 1500);
+    fetchMetrics();
+    fetchTrendData();
+    fetchUserGrowthData();
+    fetchAverageOrderValue();
+    fetchTotalProducts();
+    fetchCategoryDistribution();
+    fetchTopMerchants();
   };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  const formatPercentage = (value: number) => {
+    const sign = value >= 0 ? '+' : '';
+    return `${sign}${value.toFixed(1)}%`;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="text-red-500 mb-4">
+          <Activity size={48} />
+        </div>
+        <p className="text-xl font-semibold text-gray-800">Error</p>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <button
+          onClick={fetchMetrics}
+          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -114,33 +474,33 @@ const Dashboard = () => {
         {[
           {
             title: "Total Revenue",
-            value: "$543,250",
-            change: "+23.5%",
-            trend: "up",
+            value: formatCurrency(metrics?.revenue?.current ?? 0),
+            change: formatPercentage(metrics?.revenue?.change_percentage ?? 0),
+            trend: (metrics?.revenue?.change_percentage ?? 0) >= 0 ? "up" : "down",
             icon: DollarSign,
             color: "green"
           },
           {
-            title: "Users",
-            value: "12,847",
-            change: "+18.2%",
-            trend: "up",
+            title: "Active Users",
+            value: metrics?.active_users?.current?.toLocaleString() ?? '0',
+            change: formatPercentage(metrics?.active_users?.change_percentage ?? 0),
+            trend: (metrics?.active_users?.change_percentage ?? 0) >= 0 ? "up" : "down",
             icon: Users,
             color: "blue"
           },
           {
             title: "Total Merchants",
-            value: "487",
-            change: "+12.8%",
-            trend: "up",
+            value: metrics?.total_merchants?.current?.toLocaleString() ?? '0',
+            change: formatPercentage(metrics?.total_merchants?.change_percentage ?? 0),
+            trend: (metrics?.total_merchants?.change_percentage ?? 0) >= 0 ? "up" : "down",
             icon: Store,
             color: "purple"
           },
           {
             title: "Orders This Month",
-            value: "3,249",
-            change: "+8.4%",
-            trend: "up",
+            value: metrics?.monthly_orders?.count?.current?.toLocaleString() ?? '0',
+            change: formatPercentage(metrics?.monthly_orders?.count?.change_percentage ?? 0),
+            trend: (metrics?.monthly_orders?.count?.change_percentage ?? 0) >= 0 ? "up" : "down",
             icon: ShoppingBag,
             color: "orange"
           }
@@ -169,16 +529,39 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue & Orders Trend</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={monthlyRevenueData}>
+            <AreaChart data={trendData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value, name) => [
-                name === 'revenue' ? `$${value.toLocaleString()}` : value,
-                name === 'revenue' ? 'Revenue' : 'Orders'
-              ]} />
-              <Area type="monotone" dataKey="revenue" stackId="1" stroke="#FF6B35" fill="#FF6B35" fillOpacity={0.8} />
-              <Area type="monotone" dataKey="orders" stackId="2" stroke="#4ECDC4" fill="#4ECDC4" fillOpacity={0.8} />
+              <XAxis 
+                dataKey="month" 
+                tick={{ fontSize: 12 }}
+                interval={0}
+              />
+              <YAxis yAxisId="left" />
+              <YAxis yAxisId="right" orientation="right" />
+              <Tooltip 
+                formatter={(value, name) => [
+                  name === 'revenue' ? formatCurrency(Number(value)) : value,
+                  name === 'revenue' ? 'Revenue' : 'Orders'
+                ]} 
+              />
+              <Area 
+                yAxisId="left"
+                type="monotone" 
+                dataKey="revenue" 
+                stackId="1" 
+                stroke="#FF6B35" 
+                fill="#FF6B35" 
+                fillOpacity={0.8} 
+              />
+              <Area 
+                yAxisId="right"
+                type="monotone" 
+                dataKey="orders" 
+                stackId="2" 
+                stroke="#4ECDC4" 
+                fill="#4ECDC4" 
+                fillOpacity={0.8} 
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -189,41 +572,96 @@ const Dashboard = () => {
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={userGrowthData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
+              <XAxis 
+                dataKey="month" 
+                tick={{ fontSize: 12 }}
+                interval={0}
+              />
               <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="customers" stroke="#FF6B35" strokeWidth={3} dot={{ fill: '#FF6B35' }} />
-              <Line type="monotone" dataKey="merchants" stroke="#4ECDC4" strokeWidth={3} dot={{ fill: '#4ECDC4' }} />
+              <Tooltip 
+                formatter={(value, name) => [
+                  value.toLocaleString(),
+                  name === 'customers' ? 'Customers' : 'Merchants'
+                ]}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="customers" 
+                stroke="#FF6B35" 
+                strokeWidth={3} 
+                dot={{ fill: '#FF6B35' }} 
+                name="Customers"
+              />
+              <Line 
+                type="monotone" 
+                dataKey="merchants" 
+                stroke="#4ECDC4" 
+                strokeWidth={3} 
+                dot={{ fill: '#4ECDC4' }} 
+                name="Merchants"
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Second Charts Row */}
-      {/* Second Charts Row (Updated to 2 columns instead of 3) */}
-<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Category Distribution */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Categories</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={categoryData}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-              >
-                {categoryData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Pie Chart */}
+            <div className="h-[250px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {categoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value, name, props) => [
+                      `${props.payload.count} products (${props.payload.value}%)`,
+                      props.payload.name
+                    ]}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Categories List */}
+            <div className="h-[250px] overflow-y-auto pr-2">
+              <div className="space-y-2">
+                {categoryData.map((category, index) => (
+                  <div 
+                    key={index}
+                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: category.color }}
+                      />
+                      <span className="font-medium text-gray-900">{category.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-600">{category.count} products</p>
+                      <p className="text-sm font-medium text-gray-900">{category.value}%</p>
+                    </div>
+                  </div>
                 ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Top Merchants */}
@@ -238,15 +676,14 @@ const Dashboard = () => {
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-gray-900">{merchant.revenue}</p>
-                  <p className="text-sm text-green-600">{merchant.growth}</p>
+                  <p className={`text-sm ${merchant.growth.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                    {merchant.growth}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Recent Activity */}
-        
       </div>
 
       {/* Additional Metrics */}
@@ -271,8 +708,12 @@ const Dashboard = () => {
             </div>
             <div>
               <h3 className="text-gray-600 text-sm font-medium">Avg Order Value</h3>
-              <p className="text-2xl font-bold text-gray-900">$167.32</p>
-              <p className="text-sm text-blue-600">+$12.50 from last month</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {averageOrderValue ? formatCurrency(averageOrderValue.current) : 'Loading...'}
+              </p>
+              <p className={`text-sm ${(averageOrderValue?.change_percentage ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {averageOrderValue ? `${(averageOrderValue.change_percentage ?? 0) >= 0 ? '+' : ''}${(averageOrderValue.change_percentage ?? 0).toFixed(1)}% from last month` : ''}
+              </p>
             </div>
           </div>
         </div>
@@ -284,8 +725,12 @@ const Dashboard = () => {
             </div>
             <div>
               <h3 className="text-gray-600 text-sm font-medium">Total Products</h3>
-              <p className="text-2xl font-bold text-gray-900">15,847</p>
-              <p className="text-sm text-purple-600">+1,234 this month</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {totalProducts ? totalProducts.total_active.toLocaleString() : 'Loading...'}
+              </p>
+              <p className={`text-sm ${(totalProducts?.change_percentage ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {totalProducts ? `${(totalProducts.change_percentage ?? 0) >= 0 ? '+' : ''}${(totalProducts.change_percentage ?? 0).toFixed(1)}% this month` : ''}
+              </p>
             </div>
           </div>
         </div>
