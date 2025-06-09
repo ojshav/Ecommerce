@@ -37,7 +37,6 @@ const navigationItems = [
   { name: 'Orders', path: '/business/orders', icon: ShoppingBagIcon },
   { name: 'Inventory', path: '/business/inventory', icon: TagIcon },
   { name: 'Customers', path: '/business/customers', icon: UserGroupIcon },
-  { name: 'Payments', path: '/business/payments', icon: CreditCardIcon },
   { name: 'Promotions', path: '/business/product-placements', icon: TagIcon },
   { name: 'Reviews', path: '/business/reviews', icon: StarIcon },
   { 
