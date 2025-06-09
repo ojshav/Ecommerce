@@ -90,6 +90,7 @@ import CustomersReport from './pages/business/reports/CustomersReport';
 import ProductsReport from './pages/business/reports/ProductsReport';
 import Settings from './pages/business/Settings';
 import Support from './pages/business/Support';
+import Profile from './pages/business/Profile';
 import { WishlistProvider } from './context/WishlistContext';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import Subscription from './pages/business/Subscription';
@@ -294,6 +295,15 @@ const App: React.FC = () => {
                       element={
                         <Suspense fallback={<LoadingFallback />}>
                           <Support />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="profile"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <Profile />
                         </Suspense>
                       }
                     />
