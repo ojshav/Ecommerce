@@ -7,7 +7,7 @@ import {
   PhoneIcon,
   MapPinIcon,
   GlobeAltIcon,
-  CameraIcon
+  BanknotesIcon
 } from '@heroicons/react/24/outline';
 
 const Profile = () => {
@@ -19,8 +19,7 @@ const Profile = () => {
     personalInfo: {
       name: 'John Smith',
       email: 'john.smith@example.com',
-      phone: '+1 (555) 123-4567',
-      avatar: '/assets/images/avatar-placeholder.jpg'
+      phone: '+1 (555) 123-4567'
     },
     businessInfo: {
       businessName: 'Tech Gadgets Store',
@@ -32,13 +31,15 @@ const Profile = () => {
       zipCode: '94105',
       country: 'United States',
       website: 'www.techgadgets.com'
+    },
+    accountInfo: {
+      accountNumber: '1234567890',
+      bankName: 'State Bank of India',
+      branchName: 'Main Branch',
+      ifscCode: 'SBIN0123456',
+      accountType: 'Current'
     }
   });
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Handle image upload logic here
-    console.log('Image upload:', event.target.files?.[0]);
-  };
 
   const handleSave = () => {
     setIsEditing(false);
@@ -54,38 +55,6 @@ const Profile = () => {
         <p className="mt-1 text-sm text-gray-500">
           Manage your account settings and business information
         </p>
-      </div>
-
-      {/* Profile Picture Section */}
-      <div className="bg-white p-6 rounded-xl shadow-sm">
-        <div className="flex items-center space-x-6">
-          <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden">
-              <img
-                src={profileData.personalInfo.avatar}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <label 
-              htmlFor="avatar-upload" 
-              className="absolute bottom-0 right-0 bg-orange-500 p-1.5 rounded-full text-white cursor-pointer hover:bg-orange-600 transition-colors"
-            >
-              <CameraIcon className="w-4 h-4" />
-              <input
-                type="file"
-                id="avatar-upload"
-                className="hidden"
-                accept="image/*"
-                onChange={handleImageUpload}
-              />
-            </label>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">{profileData.personalInfo.name}</h2>
-            <p className="text-sm text-gray-500">{profileData.businessInfo.businessName}</p>
-          </div>
-        </div>
       </div>
 
       {/* Personal Information */}
@@ -239,6 +208,62 @@ const Profile = () => {
             <input
               type="text"
               value={profileData.businessInfo.country}
+              disabled={!isEditing}
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Account Details */}
+      <div className="bg-white p-6 rounded-xl shadow-sm">
+        <div className="flex items-center space-x-2 mb-6">
+          <BanknotesIcon className="w-5 h-5 text-orange-500" />
+          <h2 className="text-lg font-semibold text-gray-900">Account Details</h2>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Account Number</label>
+            <input
+              type="text"
+              value={profileData.accountInfo.accountNumber}
+              disabled={!isEditing}
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Bank Name</label>
+            <input
+              type="text"
+              value={profileData.accountInfo.bankName}
+              disabled={!isEditing}
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Branch Name</label>
+            <input
+              type="text"
+              value={profileData.accountInfo.branchName}
+              disabled={!isEditing}
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">IFSC Code</label>
+            <input
+              type="text"
+              value={profileData.accountInfo.ifscCode}
+              disabled={!isEditing}
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Account Type</label>
+            <input
+              type="text"
+              value={profileData.accountInfo.accountType}
               disabled={!isEditing}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50"
             />
