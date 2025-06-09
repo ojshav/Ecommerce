@@ -54,6 +54,9 @@ interface ProductDetails {
     brand_id: number;
     name: string;
   };
+  parent_product_id: number | null;
+  is_variant: boolean;
+  variants: ProductVariant[];
 }
 
 // Extend the Product type to match what the cart expects
@@ -87,9 +90,11 @@ interface ProductVariant {
   name: string;
   price: number;
   originalPrice: number;
-  primary_image: string;
+  sku: string;
   isVariant: boolean;
-  parentProductId: string;
+  isParent: boolean;
+  parentProductId: string | null;
+  media: ProductMedia[];
 }
 
 // Add Review interface
@@ -605,37 +610,67 @@ const ProductDetail: React.FC = () => {
 
   // Replace the dummy variant selector with real variants
   const renderVariants = () => {
-    if (loadingVariants) {
-      return (
-        <div className="flex justify-center items-center h-32">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-        </div>
-      );
-    }
-
-    if (variants.length === 0) {
+    if (!product?.variants || product.variants.length === 0) {
       return null;
     }
 
+    // Sort variants to show parent product first, then other variants
+    const sortedVariants = [...product.variants].sort((a, b) => {
+      if (a.isParent) return -1;
+      if (b.isParent) return 1;
+      return 0;
+    });
+
     return (
-      <div className="mb-4">
-        <div className="text-sm font-medium mb-2">Available Variants:</div>
-        <div className="flex flex-wrap gap-4">
-          {variants.map((variant) => (
+      <div className="mt-8">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          {product.is_variant ? 'Related Products' : 'Available Variants'}
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {sortedVariants.map((variant) => (
             <div
               key={variant.id}
-              className="w-24 h-32 border rounded-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow flex flex-col items-center justify-center p-2"
+              className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                variant.id === product.product_id.toString()
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'hover:border-gray-400'
+              }`}
               onClick={() => {
-                // Navigate to the variant's detail page
-                window.location.href = `/product/${variant.id}`;
+                if (variant.id !== product.product_id.toString()) {
+                  navigate(`/product/${variant.id}`);
+                }
               }}
             >
-              <img
-                src={variant.primary_image || product.media[0]?.url || 'https://via.placeholder.com/64'}
-                alt={variant.name}
-                className="w-16 h-16 object-cover rounded-md mb-1"
-              />
-              <span className="text-xs font-semibold text-gray-800">₹{variant.price}</span>
+              <div className="aspect-w-1 aspect-h-1 mb-4">
+                {variant.media && variant.media.length > 0 ? (
+                  <img
+                    src={variant.media[0].url}
+                    alt={variant.name}
+                    className="object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span className="text-gray-400">No image</span>
+                  </div>
+                )}
+              </div>
+              <h4 className="font-medium text-gray-900 mb-1">{variant.name}</h4>
+              <p className="text-sm text-gray-500">SKU: {variant.sku}</p>
+              <div className="mt-2 flex justify-between items-center">
+                <div>
+                  <span className="text-lg font-medium text-gray-900">
+                    ${variant.price.toFixed(2)}
+                  </span>
+                  {variant.originalPrice > variant.price && (
+                    <span className="ml-2 text-sm text-gray-500 line-through">
+                      ${variant.originalPrice.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+                {variant.id === product.product_id.toString() && (
+                  <span className="text-sm text-blue-600 font-medium">Current Selection</span>
+                )}
+              </div>
             </div>
           ))}
         </div>
