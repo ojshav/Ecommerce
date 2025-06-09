@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Outlet, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -7,24 +7,34 @@ import {
   UserCog,
   FileBarChart2,
   Settings,
-  Bell,
   Users,
-  AlertTriangle,
   Percent,
   MessageSquare,
   BarChart3,
-  ShieldAlert,
   ChevronRight,
   Home,
-  Menu,
   X,
   FolderOpen,
-  ShieldCheck
+  ShieldCheck,
+  LucideIcon
 } from "lucide-react";
 import SuperadminHeader from "./SuperadminHeader";
 
+interface MenuItem {
+  title: string;
+  icon: LucideIcon;
+  description: string;
+}
+
+interface MenuSection {
+  category: string;
+  color: string;
+  icon: LucideIcon;
+  items: MenuItem[];
+}
+
 // Dashboard sections organized into categories
-export const dashboardSections = [
+export const dashboardSections: MenuSection[] = [
   {
     category: "Analytics & Reports",
     color: "blue",
@@ -68,20 +78,28 @@ export const dashboardSections = [
         description: "Review and manage merchant accounts and applications"
       },
       {
+        title: "Refund and Return Management",
+        icon: ShoppingBag,
+        description: "Process refund requests and manage return policies"
+      },
+      {
         title: "Product Monitoring",
         icon: ShoppingBag,
         description: "Track product listings, categories, and inventory status"
       },
+      /*
       {
         title: "Order Management",
         icon: FileBarChart2,
         description: "Process orders, track fulfillment, and manage exceptions"
       },
+      
       {
         title: "Customer Support Management",
         icon: MessageSquare,
         description: "Oversee support tickets, response times, and resolution rates"
       },
+      */
       {
         title: "User Management",
         icon: Users,
@@ -103,7 +121,8 @@ export const dashboardSections = [
         title: "Promotions and Discounts Management",
         icon: Percent,
         description: "Create and manage platform-wide promotions and offers"
-      },
+      }
+      /*
       {
         title: "Content Moderation",
         icon: AlertTriangle,
@@ -119,8 +138,10 @@ export const dashboardSections = [
         icon: Bell,
         description: "Manage system notifications and alert thresholds"
       }
+        */
     ]
   },
+  /*
   {
     category: "Advanced Controls",
     color: "purple",
@@ -137,11 +158,6 @@ export const dashboardSections = [
         description: "Review and approve new product submissions"
       },
       {
-        title: "Refund and Return Management",
-        icon: ShoppingBag,
-        description: "Process refund requests and manage return policies"
-      },
-      {
         title: "Fraud Detection",
         icon: ShieldCheck,
         description: "Monitor and address suspicious activities and platform health"
@@ -153,6 +169,7 @@ export const dashboardSections = [
       }
     ]
   },
+  */
   {
     category: "Support",
     color: "indigo",
@@ -169,40 +186,56 @@ export const dashboardSections = [
         description: "Support for merchants"
       }
     ]
-  }
+  },
+  
 ];
 
 // Add Category Management section
-export const catalogSection = {
-  category: "Catalog Management",
-  color: "green",
-  icon: FolderOpen,
-  items: [
-    {
-      title: "Categories",
-      icon: FolderOpen,
-      description: "Manage product categories and subcategories"
-    },
-    {
-      title: "Brand Creation",
-      icon: ShoppingBag,
-      description: "Manage product brands"
-    },
-    {
-      title: "Attribute",
-      icon: Settings,
-      description: "Manage product attributes and specifications"
-    },
-    {
-      title: "Homepage Settings",
-      icon: Home,
-      description: "Manage categories displayed on homepage"
-    }
-  ]
-};
+export const catalogSections: MenuSection[] = [
+  {
+    category: "Catalog Management",
+    color: "green",
+    icon: FolderOpen,
+    items: [
+      {
+        title: "Categories",
+        icon: FolderOpen,
+        description: "Manage product categories and subcategories"
+      },
+      {
+        title: "Brand Creation",
+        icon: ShoppingBag,
+        description: "Manage product brands"
+      },
+      {
+        title: "Attribute",
+        icon: Settings,
+        description: "Manage product attributes and specifications"
+      },
+      {
+        title: "Homepage Settings",
+        icon: Home,
+        description: "Manage categories displayed on homepage"
+      }
+    ]
+  },
+  {
+    category: "Setting",
+    color: "indigo",
+    icon: MessageSquare,
+    items: [
+      {
+        title: "Settings",
+        icon: Settings,
+        description: "Manage platform settings"
+      }
+    ]
+  }
+];
+
 
 // Get color classes based on category
-export const getCategoryColorClasses = (categoryName: string) => {
+export const getCategoryColorClasses = () => {
   // Use the same orange theme for all categories
   return {
     text: "text-orange-600",
@@ -214,12 +247,50 @@ export const getCategoryColorClasses = (categoryName: string) => {
 };
 
 const SuperAdminLayout = () => {
-  const [selectedCategory, setSelectedCategory] = useState(dashboardSections[0].category);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
+
+  // Get the active category based on current route
+  const getActiveCategory = () => {
+    const path = location.pathname;
+    
+    // Check Dashboard first
+    if (path === "/superadmin/dashboard") {
+      return "Dashboard";
+    }
+
+    // Check all dashboard sections
+    for (const section of dashboardSections) {
+      if (section.items.some(item => {
+        const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
+        return path.includes(itemPath);
+      })) {
+        return section.category;
+      }
+    }
+
+    // Check Catalog Management
+    const catalogSection = catalogSections.find(section => section.category === "Catalog Management");
+    if (catalogSection?.items.some(item => {
+      const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
+      return path.includes(itemPath);
+    })) {
+      return "Catalog Management";
+    }
+
+    return null;
+  };
+
+  // Update expanded categories when location changes
+  useEffect(() => {
+    const activeCategory = getActiveCategory();
+    if (activeCategory && activeCategory !== "Dashboard") {
+      setExpandedCategories([activeCategory]);
+    }
+  }, [location.pathname]);
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
@@ -236,7 +307,6 @@ const SuperAdminLayout = () => {
   }
 
   const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category);
     // If dashboard is selected, navigate to dashboard and collapse all expanded menus
     if (category === "Dashboard") {
       navigate("/superadmin/dashboard");
@@ -279,67 +349,26 @@ const SuperAdminLayout = () => {
 
     // Check Catalog Management items
     if (category === "Catalog Management") {
-      return catalogSection.items.some(item => {
+      const catalogSection = catalogSections.find(section => section.category === "Catalog Management");
+      return catalogSection?.items.some(item => {
         const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
         return location.pathname.includes(itemPath);
-      });
+      }) || false;
     }
 
     return false;
   };
 
-  // Get the active category based on current route
-  const getActiveCategory = () => {
-    const path = location.pathname;
-    
-    // Check Dashboard first
-    if (path === "/superadmin/dashboard") {
-      return "Dashboard";
-    }
-
-    // Check all dashboard sections
-    for (const section of dashboardSections) {
-      if (section.items.some(item => {
-        const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
-        return path.includes(itemPath);
-      })) {
-        return section.category;
-      }
-    }
-
-    // Check Catalog Management
-    if (catalogSection.items.some(item => {
-      const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
-      return path.includes(itemPath);
-    })) {
-      return "Catalog Management";
-    }
-
-    return null;
-  };
-
-  // Update selected category when location changes
-  useEffect(() => {
-    const activeCategory = getActiveCategory();
-    if (activeCategory) {
-      setSelectedCategory(activeCategory);
-      // Expand the category if it has an active submenu
-      if (activeCategory !== "Dashboard") {
-        setExpandedCategories([activeCategory]);
-      }
-    }
-  }, [location.pathname]);
-
   const handleNavigation = (section: string) => {
     const route = `/superadmin/${section.toLowerCase().replace(/\s+/g, "-")}`;
     navigate(route);
-    setSelectedCategory(section);
+    setExpandedCategories([section]);
   };
 
   const handleCatalogItemClick = (item: string) => {
     const route = `/superadmin/${item.toLowerCase()}`;
     navigate(route);
-    setSelectedCategory("Catalog Management");
+    setExpandedCategories(["Catalog Management"]);
     if (window.innerWidth < 768) {
       setIsSidebarOpen(false);
     }
@@ -399,7 +428,7 @@ const SuperAdminLayout = () => {
 
               {dashboardSections.map((section, index) => {
                 const Icon = section.icon;
-                const colorClasses = getCategoryColorClasses(section.category);
+                const colorClasses = getCategoryColorClasses();
                 const isActive = isCategoryActive(section.category);
                 const isExpanded = expandedCategories.includes(section.category);
 
@@ -451,7 +480,7 @@ const SuperAdminLayout = () => {
                   className={`
                     w-full flex items-center px-4 py-3 rounded-lg text-left
                     ${isCategoryActive("Catalog Management") ? 
-                      getCategoryColorClasses("Catalog Management").active : 
+                      getCategoryColorClasses().active : 
                       'text-black hover:bg-orange-50'}
                     transition-all duration-200
                   `}
@@ -464,7 +493,7 @@ const SuperAdminLayout = () => {
                 {/* Show catalog items when expanded */}
                 {expandedCategories.includes("Catalog Management") && (
                   <div className="mt-2 ml-6 space-y-1">
-                    {catalogSection.items.map((item, index) => {
+                    {catalogSections.find(section => section.category === "Catalog Management")?.items.map((item, index) => {
                       const ItemIcon = item.icon;
                       const isItemActive = isSubmenuActive(item.title);
                       return (
@@ -483,6 +512,23 @@ const SuperAdminLayout = () => {
                     })}
                   </div>
                 )}
+              </li>
+
+              {/* Settings - Direct Navigation Item */}
+              <li>
+                <button
+                  onClick={() => handleNavigation("Settings")}
+                  className={`
+                    w-full flex items-center px-4 py-3 rounded-lg text-left
+                    ${isCategoryActive("Setting") ? 
+                      getCategoryColorClasses().active : 
+                      'text-black hover:bg-orange-50'}
+                    transition-all duration-200
+                  `}
+                >
+                  <Settings className={`w-5 h-5 ${isCategoryActive("Setting") ? '' : 'text-gray-500'} mr-3`} />
+                  <span className="font-medium">Settings</span>
+                </button>
               </li>
             </ul>
           </nav>

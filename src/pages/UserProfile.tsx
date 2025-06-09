@@ -329,7 +329,7 @@ const UserProfile: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto py-10 px-4">
       {/* Profile Image/Avatar */}
-      <div className="flex flex-col items-center mb-8">
+      <div className="flex flex-col items-start mb-8">
         <div className="relative mb-2">
           {profileImageUrl ? (
             <img
@@ -386,6 +386,12 @@ const UserProfile: React.FC = () => {
                     </button>
                   ))}
                 </div>
+                <label
+                  htmlFor="profile-image-upload"
+                  className="w-full text-center text-sm text-gray-600 hover:text-orange-500 cursor-pointer py-2 border-t border-gray-200 mt-2"
+                >
+                  Upload Image
+                </label>
                 <button
                   className="text-xs text-gray-500 hover:text-orange-500 mt-1 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
                   onClick={() => setShowAvatarPicker(false)}
@@ -405,17 +411,12 @@ const UserProfile: React.FC = () => {
           onChange={e => {
             if (e.target.files && e.target.files[0]) {
               setProfileImage(e.target.files[0]);
+              setShowAvatarPicker(false);
             }
           }}
         />
-        <label
-          htmlFor="profile-image-upload"
-          className="cursor-pointer text-orange-500 hover:text-orange-600 text-sm font-medium"
-        >
-          {profileImage ? 'Change Image' : 'Upload Image'}
-        </label>
         {!profileImage && (
-          <div className="text-xs text-gray-400 mt-1">or click avatar to choose style</div>
+          <div className="text-xs text-gray-400 mt-1">Click avatar to choose style</div>
         )}
       </div>
       {/* User Info */}

@@ -65,13 +65,7 @@ const topMerchants = [
   { name: 'Home Essentials', revenue: '$25,890', orders: 76, growth: '+8%' }
 ];
 
-const recentActivity = [
-  { action: 'New merchant registered', user: 'Digital Dynamics', time: '2 minutes ago', type: 'merchant' },
-  { action: 'Large order placed', user: 'Customer #4521', time: '5 minutes ago', type: 'order' },
-  { action: 'Product approved', user: 'TechStore Pro', time: '12 minutes ago', type: 'product' },
-  { action: 'Payment processed', user: 'Order #7834', time: '18 minutes ago', type: 'payment' },
-  { action: 'User verification completed', user: 'Sarah Wilson', time: '25 minutes ago', type: 'user' }
-];
+
 
 const Dashboard = () => {
   const [timeRange, setTimeRange] = useState('6months');
@@ -127,7 +121,7 @@ const Dashboard = () => {
             color: "green"
           },
           {
-            title: "Active Users",
+            title: "Users",
             value: "12,847",
             change: "+18.2%",
             trend: "up",
@@ -206,7 +200,9 @@ const Dashboard = () => {
       </div>
 
       {/* Second Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Second Charts Row (Updated to 2 columns instead of 3) */}
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
         {/* Category Distribution */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Categories</h3>
@@ -250,32 +246,7 @@ const Dashboard = () => {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-          <div className="space-y-4">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <div className={`p-2 rounded-full ${
-                  activity.type === 'merchant' ? 'bg-purple-100' :
-                  activity.type === 'order' ? 'bg-green-100' :
-                  activity.type === 'product' ? 'bg-blue-100' :
-                  activity.type === 'payment' ? 'bg-yellow-100' : 'bg-gray-100'
-                }`}>
-                  {activity.type === 'merchant' && <Store className="w-4 h-4 text-purple-600" />}
-                  {activity.type === 'order' && <ShoppingCart className="w-4 h-4 text-green-600" />}
-                  {activity.type === 'product' && <Package className="w-4 h-4 text-blue-600" />}
-                  {activity.type === 'payment' && <CreditCard className="w-4 h-4 text-yellow-600" />}
-                  {activity.type === 'user' && <UserPlus className="w-4 h-4 text-gray-600" />}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                  <p className="text-sm text-gray-600">{activity.user}</p>
-                  <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        
       </div>
 
       {/* Additional Metrics */}
