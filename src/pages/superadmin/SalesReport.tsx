@@ -354,57 +354,7 @@ export default function SalesReport() {
         </div>
 
         {/* Filters with updated styling */}
-        <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <h2 className="text-lg font-medium flex items-center" style={{color: '#FF5733'}}>
-              <Filter className="w-5 h-5 mr-2" style={{color: '#FF5733'}} />
-              Filter Options
-            </h2>
-            <div className="flex flex-wrap gap-4">
-              <div className="w-full md:w-auto">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Product</label>
-                <select
-                  value={filterProduct}
-                  onChange={(e) => setFilterProduct(e.target.value)}
-                  className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:border-2 focus:border-opacity-50 sm:text-sm rounded-md"
-                  style={{focusBorderColor: '#FF5733'}}
-                >
-                  <option value="all">All Products</option>
-                  {uniqueProducts.map(product => (
-                    <option key={product} value={product}>{product}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="w-full md:w-auto">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Merchant</label>
-                <select
-                  value={filterMerchant}
-                  onChange={(e) => setFilterMerchant(e.target.value)}
-                  className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:border-2 focus:border-opacity-50 sm:text-sm rounded-md"
-                  style={{focusBorderColor: '#FF5733'}}
-                >
-                  <option value="all">All Merchants</option>
-                  {uniqueMerchants.map(merchant => (
-                    <option key={merchant} value={merchant}>{merchant}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="w-full md:w-auto">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
-                <div className="relative rounded-md shadow-sm">
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search products or merchants"
-                    className="focus:ring-2 focus:ring-opacity-50 focus:border-2 focus:border-opacity-50 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md py-2"
-                    style={{focusRingColor: '#FF5733', focusBorderColor: '#FF5733'}}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Filter section removed as per request */}
 
         {/* Revenue and Sales Trend Chart with updated colors */}
         <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
