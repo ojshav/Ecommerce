@@ -135,7 +135,6 @@ const TrackOrder: React.FC = () => {
               type="submit"
               className="px-6 py-3 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors flex items-center gap-2"
             >
-              <Search size={20} />
               Track Order
             </button>
           </form>

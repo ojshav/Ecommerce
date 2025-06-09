@@ -88,6 +88,8 @@ const Attribute: React.FC = () => {
 
     const [linkedAttributes, setLinkedAttributes] = useState<ICategoryAttribute[]>([]);
 
+    const [searchQuery, setSearchQuery] = useState('');
+
     // Fetch data on component mount
     useEffect(() => {
         fetchAttributes();
@@ -564,9 +566,17 @@ const Attribute: React.FC = () => {
                 {activeTab === 'custom' && (
                     <div>
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-lg font-semibold">Custom Attributes</h2>
+                            <div className="flex items-center w-full max-w-md">
+                                <input
+                                    type="text"
+                                    placeholder="Search attributes..."
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-[#FF5733] focus:border-[#FF5733]"
+                                />
+                            </div>
                             <button
-                                className="bg-[#FF5733] text-white px-4 py-2 rounded flex items-center hover:bg-[#FF4500] transition-colors"
+                                className="ml-4 bg-[#FF5733] text-white px-4 py-2 rounded flex items-center hover:bg-[#FF4500] transition-colors"
                                 onClick={() => setShowAddCustomAttribute(true)}
                             >
                                 <PlusCircle className="w-4 h-4 mr-1" />
@@ -578,9 +588,15 @@ const Attribute: React.FC = () => {
                             Add values for additional attributes specific to your product.
                         </p>
 
-                        {customAttributes.length > 0 ? (
+                        {(customAttributes.filter(attr =>
+                            attr.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            attr.code.toLowerCase().includes(searchQuery.toLowerCase())
+                        ).length > 0) ? (
                             <div className="space-y-6">
-                                {customAttributes.map((attr) => (
+                                {customAttributes.filter(attr =>
+                                    attr.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    attr.code.toLowerCase().includes(searchQuery.toLowerCase())
+                                ).map((attr) => (
                                     <div key={attr.attribute_id} className="border rounded-lg p-4">
                                         <div className="flex justify-between items-center mb-4">
                                             <div>
