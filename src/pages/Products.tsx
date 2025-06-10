@@ -95,10 +95,15 @@ const Products: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const categoryId = params.get('category');
-    if (categoryId) {
-      setSelectedCategory(categoryId);
+    const pathCategoryId = location.pathname.split('/').pop(); // Get category ID from path
+
+    // Handle both query parameter and path-based category IDs
+    const finalCategoryId = categoryId || pathCategoryId;
+    
+    if (finalCategoryId) {
+      setSelectedCategory(finalCategoryId);
       // Expand the parent category if it exists
-      const category = categories.find(cat => cat.category_id === Number(categoryId));
+      const category = categories.find(cat => cat.category_id === Number(finalCategoryId));
       if (category?.parent_id !== null && category?.parent_id !== undefined) {
         setExpandedCategories(prev => ({
           ...prev,
@@ -108,7 +113,7 @@ const Products: React.FC = () => {
     } else {
       setSelectedCategory('');
     }
-  }, [location.search, categories]);
+  }, [location.search, location.pathname, categories]);
 
   // Toggle category expansion
   const toggleCategoryExpand = (categoryId: number) => {
@@ -160,9 +165,7 @@ const Products: React.FC = () => {
             } else {
               setSelectedCategory(String(category.category_id));
               // Update URL with selected category
-              const params = new URLSearchParams(location.search);
-              params.set('category', String(category.category_id));
-              navigate(`?${params.toString()}`);
+              navigate(`/products/${category.category_id}`);
             }
           }}
           className={btnClass}
@@ -203,11 +206,11 @@ const Products: React.FC = () => {
 
       // Get URL parameters
       const urlParams = new URLSearchParams(location.search);
-      const categoryId = urlParams.get('category');
+      const categoryId = urlParams.get('category') || location.pathname.split('/').pop();
       const brandId = urlParams.get('brand');
 
       // Add filters if they exist
-      if (categoryId) {
+      if (categoryId && categoryId !== 'products') {
         params.append('category_id', categoryId);
       }
       if (brandId) {

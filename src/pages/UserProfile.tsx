@@ -327,379 +327,372 @@ const UserProfile: React.FC = () => {
   }, [user?.id]);
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4">
-      {/* Profile Image/Avatar */}
-      <div className="flex flex-col items-start mb-8">
-        <div className="relative mb-2">
-          {profileImageUrl ? (
-            <img
-              src={profileImageUrl}
-              alt="Profile"
-              className="w-24 h-24 rounded-full object-cover border-4 border-orange-200 shadow"
-            />
-          ) : (
-            <button
-              type="button"
-              className="w-24 h-24 rounded-full flex items-center justify-center bg-gray-100 border-4 border-orange-200 shadow text-gray-400 text-5xl hover:bg-gray-200"
-              onClick={() => setShowAvatarPicker(v => !v)}
-              title="Click to choose avatar"
-            >
-              {AVATAR_OPTIONS[avatarIndex].render()}
-            </button>
-          )}
-          {profileImageUrl && (
-            <button
-              type="button"
-              className="absolute -top-2 -right-2 bg-white border border-gray-300 rounded-full p-1 text-xs text-red-500 hover:bg-red-100"
-              onClick={() => {
-                setProfileImage(null);
-                if (fileInputRef.current) fileInputRef.current.value = '';
-              }}
-              title="Remove image"
-            >
-              &times;
-            </button>
-          )}
-          {/* Avatar Picker Popover */}
-          {showAvatarPicker && !profileImageUrl && (
-            <>
-              {/* Overlay to close popover on outside click */}
-              <div
-                className="fixed inset-0 z-10 bg-transparent"
-                onClick={() => setShowAvatarPicker(false)}
-              />
-              <div className={`absolute left-1/2 top-full z-20 mt-3 -translate-x-1/2 bg-white border border-gray-200 rounded-xl shadow-2xl px-6 pt-4 pb-3 flex flex-col items-center ${popoverAnim}`} style={{ minWidth: 220 }}>
-                {/* Arrow */}
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 overflow-hidden">
-                  <div className="w-4 h-4 bg-white border-l border-t border-gray-200 rotate-45 shadow-md"></div>
-                </div>
-                <div className="grid grid-cols-2 gap-5 mb-2">
-                  {AVATAR_OPTIONS.map((opt, idx) => (
-                    <button
-                      key={opt.label}
-                      className={`w-12 h-12 rounded-full flex items-center justify-center border-2 focus:outline-none focus:ring-2 focus:ring-orange-400 ${avatarIndex === idx ? 'border-orange-500 ring-2 ring-orange-200' : 'border-transparent'} bg-gray-50 hover:bg-orange-100 transition`}
-                      onClick={() => { setAvatarIndex(idx); setShowAvatarPicker(false); }}
-                      title={opt.label}
-                      aria-label={opt.label}
-                    >
-                      {opt.render()}
-                    </button>
-                  ))}
-                </div>
-                <label
-                  htmlFor="profile-image-upload"
-                  className="w-full text-center text-sm text-gray-600 hover:text-orange-500 cursor-pointer py-2 border-t border-gray-200 mt-2"
-                >
-                  Upload Image
-                </label>
+    <div className="py-10 px-4">
+      <div className="max-w-8xl mx-auto flex flex-col md:flex-row gap-0">
+        {/* Left Sidebar for Avatar */}
+        <aside className="w-full md:w-1/4">
+          {/* Profile Image/Avatar */}
+          <div className="flex flex-col items-center mb-8">
+            <div className="relative mb-2">
+              {profileImageUrl ? (
+                <img
+                  src={profileImageUrl}
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full object-cover border-4 border-orange-200 shadow"
+                />
+              ) : (
                 <button
-                  className="text-xs text-gray-500 hover:text-orange-500 mt-1 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  onClick={() => setShowAvatarPicker(false)}
+                  type="button"
+                  className="w-24 h-24 rounded-full flex items-center justify-center bg-gray-100 border-4 border-orange-200 shadow text-gray-400 text-5xl hover:bg-gray-200"
+                  onClick={() => setShowAvatarPicker(v => !v)}
+                  title="Click to choose avatar"
                 >
-                  Cancel
+                  {AVATAR_OPTIONS[avatarIndex].render()}
+                </button>
+              )}
+              {profileImageUrl && (
+                <button
+                  type="button"
+                  className="absolute -top-2 -right-2 bg-white border border-gray-300 rounded-full p-1 text-xs text-red-500 hover:bg-red-100"
+                  onClick={() => {
+                    setProfileImage(null);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                  }}
+                  title="Remove image"
+                >
+                  &times;
+                </button>
+              )}
+              {/* Avatar Picker Popover */}
+              {showAvatarPicker && !profileImageUrl && (
+                <>
+                  {/* Overlay to close popover on outside click */}
+                  <div
+                    className="fixed inset-0 z-10 bg-transparent"
+                    onClick={() => setShowAvatarPicker(false)}
+                  />
+                  <div className={`absolute left-1/2 top-full z-20 mt-3 -translate-x-1/2 bg-white border border-gray-200 rounded-xl shadow-2xl px-6 pt-4 pb-3 flex flex-col items-center ${popoverAnim}`} style={{ minWidth: 220 }}>
+                    {/* Arrow */}
+                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 overflow-hidden">
+                      <div className="w-4 h-4 bg-white border-l border-t border-gray-200 rotate-45 shadow-md"></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-5 mb-2">
+                      {AVATAR_OPTIONS.map((opt, idx) => (
+                        <button
+                          key={opt.label}
+                          className={`w-12 h-12 rounded-full flex items-center justify-center border-2 focus:outline-none focus:ring-2 focus:ring-orange-400 ${avatarIndex === idx ? 'border-orange-500 ring-2 ring-orange-200' : 'border-transparent'} bg-gray-50 hover:bg-orange-100 transition`}
+                          onClick={() => { setAvatarIndex(idx); setShowAvatarPicker(false); }}
+                          title={opt.label}
+                          aria-label={opt.label}
+                        >
+                          {opt.render()}
+                        </button>
+                      ))}
+                    </div>
+                    <label
+                      htmlFor="profile-image-upload"
+                      className="w-full text-center text-sm text-gray-600 hover:text-orange-500 cursor-pointer py-2 border-t border-gray-200 mt-2"
+                    >
+                      Upload Image
+                    </label>
+                    <button
+                      className="text-xs text-gray-500 hover:text-orange-500 mt-1 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+                      onClick={() => setShowAvatarPicker(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              id="profile-image-upload"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={e => {
+                if (e.target.files && e.target.files[0]) {
+                  setProfileImage(e.target.files[0]);
+                  setShowAvatarPicker(false);
+                }
+              }}
+            />
+            {!profileImage && (
+              <div className="text-xs text-gray-400 mt-2">Click avatar to choose style</div>
+            )}
+          </div>
+        </aside>
+        {/* Right Main Content */}
+        <div className="flex-1 max-w-5xl">
+          {/* User Info */}
+          <div className="mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                <input 
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
+                  value={userInfo.fullName} 
+                  readOnly 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <input 
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
+                  value={userInfo.email} 
+                  readOnly 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                <input 
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
+                  value={userInfo.phone} 
+                  readOnly 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Country/Region</label>
+                <input 
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
+                  value={userInfo.country} 
+                  readOnly 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">State</label>
+                <input 
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
+                  value={userInfo.state} 
+                  readOnly 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Zip Code</label>
+                <input 
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
+                  value={userInfo.zipCode} 
+                  readOnly 
+                />
+              </div>
+            </div>
+          </div>
+          <button className="bg-orange-500 text-white px-6 py-2 rounded-md font-medium mb-8">Save Changes</button>
+
+          {/* Saved Addresses */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-2">Saved Addresses</h2>
+            {loading ? (
+              <div className="flex justify-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+              </div>
+            ) : error ? (
+              <div className="text-red-500 text-center py-4">
+                <p>{error}</p>
+                <button 
+                  onClick={fetchAddresses}
+                  className="mt-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+                >
+                  Try Again
                 </button>
               </div>
-            </>
-          )}
-        </div>
-        <input
-          type="file"
-          accept="image/*"
-          id="profile-image-upload"
-          className="hidden"
-          ref={fileInputRef}
-          onChange={e => {
-            if (e.target.files && e.target.files[0]) {
-              setProfileImage(e.target.files[0]);
-              setShowAvatarPicker(false);
-            }
-          }}
-        />
-        {!profileImage && (
-          <div className="text-xs text-gray-400 mt-1">Click avatar to choose style</div>
-        )}
-      </div>
-      {/* User Info */}
-      <div className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Full Name</label>
-            <input 
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
-              value={userInfo.fullName} 
-              readOnly 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input 
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
-              value={userInfo.email} 
-              readOnly 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-            <input 
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
-              value={userInfo.phone} 
-              readOnly 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Country/Region</label>
-            <input 
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
-              value={userInfo.country} 
-              readOnly 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">State</label>
-            <input 
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
-              value={userInfo.state} 
-              readOnly 
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Zip Code</label>
-            <input 
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" 
-              value={userInfo.zipCode} 
-              readOnly 
-            />
-          </div>
-        </div>
-      </div>
-      <button className="bg-orange-500 text-white px-6 py-2 rounded-md font-medium mb-8">Save Changes</button>
-
-      {/* Saved Addresses */}
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-2">Saved Addresses</h2>
-        {loading ? (
-          <div className="flex justify-center py-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
-          </div>
-        ) : error ? (
-          <div className="text-red-500 text-center py-4">
-            <p>{error}</p>
-            <button 
-              onClick={fetchAddresses}
-              className="mt-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-            >
-              Try Again
+            ) : (
+              <div className="space-y-2 mb-2">
+                {addresses.map((address) => (
+                  <div key={address.address_id} className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-md border">
+                    <div className="flex-1">
+                      <p className="text-sm">{address.full_address_str}</p>
+                      <div className="flex gap-2 mt-1">
+                        {!address.is_default_shipping && (
+                          <button 
+                            onClick={() => handleSetDefaultAddress(address.address_id, 'shipping')}
+                            className="text-xs text-orange-500 hover:text-orange-600"
+                          >
+                            Set as default shipping
+                          </button>
+                        )}
+                        {!address.is_default_billing && (
+                          <button 
+                            onClick={() => handleSetDefaultAddress(address.address_id, 'billing')}
+                            className="text-xs text-orange-500 hover:text-orange-600"
+                          >
+                            Set as default billing
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-x-2">
+                      <button className="bg-gray-200 px-3 py-1 rounded-md text-sm font-medium">Edit</button>
+                      <button 
+                        onClick={() => handleDeleteAddress(address.address_id)}
+                        className="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-medium"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button className="bg-orange-500 text-white px-4 py-1 rounded-md font-medium flex items-center">
+              <span className="mr-1">+</span> Add New
             </button>
           </div>
-        ) : (
-          <div className="space-y-2 mb-2">
-            {addresses.map((address) => (
-              <div key={address.address_id} className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-md border">
-                <div className="flex-1">
-                  <p className="text-sm">{address.full_address_str}</p>
-                  <div className="flex gap-2 mt-1">
-                    {!address.is_default_shipping && (
-                      <button 
-                        onClick={() => handleSetDefaultAddress(address.address_id, 'shipping')}
-                        className="text-xs text-orange-500 hover:text-orange-600"
-                      >
-                        Set as default shipping
-                      </button>
-                    )}
-                    {!address.is_default_billing && (
-                      <button 
-                        onClick={() => handleSetDefaultAddress(address.address_id, 'billing')}
-                        className="text-xs text-orange-500 hover:text-orange-600"
-                      >
-                        Set as default billing
-                      </button>
-                    )}
-                  </div>
-                </div>
+
+          {/* Payment Methods */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-2">Payment Methods</h2>
+            <div className="space-y-2 mb-2">
+              <div className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-md border">
+                <span>Visa ending in 2045</span>
+                <span>14/24</span>
                 <div className="space-x-2">
                   <button className="bg-gray-200 px-3 py-1 rounded-md text-sm font-medium">Edit</button>
-                  <button 
-                    onClick={() => handleDeleteAddress(address.address_id)}
-                    className="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-medium"
-                  >
-                    Delete
-                  </button>
+                  <button className="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-medium">Delete</button>
                 </div>
               </div>
-            ))}
+              <div className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-md border">
+                <span>Mastercard ending in 5678</span>
+                <span>11/23</span>
+                <span>CVV</span>
+                <div className="space-x-2">
+                  <button className="bg-gray-200 px-3 py-1 rounded-md text-sm font-medium">Edit</button>
+                  <button className="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-medium">Delete</button>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2 mb-2">
+              <select className="border border-gray-300 rounded-md px-3 py-1">
+                <option>mm</option>
+              </select>
+              <select className="border border-gray-300 rounded-md px-3 py-1">
+                <option>yy</option>
+              </select>
+            </div>
+            <button className="bg-orange-500 text-white px-4 py-1 rounded-md font-medium flex items-center"><span className="mr-1">+</span> Add New</button>
           </div>
-        )}
-        <button className="bg-orange-500 text-white px-4 py-1 rounded-md font-medium flex items-center">
-          <span className="mr-1">+</span> Add New
-        </button>
-      </div>
 
-      {/* Payment Methods */}
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-2">Payment Methods</h2>
-        <div className="space-y-2 mb-2">
-          <div className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-md border">
-            <span>Visa ending in 2045</span>
-            <span>14/24</span>
-            <div className="space-x-2">
-              <button className="bg-gray-200 px-3 py-1 rounded-md text-sm font-medium">Edit</button>
-              <button className="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-medium">Delete</button>
-            </div>
-          </div>
-          <div className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-md border">
-            <span>Mastercard ending in 5678</span>
-            <span>11/23</span>
-            <span>CVV</span>
-            <div className="space-x-2">
-              <button className="bg-gray-200 px-3 py-1 rounded-md text-sm font-medium">Edit</button>
-              <button className="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-medium">Delete</button>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2 mb-2">
-          <select className="border border-gray-300 rounded-md px-3 py-1">
-            <option>mm</option>
-          </select>
-          <select className="border border-gray-300 rounded-md px-3 py-1">
-            <option>yy</option>
-          </select>
-        </div>
-        <button className="bg-orange-500 text-white px-4 py-1 rounded-md font-medium flex items-center"><span className="mr-1">+</span> Add New</button>
-      </div>
-
-      {/* Notification Settings */}
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-2">Notification Settings</h2>
-        <div className="grid grid-cols-2 gap-4 items-center mb-2 max-w-md">
-          <div className="space-y-8">
-            <div className="flex items-center">
-              <span className="text-base">Email Notification</span>
-            </div>
-            <div className="flex items-center">
-              <span className="text-base">PUSH Notification</span>
-            </div>
-          </div>
-          <div className="space-y-8 flex flex-col items-end">
-            <button
-              type="button"
-              aria-pressed={emailNotif}
-              onClick={() => setEmailNotif(v => !v)}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${emailNotif ? 'bg-black' : 'bg-gray-300'}`}
-            >
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${emailNotif ? 'translate-x-5' : 'translate-x-1'}`}
-              />
-            </button>
-            <button
-              type="button"
-              aria-pressed={pushNotif}
-              onClick={() => setPushNotif(v => !v)}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${pushNotif ? 'bg-black' : 'bg-gray-300'}`}
-            >
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${pushNotif ? 'translate-x-5' : 'translate-x-1'}`}
-              />
-            </button>
-          </div>
-        </div>
-        <button className="bg-orange-500 text-white px-4 py-1 rounded-md font-medium flex items-center mt-2"><span className="mr-1">+</span> Add New</button>
-      </div>
-
-      {/* Change Password Section - Only show for local auth users */}
-      {userInfo.authProvider === 'local' && (
-        <div className="bg-white border rounded-md p-6">
-          <h2 className="text-lg font-semibold mb-4">Change Password</h2>
-          <form onSubmit={handlePasswordChange} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Current Password</label>
-              <div className="relative">
-                <input
-                  type={showCurrentPassword ? 'text' : 'password'}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 pr-10"
-                  placeholder="Current Password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                />
-                <button 
-                  type="button" 
-                  className="absolute right-2 top-2" 
-                  onClick={() => setShowCurrentPassword(v => !v)}
+          {/* Notification Settings */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-2">Notification Settings</h2>
+            <div className="grid grid-cols-2 gap-4 items-center mb-2 max-w-md">
+              <div className="space-y-8">
+                <div className="flex items-center">
+                  <span className="text-base">Email Notification</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-base">PUSH Notification</span>
+                </div>
+              </div>
+              <div className="space-y-8 flex flex-col items-end">
+                <button
+                  type="button"
+                  aria-pressed={emailNotif}
+                  onClick={() => setEmailNotif(v => !v)}
+                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${emailNotif ? 'bg-black' : 'bg-gray-300'}`}
                 >
-                  {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${emailNotif ? 'translate-x-5' : 'translate-x-1'}`}
+                  />
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={pushNotif}
+                  onClick={() => setPushNotif(v => !v)}
+                  className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${pushNotif ? 'bg-black' : 'bg-gray-300'}`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${pushNotif ? 'translate-x-5' : 'translate-x-1'}`}
+                  />
                 </button>
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">New Password</label>
-              <div className="relative">
-                <input
-                  type={showNewPassword ? 'text' : 'password'}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 pr-10"
-                  placeholder="8+ characters"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                />
-                <button 
-                  type="button" 
-                  className="absolute right-2 top-2" 
-                  onClick={() => setShowNewPassword(v => !v)}
-                >
-                  {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 pr-10"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-                <button 
-                  type="button" 
-                  className="absolute right-2 top-2" 
-                  onClick={() => setShowConfirmPassword(v => !v)}
-                >
-                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-            {passwordError && (
-              <div className="text-red-500 text-sm">{passwordError}</div>
-            )}
-            <button 
-              type="submit" 
-              className="bg-orange-500 text-white px-6 py-2 rounded-md font-medium w-full"
-            >
-              Change Password
-            </button>
-          </form>
-        </div>
-      )}
+            <button className="bg-orange-500 text-white px-4 py-1 rounded-md font-medium flex items-center mt-2"><span className="mr-1">+</span> Add New</button>
+          </div>
 
-      {/* Google Auth Message */}
-      {userInfo.authProvider === 'google' && (
-        <div className="bg-white border rounded-md p-6">
-          <h2 className="text-lg font-semibold mb-4">Password Management</h2>
-          <p className="text-gray-600">
-            Since you're signed in with Google, you can manage your password through your Google account settings.
-          </p>
-          <a 
-            href="https://myaccount.google.com/security" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-orange-500 hover:text-orange-600 mt-2 inline-block"
-          >
-            Manage Google Account Security
-          </a>
+          {/* Change Password Section - Only show for local auth users */}
+          {userInfo.authProvider === 'local' && (
+            <div className="bg-white border rounded-md p-6">
+              <h2 className="text-lg font-semibold mb-4">Change Password</h2>
+              <form onSubmit={handlePasswordChange} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Current Password</label>
+                  <div className="relative">
+                    <input
+                      type={showCurrentPassword ? 'text' : 'password'}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 pr-10"
+                      placeholder="Current Password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      required
+                    />
+                    <button 
+                      type="button" 
+                      className="absolute right-2 top-2" 
+                      onClick={() => setShowCurrentPassword(v => !v)}
+                    >
+                      {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">New Password</label>
+                  <div className="relative">
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 pr-10"
+                      placeholder="8+ characters"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                    />
+                    <button 
+                      type="button" 
+                      className="absolute right-2 top-2" 
+                      onClick={() => setShowNewPassword(v => !v)}
+                    >
+                      {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 pr-10"
+                      placeholder="Confirm Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                    <button 
+                      type="button" 
+                      className="absolute right-2 top-2" 
+                      onClick={() => setShowConfirmPassword(v => !v)}
+                    >
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+                {passwordError && (
+                  <div className="text-red-500 text-sm">{passwordError}</div>
+                )}
+                <button 
+                  type="submit" 
+                  className="bg-orange-500 text-white px-6 py-2 rounded-md font-medium w-full"
+                >
+                  Change Password
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* Google Auth Message */}
+         
         </div>
-      )}
+      </div>
     </div>
   );
 };
