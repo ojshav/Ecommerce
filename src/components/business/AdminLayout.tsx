@@ -3,6 +3,7 @@ import { Outlet, Navigate, Link, useLocation, useNavigate } from 'react-router-d
 import { useAuth } from '../../context/AuthContext';
 import useClickOutside from '../../hooks/useClickOutside';
 import LogoutConfirmationPopup from '../LogoutConfirmationPopup';
+import toast from 'react-hot-toast';
 import { 
   ChevronDownIcon, 
   Bars3Icon, 
@@ -13,12 +14,10 @@ import {
   TagIcon, 
   ChartBarIcon, 
   UserGroupIcon, 
-  CreditCardIcon, 
   CogIcon, 
   ChatBubbleLeftIcon,
   DocumentChartBarIcon,
-  StarIcon,
-  ArrowLeftOnRectangleIcon
+  StarIcon
 } from '@heroicons/react/24/outline';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -180,6 +179,7 @@ const AdminLayout: React.FC = () => {
   const handleLogoutConfirm = () => {
     logout();
     setIsLogoutPopupOpen(false);
+    toast.success('Successfully logged out!');
     navigate('/');
   };
 

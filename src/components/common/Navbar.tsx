@@ -7,6 +7,7 @@ import CategoryDropdown from '../home/CategoryDropdown';
 import SearchResults from './SearchResults';
 import useClickOutside from '../../hooks/useClickOutside';
 import LogoutConfirmationPopup from '../LogoutConfirmationPopup';
+import toast from 'react-hot-toast';
 
 // Custom breakpoint for 968px
 // const customBreakpoint = '@media (max-width: 968px)'; // Removed as unused
@@ -103,6 +104,7 @@ const Navbar: React.FC = () => {
     setIsLogoutPopupOpen(false);
     setMobileMenuOpen(false);
     setLowerMobileMenuOpen(false);
+    toast.success('Logged out successfully');
   };
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

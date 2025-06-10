@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
+import toast from 'react-hot-toast';
 
 const SignUp: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -21,11 +22,13 @@ const SignUp: React.FC = () => {
   const validatePassword = () => {
     if (password !== confirmPassword) {
       setPasswordError("Passwords don't match");
+      toast.error("Passwords don't match");
       return false;
     }
     
     if (password.length < 8) {
       setPasswordError("Password must be at least 8 characters");
+      toast.error("Password must be at least 8 characters");
       return false;
     }
     
@@ -41,6 +44,7 @@ const SignUp: React.FC = () => {
     }
     
     if (!agreeToTerms) {
+      toast.error("Please agree to the Terms and Conditions");
       return;
     }
     
@@ -71,12 +75,14 @@ const SignUp: React.FC = () => {
       if (data.access_token && data.refresh_token) {
         const success = await register(data.access_token, data.refresh_token);
         if (success) {
+          toast.success('Account created successfully!');
           navigate('/');
           return;
         }
       }
       
       // If no tokens, show verification pending page
+      toast.success('Registration successful! Please check your email for verification.');
       navigate('/verification-pending', { 
         state: { 
           email,
@@ -85,9 +91,13 @@ const SignUp: React.FC = () => {
       });
     } catch (err) {
       if (err instanceof Error) {
-        setApiError(err.message || 'An error occurred during registration');
+        const errorMessage = err.message || 'An error occurred during registration';
+        setApiError(errorMessage);
+        toast.error(errorMessage);
       } else {
-        setApiError('An error occurred during registration');
+        const errorMessage = 'An error occurred during registration';
+        setApiError(errorMessage);
+        toast.error(errorMessage);
       }
       console.error(err);
     } finally {
@@ -109,17 +119,22 @@ const SignUp: React.FC = () => {
       // Pass the user data directly to register function
       const success = await register(data.access_token, data.refresh_token, data.user);
       if (success) {
+        toast.success('Successfully signed in with Google!');
         navigate('/');
       } else {
         throw new Error('Failed to complete Google sign-in');
       }
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'Google sign-in error');
+      const errorMessage = err instanceof Error ? err.message : 'Google sign-in error';
+      setApiError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
   const handleGoogleError = () => {
-    setApiError('Google sign-in was unsuccessful. Please try again.');
+    const errorMessage = 'Google sign-in was unsuccessful. Please try again.';
+    setApiError(errorMessage);
+    toast.error(errorMessage);
   };
 
   return (

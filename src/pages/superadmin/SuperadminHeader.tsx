@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Bell, User, Menu, ChevronDown } from 'lucide-react';
 import LogoutConfirmationPopup from '../../components/LogoutConfirmationPopup';
 import useClickOutside from '../../hooks/useClickOutside';
+import toast from 'react-hot-toast';
 
 interface SuperadminHeaderProps {
   onMenuClick?: () => void;
@@ -29,6 +30,7 @@ const SuperadminHeader: React.FC<SuperadminHeaderProps> = ({ onMenuClick }) => {
   const handleLogoutConfirm = () => {
     logout();
     setIsLogoutPopupOpen(false);
+    toast.success('Successfully logged out!');
     navigate('/');
   };
 

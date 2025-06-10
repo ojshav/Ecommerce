@@ -177,7 +177,11 @@ const App: React.FC = () => {
               <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                 <Routes>
                   {/* Add this route outside of /business and /superadmin, so it's public and renders without Navbar/Footer */}
-                  <Route path="/sign-in" element={<SignIn />} />
+                  
+                  <Route
+                              path="/business/login"
+                              element={<BusinessLogin />}/>
+                              <Route path="/superadmin/login" element={<SuperAdminLogin />} />
 
                   {/* Business Dashboard Routes */}
                   <Route path="/business" element={<AdminLayout />}>
@@ -431,7 +435,8 @@ const App: React.FC = () => {
                             <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
 
                             {/* These routes will have Navbar and Footer */}
-                            <Route path="/signup" element={<SignUp />} />
+                            <Route path="/sign-in" element={<SignIn />} />
+                  <Route path="/signup" element={<SignUp />} />
                             <Route
                               path="/verification-pending"
                               element={<VerificationPending />}
@@ -440,10 +445,6 @@ const App: React.FC = () => {
                             <Route
                               path="/verify-email/:token"
                               element={<VerifyEmail />}
-                            />
-                            <Route
-                              path="/business/login"
-                              element={<BusinessLogin />}
                             />
                             <Route
                               path="/register-business"
@@ -461,7 +462,6 @@ const App: React.FC = () => {
                             {/* <Route path="/wholesale" element={<Wholesale />} /> */}
 
                             <Route path="/register" element={<Register />} />
-                            <Route path="/superadmin/login" element={<SuperAdminLogin />} />
                             <Route
                               path="/become-merchant"
                               element={<BecomeMerchant />}
