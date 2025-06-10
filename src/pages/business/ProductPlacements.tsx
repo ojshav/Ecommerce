@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { PlusIcon, TrashIcon, EyeIcon, StarIcon as SolidStarIcon, ShoppingBagIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, TrashIcon, EyeIcon, StarIcon as SolidStarIcon, ShoppingBagIcon, ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { StarIcon as OutlineStarIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'; 
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -61,6 +61,8 @@ const ProductPlacements: React.FC = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [placementToDelete, setPlacementToDelete] = useState<number | null>(null);
 
   const [selectedPlacementTypeToAdd, setSelectedPlacementTypeToAdd] = useState<'FEATURED' | 'PROMOTED'>('FEATURED');
   const [selectedProductIdToAdd, setSelectedProductIdToAdd] = useState<string>('');
@@ -232,11 +234,16 @@ const ProductPlacements: React.FC = () => {
   };
 
   const handleDeletePlacement = async (placementId: number) => {
-    if (!window.confirm('Are you sure you want to remove this product placement?')) return;
+    setPlacementToDelete(placementId);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!placementToDelete) return;
     
-    setIsDeleting(placementId);
+    setIsDeleting(placementToDelete);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/product-placements/${placementId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/product-placements/${placementToDelete}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${accessToken}` },
       });
@@ -253,6 +260,8 @@ const ProductPlacements: React.FC = () => {
       toast.error(error instanceof Error ? error.message : 'Failed to delete placement.');
     } finally {
       setIsDeleting(null);
+      setDeleteModalOpen(false);
+      setPlacementToDelete(null);
     }
   };
 
@@ -302,6 +311,57 @@ const ProductPlacements: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Confirm Deletion</h3>
+              <button
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setPlacementToDelete(null);
+                }}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to remove this product placement? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setPlacementToDelete(null);
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting === placementToDelete}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              >
+                {isDeleting === placementToDelete ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Manage Featured & Promoted Products</h1>
 
       <div className="bg-white p-6 rounded-lg shadow-md border border-orange-200">
@@ -583,12 +643,12 @@ const ProductPlacements: React.FC = () => {
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                       <button
                         onClick={() => handleDeletePlacement(placement.placement_id)}
-                        className="text-red-500 hover:text-red-700 disabled:opacity-50 p-1 rounded-full hover:bg-red-50"
+                        className="text-orange-400 hover:text-orange-600 disabled:opacity-50 p-1 rounded-full hover:bg-red-50"
                         disabled={isDeleting === placement.placement_id}
                         title="Delete Placement"
                       >
                         {isDeleting === placement.placement_id ? (
-                          <svg className="animate-spin h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <svg className="animate-spin h-5 w-5 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>

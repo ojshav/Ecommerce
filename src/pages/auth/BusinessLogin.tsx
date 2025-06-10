@@ -151,7 +151,7 @@ const BusinessLogin: React.FC = () => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <Link to="/forgot-password" className="text-sm text-[#F2631F] hover:text-orange-400">
+                <Link to="/forgot-password-request" className="text-sm text-[#F2631F] hover:text-orange-400">
                   Forgot password?
                 </Link>
               </div>

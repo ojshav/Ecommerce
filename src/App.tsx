@@ -10,6 +10,7 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
+import ForgotPasswordRequest from './pages/auth/ForgotPasswordRequest';
 
 import VerificationPending from './pages/auth/VerificationPending';
 
@@ -182,6 +183,18 @@ const App: React.FC = () => {
                               path="/business/login"
                               element={<BusinessLogin />}/>
                               <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+                              <Route
+                              path="/register-business"
+                              element={<RegisterBusiness />}
+                            />
+                            <Route
+                              path="/forgot-password"
+                              element={<PasswordReset />}
+                            />
+                            <Route
+                              path="/forgot-password-request"
+                              element={<ForgotPasswordRequest />}
+                            />
 
                   {/* Business Dashboard Routes */}
                   <Route path="/business" element={<AdminLayout />}>
@@ -446,15 +459,9 @@ const App: React.FC = () => {
                               path="/verify-email/:token"
                               element={<VerifyEmail />}
                             />
-                            <Route
-                              path="/register-business"
-                              element={<RegisterBusiness />}
-                            />
+                            
 
-                            <Route
-                              path="/password/reset"
-                              element={<PasswordReset />}
-                            />
+                            
 
                             <Route path="/wishlist" element={<WishList />} />
 
