@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Heart, Search, Facebook, Instagram, Twitter, Mail, LogOut, User, ChevronDown, Menu, X } from 'lucide-react';
+import { ShoppingCart, Heart, Facebook, Instagram, Twitter, Mail, LogOut, User, ChevronDown, Menu, X } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import CategoryDropdown from '../home/CategoryDropdown';
@@ -9,11 +9,11 @@ import useClickOutside from '../../hooks/useClickOutside';
 import LogoutConfirmationPopup from '../LogoutConfirmationPopup';
 
 // Custom breakpoint for 968px
-const customBreakpoint = '@media (max-width: 968px)';
+// const customBreakpoint = '@media (max-width: 968px)'; // Removed as unused
 
 const Navbar: React.FC = () => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('Category');
+  // const [selectedCategory, setSelectedCategory] = useState('Category'); // Removed as unused
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [lowerMobileMenuOpen, setLowerMobileMenuOpen] = useState(false);
   const [isMobileCategoryDropdownOpen, setIsMobileCategoryDropdownOpen] = useState(false);
@@ -37,11 +37,11 @@ const Navbar: React.FC = () => {
   const lowerMobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileCategoryButtonRef = useRef<HTMLButtonElement>(null);
 
-  useClickOutside(desktopSearchRef, (event: MouseEvent | TouchEvent) => {
+  useClickOutside(desktopSearchRef, () => {
     setShowSearchResults(false);
   });
 
-  useClickOutside(mobileSearchRef, (event: MouseEvent | TouchEvent) => {
+  useClickOutside(mobileSearchRef, () => {
     setShowSearchResults(false);
   });
 

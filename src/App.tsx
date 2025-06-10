@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, lazy, Suspense } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
@@ -30,7 +30,7 @@ import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
 
 import { CartProvider } from './context/CartContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AdminLayout from './components/business/AdminLayout';
 
@@ -68,6 +68,7 @@ import Terms from './pages/Terms';
 import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
 import MerchantDetails from './pages/superadmin/MerchantDetails';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
+import Profile from './pages/superadmin/Profile';
 import Brands from './components/home/brands';
 import Inventory from './pages/business/Inventory';
 import VerificationStatus from './pages/business/VerificationStatus';
@@ -93,7 +94,8 @@ import Sales from './pages/business/reports/Sales';
 import CustomersReport from './pages/business/reports/CustomersReport';
 import ProductsReport from './pages/business/reports/ProductsReport';
 import Support from './pages/business/Support';
-import Profile from './pages/business/Profile';
+import Settingss from './pages/business/Settings';
+import Profilee from './pages/business/Profile';
 import { WishlistProvider } from './context/WishlistContext';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import Subscription from './pages/business/Subscription';
@@ -161,10 +163,6 @@ const ScrollToTop = () => {
   return null;
 };
 
-interface ProtectedRouteProps {
-  children: ReactNode;
-}
-
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 // Main App component
@@ -178,6 +176,9 @@ const App: React.FC = () => {
               <ScrollToTop />
               <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                 <Routes>
+                  {/* Add this route outside of /business and /superadmin, so it's public and renders without Navbar/Footer */}
+                  <Route path="/sign-in" element={<SignIn />} />
+
                   {/* Business Dashboard Routes */}
                   <Route path="/business" element={<AdminLayout />}>
                     <Route
@@ -288,7 +289,7 @@ const App: React.FC = () => {
                       path="settings"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <Settings />
+                          <Settingss />
                         </Suspense>
                       }
                     />
@@ -306,7 +307,7 @@ const App: React.FC = () => {
                       path="profile"
                       element={
                         <Suspense fallback={<LoadingFallback />}>
-                          <Profile />
+                          <Profilee />
                         </Suspense>
                       }
                     />
@@ -365,31 +366,31 @@ const App: React.FC = () => {
                     />
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route
-                      path="user-activity-overview"
+                      path="user-report"
                       element={<UserActivity />}
                     />
-                    <Route path="user-management" element={<UserManagement />} />
+                    <Route path="users" element={<UserManagement />} />
 
                     <Route path="content-moderation" element={<ContentModeration />} />
-                    <Route path="product-monitoring" element={<ProductMonitoring />} />
-                    <Route path="site-traffic-analytics" element={<TrafficAnalytics />} />
+                    <Route path="products" element={<ProductMonitoring />} />
+                    <Route path="site-report" element={<TrafficAnalytics />} />
 
-                    <Route path="sales-reports" element={<SalesReportPage />} />
+                    <Route path="sales-report" element={<SalesReportPage />} />
                     <Route path="fraud-detection" element={<FraudDetection />} />
                     <Route
                       path="marketplace-health"
                       element={<MarketplaceHealth />}
                     />
                     <Route
-                      path="merchant-analytics"
+                      path="merchant-report"
                       element={<MerchantAnalytics />}
                     />
                     <Route
-                      path="platform-performance"
+                      path="performance"
                       element={<PlatformPerformance />}
                     />
                     <Route
-                      path="merchant-management"
+                      path="merchants"
                       element={<MerchantManagement />}
                     />
                     <Route
@@ -397,15 +398,16 @@ const App: React.FC = () => {
                       element={<MerchantDetails />}
                     />
                     <Route path="categories" element={<Categories />} />
-                    <Route path="brand-creation" element={<BrandCreation />} />
+                    <Route path="brands" element={<BrandCreation />} />
                     <Route path="attribute" element={<Attribute />} />
-                    <Route path="homepage-settings" element={<HomepageSettings />} />
+                    <Route path="homepages" element={<HomepageSettings />} />
                     <Route path="user-support" element={<UserSupport />} />
                     <Route path="merchant-support" element={<MerchantSupport />} />
                     <Route path="settings" element={<Settings />} />
-                    <Route path="refund-and-return-management" element={<RefundAndReturnManagement />} />
-                    <Route path="payment-and-transaction-monitoring" element={<PaymentAndTransactionMonitoring />} />
-                    <Route path="promotions-and-discounts-management" element={<Promotions />} />
+                    <Route path="refund-and-return" element={<RefundAndReturnManagement />} />
+                    <Route path="payments" element={<PaymentAndTransactionMonitoring />} />
+                    <Route path="promotions" element={<Promotions />} />
+                    <Route path="profile" element={<Profile />} />
                   </Route>
 
                   {/* Public Routes with header/footer */}
@@ -428,12 +430,13 @@ const App: React.FC = () => {
                             <Route path="/payment" element={<PaymentPage />} />
                             <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
 
-                            <Route path="/signin" element={<SignIn />} />
+                            {/* These routes will have Navbar and Footer */}
                             <Route path="/signup" element={<SignUp />} />
                             <Route
                               path="/verification-pending"
                               element={<VerificationPending />}
                             />
+                            <Route path="settings" element={<Settingss />} />
                             <Route
                               path="/verify-email/:token"
                               element={<VerifyEmail />}
@@ -457,7 +460,6 @@ const App: React.FC = () => {
                            
                             {/* <Route path="/wholesale" element={<Wholesale />} /> */}
 
-                            <Route path="/sign-in" element={<SignIn />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/superadmin/login" element={<SuperAdminLogin />} />
                             <Route
@@ -521,9 +523,6 @@ const App: React.FC = () => {
                       </>
                     }
                   />
-
-                  {/* Add this route outside of /business and /superadmin, so it's public */}
-                  
                 </Routes>
               </div>
               {/* Add MessengerPopup here, outside of routes so it appears on all pages */}
@@ -531,20 +530,29 @@ const App: React.FC = () => {
             </Router>
 
             <Toaster
-              position="top-right"
-              toastOptions={{
-                style: {
-                  background: "#363636",
-                  color: "#fff",
-                },
-                success: {
-                  duration: 3000,
-                },
-                error: {
-                  duration: 4000,
-                },
-              }}
-            />
+  position="bottom-center"
+  toastOptions={{
+    style: {
+      background: "#FFEDD5",        // Tailwind orange-100 (soft warm background)
+      color: "#EA580C",             // Tailwind orange-600 (professional tone)
+      padding: "12px 20px",
+      borderRadius: "0.5rem",       // rounded-lg for softer edges
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // soft neutral shadow
+      fontWeight: "500",            // medium weight for readability
+      fontSize: "0.875rem",         // text-sm
+      minWidth: "260px",
+      textAlign: "center",
+      border: "1px solid #FDBA74",  // subtle border using orange-300
+    },
+    success: {
+      duration: 3000,
+    },
+    error: {
+      duration: 4000,
+    },
+  }}
+/>
+
           </GoogleOAuthProvider>
         </WishlistProvider>
       </CartProvider>
