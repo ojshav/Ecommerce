@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, Trash, Plus, Edit2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Trash, Plus, Edit2, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -37,6 +37,7 @@ export default function Categories() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [subcategoryParent, setSubcategoryParent] = useState<Category | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState<{ visible: boolean; categoryId: number | null; categoryName: string; } | null>(null);
 
   useEffect(() => {
     fetchCategories();
@@ -309,43 +310,58 @@ export default function Categories() {
     }
   };
 
-  const handleDeleteCategory = async (categoryId: number) => {
-    if (!categoryId) {
-      toast.error('Invalid category ID');
-      return;
-    }
+  const handleDeleteCategory = async (categoryId: number, categoryName: string) => {
+    setShowConfirmDialog({ visible: true, categoryId, categoryName });
+  };
 
-    if (!window.confirm('Are you sure you want to delete this category?')) return;
+  const confirmDelete = async () => {
+    if (!showConfirmDialog || !showConfirmDialog.categoryId) return;
+
+    const categoryIdToDelete = showConfirmDialog.categoryId;
+    const categoryNameToDelete = showConfirmDialog.categoryName;
+    setShowConfirmDialog(null); // Close the dialog immediately
 
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/superadmin/categories/${categoryId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        credentials: 'include',
-      });
+      const response = await toast.promise(
+        fetch(`${API_BASE_URL}/api/superadmin/categories/${categoryIdToDelete}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          credentials: 'include',
+        }),
+        {
+          loading: `Deleting category '${categoryNameToDelete}'...`,
+          success: `Category '${categoryNameToDelete}' deleted successfully!`,
+          error: `Failed to delete category '${categoryNameToDelete}'.`,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Failed to delete category' }));
         throw new Error(errorData.message || 'Failed to delete category');
       }
 
-      toast.success('Category deleted successfully');
       await fetchCategories(); // Refresh the categories list
     } catch (error) {
       console.error('Error deleting category:', error);
       if (error instanceof TypeError && error.message === 'Failed to fetch') {
         toast.error('Network error: Please check your connection and try again');
+      } else if (error instanceof Error) {
+        // Error message already handled by toast.promise
       } else {
-        toast.error(error instanceof Error ? error.message : 'Failed to delete category');
+        toast.error('Failed to delete category');
       }
     } finally {
       setLoading(false);
     }
+  };
+
+  const cancelDelete = () => {
+    setShowConfirmDialog(null);
   };
 
   const toggleCategoryExpand = (categoryId: number) => {
@@ -405,7 +421,7 @@ export default function Categories() {
             </button>
             <button 
               className="p-1 text-gray-500 hover:text-red-600 rounded" 
-              onClick={() => handleDeleteCategory(category.category_id)}
+              onClick={() => handleDeleteCategory(category.category_id, category.name)}
               title="Delete Category"
             >
               <Trash size={16} />
@@ -592,6 +608,39 @@ export default function Categories() {
                 ) : (
                   isEditing ? 'Update Category' : 'Create Category'
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Confirmation Dialog */}
+      {showConfirmDialog && showConfirmDialog.visible && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="flex items-center justify-start mb-4">
+              <AlertCircle className="h-8 w-8 text-red-500 mr-3" />
+              <h3 className="text-xl font-semibold text-gray-900">Confirm Deletion</h3>
+            </div>
+            <div className="mt-2">
+              <p className="text-sm text-gray-700">
+                Are you sure you want to delete the category '<strong>{showConfirmDialog.categoryName}</strong>'? This action cannot be undone.
+              </p>
+            </div>
+            <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+              <button
+                type="button"
+                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                onClick={confirmDelete}
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                onClick={cancelDelete}
+              >
+                Cancel
               </button>
             </div>
           </div>

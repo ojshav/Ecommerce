@@ -64,7 +64,6 @@ const dashboardSections = [
     color: "purple",
     icon: ShieldAlert,
     items: [
-      { title: "Access Control", icon: ShieldAlert },
       { title: "Listing Approval", icon: ShoppingBag },
       { title: "Returns", icon: ShoppingBag },
       { title: "Fraud", icon: ShieldCheck },

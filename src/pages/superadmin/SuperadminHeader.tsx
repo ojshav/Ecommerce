@@ -1,9 +1,10 @@
 // src/components/superadmin/SuperadminHeader.tsx
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Bell, Settings, LogOut, User, Menu } from 'lucide-react';
+import { Bell, User, Menu, ChevronDown } from 'lucide-react';
 import LogoutConfirmationPopup from '../../components/LogoutConfirmationPopup';
+import useClickOutside from '../../hooks/useClickOutside';
 
 interface SuperadminHeaderProps {
   onMenuClick?: () => void;
@@ -13,9 +14,16 @@ const SuperadminHeader: React.FC<SuperadminHeaderProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(profileMenuRef, () => {
+    setIsProfileMenuOpen(false);
+  });
 
   const handleLogoutClick = () => {
     setIsLogoutPopupOpen(true);
+    setIsProfileMenuOpen(false);
   };
 
   const handleLogoutConfirm = () => {
@@ -55,30 +63,57 @@ const SuperadminHeader: React.FC<SuperadminHeaderProps> = ({ onMenuClick }) => {
             <button className="text-orange-500 hover:text-orange-400 p-1 rounded-full">
               <Bell className="h-6 w-6" />
             </button>
-            <button className="text-orange-500 hover:text-orange-400 p-1 rounded-full">
-              <Settings className="h-6 w-6" />
-            </button>
             
             {/* Profile dropdown */}
-            <div className="relative">
-              <div className="flex items-center">
-                <div className="flex items-center cursor-pointer">
-                  <div className="bg-gray-800 p-2 rounded-full text-orange-500">
-                    <User className="h-5 w-5" />
-                  </div>
-                  <div className="ml-2 hidden md:block">
-                    <div className="text-sm font-medium text-orange-500">{user?.name || user?.email}</div>
-                    <div className="text-xs text-orange-400">Superadmin</div>
-                  </div>
-                  <button
-                    onClick={handleLogoutClick}
-                    className="ml-4 text-orange-500 hover:text-red-500"
-                    title="Logout"
-                  >
-                    <LogOut className="h-5 w-5" />
-                  </button>
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="flex items-center space-x-2 text-orange-500 hover:text-orange-400 focus:outline-none"
+              >
+                <div className="bg-gray-800 p-2 rounded-full">
+                  <User className="h-5 w-5" />
                 </div>
-              </div>
+                <div className="hidden md:block">
+                  <div className="text-sm font-medium">{user?.name || user?.email}</div>
+                  
+                </div>
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {/* Profile Dropdown Menu */}
+              {isProfileMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-[#ffedd5] ring-1 ring-gray-800 ring-opacity-5 focus:outline-none z-50">
+                  <div className="py-1" role="menu" aria-orientation="vertical">
+                    <button
+                      onClick={() => {
+                        navigate('/superadmin/profile');
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left block px-4 py-2 text-sm text-orange-800 hover:bg-[#fed7aa] hover:text-orange-900"
+                      role="menuitem"
+                    >
+                      Your Profile
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigate('/superadmin/settings');
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left block px-4 py-2 text-sm text-orange-800 hover:bg-[#fed7aa] hover:text-orange-900"
+                      role="menuitem"
+                    >
+                      Settings
+                    </button>
+                    <button
+                      onClick={handleLogoutClick}
+                      className="w-full text-left block px-4 py-2 text-sm text-orange-800 hover:bg-[#fed7aa] hover:text-orange-900"
+                      role="menuitem"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
