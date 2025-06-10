@@ -127,11 +127,6 @@ export const dashboardSections = [
     icon: ShieldAlert,
     items: [
       {
-        title: "Role-Based Access Control (RBAC)",
-        icon: ShieldAlert,
-        description: "Configure admin roles, permissions, and access levels"
-      },
-      {
         title: "Product Listing Approval",
         icon: ShoppingBag,
         description: "Review and approve new product submissions"
