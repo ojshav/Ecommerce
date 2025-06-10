@@ -4,153 +4,10 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { Download, Filter, RefreshCw, ChevronDown } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
-// Sample data - in a real app, this would come from an API
-const sampleSalesData = [
-  {
-    id: 1,
-    month: 'Jan',
-    productName: 'Laptop Pro',
-    category: 'Electronics',
-    price: 1299,
-    quantity: 45,
-    revenue: 58455,
-    merchant: 'TechGiant',
-    merchantRating: 4.8
-  },
-  {
-    id: 2,
-    month: 'Jan',
-    productName: 'Wireless Earbuds',
-    category: 'Audio',
-    price: 129,
-    quantity: 230,
-    revenue: 29670,
-    merchant: 'AudioHub',
-    merchantRating: 4.3
-  },
-  {
-    id: 3, 
-    month: 'Feb',
-    productName: 'Laptop Pro',
-    category: 'Electronics',
-    price: 1299,
-    quantity: 52,
-    revenue: 67548,
-    merchant: 'TechGiant',
-    merchantRating: 4.8
-  },
-  {
-    id: 4,
-    month: 'Feb',
-    productName: 'Wireless Earbuds',
-    category: 'Audio',
-    price: 129,
-    quantity: 185,
-    revenue: 23865,
-    merchant: 'AudioHub',
-    merchantRating: 4.3
-  },
-  {
-    id: 5,
-    month: 'Mar',
-    productName: 'Laptop Pro',
-    category: 'Electronics',
-    price: 1299,
-    quantity: 63,
-    revenue: 81837,
-    merchant: 'TechGiant',
-    merchantRating: 4.8
-  },
-  {
-    id: 6,
-    month: 'Mar',
-    productName: 'Wireless Earbuds',
-    category: 'Audio',
-    price: 129,
-    quantity: 310,
-    revenue: 39990,
-    merchant: 'AudioHub',
-    merchantRating: 4.3
-  },
-  {
-    id: 7,
-    month: 'Mar',
-    productName: 'Smart Watch',
-    category: 'Wearables',
-    price: 249,
-    quantity: 125,
-    revenue: 31125,
-    merchant: 'WearTech',
-    merchantRating: 4.5
-  },
-  {
-    id: 8,
-    month: 'Apr',
-    productName: 'Laptop Pro',
-    category: 'Electronics',
-    price: 1299,
-    quantity: 48,
-    revenue: 62352,
-    merchant: 'TechGiant',
-    merchantRating: 4.8
-  },
-  {
-    id: 9,
-    month: 'Apr',
-    productName: 'Wireless Earbuds',
-    category: 'Audio',
-    price: 129,
-    quantity: 195,
-    revenue: 25155,
-    merchant: 'AudioHub',
-    merchantRating: 4.3
-  },
-  {
-    id: 10,
-    month: 'Apr',
-    productName: 'Smart Watch',
-    category: 'Wearables',
-    price: 249,
-    quantity: 180,
-    revenue: 44820,
-    merchant: 'WearTech',
-    merchantRating: 4.6
-  },
-  {
-    id: 11,
-    month: 'May',
-    productName: 'Laptop Pro',
-    category: 'Electronics',
-    price: 1299,
-    quantity: 71,
-    revenue: 92229,
-    merchant: 'TechGiant',
-    merchantRating: 4.9
-  },
-  {
-    id: 12,
-    month: 'May',
-    productName: 'Wireless Earbuds',
-    category: 'Audio',
-    price: 129,
-    quantity: 275,
-    revenue: 35475,
-    merchant: 'AudioHub',
-    merchantRating: 4.4
-  },
-  {
-    id: 13,
-    month: 'May',
-    productName: 'Smart Watch',
-    category: 'Wearables',
-    price: 249,
-    quantity: 210,
-    revenue: 52290,
-    merchant: 'WearTech',
-    merchantRating: 4.6
-  }
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Update the COLORS constant
 const CHART_COLORS = {
@@ -161,145 +18,154 @@ const CHART_COLORS = {
   background: '#FFF5E6'
 };
 
-export default function SalesReport() {
-  const [reportData, setReportData] = useState(sampleSalesData);
-  const [dateRange, setDateRange] = useState('last-6-months');
-  const [filterProduct, setFilterProduct] = useState('all');
-  const [filterMerchant, setFilterMerchant] = useState('all');
-  const [sortBy, setSortBy] = useState('revenue');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+interface TrendData {
+  month: string;
+  revenue: number;
+  orders: number;
+  average_order_value: number;
+}
 
-  // Calculate summary metrics
-  const totalRevenue = reportData.reduce((sum, item) => sum + item.revenue, 0);
-  const totalSales = reportData.reduce((sum, item) => sum + item.quantity, 0);
-  const averageOrderValue = totalRevenue / totalSales;
-  
-  // Get unique products and merchants for filters
-  const uniqueProducts = [...new Set(sampleSalesData.map(item => item.productName))];
-  const uniqueMerchants = [...new Set(sampleSalesData.map(item => item.merchant))];
-
-  // Product performance data
-  const productPerformance = uniqueProducts.map(product => {
-    const productData = reportData.filter(item => item.productName === product);
-    const productRevenue = productData.reduce((sum, item) => sum + item.revenue, 0);
-    const productSales = productData.reduce((sum, item) => sum + item.quantity, 0);
-    
-    return {
-      name: product,
-      revenue: productRevenue,
-      sales: productSales,
-      averagePrice: productRevenue / productSales
+interface TrendResponse {
+  status: string;
+  data: {
+    trend: TrendData[];
+    summary: {
+      total_revenue: number;
+      total_orders: number;
+      average_order_value: number;
+      currency: string;
     };
-  }).sort((a, b) => {
-    // Define a type for the product performance object
-    type ProductPerformance = {
+  };
+  message?: string;
+}
+
+interface MerchantPerformance {
       name: string;
       revenue: number;
-      sales: number;
-      averagePrice: number;
+  orders: number;
+  rating: number;
+  product_count: number;
+  review_count: number;
+  revenue_per_product: number;
+  orders_per_product: number;
+  reviews_per_product: number;
+}
+
+interface MerchantResponse {
+  status: string;
+  data: {
+    merchants: MerchantPerformance[];
+    summary: {
+      total_merchants: number;
+      total_revenue: number;
+      total_orders: number;
+      average_rating: number;
+      total_products: number;
+      total_reviews: number;
     };
-    
-    // Properly type the parameters
-    const aValue = a[sortBy as keyof ProductPerformance];
-    const bValue = b[sortBy as keyof ProductPerformance];
-    
-    if (typeof aValue === 'string' && typeof bValue === 'string') {
-      return bValue.localeCompare(aValue);
+  };
+  message?: string;
+}
+
+interface CategoryDistribution {
+  name: string;
+  value: number;
+  count: number;
+}
+
+interface CategoryResponse {
+  status: string;
+  data: {
+    categories: CategoryDistribution[];
+    total_products: number;
+  };
+  message?: string;
+}
+
+export default function SalesReport() {
+  const [trendData, setTrendData] = useState<TrendData[]>([]);
+  const [merchantData, setMerchantData] = useState<MerchantPerformance[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryDistribution[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [summaryData, setSummaryData] = useState<{
+    total_revenue: number;
+    total_orders: number;
+    average_order_value: number;
+    currency: string;
+  } | null>(null);
+  const { accessToken, user } = useAuth();
+
+  // Remove the manual calculations since we'll use the summary data
+  const totalRevenue = summaryData?.total_revenue || 0;
+  const totalSales = summaryData?.total_orders || 0;
+  const averageOrderValue = summaryData?.average_order_value || 0;
+
+  const fetchData = async () => {
+    if (!user || !['admin', 'superadmin'].includes(user.role.toLowerCase())) {
+      toast.error('Access denied. Admin role required.');
+      return;
     }
-    return (bValue as number) - (aValue as number);
-  });
 
-  // Merchant performance data
-  const merchantPerformance = uniqueMerchants.map(merchant => {
-    const merchantData = reportData.filter(item => item.merchant === merchant);
-    const merchantRevenue = merchantData.reduce((sum, item) => sum + item.revenue, 0);
-    const merchantSales = merchantData.reduce((sum, item) => sum + item.quantity, 0);
-    const merchantRating = merchantData[0].merchantRating;
-    
-    return {
-      name: merchant,
-      revenue: merchantRevenue,
-      sales: merchantSales,
-      rating: merchantRating
-    };
-  }).sort((a, b) => b.revenue - a.revenue);
-
-  // Monthly trend data for charts
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
-  const monthlyTrends = months.map(month => {
-    const monthData = reportData.filter(item => item.month === month);
-    const monthRevenue = monthData.reduce((sum, item) => sum + item.revenue, 0);
-    const monthSales = monthData.reduce((sum, item) => sum + item.quantity, 0);
-    
-    return {
-      name: month,
-      revenue: monthRevenue,
-      sales: monthSales
-    };
-  });
-
-  // Category distribution data for pie chart
-  const categoryData = reportData.reduce<Record<string, number>>((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = 0;
-    }
-    acc[item.category] += item.revenue;
-    return acc;
-  }, {});
-
-  const categoryPieData = Object.keys(categoryData).map(category => ({
-    name: category,
-    value: categoryData[category]
-  }));
-
-  // Handle filter changes
-  useEffect(() => {
     setIsLoading(true);
-    
-    // Simulate API call with setTimeout
-    setTimeout(() => {
-      let filteredData = [...sampleSalesData];
-      
-      // Apply product filter
-      if (filterProduct !== 'all') {
-        filteredData = filteredData.filter(item => item.productName === filterProduct);
+    setError(null);
+    try {
+      // Fetch revenue and orders trend
+      const trendResponse = await fetch(`${API_BASE_URL}/api/superadmin/analytics/revenue-orders-trend`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      const trendData = await trendResponse.json() as TrendResponse;
+      if (trendData.status === 'success') {
+        setTrendData(trendData.data.trend);
+        setSummaryData(trendData.data.summary);
       }
-      
-      // Apply merchant filter
-      if (filterMerchant !== 'all') {
-        filteredData = filteredData.filter(item => item.merchant === filterMerchant);
+
+      // Fetch merchant performance details
+      const merchantResponse = await fetch(`${API_BASE_URL}/api/superadmin/analytics/merchant-performance-details`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      const merchantData = await merchantResponse.json() as MerchantResponse;
+      if (merchantData.status === 'success') {
+        setMerchantData(merchantData.data.merchants);
       }
-      
-      // Apply search term
-      if (searchTerm) {
-        filteredData = filteredData.filter(item => 
-          item.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.merchant.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.category.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+
+      // Fetch category distribution
+      const categoryResponse = await fetch(`${API_BASE_URL}/api/superadmin/analytics/category-distribution`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      const categoryData = await categoryResponse.json() as CategoryResponse;
+      if (categoryData.status === 'success') {
+        setCategoryData(categoryData.data.categories);
       }
-      
-      setReportData(filteredData);
+    } catch (err) {
+      setError('Failed to fetch data. Please try again.');
+      console.error('Error fetching data:', err);
+      toast.error('Failed to fetch data');
+    } finally {
       setIsLoading(false);
-    }, 500);
-  }, [filterProduct, filterMerchant, searchTerm]);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [user, accessToken]);
 
   // Handle data refresh
   const refreshData = () => {
-    setIsLoading(true);
-    // In a real app, this would fetch new data from an API
-    setTimeout(() => {
-      setReportData(sampleSalesData);
-      setIsLoading(false);
-    }, 800);
+    fetchData();
   };
 
   // Format currency
-  const formatCurrency = (value:number) => {
+  const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: summaryData?.currency || 'INR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(value);
@@ -330,6 +196,21 @@ export default function SalesReport() {
           </div>
         </div>
 
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Summary Cards with enhanced styling */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-lg border-l-4" style={{borderLeftColor: '#FF5733'}}>
@@ -353,68 +234,36 @@ export default function SalesReport() {
           </div>
         </div>
 
-        {/* Filters with updated styling */}
-        {/* Filter section removed as per request */}
-
-        {/* Revenue and Sales Trend Chart with updated colors */}
+        {/* Revenue and Sales Trend Chart */}
         <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
           <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Revenue & Sales Trend</h2>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monthlyTrends} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <LineChart data={trendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
+                <XAxis dataKey="month" />
                 <YAxis yAxisId="left" />
                 <YAxis yAxisId="right" orientation="right" />
                 <Tooltip formatter={(value, name) => [
   name === 'revenue' ? formatCurrency(Number(value)) : value.toLocaleString(), 
-  name === 'revenue' ? 'Revenue' : 'Units Sold'
+                  name === 'revenue' ? 'Revenue' : 'Orders'
 ]} />
                 <Legend />
                 <Line yAxisId="left" type="monotone" dataKey="revenue" name="Revenue" stroke={CHART_COLORS.primary} strokeWidth={3} activeDot={{ r: 8, fill: CHART_COLORS.primary }} />
-                <Line yAxisId="right" type="monotone" dataKey="sales" name="Units Sold" stroke={CHART_COLORS.secondary} strokeWidth={2} />
+                <Line yAxisId="right" type="monotone" dataKey="orders" name="Orders" stroke={CHART_COLORS.secondary} strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Product Performance with updated colors */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-medium" style={{color: '#FF5733'}}>Product Performance</h2>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="block pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:border-2 focus:border-opacity-50 rounded-md"
-                style={{focusBorderColor: '#FF5733'}}
-              >
-                <option value="revenue">Sort by Revenue</option>
-                <option value="sales">Sort by Sales</option>
-              </select>
-            </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={productPerformance} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-                  <Legend />
-                  <Bar dataKey="revenue" name="Revenue" fill={CHART_COLORS.primary} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Category Distribution with updated colors */}
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+        {/* Category Distribution */}
+        <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
             <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Revenue by Category</h2>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={categoryPieData}
+                  data={categoryData}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
@@ -423,7 +272,7 @@ export default function SalesReport() {
                     dataKey="value"
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
-                    {categoryPieData.map((entry, index) => (
+                  {categoryData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={Object.values(CHART_COLORS)[index % 4]} />
                     ))}
                   </Pie>
@@ -431,12 +280,11 @@ export default function SalesReport() {
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
           </div>
         </div>
 
-        {/* Merchant Performance Table with updated styling */}
-        <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+        {/* Merchant Performance Table */}
+        <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Merchant Performance</h2>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -449,7 +297,13 @@ export default function SalesReport() {
                     Revenue
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    Units Sold
+                    Orders
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    Products
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    Reviews
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Rating
@@ -457,89 +311,42 @@ export default function SalesReport() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {merchantPerformance.map((merchant, idx) => (
-                  <tr key={merchant.name} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                {merchantData && merchantData.length > 0 ? (
+                  merchantData.map((merchant, idx) => (
+                    <tr key={merchant.name || idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
-                      {merchant.name}
+                        {merchant.name || 'Unknown Merchant'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatCurrency(merchant.revenue || 0)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {(merchant.orders || 0).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatCurrency(merchant.revenue)}
+                        {(merchant.product_count || 0).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {merchant.sales.toLocaleString()}
+                        {(merchant.review_count || 0).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex items-center">
                         <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                          merchant.rating >= 4.5 ? 'bg-green-500' : 
-                          merchant.rating >= 4.0 ? 'bg-yellow-500' : 'bg-red-500'
+                            (merchant.rating || 0) >= 4.5 ? 'bg-green-500' : 
+                            (merchant.rating || 0) >= 4.0 ? 'bg-yellow-500' : 'bg-red-500'
                         }`}></span>
-                        {merchant.rating.toFixed(1)}
+                          {(merchant.rating || 0).toFixed(1)}
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Detailed Sales Table with updated styling */}
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Detailed Sales Data</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead style={{backgroundColor: '#FF5733'}}>
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    Month
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    Product
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    Quantity
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    Revenue
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    Merchant
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {reportData.map((item, idx) => (
-                  <tr key={item.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.month}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black">
-                      {item.productName}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.category}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatCurrency(item.price)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.quantity}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatCurrency(item.revenue)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {item.merchant}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                      {isLoading ? 'Loading merchant data...' : 'No merchant data available'}
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

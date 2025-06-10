@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowUpIcon, 
   ArrowDownIcon, 
   ShoppingBagIcon, 
   CurrencyDollarIcon, 
   UserGroupIcon, 
-  ClipboardDocumentCheckIcon
+  ClipboardDocumentCheckIcon,
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { 
   ResponsiveContainer, 
@@ -19,33 +20,69 @@ import {
   Tooltip, 
   Legend
 } from 'recharts';
+import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
-// Mock data for the dashboard
-const salesData = [
-  { month: 'Jan', sales: 4000, orders: 240, visitors: 2400 },
-  { month: 'Feb', sales: 3000, orders: 198, visitors: 2210 },
-  { month: 'Mar', sales: 5000, orders: 280, visitors: 2290 },
-  { month: 'Apr', sales: 2780, orders: 190, visitors: 2000 },
-  { month: 'May', sales: 1890, orders: 138, visitors: 1800 },
-  { month: 'Jun', sales: 2390, orders: 150, visitors: 2181 },
-  { month: 'Jul', sales: 3490, orders: 210, visitors: 2500 },
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const recentOrders = [
-  { id: '#ORD-001', customer: 'John Doe', date: '2023-08-15', amount: 139.99, status: 'Delivered' },
-  { id: '#ORD-002', customer: 'Jane Smith', date: '2023-08-14', amount: 59.95, status: 'Processing' },
-  { id: '#ORD-003', customer: 'Robert Johnson', date: '2023-08-14', amount: 89.00, status: 'Pending' },
-  { id: '#ORD-004', customer: 'Emily Wilson', date: '2023-08-13', amount: 129.50, status: 'Shipped' },
-  { id: '#ORD-005', customer: 'Michael Brown', date: '2023-08-12', amount: 45.75, status: 'Delivered' },
-];
+interface TrendData {
+  month: string;
+  orders: number;
+  sales: number;
+  visitors: number;
+}
 
-const topProducts = [
-  { id: 1, name: 'Wireless Earbuds', sold: 52, revenue: 4680 },
-  { id: 2, name: 'Smartphone Case', sold: 48, revenue: 960 },
-  { id: 3, name: 'USB-C Cable', sold: 45, revenue: 900 },
-  { id: 4, name: 'Bluetooth Speaker', sold: 30, revenue: 3000 },
-  { id: 5, name: 'Power Bank', sold: 28, revenue: 1400 },
-];
+interface TrendResponse {
+  status: string;
+  data: TrendData[];
+}
+
+interface OrderStats {
+  total_sales: {
+    value: number;
+    change_percent: number;
+  };
+  total_orders: {
+    value: number;
+    change_percent: number;
+  };
+  average_order_value: {
+    value: number;
+    change_percent: number;
+  };
+}
+
+interface OrderStatsResponse {
+  status: string;
+  data: OrderStats;
+}
+
+interface RecentOrder {
+  order_id: string;
+  customer_name: string;
+  order_date: string;
+  order_status: string;
+  payment_status: string;
+  total_amount: number;
+}
+
+interface RecentOrdersResponse {
+  status: string;
+  data: RecentOrder[];
+}
+
+interface TopProduct {
+  id: number;
+  name: string;
+  revenue: number;
+  sold: number;
+}
+
+interface TopProductsResponse {
+  status: string;
+  data: TopProduct[];
+}
 
 // Status badges for orders
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
@@ -97,41 +134,177 @@ interface Stat {
 
 const Dashboard: React.FC = () => {
   const [timeframe, setTimeframe] = useState('weekly');
-  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [trendData, setTrendData] = useState<TrendData[]>([]);
+  const [orderStats, setOrderStats] = useState<OrderStats | null>(null);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+  const { accessToken, user } = useAuth();
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  const formatPercentage = (value: number) => {
+    const sign = value >= 0 ? '+' : '';
+    return `${sign}${value.toFixed(1)}%`;
+  };
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch revenue and orders trend
+      const trendResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/analytics/revenue-orders-trend`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!trendResponse.ok) {
+        throw new Error('Failed to fetch trend data');
+      }
+
+      const trendData: TrendResponse = await trendResponse.json();
+      console.log('Revenue Orders Trend Response:', trendData);
+      if (trendData.status === 'success') {
+        setTrendData(trendData.data);
+      }
+
+      // Fetch order stats
+      const statsResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/analytics/merchant-performance`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!statsResponse.ok) {
+        throw new Error('Failed to fetch order stats');
+      }
+
+      const statsData: OrderStatsResponse = await statsResponse.json();
+      console.log('Order Stats Response:', statsData);
+      if (statsData.status === 'success') {
+        setOrderStats(statsData.data);
+      }
+
+      // Fetch recent orders
+      const ordersResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/analytics/recent-orders`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!ordersResponse.ok) {
+        throw new Error('Failed to fetch recent orders');
+      }
+
+      const ordersData: RecentOrdersResponse = await ordersResponse.json();
+      console.log('Recent Orders Response:', ordersData);
+      if (ordersData.status === 'success') {
+        setRecentOrders(ordersData.data);
+      }
+
+      // Fetch top products
+      const productsResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/analytics/top-products`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!productsResponse.ok) {
+        throw new Error('Failed to fetch top products');
+      }
+
+      const productsData: TopProductsResponse = await productsResponse.json();
+      console.log('Top Products Response:', productsData);
+      if (productsData.status === 'success') {
+        setTopProducts(productsData.data);
+      }
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setError('Failed to load dashboard data. Please try again later.');
+      toast.error('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!user || user.role !== 'merchant') {
+      toast.error('Access denied. Merchant role required.');
+      return;
+    }
+    fetchData();
+  }, [user, timeframe]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <ArrowPathIcon className="h-8 w-8 text-orange-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="text-red-500 mb-4">
+          <ClipboardDocumentCheckIcon className="h-12 w-12" />
+        </div>
+        <p className="text-xl font-semibold text-gray-800">Error</p>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <button
+          onClick={fetchData}
+          className="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
   // Stats summary for KPIs
   const stats: Stat[] = [
     {
       name: 'Total Sales',
-      value: '$24,500',
-      change: 'vs last month',
-      trend: 12.5,
+      value: formatCurrency(orderStats?.total_sales?.value ?? 0),
+      change: 'vs last period',
+      trend: orderStats?.total_sales?.change_percent ?? 0,
       icon: CurrencyDollarIcon,
       iconBg: 'bg-orange-100',
       iconColor: 'text-orange-700',
     },
     {
       name: 'Total Orders',
-      value: '1,234',
-      change: 'vs last month',
-      trend: -2.4,
+      value: orderStats?.total_orders?.value?.toLocaleString() ?? '0',
+      change: 'vs last period',
+      trend: orderStats?.total_orders?.change_percent ?? 0,
       icon: ShoppingBagIcon,
       iconBg: 'bg-orange-100',
       iconColor: 'text-orange-700',
     },
     {
       name: 'Average Order Value',
-      value: '$19.85',
-      change: 'vs last month',
-      trend: 5.2,
+      value: formatCurrency(orderStats?.average_order_value?.value ?? 0),
+      change: 'vs last period',
+      trend: orderStats?.average_order_value?.change_percent ?? 0,
       icon: ShoppingBagIcon,
       iconBg: 'bg-orange-100',
       iconColor: 'text-orange-700',
     },
     {
       name: 'Conversion Rate',
-      value: '3.2%',
-      change: 'vs last month',
-      trend: 1.8,
+      value: `${((orderStats?.total_orders?.value ?? 0) / (trendData[0]?.visitors ?? 1) * 100).toFixed(1)}%`,
+      change: 'vs last period',
+      trend: 0,
       icon: ClipboardDocumentCheckIcon,
       iconBg: 'bg-orange-100',
       iconColor: 'text-orange-700',
@@ -205,7 +378,7 @@ const Dashboard: React.FC = () => {
               <span className={`ml-2 text-sm font-medium ${
                 stat.trend > 0 ? 'text-green-600' : 'text-red-600'
               }`}>
-                {Math.abs(stat.trend)}%
+                {formatPercentage(stat.trend)}
               </span>
             </div>
           </div>
@@ -222,20 +395,25 @@ const Dashboard: React.FC = () => {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={salesData}
+                data={trendData}
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis yAxisId="left" />
                 <YAxis yAxisId="right" orientation="right" />
-                <Tooltip />
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'sales' ? formatCurrency(Number(value)) : value,
+                    name === 'sales' ? 'Sales' : 'Orders'
+                  ]}
+                />
                 <Legend />
                 <Line
                   yAxisId="left"
                   type="monotone"
                   dataKey="sales"
-                  name="Sales ($)"
+                  name="Sales"
                   stroke="#4f46e5"
                   activeDot={{ r: 8 }}
                 />
@@ -265,11 +443,16 @@ const Dashboard: React.FC = () => {
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
-                <YAxis dataKey="name" type="category" width={100} />
-                <Tooltip />
+                <YAxis dataKey="name" type="category" width={150} />
+                <Tooltip 
+                  formatter={(value, name) => [
+                    name === 'revenue' ? formatCurrency(Number(value)) : value,
+                    name === 'revenue' ? 'Revenue' : 'Units Sold'
+                  ]}
+                />
                 <Legend />
                 <Bar dataKey="sold" name="Units Sold" fill="#4f46e5" />
-                <Bar dataKey="revenue" name="Revenue ($)" fill="#06b6d4" />
+                <Bar dataKey="revenue" name="Revenue" fill="#06b6d4" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -280,80 +463,63 @@ const Dashboard: React.FC = () => {
       <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-medium text-gray-900">Recent Orders</h2>
-          <button className="text-sm text-orange-600 hover:text-orange-700 font-medium">
-            View all
-          </button>
+          <Link 
+            to="/business/orders" 
+            className="text-sm font-medium text-orange-600 hover:text-orange-700"
+          >
+            View All
+          </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Order ID
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Customer
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Date
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Amount
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Status
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Actions
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {recentOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-orange-50 transition-colors">
+              {(recentOrders || []).map((order) => (
+                <tr key={order.order_id} className="hover:bg-orange-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-600 hover:text-orange-700">
-                    {order.id}
+                    {order.order_id}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {order.customer}
+                    {order.customer_name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {order.date}
+                    {new Date(order.order_date).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ${order.amount.toFixed(2)}
+                    {formatCurrency(order.total_amount)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <StatusBadge status={order.status} />
+                    <StatusBadge status={order.order_status} />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button className="text-orange-600 hover:text-orange-700 mr-3">
+                    <Link 
+                      to={`/business/orders/${order.order_id}`}
+                      className="text-orange-600 hover:text-orange-700 mr-3"
+                    >
                       View
-                    </button>
+                    </Link>
                     <button className="text-orange-600 hover:text-orange-700">
                       Print
                     </button>
                   </td>
                 </tr>
               ))}
+              {(!recentOrders || recentOrders.length === 0) && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                    No recent orders found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
