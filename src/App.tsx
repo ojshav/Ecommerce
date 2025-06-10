@@ -39,6 +39,10 @@ import UserActivity from './pages/superadmin/UserActivity';
 import UserManagement from './pages/superadmin/Usermanagement';
 import ContentModeration from './pages/superadmin/ContentModeration';
 import ProductMonitoring from './pages/superadmin/ProductMonitoring';
+import Settings from './pages/superadmin/Settings';
+import RefundAndReturnManagement from './pages/superadmin/RefundAndReturnManagement';
+import PaymentAndTransactionMonitoring from './pages/superadmin/PaymentAndTransaction';
+import Promotions from './pages/superadmin/Promotions';
 
 import TrafficAnalytics from './pages/superadmin/TrafficAnalytics';
 import SalesReportPage from './pages/superadmin/SalesReport';
@@ -88,7 +92,6 @@ import Reviews from './pages/business/Reviews';
 import Sales from './pages/business/reports/Sales';
 import CustomersReport from './pages/business/reports/CustomersReport';
 import ProductsReport from './pages/business/reports/ProductsReport';
-import Settings from './pages/business/Settings';
 import Support from './pages/business/Support';
 import Profile from './pages/business/Profile';
 import { WishlistProvider } from './context/WishlistContext';
@@ -399,6 +402,10 @@ const App: React.FC = () => {
                     <Route path="homepage-settings" element={<HomepageSettings />} />
                     <Route path="user-support" element={<UserSupport />} />
                     <Route path="merchant-support" element={<MerchantSupport />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="refund-and-return-management" element={<RefundAndReturnManagement />} />
+                    <Route path="payment-and-transaction-monitoring" element={<PaymentAndTransactionMonitoring />} />
+                    <Route path="promotions-and-discounts-management" element={<Promotions />} />
                   </Route>
 
                   {/* Public Routes with header/footer */}
