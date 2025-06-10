@@ -13,7 +13,7 @@ import HomepageProducts from '../components/home/HomepageProducts';
 import SearchResults from '../components/common/SearchResults';
 import useClickOutside from '../hooks/useClickOutside';
 
-const Home: React.FC = () => {
+const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState<'all' | 'products' | 'categories'>('all');
   const [showSearchResults, setShowSearchResults] = useState(false);
