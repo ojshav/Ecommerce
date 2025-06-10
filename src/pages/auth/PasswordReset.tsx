@@ -102,7 +102,7 @@ const PasswordReset: React.FC = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate('/signin')}
+              onClick={() => navigate('/sign-in')}
               className="w-full bg-primary-600 text-white py-3 px-4 rounded-md font-medium hover:bg-primary-700 transition-colors"
             >
               Return to Sign In
