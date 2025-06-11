@@ -76,10 +76,10 @@ const RequestPasswordReset: React.FC = () => {
               {isSubmitting ? 'Sending...' : 'Send Reset Link'}
             </button>
             <Link
-              to="/signin"
+              to="/"
               className="text-sm text-[#F2631F] hover:text-orange-600 font-medium"
             >
-              Back to Sign In
+              Back to Home Page
             </Link>
           </div>
         </form>
