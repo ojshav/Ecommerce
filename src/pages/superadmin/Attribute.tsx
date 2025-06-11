@@ -90,6 +90,18 @@ const Attribute: React.FC = () => {
 
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Add new state for delete confirmation
+    const [showDeleteModal, setShowDeleteModal] = useState<{
+        show: boolean;
+        type: 'attribute' | 'attributeValue';
+        id?: number;
+        valueCode?: string;
+        name?: string;
+    }>({
+        show: false,
+        type: 'attribute',
+    });
+
     // Fetch data on component mount
     useEffect(() => {
         fetchAttributes();
@@ -349,8 +361,6 @@ const Attribute: React.FC = () => {
 
     // Delete attribute
     const handleDeleteAttribute = async (attributeId: number) => {
-        if (!window.confirm('Are you sure you want to delete this attribute?')) return;
-
         try {
             setLoading(true);
             const response = await fetch(`${API_BASE_URL}/api/superadmin/attributes/${attributeId}`, {
@@ -372,13 +382,12 @@ const Attribute: React.FC = () => {
             toast.error(error instanceof Error ? error.message : 'Failed to delete attribute');
         } finally {
             setLoading(false);
+            setShowDeleteModal({ show: false, type: 'attribute' });
         }
     };
 
     // Delete attribute value
     const handleDeleteAttributeValue = async (attributeId: number, valueCode: string) => {
-        if (!window.confirm('Are you sure you want to delete this attribute value?')) return;
-
         try {
             setLoading(true);
             const response = await fetch(`${API_BASE_URL}/api/superadmin/attribute-values/${attributeId}/${valueCode}`, {
@@ -402,6 +411,7 @@ const Attribute: React.FC = () => {
             toast.error(error instanceof Error ? error.message : 'Failed to delete attribute value');
         } finally {
             setLoading(false);
+            setShowDeleteModal({ show: false, type: 'attributeValue' });
         }
     };
 
@@ -617,7 +627,12 @@ const Attribute: React.FC = () => {
                                                 </button>
                                                 <button 
                                                     className="text-red-500 hover:text-red-600 p-2"
-                                                    onClick={() => handleDeleteAttribute(attr.attribute_id)}
+                                                    onClick={() => setShowDeleteModal({
+                                                        show: true,
+                                                        type: 'attribute',
+                                                        id: attr.attribute_id,
+                                                        name: attr.name
+                                                    })}
                                                     title="Delete Attribute"
                                                 >
                                                     <Trash2 className="w-5 h-5" />
@@ -655,7 +670,13 @@ const Attribute: React.FC = () => {
                                                                 </div>
                                                                 <button
                                                                     className="text-red-500 hover:text-red-600"
-                                                                    onClick={() => handleDeleteAttributeValue(val.attribute_id, val.value_code)}
+                                                                    onClick={() => setShowDeleteModal({
+                                                                        show: true,
+                                                                        type: 'attributeValue',
+                                                                        id: val.attribute_id,
+                                                                        valueCode: val.value_code,
+                                                                        name: val.value_label
+                                                                    })}
                                                                 >
                                                                     <Trash2 className="w-4 h-4" />
                                                                 </button>
@@ -988,6 +1009,55 @@ const Attribute: React.FC = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Delete Confirmation Modal */}
+            {showDeleteModal.show && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-1/3">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-semibold text-red-600">Confirm Deletion</h3>
+                            <button onClick={() => setShowDeleteModal({ show: false, type: 'attribute' })}>
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="mb-6">
+                            <p className="text-gray-700">
+                                Are you sure you want to delete this {showDeleteModal.type === 'attribute' ? 'attribute' : 'attribute value'}?
+                            </p>
+                            {showDeleteModal.name && (
+                                <p className="font-medium mt-2">
+                                    {showDeleteModal.type === 'attribute' ? 'Attribute' : 'Value'}: {showDeleteModal.name}
+                                </p>
+                            )}
+                            <p className="text-sm text-red-600 mt-2">
+                                This action cannot be undone.
+                            </p>
+                        </div>
+
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors"
+                                onClick={() => setShowDeleteModal({ show: false, type: 'attribute' })}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors"
+                                onClick={() => {
+                                    if (showDeleteModal.type === 'attribute' && showDeleteModal.id) {
+                                        handleDeleteAttribute(showDeleteModal.id);
+                                    } else if (showDeleteModal.type === 'attributeValue' && showDeleteModal.id && showDeleteModal.valueCode) {
+                                        handleDeleteAttributeValue(showDeleteModal.id, showDeleteModal.valueCode);
+                                    }
+                                }}
+                            >
+                                Delete
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

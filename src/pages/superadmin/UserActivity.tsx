@@ -58,7 +58,7 @@ const fallbackUserDistribution = [
   { type: "Basic Users", count: 105, color: "#FFF5E6" },
 ];
 
-const COLORS = ['#FF5733', '#FF8C33', '#FF4500', '#FFF5E6'];
+const COLORS = ['#FF5733', '#FF8C33', '#FF6E00', '#E27A53'];
 
 const UserActivity = () => {
   const [userMetrics, setUserMetrics] = useState(fallbackUserMetrics);

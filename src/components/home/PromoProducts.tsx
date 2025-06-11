@@ -294,14 +294,14 @@ const PromoProducts: React.FC = () => {
             <div className="flex space-x-2">
               <button 
                 onClick={() => scroll('left')}
-                className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors"
+                className="p-1 rounded-full border border-gray-300 hover:bg-orange-400 transition-colors"
                 aria-label="Previous products"
               >
                 <ChevronLeft size={20} />
               </button>
               <button 
                 onClick={() => scroll('right')}
-                className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors"
+                className="p-1 rounded-full border border-gray-300 hover:bg-orange-400 transition-colors"
                 aria-label="Next products"
               >
                 <ChevronRight size={20} />

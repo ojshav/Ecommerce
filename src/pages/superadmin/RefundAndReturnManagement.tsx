@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Eye, CheckCircle, XCircle } from 'lucide-react';
+import { Eye, CheckCircle, Trash2, AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface Request {
   id: string;
@@ -48,6 +49,8 @@ const mockRequests: Request[] = [
 const RefundAndReturnManagement: React.FC = () => {
   const [filter, setFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showDeleteModal, setShowDeleteModal] = useState<{ visible: boolean; requestId: string | null; requestName: string; } | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const filteredRequests = mockRequests.filter(r => {
     const matchesFilter = filter === 'All' ? true : r.status === filter;
@@ -61,6 +64,37 @@ const RefundAndReturnManagement: React.FC = () => {
   });
 
   const getStatusCount = (status: string) => mockRequests.filter(r => r.status === status).length;
+
+  const handleDeleteClick = (id: string, name: string) => {
+    setShowDeleteModal({ visible: true, requestId: id, requestName: name });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!showDeleteModal || !showDeleteModal.requestId) return;
+
+    const requestIdToDelete = showDeleteModal.requestId;
+    const requestNameToDelete = showDeleteModal.requestName;
+    setShowDeleteModal(null); // Close the dialog immediately
+
+    setLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 300));
+      // In a real application, you would make an API call here with requestIdToDelete
+      // For now, we'll just show a success message
+      console.log(`Deleting request with ID: ${requestIdToDelete}`);
+      toast.success(`Request for ${requestNameToDelete} deleted successfully`);
+    } catch (err) {
+      console.error('Error deleting request:', err);
+      toast.error('Failed to delete request');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(null);
+  };
 
   return (
     <div className="min-h-[80vh] p-6 bg-white border border-gray-200 shadow-xl rounded-xl">
@@ -143,8 +177,12 @@ const RefundAndReturnManagement: React.FC = () => {
                     <button title="Approve" className="text-green-600 hover:text-green-700">
                       <CheckCircle className="h-4 w-4" />
                     </button>
-                    <button title="Reject" className="text-red-600 hover:text-red-700">
-                      <XCircle className="h-4 w-4" />
+                    <button 
+                      title="Delete" 
+                      className="text-orange-600 hover:text-orange-700"
+                      onClick={() => handleDeleteClick(req.id, req.Name)}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </button>
                     <button title="View" className="text-orange-600 hover:text-orange-700">
                       <Eye className="h-4 w-4" />
@@ -156,6 +194,49 @@ const RefundAndReturnManagement: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && showDeleteModal.visible && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="flex items-center justify-start mb-4">
+              <AlertCircle className="h-8 w-8 text-orange-500 mr-3" />
+              <h3 className="text-xl font-semibold text-gray-900">Confirm Deletion</h3>
+            </div>
+            <div className="mt-2">
+              <p className="text-sm text-gray-700">
+                Are you sure you want to delete the request for '<strong>{showDeleteModal.requestName}</strong>'? This action cannot be undone.
+              </p>
+            </div>
+            <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+              <button
+                type="button"
+                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-500 text-base font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm"
+                onClick={handleConfirmDelete}
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:mt-0 sm:w-auto sm:text-sm"
+                onClick={cancelDelete}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg flex items-center space-x-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-orange-500"></div>
+            <span className="text-gray-700">Processing...</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
