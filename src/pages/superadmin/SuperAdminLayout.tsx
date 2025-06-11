@@ -56,11 +56,6 @@ export const dashboardSections: MenuSection[] = [
         description: "Review comprehensive sales data, trends, and projections"
       },
       {
-        title: "Merchant Analytics",
-        icon: BarChart3,
-        description: "Track merchant performance and growth metrics"
-      },
-      {
         title: "Platform Performance",
         icon: ActivitySquare,
         description: "Monitor system health, response times, and resource usage"

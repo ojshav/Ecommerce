@@ -155,6 +155,41 @@ interface TopMerchantsResponse {
   message?: string;
 }
 
+interface ConversionRateData {
+  monthly_breakdown: Array<{
+    month: string;
+    conversion_rate: number;
+    purchases: number;
+    visitors: number;
+  }>;
+  overall: {
+    conversion_rate: number;
+    total_purchases: number;
+    total_visitors: number;
+  };
+  summary: {
+    average_monthly_conversion: number;
+    best_month: {
+      month: string;
+      conversion_rate: number;
+      purchases: number;
+      visitors: number;
+    };
+    worst_month: {
+      month: string;
+      conversion_rate: number;
+      purchases: number;
+      visitors: number;
+    };
+  };
+}
+
+interface ConversionRateResponse {
+  status: string;
+  data: ConversionRateData;
+  message?: string;
+}
+
 const Dashboard = () => {
   const [timeRange, setTimeRange] = useState('6months');
   const [loading, setLoading] = useState(true);
@@ -177,6 +212,7 @@ const Dashboard = () => {
   } | null>(null);
   const [categoryData, setCategoryData] = useState<CategoryDistribution[]>([]);
   const [topMerchants, setTopMerchants] = useState<TopMerchant[]>([]);
+  const [conversionRate, setConversionRate] = useState<ConversionRateData | null>(null);
 
   const formatMonth = (dateStr: string) => {
     const [year, month] = dateStr.split('-');
@@ -373,6 +409,37 @@ const Dashboard = () => {
     }
   };
 
+  const fetchConversionRate = async () => {
+    try {
+      console.log('Fetching conversion rate data...');
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/conversion-rate?months=${timeRange === '1month' ? 1 : timeRange === '3months' ? 3 : timeRange === '6months' ? 6 : 12}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      console.log('Conversion rate response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch conversion rate data');
+      }
+
+      const data: ConversionRateResponse = await response.json();
+      console.log('Conversion rate API response:', data);
+
+      if (data.status === 'success') {
+        console.log('Setting conversion rate data:', data.data);
+        setConversionRate(data.data);
+      } else {
+        console.error('Conversion rate API error:', data.message);
+        throw new Error(data.message || 'Failed to fetch conversion rate data');
+      }
+    } catch (error) {
+      console.error('Error fetching conversion rate:', error);
+      toast.error('Failed to load conversion rate data');
+    }
+  };
+
   useEffect(() => {
     if (!user || !['admin', 'superadmin'].includes(user.role.toLowerCase())) {
       toast.error('Access denied. Admin role required.');
@@ -385,6 +452,7 @@ const Dashboard = () => {
     fetchTotalProducts();
     fetchCategoryDistribution();
     fetchTopMerchants();
+    fetchConversionRate();
   }, [user, timeRange]);
 
   const refreshData = () => {
@@ -395,6 +463,7 @@ const Dashboard = () => {
     fetchTotalProducts();
     fetchCategoryDistribution();
     fetchTopMerchants();
+    fetchConversionRate();
   };
 
   const formatCurrency = (amount: number) => {
@@ -435,6 +504,9 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  // Add debug statement in the render to see the current state
+  console.log('Current conversion rate state:', conversionRate);
 
   return (
     <div className="space-y-6">
@@ -695,8 +767,15 @@ const Dashboard = () => {
             </div>
             <div>
               <h3 className="text-gray-600 text-sm font-medium">Conversion Rate</h3>
-              <p className="text-2xl font-bold text-gray-900">3.42%</p>
-              <p className="text-sm text-green-600">+0.3% from last month</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {conversionRate?.overall?.conversion_rate !== undefined 
+                  ? `${conversionRate.overall.conversion_rate.toFixed(2)}%` 
+                  : 'Loading...'}
+              </p>
+              <div className="text-sm text-gray-600">
+                <p>Total Visitors: {conversionRate?.overall?.total_visitors || 0}</p>
+                <p>Total Purchases: {conversionRate?.overall?.total_purchases || 0}</p>
+              </div>
             </div>
           </div>
         </div>
