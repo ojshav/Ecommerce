@@ -13,7 +13,7 @@ const Terms: React.FC = () => {
           <div className="space-y-8">
             <div className="prose prose-lg max-w-none">
               <p className="text-gray-600">
-                Welcome to ShopEasy. These Terms and Conditions govern your use of the ShopEasy website and services. 
+                Welcome to AOIN. These Terms and Conditions govern your use of the AOIN website and services. 
                 By accessing or using our website, you agree to be bound by these Terms. Please read them carefully.
               </p>
             </div>
@@ -23,8 +23,8 @@ const Terms: React.FC = () => {
                 <div>
                   <h2 className="text-xl font-medium text-gray-900 mb-4">Acceptance of Terms</h2>
                   <p className="text-gray-600">
-                    By accessing or using the ShopEasy website, mobile applications, or any other features, technologies, or 
-                    functionalities offered by ShopEasy on our website or through any other means (collectively, "Services"), 
+                    By accessing or using the AOIN website, mobile applications, or any other features, technologies, or 
+                    functionalities offered by AOIN on our website or through any other means (collectively, "Services"), 
                     you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, 
                     you may not access or use our Services.
                   </p>
@@ -48,7 +48,7 @@ const Terms: React.FC = () => {
                   </p>
                   <p className="text-gray-600">
                     You are responsible for safeguarding your password and for all activities that occur under your account. 
-                    You agree to notify ShopEasy immediately of any unauthorized use of your account or any other breach of security.
+                    You agree to notify AOIN immediately of any unauthorized use of your account or any other breach of security.
                   </p>
                 </div>
 
@@ -72,8 +72,8 @@ const Terms: React.FC = () => {
                 <div>
                   <h2 className="text-xl font-medium text-gray-900 mb-4">Products and Services</h2>
                   <p className="text-gray-600 mb-4">
-                    ShopEasy strives to display product descriptions, images, and pricing as accurately as possible. However, 
-                    we do not guarantee that all information is complete or correct. In the event of a pricing error, ShopEasy 
+                    AOIN strives to display product descriptions, images, and pricing as accurately as possible. However, 
+                    we do not guarantee that all information is complete or correct. In the event of a pricing error, AOIN 
                     reserves the right to refuse or cancel any orders placed for products listed at the incorrect price.
                   </p>
                   <p className="text-gray-600">
@@ -99,8 +99,8 @@ const Terms: React.FC = () => {
                 <div>
                   <h2 className="text-xl font-medium text-gray-900 mb-4">Shipping and Delivery</h2>
                   <p className="text-gray-600 mb-4">
-                    ShopEasy will make every effort to ship products within the estimated timeframes. However, shipping times 
-                    are estimates and not guarantees. ShopEasy is not responsible for delays due to shipping carrier issues, 
+                    AOIN will make every effort to ship products within the estimated timeframes. However, shipping times 
+                    are estimates and not guarantees. AOIN is not responsible for delays due to shipping carrier issues, 
                     weather, or other circumstances beyond our control.
                   </p>
                   <p className="text-gray-600">
@@ -111,7 +111,7 @@ const Terms: React.FC = () => {
                 <div>
                   <h2 className="text-xl font-medium text-gray-900 mb-4">Returns and Refunds</h2>
                   <p className="text-gray-600 mb-4">
-                    ShopEasy offers a 30-day return policy for most items. Some products have specific return conditions that 
+                    AOIN offers a 30-day return policy for most items. Some products have specific return conditions that 
                     will be noted in the product description or in our Returns & Refunds Policy.
                   </p>
                   <p className="text-gray-600">
@@ -124,13 +124,13 @@ const Terms: React.FC = () => {
                   <h2 className="text-xl font-medium text-gray-900 mb-4">Intellectual Property</h2>
                   <p className="text-gray-600 mb-4">
                     The Services and all contents, including but not limited to text, images, graphics, logos, icons, audio 
-                    clips, and software, are the property of ShopEasy or its content suppliers and protected by United States 
+                    clips, and software, are the property of AOIN or its content suppliers and protected by United States 
                     and international copyright, trademark, and other intellectual property laws.
                   </p>
                   <p className="text-gray-600">
                     The trademarks, service marks, and logos used and displayed on our Services are registered and unregistered 
-                    trademarks of ShopEasy and others. Nothing on our Services should be construed as granting any license or 
-                    right to use any trademarks without the prior written permission of ShopEasy.
+                    trademarks of AOIN and others. Nothing on our Services should be construed as granting any license or 
+                    right to use any trademarks without the prior written permission of AOIN.
                   </p>
                 </div>
 
@@ -139,12 +139,12 @@ const Terms: React.FC = () => {
                   <p className="text-gray-700 mb-4">
                     THE SERVICES AND ALL INFORMATION, CONTENT, MATERIALS, PRODUCTS, AND SERVICES INCLUDED ON OR OTHERWISE MADE 
                     AVAILABLE TO YOU THROUGH THE SERVICES ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, UNLESS OTHERWISE 
-                    SPECIFIED IN WRITING. SHOPEASY MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, AS TO 
+                    SPECIFIED IN WRITING. AOIN MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, AS TO 
                     THE OPERATION OF THE SERVICES, OR THE INFORMATION, CONTENT, MATERIALS, PRODUCTS, OR SERVICES INCLUDED ON OR 
                     OTHERWISE MADE AVAILABLE TO YOU THROUGH THE SERVICES.
                   </p>
                   <p className="text-gray-700">
-                    TO THE FULL EXTENT PERMISSIBLE BY LAW, SHOPEASY DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT 
+                    TO THE FULL EXTENT PERMISSIBLE BY LAW, AOIN DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT 
                     NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
                   </p>
                 </div>
@@ -152,7 +152,7 @@ const Terms: React.FC = () => {
                 <div className="bg-[#FFF9E5] p-6 rounded-lg">
                   <h2 className="text-xl font-medium text-gray-900 mb-4">Limitation of Liability</h2>
                   <p className="text-gray-700 mb-4">
-                    SHOPEASY WILL NOT BE LIABLE FOR ANY DAMAGES OF ANY KIND ARISING FROM THE USE OF THE SERVICES, INCLUDING, BUT 
+                    AOIN WILL NOT BE LIABLE FOR ANY DAMAGES OF ANY KIND ARISING FROM THE USE OF THE SERVICES, INCLUDING, BUT 
                     NOT LIMITED TO, DIRECT, INDIRECT, INCIDENTAL, PUNITIVE, AND CONSEQUENTIAL DAMAGES, UNLESS OTHERWISE SPECIFIED 
                     IN WRITING.
                   </p>
@@ -166,7 +166,7 @@ const Terms: React.FC = () => {
                 <div>
                   <h2 className="text-xl font-medium text-gray-900 mb-4">Indemnification</h2>
                   <p className="text-gray-600">
-                    You agree to indemnify, defend, and hold harmless ShopEasy, its officers, directors, employees, agents, 
+                    You agree to indemnify, defend, and hold harmless AOIN, its officers, directors, employees, agents, 
                     licensors, and suppliers from and against all losses, expenses, damages, and costs, including reasonable 
                     attorneys' fees, resulting from any violation of these Terms or any activity related to your account 
                     (including negligent or wrongful conduct) by you or any other person accessing the Services using your account.
@@ -198,11 +198,11 @@ const Terms: React.FC = () => {
                     If you have any questions about these Terms, please contact us at:
                   </p>
                   <div className="text-gray-600">
-                    <p className="font-medium text-gray-900">ShopEasy, Inc.</p>
+                    <p className="font-medium text-gray-900">AOIN, Inc.</p>
                     <p>123 Commerce St, Suite 500</p>
                     <p>New York, NY 10001</p>
                     <p className="mt-2">
-                      <span className="text-[#FF4D00]">Email:</span> legal@shopeasy.com
+                      <span className="text-[#FF4D00]">Email:</span> legal@aoin.com
                     </p>
                     <p>
                       <span className="text-[#FF4D00]">Phone:</span> 1-800-123-4567
