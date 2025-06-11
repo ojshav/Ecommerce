@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Edit, Trash2, ToggleLeft, ToggleRight, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface Category {
@@ -60,6 +60,7 @@ const Promotions: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState<{ visible: boolean; promotionId: string | null; promotionName: string; } | null>(null);
 
   const generatePromotionCode = (categoryName: string, discountRate: string): string => {
     const cleanCategoryName = categoryName.toUpperCase().replace(/\s+/g, '');
@@ -135,14 +136,33 @@ const Promotions: React.FC = () => {
     setPromotionCode(promotion.promotionCode);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteClick = (id: string, categoryName: string) => {
+    setShowDeleteModal({ visible: true, promotionId: id, promotionName: categoryName });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!showDeleteModal || !showDeleteModal.promotionId) return;
+
+    const promotionIdToDelete = showDeleteModal.promotionId;
+    const promotionNameToDelete = showDeleteModal.promotionName;
+    setShowDeleteModal(null); // Close the dialog immediately
+
     setLoading(true);
-    
-    setTimeout(() => {
-      setPromotions(promotions.filter(p => p.id !== id));
-      toast.success('Promotion deleted successfully');
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setPromotions(promotions.filter(p => p.id !== promotionIdToDelete));
+      toast.success(`Promotion for ${promotionNameToDelete} deleted successfully`);
+    } catch (err) {
+      console.error('Error deleting promotion:', err);
+      toast.error('Failed to delete promotion');
+    } finally {
       setLoading(false);
-    }, 300);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(null);
   };
 
   const handleToggleActive = async (id: string) => {
@@ -365,7 +385,7 @@ const Promotions: React.FC = () => {
                           <Edit size={18} />
                         </button>
                         <button
-                          onClick={() => handleDelete(promotion.id)}
+                          onClick={() => handleDeleteClick(promotion.id, promotion.categoryName)}
                           className="text-red-600 hover:text-red-900 transition-colors"
                           title="Delete promotion"
                         >
@@ -393,6 +413,39 @@ const Promotions: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && showDeleteModal.visible && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="flex items-center justify-start mb-4">
+              <AlertCircle className="h-8 w-8 text-orange-500 mr-3" />
+              <h3 className="text-xl font-semibold text-gray-900">Confirm Deletion</h3>
+            </div>
+            <div className="mt-2">
+              <p className="text-sm text-gray-700">
+                Are you sure you want to delete the promotion for '<strong>{showDeleteModal.promotionName}</strong>'? This action cannot be undone.
+              </p>
+            </div>
+            <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+              <button
+                type="button"
+                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-500 text-base font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm"
+                onClick={handleConfirmDelete}
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:mt-0 sm:w-auto sm:text-sm"
+                onClick={cancelDelete}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Loading Overlay */}
       {loading && (

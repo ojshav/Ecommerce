@@ -66,7 +66,7 @@ const StatusBadge = ({ status }: { status: string }) => {
       case 'rejected':
         return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-green-100 text-green-800';
   }
   };
 
@@ -305,8 +305,8 @@ const MerchantManagement: React.FC = () => {
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Merchant</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Applied</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th scope="col" className="px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -330,7 +330,7 @@ const MerchantManagement: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       <button
                         onClick={() => viewMerchantDetails(merchant)}
-                        className="text-[#FF5733] hover:text-[#FF4500] transition-colors"
+                        className="px-2.5 py-2 text-sm font-medium text-white bg-orange-500 border  rounded-md hover:bg-orange-600 transition-colors duration-200"
                       >
                         View Details
                       </button>

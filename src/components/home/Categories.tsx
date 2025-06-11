@@ -88,10 +88,10 @@ const Categories: React.FC = () => {
               See All
             </Link>
             <div className="flex space-x-2">
-              <button className="p-1 rounded-full border border-gray-300">
+              <button className="p-1 rounded-full border border-gray-300 hover:bg-orange-400">
                 <ChevronLeft size={20} />
               </button>
-              <button className="p-1 rounded-full border border-gray-300">
+              <button className="p-1 rounded-full border border-gray-300 hover:bg-orange-400">
                 <ChevronRight size={20} />
               </button>
             </div>

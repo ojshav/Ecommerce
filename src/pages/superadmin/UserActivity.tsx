@@ -56,7 +56,7 @@ const fallbackActivityTypes = [
   { type: "Logged Out", count: 10 },
 ];
 
-const COLORS = ['#FF5733', '#FF8C33', '#FF4500', '#FFF5E6'];
+const COLORS = ['#FF5733', '#FF8C33', '#FF6E00', '#E27A53'];
 
 const UserActivity = () => {
   const [activities, setActivities] = useState(fallbackActivities);

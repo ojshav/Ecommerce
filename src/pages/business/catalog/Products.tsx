@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  MagnifyingGlassIcon, 
   PlusIcon, 
   FunnelIcon, 
   ArrowUpIcon, 
   ArrowDownIcon,
   PencilIcon,
-  TrashIcon,
-  EyeIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon
+  TrashIcon
 } from '@heroicons/react/24/outline';
+import { AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -119,29 +117,6 @@ const ApprovalStatusBadge: React.FC<{ status: 'pending' | 'approved' | 'rejected
   );
 };
 
-const formatPrice = (price: string | number): string => {
-  console.log('formatPrice input:', price, 'type:', typeof price);
-  if (typeof price === 'string') {
-    const numPrice = parseFloat(price);
-    console.log('Parsed string price:', numPrice);
-    return isNaN(numPrice) ? '0.00' : numPrice.toFixed(2);
-  }
-  return price.toFixed(2);
-};
-
-const formatStock = (stock: string | number | undefined): string => {
-  console.log('formatStock input:', stock, 'type:', typeof stock);
-  if (stock === undefined || stock === null) {
-    return '0';
-  }
-  if (typeof stock === 'string') {
-    const numStock = parseInt(stock);
-    console.log('Parsed string stock:', numStock);
-    return isNaN(numStock) ? '0' : numStock.toString();
-  }
-  return stock.toString();
-};
-
 // Add INR formatter
 const formatINR = (amount: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
@@ -164,6 +139,8 @@ const Products: React.FC = () => {
     key: null,
     direction: 'ascending',
   });
+  const [showDeleteModal, setShowDeleteModal] = useState<{ visible: boolean; productId: number | null; productName: string; isBulk: boolean; } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -209,58 +186,62 @@ const Products: React.FC = () => {
     }
   };
 
-  const handleDeleteProduct = async (productId: number) => {
-    if (!window.confirm('Are you sure you want to delete this product?')) {
-      return;
-    }
+  const handleDeleteClick = (productId: number, productName: string) => {
+    setShowDeleteModal({ visible: true, productId, productName, isBulk: false });
+  };
 
+  const handleBulkDeleteClick = () => {
+    setShowDeleteModal({ visible: true, productId: null, productName: `${selectedItems.length} products`, isBulk: true });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!showDeleteModal) return;
+
+    setIsDeleting(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      if (showDeleteModal.isBulk) {
+        // Delete products one by one
+        await Promise.all(
+          selectedItems.map(productId =>
+            fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'Content-Type': 'application/json',
+              },
+            })
+          )
+        );
+        toast.success(`Successfully deleted ${selectedItems.length} products`);
+        setSelectedItems([]);
+      } else if (showDeleteModal.productId) {
+        const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${showDeleteModal.productId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete product');
+        if (!response.ok) {
+          throw new Error('Failed to delete product');
+        }
+        toast.success(`Successfully deleted ${showDeleteModal.productName}`);
       }
-
+      
       // Refresh the product list
-      fetchProducts();
+      await fetchProducts();
     } catch (error) {
-      console.error('Error deleting product:', error);
-      alert('Failed to delete product. Please try again.');
+      console.error('Error deleting product(s):', error);
+      toast.error(showDeleteModal.isBulk ? 'Failed to delete some products' : 'Failed to delete product');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(null);
     }
   };
 
-  const handleBulkDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete ${selectedItems.length} products?`)) {
-      return;
-    }
-
-    try {
-      // Delete products one by one
-      await Promise.all(
-        selectedItems.map(productId =>
-          fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-              'Content-Type': 'application/json',
-            },
-          })
-        )
-      );
-
-      // Refresh the product list and clear selection
-      fetchProducts();
-      setSelectedItems([]);
-    } catch (error) {
-      console.error('Error deleting products:', error);
-      alert('Failed to delete some products. Please try again.');
-    }
+  const cancelDelete = () => {
+    setShowDeleteModal(null);
   };
 
   // Handle sort
@@ -300,7 +281,7 @@ const Products: React.FC = () => {
   
   // Sort products
   const sortedProducts = React.useMemo(() => {
-    let sortableProducts = [...filteredProducts];
+    const sortableProducts = [...filteredProducts];
     if (sortConfig.key !== null) {
       sortableProducts.sort((a, b) => {
         const aValue = a[sortConfig.key as keyof Product] as string | number;
@@ -492,7 +473,7 @@ const Products: React.FC = () => {
             </span>
             <div className="flex space-x-2">
               <button
-                onClick={handleBulkDelete}
+                onClick={handleBulkDeleteClick}
                 className="inline-flex items-center px-3 py-1 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none"
               >
                 <TrashIcon className="h-4 w-4 mr-1" />
@@ -599,14 +580,11 @@ const Products: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-3">
-                        <Link to={`/business/catalog/product/${product.product_id}/view`} className="text-orange-600 hover:text-orange-700">
-                          <EyeIcon className="h-5 w-5" />
-                        </Link>
                         <Link to={`/business/catalog/product/${product.product_id}/edit`} className="text-orange-600 hover:text-orange-700">
                           <PencilIcon className="h-5 w-5" />
                         </Link>
                         <button 
-                          onClick={() => handleDeleteProduct(product.product_id)}
+                          onClick={() => handleDeleteClick(product.product_id, product.product_name)}
                           className="text-orange-600 hover:text-orange-900"
                         >
                           <TrashIcon className="h-5 w-5" />
@@ -669,7 +647,7 @@ const Products: React.FC = () => {
                             <PencilIcon className="h-5 w-5" />
                           </Link>
                           <button 
-                            onClick={() => handleDeleteProduct(variant.product_id)}
+                            onClick={() => handleDeleteClick(variant.product_id, `${product.product_name} variant`)}
                             className="text-orange-600 hover:text-orange-900"
                           >
                             <TrashIcon className="h-5 w-5" />
@@ -697,6 +675,50 @@ const Products: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && showDeleteModal.visible && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="flex items-center justify-start mb-4">
+              <AlertCircle className="h-8 w-8 text-orange-500 mr-3" />
+              <h3 className="text-xl font-semibold text-gray-900">Confirm Deletion</h3>
+            </div>
+            <div className="mt-2">
+              <p className="text-sm text-gray-700">
+                Are you sure you want to delete {showDeleteModal.isBulk ? 
+                  `the selected ${showDeleteModal.productName}` : 
+                  `the product '${showDeleteModal.productName}'`}? This action cannot be undone.
+              </p>
+            </div>
+            <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+              <button
+                type="button"
+                disabled={isDeleting}
+                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-500 text-base font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleConfirmDelete}
+              >
+                {isDeleting ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Deleting...
+                  </div>
+                ) : (
+                  'Delete'
+                )}
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:mt-0 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={cancelDelete}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

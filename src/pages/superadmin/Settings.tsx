@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Trash2, X, Pencil } from 'lucide-react';
+import { Plus, Trash2, X, Pencil, AlertCircle } from 'lucide-react';
 
 interface AdminUser {
   username: string;
@@ -13,6 +13,7 @@ interface AdminUser {
 
 const Settings: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<{ visible: boolean; adminIndex: number | null; adminName: string; } | null>(null);
   const [isEdit, setIsEdit] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [admins, setAdmins] = useState<AdminUser[]>(() => {
@@ -153,9 +154,20 @@ const Settings: React.FC = () => {
     setError('');
   };
 
-  const handleDeleteAdmin = (index: number) => {
-    const updatedAdmins = admins.filter((_, i) => i !== index);
-    setAdmins(updatedAdmins);
+  const handleDeleteClick = (index: number, adminName: string) => {
+    setShowDeleteModal({ visible: true, adminIndex: index, adminName });
+  };
+
+  const handleConfirmDelete = () => {
+    if (showDeleteModal && showDeleteModal.adminIndex !== null) {
+      const updatedAdmins = admins.filter((_, i) => i !== showDeleteModal.adminIndex);
+      setAdmins(updatedAdmins);
+      setShowDeleteModal(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(null);
   };
 
   return (
@@ -202,7 +214,7 @@ const Settings: React.FC = () => {
                   <button className="text-orange-400 hover:text-orange-500 transition-colors" onClick={() => handleEditAdmin(idx)} title="Edit">
                     <Pencil className="w-5 h-5" />
                   </button>
-                  <button className="text-orange-400 hover:text-orange-500 transition-colors" onClick={() => handleDeleteAdmin(idx)} title="Delete">
+                  <button className="text-orange-400 hover:text-orange-500 transition-colors" onClick={() => handleDeleteClick(idx, `${admin.firstName} ${admin.lastName}`)} title="Delete">
                     <Trash2 className="w-5 h-5" />
                   </button>
                 </td>
@@ -211,6 +223,39 @@ const Settings: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && showDeleteModal.visible && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="flex items-center justify-start mb-4">
+              <AlertCircle className="h-8 w-8 text-orange-500 mr-3" />
+              <h3 className="text-xl font-semibold text-gray-900">Confirm Deletion</h3>
+            </div>
+            <div className="mt-2">
+              <p className="text-sm text-gray-700">
+                Are you sure you want to delete the admin user '<strong>{showDeleteModal.adminName}</strong>'? This action cannot be undone.
+              </p>
+            </div>
+            <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+              <button
+                type="button"
+                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-500 text-base font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                onClick={handleConfirmDelete}
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                onClick={cancelDelete}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">

@@ -156,7 +156,11 @@ const UserManagement = () => {
                         onClick={() =>
                           handleStatusChange(user.id, user.status === "Active" ? "Inactive" : "Active")
                         }
-                        className="bg-yellow-500 text-white px-3 py-1 rounded-md"
+                        className={`px-3 py-1 rounded-md text-white ${
+                          user.status === "Active" 
+                            ? "bg-yellow-500 hover:bg-yellow-600" 
+                            : "bg-green-500 hover:bg-green-600"
+                        }`}
                       >
                         {user.status === "Active" ? "Deactivate" : "Activate"}
                       </button>

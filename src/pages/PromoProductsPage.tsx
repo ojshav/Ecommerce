@@ -50,6 +50,12 @@ const PromoProductsPage: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const categoryId = params.get('category');
+    const brandId = params.get('brand');
+    const search = params.get('search');
+    const minPrice = params.get('min_price');
+    const maxPrice = params.get('max_price');
+
+    // Update category
     if (categoryId) {
       setSelectedCategory(categoryId);
       const category = categories.find(cat => cat.category_id === Number(categoryId));
@@ -61,6 +67,30 @@ const PromoProductsPage: React.FC = () => {
       }
     } else {
       setSelectedCategory('');
+    }
+
+    // Update brand
+    if (brandId) {
+      setSelectedBrands([brandId]);
+    } else {
+      setSelectedBrands([]);
+    }
+
+    // Update search
+    if (search) {
+      setSearchQuery(search);
+    } else {
+      setSearchQuery('');
+    }
+
+    // Update price range
+    if (minPrice || maxPrice) {
+      setPriceRange([
+        minPrice ? Number(minPrice) : 0,
+        maxPrice ? Number(maxPrice) : 1000000
+      ]);
+    } else {
+      setPriceRange([0, 1000000]);
     }
   }, [location.search, categories]);
 
@@ -263,7 +293,7 @@ const PromoProductsPage: React.FC = () => {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [currentPage, selectedCategory, selectedBrands, priceRange, searchQuery]);
+  }, [location.search, currentPage]);
 
   // Toggle brand selection
   const toggleBrand = (brand: string) => {
@@ -279,6 +309,47 @@ const PromoProductsPage: React.FC = () => {
       return newBrands;
     });
   };
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    
+    if (selectedCategory) {
+      params.set('category', selectedCategory);
+    } else {
+      params.delete('category');
+    }
+
+    if (selectedBrands.length > 0) {
+      params.set('brand', selectedBrands[0]);
+    } else {
+      params.delete('brand');
+    }
+
+    if (searchQuery) {
+      params.set('search', searchQuery);
+    } else {
+      params.delete('search');
+    }
+
+    if (priceRange[0] > 0) {
+      params.set('min_price', priceRange[0].toString());
+    } else {
+      params.delete('min_price');
+    }
+
+    if (priceRange[1] < 1000000) {
+      params.set('max_price', priceRange[1].toString());
+    } else {
+      params.delete('max_price');
+    }
+
+    // Only update URL if there are actual changes
+    const newUrl = `?${params.toString()}`;
+    if (newUrl !== `?${location.search}`) {
+      navigate(newUrl);
+    }
+  }, [selectedCategory, selectedBrands, searchQuery, priceRange]);
 
   // Reset all filters
   const resetFilters = () => {

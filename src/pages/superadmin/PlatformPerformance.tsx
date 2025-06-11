@@ -374,13 +374,13 @@ export default function PlatformPerformance() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <button 
-                      className="text-sm font-medium hover:underline"
-                      style={{ color: '#FF5733' }}
-                      onClick={() => alert(`Investigating ${service.name} status...`)}
-                    >
-                      Investigate
-                    </button>
+                  <button
+  onClick={() => alert(`Investigating ${service.name} status...`)}
+  className="px-3 py-1.5 text-sm font-medium bg-orange-500 rounded-lg shadow hover:bg-orange-600 text-white transition duration-200"
+>
+  Investigate
+</button>
+
                   </td>
                 </tr>
               ))}
