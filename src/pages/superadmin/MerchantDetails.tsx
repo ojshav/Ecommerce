@@ -456,7 +456,7 @@ const MerchantDetails: React.FC = () => {
           const errorData = await response.json().catch(() => ({}));
           toast.error(errorData.message || `Failed to fetch details: ${response.statusText}`);
         }
-        navigate('/superadmin/merchant-management');
+        navigate('/superadmin/merchants');
         return null;
       }
       const data = await response.json();
@@ -707,7 +707,7 @@ const MerchantDetails: React.FC = () => {
         <p className="text-xl font-semibold text-gray-800">Error</p>
         <p className="text-gray-600 mb-6">{error}</p>
         <button
-          onClick={() => navigate('/superadmin/merchant-management')}
+          onClick={() => navigate('/superadmin/merchants')}
           className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
         >
           Back to Merchant List
@@ -722,7 +722,7 @@ const MerchantDetails: React.FC = () => {
         <p className="text-xl font-semibold text-gray-800">Merchant Not Found</p>
         <p className="text-gray-600 mb-6">The requested merchant could not be found or you do not have permission to view it.</p>
         <button
-          onClick={() => navigate('/superadmin/merchant-management')}
+          onClick={() => navigate('/superadmin/merchants')}
           className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
         >
           Back to Merchant List
@@ -737,7 +737,7 @@ const MerchantDetails: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <div className="mb-4 sm:mb-6"> {/* Retained margin */}
           <button
-            onClick={() => navigate('/superadmin/merchant-management')} // Corrected navigate(-1) to specific path
+            onClick={() => navigate('/superadmin/merchants')} // Corrected navigate(-1) to specific path
             className="flex items-center text-gray-600 hover:text-gray-900 text-sm p-2 rounded-md hover:bg-gray-200 transition-colors"
           >
             <ChevronLeft size={18} className="mr-1" />
@@ -747,7 +747,7 @@ const MerchantDetails: React.FC = () => {
         
         {/* --- HEADER: NO COLOR CHANGES HERE --- */}
         <div className="bg-white shadow rounded-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 px-4 sm:px-6 md:px-8 py-4 sm:py-6">
+          <div className="bg-gradient-to-r from-orange-500 to-orange-700 px-4 sm:px-6 md:px-8 py-4 sm:py-6">
             <h1 className="text-xl sm:text-2xl font-bold text-white mb-2 truncate" title={merchant.name}>{merchant.name}</h1>
             <div className="flex flex-wrap items-center gap-2">
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadgeClass(merchant.status)}`}>
@@ -844,7 +844,7 @@ const MerchantDetails: React.FC = () => {
                               onClick={() => openDocumentViewer(doc.id.toString())}
                               title={`View ${documentTypeMapping[doc.document_type] || doc.document_type}`}
                               aria-label={`View ${documentTypeMapping[doc.document_type] || doc.document_type}`}
-                              className="ml-2 flex items-center px-2 py-1 rounded-md text-xs sm:text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-1 transition-colors duration-150 flex-shrink-0"
+                              className="ml-2 flex items-center px-2 py-1 rounded-md text-xs sm:text-sm text-orange-600 hover:text-orange-700 hover:bg-orange-100 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-1 transition-colors duration-150 flex-shrink-0"
                             >
                               <Eye size={14} className="mr-1 sm:mr-1.5" />
                               View

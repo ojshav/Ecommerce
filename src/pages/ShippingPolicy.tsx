@@ -146,7 +146,7 @@ const ShippingPolicy: React.FC = () => {
               </p>
               <div className="bg-gray-50 p-6 rounded-lg inline-block">
                 <p className="text-gray-700 mb-2">
-                  <strong>Email:</strong> <a href="mailto:shipping@shopeasy.com" className="text-blue-600 hover:underline">shipping@shopeasy.com</a>
+                  <strong>Email:</strong> <a href="mailto:shipping@aoin.com" className="text-blue-600 hover:underline">shipping@aoin.com</a>
                 </p>
                 <p className="text-gray-700">
                   <strong>Phone:</strong> <a href="tel:+18001234567" className="text-blue-600 hover:underline">1-800-123-4567</a>

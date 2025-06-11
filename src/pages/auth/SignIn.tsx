@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { toast } from 'react-hot-toast';
+import { Eye, EyeOff } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -12,6 +13,7 @@ const SignIn: React.FC = () => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResend, setShowResend] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // pull in login + resend helpers
   const { setAuthState, resendVerificationEmail } = useAuth();
@@ -166,59 +168,68 @@ const SignIn: React.FC = () => {
               Didn't get a verification email? Resend link.
             </div>
           )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* email & password fields */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email*
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F2631F] focus:border-transparent"
-                placeholder="Type your email"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password*
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F2631F] focus:border-transparent"
-                placeholder="Type your password"
-              />
-            </div>
-            <div className="flex items-center justify-between mb-2">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-[#F2631F] hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Signing in...' : 'Sign In'}
-              </button>
-              <Link
-                to="/forgot-password-request"
-                className="text-sm text-[#F2631F] hover:text-orange-600 font-medium"
-              >
-                Forgot Password
-              </Link>
-            </div>
-          </form>
-
-          {/* OR + Google login */}
-          <div className="my-4 flex items-center justify-center">
-            <div className="w-full border-t border-gray-200" />
-            <span className="px-2 text-gray-400 text-xs">or</span>
-            <div className="w-full border-t border-gray-200" />
+  
+          {!showResend && !isSubmitting && (
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email*
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F2631F] focus:border-transparent"
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  Password*
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F2631F] focus:border-transparent pr-10"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 px-3 flex items-center"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-[#F2631F] hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Signing in...' : 'Sign In'}
+                </button>
+                <Link
+                  to="/request-password-reset"
+                  className="text-sm text-[#F2631F] hover:text-orange-600 font-medium"
+                >
+                  Forgot Password
+                </Link>
+              </div>
+            </form>
+          )}
+  
+          <div className="my-6 flex items-center gap-4">
+            <div className="flex-grow h-px bg-gray-200" />
+            <span className="text-sm text-gray-400">OR</span>
+            <div className="flex-grow h-px bg-gray-200" />
           </div>
           <GoogleLogin
             onSuccess={handleGoogleSuccess}

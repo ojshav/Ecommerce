@@ -1,49 +1,167 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ArrowPathIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../../../context/AuthContext';
+import toast from 'react-hot-toast';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+interface MonthlySalesData {
+  month: string;
+  revenue: number;
+  units: number;
+}
+
+interface DetailedSalesData {
+  month: string;
+  product: string;
+  category: string;
+  price: number;
+  quantity: number;
+  revenue: number;
+}
+
+interface ProductPerformance {
+  name: string;
+  revenue: number;
+}
+
+interface CategoryData {
+  name: string;
+  value: string;
+}
 
 const Sales = () => {
-  // Sample data matching the screenshot
-  const monthlyData = [
-    { month: 'Jan', revenue: 90000, units: 275 },
-    { month: 'Feb', revenue: 90000, units: 237 },
-    { month: 'Mar', revenue: 150000, units: 498 },
-    { month: 'Apr', revenue: 130000, units: 423 },
-    { month: 'May', revenue: 180000, units: 556 }
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [monthlyData, setMonthlyData] = useState<MonthlySalesData[]>([]);
+  const [detailedSalesData, setDetailedSalesData] = useState<DetailedSalesData[]>([]);
+  const [productPerformance, setProductPerformance] = useState<ProductPerformance[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
+  const { accessToken } = useAuth();
 
-  const detailedSalesData = [
-    { month: 'Jan', product: 'Laptop Pro', category: 'Electronics', price: 1299, quantity: 45, revenue: 58455 },
-    { month: 'Jan', product: 'Wireless Earbuds', category: 'Audio', price: 129, quantity: 230, revenue: 29670 },
-    { month: 'Feb', product: 'Laptop Pro', category: 'Electronics', price: 1299, quantity: 52, revenue: 67548 },
-    { month: 'Feb', product: 'Wireless Earbuds', category: 'Audio', price: 129, quantity: 185, revenue: 23865 },
-    { month: 'Mar', product: 'Laptop Pro', category: 'Electronics', price: 1299, quantity: 63, revenue: 81837 },
-    { month: 'Mar', product: 'Wireless Earbuds', category: 'Audio', price: 129, quantity: 310, revenue: 39990 },
-    { month: 'Mar', product: 'Smart Watch', category: 'Wearables', price: 249, quantity: 125, revenue: 31125 },
-    { month: 'Apr', product: 'Laptop Pro', category: 'Electronics', price: 1299, quantity: 48, revenue: 62352 },
-    { month: 'Apr', product: 'Wireless Earbuds', category: 'Audio', price: 129, quantity: 195, revenue: 25155 },
-    { month: 'Apr', product: 'Smart Watch', category: 'Wearables', price: 249, quantity: 180, revenue: 44820 },
-    { month: 'May', product: 'Laptop Pro', category: 'Electronics', price: 1299, quantity: 71, revenue: 92229 },
-    { month: 'May', product: 'Wireless Earbuds', category: 'Audio', price: 129, quantity: 275, revenue: 35475 },
-    { month: 'May', product: 'Smart Watch', category: 'Wearables', price: 249, quantity: 210, revenue: 52290 }
-  ];
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  const productPerformance = [
-    { name: 'Laptop Pro', revenue: 362421 },
-    { name: 'Wireless Earbuds', revenue: 154155 },
-    { name: 'Smart Watch', revenue: 128235 }
-  ];
+      // Fetch monthly sales data
+      const monthlyResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/sales/monthly-sales`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
 
-  const categoryData = [
-    { name: 'Electronics', value: 56, color: '#FF4D00' },
-    { name: 'Audio', value: 24, color: '#00E5BE' },
-    { name: 'Wearables', value: 20, color: '#8B5CF6' }
-  ];
+      if (!monthlyResponse.ok) {
+        throw new Error('Failed to fetch monthly sales data');
+      }
+
+      const monthlyData = await monthlyResponse.json();
+      if (monthlyData.status === 'success') {
+        setMonthlyData(monthlyData.data);
+      }
+
+      // Fetch detailed sales data
+      const detailedResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/sales/sales-data`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!detailedResponse.ok) {
+        throw new Error('Failed to fetch detailed sales data');
+      }
+
+      const detailedData = await detailedResponse.json();
+      if (detailedData.status === 'success') {
+        setDetailedSalesData(detailedData.data);
+      }
+
+      // Fetch product performance data
+      const performanceResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/sales/product-performance`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!performanceResponse.ok) {
+        throw new Error('Failed to fetch product performance data');
+      }
+
+      const performanceData = await performanceResponse.json();
+      if (performanceData.status === 'success') {
+        setProductPerformance(performanceData.data);
+      }
+
+      // Fetch revenue by category data
+      const categoryResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/sales/revenue-by-category`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!categoryResponse.ok) {
+        throw new Error('Failed to fetch category data');
+      }
+
+      const categoryData = await categoryResponse.json();
+      if (categoryData.status === 'success') {
+        setCategoryData(categoryData.data);
+      }
+
+    } catch (error) {
+      console.error('Error fetching sales data:', error);
+      setError('Failed to load sales data. Please try again later.');
+      toast.error('Failed to load sales data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <ArrowPathIcon className="h-8 w-8 text-orange-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="text-red-500 mb-4">
+          <ArrowPathIcon className="h-12 w-12" />
+        </div>
+        <p className="text-xl font-semibold text-gray-800">Error</p>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <button
+          onClick={fetchData}
+          className="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   // Calculate summary statistics
   const totalRevenue = detailedSalesData.reduce((sum, item) => sum + item.revenue, 0);
   const totalUnits = detailedSalesData.reduce((sum, item) => sum + item.quantity, 0);
   const averageOrderValue = Math.round(totalRevenue / totalUnits);
+
+  // Define a color palette for up to 3 categories
+  const pieColors = ['#FF4D00', '#00E5BE', '#8B5CF6'];
+
+  // Map categoryData to ensure value is a number and assign a color
+  const pieChartData = categoryData.map((cat, idx) => ({
+    ...cat,
+    value: Number(cat.value),
+    fill: pieColors[idx % pieColors.length],
+  }));
 
   return (
     <div className="space-y-6">
@@ -51,7 +169,10 @@ const Sales = () => {
       <div className="flex justify-between items-center bg-[#FF4D00] text-white p-6 rounded-xl">
         <h1 className="text-2xl font-semibold">Sales Performance Report</h1>
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 bg-white text-[#FF4D00] px-4 py-2 rounded-lg hover:bg-opacity-90">
+          <button 
+            onClick={fetchData}
+            className="flex items-center gap-2 bg-white text-[#FF4D00] px-4 py-2 rounded-lg hover:bg-opacity-90"
+          >
             <ArrowPathIcon className="w-5 h-5" />
             Refresh Data
           </button>
@@ -172,19 +293,19 @@ const Sales = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={categoryData}
+                  data={pieChartData}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  label={({ name, value }) => `${name} ${value}%`}
+                  label={({ name, value }) => `${name} ${value.toFixed(1)}%`}
                 >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={index} fill={entry.color} />
+                  {pieChartData.map((entry, index) => (
+                    <Cell key={index} fill={entry.fill} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value) => `${Number(value).toFixed(1)}%`} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>

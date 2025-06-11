@@ -76,10 +76,11 @@ const Footer: React.FC = () => {
               <li>
                 <Link to="/RaiseTicket" className="text-gray-300 hover:text-white transition-colors">Raise Ticket</Link>
               </li>
-              <li>
+              {/* <li>
                 <div className="text-gray-300">Call us at</div>
                 <a href="tel:212-929-9953" className="text-[#F2631F] hover:text-white">212 929 9953</a>
               </li>
+              */}
               <li>
                 <Link to="/faq" className="text-gray-300 hover:text-white transition-colors">Frequently asked Questions</Link>
               </li>
@@ -90,8 +91,8 @@ const Footer: React.FC = () => {
                 <Link to="/shipping-methods" className="text-gray-300 hover:text-white transition-colors">Shipping Methods</Link>
               </li>
               <li>
-                <div className="text-gray-300 mt-3">Mail us at</div>
-                <a href="mailto:******@gmail.com" className="text-[#F2631F] hover:text-white">******@gmail.com</a>
+                {/* <div className="text-gray-300 mt-3">Mail us at</div>
+                <a href="mailto:******@gmail.com" className="text-[#F2631F] hover:text-white">******@gmail.com</a> */}
               </li>
             </ul>
           </div>
@@ -115,21 +116,28 @@ const Footer: React.FC = () => {
             </div>
 
             {/* Newsletter Subscription */}
-            <div className="mt-8">
-              <div className="flex">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  className="py-2.5 px-4 bg-white text-gray-800 rounded-l-md focus:outline-none w-full"
-                />
-                <button className="bg-[#F2631F] text-white px-4 py-2.5 rounded-r-md font-medium">
-                  Submit
-                </button>
-              </div>
-              <p className="text-sm text-gray-300 mt-3">
-                Receive our latest update about our products & promotion
-              </p>
-            </div>
+            <div className="mt-6 w-full max-w-xs">
+  <form className="flex flex-col gap-2">
+    <input 
+      type="email" 
+      placeholder="Enter your email" 
+      className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none"
+    />
+    <button 
+      type="submit"
+      className="bg-[#F2631F] text-white px-4 py-2 text-sm font-semibold rounded-md w-fit hover:bg-[#d44f12] transition"
+    >
+      Submit
+    </button>
+  </form>
+
+  <p className="mt-3 text-sm text-gray-400 leading-snug">
+    Receive our latest updates<br />about products & promotions
+  </p>
+</div>
+
+
+
           </div>
         </div>
       </div>
