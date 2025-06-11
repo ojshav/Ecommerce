@@ -19,12 +19,12 @@ const PrivacyPolicy = () => {
 
   const SectionHeader: React.FC<SectionHeaderProps> = ({ id, title }) => (
     <div 
-      className="flex items-center justify-between p-4 cursor-pointer bg-white border-l-4 border-indigo-500 shadow-sm hover:bg-gray-50 transition-colors mb-2"
+      className="flex items-center justify-between p-4 cursor-pointer bg-white border-l-4 border-[#FF4D00] shadow-sm hover:bg-gray-50 transition-colors mb-2"
       onClick={() => toggleSection(id)}
     >
-      <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
+      <h2 className="text-xl font-medium text-gray-900">{title}</h2>
       <svg 
-        className={`w-5 h-5 text-indigo-500 transform transition-transform ${expandedSection === id ? 'rotate-180' : ''}`} 
+        className={`w-5 h-5 text-[#FF4D00] transform transition-transform ${expandedSection === id ? 'rotate-180' : ''}`} 
         fill="none" 
         stroke="currentColor" 
         viewBox="0 0 24 24" 
@@ -48,16 +48,16 @@ const PrivacyPolicy = () => {
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-white min-h-screen">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-16 py-16">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-indigo-600 mb-2">Privacy Policy</h1>
+          <h1 className="text-[36px] font-medium text-[#FF4D00] mb-2">Privacy Policy</h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Your privacy matters to us. This document explains how we collect, use, and protect your data.
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
           <p className="text-gray-700">
             Last updated: <span className="font-medium">May 16, 2025</span>
           </p>
@@ -79,7 +79,7 @@ const PrivacyPolicy = () => {
             <p className="text-gray-700 mb-4">
               We collect personal information that you voluntarily provide to us when you register on our website, express an interest in obtaining information about us or our products, or otherwise contact us.
             </p>
-            <h3 className="text-lg font-medium text-indigo-600 mb-2">Personal Information</h3>
+            <h3 className="text-lg font-medium text-[#FF4D00] mb-2">Personal Information</h3>
             <ul className="list-disc pl-6 text-gray-700 mb-4 space-y-1">
               <li>Name and contact information (email address, phone number, etc.)</li>
               <li>Billing and shipping address</li>
@@ -89,7 +89,7 @@ const PrivacyPolicy = () => {
               <li>Communications with our customer service team</li>
             </ul>
 
-            <h3 className="text-lg font-medium text-indigo-600 mb-2">Automatically Collected Information</h3>
+            <h3 className="text-lg font-medium text-[#FF4D00] mb-2">Automatically Collected Information</h3>
             <ul className="list-disc pl-6 text-gray-700 space-y-1">
               <li>IP address and device information</li>
               <li>Browser type and settings</li>
@@ -105,20 +105,20 @@ const PrivacyPolicy = () => {
               We use your information for the following purposes:
             </p>
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-indigo-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium text-indigo-700 mb-2">Order Processing</h3>
+              <div className="bg-[#FFF9E5] p-4 rounded-lg">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Order Processing</h3>
                 <p className="text-gray-700">We use your information to process and fulfill your orders and provide customer support.</p>
               </div>
-              <div className="bg-indigo-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium text-indigo-700 mb-2">Communication</h3>
+              <div className="bg-[#FFF9E5] p-4 rounded-lg">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Communication</h3>
                 <p className="text-gray-700">We communicate with you about orders, products, and services.</p>
               </div>
-              <div className="bg-indigo-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium text-indigo-700 mb-2">Website Improvement</h3>
+              <div className="bg-[#FFF9E5] p-4 rounded-lg">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Website Improvement</h3>
                 <p className="text-gray-700">We analyze usage data to improve our website and services.</p>
               </div>
-              <div className="bg-indigo-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium text-indigo-700 mb-2">Marketing</h3>
+              <div className="bg-[#FFF9E5] p-4 rounded-lg">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Marketing</h3>
                 <p className="text-gray-700">We send marketing communications with your consent where required.</p>
               </div>
             </div>
@@ -136,8 +136,8 @@ const PrivacyPolicy = () => {
               <li>Marketing partners (with your consent where required)</li>
               <li>Law enforcement when required by law</li>
             </ul>
-            <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded">
-              <p className="text-green-700 font-medium">
+            <div className="bg-green-50 border-l-4 border-[#FF4D00] p-4 rounded">
+              <p className="text-gray-900 font-medium">
                 We do not sell your personal information to third parties.
               </p>
             </div>
@@ -150,15 +150,15 @@ const PrivacyPolicy = () => {
             </p>
             <div className="flex flex-col md:flex-row gap-4 mb-4">
               <div className="flex-1 border border-gray-200 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-800 mb-2">Essential Cookies</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Essential Cookies</h3>
                 <p className="text-gray-600">Required for basic website functionality.</p>
               </div>
               <div className="flex-1 border border-gray-200 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-800 mb-2">Analytics Cookies</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics Cookies</h3>
                 <p className="text-gray-600">Help us understand how visitors interact with our website.</p>
               </div>
               <div className="flex-1 border border-gray-200 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-800 mb-2">Marketing Cookies</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Marketing Cookies</h3>
                 <p className="text-gray-600">Used to deliver relevant advertisements and track campaign performance.</p>
               </div>
             </div>
@@ -171,27 +171,27 @@ const PrivacyPolicy = () => {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
               <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                <h3 className="font-medium text-indigo-600">Access</h3>
+                <h3 className="font-medium text-[#FF4D00]">Access</h3>
                 <p className="text-gray-600 text-sm">Request access to your personal information</p>
               </div>
               <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                <h3 className="font-medium text-indigo-600">Correction</h3>
+                <h3 className="font-medium text-[#FF4D00]">Correction</h3>
                 <p className="text-gray-600 text-sm">Request correction of inaccurate information</p>
               </div>
               <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                <h3 className="font-medium text-indigo-600">Deletion</h3>
+                <h3 className="font-medium text-[#FF4D00]">Deletion</h3>
                 <p className="text-gray-600 text-sm">Request deletion of your information</p>
               </div>
               <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                <h3 className="font-medium text-indigo-600">Objection</h3>
+                <h3 className="font-medium text-[#FF4D00]">Objection</h3>
                 <p className="text-gray-600 text-sm">Object to or restrict certain processing</p>
               </div>
               <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                <h3 className="font-medium text-indigo-600">Data Portability</h3>
+                <h3 className="font-medium text-[#FF4D00]">Data Portability</h3>
                 <p className="text-gray-600 text-sm">Request transfer of your information</p>
               </div>
               <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                <h3 className="font-medium text-indigo-600">Consent Withdrawal</h3>
+                <h3 className="font-medium text-[#FF4D00]">Consent Withdrawal</h3>
                 <p className="text-gray-600 text-sm">Withdraw previously given consent</p>
               </div>
             </div>
@@ -203,8 +203,8 @@ const PrivacyPolicy = () => {
           <SectionHeader id="data-security" title="Data Security" />
           <SectionContent id="data-security">
             <div className="flex items-start space-x-4">
-              <div className="bg-indigo-100 p-2 rounded-full">
-                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#FFF9E5] p-2 rounded-full">
+                <svg className="w-6 h-6 text-[#FF4D00]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                 </svg>
               </div>
@@ -235,7 +235,7 @@ const PrivacyPolicy = () => {
             <p className="text-gray-700 mb-4">
               If you have questions about this privacy policy or our practices, please contact us:
             </p>
-            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+            <div className="bg-[#FFF9E5] p-6 rounded-lg border border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-gray-900 font-medium">Example Company Inc.</p>
