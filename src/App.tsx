@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, lazy, Suspense } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
@@ -30,7 +30,7 @@ import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
 
 import { CartProvider } from './context/CartContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AdminLayout from './components/business/AdminLayout';
 
@@ -67,6 +67,7 @@ import Terms from './pages/Terms';
 import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
 import MerchantDetails from './pages/superadmin/MerchantDetails';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
+import Profile from './pages/superadmin/Profile';
 import Brands from './components/home/brands';
 import Inventory from './pages/business/Inventory';
 import VerificationStatus from './pages/business/VerificationStatus';
@@ -92,7 +93,8 @@ import Sales from './pages/business/reports/Sales';
 import CustomersReport from './pages/business/reports/CustomersReport';
 import ProductsReport from './pages/business/reports/ProductsReport';
 import Support from './pages/business/Support';
-import Profile from './pages/business/Profile';
+import Settingss from './pages/business/Settings';
+import Profilee from './pages/business/Profile';
 import { WishlistProvider } from './context/WishlistContext';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import Subscription from './pages/business/Subscription';
@@ -160,10 +162,6 @@ const ScrollToTop = () => {
   useScrollToTop();
   return null;
 };
-
-interface ProtectedRouteProps {
-  children: ReactNode;
-}
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -298,14 +296,14 @@ const App: React.FC = () => {
                         }
                       />
 
-                      <Route
-                        path="settings"
-                        element={
-                          <Suspense fallback={<LoadingFallback />}>
-                            <Settings />
-                          </Suspense>
-                        }
-                      />
+                    <Route
+                      path="settings"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <Settingss />
+                        </Suspense>
+                      }
+                    />
 
                       <Route
                         path="support"
@@ -316,14 +314,14 @@ const App: React.FC = () => {
                         }
                       />
 
-                      <Route
-                        path="profile"
-                        element={
-                          <Suspense fallback={<LoadingFallback />}>
-                            <Profile />
-                          </Suspense>
-                        }
-                      />
+                    <Route
+                      path="profile"
+                      element={
+                        <Suspense fallback={<LoadingFallback />}>
+                          <Profilee />
+                        </Suspense>
+                      }
+                    />
 
                       {/* Catalog Routes */}
                       <Route path="catalog">
@@ -371,53 +369,57 @@ const App: React.FC = () => {
                       />
                     </Route>
 
-                    {/* Superadmin Routes - Protected by role check in the component */}
-                    <Route path="/superadmin" element={<SuperAdminLayout />}>
-                      <Route
-                        index
-                        element={<Navigate to="/superadmin/dashboard" replace />}
-                      />
-                      <Route path="dashboard" element={<Dashboard />} />
-                      <Route
-                        path="user-activity-overview"
-                        element={<UserActivity />}
-                      />
-                      <Route path="user-management" element={<UserManagement />} />
+                  {/* Superadmin Routes - Protected by role check in the component */}
+                  <Route path="/superadmin" element={<SuperAdminLayout />}>
+                    <Route
+                      index
+                      element={<Navigate to="/superadmin/dashboard" replace />}
+                    />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route
+                      path="user-report"
+                      element={<UserActivity />}
+                    />
+                    <Route path="users" element={<UserManagement />} />
 
-                      <Route path="content-moderation" element={<ContentModeration />} />
-                      <Route path="product-monitoring" element={<ProductMonitoring />} />
-                      <Route path="site-traffic-analytics" element={<TrafficAnalytics />} />
+                    <Route path="content-moderation" element={<ContentModeration />} />
+                    <Route path="products" element={<ProductMonitoring />} />
+                    <Route path="site-report" element={<TrafficAnalytics />} />
 
-                      <Route path="sales-reports" element={<SalesReportPage />} />
-                      <Route path="fraud-detection" element={<FraudDetection />} />
-                      <Route
-                        path="marketplace-health"
-                        element={<MarketplaceHealth />}
-                      />
-                    
-                      <Route
-                        path="platform-performance"
-                        element={<PlatformPerformance />}
-                      />
-                      <Route
-                        path="merchant-management"
-                        element={<MerchantManagement />}
-                      />
-                      <Route
-                        path="merchant-management/:id"
-                        element={<MerchantDetails />}
-                      />
-                      <Route path="categories" element={<Categories />} />
-                      <Route path="brand-creation" element={<BrandCreation />} />
-                      <Route path="attribute" element={<Attribute />} />
-                      <Route path="homepage-settings" element={<HomepageSettings />} />
-                      <Route path="user-support" element={<UserSupport />} />
-                      <Route path="merchant-support" element={<MerchantSupport />} />
-                      <Route path="settings" element={<Settings />} />
-                      <Route path="refund-and-return-management" element={<RefundAndReturnManagement />} />
-                      <Route path="payment-and-transaction-monitoring" element={<PaymentAndTransactionMonitoring />} />
-                      <Route path="promotions-and-discounts-management" element={<Promotions />} />
-                    </Route>
+                    <Route path="sales-report" element={<SalesReportPage />} />
+                    <Route path="fraud-detection" element={<FraudDetection />} />
+                    <Route
+                      path="marketplace-health"
+                      element={<MarketplaceHealth />}
+                    />
+                    <Route
+                      path="merchant-report"
+                      element={<MerchantAnalytics />}
+                    />
+                    <Route
+                      path="performance"
+                      element={<PlatformPerformance />}
+                    />
+                    <Route
+                      path="merchants"
+                      element={<MerchantManagement />}
+                    />
+                    <Route
+                      path="merchant-management/:id"
+                      element={<MerchantDetails />}
+                    />
+                    <Route path="categories" element={<Categories />} />
+                    <Route path="brands" element={<BrandCreation />} />
+                    <Route path="attribute" element={<Attribute />} />
+                    <Route path="homepages" element={<HomepageSettings />} />
+                    <Route path="user-support" element={<UserSupport />} />
+                    <Route path="merchant-support" element={<MerchantSupport />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="refund-and-return" element={<RefundAndReturnManagement />} />
+                    <Route path="payments" element={<PaymentAndTransactionMonitoring />} />
+                    <Route path="promotions" element={<Promotions />} />
+                    <Route path="profile" element={<Profile />} />
+                  </Route>
 
                     {/* Public Routes with header/footer */}
                     <Route
@@ -439,24 +441,25 @@ const App: React.FC = () => {
                               <Route path="/payment" element={<PaymentPage />} />
                               <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
 
-                              <Route path="/signin" element={<SignIn />} />
-                              <Route path="/signup" element={<SignUp />} />
-                              <Route
-                                path="/verification-pending"
-                                element={<VerificationPending />}
-                              />
-                              <Route
-                                path="/verify-email/:token"
-                                element={<VerifyEmail />}
-                              />
-                              <Route
-                                path="/business/login"
-                                element={<BusinessLogin />}
-                              />
-                              <Route
-                                path="/register-business"
-                                element={<RegisterBusiness />}
-                              />
+                            {/* These routes will have Navbar and Footer */}
+                            <Route path="/signup" element={<SignUp />} />
+                            <Route
+                              path="/verification-pending"
+                              element={<VerificationPending />}
+                            />
+                            <Route path="settings" element={<Settingss />} />
+                            <Route
+                              path="/verify-email/:token"
+                              element={<VerifyEmail />}
+                            />
+                            <Route
+                              path="/business/login"
+                              element={<BusinessLogin />}
+                            />
+                            <Route
+                              path="/register-business"
+                              element={<RegisterBusiness />}
+                            />
 
                               <Route
                                 path="/password/reset"
@@ -543,20 +546,29 @@ const App: React.FC = () => {
             </Router>
 
             <Toaster
-              position="top-right"
-              toastOptions={{
-                style: {
-                  background: "#363636",
-                  color: "#fff",
-                },
-                success: {
-                  duration: 3000,
-                },
-                error: {
-                  duration: 4000,
-                },
-              }}
-            />
+  position="bottom-center"
+  toastOptions={{
+    style: {
+      background: "#FFEDD5",        // Tailwind orange-100 (soft warm background)
+      color: "#EA580C",             // Tailwind orange-600 (professional tone)
+      padding: "12px 20px",
+      borderRadius: "0.5rem",       // rounded-lg for softer edges
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // soft neutral shadow
+      fontWeight: "500",            // medium weight for readability
+      fontSize: "0.875rem",         // text-sm
+      minWidth: "260px",
+      textAlign: "center",
+      border: "1px solid #FDBA74",  // subtle border using orange-300
+    },
+    success: {
+      duration: 3000,
+    },
+    error: {
+      duration: 4000,
+    },
+  }}
+/>
+
           </GoogleOAuthProvider>
         </WishlistProvider>
       </CartProvider>

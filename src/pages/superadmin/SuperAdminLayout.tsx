@@ -36,27 +36,27 @@ interface MenuSection {
 // Dashboard sections organized into categories
 export const dashboardSections: MenuSection[] = [
   {
-    category: "Analytics & Reports",
+    category: "Analytics",
     color: "blue",
     icon: BarChart3,
     items: [
       {
-        title: "User Activity Overview",
+        title: "User Report",
         icon: ActivitySquare,
         description: "Monitor user engagement, session data, and activity patterns"
       },
       {
-        title: "Site Traffic Analytics",
+        title: "Site Report",
         icon: BarChart3,
         description: "Analyze visitor traffic, sources, and behavior patterns"
       },
       {
-        title: "Sales Reports",
+        title: "Sales Report",
         icon: FileBarChart2,
         description: "Review comprehensive sales data, trends, and projections"
       },
       {
-        title: "Platform Performance",
+        title: "Performance",
         icon: ActivitySquare,
         description: "Monitor system health, response times, and resource usage"
       }
@@ -68,17 +68,17 @@ export const dashboardSections: MenuSection[] = [
     icon: UserCog,
     items: [
       {
-        title: "Merchant Management",
+        title: "Merchants",
         icon: UserCog,
         description: "Review and manage merchant accounts and applications"
       },
       {
-        title: "Refund and Return Management",
+        title: "Refund and Return",
         icon: ShoppingBag,
         description: "Process refund requests and manage return policies"
       },
       {
-        title: "Product Monitoring",
+        title: "Products",
         icon: ShoppingBag,
         description: "Track product listings, categories, and inventory status"
       },
@@ -96,24 +96,24 @@ export const dashboardSections: MenuSection[] = [
       },
       */
       {
-        title: "User Management",
+        title: "Users",
         icon: Users,
         description: "Manage user accounts, permissions, and access controls"
       }
     ]
   },
   {
-    category: "Operations & Security",
+    category: "Operations",
     color: "amber",
     icon: ShieldCheck,
     items: [
       {
-        title: "Payment and Transaction Monitoring",
+        title: "Payments",
         icon: ShieldCheck,
         description: "Monitor payment processing and transaction security"
       },
       {
-        title: "Promotions and Discounts Management",
+        title: "Promotions",
         icon: Percent,
         description: "Create and manage platform-wide promotions and offers"
       }
@@ -193,7 +193,7 @@ export const catalogSections: MenuSection[] = [
         description: "Manage product categories and subcategories"
       },
       {
-        title: "Brand Creation",
+        title: "Brands",
         icon: ShoppingBag,
         description: "Manage product brands"
       },
@@ -203,7 +203,7 @@ export const catalogSections: MenuSection[] = [
         description: "Manage product attributes and specifications"
       },
       {
-        title: "Homepage Settings",
+        title: "Homepages",
         icon: Home,
         description: "Manage categories displayed on homepage"
       }
@@ -328,6 +328,11 @@ const SuperAdminLayout = () => {
       return location.pathname === "/superadmin/dashboard";
     }
 
+    // Special case for Settings
+    if (category === "Setting") {
+      return location.pathname === "/superadmin/settings";
+    }
+
     // Check if any submenu item in the category is active
     const section = dashboardSections.find(section => section.category === category);
     if (section) {
@@ -381,9 +386,10 @@ const SuperAdminLayout = () => {
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
           fixed md:static z-20 transform md:translate-x-0 transition-transform duration-300 ease-in-out
           w-64 h-[calc(100vh-4rem)] top-16 bg-orange-100 shadow-md flex flex-col
+          will-change-transform
         `}>
           {/* Sidebar Header */}
-          <div className="p-4 border-b border-orange-200">
+          <div className="p-4 border-b border-orange-200 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <Home className="w-6 h-6 text-black" />
@@ -399,7 +405,7 @@ const SuperAdminLayout = () => {
           </div>
 
           {/* Scrollable Sidebar Navigation */}
-          <nav className="flex-1 overflow-y-auto p-4">
+          <nav className="flex-1 overflow-y-auto p-4 overflow-x-hidden">
             <ul className="space-y-1">
               {/* Dashboard Menu Item */}
               <li>
@@ -439,7 +445,7 @@ const SuperAdminLayout = () => {
                     
                     {/* Show section items when expanded */}
                     {isExpanded && (
-                      <div className="mt-2 ml-6 space-y-1">
+                      <div className="mt-2 ml-6 space-y-1 overflow-hidden">
                         {section.items.map((item, itemIndex) => {
                           const ItemIcon = item.icon;
                           const isItemActive = isSubmenuActive(item.title);
@@ -476,13 +482,13 @@ const SuperAdminLayout = () => {
                   `}
                 >
                   <FolderOpen className={`w-5 h-5 ${isCategoryActive("Catalog Management") ? '' : 'text-gray-500'} mr-3`} />
-                  <span className="font-medium">Catalog Management</span>
+                  <span className="font-medium">Catalog</span>
                   <ChevronRight className={`w-4 h-4 ml-auto transform transition-transform duration-200 ${expandedCategories.includes("Catalog Management") ? 'rotate-90' : ''}`} />
                 </button>
                 
                 {/* Show catalog items when expanded */}
                 {expandedCategories.includes("Catalog Management") && (
-                  <div className="mt-2 ml-6 space-y-1">
+                  <div className="mt-2 ml-6 space-y-1 overflow-hidden">
                     {catalogSections.find(section => section.category === "Catalog Management")?.items.map((item, index) => {
                       const ItemIcon = item.icon;
                       const isItemActive = isSubmenuActive(item.title);
