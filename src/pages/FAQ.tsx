@@ -14,11 +14,11 @@ const FAQItem: React.FC<{
         className="flex justify-between items-center w-full text-left py-4"
         onClick={onToggle}
       >
-        <span className="text-gray-900">{question}</span>
+        <span className="text-gray-900 font-medium">{question}</span>
         {isOpen ? (
-          <ChevronUp className="h-5 w-5 text-orange-500" />
+          <ChevronUp className="h-5 w-5 text-[#FF4D00]" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-orange-500" />
+          <ChevronDown className="h-5 w-5 text-[#FF4D00]" />
         )}
       </button>
       {isOpen && (
@@ -61,11 +61,11 @@ const FAQ: React.FC = () => {
 
   return (
     <div className="bg-white min-h-screen">
-      <div className="container mx-auto px-4 py-16">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-16 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* FAQ Section */}
           <div>
-            <h1 className="text-2xl font-bold mb-8">Frequently Asked Questions</h1>
+            <h1 className="text-[36px] font-medium text-[#FF4D00] mb-8">Frequently Asked Questions</h1>
             <div className="space-y-2">
               {faqItems.map((item, index) => (
                 <FAQItem
@@ -80,7 +80,7 @@ const FAQ: React.FC = () => {
 
           {/* Support Form */}
           <div className="bg-[#FFF9E5] p-8 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Don't find your answer, Ask for support.</h2>
+            <h2 className="text-2xl font-medium text-gray-900 mb-4">Don't find your answer? Ask for support.</h2>
             <p className="text-gray-600 mb-6">
               Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed molestie accumsan dui, non iaculis primis in faucibu raesent eget sem purus.
             </p>
@@ -88,21 +88,21 @@ const FAQ: React.FC = () => {
               <input
                 type="email"
                 placeholder="Email address"
-                className="w-full p-3 rounded border border-gray-300 focus:outline-none focus:border-orange-500"
+                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:border-[#FF4D00] focus:ring-2 focus:ring-[#FF4D00]/20 transition-all"
               />
               <input
                 type="text"
                 placeholder="Subject"
-                className="w-full p-3 rounded border border-gray-300 focus:outline-none focus:border-orange-500"
+                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:border-[#FF4D00] focus:ring-2 focus:ring-[#FF4D00]/20 transition-all"
               />
               <textarea
                 placeholder="Message (Optional)"
                 rows={4}
-                className="w-full p-3 rounded border border-gray-300 focus:outline-none focus:border-orange-500"
+                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:border-[#FF4D00] focus:ring-2 focus:ring-[#FF4D00]/20 transition-all"
               />
               <button
                 type="submit"
-                className="w-full bg-orange-500 text-white py-3 px-6 rounded hover:bg-orange-600 transition-colors"
+                className="w-full bg-[#FF4D00] hover:bg-[#FF4D00]/90 text-white py-3 px-6 rounded-lg font-medium transition-colors duration-200"
               >
                 Send Message
               </button>

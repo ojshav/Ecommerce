@@ -335,7 +335,11 @@ const HomepageSettings: React.FC = () => {
     };
 
     const handleCarouselUpload = async (carouselType: 'brand' | 'product' | 'promo' | 'new' | 'featured') => {
-        const selectedId = carouselType === 'brand' ? selectedBrand : 1; // Use 1 as default ID for product groups
+        const selectedId = carouselType === 'brand' ? selectedBrand : 1;
+        if (!selectedId && carouselType === 'brand') {
+            toast.error('Please select a brand');
+            return;
+        }
         const link = carouselType === 'brand' ? shareableBrandLink : generateShareableLink(carouselType, 1);
         if (!selectedImage || !link) {
             toast.error('Please select an image and ensure a shareable link is generated.');

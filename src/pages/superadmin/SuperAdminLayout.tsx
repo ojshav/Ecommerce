@@ -40,11 +40,11 @@ export const dashboardSections: MenuSection[] = [
     color: "blue",
     icon: BarChart3,
     items: [
-      {
-        title: "User Report",
-        icon: ActivitySquare,
-        description: "Monitor user engagement, session data, and activity patterns"
-      },
+      // {
+      //   title: "User Report",
+      //   icon: ActivitySquare,
+      //   description: "Monitor user engagement, session data, and activity patterns"
+      // },
       {
         title: "Site Report",
         icon: BarChart3,
@@ -54,11 +54,6 @@ export const dashboardSections: MenuSection[] = [
         title: "Sales Report",
         icon: FileBarChart2,
         description: "Review comprehensive sales data, trends, and projections"
-      },
-      {
-        title: "Merchant Report",
-        icon: BarChart3,
-        description: "Track merchant performance and growth metrics"
       },
       {
         title: "Performance",

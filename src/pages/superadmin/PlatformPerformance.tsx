@@ -4,6 +4,109 @@ import {
   BarChart, Bar, Cell
 } from 'recharts';
 import { AlertCircle, CheckCircle, Clock, Activity, Server, RefreshCw } from 'lucide-react';
+import { useAuth } from '../../context/useAuth';
+
+// API Configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// Define types for API responses
+interface SystemStatusResponse {
+  status: string;
+  data: {
+    uptime: number;
+    status: string;
+    last_updated: string;
+    system_metrics: {
+      cpu_usage_percent: number;
+      memory_usage_mb: number;
+      uptime_formatted: string;
+      uptime_seconds: number;
+    };
+  };
+  message?: string;
+}
+
+interface ResponseTimeResponse {
+  status: string;
+  data: {
+    response_times: {
+      timestamp: string;
+      average_time: number;
+    }[];
+    summary: {
+      average: number;
+      min: number;
+      max: number;
+    };
+  };
+  message?: string;
+}
+
+interface ErrorDistributionResponse {
+  status: string;
+  data: {
+    error_distribution: {
+      error_type: string;
+      count: number;
+    }[];
+    total_errors: number;
+  };
+  message?: string;
+}
+
+interface ServiceStatusResponse {
+  status: string;
+  data: {
+    overall_health: number;
+    service_health: {
+      service_name: string;
+      avg_response_time: number;
+      error_rate: number;
+      health_score: number;
+      memory_usage: number;
+      cpu_usage: number;
+    }[];
+    system_metrics: {
+      cpu_usage_percent: number;
+      disk_usage_percent: number;
+      memory_usage_percent: number;
+      memory_usage_mb: number;
+    };
+  };
+  message?: string;
+}
+
+interface SystemHealthResponse {
+  status: string;
+  data: {
+    health_status: string;
+    services_operational: number;
+    services_degraded: number;
+    services_critical: number;
+    last_updated: string;
+  };
+  message?: string;
+}
+
+interface ServiceMetrics {
+  name: string;
+  status: string;
+  responseTime: number;
+  cpuUsage: number;
+  memoryUsage: number;
+  errorRate: number;
+  requestCount: number;
+  lastUpdated: string;
+}
+
+interface ServiceAnalytics {
+  totalRequests: number;
+  successRate: number;
+  averageResponseTime: number;
+  peakResponseTime: number;
+  errorCount: number;
+  uptime: number;
+}
 
 // Define types for state variables
 interface ResponseTimeData {
@@ -17,6 +120,8 @@ interface ErrorData {
 }
 
 export default function PlatformPerformance() {
+  const { accessToken, isAuthenticated } = useAuth();
+  
   // Primary color theme
   const primaryColor = '#FF5733';
   const primaryLightColor = '#FF8C33';
@@ -34,69 +139,259 @@ export default function PlatformPerformance() {
     name: string;
     status: string;
     responseTime: number;
-  }[]>([
-    { name: 'API Gateway', status: 'operational', responseTime: 124 },
-    { name: 'Authentication Service', status: 'operational', responseTime: 89 },
-    { name: 'Database', status: 'operational', responseTime: 45 },
-    { name: 'Storage Service', status: 'degraded', responseTime: 235 },
-    { name: 'Analytics', status: 'operational', responseTime: 167 }
-  ]);
+  }[]>([]);
+  const [serviceMetrics, setServiceMetrics] = useState<ServiceMetrics[]>([]);
+  const [serviceAnalytics, setServiceAnalytics] = useState<ServiceAnalytics>({
+    totalRequests: 0,
+    successRate: 0,
+    averageResponseTime: 0,
+    peakResponseTime: 0,
+    errorCount: 0,
+    uptime: 0
+  });
+  const [selectedService, setSelectedService] = useState<string | null>(null);
 
-  // Mock data generation for the charts
-  useEffect(() => {
-    const generateMockData = () => {
-      setLoadingData(true);
-      
-      // Generate response time data
-      const points = selectedTimeframe === '24h' ? 24 : selectedTimeframe === '7d' ? 7 : 30;
-      const newResponseTimeData: ResponseTimeData[] = [];
-      
-      for (let i = 0; i < points; i++) {
-        const baseTime = selectedTimeframe === '24h' ? 130 : 150;
-        const variation = Math.random() * 100 - 50;
-        const timestamp = selectedTimeframe === '24h' 
-          ? `${23-i}:00` 
-          : selectedTimeframe === '7d' 
-            ? `Day ${7-i}` 
-            : `Week ${points-i}`;
-            
-        newResponseTimeData.push({
-          name: timestamp,
-          responseTime: Math.max(50, Math.round(baseTime + variation)),
+  // Fetch data from API endpoints
+  const fetchData = async () => {
+    if (!isAuthenticated || !accessToken) {
+      console.error('Not authenticated');
+      return;
+    }
+
+    setLoadingData(true);
+    try {
+      const headers = {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      };
+
+      // Fetch system status
+      console.log('Fetching system status...');
+      const statusResponse = await fetch(`${API_BASE_URL}/api/superadmin/monitoring/system/status`, {
+        method: 'GET',
+        headers,
+        credentials: 'include'
+      });
+      const statusData: SystemStatusResponse = await statusResponse.json();
+      console.log('System status response:', statusData);
+      if (statusData.status === 'success') {
+        setUptimeStatus(statusData.data.status);
+        setUptimePercentage(statusData.data.uptime);
+      }
+
+      // Fetch response times
+      console.log('Fetching response times...');
+      const responseTimeResponse = await fetch(
+        `${API_BASE_URL}/api/superadmin/monitoring/system/response-times?hours=${selectedTimeframe === '24h' ? 24 : selectedTimeframe === '7d' ? 168 : 720}`,
+        { 
+          method: 'GET',
+          headers,
+          credentials: 'include'
+        }
+      );
+      const responseTimeData: ResponseTimeResponse = await responseTimeResponse.json();
+      console.log('Response times data:', responseTimeData);
+      if (responseTimeData.status === 'success' && responseTimeData.data.response_times) {
+        setResponseTimeData(responseTimeData.data.response_times.map(item => ({
+          name: item.timestamp,
+          responseTime: item.average_time
+        })));
+      }
+
+      // Fetch error distribution
+      console.log('Fetching error distribution...');
+      const errorResponse = await fetch(
+        `${API_BASE_URL}/api/superadmin/monitoring/system/errors?hours=${selectedTimeframe === '24h' ? 24 : selectedTimeframe === '7d' ? 168 : 720}`,
+        { 
+          method: 'GET',
+          headers,
+          credentials: 'include'
+        }
+      );
+      const errorData: ErrorDistributionResponse = await errorResponse.json();
+      console.log('Error distribution data:', errorData);
+      if (errorData.status === 'success' && errorData.data.error_distribution) {
+        setErrorData(errorData.data.error_distribution.map(error => ({
+          name: error.error_type,
+          value: error.count
+        })));
+      }
+
+      // Fetch service status
+      console.log('Fetching service status...');
+      const serviceResponse = await fetch(`${API_BASE_URL}/api/superadmin/monitoring/system/health`, {
+        method: 'GET',
+        headers,
+        credentials: 'include'
+      });
+      const serviceData: ServiceStatusResponse = await serviceResponse.json();
+      console.log('Service status data:', serviceData);
+      if (serviceData.status === 'success' && serviceData.data.service_health) {
+        setServicesStatus(serviceData.data.service_health.map(service => ({
+          name: service.service_name,
+          status: service.health_score >= 90 ? 'operational' : 
+                  service.health_score >= 70 ? 'degraded' : 'critical',
+          responseTime: service.avg_response_time
+        })));
+
+        // Update service metrics
+        setServiceMetrics(serviceData.data.service_health.map(service => ({
+          name: service.service_name,
+          status: service.health_score >= 90 ? 'operational' : 
+                  service.health_score >= 70 ? 'degraded' : 'critical',
+          responseTime: service.avg_response_time,
+          cpuUsage: service.cpu_usage,
+          memoryUsage: service.memory_usage,
+          errorRate: service.error_rate,
+          requestCount: 0, // This will be updated when fetching individual service metrics
+          lastUpdated: new Date().toISOString()
+        })));
+
+        // Update service analytics
+        const totalServices = serviceData.data.service_health.length;
+        const operationalServices = serviceData.data.service_health.filter(
+          s => s.health_score >= 90
+        ).length;
+        
+        setServiceAnalytics({
+          totalRequests: serviceData.data.service_health.reduce(
+            (sum, service) => sum + (service.avg_response_time > 0 ? 1 : 0), 
+            0
+          ),
+          successRate: 100 - (serviceData.data.service_health.reduce(
+            (sum, service) => sum + service.error_rate, 
+            0
+          ) / totalServices),
+          averageResponseTime: serviceData.data.service_health.reduce(
+            (sum, service) => sum + service.avg_response_time, 
+            0
+          ) / totalServices,
+          peakResponseTime: Math.max(
+            ...serviceData.data.service_health.map(service => service.avg_response_time)
+          ),
+          errorCount: serviceData.data.service_health.reduce(
+            (sum, service) => sum + service.error_rate, 
+            0
+          ),
+          uptime: (operationalServices / totalServices) * 100
         });
       }
-      setResponseTimeData(newResponseTimeData.reverse());
-      
-      // Generate error data
-      const newErrorData: ErrorData[] = [
-        { name: '4xx Errors', value: Math.floor(Math.random() * 50) + 10 },
-        { name: '5xx Errors', value: Math.floor(Math.random() * 30) + 5 },
-        { name: 'Timeout Errors', value: Math.floor(Math.random() * 15) + 3 },
-        { name: 'Network Errors', value: Math.floor(Math.random() * 20) + 2 }
-      ];
-      setErrorData(newErrorData);
-      
-      // Update services status randomly
-      const statuses = ['operational', 'degraded', 'critical'];
-      const updatedServices = servicesStatus.map(service => ({
-        ...service,
-        status: Math.random() > 0.85 ? statuses[Math.floor(Math.random() * statuses.length)] : service.status,
-        responseTime: Math.max(30, Math.floor(service.responseTime + (Math.random() * 60 - 30)))
-      }));
-      setServicesStatus(updatedServices);
-      
+    } catch (error) {
+      console.error('Error fetching monitoring data:', error);
+    } finally {
       setLoadingData(false);
-    };
+    }
+  };
 
-    generateMockData();
-    
-    // Simulate real-time updates
-    const interval = setInterval(() => {
-      generateMockData();
-    }, 30000);
-    
-    return () => clearInterval(interval);
-  }, [selectedTimeframe]);
+  // Add new function to fetch detailed service metrics
+  const fetchServiceMetrics = async (serviceName: string) => {
+    if (!isAuthenticated || !accessToken) return;
+
+    try {
+      const headers = {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      };
+
+      console.log(`Fetching metrics for service: ${serviceName}`);
+      const response = await fetch(
+        `${API_BASE_URL}/api/superadmin/monitoring/service/${serviceName}/metrics?hours=${selectedTimeframe === '24h' ? 24 : selectedTimeframe === '7d' ? 168 : 720}`,
+        {
+          method: 'GET',
+          headers,
+          credentials: 'include'
+        }
+      );
+      const data: ServiceStatusResponse = await response.json();
+      console.log(`Service metrics response for ${serviceName}:`, {
+        status: data.status,
+        metrics: data.data.metrics,
+        hourly_trends: data.data.hourly_trends,
+        recent_errors: data.data.recent_errors
+      });
+
+      if (data.status === 'success') {
+        console.log(`Processing metrics for ${serviceName}:`, {
+          uptime: data.data.metrics.uptime,
+          response_time: data.data.metrics.response_time,
+          requests: data.data.metrics.requests,
+          resources: data.data.metrics.resources
+        });
+
+        setServiceMetrics(prev => {
+          const updated = [...prev];
+          const index = updated.findIndex(s => s.name === serviceName);
+          if (index >= 0) {
+            const newMetrics = {
+              name: serviceName,
+              status: data.data.metrics.uptime > 99 ? 'operational' : data.data.metrics.uptime > 95 ? 'degraded' : 'critical',
+              responseTime: data.data.metrics.response_time.average,
+              cpuUsage: data.data.metrics.resources.cpu_usage,
+              memoryUsage: data.data.metrics.resources.memory_usage,
+              errorRate: data.data.metrics.requests.error_rate,
+              requestCount: data.data.metrics.requests.total,
+              lastUpdated: new Date().toISOString()
+            };
+            console.log(`Updated metrics for ${serviceName}:`, newMetrics);
+            updated[index] = newMetrics;
+          }
+          return updated;
+        });
+
+        // Update service analytics
+        const newAnalytics = {
+          totalRequests: data.data.metrics.requests.total,
+          successRate: data.data.metrics.requests.success_rate,
+          averageResponseTime: data.data.metrics.response_time.average,
+          peakResponseTime: data.data.metrics.response_time.maximum,
+          errorCount: data.data.metrics.requests.error_count,
+          uptime: data.data.metrics.uptime
+        };
+        console.log(`Updated analytics for ${serviceName}:`, newAnalytics);
+        setServiceAnalytics(newAnalytics);
+      } else {
+        console.error(`Error in service metrics response for ${serviceName}:`, data.message);
+      }
+    } catch (error) {
+      console.error(`Error fetching metrics for ${serviceName}:`, error);
+    }
+  };
+
+  // Add new function to calculate service analytics
+  const calculateServiceAnalytics = (services: ServiceMetrics[]) => {
+    const totalRequests = services.reduce((sum, service) => sum + service.requestCount, 0);
+    const totalErrors = services.reduce((sum, service) => sum + service.errorRate * service.requestCount, 0);
+    const successRate = totalRequests > 0 ? ((totalRequests - totalErrors) / totalRequests) * 100 : 0;
+    const avgResponseTime = services.reduce((sum, service) => sum + service.responseTime, 0) / services.length;
+    const peakResponseTime = Math.max(...services.map(service => service.responseTime));
+
+    setServiceAnalytics({
+      totalRequests,
+      successRate,
+      averageResponseTime: avgResponseTime,
+      peakResponseTime,
+      errorCount: totalErrors,
+      uptime: services.reduce((sum, service) => sum + (service.status === 'up' ? 1 : 0), 0) / services.length * 100
+    });
+  };
+
+  // Update useEffect to include new analytics
+  useEffect(() => {
+    if (isAuthenticated && accessToken) {
+      fetchData();
+      if (selectedService) {
+        fetchServiceMetrics(selectedService);
+      }
+      
+      const interval = setInterval(() => {
+        fetchData();
+        if (selectedService) {
+          fetchServiceMetrics(selectedService);
+        }
+      }, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [selectedTimeframe, accessToken, isAuthenticated, selectedService]);
 
   // Generate status for service health
   const getSystemHealth = (): string => {
@@ -141,23 +436,19 @@ export default function PlatformPerformance() {
   // Color for bar chart
   const getBarColor = (entry: ErrorData): string => {
     const colors: Record<string, string> = {
-      '4xx Errors': '#FF8C33', // lighter orange
-      '5xx Errors': '#FF5733', // primary orange
-      'Timeout Errors': '#FFB366', // light orange
-      'Network Errors': '#FFDAB9', // very light orange
+      '4xx Errors': '#FF8C33',
+      '5xx Errors': '#FF5733',
+      'Timeout Errors': '#FFB366',
+      'Network Errors': '#FFDAB9',
     };
-    return colors[entry.name] || '#6b7280'; // gray-500 default
+    return colors[entry.name] || '#6b7280';
   };
 
   // Handle refresh
   const handleRefresh = () => {
-    setLoadingData(true);
-    setTimeout(() => {
-      // Simulate data refresh
-      const newUptimePercentage = 99.5 + Math.random() * 0.5;
-      setUptimePercentage(parseFloat(newUptimePercentage.toFixed(2)));
-      setLoadingData(false);
-    }, 1000);
+    if (isAuthenticated && accessToken) {
+      fetchData();
+    }
   };
 
   // Update chart colors
@@ -168,6 +459,165 @@ export default function PlatformPerformance() {
     quaternary: '#3B82F6',
     background: '#FFF5E6'
   };
+
+  // Add new section for detailed service analytics
+  const renderServiceAnalytics = () => (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="p-4 rounded-lg shadow-sm border bg-white">
+        <h3 className="text-lg font-medium mb-2">Overall Performance</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="text-gray-600">Success Rate</span>
+            <span className="font-medium">{serviceAnalytics.successRate.toFixed(2)}%</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Avg Response Time</span>
+            <span className="font-medium">{serviceAnalytics.averageResponseTime.toFixed(2)}ms</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Peak Response Time</span>
+            <span className="font-medium">{serviceAnalytics.peakResponseTime.toFixed(2)}ms</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 rounded-lg shadow-sm border bg-white">
+        <h3 className="text-lg font-medium mb-2">Request Statistics</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="text-gray-600">Total Requests</span>
+            <span className="font-medium">{serviceAnalytics.totalRequests}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Error Count</span>
+            <span className="font-medium">{serviceAnalytics.errorCount}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Uptime</span>
+            <span className="font-medium">{serviceAnalytics.uptime.toFixed(2)}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 rounded-lg shadow-sm border bg-white">
+        <h3 className="text-lg font-medium mb-2">System Resources</h3>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="text-gray-600">CPU Usage</span>
+            <span className="font-medium">{serviceMetrics.find(s => s.name === selectedService)?.cpuUsage.toFixed(2)}%</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Memory Usage</span>
+            <span className="font-medium">{serviceMetrics.find(s => s.name === selectedService)?.memoryUsage.toFixed(2)} MB</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Last Updated</span>
+            <span className="font-medium">{new Date(serviceMetrics.find(s => s.name === selectedService)?.lastUpdated || '').toLocaleTimeString()}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Update the Services Status Table to include more details
+  const renderServicesTable = () => (
+    <div className="p-4 rounded-lg shadow bg-white border">
+      <h2 className="text-lg font-medium mb-4 text-black">Individual Services Status</h2>
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead style={{ backgroundColor: primaryLightestBg }}>
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">Service</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">Response Time</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">CPU Usage</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">Memory Usage</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">Error Rate</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {servicesStatus.map((service, index) => {
+              const metrics = serviceMetrics.find(s => s.name === service.name);
+              console.log(`Rendering service row for ${service.name}:`, {
+                service,
+                metrics,
+                selected: selectedService === service.name
+              });
+              
+              return (
+                <tr 
+                  key={index} 
+                  className={`hover:bg-gray-50 cursor-pointer ${selectedService === service.name ? 'bg-gray-50' : ''}`}
+                  onClick={() => {
+                    console.log(`Selected service: ${service.name}`);
+                    setSelectedService(service.name);
+                  }}
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <Server className="flex-shrink-0 h-5 w-5 text-gray-400 mr-2" />
+                      <div className="font-medium text-black">{service.name}</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      service.status === 'operational' ? 'bg-green-100 text-green-800' :
+                      service.status === 'degraded' ? 'bg-amber-100 text-amber-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {service.status.charAt(0).toUpperCase() + service.status.slice(1)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`text-sm ${
+                      metrics?.responseTime < 100 ? 'text-green-600' :
+                      metrics?.responseTime < 200 ? 'text-amber-600' :
+                      'text-red-600'
+                    }`}>
+                      {metrics?.responseTime?.toFixed(2) || 'N/A'}ms
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm">
+                      {metrics?.cpuUsage?.toFixed(2) || 'N/A'}%
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm">
+                      {metrics?.memoryUsage?.toFixed(2) || 'N/A'} MB
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm">
+                      {metrics?.errorRate?.toFixed(2) || 'N/A'}%
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button 
+                      className="text-sm font-medium hover:underline"
+                      style={{ color: '#FF5733' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        console.log(`Investigating service: ${service.name}`, {
+                          service,
+                          metrics,
+                          analytics: serviceAnalytics
+                        });
+                        alert(`Investigating ${service.name} status...`);
+                      }}
+                    >
+                      Investigate
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col space-y-6 bg-white p-6 rounded-xl">
@@ -264,6 +714,9 @@ export default function PlatformPerformance() {
         </button>
       </div>
 
+      {/* Add service analytics section */}
+      {selectedService && renderServiceAnalytics()}
+
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Response Time Chart */}
@@ -333,61 +786,8 @@ export default function PlatformPerformance() {
         </div>
       </div>
 
-      {/* Services Status Table */}
-      <div className="p-4 rounded-lg shadow bg-white border">
-        <h2 className="text-lg font-medium mb-4 text-black">Individual Services Status</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead style={{ backgroundColor: primaryLightestBg }}>
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">Service</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">Response Time</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {servicesStatus.map((service, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <Server className="flex-shrink-0 h-5 w-5 text-gray-400 mr-2" />
-                      <div className="font-medium text-black">{service.name}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      service.status === 'operational' ? 'bg-green-100 text-green-800' :
-                      service.status === 'degraded' ? 'bg-amber-100 text-amber-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {service.status.charAt(0).toUpperCase() + service.status.slice(1)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`text-sm ${
-                      service.responseTime < 100 ? 'text-green-600' :
-                      service.responseTime < 200 ? 'text-amber-600' :
-                      'text-red-600'
-                    }`}>
-                      {service.responseTime}ms
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                  <button
-  onClick={() => alert(`Investigating ${service.name} status...`)}
-  className="px-3 py-1.5 text-sm font-medium bg-orange-500 rounded-lg shadow hover:bg-orange-600 text-white transition duration-200"
->
-  Investigate
-</button>
-
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Updated services table */}
+      {renderServicesTable()}
 
       {/* Incidents Log */}
       <div className="p-4 rounded-lg shadow bg-white border">
