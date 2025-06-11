@@ -1,26 +1,15 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Shield, Key, Bell, Settings, LogOut } from 'lucide-react';
+import { Settings, LogOut, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import LogoutConfirmationPopup from '../../components/LogoutConfirmationPopup';
-import PasswordChangePopup from '../../components/PasswordChangePopup';
-import PhoneVerificationPopup from '../../components/PhoneVerificationPopup';
 import EmailVerificationPopup from '../../components/EmailVerificationPopup';
 
 interface AdminProfile {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  role: string;
-  location: string;
-  avatar: string;
-  lastLogin: string;
-  joinDate: string;
-  twoFactorEnabled: boolean;
-  notificationsEnabled: boolean;
-  isPhoneVerified: boolean;
   isEmailVerified: boolean;
 }
 
@@ -29,15 +18,6 @@ const SuperAdminProfile: React.FC = () => {
     id: 'SA001',
     name: 'John Admin',
     email: 'admin@scalixity.com',
-    phone: '+1 (555) 123-4567',
-    role: 'Super Administrator',
-    location: 'New York, USA',
-    avatar: 'https://ui-avatars.com/api/?name=John+Admin&background=FF6B35&color=fff',
-    lastLogin: '2024-03-20 14:30:00',
-    joinDate: '2023-01-15',
-    twoFactorEnabled: true,
-    notificationsEnabled: true,
-    isPhoneVerified: false,
     isEmailVerified: false
   });
 
@@ -45,13 +25,19 @@ const SuperAdminProfile: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: profile.name,
-    email: profile.email,
-    phone: profile.phone,
-    location: profile.location
+    email: profile.email
   });
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [showPasswordChange, setShowPasswordChange] = useState(false);
-  const [showPhoneVerification, setShowPhoneVerification] = useState(false);
+  const [passwordFormData, setPasswordFormData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [showPassword, setShowPassword] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
   const [showEmailVerification, setShowEmailVerification] = useState(false);
 
   const { logout } = useAuth();
@@ -61,6 +47,13 @@ const SuperAdminProfile: React.FC = () => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    });
+  };
+
+  const handlePasswordInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPasswordFormData({
+      ...passwordFormData,
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -80,28 +73,33 @@ const SuperAdminProfile: React.FC = () => {
     }, 1000);
   };
 
-  const handleToggle2FA = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setProfile({
-        ...profile,
-        twoFactorEnabled: !profile.twoFactorEnabled
-      });
-      setLoading(false);
-      toast.success(`Two-factor authentication ${!profile.twoFactorEnabled ? 'enabled' : 'disabled'}`);
-    }, 1000);
-  };
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
+      toast.error('New passwords do not match');
+      return;
+    }
 
-  const handleToggleNotifications = () => {
+    if (passwordFormData.newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      setProfile({
-        ...profile,
-        notificationsEnabled: !profile.notificationsEnabled
+    try {
+      await handlePasswordChange(passwordFormData.currentPassword, passwordFormData.newPassword);
+      setPasswordFormData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
       });
+      toast.success('Password changed successfully');
+    } catch {
+      toast.error('Failed to change password');
+    } finally {
       setLoading(false);
-      toast.success(`Notifications ${!profile.notificationsEnabled ? 'enabled' : 'disabled'}`);
-    }, 1000);
+    }
   };
 
   const handleLogout = () => {
@@ -120,18 +118,6 @@ const SuperAdminProfile: React.FC = () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     // In a real application, you would make an API call here
-    return Promise.resolve();
-  };
-
-  const handlePhoneVerification = async (code: string) => {
-    void code; // Mark as used to satisfy linter
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // In a real application, you would make an API call here
-    setProfile({
-      ...profile,
-      isPhoneVerified: true
-    });
     return Promise.resolve();
   };
 
@@ -178,21 +164,6 @@ const SuperAdminProfile: React.FC = () => {
           onConfirm={confirmLogout}
         />
 
-        {/* Password Change Popup */}
-        <PasswordChangePopup
-          isOpen={showPasswordChange}
-          onClose={() => setShowPasswordChange(false)}
-          onSubmit={handlePasswordChange}
-        />
-
-        {/* Phone Verification Popup */}
-        <PhoneVerificationPopup
-          isOpen={showPhoneVerification}
-          onClose={() => setShowPhoneVerification(false)}
-          phoneNumber={profile.phone}
-          onVerify={handlePhoneVerification}
-        />
-
         {/* Email Verification Popup */}
         <EmailVerificationPopup
           isOpen={showEmailVerification}
@@ -201,93 +172,25 @@ const SuperAdminProfile: React.FC = () => {
           onVerify={handleEmailVerification}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Profile Card */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-              <div className="flex flex-col items-center">
-                <img
-                  src={profile.avatar}
-                  alt={profile.name}
-                  className="w-24 h-24 rounded-full border-4 border-orange-100"
-                />
-                <h2 className="mt-4 text-xl font-semibold text-gray-900">{profile.name}</h2>
-                <p className="text-orange-500 font-medium">{profile.role}</p>
-                
-                <div className="w-full mt-6 space-y-4">
-                  <div className="flex items-center gap-3 text-gray-600">
-                    <Mail className="w-5 h-5 text-orange-500" />
-                    <div className="flex items-center gap-2">
-                      <span>{profile.email}</span>
-                      {profile.isEmailVerified ? (
-                        <span className="text-green-500 text-sm">✓ Verified</span>
-                      ) : (
-                        <button
-                          onClick={() => setShowEmailVerification(true)}
-                          className="text-orange-500 text-sm hover:underline"
-                        >
-                          Verify
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-600">
-                    <Phone className="w-5 h-5 text-orange-500" />
-                    <div className="flex items-center gap-2">
-                      <span>{profile.phone}</span>
-                      {profile.isPhoneVerified ? (
-                        <span className="text-green-500 text-sm">✓ Verified</span>
-                      ) : (
-                        <button
-                          onClick={() => setShowPhoneVerification(true)}
-                          className="text-orange-500 text-sm hover:underline"
-                        >
-                          Verify
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-600">
-                    <MapPin className="w-5 h-5 text-orange-500" />
-                    <span>{profile.location}</span>
-                  </div>
+        <div className="space-y-6">
+          {/* Personal Information */}
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
+            {isEditing ? (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  />
                 </div>
-
-                <div className="w-full mt-6 pt-6 border-t border-gray-100">
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <p className="text-sm text-gray-500">Last Login</p>
-                      <p className="text-sm font-medium text-gray-900">{profile.lastLogin}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Join Date</p>
-                      <p className="text-sm font-medium text-gray-900">{profile.joinDate}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - Settings */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Personal Information */}
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
-              {isEditing ? (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                  <div className="relative">
                     <input
                       type="email"
                       name="email"
@@ -295,127 +198,141 @@ const SuperAdminProfile: React.FC = () => {
                       onChange={handleInputChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                    />
-                  </div>
-                  <div className="flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setIsEditing(false)}
-                      className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
-                    >
-                      {loading ? 'Saving...' : 'Save Changes'}
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-500">Full Name</p>
-                      <p className="text-gray-900">{profile.name}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Email Address</p>
-                      <p className="text-gray-900">{profile.email}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Phone Number</p>
-                      <p className="text-gray-900">{profile.phone}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Location</p>
-                      <p className="text-gray-900">{profile.location}</p>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                      {profile.isEmailVerified ? (
+                        <span className="text-green-600 flex items-center">
+                          <Check className="h-5 w-5 mr-1" />
+                          Verified
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setShowEmailVerification(true)}
+                          className="text-orange-500 hover:text-orange-600 text-sm font-medium"
+                        >
+                          Verify
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* Security Settings */}
-            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Security Settings</h3>
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
+                  >
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
+            ) : (
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-orange-500" />
-                    <div>
-                      <p className="font-medium text-gray-900">Two-Factor Authentication</p>
-                      <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
-                    </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Full Name</p>
+                    <p className="text-gray-900">{profile.name}</p>
                   </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Email Address</p>
+                    <p className="text-gray-900">{profile.email}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Security Settings */}
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
+
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Current Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword.current ? 'text' : 'password'}
+                    name="currentPassword"
+                    value={passwordFormData.currentPassword}
+                    onChange={handlePasswordInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    required
+                  />
                   <button
-                    onClick={handleToggle2FA}
-                    disabled={loading}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      profile.twoFactorEnabled ? 'bg-orange-500' : 'bg-gray-200'
-                    }`}
+                    type="button"
+                    onClick={() => setShowPassword({ ...showPassword, current: !showPassword.current })}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        profile.twoFactorEnabled ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
+                    {showPassword.current ? 'Hide' : 'Show'}
                   </button>
                 </div>
+              </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Bell className="w-5 h-5 text-orange-500" />
-                    <div>
-                      <p className="font-medium text-gray-900">Notifications</p>
-                      <p className="text-sm text-gray-500">Receive important updates and alerts</p>
-                    </div>
-                  </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  New Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword.new ? 'text' : 'password'}
+                    name="newPassword"
+                    value={passwordFormData.newPassword}
+                    onChange={handlePasswordInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    required
+                  />
                   <button
-                    onClick={handleToggleNotifications}
-                    disabled={loading}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      profile.notificationsEnabled ? 'bg-orange-500' : 'bg-gray-200'
-                    }`}
+                    type="button"
+                    onClick={() => setShowPassword({ ...showPassword, new: !showPassword.new })}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        profile.notificationsEnabled ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
+                    {showPassword.new ? 'Hide' : 'Show'}
                   </button>
                 </div>
+              </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm New Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword.confirm ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={passwordFormData.confirmPassword}
+                    onChange={handlePasswordInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword({ ...showPassword, confirm: !showPassword.confirm })}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword.confirm ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
                 <button
-                  onClick={() => setShowPasswordChange(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 text-orange-500 border border-orange-500 rounded-lg hover:bg-orange-50 transition-colors"
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
                 >
-                  <Key className="w-4 h-4" />
-                  Change Password
+                  {loading ? 'Changing...' : 'Change Password'}
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>

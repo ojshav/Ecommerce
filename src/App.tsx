@@ -392,10 +392,7 @@ const App: React.FC = () => {
                       path="marketplace-health"
                       element={<MarketplaceHealth />}
                     />
-                    <Route
-                      path="merchant-report"
-                      element={<MerchantAnalytics />}
-                    />
+                    
                     <Route
                       path="performance"
                       element={<PlatformPerformance />}

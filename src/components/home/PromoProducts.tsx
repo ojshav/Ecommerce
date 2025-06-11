@@ -238,10 +238,14 @@ const PromoProducts: React.FC = () => {
 
   // Banner data
   const banner = {
-    title: "FASHIONABLE WALLETS",
-    subtitle: "BIG GOOD SALE FOR HER",
-    tag: "New Product",
-    image: "https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1080&q=80"
+    title: "LUXURY COLLECTION",
+    subtitle: "EXCLUSIVE DEALS UP TO 50% OFF",
+    tag: "Limited Time Offer",
+    image: "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=100",
+    overlayColor: "rgba(242, 99, 31, 0.05)", // Your brand orange with transparency
+    textColor: "#F2631F", // Your brand orange
+    buttonText: "Shop Now",
+    buttonClass: "bg-[#F2631F] hover:bg-orange-600 text-white px-8 py-3 rounded-md transition-all duration-300 text-lg font-medium"
   };
 
   if (loading) {

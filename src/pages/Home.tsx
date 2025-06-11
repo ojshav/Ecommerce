@@ -7,13 +7,13 @@ import Categories from '../components/home/Categories';
 import PromoProducts from '../components/home/PromoProducts';
 import TrendingDeals from '../components/home/TrendingDeals';
 import Brands from '../components/home/brands';
-import Shop from '../components/home/Shop';
+// import Shop from '../components/home/Shop';
 import Services from '../components/home/Services';
 import HomepageProducts from '../components/home/HomepageProducts';
 import SearchResults from '../components/common/SearchResults';
 import useClickOutside from '../hooks/useClickOutside';
 
-const Home: React.FC = () => {
+const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState<'all' | 'products' | 'categories'>('all');
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -142,7 +142,7 @@ const Home: React.FC = () => {
           <Hero />
           <Categories />
           <Brands />
-          <Shop />
+          {/* <Shop /> */}
           <FeaturedProducts />
           <PromoProducts />
           <TrendingDeals />
