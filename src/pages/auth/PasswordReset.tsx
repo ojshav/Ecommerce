@@ -64,7 +64,7 @@ const PasswordReset: React.FC = () => {
       }
 
       setMessage('Password reset successful! Redirecting to login...');
-      setTimeout(() => navigate('/signin'), 2000);
+      setTimeout(() => navigate('/sign-in'), 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

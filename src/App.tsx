@@ -15,6 +15,7 @@ import VerificationPending from './pages/auth/VerificationPending';
 
 import PasswordReset from './pages/auth/PasswordReset';
 import VerifyEmail from './pages/auth/VerifyEmail';
+import RequestPasswordReset from './pages/auth/RequestPasswordReset';
 
 import Register from './pages/auth/Register';
 import WishList from './pages/WishList';
@@ -392,10 +393,7 @@ const App: React.FC = () => {
                       path="marketplace-health"
                       element={<MarketplaceHealth />}
                     />
-                    <Route
-                      path="merchant-report"
-                      element={<MerchantAnalytics />}
-                    />
+                    
                     <Route
                       path="performance"
                       element={<PlatformPerformance />}
@@ -464,6 +462,10 @@ const App: React.FC = () => {
                               <Route
                                 path="/password/reset"
                                 element={<PasswordReset />}
+                              />
+                              <Route
+                                path="/request-password-reset"
+                                element={<RequestPasswordReset />}
                               />
 
                               <Route path="/wishlist" element={<WishList />} />

@@ -116,7 +116,7 @@ const BusinessLogin: React.FC = () => {
               className="mb-4 text-sm text-[#F2631F] cursor-pointer hover:underline"
               onClick={handleResend}
             >
-              Didn’t get a verification email? Resend link.
+              Didn't get a verification email? Resend link.
             </div>
           )}
           
@@ -141,7 +141,7 @@ const BusinessLogin: React.FC = () => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <Link to="/forgot-password" className="text-sm text-[#F2631F] hover:text-orange-400">
+                <Link to="/request-password-reset" className="text-sm text-[#F2631F] hover:text-orange-400">
                   Forgot your password?
                 </Link>
               </div>
