@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
-
+import { Eye, EyeOff } from 'lucide-react';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface Country {
@@ -58,6 +58,8 @@ const RegisterBusiness: React.FC = () => {
   const [error, setError] = useState('');
   const [supportedCountries, setSupportedCountries] = useState<Country[]>([]);
   const [countryConfig, setCountryConfig] = useState<CountryConfig | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const navigate = useNavigate();
 
@@ -506,36 +508,54 @@ const RegisterBusiness: React.FC = () => {
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                       Password
                     </label>
-                    <input
-                      id="password"
-                      name="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                      minLength={8}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="Create a password"
-                    />
+                    <div className="relative">
+                      <input
+                        id="password"
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        minLength={8}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent pr-10"
+                        placeholder="Create a password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 px-3 flex items-center"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
+                      </button>
+                    </div>
                   </div>
                   
                   <div>
                     <label htmlFor="confirm_password" className="block text-sm font-medium text-gray-700 mb-1">
                       Confirm Password
                     </label>
-                    <input
-                      id="confirm_password"
-                      name="confirm_password"
-                      type="password"
-                      value={formData.confirm_password}
-                      onChange={handleChange}
-                      required
-                      minLength={8}
-                      className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                        passwordError ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      placeholder="Confirm your password"
-                    />
+                    <div className="relative">
+                      <input
+                        id="confirm_password"
+                        name="confirm_password"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        value={formData.confirm_password}
+                        onChange={handleChange}
+                        required
+                        minLength={8}
+                        className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent pr-10 ${
+                          passwordError ? 'border-red-300' : 'border-gray-300'
+                        }`}
+                        placeholder="Confirm your password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute inset-y-0 right-0 px-3 flex items-center"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
+                      </button>
+                    </div>
                     {passwordError && (
                       <p className="mt-1 text-sm text-red-600">{passwordError}</p>
                     )}
