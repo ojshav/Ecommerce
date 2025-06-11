@@ -143,22 +143,21 @@ const SignIn: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] px-4 py-12">
-      <div className="w-full max-w-7xl grid lg:grid-cols-2 gap-12">
-        
-        {/* Sign In Box */}
-        <div className="bg-white rounded-2xl shadow-md p-10">
-          <h2 className="text-2xl font-semibold mb-2 text-gray-800">Registered Customers</h2>
+    <div className="flex items-center justify-center bg-[#FAFAFA] px-2 py-8">
+      <div className="w-full max-w-5xl flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0">
+        {/* Registered Customers */}
+        <div className="flex-1 bg-white rounded-xl shadow-sm p-8 md:p-10">
+          <h2 className="text-xl font-semibold mb-2">Registered Customers</h2>
           <p className="text-gray-600 mb-6 text-sm">
             If you have an account, sign in with your email address.
           </p>
-  
+
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-md">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">
               {error}
             </div>
           )}
-  
+
           {showResend && !isSubmitting && (
             <div
               className="mb-4 text-sm text-[#F2631F] cursor-pointer hover:underline"
@@ -221,7 +220,6 @@ const SignIn: React.FC = () => {
             <span className="text-sm text-gray-400">OR</span>
             <div className="flex-grow h-px bg-gray-200" />
           </div>
-  
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={handleGoogleError}
@@ -230,20 +228,21 @@ const SignIn: React.FC = () => {
             logo_alignment="center"
           />
         </div>
-  
-        {/* New Customers Box */}
-        <div className="bg-white rounded-2xl shadow-md p-10 flex flex-col justify-center">
-          <h2 className="text-2xl font-semibold mb-2 text-gray-800">New Customers</h2>
-          <p className="text-gray-600 mb-6 text-base leading-relaxed max-w-sm">
-    Creating an account has many benefits: faster checkout, storing multiple addresses, order tracking, and more.
-  </p>
-  <Link
-    to="/signup"
-    className="inline-block bg-[#F2631F] hover:bg-orange-600 text-white text-sm font-medium py-2.5 px-6 rounded-md transition-colors shadow-sm"
-  >
-    Create An Account
-  </Link>
-</div>
+
+        {/* New Customers card */}
+        <div className="flex-1 bg-white rounded-xl shadow-sm p-8 md:p-10">
+          <h2 className="text-xl font-semibold mb-2">New Customers</h2>
+          <p className="text-gray-600 mb-6 text-sm max-w-xs">
+            Creating an account has many benefits: check out faster, keep more than one address,
+            track orders and more.
+          </p>
+          <Link
+            to="/signup"
+            className="bg-[#F2631F] hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition-colors"
+          >
+            Create An Account
+          </Link>
+        </div>
       </div>
     </div>
   );
