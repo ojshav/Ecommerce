@@ -76,10 +76,11 @@ const Footer: React.FC = () => {
               <li>
                 <Link to="/RaiseTicket" className="text-gray-300 hover:text-white transition-colors">Raise Ticket</Link>
               </li>
-              <li>
+              {/* <li>
                 <div className="text-gray-300">Call us at</div>
                 <a href="tel:212-929-9953" className="text-[#F2631F] hover:text-white">212 929 9953</a>
               </li>
+              */}
               <li>
                 <Link to="/faq" className="text-gray-300 hover:text-white transition-colors">Frequently asked Questions</Link>
               </li>
@@ -90,8 +91,8 @@ const Footer: React.FC = () => {
                 <Link to="/shipping-methods" className="text-gray-300 hover:text-white transition-colors">Shipping Methods</Link>
               </li>
               <li>
-                <div className="text-gray-300 mt-3">Mail us at</div>
-                <a href="mailto:******@gmail.com" className="text-[#F2631F] hover:text-white">******@gmail.com</a>
+                {/* <div className="text-gray-300 mt-3">Mail us at</div>
+                <a href="mailto:******@gmail.com" className="text-[#F2631F] hover:text-white">******@gmail.com</a> */}
               </li>
             </ul>
           </div>
