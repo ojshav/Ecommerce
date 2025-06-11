@@ -10,6 +10,7 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
+import ShippingMethods from './pages/ShippingMethods';
 
 import VerificationPending from './pages/auth/VerificationPending';
 
@@ -534,6 +535,7 @@ const App: React.FC = () => {
                               <Route path="/live-shop/fashion-factory" element={<FashionFactoryPage />} />
                               <Route path="/live-shop/sunday-funday" element={<SundayFundayPage />} />
                               <Route path="/live-shop/product/:productId" element={<LiveShopProductDetailPage />} />
+                              <Route path="/shipping-methods" element={<ShippingMethods />} />
                             </Routes>
                           </main>
                           <Footer />
