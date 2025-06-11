@@ -1,19 +1,131 @@
-import React, { useState } from 'react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { Calendar } from 'lucide-react';
+import { useAuth } from '../../../context/AuthContext';
+import toast from 'react-hot-toast';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+interface Stat {
+  label: string;
+  value: string;
+  change: string;
+}
+
+interface DailySalesData {
+  date: string;
+  quantity: number;
+  wishlisted: number;
+}
+
+interface TopProduct {
+  name: string;
+  sold: number;
+  revenue: string;
+}
+
+interface MostViewedProduct {
+  name: string;
+  views: number;
+  conversion: string;
+}
 
 const ProductsReport = () => {
-  const [dateRange, setDateRange] = useState({
-    start: '2025-05-03',
-    end: '2025-06-02'
-  });
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<Stat[]>([]);
+  const [dailySales, setDailySales] = useState<DailySalesData[]>([]);
+  const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+  const [mostViewed, setMostViewed] = useState<MostViewedProduct[]>([]);
+  const { accessToken } = useAuth();
 
-  // Mock data for products sold over time
-  const productData = Array.from({ length: 31 }, (_, i) => ({
-    date: new Date(2025, 4, i + 1).toLocaleDateString(),
-    quantity: Math.floor(Math.random() * 50),
-    wishlisted: Math.floor(Math.random() * 20)
-  }));
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Dashboard summary
+      const summaryRes = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/product/dashboard-summary`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      });
+      if (!summaryRes.ok) throw new Error('Failed to fetch dashboard summary');
+      const summaryData = await summaryRes.json();
+      if (summaryData.status === 'success') {
+        setStats(summaryData.data);
+      }
+
+      // Daily sales
+      const dailyRes = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/product/daily-sales`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      });
+      if (!dailyRes.ok) throw new Error('Failed to fetch daily sales');
+      const dailyData = await dailyRes.json();
+      if (dailyData.status === 'success') {
+        setDailySales(dailyData.data);
+        if (dailyData.data.length > 0) {
+          setDateRange({ start: dailyData.data[0].date, end: dailyData.data[dailyData.data.length - 1].date });
+        }
+      }
+
+      // Top selling products
+      const topRes = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/product/top-selling-products`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      });
+      if (!topRes.ok) throw new Error('Failed to fetch top selling products');
+      const topData = await topRes.json();
+      if (topData.status === 'success') {
+        setTopProducts(topData.data);
+      }
+
+      // Most viewed products
+      const viewedRes = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/product/most-viewed-products`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      });
+      if (!viewedRes.ok) throw new Error('Failed to fetch most viewed products');
+      const viewedData = await viewedRes.json();
+      if (viewedData.status === 'success') {
+        setMostViewed(viewedData.data);
+      }
+    } catch (error) {
+      setError('Failed to load product report data. Please try again later.');
+      toast.error('Failed to load product report data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <ArrowPathIcon className="h-8 w-8 text-orange-600 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <div className="text-red-500 mb-4">
+          <ArrowPathIcon className="h-12 w-12" />
+        </div>
+        <p className="text-xl font-semibold text-gray-800">Error</p>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <button
+          onClick={fetchData}
+          className="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -32,18 +144,11 @@ const ProductsReport = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Products', value: '234', change: '+5%' },
-          { label: 'Products Sold', value: '1,234', change: '+12%' },
-          { label: 'Wishlisted Products', value: '456', change: '+8%' },
-          { label: 'Out of Stock', value: '12', change: '-2%' }
-        ].map((stat, index) => (
+        {stats.map((stat, index) => (
           <div key={index} className="bg-white p-4 rounded-lg border border-gray-200">
             <p className="text-sm text-gray-500">{stat.label}</p>
             <p className="text-2xl font-semibold text-black mt-1">{stat.value}</p>
-            <p className={`text-sm mt-2 ${
-              stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
-            }`}>
+            <p className={`text-sm mt-2 ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
               {stat.change} vs last period
             </p>
           </div>
@@ -55,23 +160,23 @@ const ProductsReport = () => {
         <h2 className="text-lg font-medium text-black mb-4">Products Sold Over Time</h2>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={productData}>
+            <LineChart data={dailySales}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="quantity" 
-                stroke="#FF4D00" 
+              <Line
+                type="monotone"
+                dataKey="quantity"
+                stroke="#FF4D00"
                 fill="#FF4D00"
                 name="Quantity Sold"
               />
-              <Line 
-                type="monotone" 
-                dataKey="wishlisted" 
-                stroke="#FFE5D9" 
+              <Line
+                type="monotone"
+                dataKey="wishlisted"
+                stroke="#FFE5D9"
                 fill="#FFE5D9"
                 name="Wishlisted"
               />
@@ -85,12 +190,7 @@ const ProductsReport = () => {
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <h2 className="text-lg font-medium text-black mb-4">Top Selling Products</h2>
           <div className="space-y-4">
-            {[
-              { name: 'Classic White T-Shirt', sold: 156, revenue: '$3,900' },
-              { name: 'Denim Jeans', sold: 98, revenue: '$4,900' },
-              { name: 'Running Shoes', sold: 87, revenue: '$8,700' },
-              { name: 'Leather Wallet', sold: 76, revenue: '$3,800' }
-            ].map((product, index) => (
+            {topProducts.map((product, index) => (
               <div key={index} className="flex justify-between items-center">
                 <span className="text-gray-600">{product.name}</span>
                 <div className="text-right">
@@ -99,18 +199,14 @@ const ProductsReport = () => {
                 </div>
               </div>
             ))}
+            {topProducts.length === 0 && <div className="text-gray-400">No data</div>}
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <h2 className="text-lg font-medium text-black mb-4">Most Viewed Products</h2>
           <div className="space-y-4">
-            {[
-              { name: 'Summer Collection Dress', views: 1256, conversion: '4.5%' },
-              { name: 'Sports Watch', views: 986, conversion: '3.8%' },
-              { name: 'Wireless Earbuds', views: 867, conversion: '5.2%' },
-              { name: 'Laptop Backpack', views: 756, conversion: '4.1%' }
-            ].map((product, index) => (
+            {mostViewed.map((product, index) => (
               <div key={index} className="flex justify-between items-center">
                 <span className="text-gray-600">{product.name}</span>
                 <div className="text-right">
@@ -119,6 +215,7 @@ const ProductsReport = () => {
                 </div>
               </div>
             ))}
+            {mostViewed.length === 0 && <div className="text-gray-400">No data</div>}
           </div>
         </div>
       </div>
