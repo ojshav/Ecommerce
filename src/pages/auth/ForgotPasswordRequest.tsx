@@ -13,7 +13,7 @@ const ForgotPasswordRequest: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/password/forgot`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/user/password/forgot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -26,7 +26,7 @@ const ForgotPasswordRequest: React.FC = () => {
       }
 
       toast.success('Password reset instructions sent to your email!');
-      setTimeout(() => navigate('/signin'), 2000);
+      setTimeout(() => navigate('/sign-in'), 2000);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -77,7 +77,7 @@ const ForgotPasswordRequest: React.FC = () => {
             <div className="text-center">
               <button
                 type="button"
-                onClick={() => navigate('/signin')}
+                onClick={() => navigate('/business/login')}
                 className="text-sm text-primary-600 hover:text-primary-700"
               >
                 Back to Sign In

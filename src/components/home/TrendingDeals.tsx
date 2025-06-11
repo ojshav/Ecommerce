@@ -138,20 +138,20 @@ const TrendingDeals: React.FC = () => {
             
             {/* Navigation */}
             <div className="flex items-center w-full md:w-auto space-x-4">
-              <Link to="/trending" className="text-orange-500 text-sm hover:underline">
+              <Link to="/trending" className="text-orange-500 text-sm">
                 See all
               </Link>
               <div className="flex items-center space-x-2">
                 <button 
                   onClick={() => scroll('left')}
-                  className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors"
+                  className="p-1 rounded-full border border-gray-300 hover:bg-orange-400 transition-colors"
                   aria-label="Previous deals"
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <button 
                   onClick={() => scroll('right')}
-                  className="p-1 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors"
+                  className="p-1 rounded-full border border-gray-300 hover:bg-orange-400 transition-colors"
                   aria-label="Next deals"
                 >
                   <ChevronRight size={20} />

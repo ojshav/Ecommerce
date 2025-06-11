@@ -301,10 +301,10 @@ const AdminLayout: React.FC = () => {
       <div
         className={`${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } fixed inset-y-0 left-0 z-30 w-64 bg-[#ffedd5] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-screen overflow-hidden`}
+        } fixed inset-y-0 left-0 z-30 w-64 bg-[#ffedd5] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static h-screen flex flex-col`}
       >
         {/* Sidebar Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-orange-200">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-orange-200 flex-shrink-0">
             <div className="flex flex-col items-center w-full">
               <span className="text-lg font-semibold text-orange-800">Merchant Portal</span>
           </div>
@@ -318,8 +318,8 @@ const AdminLayout: React.FC = () => {
           )}
         </div>
         
-        {/* Sidebar Content - allows scrolling only within sidebar content */}
-        <div className="py-4 h-[calc(100vh-64px)] overflow-y-auto">
+        {/* Sidebar Content */}
+        <div className="py-4 flex-1 overflow-y-auto">
           <nav className="px-2 space-y-1">
             {navigationItems.map((item) => {
               // Determine if this item or any of its subitems is active

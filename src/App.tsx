@@ -10,6 +10,7 @@ import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
+import ShippingMethods from './pages/ShippingMethods';
 
 import VerificationPending from './pages/auth/VerificationPending';
 
@@ -191,6 +192,19 @@ const App: React.FC = () => {
                 <ScrollToTop />
                 <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                   <Routes>
+                  <Route
+                              path="/business/login"
+                              element={<BusinessLogin />}
+                            />
+                            <Route
+                              path="/register-business"
+                              element={<RegisterBusiness />}
+                            />
+                             <Route
+                                path="/request-password-reset"
+                                element={<RequestPasswordReset />}
+                              />
+                              <Route path="/superadmin/login" element={<SuperAdminLogin />} />
                     {/* Business Dashboard Routes */}
                     <Route path="/business" element={<AdminLayout />}>
                       <Route
@@ -450,23 +464,13 @@ const App: React.FC = () => {
                               path="/verify-email/:token"
                               element={<VerifyEmail />}
                             />
-                            <Route
-                              path="/business/login"
-                              element={<BusinessLogin />}
-                            />
-                            <Route
-                              path="/register-business"
-                              element={<RegisterBusiness />}
-                            />
+                          
 
                               <Route
                                 path="/password/reset"
                                 element={<PasswordReset />}
                               />
-                              <Route
-                                path="/request-password-reset"
-                                element={<RequestPasswordReset />}
-                              />
+                             
 
                               <Route path="/wishlist" element={<WishList />} />
 
@@ -475,7 +479,7 @@ const App: React.FC = () => {
 
                               <Route path="/sign-in" element={<SignIn />} />
                               <Route path="/register" element={<Register />} />
-                              <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+                              
                               <Route
                                 path="/become-merchant"
                                 element={<BecomeMerchant />}
@@ -531,6 +535,7 @@ const App: React.FC = () => {
                               <Route path="/live-shop/fashion-factory" element={<FashionFactoryPage />} />
                               <Route path="/live-shop/sunday-funday" element={<SundayFundayPage />} />
                               <Route path="/live-shop/product/:productId" element={<LiveShopProductDetailPage />} />
+                              <Route path="/shipping-methods" element={<ShippingMethods />} />
                             </Routes>
                           </main>
                           <Footer />
