@@ -187,7 +187,7 @@ const Sales = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm">
           <p className="text-gray-600">Total Revenue</p>
-          <p className="text-3xl font-semibold text-[#FF4D00]">${totalRevenue.toLocaleString()}</p>
+          <p className="text-3xl font-semibold text-[#FF4D00]">₹{totalRevenue.toLocaleString()}</p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm">
           <p className="text-gray-600">Total Sales</p>
@@ -195,8 +195,8 @@ const Sales = () => {
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm">
           <p className="text-gray-600">Average Order Value</p>
-          <p className="text-3xl font-semibold text-[#FF4D00]">${averageOrderValue}</p>
-          </div>
+          <p className="text-3xl font-semibold text-[#FF4D00]">₹{averageOrderValue}</p>
+        </div>
       </div>
 
       {/* Revenue & Sales Trend Chart */}
@@ -253,9 +253,9 @@ const Sales = () => {
                   <td className="px-6 py-4 text-gray-600">{item.month}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{item.product}</td>
                   <td className="px-6 py-4 text-gray-600">{item.category}</td>
-                  <td className="px-6 py-4 text-right">${item.price.toLocaleString()}</td>
+                  <td className="px-6 py-4 text-right">₹{item.price.toLocaleString()}</td>
                   <td className="px-6 py-4 text-right text-gray-600">{item.quantity}</td>
-                  <td className="px-6 py-4 text-right">${item.revenue.toLocaleString()}</td>
+                  <td className="px-6 py-4 text-right">₹{item.revenue.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
