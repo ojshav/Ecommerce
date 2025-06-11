@@ -3,7 +3,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts';
-import { Calendar, Clock, TrendingUp, Users, BarChart2, PieChart as PieChartIcon, RefreshCw, Loader2 } from 'lucide-react';
+import { Calendar, Clock, TrendingUp, Users, BarChart2, PieChart as PieChartIcon, RefreshCw, Loader2, Info } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -19,6 +19,31 @@ interface HourlyAnalytics {
   conversions: number;
   bounce_rate: number;
   conversion_rate: number;
+}
+
+interface ConversionRateData {
+  overall: {
+    total_visitors: number;
+    total_purchases: number;
+    conversion_rate: number;
+  };
+  monthly_breakdown: Array<{
+    month: string;
+    visitors: number;
+    purchases: number;
+    conversion_rate: number;
+  }>;
+  summary: {
+    average_monthly_conversion: number;
+    best_month: {
+      month: string;
+      conversion_rate: number;
+    } | null;
+    worst_month: {
+      month: string;
+      conversion_rate: number;
+    } | null;
+  };
 }
 
 interface HourlyAnalyticsResponse {
@@ -55,9 +80,42 @@ const CHART_COLORS = {
   background: '#FFF5E6'
 };
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+        <p className="font-semibold text-gray-900 mb-2">{label}</p>
+        {payload.map((entry: any, index: number) => (
+          <p key={index} className="text-sm" style={{ color: entry.color }}>
+            {entry.name}: {entry.value.toFixed(2)}
+            {entry.name.includes('Rate') ? '%' : ''}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
+const MetricCard = ({ title, value, subtitle, icon: Icon, color }: any) => (
+  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+    <div className="flex items-center justify-between">
+      <div className={`p-3 rounded-lg bg-${color}-100`}>
+        <Icon className={`w-6 h-6 text-${color}-600`} />
+      </div>
+      <div className="text-right">
+        <p className="text-sm text-gray-600">{title}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
+      </div>
+    </div>
+  </div>
+);
+
 const TrafficAnalytics: React.FC = () => {
   const [hourlyData, setHourlyData] = useState<HourlyAnalytics[]>([]);
   const [summary, setSummary] = useState<HourlyAnalyticsResponse['data']['summary'] | null>(null);
+  const [conversionData, setConversionData] = useState<ConversionRateData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { accessToken, user } = useAuth();
@@ -68,28 +126,37 @@ const TrafficAnalytics: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/hourly`, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
-      });
+      const [analyticsResponse, conversionResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/superadmin/analytics/hourly`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        }),
+        fetch(`${API_BASE_URL}/api/superadmin/analytics/conversion-rate`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        })
+      ]);
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch hourly analytics data');
+      if (!analyticsResponse.ok || !conversionResponse.ok) {
+        throw new Error('Failed to fetch analytics data');
       }
 
-      const data: HourlyAnalyticsResponse = await response.json();
+      const analyticsData: HourlyAnalyticsResponse = await analyticsResponse.json();
+      const conversionData: { status: string; data: ConversionRateData } = await conversionResponse.json();
       
-      if (data.status === 'success') {
-        setHourlyData(data.data.hourly_breakdown);
-        setSummary(data.data.summary);
+      if (analyticsData.status === 'success' && conversionData.status === 'success') {
+        setHourlyData(analyticsData.data.hourly_breakdown);
+        setSummary(analyticsData.data.summary);
+        setConversionData(conversionData.data);
       } else {
-        throw new Error(data.message || 'Failed to fetch hourly analytics data');
+        throw new Error('Failed to fetch analytics data');
       }
     } catch (error) {
-      console.error('Error fetching hourly analytics:', error);
-      setError('Failed to load hourly analytics data. Please try again later.');
-      toast.error('Failed to load hourly analytics data');
+      console.error('Error fetching analytics:', error);
+      setError('Failed to load analytics data. Please try again later.');
+      toast.error('Failed to load analytics data');
     } finally {
       setLoading(false);
     }
@@ -136,7 +203,12 @@ const TrafficAnalytics: React.FC = () => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-orange-600">Traffic Analytics</h2>
+        <div className="flex items-center gap-3">
+          <div className="bg-orange-500 p-3 rounded-lg shadow-lg">
+            <TrendingUp className="text-white w-6 h-6" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Traffic Analytics</h2>
+        </div>
         <button 
           onClick={handleRefresh}
           className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 flex items-center gap-2"
@@ -148,43 +220,75 @@ const TrafficAnalytics: React.FC = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="bg-orange-50 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-600">Total Visits</h3>
-          <p className="text-2xl font-bold text-gray-900">{summary?.total_visits.toLocaleString()}</p>
-          <p className="text-sm text-gray-600">Unique Visitors: {summary?.total_unique_visitors.toLocaleString()}</p>
-        </div>
-        <div className="bg-orange-50 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-600">Bounce Rate</h3>
-          <p className="text-2xl font-bold text-gray-900">{summary?.overall_bounce_rate.toFixed(2)}%</p>
-          <p className="text-sm text-gray-600">Bounced Visits: {summary?.total_bounced_visits.toLocaleString()}</p>
-        </div>
-        <div className="bg-orange-50 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-600">Conversion Rate</h3>
-          <p className="text-2xl font-bold text-gray-900">{summary?.overall_conversion_rate.toFixed(2)}%</p>
-          <p className="text-sm text-gray-600">Total Conversions: {summary?.total_conversions.toLocaleString()}</p>
-        </div>
+        <MetricCard
+          title="Total Visits"
+          value={summary?.total_visits.toLocaleString()}
+          subtitle={`${summary?.total_unique_visitors.toLocaleString()} unique visitors`}
+          icon={Users}
+          color="orange"
+        />
+        <MetricCard
+          title="Bounce Rate"
+          value={`${summary?.overall_bounce_rate.toFixed(2)}%`}
+          subtitle={`${summary?.total_bounced_visits.toLocaleString()} bounced visits`}
+          icon={BarChart2}
+          color="red"
+        />
+        <MetricCard
+          title="Conversion Rate"
+          value={`${conversionData?.overall.conversion_rate.toFixed(2)}%`}
+          subtitle={`${conversionData?.overall.total_purchases.toLocaleString()} purchases from ${conversionData?.overall.total_visitors.toLocaleString()} visitors`}
+          icon={TrendingUp}
+          color="green"
+        />
       </div>
 
-      {/* Peak Hours */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="bg-orange-50 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-600">Peak Traffic Hour</h3>
-          <p className="text-xl font-bold text-gray-900">{summary?.peak_hours.most_visits.hour}</p>
+      {/* Peak Hours and Best Month */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Peak Traffic Hour</h3>
+            <div className="bg-orange-100 p-2 rounded-full">
+              <Clock className="w-5 h-5 text-orange-600" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-gray-900 mb-2">{summary?.peak_hours.most_visits.hour}</p>
           <p className="text-sm text-gray-600">{summary?.peak_hours.most_visits.visits.toLocaleString()} visits</p>
         </div>
-        <div className="bg-orange-50 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-600">Best Conversion Hour</h3>
-          <p className="text-xl font-bold text-gray-900">{summary?.peak_hours.best_conversion.hour}</p>
-          <p className="text-sm text-gray-600">{summary?.peak_hours.best_conversion.rate.toFixed(2)}% conversion rate</p>
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Best Conversion Month</h3>
+            <div className="bg-green-100 p-2 rounded-full">
+              <TrendingUp className="w-5 h-5 text-green-600" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-gray-900 mb-2">{conversionData?.summary.best_month?.month || 'N/A'}</p>
+          <p className="text-sm text-gray-600">{conversionData?.summary.best_month?.conversion_rate.toFixed(2)}% conversion rate</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Average Monthly Conversion</h3>
+            <div className="bg-blue-100 p-2 rounded-full">
+              <BarChart2 className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-gray-900 mb-2">{conversionData?.summary.average_monthly_conversion.toFixed(2)}%</p>
+          <p className="text-sm text-gray-600">Average conversion rate across all months</p>
         </div>
       </div>
 
       {/* Hourly Traffic Chart */}
-      <div className="bg-orange-50 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Hourly Traffic Overview</h3>
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Hourly Traffic Overview</h3>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <Info className="w-4 h-4" />
+            <span>Hover over the chart for detailed metrics</span>
+          </div>
+        </div>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={hourlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis 
               dataKey="hour_display" 
               tick={{ fontSize: 12 }}
@@ -192,7 +296,7 @@ const TrafficAnalytics: React.FC = () => {
             />
             <YAxis yAxisId="left" />
             <YAxis yAxisId="right" orientation="right" />
-            <Tooltip />
+            <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Line 
               yAxisId="left"
@@ -200,6 +304,9 @@ const TrafficAnalytics: React.FC = () => {
               dataKey="total_visits" 
               stroke={CHART_COLORS.primary} 
               name="Total Visits"
+              strokeWidth={2}
+              dot={{ stroke: CHART_COLORS.primary, strokeWidth: 2, r: 4, fill: 'white' }}
+              activeDot={{ r: 6, stroke: CHART_COLORS.primary, strokeWidth: 2, fill: CHART_COLORS.primary }}
             />
             <Line 
               yAxisId="left"
@@ -207,6 +314,9 @@ const TrafficAnalytics: React.FC = () => {
               dataKey="unique_visitors" 
               stroke={CHART_COLORS.secondary} 
               name="Unique Visitors"
+              strokeWidth={2}
+              dot={{ stroke: CHART_COLORS.secondary, strokeWidth: 2, r: 4, fill: 'white' }}
+              activeDot={{ r: 6, stroke: CHART_COLORS.secondary, strokeWidth: 2, fill: CHART_COLORS.secondary }}
             />
             <Line 
               yAxisId="right"
@@ -214,6 +324,9 @@ const TrafficAnalytics: React.FC = () => {
               dataKey="bounce_rate" 
               stroke={CHART_COLORS.tertiary} 
               name="Bounce Rate (%)"
+              strokeWidth={2}
+              dot={{ stroke: CHART_COLORS.tertiary, strokeWidth: 2, r: 4, fill: 'white' }}
+              activeDot={{ r: 6, stroke: CHART_COLORS.tertiary, strokeWidth: 2, fill: CHART_COLORS.tertiary }}
             />
             <Line 
               yAxisId="right"
@@ -221,6 +334,9 @@ const TrafficAnalytics: React.FC = () => {
               dataKey="conversion_rate" 
               stroke={CHART_COLORS.quaternary} 
               name="Conversion Rate (%)"
+              strokeWidth={2}
+              dot={{ stroke: CHART_COLORS.quaternary, strokeWidth: 2, r: 4, fill: 'white' }}
+              activeDot={{ r: 6, stroke: CHART_COLORS.quaternary, strokeWidth: 2, fill: CHART_COLORS.quaternary }}
             />
           </LineChart>
         </ResponsiveContainer>

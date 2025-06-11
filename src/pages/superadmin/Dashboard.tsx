@@ -103,21 +103,19 @@ interface TrendResponse {
 
 interface UserGrowthData {
   month: string;
-  customers: number;
+  users: number;
   merchants: number;
-  customer_growth: number;
+  user_growth: number;
   merchant_growth: number;
 }
 
 interface UserGrowthResponse {
   status: string;
   data: {
-    trend: UserGrowthData[];
     summary: {
-      total_customers: number;
-      total_merchants: number;
       total_users: number;
-      average_customer_growth: number;
+      total_merchants: number;
+      average_user_growth: number;
       average_merchant_growth: number;
     };
   };
@@ -293,20 +291,28 @@ const Dashboard = () => {
       }
 
       const data: UserGrowthResponse = await response.json();
-      if (data.status === 'success' && data.data?.trend) {
-        // Format the month display in the user growth data
-        const formattedData = data.data.trend.map(item => ({
-          ...item,
-          month: formatMonth(item.month)
-        }));
+      console.log('Raw API Response:', data);
+
+      if (data.status === 'success' && data.data?.summary) {
+        // Create a single data point for the current month
+        const currentDate = new Date();
+        const formattedData = [{
+          month: currentDate.toLocaleString('default', { month: 'short' }),
+          users: data.data.summary.total_users,
+          merchants: data.data.summary.total_merchants,
+          user_growth: data.data.summary.average_user_growth,
+          merchant_growth: data.data.summary.average_merchant_growth
+        }];
+        
+        console.log('Formatted user growth data:', formattedData);
         setUserGrowthData(formattedData);
       } else {
+        console.error('Invalid response format:', data);
         throw new Error(data.message || 'Invalid response format');
       }
     } catch (error) {
       console.error('Error fetching user growth data:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to load user growth data');
-      // Set empty data on error
       setUserGrowthData([]);
     }
   };
@@ -640,40 +646,74 @@ const Dashboard = () => {
 
         {/* User Growth Chart */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">User Growth</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={userGrowthData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="month" 
-                tick={{ fontSize: 12 }}
-                interval={0}
-              />
-              <YAxis />
-              <Tooltip 
-                formatter={(value, name) => [
-                  value.toLocaleString(),
-                  name === 'customers' ? 'Customers' : 'Merchants'
-                ]}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="customers" 
-                stroke="#FF6B35" 
-                strokeWidth={3} 
-                dot={{ fill: '#FF6B35' }} 
-                name="Customers"
-              />
-              <Line 
-                type="monotone" 
-                dataKey="merchants" 
-                stroke="#4ECDC4" 
-                strokeWidth={3} 
-                dot={{ fill: '#4ECDC4' }} 
-                name="Merchants"
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <h3 className="text-lg font-semibold text-gray-900 mb-6">User Growth</h3>
+          
+          {/* Stats Cards */}
+          
+
+          {/* Chart */}
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={userGrowthData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="month" 
+                  tick={{ fontSize: 12, fill: '#666' }}
+                  axisLine={{ stroke: '#e0e0e0' }}
+                  tickLine={{ stroke: '#e0e0e0' }}
+                />
+                <YAxis 
+                  tick={{ fontSize: 12, fill: '#666' }}
+                  axisLine={{ stroke: '#e0e0e0' }}
+                  tickLine={{ stroke: '#e0e0e0' }}
+                  domain={[0, 'dataMax + 0.5']}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  formatter={(value, name) => [
+                    value.toLocaleString(),
+                    name === 'merchants' ? 'Merchants' : 'Users'
+                  ]}
+                  labelStyle={{ color: '#374151', fontWeight: 'bold' }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="users" 
+                  stroke="#FF6B35" 
+                  strokeWidth={3} 
+                  dot={{ fill: '#FF6B35', strokeWidth: 0, r: 6 }} 
+                  activeDot={{ r: 8, fill: '#FF6B35' }}
+                  name="users"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="merchants" 
+                  stroke="#4ECDC4" 
+                  strokeWidth={3} 
+                  dot={{ fill: '#4ECDC4', strokeWidth: 0, r: 6 }} 
+                  activeDot={{ r: 8, fill: '#4ECDC4' }}
+                  name="merchants"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Legend */}
+          <div className="flex justify-center mt-4 space-x-6">
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-orange-500 rounded-full mr-2"></div>
+              <span className="text-sm text-gray-600">Users</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 bg-teal-400 rounded-full mr-2"></div>
+              <span className="text-sm text-gray-600">Merchants</span>
+            </div>
+          </div>
         </div>
       </div>
 
