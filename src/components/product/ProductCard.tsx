@@ -106,8 +106,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
     
   return (
-<div className="rounded-xl bg-transparent shadow-none hover:shadow-none transition-all duration-300 flex flex-col w-full max-w-[172px] min-h-[316px] mx-auto">
-<div className="relative aspect-square w-full">
+
+    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col w-[270px] h-[390px] mx-auto border border-gray-100">
+      <div className="relative h-[220px] w-full">
+
         {/* Product badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
           {isNew && (
@@ -145,7 +147,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <img 
             src={product.primary_image || product.image || '/placeholder-image.png'}
             alt={product.name} 
-            className="w-full h-full object-contain p-2 rounded-lg"
+            className="w-full h-full object-contain p-3 rounded-lg"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src = '/placeholder-image.png';
@@ -154,28 +156,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </Link>
       </div>
 
-      <div className="p-3 flex flex-col flex-grow">
+      <div className="p-4 flex flex-col flex-grow">
         <Link to={`/product/${product.id}`} className="block">
-          <h3 className="text-sm font-medium mb-1 line-clamp-1">{product.name}</h3>
+          <h3 className="text-sm font-medium mb-1 line-clamp-2">{product.name}</h3>
           <p className="text-xs text-gray-500">
             SKU: {product.sku}
           </p>
         </Link>
         
         <div className="mt-auto">
-          <div className="flex items-center space-x-2 mb-2">
+          <div className="flex items-center space-x-2 mb-3">
             <span className="text-base font-bold">₹{product.price.toFixed(2)}</span>
             {product.originalPrice && (
               <span className="text-gray-400 text-sm line-through">₹{product.originalPrice.toFixed(2)}</span>
             )}
           </div>
           <button
+
         className="w-full sm:w-[80%] mx-auto bg-[#F2631F] text-white text-sm font-sans py-2 rounded-xl hover:bg-orange-600 transition"
         onClick={handleAddToCart}
         disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
       >
         {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
       </button>
+
         </div>
       </div>
     </div>
