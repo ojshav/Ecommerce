@@ -787,9 +787,18 @@ const UserProfile: React.FC = () => {
                 {addresses.map((address) => (
                   <div key={address.address_id} className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-md border">
                     <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium capitalize text-orange-600">{address.address_type}</span>
+                        {address.is_default_shipping && address.address_type === 'shipping' && (
+                          <span className="text-xs bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full">Default Shipping</span>
+                        )}
+                        {address.is_default_billing && address.address_type === 'billing' && (
+                          <span className="text-xs bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full">Default Billing</span>
+                        )}
+                      </div>
                       <p className="text-sm">{`${address.address_line1}${address.address_line2 ? ', ' + address.address_line2 : ''}, ${address.city}, ${address.state_province} ${address.postal_code}, ${address.country_code}`}</p>
                       <div className="flex gap-2 mt-1">
-                        {!address.is_default_shipping && (
+                        {!address.is_default_shipping && address.address_type === 'shipping' && (
                           <button 
                             onClick={() => handleSetDefaultAddress(address.address_id, 'shipping')}
                             className="text-xs text-orange-500 hover:text-orange-600"
@@ -797,7 +806,7 @@ const UserProfile: React.FC = () => {
                             Set as default shipping
                           </button>
                         )}
-                        {!address.is_default_billing && (
+                        {!address.is_default_billing && address.address_type === 'billing' && (
                           <button 
                             onClick={() => handleSetDefaultAddress(address.address_id, 'billing')}
                             className="text-xs text-orange-500 hover:text-orange-600"
