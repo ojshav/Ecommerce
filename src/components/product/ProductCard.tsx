@@ -106,8 +106,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
     
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col max-w-[280px] w-full mx-auto border border-orange-100 hover:border-orange-300">
-      <div className="relative h-[160px] w-full">
+<div className="rounded-xl bg-transparent shadow-none hover:shadow-none transition-all duration-300 flex flex-col w-full max-w-[172px] min-h-[316px] mx-auto">
+<div className="relative aspect-square w-full">
         {/* Product badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
           {isNew && (
@@ -170,13 +170,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </div>
           <button
-            className="w-full bg-[#F2631F] text-white py-1.5 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-1.5 text-sm"
-            onClick={handleAddToCart}
-            disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
-          >
-            <ShoppingCart className="w-4 h-4" />
-            {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
-          </button>
+        className="w-full sm:w-[80%] mx-auto bg-[#F2631F] text-white text-sm font-sans py-2 rounded-xl hover:bg-orange-600 transition"
+        onClick={handleAddToCart}
+        disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
+      >
+        {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
+      </button>
         </div>
       </div>
     </div>
