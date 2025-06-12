@@ -381,15 +381,7 @@ const Navbar: React.FC = () => {
             
             <div className="flex items-center space-x-2">
               <Link to="/track-order" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
-                <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="7" width="13" height="8" rx="2" stroke="currentColor" strokeWidth="2"/>
-                  <path d="M16 15V9a2 2 0 0 1 2-2h2.28a1 1 0 0 1 .95.68l1.72 5.15A2 2 0 0 1 21 15h-1" stroke="currentColor" strokeWidth="2"/>
-                  <circle cx="7.5" cy="17.5" r="1.5" stroke="currentColor" strokeWidth="2"/>
-                  <circle cx="17.5" cy="17.5" r="1.5" stroke="currentColor" strokeWidth="2"/>
-                  <path d="M2.5 9.5h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M2.5 13.5h2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M2.5 17.5h1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
+                <img src="/assets/images/track-order.png" alt="Track Order" className="w-4 h-4 mr-1" />
                 <span>Track Your Order</span>
               </Link>
               {isAuthenticated ? (
@@ -454,16 +446,9 @@ const Navbar: React.FC = () => {
           <div className="hidden nav:flex items-center justify-between">
             {/* Categories Dropdown Button */}
             <div className="relative flex items-center">
-              {/* Bulleted List Logo */}
+              {/* Category Logo */}
               <span className="mr-1 flex items-center">
-                <svg width="20" height="20" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="5" cy="5" r="3" fill="#666" />
-                  <rect x="11" y="3.5" width="14" height="3" rx="1.5" fill="#666" />
-                  <circle cx="5" cy="15" r="3" fill="#666" />
-                  <rect x="11" y="13.5" width="14" height="3" rx="1.5" fill="#666" />
-                  <circle cx="5" cy="25" r="3" fill="#666" />
-                  <rect x="11" y="23.5" width="14" height="3" rx="1.5" fill="#666" />
-                </svg>
+                <img src="/assets/images/category.png" alt="Category" className="w-5 h-5" />
               </span>
               <button
                 className="flex items-center py-1.5 px-3 md:px-4 text-black hover:text-gray-700 font-sans"
@@ -495,15 +480,7 @@ const Navbar: React.FC = () => {
             {/* Right side links */}
             <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-6">
               <Link to="/orders" className="flex items-center py-1.5 text-sm hover:text-[#F2631F]">
-                <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="7" width="13" height="8" rx="2" stroke="currentColor" strokeWidth="2"/>
-                  <path d="M16 15V9a2 2 0 0 1 2-2h2.28a1 1 0 0 1 .95.68l1.72 5.15A2 2 0 0 1 21 15h-1" stroke="currentColor" strokeWidth="2"/>
-                  <circle cx="7.5" cy="17.5" r="1.5" stroke="currentColor" strokeWidth="2"/>
-                  <circle cx="17.5" cy="17.5" r="1.5" stroke="currentColor" strokeWidth="2"/>
-                  <path d="M2.5 9.5h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M2.5 13.5h2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M2.5 17.5h1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
+                <img src="/assets/images/track-order.png" alt="Track Order" className="w-5 h-5 mr-1" />
                 <span>Track Your Order</span>
               </Link>
               
