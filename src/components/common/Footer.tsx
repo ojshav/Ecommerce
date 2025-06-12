@@ -1,152 +1,124 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Twitter, Facebook, Github } from 'lucide-react';
-import { Instagram } from 'lucide-react';
+import { Mail, Phone, MapPin, Twitter, Facebook, Github, Instagram } from 'lucide-react';
 
 const Footer: React.FC = () => {
-  const [showRaiseTicket, setShowRaiseTicket] = useState(false);
-
   return (
-    <footer className="bg-black text-white w-full overflow-hidden">
+    <footer className="bg-black text-white w-full">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-x-12 gap-y-10">
-          {/* Logo and Company Info */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-x-10 gap-y-12">
+
+          {/* Column 1 - Logo & Contact */}
           <div>
             <Link to="/" className="inline-block mb-8">
-              <img src="/assets/images/logo.svg" alt="AUIN" className="h-8" />
+              <img src="/assets/images/logo.svg" alt="AUIN" className="h-10" />
             </Link>
-            <div className="space-y-4 mt-6">
+
+            <div className="space-y-4 text-[14px] font-light text-white">
               <div className="flex items-start space-x-3">
-                <MapPin size={20} className="text-gray-400 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-400">1658 Rosewood Lane<br />New York city, NY</span>
+                <MapPin size={18} className="text-gray-400 mt-1" />
+                <span className="leading-tight">
+                  1658 Rosewood Lane<br />New York city, NY
+                </span>
               </div>
               <div className="flex items-center space-x-3">
-                <Phone size={20} className="text-gray-400 flex-shrink-0" />
-                <a href="tel:212-929-9953" className="text-[#F2631F] hover:text-white">212 929 9953</a>
+                <Phone size={18} className="text-gray-400" />
+                <a href="tel:2129299953" className="text-[#F2631F] hover:text-white">212 929 9953</a>
               </div>
               <div className="flex items-center space-x-3">
-                <Mail size={20} className="text-gray-400 flex-shrink-0" />
-                <a href="mailto:***********@gmail.com" className="text-[#F2631F] hover:text-white">***********@gmail.com</a>
+                <Mail size={18} className="text-gray-400" />
+                <span className="text-[#F2631F]">************.com</span>
               </div>
             </div>
           </div>
 
-          {/* Shop Column */}
-          <div className="mt-4">
-            <h3 className="text-xl font-semibold mb-6">Shop</h3>
-            <ul className="space-y-4">
+
+          {/* Column 2 - Shop */}
+          <div>
+            <h4 className="text-[18px] font-medium text-white mb-4">Shop</h4>
+            <ul className="space-y-3 text-[14px] text-white font-light">
+              <li><Link to="/new-product">New Product</Link></li>
+              <li><Link to="/shop-live">Shop live</Link></li>
+              <li><Link to="/promo-products">Promotion</Link></li>
+              <li><Link to="#">Top Brands</Link></li>
+
+            </ul>
+          </div>
+
+          {/* Column 3 - Policies */}
+          <div>
+            <h4 className="text-[18px] font-medium text-white mb-4">Policies</h4>
+            <ul className="space-y-3 text-[14px] text-white font-light">
+              <li><Link to="#">Privacy Policy</Link></li>
+              <li><Link to="#">Cancellation Policy</Link></li>
+              <li><Link to="#">Return & Refund</Link></li>
+              <li><Link to="#">Shipping & Delivery Policy</Link></li>
+            </ul>
+          </div>
+
+          {/* Column 4 - Customer Support */}
+          <div>
+            <h4 className="text-[18px] font-medium text-white mb-4">Customer Support</h4>
+            <ul className="space-y-3 text-[14px] text-white font-light">
               <li>
-                <Link to="/new-product" className="text-gray-300 hover:text-white transition-colors">New Product</Link>
+                <div>Call us at</div>
+                <a href="tel:2129299953" className="text-[#F2631F]">212 929 9953</a>
               </li>
-              <li>
-                <Link to="/shop-live" className="text-gray-300 hover:text-white transition-colors"></Link>
-              </li>
-              <li>
-                <Link to="/promo-products" className="text-gray-300 hover:text-white transition-colors">Promotion</Link>
-              </li>
-              <li>
-                <Link to="/live-shop" className="text-gray-300 hover:text-white transition-colors">Live Shop</Link>
+              <li><Link to="#">Frequently asked Questions</Link></li>
+              <li><Link to="#">Terms & Conditions</Link></li>
+              <li><Link to="#">Shipping Methods</Link></li>
+              <li className="mt-2">
+                <div>Mail us at</div>
+                <span className="text-[#F2631F]">******@gmail.com</span>
               </li>
             </ul>
           </div>
 
-          {/* Policies Column */}
-          <div className="mt-4">
-            <h3 className="text-xl font-semibold mb-6">Policies</h3>
-            <ul className="space-y-4">
-              <li>
-                <Link to="/privacy-policy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</Link>
-              </li>
-              <li>
-                <Link to="/cancellation-policy" className="text-gray-300 hover:text-white transition-colors">Cancellation Policy</Link>
-              </li>
-              <li>
-                <Link to="/return-refund" className="text-gray-300 hover:text-white transition-colors">Return & Refund</Link>
-              </li>
-              <li>
-                <Link to="/shipping-delivery" className="text-gray-300 hover:text-white transition-colors">Shipping & Delivery Policy</Link>
-              </li>
-            </ul>
-          </div>
-          
-          {/* Customer Support */}
-          <div className="mt-4">
-            <h3 className="text-xl font-semibold mb-6">Customer Support</h3>
-            <ul className="space-y-4">
-              <li>
-                <Link to="/RaiseTicket" className="text-gray-300 hover:text-white transition-colors">Raise Ticket</Link>
-              </li>
-              {/* <li>
-                <div className="text-gray-300">Call us at</div>
-                <a href="tel:212-929-9953" className="text-[#F2631F] hover:text-white">212 929 9953</a>
-              </li>
-              */}
-              <li>
-                <Link to="/faq" className="text-gray-300 hover:text-white transition-colors">Frequently asked Questions</Link>
-              </li>
-              <li>
-                <Link to="/terms" className="text-gray-300 hover:text-white transition-colors">Terms & Conditions</Link>
-              </li>
-              <li>
-                <Link to="/shipping-methods" className="text-gray-300 hover:text-white transition-colors">Shipping Methods</Link>
-              </li>
-              <li>
-                {/* <div className="text-gray-300 mt-3">Mail us at</div>
-                <a href="mailto:******@gmail.com" className="text-[#F2631F] hover:text-white">******@gmail.com</a> */}
-              </li>
-            </ul>
-          </div>
-          
-          {/* Follow Us Column */}
-          <div className="mt-4">
-            <h3 className="text-xl font-semibold mb-6">Follow Us</h3>
-            <div className="flex space-x-5 mb-8">
-              <a href="#" className="text-[#F2631F] hover:text-white transition-colors" aria-label="Twitter">
-                <Twitter size={22} />
-              </a>
-              <a href="#" className="text-[#F2631F] hover:text-white transition-colors" aria-label="Facebook">
-                <Facebook size={22} />
-              </a>
-              <a href="#" className="text-[#F2631F] hover:text-white transition-colors" aria-label="Instagram">
-                <Instagram size={22} />
-              </a>
-              <a href="#" className="text-[#F2631F] hover:text-white transition-colors" aria-label="Github">
-                <Github size={22} />
-              </a>
+          {/* Column 5 - Follow Us & Newsletter */}
+          <div>
+            <h4 className="text-[18px] font-medium text-white mb-4">Follow Us</h4>
+            <div className="flex space-x-5 mb-6">
+              <a href="#" className="text-[#F2631F] hover:text-white"><Twitter size={20} /></a>
+              <a href="#" className="text-[#F2631F] hover:text-white"><Facebook size={20} /></a>
+              <a href="#" className="text-[#F2631F] hover:text-white"><Instagram size={20} /></a>
+              <a href="#" className="text-[#F2631F] hover:text-white"><Github size={20} /></a>
             </div>
 
-            {/* Newsletter Subscription */}
-            <div className="mt-6 w-full max-w-xs">
-  <form className="flex flex-col gap-2">
-    <input 
-      type="email" 
-      placeholder="Enter your email" 
-      className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none"
-    />
-    <button 
-      type="submit"
-      className="bg-[#F2631F] text-white px-4 py-2 text-sm font-semibold rounded-md w-fit hover:bg-[#d44f12] transition"
-    >
-      Submit
-    </button>
-  </form>
+            {/* Email Subscription */}
+            <form className="flex bg-white rounded-md overflow-hidden max-w-xs">
+              <div className="flex items-center px-3 text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                    d="M16 12H8m0 0H6a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2h-2m-8 0V6a4 4 0 018 0v6" />
+                </svg>
+              </div>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full text-sm text-gray-700 placeholder-gray-400 bg-white outline-none px-2 py-2 placeholder:text-sm"
+              />
+              <button
+                type="submit"
+                className="bg-[#F2631F] hover:bg-[#d44f12] text-white px-4 text-sm"
+              >
+                Submit
+              </button>
+            </form>
 
-  <p className="mt-3 text-sm text-gray-400 leading-snug">
-    Receive our latest updates<br />about products & promotions
-  </p>
-</div>
-
-
-
+            <p className="mt-4 text-[14px] text-white font-normal leading-snug">
+  Receive our latest update about our <br />
+  products &nbsp;<span className="whitespace-nowrap">promotion</span>
+</p>
           </div>
         </div>
       </div>
-      
-      {/* Copyright Section */}
-      <div className="bg-white py-4 w-full">
+
+      {/* Bottom White Bar */}
+      <div className="bg-white py-4">
         <div className="container mx-auto px-4">
-          <p className="text-gray-500 text-sm text-center">
-            © 2000-2021, All Rights Reserved
+          <p className="text-center text-[13px] text-gray-400">
+            © 2000–2021, All Rights Reserved
           </p>
         </div>
       </div>
