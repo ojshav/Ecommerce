@@ -94,6 +94,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        worksans: ["Work Sans", "sans-serif"]
       },
       animation: {
         fadeIn: 'fadeIn 0.5s ease-in-out',
