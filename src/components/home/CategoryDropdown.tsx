@@ -97,7 +97,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
           <span>{category.name}</span>
           {category.children && category.children.length > 0 && <span>›</span>}
         </button>
-        {category.children && category.children.length > 0 && (
+        {category.children && category.children.length > 0 && isSelected && (
           <div className="ml-4">
             {category.children.map(child => renderCategoryTree(child, level + 1))}
           </div>
