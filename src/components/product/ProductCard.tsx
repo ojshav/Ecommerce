@@ -174,6 +174,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         onClick={handleAddToCart}
         disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
       >
+        
         {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
       </button>
         </div>
