@@ -82,7 +82,7 @@ const Categories: React.FC = () => {
       <div className="container mx-auto px-4">
         {/* Categories header with navigation */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Shop By Categories</h2>
+          <h6 className="text-xl font-medium font-worksans">Shop By Categories</h6>
           <div className="flex items-center">
             <Link to="/all-products" className="text-orange-500 text-sm font-medium mr-4">
               See All
@@ -106,9 +106,11 @@ const Categories: React.FC = () => {
               onClick={() => {
                 navigate(`/all-products?category=${category.category_id}`);
               }}
-              className="flex-shrink-0 w-36 h-40 bg-[#f5f7f2] rounded-lg flex flex-col items-center justify-center text-center p-4 transition duration-200 hover:scale-105 hover:border-2 hover:border-orange-500 hover:relative cursor-pointer"
+              className="flex-shrink-0 w-44 h-44 bg-[#F3FBEE] rounded-lg flex flex-col items-center justify-center text-center px-2 py-[26px] transition duration-200 hover:border-[1px] hover:border-[#F2631F] hover:relative cursor-pointer group relative"
             >
-              <div className="w-14 h-14 mb-4 flex items-center justify-center">
+              <div className='absolute -bottom-[3px] rotate-45 h-2 w-2 bg-[#F3FBEE]'></div>
+              <div className='absolute -bottom-1 rotate-45 h-2 w-2 bg-[#F3FBEE] -z-10 group-hover:border-[1px] group-hover:border-[#F2631F]'></div>
+              <div className="w-12 h-12 mb-4 flex items-center justify-center p-[6px]">
                 {category.icon_url ? (
                   <img 
                     src={category.icon_url} 
@@ -119,7 +121,7 @@ const Categories: React.FC = () => {
                   <span className="text-3xl">📦</span>
                 )}
               </div>
-              <h3 className="font-medium">{category.name}</h3>
+              <h3 className="font-semibold text-lg font-worksans">{category.name}</h3>
             </div>
           ))}
         </div>
