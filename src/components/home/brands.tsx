@@ -107,9 +107,9 @@ const Brands = () => {
                 // Navigate to products page with brand filter
                 navigate(`/all-products?brand=${brand.brand_id}`);
               }}
-              className="flex-shrink-0 w-36 h-40 bg-[#f5f7f2] rounded-lg flex flex-col items-center justify-center text-center p-4 transition duration-200 hover:scale-105 hover:border-2 hover:border-orange-500 hover:relative cursor-pointer"
+              className="flex-shrink-0 w-36 h-40 bg-transparent rounded-lg flex flex-col items-center justify-center text-center p-4 transition duration-200 hover:scale-105 cursor-pointer"
             >
-              <div className="w-14 h-14 mb-4 flex items-center justify-center">
+              <div className="w-20 h-20 flex items-center justify-center">
                 {brand.icon_url ? (
                   <img
                     src={brand.icon_url}
@@ -120,7 +120,6 @@ const Brands = () => {
                   <span className="text-3xl">🏷️</span>
                 )}
               </div>
-              <h3 className="font-medium">{brand.name}</h3>
             </div>
           ))}
         </div>
