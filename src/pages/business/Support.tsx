@@ -375,7 +375,7 @@ const Support: React.FC = () => {
             onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
             className="block w-full md:w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm rounded-md appearance-none"
             >
-            <option value="all">All Statuses</option>
+            <option value="all">All Status</option>
             <option value="open">Open</option>
             <option value="in_progress">In Progress</option>
             <option value="awaiting_merchant_reply">Awaiting Your Reply</option>

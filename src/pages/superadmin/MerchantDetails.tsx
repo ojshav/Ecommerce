@@ -634,7 +634,7 @@ const MerchantDetails: React.FC = () => {
             setShowFinalApprovalSuccess(true);
             setTimeout(() => {
               setShowFinalApprovalSuccess(false);
-              navigate('/superadmin/merchant-management');
+              navigate('/superadmin/merchants');
             }, 4000); 
           } else {
             toast("All documents approved. Awaiting final merchant status update.", { duration: 5000, icon: '⏳' });

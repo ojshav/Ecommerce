@@ -106,8 +106,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
     
   return (
+
     <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col w-[270px] h-[390px] mx-auto border border-gray-100">
       <div className="relative h-[220px] w-full">
+
         {/* Product badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
           {isNew && (
@@ -170,13 +172,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </div>
           <button
-            className="w-full bg-[#F2631F] text-white py-2 rounded-md hover:bg-[#e55a1a] transition-colors flex items-center justify-center gap-1.5 text-sm"
-            onClick={handleAddToCart}
-            disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
-          >
-            <ShoppingCart className="w-4 h-4" />
-            {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
-          </button>
+
+        className="w-full sm:w-[80%] mx-auto bg-[#F2631F] text-white text-sm font-sans py-2 rounded-xl hover:bg-orange-600 transition"
+        onClick={handleAddToCart}
+        disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
+      >
+        {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
+      </button>
+
         </div>
       </div>
     </div>
