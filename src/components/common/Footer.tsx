@@ -38,7 +38,7 @@ const Footer: React.FC = () => {
             <h4 className="text-[18px] font-medium text-white mb-4">Shop</h4>
             <ul className="space-y-3 text-[14px] text-white font-light">
               <li><Link to="/new-product">New Product</Link></li>
-              <li><Link to="/shop-live">Shop live</Link></li>
+              <li><Link to="/shop-live">Live Shop</Link></li>
               <li><Link to="/promo-products">Promotion</Link></li>
               <li><Link to="#">Top Brands</Link></li>
 
