@@ -218,7 +218,7 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <header className="max-w-[1680px] w-full h-[224px] fixed top-0 left-0 right-0 z-50 mx-auto">
+    <header className="max-w-[1680px] w-full fixed top-0 left-0 right-0 z-50 mx-auto">
       {/* Top navigation - black bar */}
       <div className="bg-black text-white pb-2 md:pb-3 lg:pb-4">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px]">
