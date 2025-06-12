@@ -88,8 +88,10 @@ const TrendingDeals: React.FC = () => {
         setItemsPerView(2);
       } else if (width < 1024) { // lg breakpoint
         setItemsPerView(3);
-      } else {
+      } else if (width < 1280) { // xl breakpoint
         setItemsPerView(4);
+      } else { // 2xl breakpoint
+        setItemsPerView(5);
       }
     };
 
@@ -164,7 +166,7 @@ const TrendingDeals: React.FC = () => {
           <div className="relative">
             <div
               ref={containerRef}
-              className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide"
+              className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
               onMouseDown={handleMouseDown}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
@@ -178,7 +180,7 @@ const TrendingDeals: React.FC = () => {
                 <div 
                   key={product.id} 
                   className="flex-none"
-                  style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 16 / itemsPerView}px)` }}
+                  style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 12 / itemsPerView}px)` }}
                 >
                   <ProductCard 
                     product={product}
