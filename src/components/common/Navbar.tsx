@@ -8,6 +8,7 @@ import SearchResults from './SearchResults';
 import useClickOutside from '../../hooks/useClickOutside';
 import LogoutConfirmationPopup from '../LogoutConfirmationPopup';
 import toast from 'react-hot-toast';
+import '@fontsource/work-sans';
 
 // Custom breakpoint for 968px
 // const customBreakpoint = '@media (max-width: 968px)'; // Removed as unused
@@ -218,7 +219,7 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <header className="max-w-[1680px] w-full fixed top-0 left-0 right-0 z-50 mx-auto">
+    <header className="max-w-[1680px] w-full fixed top-0 left-0 right-0 z-50 mx-auto font-['Work_Sans']">
       {/* Top navigation - black bar */}
       <div className="bg-black text-white pb-2 md:pb-3 lg:pb-4">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px]">
