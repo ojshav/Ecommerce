@@ -105,6 +105,7 @@ const Hero: React.FC = () => {
                               className="w-full h-full object-cover rounded-lg"
                               style={{ objectPosition: 'center' }}
                             />
+                            
                             <button 
                               onClick={() => handleOrderNowClick(current.shareable_link)}
                               className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 sm:px-6 py-2 rounded font-medium hover:bg-gray-100 transition-colors text-sm sm:text-base shadow-lg"
@@ -145,6 +146,7 @@ const Hero: React.FC = () => {
                   </div>
                 </div>
               </div>
+              
             </div>
           </div>
         </div>

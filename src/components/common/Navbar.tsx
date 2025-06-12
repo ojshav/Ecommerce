@@ -218,7 +218,7 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <header className="w-full fixed top-0 left-0 right-0 z-50">
+    <header className="max-w-[1680px] w-full h-[224px] fixed top-0 left-0 right-0 z-50 mx-auto">
       {/* Top navigation - black bar */}
       <div className="bg-black text-white pb-2 md:pb-3 lg:pb-4">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px]">
@@ -381,9 +381,15 @@ const Navbar: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Link to="/track-order" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                 <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <rect x="3" y="7" width="13" height="8" rx="2" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M16 15V9a2 2 0 0 1 2-2h2.28a1 1 0 0 1 .95.68l1.72 5.15A2 2 0 0 1 21 15h-1" stroke="currentColor" strokeWidth="2"/>
+                  <circle cx="7.5" cy="17.5" r="1.5" stroke="currentColor" strokeWidth="2"/>
+                  <circle cx="17.5" cy="17.5" r="1.5" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M2.5 9.5h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M2.5 13.5h2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M2.5 17.5h1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                <span>Track</span>
+                <span>Track Your Order</span>
               </Link>
               {isAuthenticated ? (
                 <button
@@ -437,7 +443,7 @@ const Navbar: React.FC = () => {
                 </Link>
                 <Link to="/promo-products" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   <span>Promotion</span>
-                  <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
+                  <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded-full ml-1">HOT</span>
                 </Link>
               </nav>
             </div>
@@ -447,8 +453,19 @@ const Navbar: React.FC = () => {
           <div className="hidden nav:flex items-center justify-between">
             {/* Categories Dropdown Button */}
             <div className="relative flex items-center">
+              {/* Bulleted List Logo */}
+              <span className="mr-1 flex items-center">
+                <svg width="20" height="20" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="5" cy="5" r="3" fill="#666" />
+                  <rect x="11" y="3.5" width="14" height="3" rx="1.5" fill="#666" />
+                  <circle cx="5" cy="15" r="3" fill="#666" />
+                  <rect x="11" y="13.5" width="14" height="3" rx="1.5" fill="#666" />
+                  <circle cx="5" cy="25" r="3" fill="#666" />
+                  <rect x="11" y="23.5" width="14" height="3" rx="1.5" fill="#666" />
+                </svg>
+              </span>
               <button
-                className="flex items-center py-1.5 px-3 md:px-4 text-black hover:text-gray-700"
+                className="flex items-center py-1.5 px-3 md:px-4 text-black hover:text-gray-700 font-sans"
                 onClick={toggleCategoryDropdown}
                 aria-expanded={isCategoryDropdownOpen}
                 ref={desktopCategoryButtonRef}
@@ -470,7 +487,7 @@ const Navbar: React.FC = () => {
                 New Product
               </Link>
               <Link to="/promo-products" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F] flex items-center">
-                Promotion <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded ml-1">HOT</span>
+                Promotion <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded-full ml-1">HOT</span>
               </Link>
             </nav>
             
@@ -478,10 +495,17 @@ const Navbar: React.FC = () => {
             <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-6">
               <Link to="/orders" className="flex items-center py-1.5 text-sm hover:text-[#F2631F]">
                 <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <rect x="3" y="7" width="13" height="8" rx="2" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M16 15V9a2 2 0 0 1 2-2h2.28a1 1 0 0 1 .95.68l1.72 5.15A2 2 0 0 1 21 15h-1" stroke="currentColor" strokeWidth="2"/>
+                  <circle cx="7.5" cy="17.5" r="1.5" stroke="currentColor" strokeWidth="2"/>
+                  <circle cx="17.5" cy="17.5" r="1.5" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M2.5 9.5h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M2.5 13.5h2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M2.5 17.5h1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                <span>Your Orders</span>
+                <span>Track Your Order</span>
               </Link>
+              
               {isAuthenticated ? (
                 <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
                   <span className="text-sm text-gray-600">
@@ -501,6 +525,8 @@ const Navbar: React.FC = () => {
                   <span>Sign In/Register</span>
                 </Link>
               )}
+              {/* Aoin Live Button */}
+              
             </div>
           </div>
         </div>
