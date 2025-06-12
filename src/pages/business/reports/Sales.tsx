@@ -31,6 +31,18 @@ interface CategoryData {
   value: string;
 }
 
+interface MerchantPerformance {
+  total_sales: {
+    value: number;
+  };
+  total_orders: {
+    value: number;
+  };
+  average_order_value: {
+    value: number;
+  };
+}
+
 const Sales = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,12 +50,37 @@ const Sales = () => {
   const [detailedSalesData, setDetailedSalesData] = useState<DetailedSalesData[]>([]);
   const [productPerformance, setProductPerformance] = useState<ProductPerformance[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
+  const [merchantPerformance, setMerchantPerformance] = useState<MerchantPerformance | null>(null);
   const { accessToken } = useAuth();
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Fetch merchant performance data
+      const merchantPerformanceResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/analytics/merchant-performance`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (!merchantPerformanceResponse.ok) {
+        throw new Error('Failed to fetch merchant performance data');
+      }
+
+      const merchantPerformanceData = await merchantPerformanceResponse.json();
+      if (merchantPerformanceData.status === 'success') {
+        setMerchantPerformance(merchantPerformanceData.data);
+      }
 
       // Fetch monthly sales data
       const monthlyResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/sales/monthly-sales`, {
@@ -78,19 +115,19 @@ const Sales = () => {
       }
 
       // Fetch product performance data
-      const performanceResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/sales/product-performance`, {
+      const productPerformanceResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/sales/product-performance`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
       });
 
-      if (!performanceResponse.ok) {
+      if (!productPerformanceResponse.ok) {
         throw new Error('Failed to fetch product performance data');
       }
 
-      const performanceData = await performanceResponse.json();
-      if (performanceData.status === 'success') {
-        setProductPerformance(performanceData.data);
+      const productPerformanceData = await productPerformanceResponse.json();
+      if (productPerformanceData.status === 'success') {
+        setProductPerformance(productPerformanceData.data);
       }
 
       // Fetch revenue by category data
@@ -149,9 +186,9 @@ const Sales = () => {
   }
 
   // Calculate summary statistics
-  const totalRevenue = detailedSalesData.reduce((sum, item) => sum + item.revenue, 0);
-  const totalUnits = detailedSalesData.reduce((sum, item) => sum + item.quantity, 0);
-  const averageOrderValue = Math.round(totalRevenue / totalUnits);
+  const totalRevenue = merchantPerformance?.total_sales.value || 0;
+  const totalUnits = merchantPerformance?.total_orders.value || 0;
+  const averageOrderValue = merchantPerformance?.average_order_value.value || 0;
 
   // Define a color palette for up to 3 categories
   const pieColors = ['#FF4D00', '#00E5BE', '#8B5CF6'];
@@ -169,7 +206,7 @@ const Sales = () => {
       <div className="flex justify-between items-center bg-[#FF4D00] text-white p-6 rounded-xl">
         <h1 className="text-2xl font-semibold">Sales Performance Report</h1>
         <div className="flex gap-3">
-          <button 
+          <button
             onClick={fetchData}
             className="flex items-center gap-2 bg-white text-[#FF4D00] px-4 py-2 rounded-lg hover:bg-opacity-90"
           >
@@ -187,15 +224,15 @@ const Sales = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm">
           <p className="text-gray-600">Total Revenue</p>
-          <p className="text-3xl font-semibold text-[#FF4D00]">₹{totalRevenue.toLocaleString()}</p>
+          <p className="text-3xl font-semibold text-[#FF4D00]">{formatCurrency(totalRevenue)}</p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm">
-          <p className="text-gray-600">Total Sales</p>
-          <p className="text-3xl font-semibold text-[#FF4D00]">{totalUnits.toLocaleString()} <span className="text-gray-500 text-base">units</span></p>
+          <p className="text-gray-600">Total Orders</p>
+          <p className="text-3xl font-semibold text-[#FF4D00]">{totalUnits.toLocaleString()} <span className="text-gray-500 text-base">orders</span></p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm">
           <p className="text-gray-600">Average Order Value</p>
-          <p className="text-3xl font-semibold text-[#FF4D00]">₹{averageOrderValue}</p>
+          <p className="text-3xl font-semibold text-[#FF4D00]">{formatCurrency(averageOrderValue)}</p>
         </div>
       </div>
 
@@ -211,19 +248,19 @@ const Sales = () => {
               <YAxis yAxisId="right" orientation="right" />
               <Tooltip />
               <Legend />
-              <Line 
+              <Line
                 yAxisId="left"
-                type="monotone" 
-                dataKey="revenue" 
-                stroke="#FF4D00" 
+                type="monotone"
+                dataKey="revenue"
+                stroke="#FF4D00"
                 name="Revenue"
                 dot={{ fill: '#FF4D00' }}
               />
-              <Line 
+              <Line
                 yAxisId="right"
-                type="monotone" 
-                dataKey="units" 
-                stroke="#00E5BE" 
+                type="monotone"
+                dataKey="units"
+                stroke="#00E5BE"
                 name="Units Sold"
                 dot={{ fill: '#00E5BE' }}
               />
@@ -253,9 +290,9 @@ const Sales = () => {
                   <td className="px-6 py-4 text-gray-600">{item.month}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{item.product}</td>
                   <td className="px-6 py-4 text-gray-600">{item.category}</td>
-                  <td className="px-6 py-4 text-right">₹{item.price.toLocaleString()}</td>
+                  <td className="px-6 py-4 text-right">{formatCurrency(item.price)}</td>
                   <td className="px-6 py-4 text-right text-gray-600">{item.quantity}</td>
-                  <td className="px-6 py-4 text-right">₹{item.revenue.toLocaleString()}</td>
+                  <td className="px-6 py-4 text-right">{formatCurrency(item.revenue)}</td>
                 </tr>
               ))}
             </tbody>
@@ -277,7 +314,7 @@ const Sales = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={productPerformance}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" />
+                <XAxis dataKey="name" tickFormatter={name => name.length > 18 ? name.slice(0, 15) + '...' : name} />
                 <YAxis />
                 <Tooltip />
                 <Bar dataKey="revenue" fill="#FF4D00" />
