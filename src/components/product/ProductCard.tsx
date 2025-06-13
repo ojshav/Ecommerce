@@ -172,15 +172,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </div>
           <button
-
-        className="w-full sm:w-[80%] mx-auto bg-[#F2631F] text-white text-sm font-sans py-2 rounded-xl hover:bg-orange-600 transition"
-        onClick={handleAddToCart}
-        disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
-      >
-        
-        {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
-      </button>
-
+            className="w-full sm:w-[80%] mx-auto bg-[#F2631F] text-white text-sm font-sans py-2 rounded-xl hover:bg-black duration-300 transition"
+            onClick={handleAddToCart}
+            disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
+          >
+            {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
+          </button>
         </div>
       </div>
     </div>

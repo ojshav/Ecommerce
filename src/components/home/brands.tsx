@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 interface Brand {
   brand_id: number;
@@ -16,6 +15,16 @@ const Brands = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollLeft = () => {
+    scrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
+  };
+
+  const scrollRight = () => {
+    scrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     fetchBrands();
   }, []);
@@ -24,7 +33,7 @@ const Brands = () => {
     try {
       setLoading(true);
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/brands/icons`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch brands');
       }
@@ -48,7 +57,7 @@ const Brands = () => {
           </div>
           <div className="flex space-x-4 overflow-x-auto pb-4 pt-2 pl-2">
             {[...Array(6)].map((_, index) => (
-              <div 
+              <div
                 key={index}
                 className="flex-shrink-0 w-36 h-40 bg-gray-100 rounded-lg animate-pulse"
               />
@@ -65,7 +74,7 @@ const Brands = () => {
         <div className="container mx-auto px-4">
           <div className="text-center text-red-500">
             <p>Error loading brands: {error}</p>
-            <button 
+            <button
               onClick={fetchBrands}
               className="mt-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
@@ -80,33 +89,38 @@ const Brands = () => {
   return (
     <section className="py-0">
       <div className="container mx-auto px-4">
-        {/* Brands header with navigation */}
+        {/* Header with scroll buttons */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Shop By Brands</h2>
           <div className="flex items-center">
-            <Link to="/all-products" className="text-orange-500 text-sm font-medium mr-4">
+            <Link to="/all-products" className="text-orange-500 text-sm font-medium mr-10">
               See All
             </Link>
-            <div className="flex space-x-2">
-              <button className="p-1 rounded-full border border-gray-300 hover:bg-orange-400">
-                <ChevronLeft size={20} />
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={scrollLeft}
+                className="focus:outline-none"
+                aria-label="Scroll Left"
+              >
+                <ChevronLeft size={20} className="text-gray-500 hover:text-black duration-300" />
               </button>
-              <button className="p-1 rounded-full border border-gray-300 hover:bg-orange-400">
-                <ChevronRight size={20} />
+              <button
+                onClick={scrollRight}
+                className="focus:outline-none"
+                aria-label="Scroll Right"
+              >
+                <ChevronRight size={20} className="text-gray-500 hover:text-black duration-300" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Brands slider */}
-        <div className="flex space-x-4 overflow-x-auto pb-4 pt-2 pl-2">
+        {/* Scrollable brand icons */}
+        <div ref={scrollRef} className="flex space-x-4 overflow-x-auto pb-4 pt-2 pl-2 scroll-smooth">
           {brands.map((brand) => (
             <div
               key={brand.brand_id}
-              onClick={() => {
-                // Navigate to products page with brand filter
-                navigate(`/all-products?brand=${brand.brand_id}`);
-              }}
+              onClick={() => navigate(`/all-products?brand=${brand.brand_id}`)}
               className="flex-shrink-0 w-36 h-40 bg-transparent rounded-lg flex flex-col items-center justify-center text-center p-4 transition duration-200 hover:scale-105 cursor-pointer"
             >
               <div className="w-20 h-20 flex items-center justify-center">
