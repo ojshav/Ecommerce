@@ -138,14 +138,14 @@ const Navbar: React.FC = () => {
           <input
             type="text"
             placeholder="What are you looking for?"
-            className="w-full md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none"
+            className="w-full md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
             value={searchQuery}
             onChange={handleSearchInputChange}
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
           <div className="relative flex items-center bg-gray-100">
             <select 
-              className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none text-sm"
+              className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
               value={searchType}
               onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
             >
@@ -175,14 +175,14 @@ const Navbar: React.FC = () => {
           <input
             type="text"
             placeholder="What are you looking for?"
-            className="w-full border-0 py-2.5 px-4 text-gray-900 focus:ring-0 focus:outline-none text-base"
+            className="w-full border-0 py-2.5 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
             value={searchQuery}
             onChange={handleSearchInputChange}
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
           <div className="relative flex items-center border-t border-gray-200 bg-white">
             <select 
-              className="w-full h-full appearance-none bg-transparent py-2.5 pl-4 pr-8 text-gray-900 focus:ring-0 focus:outline-none text-base"
+              className="w-full h-full appearance-none bg-transparent py-2.5 pl-4 pr-8 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
               value={searchType}
               onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
             >
@@ -204,7 +204,7 @@ const Navbar: React.FC = () => {
         />
         <button
           type="submit"
-          className="w-full bg-[#F2631F] text-white py-2 rounded-md mt-2 text-base"
+          className="w-full bg-[#F2631F] text-white py-2 rounded-md mt-2 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
         >
           Search
         </button>
@@ -218,11 +218,28 @@ const Navbar: React.FC = () => {
     </div>
   );
 
+  // Add this CSS animation style at the top of the component
+  const aoinLiveButtonStyle = {
+    animation: 'colorChange 1.5s infinite',
+    transition: 'background-color 0.5s ease-in-out',
+  };
+
   return (
-    <header className="max-w-[1680px] w-full fixed top-0 left-0 right-0 z-50 mx-auto font-['Work_Sans']">
+    <header className="w-full fixed top-0 left-0 right-0 z-50 mx-auto font-['Work_Sans']">
+      <style>
+        {`
+          @keyframes colorChange {
+            0% { background-color: #F2631F; }
+            25% { background-color: #63BC86; }
+            50% { background-color: #DB4173; }
+            75% { background-color: #8B4CCE; }
+            100% { background-color: #F2631F; }
+          }
+        `}
+      </style>
       {/* Top navigation - black bar */}
       <div className="bg-black text-white pb-2 md:pb-3 lg:pb-4">
-        <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px]">
+        <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 2xl:px-6 3xl:px-8 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px] 2xl:max-w-[1440px] 3xl:max-w-[1680px] 4xl:max-w-[1920px]">
           <div className="flex flex-col sm:pl-1 md:pl-0">
             <div className="flex flex-start py-2 sm:py-3">
               {/* Social Media Icons - Left top - Hidden on mobile */}
@@ -268,7 +285,7 @@ const Navbar: React.FC = () => {
                   </div>
                   
                   <button 
-                    className="bg-black hover:bg-gray-900 text-white py-1.5 px-2 nav:px-3 mid:px-6 rounded-md border border-white whitespace-nowrap text-sm"
+                    className="bg-black hover:bg-gray-900 text-white py-1.5 px-2 nav:px-3 mid:px-6 rounded-md border border-white whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
                     onClick={() => {
                       setShowSearchResults(false);
                       setSearchQuery('');
@@ -279,11 +296,11 @@ const Navbar: React.FC = () => {
 
                   {/* Icons */}
                   <div className="flex items-center gap-2 nav:gap-3 mid:gap-4">
-                    <Link to="/wishlist" className="text-white hover:text-[#F2631F]">
+                    <Link to="/wishlist" className="text-white hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <Heart className="w-5 h-5" />
                     </Link>
                     
-                    <Link to="/cart" className="text-white hover:text-[#F2631F] relative">
+                    <Link to="/cart" className="text-white hover:text-[#F2631F] relative font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <ShoppingCart className="w-5 h-5" />
                       {totalItems > 0 && (
                         <span className="absolute -top-2 -right-2 bg-[#F2631F] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -292,14 +309,14 @@ const Navbar: React.FC = () => {
                       )}
                     </Link>
                     
-                    <Link to="/profile" className="text-white hover:text-[#F2631F]">
+                    <Link to="/profile" className="text-white hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <User className="w-5 h-5" />
                     </Link>
                   </div>
                   
                   <Link 
                     to="/business/login" 
-                    className="bg-[#F2631F] text-white rounded-md px-2 nav:px-2.5 mid:px-3 py-1.5 hover:bg-orange-600 transition-colors whitespace-nowrap text-xs nav:text-sm"
+                    className="bg-[#F2631F] text-white rounded-md px-2 nav:px-2.5 mid:px-3 py-1.5 hover:bg-orange-600 transition-colors whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
                   >
                     Become a Merchant
                   </Link>
@@ -364,7 +381,7 @@ const Navbar: React.FC = () => {
       
       {/* Main navigation - white bar */}
       <div className="bg-white border-b shadow-sm py-1.5">
-        <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px]">
+        <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 2xl:px-6 3xl:px-8 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px] 2xl:max-w-[1440px] 3xl:max-w-[1680px] 4xl:max-w-[1920px]">
           {/* Mobile lower navigation toggle - use custom breakpoint at 968px */}
           <div className="nav:hidden flex items-center justify-between">
             <button
@@ -415,12 +432,11 @@ const Navbar: React.FC = () => {
                   <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-200 ${isMobileCategoryDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isMobileCategoryDropdownOpen && (
-                  <div className="pl-4 py-1.5 space-y-1.5">
-                    <Link to="/category/electronics" className="block py-1 text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>Electronics</Link>
-                    <Link to="/category/clothing" className="block py-1 text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>Clothing</Link>
-                    <Link to="/category/home-garden" className="block py-1 text-sm hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>Home & Garden</Link>
-                    <Link to="/categories" className="block py-1 text-sm text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>View All Categories</Link>
-                  </div>
+                  <CategoryDropdown
+                    isOpen={isMobileCategoryDropdownOpen}
+                    closeDropdown={() => setIsMobileCategoryDropdownOpen(false)}
+                    isMobile={true}
+                  />
                 )}
               </div>
               
@@ -442,16 +458,15 @@ const Navbar: React.FC = () => {
             </div>
           )}
           
-          {/* Desktop navigation - use custom breakpoint at 968px */}
+          {/* Desktop navigation */}
           <div className="hidden nav:flex items-center justify-between">
             {/* Categories Dropdown Button */}
             <div className="relative flex items-center">
-              {/* Category Logo */}
               <span className="mr-1 flex items-center">
                 <img src="/assets/images/category.png" alt="Category" className="w-5 h-5" />
               </span>
               <button
-                className="flex items-center py-1.5 px-3 md:px-4 text-black hover:text-gray-700 font-sans"
+                className="flex items-center py-1.5 px-3 md:px-4 text-black hover:text-gray-700 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
                 onClick={toggleCategoryDropdown}
                 aria-expanded={isCategoryDropdownOpen}
                 ref={desktopCategoryButtonRef}
@@ -463,48 +478,62 @@ const Navbar: React.FC = () => {
             
             {/* Main Nav Links */}
             <nav className="flex items-center">
-              <Link to="/" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F]">
+              <Link to="/" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                 Home
               </Link>
-              <Link to="/all-products" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F]">
+              <Link to="/all-products" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                 All Products
               </Link>
-              <Link to="/new-product" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F]">
+              <Link to="/new-product" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                 New Product
               </Link>
-              <Link to="/promo-products" className="py-1.5 px-2 md:px-3 mid:px-4 font-medium hover:text-[#F2631F] flex items-center">
+              <Link to="/promo-products" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] flex items-center">
                 Promotion <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded-full ml-1">HOT</span>
               </Link>
             </nav>
             
             {/* Right side links */}
             <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-6">
-              <Link to="/orders" className="flex items-center py-1.5 text-sm hover:text-[#F2631F]">
+              <Link to="/orders" className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                 <img src="/assets/images/track-order.png" alt="Track Order" className="w-5 h-5 mr-1" />
                 <span>Track Your Order</span>
               </Link>
               
               {isAuthenticated ? (
                 <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
-                  <span className="text-sm text-gray-600">
+                  <span className="font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] text-gray-600">
                     Welcome, {user?.name || 'User'}
                   </span>
                   <button
                     onClick={handleLogoutClick}
-                    className="flex items-center py-1.5 text-sm text-red-600 hover:text-red-700"
+                    className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] text-red-600 hover:text-red-700"
                   >
                     <LogOut className="w-4 h-4 mr-1" />
                     <span>Logout</span>
                   </button>
+                  <Link 
+                    to="/aoin-live" 
+                    style={aoinLiveButtonStyle}
+                    className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2"
+                  >
+                    Aoin Live
+                  </Link>
                 </div>
               ) : (
-                <Link to="/sign-in" className="flex items-center py-1.5 text-sm hover:text-[#F2631F]">
-                  <User className="w-4 h-4 mr-1" />
-                  <span>Sign In/Register</span>
-                </Link>
+                <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
+                  <Link to="/sign-in" className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
+                    <User className="w-4 h-4 mr-1" />
+                    <span>Sign In/Register</span>
+                  </Link>
+                  <Link 
+                    to="/aoin-live" 
+                    style={aoinLiveButtonStyle}
+                    className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2"
+                  >
+                    Aoin Live
+                  </Link>
+                </div>
               )}
-              {/* Aoin Live Button */}
-              
             </div>
           </div>
         </div>
@@ -513,10 +542,10 @@ const Navbar: React.FC = () => {
       {/* Category dropdown - for desktop */}
       {isCategoryDropdownOpen && !mobileMenuOpen && !lowerMobileMenuOpen && (
         <div ref={categoryDropdownRef} className="z-40">
-        <CategoryDropdown 
-          isOpen={isCategoryDropdownOpen} 
-          closeDropdown={() => setIsCategoryDropdownOpen(false)} 
-        />
+          <CategoryDropdown 
+            isOpen={isCategoryDropdownOpen} 
+            closeDropdown={() => setIsCategoryDropdownOpen(false)} 
+          />
         </div>
       )}
 

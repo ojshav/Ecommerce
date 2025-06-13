@@ -289,23 +289,23 @@ const PromoProducts: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-medium font-worksans">Promo Products</h2>
           <div className="flex items-center">
-            <Link to="/promo-products" className="text-orange-500 text-sm font-medium mr-4">
+            <Link to="/promo-products" className="text-orange-500 text-sm font-medium mr-10">
               See All
             </Link>
-            <div className="flex space-x-2">
+            <div className="flex items-center space-x-3">
               <button
                 onClick={() => scroll('left')}
-                className="p-1 rounded-full border border-gray-300 hover:bg-orange-400 transition-colors"
-                aria-label="Previous products"
+                className="focus:outline-none"
+                aria-label="Scroll Left"
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={20} className="text-gray-500 hover:text-black duration-300" />
               </button>
               <button
                 onClick={() => scroll('right')}
-                className="p-1 rounded-full border border-gray-300 hover:bg-orange-400 transition-colors"
-                aria-label="Next products"
+                className="focus:outline-none"
+                aria-label="Scroll Right"
               >
-                <ChevronRight size={20} />
+                <ChevronRight size={20} className="text-gray-500 hover:text-black duration-300" />
               </button>
             </div>
           </div>
@@ -414,7 +414,7 @@ const PromoProducts: React.FC = () => {
 
                       {/* Add to Cart Button */}
                       <button
-                        className="w-full font-worksans font-medium text-sm bg-[#F2631F] text-white py-2 px-[94.5px] rounded-lg transition flex items-center justify-center gap-1.5"
+                        className="w-full font-worksans hover:bg-black duration-300 font-medium text-sm bg-[#F2631F] text-white py-2 px-[94.5px] rounded-lg transition flex items-center justify-center gap-1.5"
                         onClick={(e) => handleAddToCart(e, product)}
                         disabled={product.stock?.stock_qty === 0 || user?.role === 'merchant' || user?.role === 'admin'}
                       >
