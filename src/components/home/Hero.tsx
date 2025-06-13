@@ -146,7 +146,7 @@ const Hero: React.FC = () => {
 
   if (!carouselItems.length) {
     return (
-      <section className="w-full max-w-[1544px] mx-auto px-4 lg:px-[68px] py-4">
+      <section className="w-full max-w-[1680px] mx-auto px-2 lg:px-4 pt-4">
         <div className="flex items-center justify-center h-[564px] bg-gray-200 rounded-lg animate-pulse">
           <span className="text-gray-500">Loading Hero Section...</span>
         </div>
@@ -157,7 +157,7 @@ const Hero: React.FC = () => {
   const current = carouselItems[currentSlide];
 
   return (
-    <section className="w-full max-w-[1544px] mx-auto px-4 lg:px-[68px] pt-4">
+    <section className="w-full max-w-[1680px] mx-auto px-2 lg:px-4 pt-4">
       <div
         className="grid gap-6"
         style={{
