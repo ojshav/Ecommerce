@@ -11,6 +11,7 @@ import Cart from './pages/Cart';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import ShippingMethods from './pages/ShippingMethods';
+import ShopLandingPage from './pages/ShopLandingPage';
 
 import VerificationPending from './pages/auth/VerificationPending';
 
@@ -192,6 +193,7 @@ const App: React.FC = () => {
                 <ScrollToTop />
                 <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                   <Routes>
+                  <Route path="/shop" element={<ShopLandingPage />} />
                   <Route
                               path="/business/login"
                               element={<BusinessLogin />}

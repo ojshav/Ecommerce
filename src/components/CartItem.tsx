@@ -202,7 +202,7 @@ const CartItem: React.FC<CartItemProps> = ({
             type="text"
             value={quantity}
             readOnly
-            className="w-10 text-center focus:outline-none text-sm"
+            className="w-14 text-center focus:outline-none text-sm"
           />
           <button 
             onClick={handleIncrement}
