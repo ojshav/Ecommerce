@@ -231,50 +231,10 @@ const Shop = () => {
             <div 
               className="absolute inset-0 z-30 flex items-center justify-center"
               style={{
-                background: `
-                  linear-gradient(
-                    180deg,
-                    #8a8a8a 0%,
-                    #b8b8b8 3%,
-                    #a5a5a5 6%,
-                    #b8b8b8 9%,
-                    #8a8a8a 12%,
-                    #b8b8b8 15%,
-                    #a5a5a5 18%,
-                    #b8b8b8 21%,
-                    #8a8a8a 24%,
-                    #b8b8b8 27%,
-                    #a5a5a5 30%,
-                    #b8b8b8 33%,
-                    #8a8a8a 36%,
-                    #b8b8b8 39%,
-                    #a5a5a5 42%,
-                    #b8b8b8 45%,
-                    #8a8a8a 48%,
-                    #b8b8b8 51%,
-                    #a5a5a5 54%,
-                    #b8b8b8 57%,
-                    #8a8a8a 60%,
-                    #b8b8b8 63%,
-                    #a5a5a5 66%,
-                    #b8b8b8 69%,
-                    #8a8a8a 72%,
-                    #b8b8b8 75%,
-                    #a5a5a5 78%,
-                    #b8b8b8 81%,
-                    #8a8a8a 84%,
-                    #b8b8b8 87%,
-                    #a5a5a5 90%,
-                    #b8b8b8 93%,
-                    #8a8a8a 96%,
-                    #b8b8b8 100%
-                  )
-                `,
-                boxShadow: `
-                  inset 0 2px 4px rgba(0,0,0,0.3),
-                  inset 0 -2px 4px rgba(255,255,255,0.3),
-                  0 0 20px rgba(0,0,0,0.5)
-                `
+                background: `url('/assets/shop/shutter.svg')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)'
               }}
             >
               {/* Closed Sign */}
@@ -291,28 +251,13 @@ const Shop = () => {
                       Shop opens daily from
                     </p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">
-                      9:00 AM - 10:00 PM
+                      9:00 AM - 1:00 PM
                     </p>
                     <p className="text-xs sm:text-sm text-gray-500 mt-2">
                       Come back during opening hours!
                     </p>
                   </div>
                 </div>
-              </div>
-
-              {/* Shutter horizontal lines effect */}
-              <div className="absolute inset-0 pointer-events-none">
-                {Array.from({ length: 50 }, (_, i) => (
-                  <div
-                    key={i}
-                    className="absolute w-full opacity-20"
-                    style={{
-                      height: '2px',
-                      top: `${i * 2}%`,
-                      background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.3) 50%, transparent 100%)'
-                    }}
-                  />
-                ))}
               </div>
             </div>
           )}
