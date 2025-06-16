@@ -25,6 +25,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedParentCategory, setSelectedParentCategory] = useState<Category | null>(null);
+  const [expandedSidebarCategory, setExpandedSidebarCategory] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -152,18 +153,21 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
               {categories.map(category => (
                 <button
                   key={category.category_id}
-                  onClick={() => category.children && category.children.length > 0 
-                    ? handleParentCategoryClick(category)
-                    : handleCategoryClick(category)
-                  }
+                  onClick={() => {
+                    if (category.children && category.children.length > 0) {
+                      setExpandedSidebarCategory(
+                        expandedSidebarCategory === String(category.category_id) ? null : String(category.category_id)
+                      );
+                    } else {
+                      handleCategoryClick(category);
+                    }
+                  }}
                   className={`flex items-center justify-between w-full px-4 py-3 text-sm border-b last:border-b-0 hover:bg-gray-50 ${
-                    selectedCategory === String(category.category_id) ? 'bg-[#F2631F] text-white' : 'text-gray-700'
+                    expandedSidebarCategory === String(category.category_id) ? 'bg-[#f47521] text-white' : ''
                   }`}
                 >
                   <span>{category.name}</span>
-                  {category.children && category.children.length > 0 && (
-                    <ChevronRight className="w-5 h-5" />
-                  )}
+                  {category.children && category.children.length > 0 && <span>›</span>}
                 </button>
               ))}
             </div>
@@ -179,7 +183,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
       <div className="bg-[#fdf6ee] border border-[#e8e8e8] shadow-lg rounded-b-lg w-full max-w-full md:max-w-[1060px]">
         <div className="flex flex-col md:flex-row">
           {/* Left sidebar categories */}
-          <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#e8e8e8] bg-white">
+          <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#e8e8e8] bg-[#fdf6ee]">
             <button 
               onClick={() => {
                 if (closeDropdown) closeDropdown();
@@ -195,15 +199,23 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
             {categories.map(category => (
               <div key={category.category_id}>
                 <button 
-                  onClick={() => handleCategoryClick(category)}
+                  onClick={() => {
+                    if (category.children && category.children.length > 0) {
+                      setExpandedSidebarCategory(
+                        expandedSidebarCategory === String(category.category_id) ? null : String(category.category_id)
+                      );
+                    } else {
+                      handleCategoryClick(category);
+                    }
+                  }}
                   className={`flex items-center justify-between px-3 md:px-5 py-2 md:py-3 hover:bg-[#f6eadd] text-gray-800 text-sm md:text-base w-full text-left ${
-                    selectedCategory === String(category.category_id) ? 'bg-[#f47521] text-white' : ''
+                    expandedSidebarCategory === String(category.category_id) ? 'bg-[#f47521] text-white' : ''
                   }`}
                 >
                   <span>{category.name}</span>
                   {category.children && category.children.length > 0 && <span>›</span>}
                 </button>
-                {category.children && category.children.length > 0 && selectedCategory === String(category.category_id) && (
+                {category.children && category.children.length > 0 && expandedSidebarCategory === String(category.category_id) && (
                   <div className="ml-4">
                     {category.children.map(child => (
                       <button
@@ -216,11 +228,15 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
                         <span>{child.name}</span>
                       </button>
                     ))}
+                    
                   </div>
                 )}
               </div>
+              
             ))}
+            
           </div>
+          
           
           {/* Right content area - Show subcategories of selected category */}
           <div className="flex-1 p-4 md:p-6 bg-[#fdf6ee]">
@@ -251,17 +267,17 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
             </div>
             
             <div className="mt-4 md:mt-8">
-              <button 
-                onClick={() => {
-                  if (closeDropdown) closeDropdown();
-                  setSelectedCategory('');
-                  navigate('/products');
-                }}
-                className="bg-[#f47521] text-white py-2 md:py-3 px-3 md:px-4 inline-block w-full text-center text-sm md:text-base rounded-md hover:bg-[#e06a1d] transition-colors"
-              >
-                All Categories
-              </button>
-            </div>
+                      <button 
+                        onClick={() => {
+                          if (closeDropdown) closeDropdown();
+                          setSelectedCategory('');
+                          navigate('/products');
+                        }}
+                        className="bg-[#f47521] text-white py-2 md:py-3 px-3 md:px-4 inline-block w-full text-center text-sm md:text-base rounded-md hover:bg-[#e06a1d] transition-colors"
+                      >
+                        All Categories
+                      </button>
+                    </div>
           </div>
         </div>
       </div>

@@ -512,7 +512,7 @@ const Navbar: React.FC = () => {
                     <span>Logout</span>
                   </button>
                   <Link 
-                    to="/aoin-live" 
+                    to="/live-shop" 
                     style={aoinLiveButtonStyle}
                     className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2"
                   >
@@ -526,7 +526,7 @@ const Navbar: React.FC = () => {
                     <span>Sign In/Register</span>
                   </Link>
                   <Link 
-                    to="/aoin-live" 
+                    to="/live-shop" 
                     style={aoinLiveButtonStyle}
                     className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2"
                   >
