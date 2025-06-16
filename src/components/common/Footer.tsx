@@ -40,7 +40,7 @@ const Footer: React.FC = () => {
               <li><Link to="/new-product">New Product</Link></li>
               <li><Link to="/shop-live">Live Shop</Link></li>
               <li><Link to="/promo-products">Promotion</Link></li>
-              <li><Link to="#">Top Brands</Link></li>
+              <li><Link to="/promo-products">Top Brands</Link></li>
 
             </ul>
           </div>

@@ -53,7 +53,7 @@ const TopSellingCarousel: React.FC = () => {
     setTimeout(() => {
       setCurrent(targetIndex);
       setSliding(false);
-    }, 400);
+    }, 3500);
   };
 
   const handlePrev = (e?: React.MouseEvent) => {
