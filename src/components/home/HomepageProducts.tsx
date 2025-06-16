@@ -324,7 +324,7 @@ const HomepageProducts: React.FC = () => {
                           ? 'text-gray-400 cursor-not-allowed' 
                           : 'hover:text-black text-gray-500 transition-colors'
                       }
-                      onClick={() => scroll('left')}
+                      onClick={() => handlePrevPage(categoryData.category.category_id)}
                       disabled={categoryStates[categoryData.category.category_id]?.currentPage === 1}
                       aria-label="Previous products"
                     >
@@ -336,7 +336,7 @@ const HomepageProducts: React.FC = () => {
                           ? 'text-gray-400 cursor-not-allowed'
                           : 'hover:text-black text-gray-500 transition-colors'
                       }
-                      onClick={() => scroll('right')}
+                      onClick={() => handleNextPage(categoryData.category.category_id)}
                       disabled={categoryStates[categoryData.category.category_id]?.currentPage === getTotalPages(categoryData)}
                       aria-label="Next products"
                     >

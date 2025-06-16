@@ -66,8 +66,8 @@
   select:focus {
     outline: none !important;
     border-color: #FF4D00 !important;
-    box-shadow: 0 0 0 4px rgba(255, 77, 0, 0.15) !important;
-    transform: translateY(-2px) !important;
+    /* box-shadow: 0 0 0 4px rgba(255, 77, 0, 0.15) !important; */
+    /* transform: translateY(-2px) !important; */
   }
 
   /* Enhanced hover states */
@@ -75,7 +75,7 @@
   textarea:hover:not(:disabled),
   select:hover:not(:disabled) {
     border-color: #9ca3af !important;
-    transform: translateY(-1px) !important;
+    /* transform: translateY(-1px) !important; */
   }
 
   /* Enhanced labels */
