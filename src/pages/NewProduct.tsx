@@ -269,7 +269,7 @@ const NewProduct: React.FC = () => {
             <p className="text-gray-500">No new products available.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-[30px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
             {products.map(product => (
               <ProductCard
                 key={product.id}
