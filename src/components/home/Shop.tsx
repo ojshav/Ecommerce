@@ -13,6 +13,7 @@ interface ShopBanner {
   openingTime: string;
   closingTime: string;
   shopId: string;
+  navigationPath: string;
 }
 
 const Shop = () => {
@@ -31,7 +32,8 @@ const Shop = () => {
       cta: "SHOP NOW",
       openingTime: "10:00 AM",
       closingTime: "10:00 PM",
-      shopId: "fashion"
+      shopId: "fashion",
+      navigationPath: "/shop"
     },
     {
       id: 2,
@@ -44,7 +46,8 @@ const Shop = () => {
       cta: "SHOP NOW",
       openingTime: "9:00 AM",
       closingTime: "9:00 PM",
-      shopId: "watches"
+      shopId: "watches",
+      navigationPath: "/shop/watches"
     },
     {
       id: 3,
@@ -57,7 +60,8 @@ const Shop = () => {
       cta: "SHOP NOW",
       openingTime: "8:00 AM",
       closingTime: "11:00 PM",
-      shopId: "electronics"
+      shopId: "electronics",
+      navigationPath: "/shop/electronics"
     },
     {
       id: 4,
@@ -70,12 +74,13 @@ const Shop = () => {
       cta: "SHOP NOW",
       openingTime: "10:00 AM",
       closingTime: "9:30 PM",
-      shopId: "footwear"
+      shopId: "footwear",
+      navigationPath: "/shop/footwear"
     }
   ];
 
-  const handleShopClick = (shopId: string) => {
-    navigate(`/shop/${shopId}`);
+  const handleShopClick = (navigationPath: string) => {
+    navigate(navigationPath);
   };
 
   return (
@@ -86,7 +91,7 @@ const Shop = () => {
             <div 
               key={shop.id}
               className="bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-md"
-              onClick={() => handleShopClick(shop.shopId)}
+              onClick={() => handleShopClick(shop.navigationPath)}
             >
               <div className="flex flex-col md:flex-row">
                 {/* Left Side - Image */}
@@ -143,7 +148,7 @@ const Shop = () => {
                     className="w-full bg-[#FF4D00] text-white py-3 rounded-lg font-semibold hover:bg-[#FF4D00]/90 transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleShopClick(shop.shopId);
+                      handleShopClick(shop.navigationPath);
                     }}
                   >
                     {shop.cta}

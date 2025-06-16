@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+
 import OrderSummary from '../components/OrderSummary';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { MapPin, Edit2, Trash2, ChevronDown, CreditCard, Plus, Star, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CartItem } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -73,7 +74,7 @@ const PAYMENT_METHOD_MAP = {
 } as const;
 
 const PaymentPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, accessToken } = useAuth();
   const { cart, totalPrice, totalItems, clearCart } = useCart();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,6 +120,11 @@ const PaymentPage: React.FC = () => {
     is_default: false
   });
   const navigate = useNavigate();
+  const location = useLocation();
+
+
+   // --- Read state passed from Cart.tsx ---
+   const { discount, appliedPromo } = location.state || { discount: 0, appliedPromo: null };
 
   const validatePostalCode = (postalCode: string, countryCode: string): boolean => {
     // Basic validation patterns for common countries
@@ -399,59 +405,50 @@ const PaymentPage: React.FC = () => {
     }
   };
 
-  const handleOrder = async () => {
-    try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
+   const handleOrder = async () => {
+    if (!accessToken) {
         toast.error('Please login to continue');
         return;
-      }
-
-      if (!selectedAddressId) {
+    }
+    if (!selectedAddressId) {
         toast.error('Please select a shipping address');
         return;
-      }
+    }
+    if ((paymentMethod === 'credit_card' || paymentMethod === 'debit_card') && !selectedCardId) {
+        toast.error('Please select a payment card.');
+        return;
+    }
 
-      // Validate card details if credit/debit card is selected
-      if (paymentMethod === 'credit_card' || paymentMethod === 'debit_card') {
-        if (!selectedCardId && !showCardForm) {
-          toast.error('Please select a saved card or add a new one');
-          return;
-        }
-      }
+    setProcessingPayment(true);
 
-      const baseUrl = API_BASE_URL.replace(/\/+$/, '');
-      const url = `${baseUrl}/api/orders`;
+    const subtotal = totalPrice;
+    const finalTotal = subtotal - discount;
 
-      // Calculate subtotal from cart items
-      const subtotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-      
-      // Format order data according to API requirements
-      const orderData = {
-        items: cart.map(item => ({
-          product_id: item.product_id,
-          merchant_id: item.merchant_id,
-          product_name_at_purchase: item.product.name,
-          sku_at_purchase: item.product.sku || '',
-          quantity: item.quantity,
-          unit_price_at_purchase: item.product.price.toString(),
-          item_subtotal_amount: (item.product.price * item.quantity).toString(),
-          final_price_for_item: (item.product.price * item.quantity).toString()
-        })),
-        subtotal_amount: subtotal.toString(),
-        discount_amount: "0.00",
-        tax_amount: "0.00",
-        shipping_amount: "0.00",
-        total_amount: totalPrice.toString(),
-        currency: selectedCountry.code,
-        payment_method: PAYMENT_METHOD_MAP[paymentMethod as keyof typeof PAYMENT_METHOD_MAP],
-        shipping_address_id: selectedAddressId,
-        billing_address_id: selectedAddressId,
-        shipping_method_name: 'Standard Shipping',
-        customer_notes: '',
-        internal_notes: '',
-        payment_card_id: (paymentMethod === 'credit_card' || paymentMethod === 'debit_card') ? selectedCardId : undefined
-      };
+    const orderData = {
+      items: cart.map(item => ({
+        product_id: item.product_id,
+        merchant_id: item.merchant_id,
+        product_name_at_purchase: item.product.name,
+        sku_at_purchase: item.product.sku || '',
+        quantity: item.quantity,
+        unit_price_at_purchase: item.product.price.toString(),
+        item_subtotal_amount: (item.product.price * item.quantity).toString(),
+        final_price_for_item: (item.product.price * item.quantity).toString()
+      })),
+      subtotal_amount: subtotal.toString(),
+      discount_amount: discount.toString(), 
+      tax_amount: "0.00",
+      shipping_amount: "0.00",
+      total_amount: (finalTotal > 0 ? finalTotal : 0).toString(), 
+      currency: "INR", 
+      payment_method: paymentMethod,
+      shipping_address_id: selectedAddressId,
+      billing_address_id: selectedAddressId, 
+      shipping_method_name: 'Standard Shipping',
+      customer_notes: '',
+      internal_notes: appliedPromo ? `Promo code used: ${appliedPromo.code}` : '',
+      payment_card_id: (paymentMethod === 'credit_card' || paymentMethod === 'debit_card') ? selectedCardId : undefined
+    };
 
       // Debug: Log the request data
       console.log('Sending order data:', {
@@ -464,26 +461,19 @@ const PaymentPage: React.FC = () => {
         }))
       });
 
-      const response = await fetch(url, {
+       try {
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
         },
         body: JSON.stringify(orderData)
       });
 
-      // Debug: Log the response status and headers
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
       const responseData = await response.json();
-      // Debug: Log the full response data
-      console.log('Response data:', responseData);
-
       if (!response.ok) {
-        throw new Error(responseData.message || `Failed to create order: ${response.status}`);
+        throw new Error(responseData.message || 'Failed to create order.');
       }
 
       if (responseData.status === 'success') {

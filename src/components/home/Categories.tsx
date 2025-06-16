@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,16 @@ const Categories: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollLeft = () => {
+    scrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
+  };
+
+  const scrollRight = () => {
+    scrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -24,7 +34,7 @@ const Categories: React.FC = () => {
     try {
       setLoading(true);
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/categories/with-icons`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }
@@ -84,22 +94,33 @@ const Categories: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <h6 className="text-xl font-medium font-worksans">Shop By Categories</h6>
           <div className="flex items-center">
-            <Link to="/all-products" className="text-orange-500 text-sm font-medium mr-4">
+            <Link to="/all-products" className="text-orange-500 text-sm font-medium mr-10">
               See All
             </Link>
-            <div className="flex space-x-2">
-              <button className="p-1 rounded-full border border-gray-300 hover:bg-orange-400">
-                <ChevronLeft size={20} />
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={scrollLeft}
+                className="focus:outline-none"
+                aria-label="Scroll Left"
+              >
+                <ChevronLeft size={20} className="text-gray-500 hover:text-black duration-300" />
               </button>
-              <button className="p-1 rounded-full border border-gray-300 hover:bg-orange-400">
-                <ChevronRight size={20} />
+              <button
+                onClick={scrollRight}
+                className="focus:outline-none"
+                aria-label="Scroll Right"
+              >
+                <ChevronRight size={20} className="text-gray-500 hover:text-black duration-300" />
               </button>
             </div>
           </div>
         </div>
         
         {/* Categories slider */}
-        <div className="flex space-x-4 overflow-x-auto pb-4 pt-2 pl-2">
+        <div 
+          ref={scrollRef}
+          className="flex space-x-4 overflow-x-auto pb-4 pt-2 pl-2 scroll-smooth"
+        >
           {categories.map((category) => (
             <div 
               key={category.category_id} 

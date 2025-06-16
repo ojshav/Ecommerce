@@ -7,7 +7,7 @@ import Categories from '../components/home/Categories';
 import PromoProducts from '../components/home/PromoProducts';
 import TrendingDeals from '../components/home/TrendingDeals';
 import Brands from '../components/home/brands';
-// import Shop from '../components/home/Shop';
+import Shop from '../components/home/Shop';
 import Services from '../components/home/Services';
 import HomepageProducts from '../components/home/HomepageProducts';
 import SearchResults from '../components/common/SearchResults';
@@ -137,12 +137,12 @@ const Home = () => {
       </div>
 
       {/* Content sections below mobile search bar */}
-      <div className="nav:pt-8">
+      <div className="nav:pt-4">
         <div className="space-y-8">
           <Hero />
           <Categories />
           <Brands />
-          {/* <Shop /> */}
+          <Shop />
           <FeaturedProducts />
           <PromoProducts />
           <TrendingDeals />

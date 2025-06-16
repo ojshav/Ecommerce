@@ -94,15 +94,29 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        worksans: ["Work Sans", "sans-serif"]
+        worksans: ["Work Sans", "sans-serif"],
+        boska: ["Boska", "serif"],
+        playfair: ["Playfair Display", "serif"],
+        poppins: ["Poppins", "sans-serif"],
+        nosifer: ['"Nosifer"', 'cursive'],
+        corinthia: ['"Corinthia"', 'cursive'],
+        platypi: ['"Platypi"', 'sans-serif'],
+      },
+      fontSize: {
+        'display': ['96px', { lineHeight: '90px' }],
       },
       animation: {
         fadeIn: 'fadeIn 0.5s ease-in-out',
         slideUp: 'slideUp 0.5s ease-in-out',
         slideDown: 'slideDown 0.5s ease-in-out',
+        float: 'float 3s ease-in-out infinite',
         pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-30px)' },
+        },        
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },

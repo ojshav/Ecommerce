@@ -317,29 +317,26 @@ const HomepageProducts: React.FC = () => {
                       {subcategory.category.name}
                     </button>
                   ))}
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3">
                     <button 
-                      className={`p-1 rounded-full border ${
+                      className={
                         categoryStates[categoryData.category.category_id]?.currentPage === 1 
-                          ? 'border-gray-200 text-gray-400 cursor-not-allowed' 
-                          : 'border-gray-300 hover:bg-gray-100 transition-colors'
-                      }`}
-                      onClick={() => handlePrevPage(categoryData.category.category_id)}
+                          ? 'text-gray-400 cursor-not-allowed' 
+                          : 'hover:text-black text-gray-500 transition-colors'
+                      }
+                      onClick={() => scroll('left')}
                       disabled={categoryStates[categoryData.category.category_id]?.currentPage === 1}
                       aria-label="Previous products"
                     >
                       <ChevronLeft size={20} />
                     </button>
-                    <span className="text-sm text-gray-600">
-                      Page {categoryStates[categoryData.category.category_id]?.currentPage || 1} of {getTotalPages(categoryData)}
-                    </span>
                     <button 
-                      className={`p-1 rounded-full border ${
+                      className={
                         categoryStates[categoryData.category.category_id]?.currentPage === getTotalPages(categoryData)
-                          ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                          : 'border-gray-300 hover:bg-gray-100 transition-colors'
-                      }`}
-                      onClick={() => handleNextPage(categoryData.category.category_id)}
+                          ? 'text-gray-400 cursor-not-allowed'
+                          : 'hover:text-black text-gray-500 transition-colors'
+                      }
+                      onClick={() => scroll('right')}
                       disabled={categoryStates[categoryData.category.category_id]?.currentPage === getTotalPages(categoryData)}
                       aria-label="Next products"
                     >

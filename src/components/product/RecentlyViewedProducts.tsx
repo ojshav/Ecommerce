@@ -156,7 +156,7 @@ const RecentlyViewedProducts: React.FC<RecentlyViewedProductsProps> = ({ product
                     <div className="w-4 h-4 rounded-full bg-yellow-200 ring-1 ring-gray-200"></div>
                   </div>
                   
-                  <button className="w-1/2 bg-[#F2631F] text-white py-1.5 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-1.5 text-sm">
+                  <button className="w-1/2 bg-[#F2631F] text-white py-1.5 rounded-md hover:bg-black duration-300 transition-colors flex items-center justify-center gap-1.5 text-sm">
                     <ShoppingCart className="w-4 h-4" />
                     Add to Cart
                   </button>

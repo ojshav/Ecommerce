@@ -180,7 +180,7 @@ const Technology: React.FC = () => {
                       )}
                     </div>
                     <button
-                      className="w-1/2 bg-[#F2631F] text-white py-1.5 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-1.5 text-sm"
+                      className="w-1/2 bg-[#F2631F] text-white py-1.5 rounded-md hover:bg-black duration-300 transition-colors flex items-center justify-center gap-1.5 text-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         addToCart(product);

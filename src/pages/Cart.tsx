@@ -1,17 +1,25 @@
-import React from 'react';
+// FILE: src/pages/Cart.tsx
+import React, { useState } from 'react';
 import CartItem from '../components/CartItem';
-import CartSummary from '../components/CartSummary';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import { ShoppingCart, ArrowRight, Loader2, X } from 'lucide-react';
 import { CartItem as CartItemType } from '../types';
-import { ShoppingCart } from 'lucide-react';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
-  const { cart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, loading } = useCart();
+  const { cart, removeFromCart, updateQuantity, clearCart, totalPrice, loading } = useCart();
   const { accessToken } = useAuth();
+  
+  // --- Promotion State ---
+  const [promoCodeInput, setPromoCodeInput] = useState('');
+  const [discount, setDiscount] = useState(0);
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [appliedPromo, setAppliedPromo] = useState<{ id: number; code: string } | null>(null);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleCheckout = () => {
     if (!accessToken) {
@@ -19,24 +27,74 @@ const Cart: React.FC = () => {
       navigate('/signin', { state: { returnUrl: '/cart' } });
       return;
     }
-    navigate('/payment');
+    // Pass the calculated discount and applied promo code to the payment page
+    navigate('/payment', { state: { discount, appliedPromo } });
   };
 
-  const handleApplyPromo = async (code: string) => {
-    // TODO: Implement promo code functionality when backend is ready
-    toast.error('Promo code functionality coming soon');
+  const handleApplyPromo = async () => {
+    if (!promoCodeInput.trim()) {
+      toast.error("Please enter a promotion code.");
+      return;
+    }
+    setPromoLoading(true);
+    setDiscount(0);
+    setAppliedPromo(null);
+
+    try {
+      const cartItemsPayload = cart.map((item: CartItemType) => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: item.product.price
+      }));
+
+      const response = await fetch(`${API_BASE_URL}/api/promo-code/apply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          promo_code: promoCodeInput,
+          cart_items: cartItemsPayload,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to apply promo code.');
+      }
+
+      toast.success(result.message);
+      setDiscount(result.discount_amount);
+      setAppliedPromo({ id: result.promotion_id, code: promoCodeInput.toUpperCase() });
+
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'An unknown error occurred.');
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+  
+  const removePromo = () => {
+    setDiscount(0);
+    setPromoCodeInput('');
+    setAppliedPromo(null);
+    toast.success('Promotion removed.');
   };
 
   const handleContinueShopping = () => {
     navigate('/all-products');
   };
 
-  const handleUpdateCart = async () => {
-    try {
-      await clearCart();
-      toast.success('Cart updated successfully');
-    } catch (error) {
-      toast.error('Failed to update cart');
+  const handleClearCart = async () => {
+    if (window.confirm('Are you sure you want to clear your entire cart?')) {
+        try {
+            await clearCart();
+            toast.success('Cart cleared successfully');
+        } catch (error) {
+            toast.error('Failed to clear cart');
+        }
     }
   };
 
@@ -50,8 +108,8 @@ const Cart: React.FC = () => {
     );
   }
 
-  // Filter out deleted items
-  const activeCartItems = cart.filter(item => !item.product.is_deleted);
+  const activeCartItems = cart.filter((item: CartItemType) => !item.product.is_deleted);
+  const finalTotal = totalPrice - discount;
 
   return (
     <div className="max-w-7xl mx-auto px-12 py-8">
@@ -72,7 +130,6 @@ const Cart: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           <div className="lg:col-span-2 mb-8 lg:mb-0">
             <div className="bg-white rounded-lg p-6">
-              {/* Cart header */}
               <div className="hidden md:flex text-sm text-gray-500 mb-2">
                 <div className="w-8"></div>
                 <div className="flex-1 ml-4">
@@ -83,8 +140,7 @@ const Cart: React.FC = () => {
                 <div className="w-24 text-right">Sub Total</div>
               </div>
               
-              {/* Cart items */}
-              {activeCartItems.map(item => (
+              {activeCartItems.map((item: CartItemType) => (
                 <CartItem
                   key={item.cart_item_id}
                   id={item.cart_item_id}
@@ -95,11 +151,11 @@ const Cart: React.FC = () => {
                   stock={item.product.stock}
                   onRemove={removeFromCart}
                   onUpdateQuantity={updateQuantity}
+                  productId={item.product_id}
                 />
               ))}
               
-              {/* Cart actions */}
-              <div className="flex flex-col sm:flex-row mt-6 gap-4 w-full">
+              <div className="flex flex-col sm:flex-row mt-6 gap-4 w-full justify-between">
                 <button 
                   onClick={handleContinueShopping}
                   className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors w-full sm:w-auto"
@@ -107,26 +163,83 @@ const Cart: React.FC = () => {
                   Continue Shopping
                 </button>
                 <button 
-                  onClick={handleUpdateCart}
+                  onClick={handleClearCart}
                   disabled={loading}
-                  className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Updating...' : 'Update Cart'}
+                  {loading ? 'Clearing...' : 'Clear Cart'}
                 </button>
               </div>
             </div>
           </div>
           
-          {/* Cart summary */}
+          {/* Cart summary section integrated here */}
           <div className="lg:col-span-1 sticky top-4">
-            <CartSummary
-              subtotal={totalPrice}
-              shipping={0} // TODO: Implement shipping calculation when backend is ready
-              total={totalPrice}
-              onCheckout={handleCheckout}
-              onApplyPromo={handleApplyPromo}
-              loading={loading}
-            />
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-semibold mb-4">Cart Summary</h2>
+
+                <div className="space-y-3 text-gray-700">
+                    <div className="flex justify-between">
+                        <span>Subtotal</span>
+                        <span>₹{totalPrice.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>Shipping</span>
+                        <span>Free</span>
+                    </div>
+                    {discount > 0 && appliedPromo && (
+                        <div className="flex justify-between items-center text-green-600">
+                            <span>Discount ({appliedPromo.code})</span>
+                            <span>- ₹{discount.toFixed(2)}</span>
+                        </div>
+                    )}
+                </div>
+
+                <hr className="my-4" />
+
+                <div className="flex justify-between font-bold text-lg mb-4">
+                    <span>Total</span>
+                    <span>₹{(finalTotal > 0 ? finalTotal : 0).toFixed(2)}</span>
+                </div>
+
+                <div className="space-y-4">
+                    {!appliedPromo ? (
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                placeholder="Enter promo code"
+                                value={promoCodeInput}
+                                onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
+                                className="flex-grow p-2 border rounded-md"
+                                disabled={promoLoading}
+                            />
+                            <button
+                                onClick={handleApplyPromo}
+                                disabled={promoLoading}
+                                className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-wait inline-flex items-center justify-center"
+                            >
+                                {promoLoading ? <Loader2 className="h-5 w-5 animate-spin"/> : 'Apply'}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex justify-between items-center bg-green-50 p-2 rounded-md">
+                            <p className="text-green-700 text-sm">Promo applied: <span className="font-bold">{appliedPromo.code}</span></p>
+                            <button onClick={removePromo} className="text-red-500 hover:text-red-700">
+                                <X size={16} />
+                            </button>
+                        </div>
+                    )}
+                    
+                    <button
+                        onClick={handleCheckout}
+                        disabled={loading}
+                        className="w-full bg-orange-500 text-white py-3 rounded-md hover:bg-orange-600 font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                        {loading ? <Loader2 className="h-5 w-5 animate-spin"/> : 'Proceed to Checkout'}
+                        {!loading && <ArrowRight size={18} />}
+                    </button>
+                </div>
+            </div>
           </div>
         </div>
       )}

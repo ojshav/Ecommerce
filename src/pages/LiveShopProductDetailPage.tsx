@@ -226,7 +226,7 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
               <div className="pt-4 border-t border-gray-100">
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold">${productData.price}</span>
-                  <button className="bg-[#FF4D00] text-white px-8 py-3 rounded-lg text-sm font-medium hover:bg-[#FF4D00]/90 transition-colors">
+                  <button className="bg-[#FF4D00] text-white px-8 py-3 rounded-lg text-sm font-medium hover:bg-black duration-300 transition-colors">
                     Add to Cart
                   </button>
                 </div>
