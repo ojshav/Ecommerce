@@ -1,166 +1,165 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+// Import your SVG files
+const Prime = '/assets/shop/Prime.svg';
+const Exclusive = '/assets/shop/Exclusive.svg';
+const Vault = '/assets/shop/vault.svg';
+const LuxeHub = '/assets/shop/Luxe Hub.svg';
+
 interface ShopBanner {
   id: number;
   title: string;
-  subtitle: string;
-  discount: string;
-  description: string;
-  image: string;
-  brands: string[];
-  cta: string;
-  openingTime: string;
-  closingTime: string;
-  shopId: string;
+  timeLeft: string;
   navigationPath: string;
+  bannerImage: string;
 }
 
 const Shop = () => {
   const navigate = useNavigate();
 
-  // Shop data
   const shopBanners: ShopBanner[] = [
     {
       id: 1,
-      title: "MIN. 50% OFF",
-      subtitle: "Extra 20% off on",
-      discount: "Indianwear for 9 to 5",
-      description: "Ethnic elegance meets workplace chic",
-      image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-      brands: ["Libas", "W", "Biba", "Global Desi"],
-      cta: "SHOP NOW",
-      openingTime: "10:00 AM",
-      closingTime: "10:00 PM",
-      shopId: "fashion",
-      navigationPath: "/shop"
+      title: "AOIN PRIME",
+      timeLeft: "3hrs 40mins",
+      navigationPath: "/shop",
+      bannerImage: Prime
     },
     {
       id: 2,
-      title: "UP TO 80% OFF",
-      subtitle: "Stylish dials that will",
-      discount: "get you compliments",
-      description: "Premium timepieces for every occasion",
-      image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-      brands: ["TITAN", "FOSSIL", "TIMEX", "CASIO"],
-      cta: "SHOP NOW",
-      openingTime: "9:00 AM",
-      closingTime: "9:00 PM",
-      shopId: "watches",
-      navigationPath: "/shop/watches"
+      title: "AOIN EXCLUSIVE",
+      timeLeft: "3hr 46 mins",
+      navigationPath: "/shop2",
+      bannerImage: Exclusive
     },
     {
       id: 3,
-      title: "FLAT 60% OFF",
-      subtitle: "Smart tech that",
-      discount: "transforms your lifestyle",
-      description: "Latest gadgets and electronics",
-      image: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-      brands: ["SAMSUNG", "APPLE", "XIAOMI", "SONY"],
-      cta: "SHOP NOW",
-      openingTime: "8:00 AM",
-      closingTime: "11:00 PM",
-      shopId: "electronics",
-      navigationPath: "/shop/electronics"
-    },
-    {
-      id: 4,
-      title: "UPTO 70% OFF",
-      subtitle: "Footwear that speaks",
-      discount: "your style language",
-      description: "Step up your shoe game",
-      image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-      brands: ["NIKE", "ADIDAS", "PUMA", "REEBOK"],
-      cta: "SHOP NOW",
-      openingTime: "10:00 AM",
-      closingTime: "9:30 PM",
-      shopId: "footwear",
-      navigationPath: "/shop/footwear"
+      title: "AOIN VAULT",
+      timeLeft: "3hr 46 mins",
+      navigationPath: "/shop/vault",
+      bannerImage: Vault
     }
   ];
 
   const handleShopClick = (navigationPath: string) => {
+    console.log(`Navigating to: ${navigationPath}`);
     navigate(navigationPath);
   };
 
   return (
-    <section className="py-8 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="space-y-6">
-          {shopBanners.map((shop) => (
-            <div 
-              key={shop.id}
-              className="bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-md"
-              onClick={() => handleShopClick(shop.navigationPath)}
-            >
-              <div className="flex flex-col md:flex-row">
-                {/* Left Side - Image */}
-                <div className="w-full md:w-1/2 relative h-64 md:h-auto">
-                  <img
-                    src={shop.image}
-                    alt={shop.title}
-                    className="w-full h-full object-cover"
-                  />
-                  
-                  {/* Opening Hours Badge */}
-                  <div className="absolute top-4 left-4 bg-black/30 backdrop-blur-sm rounded-full px-4 py-1.5">
-                    <p className="text-sm font-medium text-white flex items-center">
-                      <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-                      {shop.openingTime} - {shop.closingTime}
-                    </p>
+    <div className="w-full bg-gray-100 min-h-screen">
+      {/* Innovation Window Section */}
+      <div className="bg-white py-16 px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-gray-900 mb-6">
+            9 to 10 – The Innovation Window
+          </h2>
+          <p className="text-gray-600 text-lg leading-relaxed">
+            Every day from 9 to 10, AOIN opens its shutters to offer exclusive, handpicked products for a limited time only.
+            <br />
+            Whether it's lifestyle, tech, fashion, or home essentials
+          </p>
+        </div>
+      </div>
+
+      {/* Banners Section */}
+      <div className="bg-gray-100 py-8">
+        <div className="space-y-8">
+          {shopBanners.map((shop, index) => (
+            <div key={shop.id} className="w-full">
+              {/* Banner */}
+              <div 
+                className="cursor-pointer transform transition-all duration-300 hover:scale-[1.005] hover:shadow-2xl"
+                onClick={() => handleShopClick(shop.navigationPath)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    handleShopClick(shop.navigationPath);
+                  }
+                }}
+                aria-label={`Navigate to ${shop.title}`}
+                style={{
+                  width: '100vw',
+                  display: 'flex',
+                  justifyContent: 'center'
+                }}
+              >
+                <div 
+                  className="relative flex items-center justify-center overflow-hidden"
+                  style={{
+                    width: '1504px',
+                    height: '321px',
+                    marginLeft: '-24px',
+                    background: `
+                      linear-gradient(90deg, 
+                        rgba(15,15,15,1) 0%, 
+                        rgba(25,25,25,1) 25%, 
+                        rgba(20,20,20,1) 50%, 
+                        rgba(25,25,25,1) 75%, 
+                        rgba(15,15,15,1) 100%
+                      ),
+                      repeating-linear-gradient(
+                        0deg,
+                        transparent,
+                        transparent 1px,
+                        rgba(255,255,255,0.02) 1px,
+                        rgba(255,255,255,0.02) 2px
+                      )
+                    `,
+                    boxShadow: 'inset 0 0 30px rgba(0,0,0,0.7)'
+                  }}
+                >
+                  {/* Time Left Badge */}
+                  <div className="absolute top-4 left-6 text-white text-sm font-medium z-20">
+                    Time left : {shop.timeLeft}
                   </div>
-                </div>
 
-                {/* Right Side - Content */}
-                <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
-                  <div>
-                    {/* Header */}
-                    <div className="mb-4">
-                      <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                        {shop.title}
-                      </h2>
-                      <p className="text-lg text-gray-600">
-                        {shop.subtitle} <br />
-                        {shop.discount}
-                      </p>
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-gray-600 mb-6">
-                      {shop.description}
-                    </p>
-
-                    {/* Brands */}
-                    <div className="flex flex-wrap gap-3 mb-6">
-                      {shop.brands.map((brand, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
-                        >
-                          {brand}
-                        </span>
-                      ))}
-                    </div>
+                  {/* SVG Banner Image - Full Banner Coverage */}
+                  <div className="relative z-10 w-full h-full flex items-center justify-center">
+                    <img 
+                      src={shop.bannerImage} 
+                      alt={shop.title}
+                      className="w-full h-full object-cover"
+                      style={{ 
+                        minWidth: '100%',
+                        minHeight: '100%'
+                      }}
+                    />
                   </div>
 
-                  {/* CTA Button */}
-                  <button 
-                    className="w-full bg-[#FF4D00] text-white py-3 rounded-lg font-semibold hover:bg-[#FF4D00]/90 transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleShopClick(shop.navigationPath);
+                  {/* Texture overlay */}
+                  <div 
+                    className="absolute inset-0 opacity-10 z-15"
+                    style={{
+                      background: `
+                        repeating-linear-gradient(
+                          90deg,
+                          transparent,
+                          transparent 2px,
+                          rgba(255,255,255,0.05) 2px,
+                          rgba(255,255,255,0.05) 4px
+                        )
+                      `
                     }}
-                  >
-                    {shop.cta}
-                  </button>
+                  ></div>
+
+                  {/* Hover effect overlay */}
+                  <div className="absolute inset-0 bg-black opacity-0 hover:opacity-10 transition-opacity duration-300 z-20"></div>
                 </div>
               </div>
+
+              {/* Gray spacer between banners (except after last banner) */}
+              {index < shopBanners.length - 1 && (
+                <div className="w-full h-12 bg-gray-100"></div>
+              )}
             </div>
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
-export default Shop; 
+export default Shop;
