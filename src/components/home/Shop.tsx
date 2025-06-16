@@ -135,7 +135,7 @@ const Shop = () => {
               <div key={shop.id} className="w-full">
                 {/* Banner */}
                 <div 
-                  className={`cursor-pointer transform transition-all duration-300 ${isShopOpen ? 'hover:scale-[1.001] hover:shadow-lg' : 'cursor-not-allowed'}`}
+                  className={`cursor-pointer transform transition-all duration-300 hover:shadow-2xl group ${isShopOpen ? 'hover:scale-[1.01]' : 'cursor-not-allowed'}`}
                   onClick={() => handleShopClick(shop.navigationPath)}
                   role="button"
                   tabIndex={isShopOpen ? 0 : -1}
@@ -152,7 +152,7 @@ const Shop = () => {
                   }}
                 >
                   <div 
-                    className="relative flex items-center justify-center overflow-hidden w-full"
+                    className="relative flex items-center justify-center overflow-hidden w-full group-hover:after:opacity-100 after:opacity-0 after:absolute after:inset-0 after:bg-gradient-to-r after:from-black/5 after:via-transparent after:to-black/5 after:transition-opacity after:duration-300"
                     style={{
                       width: '100%',
                       height: 'clamp(200px, 25vw, 400px)',
@@ -177,13 +177,13 @@ const Shop = () => {
                   >
                     {/* Time Left Badge */}
                     {isShopOpen && (
-                      <div className="absolute top-2 left-3 sm:top-4 sm:left-6 text-white text-xs sm:text-sm font-medium z-20">
+                      <div className="absolute top-2 left-3 sm:top-4 sm:left-6 text-white text-xs sm:text-sm font-medium z-20 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm transform group-hover:translate-y-1 transition-transform duration-300">
                         Time left : {shop.timeLeft}
                       </div>
                     )}
 
                     {/* SVG Banner Image - Full Banner Coverage */}
-                    <div className="relative z-10 w-full h-full flex items-center justify-center">
+                    <div className="relative z-10 w-full h-full flex items-center justify-center transform group-hover:scale-105 transition-transform duration-500">
                       <img 
                         src={shop.bannerImage} 
                         alt={shop.title}
@@ -197,7 +197,7 @@ const Shop = () => {
 
                     {/* Texture overlay */}
                     <div 
-                      className="absolute inset-0 opacity-10 z-15"
+                      className="absolute inset-0 opacity-10 z-15 group-hover:opacity-5 transition-opacity duration-300"
                       style={{
                         background: `
                           repeating-linear-gradient(
@@ -213,7 +213,7 @@ const Shop = () => {
 
                     {/* Hover effect overlay */}
                     {isShopOpen && (
-                      <div className="absolute inset-0 bg-black opacity-0 hover:opacity-10 transition-opacity duration-300 z-20"></div>
+                      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300 z-20"></div>
                     )}
                   </div>
                 </div>
