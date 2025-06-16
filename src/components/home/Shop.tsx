@@ -7,18 +7,25 @@ const Exclusive = '/assets/shop/Exclusive.svg';
 const Vault = '/assets/shop/vault.svg';
 const LuxeHub = '/assets/shop/Luxe Hub.svg';
 
+// Import inner banner SVG files
+const PrimeInner = '/assets/shop/primeinner.svg';
+const ExclusiveInner = '/assets/shop/exclusiveinner.svg';
+const LuxeHubInner = '/assets/shop/luxehubinner.svg';
+
 interface ShopBanner {
   id: number;
   title: string;
   timeLeft: string;
   navigationPath: string;
   bannerImage: string;
+  innerBannerImage: string;
 }
 
 const Shop = () => {
   const navigate = useNavigate();
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [hoveredBanner, setHoveredBanner] = useState<number | null>(null);
 
   const shopBanners: ShopBanner[] = [
     {
@@ -26,21 +33,24 @@ const Shop = () => {
       title: "AOIN PRIME",
       timeLeft: "3hrs 40mins",
       navigationPath: "/shop",
-      bannerImage: Prime
+      bannerImage: Prime,
+      innerBannerImage: PrimeInner
     },
     {
       id: 2,
       title: "AOIN EXCLUSIVE",
       timeLeft: "3hr 46 mins",
       navigationPath: "/shop2",
-      bannerImage: Exclusive
+      bannerImage: Exclusive,
+      innerBannerImage: ExclusiveInner
     },
     {
       id: 3,
       title: "AOIN VAULT",
       timeLeft: "3hr 46 mins",
       navigationPath: "/shop/vault",
-      bannerImage: Vault
+      bannerImage: Vault,
+      innerBannerImage: Vault // Using same image since luxehubinner.svg wasn't mentioned for vault
     }
   ];
 
@@ -48,7 +58,7 @@ const Shop = () => {
   const checkShopStatus = () => {
     const now = new Date();
     const hour = now.getHours();
-    return hour >= 9 && hour < 23; // 9 AM to 10 PM (22:00)
+    return hour >= 9 && hour < 22; // 9 AM to 10 PM (22:00)
   };
 
   // Update time and shop status
@@ -70,6 +80,16 @@ const Shop = () => {
       console.log(`Navigating to: ${navigationPath}`);
       navigate(navigationPath);
     }
+  };
+
+  const handleMouseEnter = (bannerId: number) => {
+    if (isShopOpen) {
+      setHoveredBanner(bannerId);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredBanner(null);
   };
 
   const formatTime = (date: Date) => {
@@ -137,6 +157,8 @@ const Shop = () => {
                 <div 
                   className={`cursor-pointer transform transition-all duration-300 hover:shadow-2xl group ${isShopOpen ? 'hover:scale-[1.01]' : 'cursor-not-allowed'}`}
                   onClick={() => handleShopClick(shop.navigationPath)}
+                  onMouseEnter={() => handleMouseEnter(shop.id)}
+                  onMouseLeave={handleMouseLeave}
                   role="button"
                   tabIndex={isShopOpen ? 0 : -1}
                   onKeyDown={(e) => {
@@ -182,12 +204,28 @@ const Shop = () => {
                       </div>
                     )}
 
-                    {/* SVG Banner Image - Full Banner Coverage */}
+                    {/* SVG Banner Images with Hover Effect */}
                     <div className="relative z-10 w-full h-full flex items-center justify-center transform group-hover:scale-105 transition-transform duration-500">
+                      {/* Default Banner Image */}
                       <img 
                         src={shop.bannerImage} 
                         alt={shop.title}
-                        className="w-full h-full object-cover object-center"
+                        className={`absolute w-full h-full object-cover object-center transition-opacity duration-300 ${
+                          hoveredBanner === shop.id ? 'opacity-0' : 'opacity-100'
+                        }`}
+                        style={{ 
+                          minWidth: '100%',
+                          minHeight: '100%'
+                        }}
+                      />
+                      
+                      {/* Inner Banner Image (shown on hover) */}
+                      <img 
+                        src={shop.innerBannerImage} 
+                        alt={`${shop.title} Inner`}
+                        className={`absolute w-full h-full object-cover object-center transition-opacity duration-300 ${
+                          hoveredBanner === shop.id ? 'opacity-100' : 'opacity-0'
+                        }`}
                         style={{ 
                           minWidth: '100%',
                           minHeight: '100%'
