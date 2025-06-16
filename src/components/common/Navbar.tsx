@@ -144,7 +144,7 @@ const Navbar: React.FC = () => {
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
           <div className="relative flex items-center bg-gray-100">
-            <select 
+            <select
               className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
               value={searchType}
               onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
@@ -156,8 +156,8 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </form>
-      <SearchResults 
-        isVisible={showSearchResults} 
+      <SearchResults
+        isVisible={showSearchResults}
         searchQuery={searchQuery}
         searchType={searchType}
         onItemClick={() => {
@@ -181,7 +181,7 @@ const Navbar: React.FC = () => {
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
           <div className="relative flex items-center border-t border-gray-200 bg-white">
-            <select 
+            <select
               className="w-full h-full appearance-none bg-transparent py-2.5 pl-4 pr-8 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
               value={searchType}
               onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
@@ -193,8 +193,8 @@ const Navbar: React.FC = () => {
             <ChevronDown size={20} className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
           </div>
         </div>
-        <SearchResults 
-          isVisible={showSearchResults} 
+        <SearchResults
+          isVisible={showSearchResults}
           searchQuery={searchQuery}
           searchType={searchType}
           onItemClick={() => {
@@ -258,7 +258,7 @@ const Navbar: React.FC = () => {
                 </Link>
               </div>
             </div>
-            
+
             <div className="flex flex-row items-center justify-between w-full pt-2 sm:pt-3">
               {/* Logo - Left below icons */}
               <div className="mt-0 flex-shrink-0 mr-2 md:mr-6 mid:mr-8">
@@ -268,8 +268,8 @@ const Navbar: React.FC = () => {
               </div>
 
               {/* Mobile menu toggle - use custom breakpoint at 968px */}
-              <button 
-                className="block nav:hidden text-white p-2 sm:ml-auto" 
+              <button
+                className="block nav:hidden text-white p-2 sm:ml-auto"
                 onClick={toggleMobileMenu}
                 aria-label="Toggle mobile menu"
                 ref={mobileMenuButtonRef}
@@ -283,8 +283,8 @@ const Navbar: React.FC = () => {
                   <div className="w-full md:w-auto">
                     {desktopSearchBar}
                   </div>
-                  
-                  <button 
+
+                  <button
                     className="bg-black hover:bg-gray-900 text-white py-1.5 px-2 nav:px-3 mid:px-6 rounded-md border border-white whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
                     onClick={() => {
                       setShowSearchResults(false);
@@ -299,7 +299,7 @@ const Navbar: React.FC = () => {
                     <Link to="/wishlist" className="text-white hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <Heart className="w-5 h-5" />
                     </Link>
-                    
+
                     <Link to="/cart" className="text-white hover:text-[#F2631F] relative font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <ShoppingCart className="w-5 h-5" />
                       {totalItems > 0 && (
@@ -308,14 +308,14 @@ const Navbar: React.FC = () => {
                         </span>
                       )}
                     </Link>
-                    
+
                     <Link to="/profile" className="text-white hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <User className="w-5 h-5" />
                     </Link>
                   </div>
-                  
-                  <Link 
-                    to="/business/login" 
+
+                  <Link
+                    to="/business/login"
                     className="bg-[#F2631F] text-white rounded-md px-2 nav:px-2.5 mid:px-3 py-1.5 hover:bg-orange-600 transition-colors whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
                   >
                     Become a Merchant
@@ -326,12 +326,12 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Mobile menu dropdown - use custom breakpoint at 968px */}
       {mobileMenuOpen && (
         <div className="nav:hidden bg-black text-white border-t border-gray-800 py-3 px-4" ref={mobileMenuRef}>
           {mobileSearchBar}
-          
+
           {/* Mobile action links */}
           <div className="grid grid-cols-3 gap-3 mb-3">
             <Link to="/wishlist" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
@@ -352,15 +352,15 @@ const Navbar: React.FC = () => {
               <span>Account</span>
             </Link>
           </div>
-          
-          <Link 
-            to="/business/login" 
+
+          <Link
+            to="/business/login"
             className="w-full block text-center bg-[#F2631F] text-white rounded-md px-4 py-1.5 hover:bg-orange-600 mb-3 text-sm"
             onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}
           >
             Become a Merchant
           </Link>
-          
+
           {/* Social icons in mobile menu */}
           <div className="flex justify-center space-x-6 mb-2">
             <Link to="#" className="text-[#F2631F] hover:text-orange-400">
@@ -378,14 +378,14 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Main navigation - white bar */}
       <div className="bg-white border-b shadow-sm py-1.5">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 2xl:px-6 3xl:px-8 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px] 2xl:max-w-[1440px] 3xl:max-w-[1680px] 4xl:max-w-[1920px]">
           {/* Mobile lower navigation toggle - use custom breakpoint at 968px */}
           <div className="nav:hidden flex items-center justify-between">
             <button
-              className="flex items-center py-1.5 text-black" 
+              className="flex items-center py-1.5 text-black"
               onClick={toggleLowerMobileMenu}
               aria-label="Toggle lower navigation"
               ref={lowerMobileMenuButtonRef}
@@ -395,9 +395,9 @@ const Navbar: React.FC = () => {
               </svg>
               <span>Menu</span>
             </button>
-            
+
             <div className="flex items-center space-x-2">
-              <Link to="/track-order" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
+              <Link to="/track-order" className="hidden nav:flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                 <img src="/assets/images/track-order.png" alt="Track Order" className="w-4 h-4 mr-1" />
                 <span>Track Your Order</span>
               </Link>
@@ -408,18 +408,31 @@ const Navbar: React.FC = () => {
                 >
                   <LogOut className="w-4 h-4 mr-1" />
                 </button>
+
               ) : (
                 <Link to="/sign-in" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   <User className="w-4 h-4 mr-1" />
                   <span>Sign In</span>
                 </Link>
               )}
+              <Link
+                to="/live-shop"
+                style={aoinLiveButtonStyle}
+                className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2"
+              >
+                Aoin Live
+              </Link>
             </div>
           </div>
-          
+
           {/* Mobile lower navigation dropdown - use custom breakpoint at 968px */}
           {lowerMobileMenuOpen && (
             <div className="nav:hidden border-t border-gray-200 pt-2 pb-1" ref={lowerMobileMenuRef}>
+              <Link to="/track-order" className="flex items-center py-1.5 px-2 text-sm hover:text-[#F2631F] mb-2" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
+                <img src="/assets/images/track-order.png" alt="Track Order" className="w-4 h-4 mr-2" />
+                <span>Track Your Order</span>
+              </Link>
+
               <div className="mb-2">
                 <button
                   className="flex items-center justify-between py-1.5 px-2 text-sm w-full text-left hover:bg-gray-50 rounded"
@@ -439,7 +452,7 @@ const Navbar: React.FC = () => {
                   />
                 )}
               </div>
-              
+
               <nav className="space-y-1.5">
                 <Link to="/" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   Home
@@ -457,7 +470,7 @@ const Navbar: React.FC = () => {
               </nav>
             </div>
           )}
-          
+
           {/* Desktop navigation */}
           <div className="hidden nav:flex items-center justify-between">
             {/* Categories Dropdown Button */}
@@ -475,7 +488,7 @@ const Navbar: React.FC = () => {
                 <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
             </div>
-            
+
             {/* Main Nav Links */}
             <nav className="flex items-center">
               <Link to="/" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
@@ -491,14 +504,14 @@ const Navbar: React.FC = () => {
                 Promotion <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded-full ml-1">HOT</span>
               </Link>
             </nav>
-            
+
             {/* Right side links */}
             <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-6">
               <Link to="/orders" className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                 <img src="/assets/images/track-order.png" alt="Track Order" className="w-5 h-5 mr-1" />
                 <span>Track Your Order</span>
               </Link>
-              
+
               {isAuthenticated ? (
                 <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
                   <span className="font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] text-gray-600">
@@ -511,8 +524,8 @@ const Navbar: React.FC = () => {
                     <LogOut className="w-4 h-4 mr-1" />
                     <span>Logout</span>
                   </button>
-                  <Link 
-                    to="/live-shop" 
+                  <Link
+                    to="/live-shop"
                     style={aoinLiveButtonStyle}
                     className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2"
                   >
@@ -525,8 +538,8 @@ const Navbar: React.FC = () => {
                     <User className="w-4 h-4 mr-1" />
                     <span>Sign In/Register</span>
                   </Link>
-                  <Link 
-                    to="/live-shop" 
+                  <Link
+                    to="/live-shop"
                     style={aoinLiveButtonStyle}
                     className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2"
                   >
@@ -542,9 +555,9 @@ const Navbar: React.FC = () => {
       {/* Category dropdown - for desktop */}
       {isCategoryDropdownOpen && !mobileMenuOpen && !lowerMobileMenuOpen && (
         <div ref={categoryDropdownRef} className="z-40">
-          <CategoryDropdown 
-            isOpen={isCategoryDropdownOpen} 
-            closeDropdown={() => setIsCategoryDropdownOpen(false)} 
+          <CategoryDropdown
+            isOpen={isCategoryDropdownOpen}
+            closeDropdown={() => setIsCategoryDropdownOpen(false)}
           />
         </div>
       )}

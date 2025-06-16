@@ -212,7 +212,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const data = await response.json();
       if (data.status === 'success') {
         setCart([]);
-        toast.success('Cart cleared');
       }
     } catch (error) {
       console.error('Error clearing cart:', error);

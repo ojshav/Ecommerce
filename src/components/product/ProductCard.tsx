@@ -51,7 +51,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     
     try {
       await addToCart(product, 1);
-      toast.success(`${product.name} added to cart`);
     } catch (error) {
       toast.error('Failed to add item to cart');
     }

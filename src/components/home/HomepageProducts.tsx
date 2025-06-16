@@ -66,6 +66,27 @@ interface CategoryState {
   currentPage: number;
 }
 
+interface CartProduct {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  stock: number;
+  isNew?: boolean;
+  featured?: boolean;
+  favourite?: boolean;
+  sku: string;
+  currency: string;
+  category: {
+    category_id: number;
+    name: string;
+  };
+  rating: number;
+  reviews: number;
+}
+
 const HomepageProducts: React.FC = () => {
   const [categoriesWithProducts, setCategoriesWithProducts] = useState<CategoryWithProducts[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,7 +131,7 @@ const HomepageProducts: React.FC = () => {
 
   // Convert API product to cart product format
   const convertToCartProduct = (product: Product): CartProduct => ({
-    id: product.product_id.toString(),
+    id: product.product_id,
     name: product.product_name,
     description: product.product_description,
     price: product.selling_price,
@@ -122,7 +143,10 @@ const HomepageProducts: React.FC = () => {
     favourite: product.favourite,
     sku: product.sku,
     currency: 'INR',
-    category: 'General',
+    category: {
+      category_id: product.category_id,
+      name: 'General'
+    },
     rating: 0,
     reviews: 0
   });

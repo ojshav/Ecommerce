@@ -1,14 +1,15 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const OrderConfirmationPage = () => {
+  const navigate = useNavigate();
+
   const handleNavigateToProfile = () => {
-    // Handle navigation to profile
-    console.log('Navigate to profile');
+    navigate('/profile');
   };
 
   const handleViewOrder = () => {
-    // Handle navigation to orders
-    console.log('Navigate to orders');
+    navigate('/orders');
   };
 
   return (

@@ -188,7 +188,7 @@ const PromoProductsPage: React.FC = () => {
         params.append('brand_id', brandId);
         setSelectedBrands([brandId]);
       } else if (selectedBrands.length > 0) {
-        params.append('brand_id', selectedBrands.join(','));
+        params.append('brand_id', selectedBrands[0]);
       }
       if (priceRange[0] > 0) {
         params.append('min_price', priceRange[0].toString());
@@ -199,6 +199,8 @@ const PromoProductsPage: React.FC = () => {
       if (searchQuery) {
         params.append('search', searchQuery);
       }
+
+      console.log('Fetching promo products with params:', params.toString());
 
       const response = await fetch(`${API_BASE_URL}/api/promo-products/?${params}`, {
         headers: {
@@ -212,6 +214,8 @@ const PromoProductsPage: React.FC = () => {
       }
 
       const data = await response.json();
+      console.log('Promo products response:', data);
+
       // Transform the API response to match the Product type
       const transformedProducts = data.products.map((product: any) => ({
         id: String(product.product_id),
@@ -471,36 +475,78 @@ const PromoProductsPage: React.FC = () => {
             </div>
             
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-1 my-6">
+            {totalPages && (
+              <div className="flex justify-end items-center gap-1 my-6">
                 <button 
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded disabled:opacity-50"
+                  className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg disabled:opacity-50 p-2"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-6 w-6" />
                 </button>
-                
-                {[...Array(totalPages)].map((_, i) => (
-                  <button
-                    key={i + 1}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`w-6 h-6 flex items-center justify-center border rounded ${
-                      currentPage === i + 1
-                        ? 'bg-primary-500 text-white border-primary-500'
-                        : 'border-gray-300'
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-                
+                {/* Page numbers with ... */}
+                {(() => {
+                  const pages = [];
+                  let start = Math.max(1, currentPage - 2);
+                  let end = Math.min(totalPages, currentPage + 2);
+
+                  if (currentPage <= 3) {
+                    end = Math.min(5, totalPages);
+                  }
+                  if (currentPage >= totalPages - 2) {
+                    start = Math.max(1, totalPages - 4);
+                  }
+
+                  if (start > 1) {
+                    pages.push(
+                      <button
+                        key={1}
+                        onClick={() => setCurrentPage(1)}
+                        className={`w-10 h-10 flex items-center justify-center border rounded-lg ${currentPage === 1 ? 'bg-primary-500 text-white border-primary-500' : 'border-gray-300'}`}
+                      >
+                        1
+                      </button>
+                    );
+                    if (start > 2) {
+                      pages.push(<span key="start-ellipsis" className="px-1">...</span>);
+                    }
+                  }
+
+                  for (let i = start; i <= end; i++) {
+                    pages.push(
+                      <button
+                        key={i}
+                        onClick={() => setCurrentPage(i)}
+                        className={`py-2 px-1 w-10 h-10 flex items-center justify-center border rounded-lg ${currentPage === i ? 'bg-primary-500 text-white border-primary-500' : 'border-gray-300'}`}
+                      >
+                        {i}
+                      </button>
+                    );
+                  }
+
+                  if (end < totalPages) {
+                    if (end < totalPages - 1) {
+                      pages.push(<span key="end-ellipsis" className="px-1">...</span>);
+                    }
+                    pages.push(
+                      <button
+                        key={totalPages}
+                        onClick={() => setCurrentPage(totalPages)}
+                        className={`py-2 px-1 w-10 h-10 flex items-center justify-center border rounded-lg ${currentPage === totalPages ? 'bg-primary-500 text-white border-primary-500' : 'border-gray-300'}`}
+                      >
+                        {totalPages}
+                      </button>
+                    );
+                  }
+
+                  return pages;
+                })()}
                 <button 
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded disabled:opacity-50"
+                  className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg disabled:opacity-50 p-2"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-6 w-6" />
                 </button>
               </div>
             )}
