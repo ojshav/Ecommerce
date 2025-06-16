@@ -1,5 +1,4 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 
 // Import your SVG files
 const Prime = '/assets/shop/Prime.svg';
@@ -16,7 +15,8 @@ interface ShopBanner {
 }
 
 const Shop = () => {
-  const navigate = useNavigate();
+  const [isShopOpen, setIsShopOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const shopBanners: ShopBanner[] = [
     {
@@ -42,9 +42,56 @@ const Shop = () => {
     }
   ];
 
+  // Check if shop is open (9 AM to 10 PM)
+  const checkShopStatus = () => {
+    const now = new Date();
+    const hour = now.getHours();
+    return hour >= 9 && hour < 22; // 9 AM to 10 PM (22:00)
+  };
+
+  // Update time and shop status
+  useEffect(() => {
+    const updateStatus = () => {
+      const now = new Date();
+      setCurrentTime(now);
+      setIsShopOpen(checkShopStatus());
+    };
+
+    updateStatus(); // Initial check
+    const interval = setInterval(updateStatus, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handleShopClick = (navigationPath: string) => {
-    console.log(`Navigating to: ${navigationPath}`);
-    navigate(navigationPath);
+    if (isShopOpen) {
+      console.log(`Navigating to: ${navigationPath}`);
+      // Replace with your navigation logic
+      alert(`Would navigate to: ${navigationPath}`);
+    }
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  };
+
+  const getNextOpenTime = () => {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    tomorrow.setHours(9, 0, 0, 0);
+    
+    if (now.getHours() < 9) {
+      const today = new Date(now);
+      today.setHours(9, 0, 0, 0);
+      return today;
+    }
+    
+    return tomorrow;
   };
 
   return (
@@ -60,101 +107,214 @@ const Shop = () => {
             <br className="hidden sm:block" />
             <span className="block sm:inline"> Whether it's lifestyle, tech, fashion, or home essentials</span>
           </p>
+          
+          {/* Current Time and Status */}
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <p className="text-lg font-semibold text-gray-800">
+              Current Time: {formatTime(currentTime)}
+            </p>
+            <p className={`text-lg font-bold mt-2 ${isShopOpen ? 'text-green-600' : 'text-red-600'}`}>
+              Shop Status: {isShopOpen ? 'OPEN' : 'CLOSED'}
+            </p>
+            {!isShopOpen && (
+              <p className="text-sm text-gray-600 mt-2">
+                Next opening: {formatTime(getNextOpenTime())}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Banners Section */}
+      {/* Banners Section with Shutter */}
       <div className="bg-gray-100 py-4 sm:py-6 md:py-8">
-        <div className="space-y-4 sm:space-y-6 md:space-y-8">
-          {shopBanners.map((shop, index) => (
-            <div key={shop.id} className="w-full">
-              {/* Banner */}
-              <div 
-                className="cursor-pointer transform transition-all duration-300 hover:scale-[1.001] hover:shadow-lg"
-                onClick={() => handleShopClick(shop.navigationPath)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    handleShopClick(shop.navigationPath);
-                  }
-                }}
-                aria-label={`Navigate to ${shop.title}`}
-                style={{
-                  width: '100vw',
-                  marginLeft: 'calc(-50vw + 50%)',
-                  position: 'relative'
-                }}
-              >
+        <div className="relative">
+          {/* Shop Banners */}
+          <div className={`space-y-4 sm:space-y-6 md:space-y-8 transition-all duration-1000 ${!isShopOpen ? 'opacity-30' : 'opacity-100'}`}>
+            {shopBanners.map((shop, index) => (
+              <div key={shop.id} className="w-full">
+                {/* Banner */}
                 <div 
-                  className="relative flex items-center justify-center overflow-hidden w-full"
+                  className={`cursor-pointer transform transition-all duration-300 ${isShopOpen ? 'hover:scale-[1.001] hover:shadow-lg' : 'cursor-not-allowed'}`}
+                  onClick={() => handleShopClick(shop.navigationPath)}
+                  role="button"
+                  tabIndex={isShopOpen ? 0 : -1}
+                  onKeyDown={(e) => {
+                    if (isShopOpen && (e.key === 'Enter' || e.key === ' ')) {
+                      handleShopClick(shop.navigationPath);
+                    }
+                  }}
+                  aria-label={`Navigate to ${shop.title}`}
                   style={{
-                    width: '100%',
-                    height: 'clamp(200px, 25vw, 400px)',
-                    background: `
-                      linear-gradient(90deg, 
-                        rgba(15,15,15,1) 0%, 
-                        rgba(25,25,25,1) 25%, 
-                        rgba(20,20,20,1) 50%, 
-                        rgba(25,25,25,1) 75%, 
-                        rgba(15,15,15,1) 100%
-                      ),
-                      repeating-linear-gradient(
-                        0deg,
-                        transparent,
-                        transparent 1px,
-                        rgba(255,255,255,0.02) 1px,
-                        rgba(255,255,255,0.02) 2px
-                      )
-                    `,
-                    boxShadow: 'inset 0 0 30px rgba(0,0,0,0.7)'
+                    width: '100vw',
+                    marginLeft: 'calc(-50vw + 50%)',
+                    position: 'relative'
                   }}
                 >
-                  {/* Time Left Badge */}
-                  <div className="absolute top-2 left-3 sm:top-4 sm:left-6 text-white text-xs sm:text-sm font-medium z-20">
-                    Time left : {shop.timeLeft}
-                  </div>
-
-                  {/* SVG Banner Image - Full Banner Coverage */}
-                  <div className="relative z-10 w-full h-full flex items-center justify-center">
-                    <img 
-                      src={shop.bannerImage} 
-                      alt={shop.title}
-                      className="w-full h-full object-cover object-center"
-                      style={{ 
-                        minWidth: '100%',
-                        minHeight: '100%'
-                      }}
-                    />
-                  </div>
-
-                  {/* Texture overlay */}
                   <div 
-                    className="absolute inset-0 opacity-10 z-15"
+                    className="relative flex items-center justify-center overflow-hidden w-full"
                     style={{
+                      width: '100%',
+                      height: 'clamp(200px, 25vw, 400px)',
                       background: `
+                        linear-gradient(90deg, 
+                          rgba(15,15,15,1) 0%, 
+                          rgba(25,25,25,1) 25%, 
+                          rgba(20,20,20,1) 50%, 
+                          rgba(25,25,25,1) 75%, 
+                          rgba(15,15,15,1) 100%
+                        ),
                         repeating-linear-gradient(
-                          90deg,
+                          0deg,
                           transparent,
-                          transparent 2px,
-                          rgba(255,255,255,0.05) 2px,
-                          rgba(255,255,255,0.05) 4px
+                          transparent 1px,
+                          rgba(255,255,255,0.02) 1px,
+                          rgba(255,255,255,0.02) 2px
                         )
-                      `
+                      `,
+                      boxShadow: 'inset 0 0 30px rgba(0,0,0,0.7)'
                     }}
-                  ></div>
+                  >
+                    {/* Time Left Badge */}
+                    {isShopOpen && (
+                      <div className="absolute top-2 left-3 sm:top-4 sm:left-6 text-white text-xs sm:text-sm font-medium z-20">
+                        Time left : {shop.timeLeft}
+                      </div>
+                    )}
 
-                  {/* Hover effect overlay */}
-                  <div className="absolute inset-0 bg-black opacity-0 hover:opacity-10 transition-opacity duration-300 z-20"></div>
+                    {/* SVG Banner Image - Full Banner Coverage */}
+                    <div className="relative z-10 w-full h-full flex items-center justify-center">
+                      <img 
+                        src={shop.bannerImage} 
+                        alt={shop.title}
+                        className="w-full h-full object-cover object-center"
+                        style={{ 
+                          minWidth: '100%',
+                          minHeight: '100%'
+                        }}
+                      />
+                    </div>
+
+                    {/* Texture overlay */}
+                    <div 
+                      className="absolute inset-0 opacity-10 z-15"
+                      style={{
+                        background: `
+                          repeating-linear-gradient(
+                            90deg,
+                            transparent,
+                            transparent 2px,
+                            rgba(255,255,255,0.05) 2px,
+                            rgba(255,255,255,0.05) 4px
+                          )
+                        `
+                      }}
+                    ></div>
+
+                    {/* Hover effect overlay */}
+                    {isShopOpen && (
+                      <div className="absolute inset-0 bg-black opacity-0 hover:opacity-10 transition-opacity duration-300 z-20"></div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Gray spacer between banners (except after last banner) */}
+                {index < shopBanners.length - 1 && (
+                  <div className="w-full h-6 sm:h-8 md:h-12 bg-gray-100"></div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Shutter Overlay */}
+          {!isShopOpen && (
+            <div 
+              className="absolute inset-0 z-30 flex items-center justify-center"
+              style={{
+                background: `
+                  linear-gradient(
+                    180deg,
+                    #8a8a8a 0%,
+                    #b8b8b8 3%,
+                    #a5a5a5 6%,
+                    #b8b8b8 9%,
+                    #8a8a8a 12%,
+                    #b8b8b8 15%,
+                    #a5a5a5 18%,
+                    #b8b8b8 21%,
+                    #8a8a8a 24%,
+                    #b8b8b8 27%,
+                    #a5a5a5 30%,
+                    #b8b8b8 33%,
+                    #8a8a8a 36%,
+                    #b8b8b8 39%,
+                    #a5a5a5 42%,
+                    #b8b8b8 45%,
+                    #8a8a8a 48%,
+                    #b8b8b8 51%,
+                    #a5a5a5 54%,
+                    #b8b8b8 57%,
+                    #8a8a8a 60%,
+                    #b8b8b8 63%,
+                    #a5a5a5 66%,
+                    #b8b8b8 69%,
+                    #8a8a8a 72%,
+                    #b8b8b8 75%,
+                    #a5a5a5 78%,
+                    #b8b8b8 81%,
+                    #8a8a8a 84%,
+                    #b8b8b8 87%,
+                    #a5a5a5 90%,
+                    #b8b8b8 93%,
+                    #8a8a8a 96%,
+                    #b8b8b8 100%
+                  )
+                `,
+                boxShadow: `
+                  inset 0 2px 4px rgba(0,0,0,0.3),
+                  inset 0 -2px 4px rgba(255,255,255,0.3),
+                  0 0 20px rgba(0,0,0,0.5)
+                `
+              }}
+            >
+              {/* Closed Sign */}
+              <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg border-4 border-gray-800 shadow-2xl transform rotate-2">
+                <div className="text-center">
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+                    SORRY! WE'RE
+                  </h3>
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-4">
+                    CLOSED
+                  </h2>
+                  <div className="border-t-2 border-gray-400 pt-4">
+                    <p className="text-sm sm:text-base md:text-lg text-gray-600">
+                      Shop opens daily from
+                    </p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">
+                      9:00 AM - 10:00 PM
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-2">
+                      Come back during opening hours!
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Gray spacer between banners (except after last banner) */}
-              {index < shopBanners.length - 1 && (
-                <div className="w-full h-6 sm:h-8 md:h-12 bg-gray-100"></div>
-              )}
+              {/* Shutter horizontal lines effect */}
+              <div className="absolute inset-0 pointer-events-none">
+                {Array.from({ length: 50 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-full opacity-20"
+                    style={{
+                      height: '2px',
+                      top: `${i * 2}%`,
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.3) 50%, transparent 100%)'
+                    }}
+                  />
+                ))}
+              </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>
