@@ -8,19 +8,19 @@ const FreshOffRunway = () => {
       id: 1,
       name: 'WIDE LEG TROUSER',
       price: '$120',
-      image: 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg?auto=compress&cs=tinysrgb&w=600'
+      image: 'assets/images/runway1.png'
     },
     {
       id: 2,
       name: 'CRINKLED FLORER SHIRT',
       price: '$95',
-      image: 'https://images.pexels.com/photos/1183266/pexels-photo-1183266.jpeg?auto=compress&cs=tinysrgb&w=600'
+      image: 'assets/images/runway2.png'
     },
     {
       id: 3,
       name: 'ETHNIC CO-ORD SET',
       price: '$60',
-      image: 'https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=600'
+      image: 'assets/images/runway3.png'
     }
   ];
 
@@ -67,11 +67,12 @@ const FreshOffRunway = () => {
             <div key={product.id} className="group cursor-pointer">
              
               <div className="relative overflow-hidden mb-6">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-[500px] object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+              <img
+  src={product.image}
+  alt={product.name}
+  className="w-[413px] h-[370px] object-cover group-hover:scale-105 transition-transform duration-300"
+/>
+
                 
                 
                 <div className="absolute bottom-6 right-6">

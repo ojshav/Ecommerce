@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 const NewCollection = () => {
   return (
    
-    <div className="w-full  bg-white px-6 lg:px-20 py-10 flex flex-col lg:flex-row items-start justify-between gap-10">
+    <div className="w-full max-w-[1280px] mx-auto bg-white  py-10 flex flex-col lg:flex-row items-start justify-between gap-5">
       
       
       <div className="w-[491px] h-[881px] -pr-5 flex-shrink-0">
