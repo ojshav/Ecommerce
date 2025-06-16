@@ -50,27 +50,27 @@ const Shop = () => {
   return (
     <div className="w-full bg-gray-100 min-h-screen">
       {/* Innovation Window Section */}
-      <div className="bg-white py-16 px-8">
+      <div className="bg-white py-8 px-4 sm:py-12 md:py-16 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
             9 to 10 – The Innovation Window
           </h2>
-          <p className="text-gray-600 text-lg leading-relaxed">
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed px-2 sm:px-0">
             Every day from 9 to 10, AOIN opens its shutters to offer exclusive, handpicked products for a limited time only.
-            <br />
-            Whether it's lifestyle, tech, fashion, or home essentials
+            <br className="hidden sm:block" />
+            <span className="block sm:inline"> Whether it's lifestyle, tech, fashion, or home essentials</span>
           </p>
         </div>
       </div>
 
       {/* Banners Section */}
-      <div className="bg-gray-100 py-8">
-        <div className="space-y-8">
+      <div className="bg-gray-100 py-4 sm:py-6 md:py-8">
+        <div className="space-y-4 sm:space-y-6 md:space-y-8">
           {shopBanners.map((shop, index) => (
             <div key={shop.id} className="w-full">
               {/* Banner */}
               <div 
-                className="cursor-pointer transform transition-all duration-300 hover:scale-[1.005] hover:shadow-2xl"
+                className="cursor-pointer transform transition-all duration-300 hover:scale-[1.001] hover:shadow-lg"
                 onClick={() => handleShopClick(shop.navigationPath)}
                 role="button"
                 tabIndex={0}
@@ -82,16 +82,15 @@ const Shop = () => {
                 aria-label={`Navigate to ${shop.title}`}
                 style={{
                   width: '100vw',
-                  display: 'flex',
-                  justifyContent: 'center'
+                  marginLeft: 'calc(-50vw + 50%)',
+                  position: 'relative'
                 }}
               >
                 <div 
-                  className="relative flex items-center justify-center overflow-hidden"
+                  className="relative flex items-center justify-center overflow-hidden w-full"
                   style={{
-                    width: '1504px',
-                    height: '321px',
-                    marginLeft: '-24px',
+                    width: '100%',
+                    height: 'clamp(200px, 25vw, 400px)',
                     background: `
                       linear-gradient(90deg, 
                         rgba(15,15,15,1) 0%, 
@@ -112,7 +111,7 @@ const Shop = () => {
                   }}
                 >
                   {/* Time Left Badge */}
-                  <div className="absolute top-4 left-6 text-white text-sm font-medium z-20">
+                  <div className="absolute top-2 left-3 sm:top-4 sm:left-6 text-white text-xs sm:text-sm font-medium z-20">
                     Time left : {shop.timeLeft}
                   </div>
 
@@ -121,7 +120,7 @@ const Shop = () => {
                     <img 
                       src={shop.bannerImage} 
                       alt={shop.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-center"
                       style={{ 
                         minWidth: '100%',
                         minHeight: '100%'
@@ -152,7 +151,7 @@ const Shop = () => {
 
               {/* Gray spacer between banners (except after last banner) */}
               {index < shopBanners.length - 1 && (
-                <div className="w-full h-12 bg-gray-100"></div>
+                <div className="w-full h-6 sm:h-8 md:h-12 bg-gray-100"></div>
               )}
             </div>
           ))}
