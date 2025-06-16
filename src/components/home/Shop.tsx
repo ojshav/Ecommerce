@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Import your SVG files
 const Prime = '/assets/shop/Prime.svg';
@@ -15,6 +16,7 @@ interface ShopBanner {
 }
 
 const Shop = () => {
+  const navigate = useNavigate();
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -46,7 +48,7 @@ const Shop = () => {
   const checkShopStatus = () => {
     const now = new Date();
     const hour = now.getHours();
-    return hour >= 9 && hour < 22; // 9 AM to 10 PM (22:00)
+    return hour >= 9 && hour < 13; // 9 AM to 10 PM (22:00)
   };
 
   // Update time and shop status
@@ -66,8 +68,7 @@ const Shop = () => {
   const handleShopClick = (navigationPath: string) => {
     if (isShopOpen) {
       console.log(`Navigating to: ${navigationPath}`);
-      // Replace with your navigation logic
-      alert(`Would navigate to: ${navigationPath}`);
+      navigate(navigationPath);
     }
   };
 
