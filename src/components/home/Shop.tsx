@@ -48,7 +48,7 @@ const Shop = () => {
   const checkShopStatus = () => {
     const now = new Date();
     const hour = now.getHours();
-    return hour >= 9 && hour < 13; // 9 AM to 10 PM (22:00)
+    return hour >= 9 && hour < 23; // 9 AM to 10 PM (22:00)
   };
 
   // Update time and shop status
