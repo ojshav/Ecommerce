@@ -10,6 +10,7 @@ const LuxeHub = '/assets/shop/Luxe Hub.svg';
 // Import inner banner SVG files
 const PrimeInner = '/assets/shop/primeinner.svg';
 const ExclusiveInner = '/assets/shop/exclusiveinner.svg';
+const VaultInner = '/assets/shop/vaultinner.svg';
 const LuxeHubInner = '/assets/shop/luxehubinner.svg';
 
 interface ShopBanner {
@@ -50,7 +51,15 @@ const Shop = () => {
       timeLeft: "3hr 46 mins",
       navigationPath: "/shop/vault",
       bannerImage: Vault,
-      innerBannerImage: Vault // Using same image since luxehubinner.svg wasn't mentioned for vault
+      innerBannerImage: VaultInner
+    },
+    {
+      id: 4,
+      title: "LUXE HUB",
+      timeLeft: "2hr 15 mins",
+      navigationPath: "/shop/luxehub",
+      bannerImage: LuxeHub,
+      innerBannerImage: LuxeHubInner
     }
   ];
 
@@ -289,7 +298,7 @@ const Shop = () => {
                       Shop opens daily from
                     </p>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">
-                      9:00 AM - 1:00 PM
+                      9:00 AM - 10:00 PM
                     </p>
                     <p className="text-xs sm:text-sm text-gray-500 mt-2">
                       Come back during opening hours!
