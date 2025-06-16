@@ -17,27 +17,27 @@ const outfits = [
 
 const OutfitCards = () => {
   return (
-    
-<div className="flex w-full flex-col sm:flex-row items-center justify-center py-24 mb-48 px-4 sm:px-6 gap-6 sm:gap-6 lg:gap-8 overflow-visible">
-{outfits.map((outfit, index) => (
-        <div
-          key={index}
-          className={`relative w-full sm:w-[300px] md:w-[350px] lg:w-[410px] h-[400px] sm:h-[450px] md:h-[500px] lg:h-[536px] ${outfit.bgColor} rounded-[30px] sm:rounded-[40px] lg:rounded-[60px] flex items-center justify-center overflow-visible`}
-        >
-          <img
-            src={outfit.image}
-            alt={`Look ${index + 1}`}
-            className="absolute w-auto h-[450px] sm:h-[500px] md:h-[550px] lg:h-[600px] object-contain z-10 animate-float"
-            style={{
-              bottom: '-30%',
-              left: '3%',
-              transform: 'translateX(-50%)',
-            }}
-          />
-        </div>
-      ))}
+    <div className="container mx-auto px-6 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24 mb-32 sm:mb-40 lg:mb-48">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-40 sm:gap-8 lg:gap-10">
+        {outfits.map((outfit, index) => (
+          <div
+            key={index}
+            className={`relative w-full aspect-[3/4] ${outfit.bgColor} rounded-[20px] sm:rounded-[30px] lg:rounded-[40px] flex items-center justify-center overflow-visible mb-8 sm:mb-0`}
+          >
+            <img
+              src={outfit.image}
+              alt={`Look ${index + 1}`}
+              className="absolute w-auto h-[120%] object-contain z-10 animate-float"
+              style={{
+                bottom: '-40%',
+                left: '3%',
+                transform: 'translateX(-50%)',
+              }}
+            />
+          </div>
+        ))}
+      </div>
     </div>
-   
   );
 };
 
