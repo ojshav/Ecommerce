@@ -496,23 +496,27 @@ const NewProduct: React.FC = () => {
                 
                 {/* Custom Price Range Inputs */}
                 {priceFilter === 'custom' && (
-                  <div className="mt-3 space-y-2">
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        placeholder="Min Price"
-                        value={customMinPrice}
-                        onChange={(e) => setCustomMinPrice(e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
-                      />
-                      <span className="flex items-center px-2">to</span>
-                      <input
-                        type="number"
-                        placeholder="Max Price"
-                        value={customMaxPrice}
-                        onChange={(e) => setCustomMaxPrice(e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
-                      />
+                  <div className="mt-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 max-w-[120px]">
+                        <input
+                          type="number"
+                          placeholder="Min"
+                          value={customMinPrice}
+                          onChange={(e) => setCustomMinPrice(e.target.value)}
+                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <span className="text-gray-500 text-sm">to</span>
+                      <div className="flex-1 max-w-[120px]">
+                        <input
+                          type="number"
+                          placeholder="Max"
+                          value={customMaxPrice}
+                          onChange={(e) => setCustomMaxPrice(e.target.value)}
+                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
