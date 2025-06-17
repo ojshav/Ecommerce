@@ -496,6 +496,7 @@ const NewProduct: React.FC = () => {
                 
                 {/* Custom Price Range Inputs */}
                 {priceFilter === 'custom' && (
+
                   <div className="mt-3">
                     <div className="flex items-center gap-2">
                       <div className="flex-1 max-w-[120px]">
@@ -517,6 +518,7 @@ const NewProduct: React.FC = () => {
                           className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
                         />
                       </div>
+
                     </div>
                   </div>
                 )}
