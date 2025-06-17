@@ -101,78 +101,68 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
   if (isMobile) {
     return (
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {selectedParentCategory ? (
-          // Subcategories View
-          <div>
-            <div className="flex items-center bg-gray-50 px-4 py-3 border-b">
-              <button
-                onClick={handleBackClick}
-                className="flex items-center text-gray-600 hover:text-[#F2631F]"
-              >
-                <ChevronLeft className="w-5 h-5 mr-1" />
-                <span className="text-sm font-medium">Back</span>
-              </button>
-              <span className="ml-2 text-sm font-medium text-gray-900">{selectedParentCategory.name}</span>
-            </div>
-            <div className="max-h-[60vh] overflow-y-auto">
-              {selectedParentCategory.children?.map(child => (
-                <button
-                  key={child.category_id}
-                  onClick={() => handleCategoryClick(child)}
-                  className={`flex items-center justify-between w-full px-4 py-3 text-sm border-b last:border-b-0 hover:bg-gray-50 ${
-                    selectedCategory === String(child.category_id) ? 'bg-[#F2631F] text-white' : 'text-gray-700'
-                  }`}
-                >
-                  <span>{child.name}</span>
-                  {child.children && child.children.length > 0 && (
-                    <ChevronRight className="w-5 h-5" />
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          // Main Categories View
-          <div>
-            <div className="px-4 py-3 bg-gray-50 border-b">
-              <h3 className="text-sm font-medium text-gray-900">Categories</h3>
-            </div>
-            <div className="max-h-[60vh] overflow-y-auto">
+        <div className="px-4 py-3 bg-gray-50 border-b sticky top-0 z-10">
+          <h3 className="text-sm font-medium text-gray-900">Categories</h3>
+        </div>
+        <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
+          <button
+            onClick={() => {
+              if (closeDropdown) closeDropdown();
+              setSelectedCategory('');
+              navigate('/products');
+            }}
+            className={`flex items-center justify-between w-full px-4 py-3 text-sm border-b transition-colors duration-200 ${
+              selectedCategory === '' ? 'bg-[#F2631F] text-white' : 'text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <span>All Products</span>
+          </button>
+          {categories.map(category => (
+            <div key={category.category_id}>
               <button
                 onClick={() => {
-                  if (closeDropdown) closeDropdown();
-                  setSelectedCategory('');
-                  navigate('/products');
+                  if (category.children && category.children.length > 0) {
+                    setSelectedParentCategory(
+                      selectedParentCategory?.category_id === category.category_id ? null : category
+                    );
+                  } else {
+                    handleCategoryClick(category);
+                  }
                 }}
-                className={`flex items-center justify-between w-full px-4 py-3 text-sm border-b hover:bg-gray-50 ${
-                  selectedCategory === '' ? 'bg-[#F2631F] text-white' : 'text-gray-700'
+                className={`flex items-center justify-between w-full px-4 py-3 text-sm border-b hover:bg-gray-50 transition-colors duration-200 ${
+                  selectedCategory === String(category.category_id) ? 'bg-[#F2631F] text-white' : 'text-gray-700'
                 }`}
               >
-                <span>All Products</span>
+                <span>{category.name}</span>
+                {category.children && category.children.length > 0 && (
+                  <ChevronRight 
+                    className={`w-5 h-5 transition-transform duration-200 ${
+                      selectedParentCategory?.category_id === category.category_id ? 'rotate-90' : ''
+                    }`} 
+                  />
+                )}
               </button>
-              {categories.map(category => (
-                <button
-                  key={category.category_id}
-                  onClick={() => {
-                    if (category.children && category.children.length > 0) {
-                      setExpandedSidebarCategory(
-                        expandedSidebarCategory === String(category.category_id) ? null : String(category.category_id)
-                      );
-                    } else {
-                      handleCategoryClick(category);
-                    }
-                  }}
-                  className={`flex items-center justify-between w-full px-4 py-3 text-sm border-b last:border-b-0 hover:bg-gray-50 ${
-                    expandedSidebarCategory === String(category.category_id) ? 'bg-[#f47521] text-white' : ''
-                  }`}
-                >
-                  <span>{category.name}</span>
-                  {category.children && category.children.length > 0 && <span>›</span>}
-                </button>
-              ))}
+              {category.children && category.children.length > 0 && selectedParentCategory?.category_id === category.category_id && (
+                <div className="bg-gray-50 transition-all duration-200 ease-in-out">
+                  {category.children.map(child => (
+                    <button
+                      key={child.category_id}
+                      onClick={() => handleCategoryClick(child)}
+                      className={`flex items-center justify-between w-full px-8 py-3 text-sm border-b last:border-b-0 transition-colors duration-200 ${
+                        selectedCategory === String(child.category_id) ? 'bg-[#F2631F] text-white' : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <span>{child.name}</span>
+                      {child.children && child.children.length > 0 && (
+                        <ChevronRight className="w-5 h-5" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
     );
   }
