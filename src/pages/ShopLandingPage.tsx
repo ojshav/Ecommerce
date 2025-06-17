@@ -32,6 +32,7 @@ function App() {
         <PromotionalBanners />
         <OutfitCards />
         <NewCollection />
+       
     </div>  
   );
 }

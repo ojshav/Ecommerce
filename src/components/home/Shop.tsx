@@ -67,7 +67,7 @@ const Shop = () => {
   const checkShopStatus = () => {
     const now = new Date();
     const hour = now.getHours();
-    return hour >= 9 && hour < 22; // 9 AM to 10 PM (22:00)
+    return hour >= 5 && hour < 22; // 9 AM to 10 PM (22:00)
   };
 
   // Update time and shop status
@@ -125,32 +125,42 @@ const Shop = () => {
   };
 
   return (
-    <div className="w-full bg-gray-100 min-h-screen">
+    <div className="w-full min-h-screen" style={{ background: 'linear-gradient(135deg, #F2631F 0%, #F2631F 100%)' }}>
       {/* Innovation Window Section */}
-      <div className="bg-white py-8 px-4 sm:py-12 md:py-16 sm:px-6 lg:px-8">
+      <div className=" bg-[#F2631F] py-8 px-4 sm:py-12 md:py-16 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
-            9 to 10 – The Innovation Window
-          </h2>
-          <p className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed px-2 sm:px-0">
-            Every day from 9 to 10, AOIN opens its shutters to offer exclusive, handpicked products for a limited time only.
-            <br className="hidden sm:block" />
-            <span className="block sm:inline"> Whether it's lifestyle, tech, fashion, or home essentials</span>
+          <div className="flex items-center justify-center space-x-2 mb-2 font-[Work Sans]">
+            <span className="text-yellow-300 text-lg font-[Work Sans]">⚡</span>
+            <span className="text-white font-bold tracking-wider text-lg sm:text-xl font-[Work Sans]">THE INNOVATION WINDOW</span>
+            <span className="text-yellow-300 text-lg font-[Work Sans]">⚡</span>
+          </div>
+          <div className="flex justify-center mb-4 font-[Work Sans]">
+            <span className="bg-white/20 border border-white/40 text-white font-semibold px-6 py-2 rounded-full text-base shadow-sm backdrop-blur-sm font-[Work Sans]">
+              9 AM to 10 PM Daily
+            </span>
+          </div>
+          
+          <p className="text-white text-base sm:text-lg font-medium mb-8 font-[Work Sans]">
+          Every day from 9 to 10, AOIN opens its shutters to offer exclusive, handpicked products for a limited time only.
+          Whether it's lifestyle, tech, fashion, or home essentials.
           </p>
           
           {/* Current Time and Status */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-lg font-semibold text-gray-800">
-              Current Time: {formatTime(currentTime)}
-            </p>
-            <p className={`text-lg font-bold mt-2 ${isShopOpen ? 'text-green-600' : 'text-red-600'}`}>
-              Shop Status: {isShopOpen ? 'OPEN' : 'CLOSED'}
-            </p>
-            {!isShopOpen && (
-              <p className="text-sm text-gray-600 mt-2">
-                Next opening: {formatTime(getNextOpenTime())}
-              </p>
-            )}
+          <div className="flex items-center justify-center mt-2 font-[Work Sans]">
+            <div className="flex items-center bg-white/90 rounded-xl shadow-lg px-6 py-3 space-x-8 border border-gray-200 font-[Work Sans]">
+              <div className="flex items-center space-x-2 font-[Work Sans]">
+                <span className="w-3 h-3 rounded-full bg-orange-500 inline-block font-[Work Sans]"></span>
+                <span className="text-gray-700 font-semibold font-[Work Sans]">Current Time:</span>
+                <span className="text-gray-900 font-bold font-[Work Sans]">{formatTime(currentTime)}</span>
+              </div>
+              <div className="flex items-center space-x-2 font-[Work Sans]">
+                <span className={`w-3 h-3 rounded-full ${isShopOpen ? 'bg-green-500' : 'bg-red-500'} inline-block font-[Work Sans]`}></span>
+                <span className="text-gray-700 font-semibold font-[Work Sans]">Status:</span>
+                <span className={`px-3 py-1 rounded-full text-sm font-bold ${isShopOpen ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} font-[Work Sans]`}>
+                  {isShopOpen ? 'OPEN' : 'CLOSED'}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
