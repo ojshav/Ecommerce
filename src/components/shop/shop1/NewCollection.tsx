@@ -37,7 +37,7 @@ const NewCollection = () => {
           <img 
             src="/assets/images/New3.png" 
             alt="Look 2" 
-            className="w-full h-[199px] sm:h-[199px] lg:w-[199px] object-cover sm:mt-32 sm:-ml-20 md:-ml-20 lg:-ml-16" 
+            className="w-full h-[199px] sm:h-[199px] lg:w-[199px] object-cover sm:mt-32 md:mt-32 lg:mt-32 sm:-ml-20 md:-ml-20 lg:-ml-16" 
           />
           <img 
             src="/assets/images/New4.png" 
