@@ -188,7 +188,8 @@ const PromoProducts: React.FC = () => {
         id: product.product_id,
         name: product.product_name,
         price: product.special_price || product.selling_price,
-        originalPrice: product.selling_price,
+        original_price: product.selling_price,
+        special_price: product.special_price,
         image_url: product.images?.[0] || '/placeholder-image.jpg',
         stock: product.stock?.stock_qty || 0,
         sku: product.product_id.toString(),
@@ -373,10 +374,10 @@ const PromoProducts: React.FC = () => {
                       <div>
                         <p className="font-normal text-sm font-worksans mb-2">{product.product_name}</p>
                         <div className="flex items-baseline mb-4">
-                          <span className="text-xl font-bold">${product.special_price?.toFixed(2) || product.selling_price.toFixed(2)}</span>
+                          <span className="text-xl font-bold">₹{product.special_price?.toFixed(2) || product.selling_price.toFixed(2)}</span>
                           {product.special_price && (
                             <span className="text-sm text-gray-500 line-through ml-3">
-                              ${product.selling_price.toFixed(2)}
+                              ₹{product.selling_price.toFixed(2)}
                             </span>
                           )}
                         </div>

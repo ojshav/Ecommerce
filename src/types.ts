@@ -7,6 +7,8 @@ export interface CartItem {
     id: number;
     name: string;
     price: number;
+    original_price: number;
+    special_price: number | null;
     image_url: string;
     stock: number;
     is_deleted: boolean;
@@ -18,7 +20,8 @@ export interface Product {
   id: number;
   name: string;
   price: number;
-  originalPrice?: number;
+  original_price: number;
+  special_price: number | null;
   image_url: string;
   images?: string[];
   stock: number;
@@ -33,7 +36,6 @@ export interface Product {
     brand_id: number;
     name: string;
   };
-  special_price?: number | null;
   special_start?: string | null;
   special_end?: string | null;
   discount_pct?: number;
@@ -56,4 +58,4 @@ export interface Product {
   brand_id?: number;
   attributes?: any[];
   created_at?: string;
-} 
+}

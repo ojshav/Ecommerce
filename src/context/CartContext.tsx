@@ -24,6 +24,8 @@ interface CartContextType {
   totalItems: number;
   totalPrice: number;
   formattedTotalPrice: string;
+  totalSavings: number;
+  formattedTotalSavings: string;
   loading: boolean;
 }
 
@@ -37,7 +39,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Calculate derived values
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
+  const totalSavings = cart.reduce((total, item) => {
+    if (item.product.special_price) {
+      return total + ((item.product.original_price - item.product.price) * item.quantity);
+    }
+    return total;
+  }, 0);
+  
   const formattedTotalPrice = formatCurrency(totalPrice);
+  const formattedTotalSavings = formatCurrency(totalSavings);
 
   // Fetch cart from backend
   const fetchCart = async () => {
@@ -70,9 +80,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           merchant_id: item.merchant_id,
           quantity: item.quantity,
           product: {
-            id: item.product.id,
+            id: item.product_id,
             name: item.product.name,
             price: item.product.price,
+            original_price: item.product.original_price,
+            special_price: item.product.special_price,
             image_url: item.product.image_url,
             stock: item.product.stock,
             is_deleted: item.product.is_deleted
@@ -229,6 +241,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       totalItems,
       totalPrice,
       formattedTotalPrice,
+      totalSavings,
+      formattedTotalSavings,
       loading
     }}>
       {children}
