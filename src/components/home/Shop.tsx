@@ -49,7 +49,7 @@ const Shop = () => {
       id: 1,
       title: "AOIN PRIME",
       timeLeft: calculateTimeLeft(),
-      navigationPath: "/shop",
+      navigationPath: "/shop1",
       bannerImage: Prime,
       innerBannerImage: PrimeInner
     },

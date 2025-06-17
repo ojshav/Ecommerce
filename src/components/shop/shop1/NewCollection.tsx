@@ -4,6 +4,8 @@ import { ArrowRight } from 'lucide-react';
 const NewCollection = () => {
   return (
     <div className="w-full max-w-[1280px] mx-auto bg-white px-4 sm:px-6 py-6 sm:py-10 flex flex-col lg:flex-row items-start justify-between gap-5">
+      
+      {/* Left Main Image */}
       <div className="w-full lg:w-[491px] h-[400px] sm:h-[600px] lg:h-[881px] flex-shrink-0">
         <img
           src="/assets/images/New1.png"
@@ -12,8 +14,11 @@ const NewCollection = () => {
         />
       </div>
 
+      {/* Right Content */}
       <div className="w-full lg:w-[75%] flex flex-col gap-4 sm:gap-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start w-full gap-4">
+        
+        {/* Header + CTA */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full gap-4">
           <div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight">
               NEW <br /> COLLECTION
@@ -22,12 +27,13 @@ const NewCollection = () => {
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </p>
           </div>
-          <div className="flex items-center gap-2 text-sm font-medium cursor-pointer whitespace-nowrap">
+          <div className="flex items-center gap-2 text-sm font-medium cursor-pointer whitespace-nowrap mt-2 sm:mt-0">
             <span>See more</span>
             <ArrowRight size={18} />
           </div>
         </div>
 
+        {/* Grid of Looks */}
         <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 sm:gap-3 mt-0">
           <img 
             src="/assets/images/New2.png" 
