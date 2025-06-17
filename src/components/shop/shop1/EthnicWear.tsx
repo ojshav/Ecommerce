@@ -2,7 +2,7 @@ import React from 'react';
 
 const EthnicWear = () => {
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+    <section className="relative w-full max-w-[1280px] mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         {/* Section Title */}
         <div className="mb-12">
@@ -14,12 +14,16 @@ const EthnicWear = () => {
         {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[600px]">
           {/* Left Panel - Promotional Image with Discount */}
-          <div className="lg:col-span-5 relative overflow-hidden">
-            <img
-              src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=800"
-              alt="Traditional ethnic wear with embroidered details"
-              className="w-full h-full object-cover"
+          <div className="lg:col-span-5 relative overflow-hidden max-w-[596px] h-[634.26px]">
+            <video
+                src="/assets/videos/ethnic1.mp4"
+                className="w-full h-full object-cover"
+                autoPlay
+                loop
+                muted
+                playsInline
             />
+
             
             {/* Overlay Text */}
             <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-center items-start p-8 text-white">
@@ -41,34 +45,36 @@ const EthnicWear = () => {
           </div>
 
           {/* Center Panel - Main Model Image */}
-          <div className="lg:col-span-4 relative overflow-hidden">
+          <div className="lg:col-span-4 relative max-w-[351px] h-[635px] overflow-hidden">
             <img
-              src="https://images.pexels.com/photos/1183266/pexels-photo-1183266.jpeg?auto=compress&cs=tinysrgb&w=600"
+              src="/assets/images/ethnic2.jpg"
               alt="Model in elegant gold embroidered saree"
               className="w-full h-full object-cover"
             />
           </div>
 
           {/* Right Panel - Two Stacked Images */}
-          <div className="lg:col-span-3 flex flex-col gap-6">
-            {/* Top Right Image */}
-            <div className="flex-1 overflow-hidden">
-              <img
-                src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=400"
-                alt="Model in blue and gold traditional lehenga"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            
-            {/* Bottom Right Image */}
-            <div className="flex-1 overflow-hidden">
-              <img
-                src="https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=400"
-                alt="Model in pink and gold ethnic ensemble"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
+          {/* Right Panel - Two Stacked Images */}
+<div className="lg:col-span-3 flex flex-col gap-6">
+  {/* Top Right Image */}
+  <div className="overflow-hidden w-[312.817px] h-[312.817px]">
+    <img
+      src="/assets/images/ethnic3.jpg"
+      alt="Model in blue and gold traditional lehenga"
+      className="w-full h-full object-cover"
+    />
+  </div>
+
+  {/* Bottom Right Image */}
+  <div className="overflow-hidden w-[312.817px] h-[312.817px]">
+    <img
+      src="/assets/images/ethnic4.jpg"
+      alt="Model in pink and gold ethnic ensemble"
+      className="w-full h-full object-cover"
+    />
+  </div>
+</div>
+
         </div>
       </div>
     </section>

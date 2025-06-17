@@ -2,11 +2,11 @@ import React from 'react';
 
 const SubscribeSection = () => {
   return (
-    <section className="flex flex-col md:flex-row items-center justify-between px-6 md:px-16 py-12 bg-white">
+    <section className="flex flex-col w-full max-w-[1280px] mx-auto md:flex-row items-center justify-between px-6 md:px-16 py-12 bg-white">
       {/* Left Image */}
-      <div className="w-full md:w-1/2 mb-8 md:mb-0">
+      <div className=" max-w-[522px] h-[389px] mx-auto md:w-1/2 mb-8 md:mb-0">
         <img
-          src="/assets/images/fashion-girls.png"
+          src="/assets/images/subscribe.jpg"
           alt="Fashion Models"
           className="w-full h-auto object-cover"
         />
