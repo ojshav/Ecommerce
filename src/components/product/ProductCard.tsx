@@ -106,13 +106,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
     
   return (
 
-    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col w-[270px] h-[390px] mx-auto border border-gray-100">
-      <div className="relative h-[220px] w-full">
+    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col w-62 h-[350px] border border-gray-100">
+      <div className="relative h-44 w-full bg-white">
 
         {/* Product badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
           {isNew && (
-            <span className="bg-[#F2631F] text-white text-[10px] px-1.5 py-0.5 rounded">
+            <span className="w-[50px] h-[24px] bg-[#F2631F] text-white text-[12px] font-medium flex items-center justify-center px-1.5 py-0.5 rounded-[4px]">
               New
             </span>
           )}
@@ -146,7 +146,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <img 
             src={product.primary_image || product.image || '/placeholder-image.png'}
             alt={product.name} 
-            className="w-full h-full object-contain p-3 rounded-lg"
+            className="w-full h-full object-cover rounded-lg"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src = '/placeholder-image.png';
@@ -157,21 +157,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
       <div className="p-4 flex flex-col flex-grow">
         <Link to={`/product/${product.id}`} className="block">
-          <h3 className="text-sm font-medium mb-1 line-clamp-2">{product.name}</h3>
-          <p className="text-xs text-gray-500">
+          <h3 className="text-sm font-normal mb-1 line-clamp-2 font-['Work_Sans']">{product.name}</h3>
+          {/* <p className="text-xs text-gray-500">
             SKU: {product.sku}
-          </p>
+          </p> */}
         </Link>
         
         <div className="mt-auto">
-          <div className="flex items-center space-x-2 mb-3">
-            <span className="text-base font-bold">₹{product.price.toFixed(2)}</span>
+          <div className="flex items-center space-x-2 mb-4">
+            <span className="text-lg font-semibold">₹{product.price.toFixed(2)}</span>
             {product.originalPrice && (
               <span className="text-gray-400 text-sm line-through">₹{product.originalPrice.toFixed(2)}</span>
             )}
           </div>
           <button
-            className="w-full sm:w-[80%] mx-auto bg-[#F2631F] text-white text-sm font-sans py-2 rounded-xl hover:bg-black duration-300 transition"
+            className="w-[117px] sm:w-[80%] mx-auto bg-[#F2631F] text-white text-sm font-worksans font-medium hover:bg-orange-600 py-2 px-5 rounded-xl duration-300 transition"
             onClick={handleAddToCart}
             disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
           >

@@ -7,7 +7,6 @@
 @layer base {
   html, body {
     overflow-x: hidden;
-    overflow-y: scroll;
     max-width: 100%;
     font-family: 'Work Sans', sans-serif;
   }

@@ -134,18 +134,18 @@ const Navbar: React.FC = () => {
   const searchBarContent = (
     <div ref={desktopSearchRef} className="relative">
       <form onSubmit={handleSearchSubmit} className="relative">
-        <div className="flex rounded-md overflow-hidden bg-white border border-gray-300 shadow-sm">
+        <div className="w-full xl:w-[580px] h-10 flex justify-between items-center rounded-lg overflow-hidden bg-white overflow-hidden">
           <input
             type="text"
             placeholder="What are you looking for?"
-            className="w-full md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+            className="w-full h-full md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-3 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-normal text-sm leading-6 tracking-[0%] outline-none"
             value={searchQuery}
             onChange={handleSearchInputChange}
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
-          <div className="relative flex items-center bg-gray-100">
+          <div className="relative w-[196px] flex items-center bg-gray-100">
             <select
-              className="h-full appearance-none bg-transparent py-1.5 pl-3 pr-8 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+              className="w-full h-full appearance-none bg-transparent py-3 pl-4 pr-[120px] text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-normal text-[14px] leading-6 tracking-[0%]"
               value={searchType}
               onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
             >
@@ -285,7 +285,7 @@ const Navbar: React.FC = () => {
                   </div>
 
                   <button
-                    className="bg-black hover:bg-gray-900 text-white py-1.5 px-2 nav:px-3 mid:px-6 rounded-md border border-white whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+                    className="w-24 h-11 bg-black hover:bg-gray-900 text-white py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-white whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
                     onClick={() => {
                       setShowSearchResults(false);
                       setSearchQuery('');
@@ -316,7 +316,7 @@ const Navbar: React.FC = () => {
 
                   <Link
                     to="/business/login"
-                    className="bg-[#F2631F] text-white rounded-md px-2 nav:px-2.5 mid:px-3 py-1.5 hover:bg-orange-600 transition-colors whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+                    className="w-40 h-10 flex justify-center items-center bg-[#F2631F] text-white rounded-md px-3 nav:px-2.5 mid:px-3 py-2 hover:bg-orange-600 transition-colors whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
                   >
                     Become a Merchant
                   </Link>
@@ -474,12 +474,12 @@ const Navbar: React.FC = () => {
           {/* Desktop navigation */}
           <div className="hidden nav:flex items-center justify-between">
             {/* Categories Dropdown Button */}
-            <div className="relative flex items-center">
-              <span className="mr-1 flex items-center">
-                <img src="/assets/images/category.png" alt="Category" className="w-5 h-5" />
+            <div onClick={toggleCategoryDropdown} className="relative flex items-center group">
+              <span className="mr-1 w-6 h-6 py-[5px] px-[3px] flex items-center">
+                <img src="/assets/images/category.png" alt="Category" className="w-full h-full" />
               </span>
               <button
-                className="flex items-center py-1.5 px-3 md:px-4 text-black hover:text-gray-700 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+                className="flex items-center py-1.5 px-3 md:px-4 text-black group-hover:text-gray-700 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
                 onClick={toggleCategoryDropdown}
                 aria-expanded={isCategoryDropdownOpen}
                 ref={desktopCategoryButtonRef}
