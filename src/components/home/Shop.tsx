@@ -100,9 +100,8 @@ const Shop = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleShopClick = (navigationPath: string) => {
+  const handleBannerClick = (bannerId: number, navigationPath: string) => {
     if (isShopOpen) {
-      console.log(`Navigating to: ${navigationPath}`);
       navigate(navigationPath);
     }
   };
@@ -114,7 +113,9 @@ const Shop = () => {
   };
 
   const handleMouseLeave = () => {
-    setHoveredBanner(null);
+    if (isShopOpen) {
+      setHoveredBanner(null);
+    }
   };
 
   const formatTime = (date: Date) => {
@@ -141,38 +142,38 @@ const Shop = () => {
   };
 
   return (
-    <div className="w-full min-h-screen" style={{ background: 'linear-gradient(135deg, #F2631F 0%, #F2631F 100%)' }}>
+    <div className="w-full min-h-screen mb-16 sm:mb-20 md:mb-24 lg:mb-32" style={{ background: 'linear-gradient(135deg, #F2631F 0%, #F2631F 100%)' }}>
       {/* Innovation Window Section */}
-      <div className=" bg-[#F2631F] py-8 px-4 sm:py-12 md:py-16 sm:px-6 lg:px-8">
+      <div className="bg-[#F2631F] py-6 px-4 sm:py-8 md:py-12 lg:py-16 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center space-x-2 mb-2 font-[Work Sans]">
-            <span className="text-yellow-300 text-lg font-[Work Sans]">⚡</span>
-            <span className="text-white font-bold tracking-wider text-lg sm:text-xl font-[Work Sans]">THE INNOVATION WINDOW</span>
-            <span className="text-yellow-300 text-lg font-[Work Sans]">⚡</span>
+            <span className="text-yellow-300 text-base sm:text-lg md:text-xl font-[Work Sans]">⚡</span>
+            <span className="text-white font-bold tracking-wider text-base sm:text-lg md:text-xl lg:text-2xl font-[Work Sans]">THE INNOVATION WINDOW</span>
+            <span className="text-yellow-300 text-base sm:text-lg md:text-xl font-[Work Sans]">⚡</span>
           </div>
           <div className="flex justify-center mb-4 font-[Work Sans]">
-            <span className="bg-white/20 border border-white/40 text-white font-semibold px-6 py-2 rounded-full text-base shadow-sm backdrop-blur-sm font-[Work Sans]">
+            <span className="bg-white/20 border border-white/40 text-white font-semibold px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-sm sm:text-base shadow-sm backdrop-blur-sm font-[Work Sans]">
               9 AM to 10 PM Daily
             </span>
           </div>
           
-          <p className="text-white text-base sm:text-lg font-medium mb-8 font-[Work Sans]">
-          Every day from 9 to 10, AOIN opens its shutters to offer exclusive, handpicked products for a limited time only.
-          Whether it's lifestyle, tech, fashion, or home essentials.
+          <p className="text-white text-sm sm:text-base md:text-lg font-medium mb-6 sm:mb-8 font-[Work Sans]">
+            Every day from 9 to 10, AOIN opens its shutters to offer exclusive, handpicked products for a limited time only.
+            Whether it's lifestyle, tech, fashion, or home essentials.
           </p>
           
           {/* Current Time and Status */}
           <div className="flex items-center justify-center mt-2 font-[Work Sans]">
-            <div className="flex items-center bg-white/90 rounded-xl shadow-lg px-6 py-3 space-x-8 border border-gray-200 font-[Work Sans]">
+            <div className="flex flex-col sm:flex-row items-center bg-white/90 rounded-xl shadow-lg px-4 sm:px-6 py-2 sm:py-3 space-y-2 sm:space-y-0 sm:space-x-8 border border-gray-200 font-[Work Sans]">
               <div className="flex items-center space-x-2 font-[Work Sans]">
-                <span className="w-3 h-3 rounded-full bg-orange-500 inline-block font-[Work Sans]"></span>
-                <span className="text-gray-700 font-semibold font-[Work Sans]">Current Time:</span>
-                <span className="text-gray-900 font-bold font-[Work Sans]">{formatTime(currentTime)}</span>
+                <span className="w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full bg-orange-500 inline-block font-[Work Sans]"></span>
+                <span className="text-gray-700 font-semibold text-sm sm:text-base font-[Work Sans]">Current Time:</span>
+                <span className="text-gray-900 font-bold text-sm sm:text-base font-[Work Sans]">{formatTime(currentTime)}</span>
               </div>
               <div className="flex items-center space-x-2 font-[Work Sans]">
-                <span className={`w-3 h-3 rounded-full ${isShopOpen ? 'bg-green-500' : 'bg-red-500'} inline-block font-[Work Sans]`}></span>
-                <span className="text-gray-700 font-semibold font-[Work Sans]">Status:</span>
-                <span className={`px-3 py-1 rounded-full text-sm font-bold ${isShopOpen ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} font-[Work Sans]`}>
+                <span className={`w-2.5 sm:w-3 h-2.5 sm:h-3 rounded-full ${isShopOpen ? 'bg-green-500' : 'bg-red-500'} inline-block font-[Work Sans]`}></span>
+                <span className="text-gray-700 font-semibold text-sm sm:text-base font-[Work Sans]">Status:</span>
+                <span className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold ${isShopOpen ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} font-[Work Sans]`}>
                   {isShopOpen ? 'OPEN' : 'CLOSED'}
                 </span>
               </div>
@@ -191,14 +192,15 @@ const Shop = () => {
                 {/* Banner */}
                 <div 
                   className={`cursor-pointer transform transition-all duration-300 hover:shadow-2xl group ${isShopOpen ? 'hover:scale-[1.01]' : 'cursor-not-allowed'}`}
-                  onClick={() => handleShopClick(shop.navigationPath)}
+                  onClick={() => handleBannerClick(shop.id, shop.navigationPath)}
                   onMouseEnter={() => handleMouseEnter(shop.id)}
                   onMouseLeave={handleMouseLeave}
+                  onMouseOut={handleMouseLeave}
                   role="button"
                   tabIndex={isShopOpen ? 0 : -1}
                   onKeyDown={(e) => {
                     if (isShopOpen && (e.key === 'Enter' || e.key === ' ')) {
-                      handleShopClick(shop.navigationPath);
+                      handleBannerClick(shop.id, shop.navigationPath);
                     }
                   }}
                   aria-label={`Navigate to ${shop.title}`}
@@ -209,10 +211,11 @@ const Shop = () => {
                   }}
                 >
                   <div 
-                    className="relative flex items-center justify-center overflow-hidden w-full group-hover:after:opacity-100 after:opacity-0 after:absolute after:inset-0 after:bg-gradient-to-r after:from-black/5 after:via-transparent after:to-black/5 after:transition-opacity after:duration-300"
+                    className="relative flex items-center justify-center w-full group-hover:after:opacity-100 after:opacity-0 after:absolute after:inset-0 after:bg-gradient-to-r after:from-black/5 after:via-transparent after:to-black/5 after:transition-opacity after:duration-300 h-[150px] sm:h-[321px]"
                     style={{
                       width: '100%',
-                      height: 'clamp(200px, 25vw, 400px)',
+                      maxWidth: '100%',
+                      margin: '0 auto',
                       background: `
                         linear-gradient(90deg, 
                           rgba(15,15,15,1) 0%, 
@@ -234,23 +237,24 @@ const Shop = () => {
                   >
                     {/* Time Left Badge */}
                     {isShopOpen && (
-                      <div className="absolute top-2 left-3 sm:top-4 sm:left-6 text-white text-xs sm:text-sm font-medium z-20 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm transform group-hover:translate-y-1 transition-transform duration-300">
+                      <div className="absolute top-1 left-2 sm:top-4 sm:left-6 text-white text-[10px] xs:text-xs sm:text-sm font-medium z-20 bg-black/50 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full backdrop-blur-sm transform group-hover:translate-y-1 transition-transform duration-300">
                         Time left : {calculateTimeLeft()}
                       </div>
                     )}
 
                     {/* SVG Banner Images with Hover Effect */}
-                    <div className="relative z-10 w-full h-full flex items-center justify-center transform group-hover:scale-105 transition-transform duration-500">
+                    <div className="relative z-10 w-full h-full flex items-center justify-center">
                       {/* Default Banner Image */}
                       <img 
                         src={shop.bannerImage} 
                         alt={shop.title}
-                        className={`absolute w-full h-full object-cover object-center transition-opacity duration-300 ${
-                          hoveredBanner === shop.id ? 'opacity-0' : 'opacity-100'
+                        className={`absolute w-full h-full object-contain sm:object-cover object-center transition-all ease-in-out ${
+                          hoveredBanner === shop.id ? 'opacity-0 -translate-y-[180px] sm:-translate-y-[30px]' : 'opacity-100 translate-y-0'
                         }`}
                         style={{ 
                           minWidth: '100%',
-                          minHeight: '100%'
+                          minHeight: '100%',
+                          transitionDuration: shop.id >= 3 ? '2000ms' : '500ms'
                         }}
                       />
                       
@@ -258,12 +262,13 @@ const Shop = () => {
                       <img 
                         src={shop.innerBannerImage} 
                         alt={`${shop.title} Inner`}
-                        className={`absolute w-full h-full object-cover object-center transition-opacity duration-300 ${
-                          hoveredBanner === shop.id ? 'opacity-100' : 'opacity-0'
+                        className={`absolute w-full h-full object-contain sm:object-cover object-center transition-all ease-in-out ${
+                          hoveredBanner === shop.id ? 'opacity-100 translate-y-0' : 'opacity-0'
                         }`}
                         style={{ 
                           minWidth: '100%',
-                          minHeight: '100%'
+                          minHeight: '100%',
+                          transitionDuration: shop.id >= 3 ? '2000ms' : '500ms'
                         }}
                       />
                     </div>
@@ -293,7 +298,7 @@ const Shop = () => {
 
                 {/* Gray spacer between banners (except after last banner) */}
                 {index < shopBanners.length - 1 && (
-                  <div className="w-full h-6 sm:h-8 md:h-12 bg-gray-100"></div>
+                  <div className="w-full h-12 sm:h-16 md:h-20 lg:h-24 bg-gray-100"></div>
                 )}
               </div>
             ))}
@@ -313,17 +318,17 @@ const Shop = () => {
               {/* Closed Sign */}
               <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg border-4 border-gray-800 shadow-2xl transform rotate-2">
                 <div className="text-center">
-                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
                     SORRY! WE'RE
                   </h3>
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-4">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-4">
                     CLOSED
                   </h2>
                   <div className="border-t-2 border-gray-400 pt-4">
-                    <p className="text-sm sm:text-base md:text-lg text-gray-600">
+                    <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-600">
                       Shop opens daily from
                     </p>
-                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">
+                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">
                       9:00 AM - 10:00 PM
                     </p>
                     <p className="text-xs sm:text-sm text-gray-500 mt-2">
