@@ -41,6 +41,16 @@ const ProductsReport = () => {
   const [mostViewed, setMostViewed] = useState<MostViewedProduct[]>([]);
   const { accessToken } = useAuth();
 
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -195,7 +205,7 @@ const ProductsReport = () => {
                 <span className="text-gray-600">{product.name}</span>
                 <div className="text-right">
                   <span className="font-medium text-black">{product.sold} sold</span>
-                  <span className="text-gray-500 ml-2">({product.revenue})</span>
+                  <span className="text-gray-500 ml-2">({formatCurrency(Number(product.revenue.replace(/[^0-9.-]+/g, '')))})</span>
                 </div>
               </div>
             ))}

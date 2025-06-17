@@ -971,7 +971,7 @@ const ProductDetail: React.FC = () => {
                   {/* Add to Cart Button */}
                   <button
                     onClick={handleAddToCart}
-                    className="bg-orange-500 text-white px-5 py-2 rounded-md hover:bg-orange-600 transition-colors font-medium text-sm min-w-[120px]"
+                    className="bg-orange-500 text-white px-5 py-2 rounded-md hover:bg-black duration-300 transition-colors font-medium text-sm min-w-[120px]"
                   >
                     Add To Cart
                   </button>

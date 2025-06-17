@@ -6,6 +6,7 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { toast } from 'react-hot-toast';
+import bannerImage from '../../../public/assets/images/banner.png';
 
 // Product type for promo products from API
 export type PromoProduct = {
@@ -47,12 +48,12 @@ type Countdown = {
 const PromoProducts: React.FC = () => {
   const { addToCart } = useCart();
   const { isAuthenticated, user } = useAuth();
-  const { 
-    addToWishlist, 
-    removeFromWishlist, 
-    isInWishlist, 
+  const {
+    addToWishlist,
+    removeFromWishlist,
+    isInWishlist,
     loading: wishlistLoading,
-    wishlistItems 
+    wishlistItems
   } = useWishlist();
   const navigate = useNavigate();
   const [itemsPerView, setItemsPerView] = useState(2);
@@ -132,7 +133,7 @@ const PromoProducts: React.FC = () => {
     try {
       setLoading(true);
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/promo-products/?per_page=12`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch promo products');
       }
@@ -168,7 +169,7 @@ const PromoProducts: React.FC = () => {
   const handleAddToCart = async (e: React.MouseEvent, product: PromoProduct) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!isAuthenticated) {
       toast.error('Please sign in to add items to cart');
       const returnUrl = encodeURIComponent(window.location.pathname);
@@ -181,7 +182,7 @@ const PromoProducts: React.FC = () => {
       toast.error('Merchants and admins cannot add items to cart');
       return;
     }
-    
+
     try {
       await addToCart({
         id: product.product_id,
@@ -202,7 +203,7 @@ const PromoProducts: React.FC = () => {
   const handleWishlist = async (e: React.MouseEvent, product: PromoProduct) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!isAuthenticated) {
       toast.error('Please sign in to add items to wishlist');
       const returnUrl = encodeURIComponent(window.location.pathname);
@@ -215,11 +216,11 @@ const PromoProducts: React.FC = () => {
       toast.error('Merchants and admins cannot add items to wishlist');
       return;
     }
-    
+
     try {
       const productId = product.product_id;
       const isInWishlistItem = isInWishlist(productId);
-      
+
       if (isInWishlistItem) {
         const wishlistItem = wishlistItems.find(item => item.product_id === productId);
         if (wishlistItem) {
@@ -241,7 +242,7 @@ const PromoProducts: React.FC = () => {
     title: "LUXURY COLLECTION",
     subtitle: "EXCLUSIVE DEALS UP TO 50% OFF",
     tag: "Limited Time Offer",
-    image: "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=100",
+    image: bannerImage, // Replace with your banner image path
     overlayColor: "rgba(242, 99, 31, 0.05)", // Your brand orange with transparency
     textColor: "#F2631F", // Your brand orange
     buttonText: "Shop Now",
@@ -269,7 +270,7 @@ const PromoProducts: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center justify-center h-64">
             <p className="text-red-500 mb-4">Error loading promo products: {error}</p>
-            <button 
+            <button
               onClick={fetchPromoProducts}
               className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
@@ -286,25 +287,25 @@ const PromoProducts: React.FC = () => {
       <div className="container mx-auto px-4">
         {/* Header with navigation */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Promo Products</h2>
+          <h2 className="text-xl font-medium font-worksans">Promo Products</h2>
           <div className="flex items-center">
-            <Link to="/promo-products" className="text-orange-500 text-sm font-medium mr-4">
+            <Link to="/promo-products" className="text-orange-500 text-sm font-medium mr-10">
               See All
             </Link>
-            <div className="flex space-x-2">
-              <button 
+            <div className="flex items-center space-x-3">
+              <button
                 onClick={() => scroll('left')}
-                className="p-1 rounded-full border border-gray-300 hover:bg-orange-400 transition-colors"
-                aria-label="Previous products"
+                className="focus:outline-none"
+                aria-label="Scroll Left"
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={20} className="text-gray-500 hover:text-black duration-300" />
               </button>
-              <button 
+              <button
                 onClick={() => scroll('right')}
-                className="p-1 rounded-full border border-gray-300 hover:bg-orange-400 transition-colors"
-                aria-label="Next products"
+                className="focus:outline-none"
+                aria-label="Scroll Right"
               >
-                <ChevronRight size={20} />
+                <ChevronRight size={20} className="text-gray-500 hover:text-black duration-300" />
               </button>
             </div>
           </div>
@@ -326,50 +327,51 @@ const PromoProducts: React.FC = () => {
           >
             {promoProducts.map((product) => {
               const countdown = product.special_end ? countdowns[product.product_id] : null;
-              const discount = product.special_price 
+              const discount = product.special_price
                 ? Math.round(((product.selling_price - product.special_price) / product.selling_price) * 100)
                 : 0;
 
               return (
-                <div 
-                  key={product.product_id} 
+                <div
+                  key={product.product_id}
                   className="flex-none"
                   style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 24 / itemsPerView}px)` }}
                 >
                   <div className="bg-white rounded-lg overflow-hidden border border-orange-100 hover:border-orange-300 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col md:flex-row relative h-full">
                     {/* Discount Badge */}
                     <div className="absolute top-2 left-2 z-10">
-                      <span className="bg-orange-500 text-white text-xs py-1 px-2 rounded">
+                      <span className="bg-[#F2631F] text-white text-xs py-[3px] px-3 rounded-[4px]">
                         - {discount}%
                       </span>
                     </div>
-                    
-                    {/* Wishlist Button */}
-                    <button 
-                      className={`absolute top-2 right-2 z-10 p-1.5 rounded-full transition-all duration-300 ${
-                        isInWishlist(product.product_id) 
-                          ? 'text-[#F2631F] bg-white shadow-md' 
-                          : 'text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md'
-                      }`}
-                      onClick={(e) => handleWishlist(e, product)}
-                      disabled={wishlistLoading}
-                    >
-                      <Heart className={`w-4 h-4 ${isInWishlist(product.product_id) ? 'fill-current' : ''}`} />
-                    </button>
-                    
+
+
+
                     {/* Product Image */}
                     <div className="md:w-2/5 h-64 md:h-auto relative flex-shrink-0">
-                      <img 
-                        src={product.images?.[0] || '/placeholder-image.jpg'} 
+                      <img
+                        src={product.images?.[0] || '/placeholder-image.jpg'}
                         alt={product.product_name}
                         className="w-full h-full object-cover"
                       />
+
+                      {/* Wishlist Button */}
+                      <button
+                        className={`absolute top-2 right-2 z-10 p-1.5 rounded-full transition-all duration-300 ${isInWishlist(product.product_id)
+                            ? 'text-[#F2631F] bg-white shadow-md'
+                            : 'text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md'
+                          }`}
+                        onClick={(e) => handleWishlist(e, product)}
+                        disabled={wishlistLoading}
+                      >
+                        <Heart className={`w-4 h-4 ${isInWishlist(product.product_id) ? 'fill-current' : ''}`} />
+                      </button>
                     </div>
-                    
+
                     {/* Product Details */}
                     <div className="md:w-3/5 p-6 flex flex-col justify-between flex-grow">
                       <div>
-                        <h3 className="font-medium text-base mb-2">{product.product_name}</h3>
+                        <p className="font-normal text-sm font-worksans mb-2">{product.product_name}</p>
                         <div className="flex items-baseline mb-4">
                           <span className="text-xl font-bold">${product.special_price?.toFixed(2) || product.selling_price.toFixed(2)}</span>
                           {product.special_price && (
@@ -378,10 +380,10 @@ const PromoProducts: React.FC = () => {
                             </span>
                           )}
                         </div>
-                        
+
                         {/* Countdown Timer */}
                         {countdown && (
-                          <div className="grid grid-cols-4 gap-2 mb-6">
+                          <div className="grid grid-cols-4 gap-2 mb-6 w-[203px] h-[62px]">
                             <div className="text-center">
                               <div className="bg-gray-100 p-2 rounded">
                                 <span className="text-base font-medium">{countdown.days}</span>
@@ -409,10 +411,10 @@ const PromoProducts: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       {/* Add to Cart Button */}
-                      <button 
-                        className="w-full bg-[#F2631F] text-white py-3 px-4 rounded transition flex items-center justify-center gap-1.5"
+                      <button
+                        className="w-full font-worksans hover:bg-black duration-300 font-medium text-sm bg-[#F2631F] text-white py-2 px-[94.5px] rounded-lg transition flex items-center justify-center gap-1.5"
                         onClick={(e) => handleAddToCart(e, product)}
                         disabled={product.stock?.stock_qty === 0 || user?.role === 'merchant' || user?.role === 'admin'}
                       >
@@ -429,20 +431,20 @@ const PromoProducts: React.FC = () => {
 
         {/* Full-width Banner */}
         <div className="relative overflow-hidden h-96 w-screen -ml-[calc((100vw-100%)/2)]">
-          <img 
+          <img
             src={banner.image}
-            alt="Promo banner" 
+            alt="Promo banner"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 flex items-center p-8">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 flex items-end justify-center">
               <div className="ml-auto mr-8">
-                <span className="inline-block bg-white bg-opacity-90 px-3 py-1 text-sm mb-4">
+                <span className="font-worksans font-medium inline-block text-white text-base mb-4">
                   {banner.tag}
                 </span>
-                <h3 className="text-white text-3xl font-bold mb-2">{banner.title}</h3>
-                <h4 className="text-white text-2xl font-bold mb-6">{banner.subtitle}</h4>
-                <button className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition">
+                <h4 className="text-white text-4xl font-semibold font-worksans mb-4">{banner.title}</h4>
+                <h4 className="text-white text-4xl font-semibold font-worksans mb-8">{banner.subtitle}</h4>
+                <button className="bg-[#F2631F] hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition font-worksans text-sm">
                   Order Now
                 </button>
               </div>

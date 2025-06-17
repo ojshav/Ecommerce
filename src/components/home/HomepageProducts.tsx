@@ -96,8 +96,10 @@ const HomepageProducts: React.FC = () => {
         setItemsPerView(2);
       } else if (width < 1024) { // lg breakpoint
         setItemsPerView(3);
-      } else {
+      } else if (width < 1280) { // xl breakpoint
         setItemsPerView(4);
+      } else { // 2xl breakpoint
+        setItemsPerView(5);
       }
     };
 
@@ -291,28 +293,25 @@ const HomepageProducts: React.FC = () => {
                       {subcategory.category.name}
                     </button>
                   ))}
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3">
                     <button 
-                      className={`p-1 rounded-full border ${
+                      className={
                         categoryStates[categoryData.category.category_id]?.currentPage === 1 
-                          ? 'border-gray-200 text-gray-400 cursor-not-allowed' 
-                          : 'border-gray-300 hover:bg-gray-100 transition-colors'
-                      }`}
+                          ? 'text-gray-400 cursor-not-allowed' 
+                          : 'hover:text-black text-gray-500 transition-colors'
+                      }
                       onClick={() => scroll('left')}
                       disabled={categoryStates[categoryData.category.category_id]?.currentPage === 1}
                       aria-label="Previous products"
                     >
                       <ChevronLeft size={20} />
                     </button>
-                    <span className="text-sm text-gray-600">
-                      Page {categoryStates[categoryData.category.category_id]?.currentPage || 1} of {getTotalPages(categoryData)}
-                    </span>
                     <button 
-                      className={`p-1 rounded-full border ${
+                      className={
                         categoryStates[categoryData.category.category_id]?.currentPage === getTotalPages(categoryData)
-                          ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                          : 'border-gray-300 hover:bg-gray-100 transition-colors'
-                      }`}
+                          ? 'text-gray-400 cursor-not-allowed'
+                          : 'hover:text-black text-gray-500 transition-colors'
+                      }
                       onClick={() => scroll('right')}
                       disabled={categoryStates[categoryData.category.category_id]?.currentPage === getTotalPages(categoryData)}
                       aria-label="Next products"
@@ -327,7 +326,7 @@ const HomepageProducts: React.FC = () => {
               <div className="relative">
                 <div
                   ref={containerRef}
-                  className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide"
+                  className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
                   onMouseDown={handleMouseDown}
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseUp}
@@ -341,7 +340,7 @@ const HomepageProducts: React.FC = () => {
                     <div 
                       key={product.product_id} 
                       className="flex-none"
-                      style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 16 / itemsPerView}px)` }}
+                      style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 12 / itemsPerView}px)` }}
                     >
                       {renderProductCard(product)}
                     </div>

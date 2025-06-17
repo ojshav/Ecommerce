@@ -55,7 +55,36 @@ export const useHorizontalScroll = ({ scrollAmount = 300 }: UseHorizontalScrollP
   const handleWheel = (e: React.WheelEvent) => {
     if (!containerRef.current) return;
     e.preventDefault();
-    containerRef.current.scrollLeft += e.deltaY;
+
+    // Get the container's current scroll position and dimensions
+    const container = containerRef.current;
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+
+    // Calculate the maximum scroll position
+    const maxScroll = scrollWidth - clientWidth;
+
+    // Determine if we're using a touchpad (deltaMode === 0) or mouse wheel (deltaMode === 1)
+    const isTouchpad = e.deltaMode === 0;
+    
+    // Apply different scrolling behavior based on input device
+    if (isTouchpad) {
+      // For touchpad, use a smoother scrolling with momentum
+      const scrollAmount = e.deltaY * 0.5; // Reduce the scroll amount for smoother movement
+      const newScrollLeft = scrollLeft + scrollAmount;
+      
+      // Apply smooth scrolling with bounds checking
+      container.scrollTo({
+        left: Math.max(0, Math.min(newScrollLeft, maxScroll)),
+        behavior: 'smooth'
+      });
+    } else {
+      // For mouse wheel, use a more traditional scrolling
+      const scrollAmount = e.deltaY * 2; // Increase scroll amount for mouse wheel
+      container.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    }
   };
 
   const scroll = (direction: 'left' | 'right') => {

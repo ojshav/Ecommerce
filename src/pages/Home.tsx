@@ -137,7 +137,7 @@ const Home = () => {
       </div>
 
       {/* Content sections below mobile search bar */}
-      <div className="nav:pt-8">
+      <div className="nav:pt-4">
         <div className="space-y-8">
           <Hero />
           <Categories />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
@@ -115,8 +115,10 @@ const FeaturedProducts: React.FC = () => {
         setItemsPerView(2);
       } else if (width < 1024) { // lg breakpoint
         setItemsPerView(3);
-      } else {
+      } else if (width < 1280) { // xl breakpoint
         setItemsPerView(4);
+      } else { // 2xl breakpoint
+        setItemsPerView(5);
       }
     };
 
@@ -124,7 +126,16 @@ const FeaturedProducts: React.FC = () => {
     window.addEventListener('resize', updateItemsPerView);
     return () => window.removeEventListener('resize', updateItemsPerView);
   }, []);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
+  const scrollLeft = () => {
+    scrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
+  };
+  
+  const scrollRight = () => {
+    scrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
+  };
+  
   if (loading) {
     return (
       <section className="pb-12">
@@ -165,26 +176,26 @@ const FeaturedProducts: React.FC = () => {
             
             {/* Navigation */}
             <div className="flex items-center w-full md:w-auto space-x-4">
-              <Link to="/featured-products" className="text-orange-500 text-sm font-medium">
-                See all
+              <Link to="/featured-products" className="text-orange-500 text-sm font-medium mr-6">
+                See All
               </Link>
               
-              <div className="flex items-center space-x-2">
-                <button 
-                  onClick={() => scroll('left')}
-                  className="p-1 rounded-full border border-gray-300 hover:bg-orange-400 transition-colors"
-                  aria-label="Previous products"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button 
-                  onClick={() => scroll('right')}
-                  className="p-1 rounded-full border border-gray-300 hover:bg-orange-400 transition-colors"
-                  aria-label="Next products"
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </div>
+              <div className="flex items-center space-x-3">
+              <button
+                onClick={() => scroll('left')}
+                className="focus:outline-none"
+                aria-label="Scroll Left"
+              >
+                <ChevronLeft size={20} className="text-gray-500 hover:text-black duration-300" />
+              </button>
+              <button
+                onClick={() => scroll('right')}
+                className="focus:outline-none"
+                aria-label="Scroll Right"
+              >
+                <ChevronRight size={20} className="text-gray-500 hover:text-black duration-300" />
+              </button>
+            </div>
             </div>
           </div>
 
@@ -192,7 +203,7 @@ const FeaturedProducts: React.FC = () => {
           <div className="relative">
             <div
               ref={containerRef}
-              className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide"
+              className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
               onMouseDown={handleMouseDown}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
@@ -206,7 +217,7 @@ const FeaturedProducts: React.FC = () => {
                 <div 
                   key={product.product_id} 
                   className="flex-none"
-                  style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 16 / itemsPerView}px)` }}
+                  style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 12 / itemsPerView}px)` }}
                 >
                   <ProductCard 
                     product={{

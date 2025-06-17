@@ -418,7 +418,10 @@ const Inventory: React.FC = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(stockData)
+        body: JSON.stringify({
+          stock_qty: stockData.stock_qty,
+          low_stock_threshold: stockData.low_stock_threshold
+        })
       });
 
       if (!response.ok) {
