@@ -53,7 +53,7 @@ const Brands = () => {
       <section className="py-0">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Shop By Brands</h2>
+            <h6 className="text-xl font-medium font-worksans">Shop By Brands</h6>
           </div>
           <div className="flex space-x-4 overflow-x-auto pb-4 pt-2 pl-2">
             {[...Array(6)].map((_, index) => (
@@ -91,7 +91,7 @@ const Brands = () => {
       <div className="container mx-auto px-4">
         {/* Header with scroll buttons */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Shop By Brands</h2>
+          <h6 className="text-xl font-medium font-worksans">Shop By Brands</h6>
           <div className="flex items-center">
             <Link to="/all-products" className="text-orange-500 text-sm font-medium mr-10">
               See All
