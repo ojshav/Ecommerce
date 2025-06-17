@@ -90,7 +90,7 @@ const Technology: React.FC = () => {
         <div className="flex flex-col space-y-6">
           {/* Header with navigation */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-            <h2 className="text-2xl font-semibold">Technology</h2>
+            <h6 className="text-xl font-medium font-worksans">Technology</h6>
             
             {/* Categories and Navigation */}
             <div className="flex items-center w-full md:w-auto overflow-x-auto pb-2 md:pb-0 space-x-6">

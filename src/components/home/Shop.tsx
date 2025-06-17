@@ -28,11 +28,27 @@ const Shop = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [hoveredBanner, setHoveredBanner] = useState<number | null>(null);
 
+  // Calculate time remaining until closing (22:00)
+  const calculateTimeLeft = () => {
+    const now = new Date();
+    const closingTime = new Date(now);
+    closingTime.setHours(22, 0, 0, 0);
+    
+    const diff = closingTime.getTime() - now.getTime();
+    
+    if (diff <= 0) return "Closed";
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    return `${hours}hr ${minutes}min`;
+  };
+
   const shopBanners: ShopBanner[] = [
     {
       id: 1,
       title: "AOIN PRIME",
-      timeLeft: "3hrs 40mins",
+      timeLeft: calculateTimeLeft(),
       navigationPath: "/shop",
       bannerImage: Prime,
       innerBannerImage: PrimeInner
@@ -40,7 +56,7 @@ const Shop = () => {
     {
       id: 2,
       title: "AOIN EXCLUSIVE",
-      timeLeft: "3hr 46 mins",
+      timeLeft: calculateTimeLeft(),
       navigationPath: "/shop2",
       bannerImage: Exclusive,
       innerBannerImage: ExclusiveInner
@@ -48,7 +64,7 @@ const Shop = () => {
     {
       id: 3,
       title: "AOIN VAULT",
-      timeLeft: "3hr 46 mins",
+      timeLeft: calculateTimeLeft(),
       navigationPath: "/shop/vault",
       bannerImage: Vault,
       innerBannerImage: VaultInner
@@ -56,14 +72,14 @@ const Shop = () => {
     {
       id: 4,
       title: "LUXE HUB",
-      timeLeft: "2hr 15 mins",
+      timeLeft: calculateTimeLeft(),
       navigationPath: "/shop/luxehub",
       bannerImage: LuxeHub,
       innerBannerImage: LuxeHubInner
     }
   ];
 
-  // Check if shop is open (9 AM to 10 PM)
+  // Check if shop is open (5 AM to 10 PM)
   const checkShopStatus = () => {
     const now = new Date();
     const hour = now.getHours();
@@ -219,7 +235,7 @@ const Shop = () => {
                     {/* Time Left Badge */}
                     {isShopOpen && (
                       <div className="absolute top-2 left-3 sm:top-4 sm:left-6 text-white text-xs sm:text-sm font-medium z-20 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm transform group-hover:translate-y-1 transition-transform duration-300">
-                        Time left : {shop.timeLeft}
+                        Time left : {calculateTimeLeft()}
                       </div>
                     )}
 
