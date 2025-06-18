@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Heart, ChevronDown, ChevronUp, SlidersHorizontal, ArrowUpDown, X, Check } from 'lucide-react';
 import { Product } from '../types';
 import ProductCard from '../components/product/ProductCard';
+import debounce from 'lodash/debounce';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -58,8 +59,248 @@ const Products: React.FC = () => {
     { label: 'Price: Low to High', value: 'price-asc', sort_by: 'selling_price', order: 'asc' }
   ];
 
-  // Handle product click to track recently viewed
-  const handleProductClick = async (productId: string) => {
+  // Add a new state for price range changes
+  const [priceRangeChanged, setPriceRangeChanged] = useState(false);
+
+  // Add these to the existing state declarations
+  const [discountFilter, setDiscountFilter] = useState<number>(0);
+  const [ratingFilter, setRatingFilter] = useState<number>(0);
+  const [productType, setProductType] = useState<string[]>([]);
+  const [deliveryOptions, setDeliveryOptions] = useState<string[]>([]);
+  const [warrantyFilter, setWarrantyFilter] = useState<boolean>(false);
+  const [shippingFilter, setShippingFilter] = useState<string[]>([]);
+
+  // Add price range presets
+  const priceRanges = [
+    { label: 'Under ₹1,000', min: 0, max: 1000 },
+    { label: '₹1,000 - ₹5,000', min: 1000, max: 5000 },
+    { label: '₹5,000 - ₹10,000', min: 5000, max: 10000 },
+    { label: '₹10,000 - ₹20,000', min: 10000, max: 20000 },
+    { label: '₹20,000 - ₹50,000', min: 20000, max: 50000 },
+    { label: 'Above ₹50,000', min: 50000, max: 1000000 }
+  ];
+
+  // Add new state for filter changes
+  const [filterChanged, setFilterChanged] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  // Add these functions after the state declarations
+  const toggleBrand = (brandId: string) => {
+    setSelectedBrands(prev => 
+      prev.includes(brandId) 
+        ? prev.filter(id => id !== brandId)
+        : [...prev, brandId]
+    );
+  };
+
+  const resetFilters = () => {
+    setSelectedCategory('');
+    setSelectedBrands([]);
+    setPriceRange([0, 1000000]);
+    setSearchQuery('');
+    setRatingFilter(0);
+    setDiscountFilter(0);
+    setCurrentPage(1);
+  };
+
+  // Add debounced fetch products function
+  const debouncedFetchProducts = useCallback(
+    debounce(async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          per_page: perPage.toString(),
+          sort_by: 'created_at',
+          order: 'desc'
+        });
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(location.search);
+        const categoryId = urlParams.get('category') || location.pathname.split('/').pop();
+        const brandId = urlParams.get('brand');
+
+        // Add filters if they exist
+        if (categoryId && categoryId !== 'products') {
+          params.append('category_id', categoryId);
+        }
+        if (brandId) {
+          params.append('brand_id', brandId);
+          setSelectedBrands([brandId]);
+        } else if (selectedBrands.length > 0) {
+          params.append('brand_id', selectedBrands.join(','));
+        }
+        if (priceRange[0] > 0) {
+          params.append('min_price', priceRange[0].toString());
+        }
+        if (priceRange[1] < 1000000) {
+          params.append('max_price', priceRange[1].toString());
+        }
+        if (searchQuery) {
+          params.append('search', searchQuery);
+        }
+        if (ratingFilter > 0) {
+          params.append('min_rating', ratingFilter.toString());
+        }
+        if (discountFilter > 0) {
+          params.append('min_discount', discountFilter.toString());
+        }
+
+        const apiUrl = `${API_BASE_URL}/api/products?${params}`;
+        console.log('Fetching products with URL:', apiUrl);
+
+        const response = await fetch(apiUrl, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch products: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Products response:', data);
+        
+        setProducts(data.products);
+        setTotalPages(data.pagination.pages);
+        setTotalProducts(data.pagination.total);
+
+        // Update selected category if coming from navigation
+        if (categoryId && !selectedCategory) {
+          setSelectedCategory(categoryId);
+        }
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch products');
+      } finally {
+        setLoading(false);
+      }
+    }, 500),
+    [currentPage, selectedCategory, selectedBrands, priceRange, searchQuery, ratingFilter, discountFilter]
+  );
+
+  // Initial data fetch
+  useEffect(() => {
+    console.log('Initial data fetch started');
+    console.log('API Base URL:', API_BASE_URL);
+    fetchCategories();
+    fetchBrands();
+    fetchRecentlyViewed();
+    setIsInitialLoad(false);
+  }, []);
+
+  // Effect for filter changes
+  useEffect(() => {
+    if (!isInitialLoad) {
+      setFilterChanged(true);
+      debouncedFetchProducts();
+    }
+  }, [currentPage, selectedCategory, selectedBrands, priceRange, searchQuery, ratingFilter, discountFilter]);
+
+  // Cleanup debounced function
+  useEffect(() => {
+    return () => {
+      debouncedFetchProducts.cancel();
+    };
+  }, [debouncedFetchProducts]);
+
+  // Update handlers to use debounced fetch
+  const handlePriceRangeSelect = (min: number, max: number) => {
+    setPriceRange([min, max]);
+  };
+
+  // Add debounced search handler
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      setSearchQuery(value);
+      setCurrentPage(1); // Reset to first page on new search
+    }, 500),
+    []
+  );
+
+  // Update search handler
+  const handleSearchChange = (value: string) => {
+    debouncedSearch(value);
+  };
+
+  // Add search suggestions state
+  const [searchSuggestions, setSearchSuggestions] = useState<{
+    products: Product[];
+    categories: Category[];
+    brands: any[];
+  }>({
+    products: [],
+    categories: [],
+    brands: []
+  });
+
+  // Add function to fetch search suggestions
+  const fetchSearchSuggestions = async (query: string) => {
+    if (!query.trim()) {
+      setSearchSuggestions({ products: [], categories: [], brands: [] });
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/products/search-suggestions?q=${encodeURIComponent(query)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSearchSuggestions(data);
+      }
+    } catch (error) {
+      console.error('Error fetching search suggestions:', error);
+    }
+  };
+
+  // Update search input to show suggestions
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    handleSearchChange(value);
+    fetchSearchSuggestions(value);
+  };
+
+  // Add star rating component
+  const StarRating = ({ rating, onClick, selected }: { rating: number; onClick: () => void; selected: boolean }) => (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-1 w-full text-left px-3 py-2 rounded-lg transition-colors ${
+        selected ? 'bg-orange-50 text-[#F2631F]' : 'hover:bg-gray-50'
+      }`}
+    >
+      <div className="flex items-center">
+        {[...Array(5)].map((_, index) => (
+          <svg
+            key={index}
+            className={`w-4 h-4 ${index < rating ? 'text-yellow-400' : 'text-gray-300'}`}
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+        ))}
+      </div>
+      <span className="text-sm ml-1">& Up</span>
+    </button>
+  );
+
+  // Add rating options
+  const ratingOptions = [4, 3, 2, 1];
+
+  // Add back the missing handler functions
+  const handleRatingFilter = (rating: number) => {
+    setRatingFilter(rating === ratingFilter ? 0 : rating);
+  };
+
+  const handleDiscountFilter = (discount: number) => {
+    setDiscountFilter(discount === discountFilter ? 0 : discount);
+  };
+
+  // Update handleProductClick to handle string IDs
+  const handleProductClick = async (productId: string | number) => {
     try {
       // Navigate to product detail page
       navigate(`/product/${productId}`);
@@ -232,7 +473,6 @@ const Products: React.FC = () => {
       }
       if (brandId) {
         params.append('brand_id', brandId);
-        // If brand is selected via URL, update selectedBrands
         setSelectedBrands([brandId]);
       } else if (selectedBrands.length > 0) {
         params.append('brand_id', selectedBrands.join(','));
@@ -247,7 +487,16 @@ const Products: React.FC = () => {
         params.append('search', searchQuery);
       }
 
-      // Always use the main products endpoint with filters
+      // Add rating filter
+      if (ratingFilter > 0) {
+        params.append('min_rating', ratingFilter.toString());
+      }
+
+      // Add discount filter
+      if (discountFilter > 0) {
+        params.append('min_discount', discountFilter.toString());
+      }
+
       const apiUrl = `${API_BASE_URL}/api/products?${params}`;
 
       console.log('Fetching products with URL:', apiUrl);
@@ -325,74 +574,6 @@ const Products: React.FC = () => {
     } catch (err) {
       console.error('Error fetching brands:', err);
     }
-  };
-
-  // Initial data fetch
-  useEffect(() => {
-    console.log('Initial data fetch started');
-    console.log('API Base URL:', API_BASE_URL);
-    fetchProducts();
-    fetchRecentlyViewed();
-    fetchCategories();
-    fetchBrands();
-  }, []);
-
-  // Refetch products when filters or pagination changes
-  useEffect(() => {
-    console.log('Refetching products due to filter/pagination change:', {
-      currentPage,
-      selectedCategory,
-      selectedBrands,
-      priceRange,
-      searchQuery
-    });
-    fetchProducts();
-  }, [currentPage, selectedCategory, selectedBrands, priceRange, searchQuery]);
-  
-  // Toggle brand selection
-  const toggleBrand = (brand: string) => {
-    setSelectedBrands(prev => {
-      const newBrands = prev.includes(brand)
-        ? [] // Clear selection if clicking the same brand
-        : [brand]; // Select only one brand at a time
-      
-      // Update URL with selected brand
-      const params = new URLSearchParams(location.search);
-      if (newBrands.length > 0) {
-        params.set('brand', newBrands[0]);
-      } else {
-        params.delete('brand');
-      }
-      navigate(`?${params.toString()}`);
-      
-      return newBrands;
-    });
-  };
-
-  // Toggle color selection
-  const toggleColor = (color: string) => {
-    setSelectedColors(prev => 
-      prev.includes(color) 
-        ? prev.filter(c => c !== color)
-        : [...prev, color]
-    );
-  };
-  
-  // Reset all filters
-  const resetFilters = () => {
-    setSearchQuery('');
-    setSelectedCategory('');
-    setSelectedBrands([]);
-    setSelectedColors([]);
-    setPriceRange([0, 1000000]);
-    setCurrentPage(1);
-    
-    // Clear URL parameters
-    const params = new URLSearchParams(location.search);
-    params.delete('category');
-    params.delete('brand');
-    params.delete('search');
-    navigate(`?${params.toString()}`);
   };
 
   // Sort products based on selected sort option
@@ -524,28 +705,55 @@ const Products: React.FC = () => {
               {/* Price Range */}
               <div className="mb-8">
                 <h3 className="font-semibold text-base mb-4 text-black">Price</h3>
-                <div className="px-2">
-                  <div className="flex justify-between text-xs text-gray-700 mb-2 font-normal">
-                    <span>₹{priceRange[0]}</span>
-                    <span>₹{priceRange[1]}</span>
+                <div className="space-y-2">
+                  {priceRanges.map((range) => (
+                    <button
+                      key={range.label}
+                      onClick={() => handlePriceRangeSelect(range.min, range.max)}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                        priceRange[0] === range.min && priceRange[1] === range.max
+                          ? 'bg-orange-50 text-[#F2631F]'
+                          : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      {range.label}
+                    </button>
+                  ))}
                   </div>
-                  <div className="relative pt-1">
-                    <div className="w-full h-1 bg-gray-200 rounded-lg">
-                      <div
-                        className="absolute h-1 bg-[#F2631F] rounded-lg"
-                        style={{ width: `${(priceRange[1] / 1000000) * 100}%` }}
-                      ></div>
                     </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="1000000"
-                      step="10000"
-                      value={priceRange[1]}
-                      onChange={(e) => {setPriceRange([priceRange[0], parseInt(e.target.value)])}}
-                      className="absolute top-0 w-full h-2 opacity-0 cursor-pointer"
-                    />
+
+              {/* Discount Filter */}
+              <div className="mb-8">
+                <h3 className="font-semibold text-base mb-4 text-black">Discount</h3>
+                <div className="space-y-2">
+                  {[0, 10, 20, 30, 40, 50].map((discount) => (
+                    <button
+                      key={discount}
+                      onClick={() => handleDiscountFilter(discount)}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                        discountFilter === discount
+                          ? 'bg-orange-50 text-[#F2631F]'
+                          : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      {discount === 0 ? 'All Discounts' : `${discount}% and above`}
+                    </button>
+                  ))}
                   </div>
+              </div>
+
+              {/* Rating Filter */}
+              <div className="mb-8">
+                <h3 className="font-semibold text-base mb-4 text-black">Customer Rating</h3>
+                <div className="space-y-2">
+                  {ratingOptions.map((rating) => (
+                    <StarRating
+                      key={rating}
+                      rating={rating}
+                      selected={ratingFilter === rating}
+                      onClick={() => handleRatingFilter(rating)}
+                    />
+                  ))}
                 </div>
               </div>
 
@@ -562,14 +770,72 @@ const Products: React.FC = () => {
           {/* Products Grid */}
           <div className="flex-1">
             {/* Search Bar */}
-            <div className="mb-6">
+            <div className="mb-6 relative">
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchInputChange}
                 placeholder="Search products..."
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F2631F] focus:border-transparent"
               />
+              {searchQuery && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
+                  {searchSuggestions.products.length > 0 && (
+                    <div className="p-2">
+                      <h3 className="text-sm font-semibold text-gray-500 mb-2">Products</h3>
+                      {searchSuggestions.products.map(product => (
+                        <div
+                          key={product.id}
+                          onClick={() => handleProductClick(product.id)}
+                          className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer rounded"
+                        >
+                          {product.primary_image && (
+                            <img src={product.primary_image} alt={product.name} className="w-10 h-10 object-cover rounded" />
+                          )}
+                          <div>
+                            <p className="text-sm font-medium">{product.name}</p>
+                            <p className="text-xs text-gray-500">₹{product.price}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {searchSuggestions.categories.length > 0 && (
+                    <div className="p-2 border-t">
+                      <h3 className="text-sm font-semibold text-gray-500 mb-2">Categories</h3>
+                      {searchSuggestions.categories.map(category => (
+                        <div
+                          key={category.category_id}
+                          onClick={() => {
+                            setSelectedCategory(String(category.category_id));
+                            setSearchQuery('');
+                          }}
+                          className="p-2 hover:bg-gray-50 cursor-pointer rounded"
+                        >
+                          <p className="text-sm">{category.name}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {searchSuggestions.brands.length > 0 && (
+                    <div className="p-2 border-t">
+                      <h3 className="text-sm font-semibold text-gray-500 mb-2">Brands</h3>
+                      {searchSuggestions.brands.map(brand => (
+                        <div
+                          key={brand.brand_id}
+                          onClick={() => {
+                            setSelectedBrands([String(brand.brand_id)]);
+                            setSearchQuery('');
+                          }}
+                          className="p-2 hover:bg-gray-50 cursor-pointer rounded"
+                        >
+                          <p className="text-sm">{brand.name}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Desktop Sort Dropdown */}
@@ -792,28 +1058,55 @@ const Products: React.FC = () => {
               {/* Price Range */}
               <div className="mb-6">
                 <h4 className="font-medium mb-3">Price</h4>
-                <div className="px-2">
-                  <div className="flex justify-between text-xs text-gray-700 mb-2 font-normal">
-                    <span>₹{priceRange[0]}</span>
-                    <span>₹{priceRange[1]}</span>
+                <div className="space-y-2">
+                  {priceRanges.map((range) => (
+                    <button
+                      key={range.label}
+                      onClick={() => handlePriceRangeSelect(range.min, range.max)}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                        priceRange[0] === range.min && priceRange[1] === range.max
+                          ? 'bg-orange-50 text-[#F2631F]'
+                          : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      {range.label}
+                    </button>
+                  ))}
                   </div>
-                  <div className="relative pt-1">
-                    <div className="w-full h-1 bg-gray-200 rounded-lg">
-                      <div
-                        className="absolute h-1 bg-[#F2631F] rounded-lg"
-                        style={{ width: `${(priceRange[1] / 1000000) * 100}%` }}
-                      ></div>
                     </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="1000000"
-                      step="10000"
-                      value={priceRange[1]}
-                      onChange={(e) => {setPriceRange([priceRange[0], parseInt(e.target.value)])}}
-                      className="absolute top-0 w-full h-2 opacity-0 cursor-pointer"
+
+              {/* Mobile Rating Filter */}
+              <div className="mb-6">
+                <h4 className="font-medium mb-3">Customer Rating</h4>
+                <div className="space-y-2">
+                  {ratingOptions.map((rating) => (
+                    <StarRating
+                      key={rating}
+                      rating={rating}
+                      selected={ratingFilter === rating}
+                      onClick={() => handleRatingFilter(rating)}
                     />
+                  ))}
                   </div>
+              </div>
+
+              {/* Mobile Discount Filter */}
+              <div className="mb-6">
+                <h4 className="font-medium mb-3">Discount</h4>
+                <div className="space-y-2">
+                  {[0, 10, 20, 30, 40, 50].map((discount) => (
+                    <button
+                      key={discount}
+                      onClick={() => handleDiscountFilter(discount)}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                        discountFilter === discount
+                          ? 'bg-orange-50 text-[#F2631F]'
+                          : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      {discount === 0 ? 'All Discounts' : `${discount}% and above`}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>

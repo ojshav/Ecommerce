@@ -870,7 +870,7 @@ const BrandCreation: React.FC = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                                    className="px-4 py-2 bg-[#FF5733] text-white rounded-md hover:bg-[#FF4500]"
                                 >
                                     Save Changes
                                 </button>

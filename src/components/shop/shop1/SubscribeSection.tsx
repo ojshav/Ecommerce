@@ -1,44 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const SubscribeSection = () => {
+function SubscribeSection() {
+  const [email, setEmail] = useState('');
+
   return (
-    <section className="flex flex-col w-full max-w-[1280px] mx-auto md:flex-row items-center justify-between px-6 md:px-16 py-12 bg-white">
-      {/* Left Image */}
-      <div className=" max-w-[522px] h-[389px] mx-auto md:w-1/2 mb-8 md:mb-0">
-        <img
-          src="/assets/images/subscribe.jpg"
-          alt="Fashion Models"
-          className="w-full h-auto object-cover"
-        />
-      </div>
-
-      {/* Right Text + Form */}
-      <div className="w-full md:w-1/2 md:pl-12">
-        <h2 className="text-4xl md:text-5xl font-serif font-medium text-gray-900 leading-tight">
-          Stay in the loop with <br />
-          <em className="italic font-semibold">exclusive offers, fashion news</em>, and more.
-        </h2>
-
-        <p className="mt-4 text-gray-600 text-lg">
-          Subscribe to our Aoin newsletter!
-        </p>
-
-        <form className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <input
-            type="email"
-            placeholder="Email Address"
-            className="w-full sm:w-2/3 px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black text-base"
+    <div className="w-full px-4 sm:px-6 lg:px-8 flex items-start justify-center pt-12 md:pt-16 pb-24 md:pb-40 lg:pb-[300px]">
+      <div className="max-w-[1280px] w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-10 md:gap-12 lg:gap-16">
+        {/* Left Image */}
+        <div className="flex-shrink-0 w-full md:w-[50%]">
+          <img 
+            src="/assets/images/subscribe.jpg"
+            alt="Four women in elegant blue and silver outfits"
+            className="w-full h-auto md:w-[522px] md:h-[389px] object-cover rounded-lg"
           />
-          <button
-            type="submit"
-            className="bg-black text-white px-6 py-3 rounded-md text-sm font-semibold uppercase tracking-wide hover:bg-gray-800 transition"
-          >
-            Subscribe
-          </button>
-        </form>
+        </div>
+
+        {/* Right Content */}
+        <div className="w-full md:w-1/2">
+          <h2 className="max-w-full text-[32px] sm:text-[42px] md:text-[48px] lg:text-[44px] leading-[1.3] font-playfair font-normal text-[#222]">
+            Stay in the loop with <br />
+            <em className="italic font-medium">exclusive offers, fashion news</em>, and more.
+          </h2>
+
+          <p className="mt-4 text-gray-600 text-base sm:text-lg mb-10 sm:mb-12">
+            Subscribe to our Aoin newsletter!
+          </p>
+
+          {/* Email + Button with shared bottom line */}
+          <div className="relative w-full mt-2">
+            {/* Bottom border line */}
+            <div className="absolute left-0 -bottom-3 w-full border-b border-black z-0" />
+
+            {/* Input + Button aligned */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center relative z-10 gap-4 sm:gap-2">
+              <input
+                type="email"
+                placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 appearance-none bg-transparent border-none outline-none ring-0 focus:ring-0 text-base sm:text-lg text-gray-800 placeholder-[#636363] placeholder-text-[16px] px-1 py-2"
+              />
+
+              <button className="bg-[#222] text-white px-6 sm:px-8 py-3 sm:py-4 text-sm font-semibold uppercase whitespace-nowrap">
+                Subscribe
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </section>
+    </div>
   );
-};
+}
 
 export default SubscribeSection;
