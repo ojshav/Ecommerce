@@ -101,6 +101,8 @@ export default {
         nosifer: ['"Nosifer"', 'cursive'],
         corinthia: ['"Corinthia"', 'cursive'],
         platypi: ['"Platypi"', 'sans-serif'],
+        inter: ['"Inter"', 'sans-serif'],
+        zen: ['"Zen Dots"', 'sans-serif'],
       },
       fontSize: {
         'display': ['96px', { lineHeight: '90px' }],
