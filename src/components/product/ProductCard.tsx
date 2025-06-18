@@ -163,15 +163,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </p> */}
         </Link>
         
-        <div className="mt-auto">
-          <div className="flex items-center space-x-2 mb-4">
+        <div className="mt-auto w-full">
+          <div className="flex flex-wrap sm:flex-nowrap items-center space-x-2 mb-4">
             <span className="text-lg font-semibold">₹{product.price.toFixed(2)}</span>
             {product.originalPrice && (
               <span className="text-gray-400 text-sm line-through">₹{product.originalPrice.toFixed(2)}</span>
             )}
           </div>
           <button
-            className="w-[117px] sm:w-[80%] mx-auto bg-[#F2631F] text-white text-sm font-worksans font-medium hover:bg-orange-600 py-2 px-5 rounded-xl duration-300 transition"
+            className="w-auto sm:min-w-[139px] mx-auto bg-[#F2631F] text-white text-xs sm:text-sm font-worksans font-medium hover:bg-orange-600 py-2 px-4 sm:px-6 rounded-xl duration-300 transition"
             onClick={handleAddToCart}
             disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
           >

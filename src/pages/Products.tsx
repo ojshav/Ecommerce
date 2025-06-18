@@ -628,8 +628,8 @@ const Products: React.FC = () => {
             )}
             
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 my-8">
+            {totalPages > 0 && (
+              <div className="flex justify-end items-center gap-2 my-8">
                 <button 
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
@@ -746,9 +746,9 @@ const Products: React.FC = () => {
 
       {/* Mobile Filter Drawer */}
       {isFilterOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden">
+        <div className="fixed inset-0 bg-white bg-opacity-50 z-40 lg:hidden">
           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] flex flex-col">
-            <div className="p-4 border-b">
+            <div className="p-4 border-b mt-6 sm:mt-10 nav:mt-20">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Filters</h3>
                 <button onClick={() => setIsFilterOpen(false)} className="p-2">
