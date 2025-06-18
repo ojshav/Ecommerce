@@ -110,6 +110,7 @@ import MerchantSupport from './pages/superadmin/MerchantSupport';
 import RaiseTicket from './pages/RaiseTicket';
 
 import { useVisitTracking } from './hooks/useVisitTracking';
+import SearchResultsPage from './pages/SearchResultsPage';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -454,6 +455,8 @@ const App: React.FC = () => {
                               <Route path="/cart" element={<Cart />} />
                               <Route path="/payment" element={<PaymentPage />} />
                               <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+                              <Route path="/search" element={<SearchResultsPage />} />
+                              <Route path="/search/:query" element={<Products />} />
 
                             {/* These routes will have Navbar and Footer */}
                             <Route path="/signup" element={<SignUp />} />
