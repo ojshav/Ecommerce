@@ -10,6 +10,12 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+  .stroke-text {
+          -webkit-text-stroke: 1px #3B4F3E;
+    color: transparent;
+  }
+  
+
 
   /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
