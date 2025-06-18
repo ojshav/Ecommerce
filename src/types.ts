@@ -59,3 +59,12 @@ export interface Product {
   attributes?: any[];
   created_at?: string;
 }
+
+export interface Category {
+  category_id: number;
+  name: string;
+  slug: string;
+  icon_url: string;
+  parent_id: number | null;
+  children?: Category[];
+}
