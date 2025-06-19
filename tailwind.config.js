@@ -3,12 +3,12 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     screens: {
-      'sm': '640px',
-      'md': '768px',
-      'nav': '968px', 
-      'mid': '1080px', 
-      'lg': '1024px',
-      'xl': '1280px',
+      sm: '640px',
+      md: '768px',
+      nav: '968px',
+      mid: '1080px',
+      lg: '1024px',
+      xl: '1280px',
       '2xl': '1536px',
     },
     extend: {
@@ -94,18 +94,21 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        worksans: ["Work Sans", "sans-serif"],
-        boska: ["Boska", "serif"],
-        playfair: ["Playfair Display", "serif"],
-        poppins: ["Poppins", "sans-serif"],
-        nosifer: ['"Nosifer"', 'cursive'],
-        corinthia: ['"Corinthia"', 'cursive'],
-        platypi: ['"Platypi"', 'sans-serif'],
-        inter: ['"Inter"', 'sans-serif'],
-        zen: ['"Zen Dots"', 'sans-serif'],
+        worksans: ['Work Sans', 'sans-serif'],
+        boska: ['Boska', 'serif'],
+        playfair: ['Playfair Display', 'serif'],
+        poppins: ['Poppins', 'sans-serif'],
+        nosifer: ['Nosifer', 'cursive'],
+        corinthia: ['Corinthia', 'cursive'],
+        platypi: ['Platypi', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
+        zen: ['Zen Dots', 'sans-serif'],
+        quicksand: ['Quicksand', 'sans-serif'],
+        bebas: ['Bebas Neue', 'sans-serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
       },
       fontSize: {
-        'display': ['96px', { lineHeight: '90px' }],
+        display: ['96px', { lineHeight: '90px' }],
       },
       animation: {
         fadeIn: 'fadeIn 0.5s ease-in-out',
@@ -113,12 +116,17 @@ export default {
         slideDown: 'slideDown 0.5s ease-in-out',
         float: 'float 3s ease-in-out infinite',
         pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        shakeXGrow: 'shakeXGrow 4s ease-in-out infinite',
+        shakeY: 'shakeY 2.5s ease-in-out infinite',
+        leftRightFastSecond: 'leftRightFastSecond 3s ease-in-out infinite',
+        shakeX: 'shakeX 3s ease-in-out infinite',
+        marquee: 'marquee 6s  linear infinite',
       },
       keyframes: {
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-30px)' },
-        },        
+        },
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
@@ -130,6 +138,45 @@ export default {
         slideDown: {
           '0%': { transform: 'translateY(-20px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        shakeY: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '25%': { transform: 'translateY(-10px)' },
+          '50%': { transform: 'translateY(10px)' },
+          '75%': { transform: 'translateY(-20px)' },
+
+        },
+        shakeX: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '10%': { transform: 'translateX(-16px)' },
+          '20%': { transform: 'translateX(16px)' },
+          '30%': { transform: 'translateX(-14px)' },
+          '40%': { transform: 'translateX(14px)' },
+          '50%': { transform: 'translateX(-12px)' },
+          '60%': { transform: 'translateX(12px)' },
+          '70%': { transform: 'translateX(-10px)' },
+          '80%': { transform: 'translateX(10px)' },
+          '90%': { transform: 'translateX(-18px)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+        shakeXGrow: {
+          '0%, 100%': { transform: 'translateX(0) scale(1)' },
+          '25%': { transform: 'translateX(10px) scale(1)' },
+          '50%': { transform: 'translateX(10px) scale(1.08)' },
+          '75%': { transform: 'translateX(10px) scale(1)' },
+          '100%': { transform: 'translateX(0) scale(1)' },
+        },
+        leftRightFastSecond: {
+          '0%': { transform: 'translateX(0)' },
+    '40%': { transform: 'translateX(20px)' }, // Left to Right (normal)
+   // Hold at right edge briefly
+    '90%': { transform: 'translateX(-20px)' }, // Right to Left (faster)
+    '100%': { transform: 'translateX(0)' },     // Reset to center
+     // Reset to center
+        },
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-40%)' },
         },
       },
     },
