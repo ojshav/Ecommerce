@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ArrowUpIcon, 
-  ArrowDownIcon, 
-  ShoppingBagIcon, 
-  CurrencyDollarIcon, 
-  UserGroupIcon, 
+import {
+  ArrowUpIcon,
+  ArrowDownIcon,
+  ShoppingBagIcon,
+  CurrencyDollarIcon,
+  UserGroupIcon,
   ClipboardDocumentCheckIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
-import { 
-  ResponsiveContainer, 
-  LineChart, 
-  Line, 
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
   BarChart,
   Bar,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   Legend
 } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
@@ -88,7 +88,7 @@ interface TopProductsResponse {
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   let bgColor = '';
   let textColor = '';
-  
+
   switch (status.toLowerCase()) {
     case 'delivered':
       bgColor = 'bg-green-100';
@@ -114,7 +114,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
       bgColor = 'bg-gray-100';
       textColor = 'text-gray-800';
   }
-  
+
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor}`}>
       {status}
@@ -310,7 +310,7 @@ const Dashboard: React.FC = () => {
       iconColor: 'text-orange-700',
     },
   ];
-  
+
   return (
     <div className="space-y-6">
       {/* Page Title */}
@@ -320,39 +320,36 @@ const Dashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setTimeframe('daily')}
-            className={`px-4 py-2 text-sm font-medium rounded-l-md ${
-              timeframe === 'daily'
-                ? 'bg-orange-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-orange-50'
-            } border border-gray-300`}
+            className={`px-4 py-2 text-sm font-medium rounded-l-md ${timeframe === 'daily'
+              ? 'bg-orange-600 text-white'
+              : 'bg-white text-gray-700 hover:bg-orange-50'
+              } border border-gray-300`}
           >
             Daily
           </button>
           <button
             type="button"
             onClick={() => setTimeframe('weekly')}
-            className={`px-4 py-2 text-sm font-medium ${
-              timeframe === 'weekly'
-                ? 'bg-orange-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-orange-50'
-            } border-t border-b border-gray-300`}
+            className={`px-4 py-2 text-sm font-medium ${timeframe === 'weekly'
+              ? 'bg-orange-600 text-white'
+              : 'bg-white text-gray-700 hover:bg-orange-50'
+              } border-t border-b border-gray-300`}
           >
             Weekly
           </button>
           <button
             type="button"
             onClick={() => setTimeframe('monthly')}
-            className={`px-4 py-2 text-sm font-medium rounded-r-md ${
-              timeframe === 'monthly'
-                ? 'bg-orange-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-orange-50'
-            } border border-gray-300`}
+            className={`px-4 py-2 text-sm font-medium rounded-r-md ${timeframe === 'monthly'
+              ? 'bg-orange-600 text-white'
+              : 'bg-white text-gray-700 hover:bg-orange-50'
+              } border border-gray-300`}
           >
             Monthly
           </button>
         </div>
       </div>
-      
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map((stat) => (
@@ -375,16 +372,15 @@ const Dashboard: React.FC = () => {
               ) : (
                 <ArrowDownIcon className="h-4 w-4 text-red-500" />
               )}
-              <span className={`ml-2 text-sm font-medium ${
-                stat.trend > 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <span className={`ml-2 text-sm font-medium ${stat.trend > 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
                 {formatPercentage(stat.trend)}
               </span>
             </div>
           </div>
         ))}
       </div>
-      
+
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales & Orders Chart */}
@@ -402,11 +398,14 @@ const Dashboard: React.FC = () => {
                 <XAxis dataKey="month" />
                 <YAxis yAxisId="left" />
                 <YAxis yAxisId="right" orientation="right" />
-                <Tooltip 
-                  formatter={(value, name) => [
-                    name === 'sales' ? formatCurrency(Number(value)) : value,
-                    name === 'sales' ? 'Sales' : 'Orders'
-                  ]}
+                <Tooltip
+                  formatter={(value, name, props) => {
+                    const key = props.dataKey;
+                    return [
+                      key === 'sales' ? formatCurrency(Number(value)) : value,
+                      key === 'sales' ? 'Sales' : 'Orders'
+                    ];
+                  }}
                 />
                 <Legend />
                 <Line
@@ -428,7 +427,7 @@ const Dashboard: React.FC = () => {
             </ResponsiveContainer>
           </div>
         </div>
-        
+
         {/* Top Products Chart */}
         <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
           <div className="flex items-center justify-between mb-4">
@@ -444,11 +443,14 @@ const Dashboard: React.FC = () => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
                 <YAxis dataKey="name" type="category" width={150} />
-                <Tooltip 
-                  formatter={(value, name) => [
-                    name === 'revenue' ? formatCurrency(Number(value)) : value,
-                    name === 'revenue' ? 'Revenue' : 'Units Sold'
-                  ]}
+                <Tooltip
+                  formatter={(value, name, props) => {
+                    const key = props.dataKey;
+                    return [
+                      key === 'revenue' ? formatCurrency(Number(value)) : value,
+                      key === 'revenue' ? 'Revenue' : 'Units Sold'
+                    ];
+                  }}
                 />
                 <Legend />
                 <Bar dataKey="sold" name="Units Sold" fill="#4f46e5" />
@@ -458,13 +460,13 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Recent Orders */}
       <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-medium text-gray-900">Recent Orders</h2>
-          <Link 
-            to="/business/orders" 
+          <Link
+            to="/business/orders"
             className="text-sm font-medium text-orange-600 hover:text-orange-700"
           >
             View All
@@ -501,7 +503,7 @@ const Dashboard: React.FC = () => {
                     <StatusBadge status={order.order_status} />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <Link 
+                    <Link
                       to={`/business/orders/${order.order_id}`}
                       className="text-orange-600 hover:text-orange-700 mr-3"
                     >

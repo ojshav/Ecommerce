@@ -399,7 +399,7 @@ export default function Categories() {
                   className="w-8 h-8 mr-2 object-contain bg-gray-50"
                 />
               )}
-              <span className="font-medium">{category.name}</span>
+              <span className="font-medium capitalize">{category.name}</span>
               {/* Create Subcategory Button */}
               <button
                 className="ml-2 px-2 py-1 text-xs bg-[#FF5733]/10 text-[#FF5733] rounded hover:bg-[#FF5733]/20 transition-colors"

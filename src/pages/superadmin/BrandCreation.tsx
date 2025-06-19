@@ -734,9 +734,9 @@ const BrandCreation: React.FC = () => {
                                                     className="w-8 h-8 mr-3 object-contain"
                                                 />
                                             ) : (
-                                                <div className="w-8 h-8 mr-3 bg-gray-200 rounded-full flex items-center justify-center">
+                                                <div className="w-8 h-8 mr-3 bg-gray-200 rounded-full flex items-center justify-center capitalize">
                                                     <span className="text-xs font-medium">
-                                                        {brand.name.substring(0, 2).toUpperCase()}
+                                                        {brand.name.substring(0, 2)}
                                                     </span>
                                                 </div>
                                             )}
