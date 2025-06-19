@@ -15,7 +15,16 @@ export default defineConfig({
   ],
   optimizeDeps: {
     exclude: ['lucide-react'],
-    include: ['react', 'react-dom', 'react-router-dom', 'recharts']
+    include: [
+      'react', 
+      'react-dom', 
+      'react-router-dom', 
+      'recharts',
+      '@chakra-ui/react',
+      '@emotion/react',
+      '@emotion/styled',
+      'framer-motion'
+    ]
   },
   build: {
     sourcemap: true,
