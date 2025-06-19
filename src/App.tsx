@@ -112,6 +112,8 @@ import RaiseTicket from './pages/RaiseTicket';
 import { useVisitTracking } from './hooks/useVisitTracking';
 import SearchResultsPage from './pages/SearchResultsPage';
 
+import Aoinlive from './pages/business/Aoinlive';
+
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
 const BusinessProducts = lazy(() => import('./pages/business/catalog/Products'));
@@ -350,6 +352,14 @@ const App: React.FC = () => {
                           element={
                             <Suspense fallback={<LoadingFallback />}>
                               <CatalogProducts />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="aoinlive"
+                          element={
+                            <Suspense fallback={<LoadingFallback />}>
+                              <Aoinlive />
                             </Suspense>
                           }
                         />
