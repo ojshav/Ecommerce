@@ -410,7 +410,7 @@ const Shop = () => {
       `}</style>
 
       {/* Banners Section with Shutter */}
-      <div className="bg-gray-100 py-4 sm:py-6 md:py-8">
+      <div className="bg-gray-100 py-4 sm:py-6 md:py-8 mt-10 sm:mt-16 md:mt-20 lg:mt-24 mb-10 sm:mb-16 md:mb-20 lg:mb-24 px-4 sm:px-6 md:px-8 lg:px-12 mx-auto">
         <div className="relative">
           {/* Shop Banners */}
           <div className={`space-y-4 sm:space-y-6 md:space-y-8 transition-all duration-1000 ${!isShopOpen ? 'opacity-30' : 'opacity-100'}`}>
@@ -470,7 +470,7 @@ const Shop = () => {
                     )}
 
                     {/* SVG Banner Images with Hover Effect */}
-                    <div className="relative z-10 w-full h-full flex items-center justify-center overflow-hidden">
+                    <div className="mt-10 sm:mt-16 md:mt-20 lg:mt-24 mb-10 sm:mb-16 md:mb-20 lg:mb-24 px-4 sm:px-6 md:px-8 lg:px-12 mx-auto relative z-10 w-full h-full flex items-center justify-center overflow-hidden">
                       {/* Default Banner Image */}
                       <img 
                         src={shop.bannerImage} 
