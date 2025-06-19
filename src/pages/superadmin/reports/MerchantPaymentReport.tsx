@@ -17,7 +17,15 @@ const mockData = {
   analytics: {
     totalMerchants: 156,
     totalTransferred: 2500000,
-    pendingPayouts: 750000
+    pendingPayouts: 750000,
+    averagePayoutTime: 3,
+    payoutSuccessRate: 95,
+    merchantsWithPendingPayments: 45,
+    totalCommissionEarned: 325000,
+    paymentTrends: {
+      thisMonth: 2500000,
+      lastMonth: 2200000
+    }
   },
   merchants: [
     {
@@ -373,11 +381,38 @@ const MerchantPaymentReport: React.FC = () => {
 
     setFilteredMerchants(filtered);
 
-    // Update analytics based on filtered data
+    // Calculate analytics based on filtered data
+    const totalTransferred = filtered.reduce((sum, m) => sum + m.amountTransferred, 0);
+    const pendingPayouts = filtered.reduce((sum, m) => sum + m.pendingAmount, 0);
+    const totalCommissionEarned = filtered.reduce((sum, m) => 
+      sum + m.orders.reduce((orderSum, o) => orderSum + o.commission, 0), 
+    0);
+    const merchantsWithPending = filtered.filter(m => m.pendingAmount > 0).length;
+    
+    // Calculate average payout time (using mock data for now)
+    const avgPayoutTime = Math.round(
+      filtered.reduce((sum, m) => sum + (m.orders.length > 0 ? 3 : 0), 0) / 
+      filtered.filter(m => m.orders.length > 0).length
+    ) || 0;
+
+    // Calculate success rate based on transferred vs pending orders
+    const allOrders = filtered.flatMap(m => m.orders);
+    const successRate = allOrders.length > 0
+      ? Math.round((allOrders.filter(o => o.paymentStatus === 'transferred').length / allOrders.length) * 100)
+      : 100;
+
     setAnalytics({
       totalMerchants: filtered.length,
-      totalTransferred: filtered.reduce((sum, m) => sum + m.amountTransferred, 0),
-      pendingPayouts: filtered.reduce((sum, m) => sum + m.pendingAmount, 0)
+      totalTransferred,
+      pendingPayouts,
+      averagePayoutTime: avgPayoutTime,
+      payoutSuccessRate: successRate,
+      merchantsWithPendingPayments: merchantsWithPending,
+      totalCommissionEarned,
+      paymentTrends: {
+        thisMonth: totalTransferred,
+        lastMonth: mockData.analytics.paymentTrends.lastMonth // Using mock data for comparison
+      }
     });
   }, [searchTerm, filters]);
 
@@ -420,6 +455,11 @@ const MerchantPaymentReport: React.FC = () => {
         totalMerchants={analytics.totalMerchants}
         totalTransferred={analytics.totalTransferred}
         pendingPayouts={analytics.pendingPayouts}
+        averagePayoutTime={analytics.averagePayoutTime}
+        payoutSuccessRate={analytics.payoutSuccessRate}
+        merchantsWithPendingPayments={analytics.merchantsWithPendingPayments}
+        totalCommissionEarned={analytics.totalCommissionEarned}
+        paymentTrends={analytics.paymentTrends}
       />
 
       <div className="flex flex-col gap-4 sm:gap-6 mb-6">
