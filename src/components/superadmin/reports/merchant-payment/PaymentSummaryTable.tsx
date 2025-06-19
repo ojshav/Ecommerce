@@ -11,6 +11,7 @@ interface PaymentSummary {
   amountTransferred: number;
   pendingAmount: number;
   lastPaymentDate: string;
+  status: string;
   orders: Order[];
 }
 
@@ -40,12 +41,34 @@ const PaymentSummaryTable: React.FC<PaymentSummaryTableProps> = ({ data, onViewO
     );
   };
 
+  const getStatusStyle = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'pending':
+        return 'bg-orange-100 text-orange-800';
+      case 'completed':
+        return 'bg-blue-100 text-blue-800';
+      case 'processing':
+        return 'bg-purple-100 text-purple-800';
+      case 'hold':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   // Mobile card view for merchant data
   const MerchantCard = ({ merchant }: { merchant: PaymentSummary }) => (
     <div className="bg-white rounded-xl shadow-sm border border-orange-100 p-4 mb-4">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 className="font-medium text-gray-900">{merchant.merchantName}</h3>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-medium text-gray-900">{merchant.merchantName}</h3>
+            <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusStyle(merchant.status)}`}>
+              {merchant.status}
+            </span>
+          </div>
           <p className="text-sm text-orange-500">ID: {merchant.storeId}</p>
         </div>
         <button
@@ -140,6 +163,7 @@ const PaymentSummaryTable: React.FC<PaymentSummaryTableProps> = ({ data, onViewO
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-orange-700 uppercase tracking-wider"></th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-orange-700 uppercase tracking-wider">Merchant</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-orange-700 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-orange-700 uppercase tracking-wider">Total Orders</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-orange-700 uppercase tracking-wider">Orders Delivered</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-orange-700 uppercase tracking-wider">Eligible for Payment</th>
@@ -164,6 +188,11 @@ const PaymentSummaryTable: React.FC<PaymentSummaryTableProps> = ({ data, onViewO
                       <div className="text-sm font-medium text-gray-900">{merchant.merchantName}</div>
                       <div className="text-sm text-orange-500">ID: {merchant.storeId}</div>
                     </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusStyle(merchant.status)}`}>
+                        {merchant.status}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 text-sm text-gray-600">{merchant.totalOrders}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{merchant.ordersDelivered}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{merchant.eligibleForPayment}</td>
@@ -173,7 +202,7 @@ const PaymentSummaryTable: React.FC<PaymentSummaryTableProps> = ({ data, onViewO
                   </tr>
                   {expandedRows.includes(merchant.id) && (
                     <tr>
-                      <td colSpan={8} className="px-6 py-4 bg-orange-50/30">
+                      <td colSpan={9} className="px-6 py-4 bg-orange-50/30">
                         <div className="overflow-x-auto">
                           <table className="min-w-full divide-y divide-orange-200">
                             <thead>

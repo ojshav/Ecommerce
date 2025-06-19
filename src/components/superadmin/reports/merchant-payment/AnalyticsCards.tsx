@@ -1,21 +1,16 @@
 import React from 'react';
-import { FaUsers, FaMoneyBillWave, FaClock, FaTrophy } from 'react-icons/fa';
+import { FaUsers, FaMoneyBillWave, FaClock } from 'react-icons/fa';
 
 interface AnalyticsCardProps {
   totalMerchants: number;
   totalTransferred: number;
   pendingPayouts: number;
-  topMerchant: {
-    name: string;
-    amount: number;
-  };
 }
 
 const AnalyticsCards: React.FC<AnalyticsCardProps> = ({
   totalMerchants,
   totalTransferred,
   pendingPayouts,
-  topMerchant,
 }) => {
   const cards = [
     {
@@ -39,17 +34,10 @@ const AnalyticsCards: React.FC<AnalyticsCardProps> = ({
       bgColor: 'bg-gradient-to-br from-red-50 to-red-100',
       textColor: 'text-red-700',
     },
-    {
-      title: 'Top Earning Merchant',
-      value: `${topMerchant.name} (₹${topMerchant.amount.toLocaleString()})`,
-      icon: <FaTrophy className="text-orange-500" />,
-      bgColor: 'bg-gradient-to-br from-orange-50 to-orange-100',
-      textColor: 'text-orange-700',
-    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       {cards.map((card, index) => (
         <div
           key={index}

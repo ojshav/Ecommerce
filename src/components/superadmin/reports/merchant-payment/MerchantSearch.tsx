@@ -1,12 +1,32 @@
-import React from 'react';
-import { FaSearch } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaSearch, FaFilter } from 'react-icons/fa';
+
+interface FilterOptions {
+  category: string;
+  status: string;
+  dateFrom: string;
+  dateTo: string;
+}
 
 interface MerchantSearchProps {
   onSearch: (searchTerm: string) => void;
-  onFilterChange: (filter: string) => void;
+  onFilterChange: (filters: FilterOptions) => void;
 }
 
 const MerchantSearch: React.FC<MerchantSearchProps> = ({ onSearch, onFilterChange }) => {
+  const [filters, setFilters] = useState<FilterOptions>({
+    category: '',
+    status: '',
+    dateFrom: '',
+    dateTo: ''
+  });
+
+  const handleFilterChange = (key: keyof FilterOptions, value: string) => {
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    onFilterChange(newFilters);
+  };
+
   return (
     <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm mb-6 sm:mb-8 border border-orange-100 w-full">
       <div className="flex flex-col gap-4">
@@ -26,24 +46,31 @@ const MerchantSearch: React.FC<MerchantSearchProps> = ({ onSearch, onFilterChang
         {/* Filter Dropdowns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <select
+            value={filters.category}
             className="w-full px-4 py-3 border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-orange-50/50 text-gray-700"
-            onChange={(e) => onFilterChange(e.target.value)}
+            onChange={(e) => handleFilterChange('category', e.target.value)}
           >
             <option value="">All Categories</option>
             <option value="electronics">Electronics</option>
             <option value="fashion">Fashion</option>
             <option value="home">Home & Living</option>
             <option value="beauty">Beauty & Personal Care</option>
+            <option value="sports">Sports & Outdoors</option>
+            <option value="books">Books & Stationery</option>
+            <option value="food">Food & Beverages</option>
           </select>
 
           <select
+            value={filters.status}
             className="w-full px-4 py-3 border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-orange-50/50 text-gray-700"
-            onChange={(e) => onFilterChange(e.target.value)}
+            onChange={(e) => handleFilterChange('status', e.target.value)}
           >
             <option value="">All Status</option>
             <option value="active">Active</option>
             <option value="pending">Payment Pending</option>
             <option value="completed">Payment Completed</option>
+            <option value="processing">Processing</option>
+            <option value="hold">On Hold</option>
           </select>
 
           {/* Date Range Picker */}
@@ -51,7 +78,9 @@ const MerchantSearch: React.FC<MerchantSearchProps> = ({ onSearch, onFilterChang
             <div className="flex-1">
               <input
                 type="date"
+                value={filters.dateFrom}
                 className="w-full px-4 py-3 border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-orange-50/50 text-gray-700"
+                onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
               />
             </div>
             <div className="flex items-center justify-center">
@@ -60,11 +89,64 @@ const MerchantSearch: React.FC<MerchantSearchProps> = ({ onSearch, onFilterChang
             <div className="flex-1">
               <input
                 type="date"
+                value={filters.dateTo}
                 className="w-full px-4 py-3 border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-orange-50/50 text-gray-700"
+                onChange={(e) => handleFilterChange('dateTo', e.target.value)}
               />
             </div>
           </div>
         </div>
+
+        {/* Active Filters Display */}
+        {(filters.category || filters.status || filters.dateFrom || filters.dateTo) && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {filters.category && (
+              <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm flex items-center gap-2">
+                Category: {filters.category}
+                <button
+                  onClick={() => handleFilterChange('category', '')}
+                  className="hover:text-orange-900"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {filters.status && (
+              <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm flex items-center gap-2">
+                Status: {filters.status}
+                <button
+                  onClick={() => handleFilterChange('status', '')}
+                  className="hover:text-orange-900"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {(filters.dateFrom || filters.dateTo) && (
+              <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm flex items-center gap-2">
+                Date Range: {filters.dateFrom || 'Start'} to {filters.dateTo || 'End'}
+                <button
+                  onClick={() => {
+                    handleFilterChange('dateFrom', '');
+                    handleFilterChange('dateTo', '');
+                  }}
+                  className="hover:text-orange-900"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            <button
+              onClick={() => {
+                setFilters({ category: '', status: '', dateFrom: '', dateTo: '' });
+                onFilterChange({ category: '', status: '', dateFrom: '', dateTo: '' });
+              }}
+              className="px-3 py-1 text-orange-600 text-sm hover:text-orange-800 flex items-center gap-1"
+            >
+              Clear All
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
