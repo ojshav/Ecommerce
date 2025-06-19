@@ -111,6 +111,7 @@ import RaiseTicket from './pages/RaiseTicket';
 
 import { useVisitTracking } from './hooks/useVisitTracking';
 import SearchResultsPage from './pages/SearchResultsPage';
+import MerchantPaymentReport from './pages/superadmin/reports/MerchantPaymentReport';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -412,7 +413,10 @@ const App: React.FC = () => {
                       path="marketplace-health"
                       element={<MarketplaceHealth />}
                     />
-                    
+                    <Route
+                      path="merchant-payment-report"
+                      element={<MerchantPaymentReport />}
+                    />
                     <Route
                       path="performance"
                       element={<PlatformPerformance />}

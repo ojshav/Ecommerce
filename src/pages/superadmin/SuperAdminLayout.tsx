@@ -60,6 +60,11 @@ export const dashboardSections: MenuSection[] = [
         title: "Performance",
         icon: ActivitySquare,
         description: "Monitor system health, response times, and resource usage"
+      },
+      {
+        title: "Merchant Payment Report",
+        icon: FileBarChart2,
+        description: "Track and manage merchant payments and delivery status"
       }
     ]
   },
