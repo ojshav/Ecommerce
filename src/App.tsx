@@ -53,6 +53,7 @@ import MarketplaceHealth from './pages/superadmin/MarketplaceHealth';
 import PlatformPerformance from './pages/superadmin/PlatformPerformance';
 import MerchantManagement from './pages/superadmin/MerchantManagement';
 import Notification from './pages/superadmin/Notifications';
+import GSTRuleManagement from './pages/superadmin/GSTRuleManagement';
 import Categories from './pages/superadmin/Categories';
 import Attribute from './pages/superadmin/Attribute';
 import BrandCreation from './pages/superadmin/BrandCreation';
@@ -430,6 +431,7 @@ const App: React.FC = () => {
                     <Route path="refund-and-return" element={<RefundAndReturnManagement />} />
                     <Route path="payments" element={<PaymentAndTransactionMonitoring />} />
                     <Route path="promotions" element={<Promotions />} />
+                    <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
                   </Route>
 
