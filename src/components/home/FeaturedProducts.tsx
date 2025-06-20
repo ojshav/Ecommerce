@@ -80,15 +80,16 @@ const FeaturedProducts: React.FC = () => {
       const data = await response.json();
       console.log('API Response:', data);
 
-      if (data.products && Array.isArray(data.products)) {
-        console.log('Products array:', data.products);
-        setProducts(data.products);
+      if (data.message?.products && Array.isArray(data.message.products)) {
+        console.log('Products array:', data.message.products);
+        setProducts(data.message.products);
         setError(null);
       } else {
         console.error('Invalid data structure:', {
-          hasProducts: Boolean(data.products),
-          isProductsArray: Array.isArray(data.products),
-          dataType: typeof data.products,
+          hasMessage: Boolean(data.message),
+          hasProducts: Boolean(data.message?.products),
+          isProductsArray: Array.isArray(data.message?.products),
+          dataType: typeof data.message?.products,
           dataKeys: Object.keys(data)
         });
         throw new Error('Invalid response format');
@@ -230,10 +231,12 @@ const FeaturedProducts: React.FC = () => {
                       description: product.product_description,
                       image: product.images?.[0] || '',
                       images: product.images || [],
-                      category: product.category?.name || '',
+                      category: product.category || { category_id: 0, name: '' },
                       currency: 'INR',
                       tags: [],
-                      originalPrice: product.selling_price
+                      original_price: product.selling_price,
+                      special_price: product.special_price,
+                      is_deleted: false
                     }}
                     salePercentage={product.discount_pct || undefined}
                   />

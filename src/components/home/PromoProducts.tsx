@@ -141,15 +141,16 @@ const PromoProducts: React.FC = () => {
       const data = await response.json();
       console.log('API Response:', data);
 
-      if (data.products && Array.isArray(data.products)) {
-        console.log('Products array:', data.products);
-        setPromoProducts(data.products);
+      if (data.message?.products && Array.isArray(data.message.products)) {
+        console.log('Products array:', data.message.products);
+        setPromoProducts(data.message.products);
         setError(null);
       } else {
         console.error('Invalid data structure:', {
-          hasProducts: Boolean(data.products),
-          isProductsArray: Array.isArray(data.products),
-          dataType: typeof data.products,
+          hasMessage: Boolean(data.message),
+          hasProducts: Boolean(data.message?.products),
+          isProductsArray: Array.isArray(data.message?.products),
+          dataType: typeof data.message?.products,
           dataKeys: Object.keys(data)
         });
         throw new Error('Invalid response format');
