@@ -23,8 +23,7 @@ const SearchResultsPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
-  const [ratingFilter, setRatingFilter] = useState<number>(0);
-  const [discountFilter, setDiscountFilter] = useState<number>(0);
+  const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,19 +53,6 @@ const SearchResultsPage: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const mobileFilterRef = useRef<HTMLDivElement>(null);
 
-  // Add price range presets
-  const priceRanges = [
-    { label: 'Under ₹1,000', min: 0, max: 1000 },
-    { label: '₹1,000 - ₹5,000', min: 1000, max: 5000 },
-    { label: '₹5,000 - ₹10,000', min: 5000, max: 10000 },
-    { label: '₹10,000 - ₹20,000', min: 10000, max: 20000 },
-    { label: '₹20,000 - ₹50,000', min: 20000, max: 50000 },
-    { label: 'Above ₹50,000', min: 50000, max: 1000000 }
-  ];
-
-  // Add rating options
-  const ratingOptions = [4, 3, 2, 1];
-
   // Fetch search results
   const fetchSearchResults = async () => {
     try {
@@ -94,11 +80,8 @@ const SearchResultsPage: React.FC = () => {
       if (priceRange[1] < 1000000) {
         params.append('max_price', priceRange[1].toString());
       }
-      if (ratingFilter > 0) {
-        params.append('min_rating', ratingFilter.toString());
-      }
-      if (discountFilter > 0) {
-        params.append('min_discount', discountFilter.toString());
+      if (selectedRatings.length > 0) {
+        params.append('min_rating', Math.max(...selectedRatings.map(r => parseFloat(r))).toString());
       }
 
       const response = await fetch(`${API_BASE_URL}/api/products?${params}`);
@@ -124,7 +107,7 @@ const SearchResultsPage: React.FC = () => {
       setCurrentPage(1); // Reset to first page on new search
       fetchSearchResults();
     }
-  }, [searchQuery, currentPage, selectedSort, selectedCategory, selectedBrands, priceRange, ratingFilter, discountFilter]);
+  }, [searchQuery, currentPage, selectedSort, selectedCategory, selectedBrands, priceRange, selectedRatings]);
 
   // Handle sort change
   const handleSort = (value: string) => {
@@ -166,38 +149,13 @@ const SearchResultsPage: React.FC = () => {
     setSelectedCategory('');
     setSelectedBrands([]);
     setPriceRange([0, 1000000]);
-    setRatingFilter(0);
-    setDiscountFilter(0);
+    setSelectedRatings([]);
     setCurrentPage(1);
   };
 
   const handlePriceRangeSelect = (min: number, max: number) => {
     setPriceRange([min, max]);
   };
-
-  // Add StarRating component
-  const StarRating = ({ rating, onClick, selected }: { rating: number; onClick: () => void; selected: boolean }) => (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-1 w-full text-left px-3 py-2 rounded-lg transition-colors ${
-        selected ? 'bg-orange-50 text-[#F2631F]' : 'hover:bg-gray-50'
-      }`}
-    >
-      <div className="flex items-center">
-        {[...Array(5)].map((_, index) => (
-          <svg
-            key={index}
-            className={`w-4 h-4 ${index < rating ? 'text-yellow-400' : 'text-gray-300'}`}
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        ))}
-      </div>
-      <span className="text-sm ml-1">& Up</span>
-    </button>
-  );
 
   // Add fetchCategories and fetchBrands functions
   const fetchCategories = async () => {
@@ -332,13 +290,15 @@ const SearchResultsPage: React.FC = () => {
         </div>
 
         {/* Search Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold mb-2">
-            Search Results for "{searchQuery}"
-          </h1>
-          <p className="text-gray-600">
-            Found {totalProducts} results
-          </p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+          <div>
+            <h1 className="text-3xl font-bold mb-1 text-gray-900 tracking-tight">
+              Search Results for <span className="text-[#F2631F]">"{searchQuery}"</span>
+            </h1>
+            <p className="text-gray-500 text-base font-normal">
+              Found <span className="font-semibold text-gray-700">{totalProducts}</span> results
+            </p>
+          </div>
         </div>
 
         {/* Mobile Filter and Sort Bar */}
@@ -369,7 +329,6 @@ const SearchResultsPage: React.FC = () => {
                   {categories.map(category => renderCategoryTree(category))}
                 </div>
               </div>
-              
               {/* Brand Filter */}
               <div className="mb-8">
                 <h3 className="font-semibold text-base mb-4 text-black">Brand</h3>
@@ -392,62 +351,112 @@ const SearchResultsPage: React.FC = () => {
                   })}
                 </div>
               </div>
-              
               {/* Price Range */}
               <div className="mb-8">
                 <h3 className="font-semibold text-base mb-4 text-black">Price</h3>
-                <div className="space-y-2">
-                  {priceRanges.map((range) => (
-                    <button
-                      key={range.label}
-                      onClick={() => handlePriceRangeSelect(range.min, range.max)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        priceRange[0] === range.min && priceRange[1] === range.max
-                          ? 'bg-orange-50 text-[#F2631F]'
-                          : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      {range.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Discount Filter */}
-              <div className="mb-8">
-                <h3 className="font-semibold text-base mb-4 text-black">Discount</h3>
-                <div className="space-y-2">
-                  {[0, 10, 20, 30, 40, 50].map((discount) => (
-                    <button
-                      key={discount}
-                      onClick={() => setDiscountFilter(discount === discountFilter ? 0 : discount)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        discountFilter === discount
-                          ? 'bg-orange-50 text-[#F2631F]'
-                          : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      {discount === 0 ? 'All Discounts' : `${discount}% and above`}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Rating Filter */}
-              <div className="mb-8">
-                <h3 className="font-semibold text-base mb-4 text-black">Customer Rating</h3>
-                <div className="space-y-2">
-                  {ratingOptions.map((rating) => (
-                    <StarRating
-                      key={rating}
-                      rating={rating}
-                      selected={ratingFilter === rating}
-                      onClick={() => setRatingFilter(rating === ratingFilter ? 0 : rating)}
+                <div className="px-2">
+                  {/* Manual Input Fields */}
+                  <div className="flex gap-2 mb-3">
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-600 mb-1">Min Price</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max={priceRange[1]}
+                        value={priceRange[0]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 0;
+                          setPriceRange([value, Math.max(value, priceRange[1])]);
+                        }}
+                        className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-600 mb-1">Max Price</label>
+                      <input
+                        type="number"
+                        min={priceRange[0]}
+                        max="1000000"
+                        value={priceRange[1]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 1000000;
+                          setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                        }}
+                        className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                        placeholder="1000000"
+                      />
+                    </div>
+                  </div>
+                  {/* Slider */}
+                  <div className="flex justify-between text-xs text-gray-700 mb-2 font-normal">
+                    <span>₹{priceRange[0].toLocaleString()}</span>
+                    <span>₹{priceRange[1].toLocaleString()}</span>
+                  </div>
+                  <div className="relative pt-1">
+                    <div className="w-full h-1 bg-gray-200 rounded-lg">
+                      <div
+                        className="absolute h-1 bg-[#F2631F] rounded-lg"
+                        style={{ width: `${(priceRange[1] / 1000000) * 100}%` }}
+                      ></div>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1000000"
+                      step="10000"
+                      value={priceRange[1]}
+                      onChange={(e) => {setPriceRange([priceRange[0], parseInt(e.target.value)])}}
+                      className="absolute top-0 w-full h-2 opacity-0 cursor-pointer transition-all duration-200"
                     />
-                  ))}
+                  </div>
                 </div>
               </div>
-
+              {/* Ratings Filter */}
+              <div className="mb-8">
+                <h3 className="font-semibold text-base mb-4 text-black">Ratings</h3>
+                {(() => {
+                  const selectedRatingValue = selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
+                  return (
+                    <div className="flex items-center">
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map(star => {
+                          const isFull = selectedRatingValue >= star;
+                          const isHalf = selectedRatingValue >= star - 0.5 && selectedRatingValue < star;
+                          return (
+                            <div key={star} className="relative cursor-pointer" style={{ width: 28, height: 28 }} onClick={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              const clickX = e.clientX - rect.left;
+                              const rating = clickX < rect.width / 2 ? star - 0.5 : star;
+                              setSelectedRatings([rating.toString()]);
+                            }}>
+                              <svg className="text-gray-300" fill="currentColor" width={28} height={28} viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              {isFull ? (
+                                <div className="absolute top-0 left-0">
+                                  <svg className="text-yellow-400" fill="currentColor" width={28} height={28} viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                  </svg>
+                                </div>
+                              ) : isHalf ? (
+                                <div className="absolute top-0 left-0 w-1/2 overflow-hidden">
+                                  <svg className="text-yellow-400" fill="currentColor" width={28} height={28} viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                  </svg>
+                                </div>
+                              ) : null}
+                            </div>
+                          )
+                        })}
+                      </div>
+                      {selectedRatingValue > 0 && (
+                        <span className="ml-2 text-sm font-medium text-gray-700">{selectedRatingValue}★ & up</span>
+                      )}
+                    </div>
+                  )
+                })()}
+              </div>
               {/* Reset Filters */}
               <button
                 onClick={resetFilters}
@@ -517,7 +526,7 @@ const SearchResultsPage: React.FC = () => {
             )}
             
             {/* Pagination */}
-            {totalPages > 1 && (
+            {totalPages > 0 && (
               <div className="flex justify-center items-center gap-2 my-8">
                 <button 
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -565,7 +574,6 @@ const SearchResultsPage: React.FC = () => {
                   </button>
                 </div>
               </div>
-              
               <div className="flex-1 overflow-y-auto p-4">
                 {/* Category Filter */}
                 <div className="mb-6">
@@ -574,7 +582,6 @@ const SearchResultsPage: React.FC = () => {
                     {categories.map(category => renderCategoryTree(category))}
                   </div>
                 </div>
-
                 {/* Brand Filter */}
                 <div className="mb-6">
                   <h4 className="font-medium mb-3">Brand</h4>
@@ -597,63 +604,113 @@ const SearchResultsPage: React.FC = () => {
                     })}
                   </div>
                 </div>
-
                 {/* Price Range */}
                 <div className="mb-6">
                   <h4 className="font-medium mb-3">Price</h4>
-                  <div className="space-y-2">
-                    {priceRanges.map((range) => (
-                      <button
-                        key={range.label}
-                        onClick={() => handlePriceRangeSelect(range.min, range.max)}
-                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                          priceRange[0] === range.min && priceRange[1] === range.max
-                            ? 'bg-orange-50 text-[#F2631F]'
-                            : 'hover:bg-gray-50'
-                        }`}
-                      >
-                        {range.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Mobile Rating Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium mb-3">Customer Rating</h4>
-                  <div className="space-y-2">
-                    {ratingOptions.map((rating) => (
-                      <StarRating
-                        key={rating}
-                        rating={rating}
-                        selected={ratingFilter === rating}
-                        onClick={() => setRatingFilter(rating === ratingFilter ? 0 : rating)}
+                  <div className="px-2">
+                    {/* Manual Input Fields */}
+                    <div className="flex gap-2 mb-3">
+                      <div className="flex-1">
+                        <label className="block text-xs text-gray-600 mb-1">Min Price</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max={priceRange[1]}
+                          value={priceRange[0]}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value) || 0;
+                            setPriceRange([value, Math.max(value, priceRange[1])]);
+                          }}
+                          className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-xs text-gray-600 mb-1">Max Price</label>
+                        <input
+                          type="number"
+                          min={priceRange[0]}
+                          max="1000000"
+                          value={priceRange[1]}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value) || 1000000;
+                            setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                          }}
+                          className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                          placeholder="1000000"
+                        />
+                      </div>
+                    </div>
+                    {/* Slider */}
+                    <div className="flex justify-between text-xs text-gray-700 mb-2 font-normal">
+                      <span>₹{priceRange[0].toLocaleString()}</span>
+                      <span>₹{priceRange[1].toLocaleString()}</span>
+                    </div>
+                    <div className="relative pt-1">
+                      <div className="w-full h-1 bg-gray-200 rounded-lg">
+                        <div
+                          className="absolute h-1 bg-[#F2631F] rounded-lg"
+                          style={{ width: `${(priceRange[1] / 1000000) * 100}%` }}
+                        ></div>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1000000"
+                        step="10000"
+                        value={priceRange[1]}
+                        onChange={(e) => {setPriceRange([priceRange[0], parseInt(e.target.value)])}}
+                        className="absolute top-0 w-full h-2 opacity-0 cursor-pointer transition-all duration-200"
                       />
-                    ))}
+                    </div>
                   </div>
                 </div>
-
-                {/* Mobile Discount Filter */}
+                {/* Ratings Filter */}
                 <div className="mb-6">
-                  <h4 className="font-medium mb-3">Discount</h4>
-                  <div className="space-y-2">
-                    {[0, 10, 20, 30, 40, 50].map((discount) => (
-                      <button
-                        key={discount}
-                        onClick={() => setDiscountFilter(discount === discountFilter ? 0 : discount)}
-                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                          discountFilter === discount
-                            ? 'bg-orange-50 text-[#F2631F]'
-                            : 'hover:bg-gray-50'
-                        }`}
-                      >
-                        {discount === 0 ? 'All Discounts' : `${discount}% and above`}
-                      </button>
-                    ))}
-                  </div>
+                  <h4 className="font-medium mb-3">Ratings</h4>
+                  {(() => {
+                    const selectedRatingValue = selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
+                    return (
+                      <div className="flex items-center">
+                        <div className="flex">
+                          {[1, 2, 3, 4, 5].map(star => {
+                            const isFull = selectedRatingValue >= star;
+                            const isHalf = selectedRatingValue >= star - 0.5 && selectedRatingValue < star;
+                            return (
+                              <div key={star} className="relative cursor-pointer" style={{ width: 28, height: 28 }} onClick={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                const clickX = e.clientX - rect.left;
+                                const rating = clickX < rect.width / 2 ? star - 0.5 : star;
+                                setSelectedRatings([rating.toString()]);
+                              }}>
+                                <svg className="text-gray-300" fill="currentColor" width={28} height={28} viewBox="0 0 20 20">
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                {isFull ? (
+                                  <div className="absolute top-0 left-0">
+                                    <svg className="text-yellow-400" fill="currentColor" width={28} height={28} viewBox="0 0 20 20">
+                                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                  </div>
+                                ) : isHalf ? (
+                                  <div className="absolute top-0 left-0 w-1/2 overflow-hidden">
+                                    <svg className="text-yellow-400" fill="currentColor" width={28} height={28} viewBox="0 0 20 20">
+                                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                  </div>
+                                ) : null}
+                              </div>
+                            )
+                          })}
+                        </div>
+                        {selectedRatingValue > 0 && (
+                          <span className="ml-2 text-sm font-medium text-gray-700">{selectedRatingValue}★ & up</span>
+                        )}
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
-              
               <div className="p-4 border-t bg-gray-50">
                 <div className="flex gap-2">
                   <button

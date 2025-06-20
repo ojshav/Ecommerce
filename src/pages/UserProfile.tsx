@@ -1009,7 +1009,7 @@ const UserProfile: React.FC = () => {
 
         <div className="flex-1 max-w-5xl">
           {/* User Info Section */}
-          <div className="mb-8">
+          <div className="mb-8 px-6 md:px-0 md:ml-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -1106,7 +1106,7 @@ const UserProfile: React.FC = () => {
             </div>
           </div>
           {isEditing ? (
-            <div className="flex gap-2 mb-8">
+            <div className="flex gap-2 mb-8 px-6 md:px-0 md:ml-6">
               <button
                 onClick={handleSaveChanges}
                 disabled={isSavingProfile}
@@ -1130,7 +1130,7 @@ const UserProfile: React.FC = () => {
           ) : (
             <button
               onClick={handleEditClick}
-              className="bg-orange-500 text-white px-6 py-2 rounded-md font-medium mb-8 hover:bg-orange-600 transition-colors flex items-center gap-2"
+              className="bg-orange-500 text-white px-6 py-2 rounded-md font-medium mb-8 ml-6 hover:bg-orange-600 transition-colors flex items-center gap-2"
             >
               <Edit3 size={18} />
               Edit Profile
@@ -1138,7 +1138,7 @@ const UserProfile: React.FC = () => {
           )}
 
           {/* Saved Addresses Section */}
-          <div className="mb-8">
+          <div className="mb-8 px-6 md:px-0 md:ml-6">
             <h2 className="text-lg font-semibold mb-2">Saved Addresses</h2>
             {loadingAddresses ? (
               <div className="flex justify-center py-4">
@@ -1161,7 +1161,7 @@ const UserProfile: React.FC = () => {
                 {addresses.map((address) => (
                   <div
                     key={address.address_id}
-                    className="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-md border"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0 bg-gray-50 px-4 py-2 rounded-md border"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -1427,7 +1427,7 @@ const UserProfile: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="mb-8">
+          <div className="mb-8 px-6 md:px-0 md:ml-6">
             <h2 className="text-lg font-semibold mb-2">Payment Methods</h2>
             {loadingPayments ? (
               <div className="flex justify-center py-4">
@@ -1752,7 +1752,7 @@ const UserProfile: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="mb-8">
+          <div className="mb-8 px-6 md:px-0 md:ml-6">
             <h2 className="text-lg font-semibold mb-2">
               Notification Settings
             </h2>
@@ -1920,6 +1920,9 @@ const UserProfile: React.FC = () => {
           )}
         </div>
       </div>
+
+
+
       {showEditAddressModal && editingAddress && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 transition-opacity p-4">
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto max-h-[90vh] flex flex-col">
@@ -1941,9 +1944,9 @@ const UserProfile: React.FC = () => {
                 e.preventDefault();
                 handleSaveEditedAddress();
               }}
-              className="px-6 py-6 space-y-6 overflow-y-auto"
+              className="pt-6 space-y-6 overflow-y-auto"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Address Line 1 *
