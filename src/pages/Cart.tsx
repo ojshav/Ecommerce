@@ -112,7 +112,7 @@ const Cart: React.FC = () => {
   const finalTotal = totalPrice - discount;
 
   return (
-    <div className="max-w-7xl mx-auto px-12 py-8">
+    <div className="max-w-7xl mx-auto px-6 sm:px-12 py-8">
       <h1 className="text-2xl font-bold mb-8">Your Cart</h1>
       
       {activeCartItems.length === 0 ? (
@@ -204,7 +204,7 @@ const Cart: React.FC = () => {
 
                 <div className="space-y-4">
                     {!appliedPromo ? (
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                             <input
                                 type="text"
                                 placeholder="Enter promo code"
