@@ -6,7 +6,7 @@ const ShippingPolicy: React.FC = () => {
     <div className="bg-white">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold text-center mb-4">Shipping Policy</h1>
+          <h1 className="text-3xl font-bold text-center mb-4">AUIN Shipping Policy</h1>
           <p className="text-gray-600 text-center mb-12">
             Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
@@ -16,9 +16,9 @@ const ShippingPolicy: React.FC = () => {
             <div className="bg-gray-50 p-6 rounded-lg flex items-start space-x-4">
               <Truck className="text-black flex-shrink-0 mt-1" size={24} />
               <div>
-                <h3 className="font-semibold mb-2">Free Standard Shipping</h3>
+                <h3 className="font-semibold mb-2">Premium Free Shipping</h3>
                 <p className="text-gray-600 text-sm">
-                  On all orders over $50 within the United States
+                  On all orders over $75 within the United States
                 </p>
               </div>
             </div>
@@ -26,9 +26,9 @@ const ShippingPolicy: React.FC = () => {
             <div className="bg-gray-50 p-6 rounded-lg flex items-start space-x-4">
               <Clock className="text-black flex-shrink-0 mt-1" size={24} />
               <div>
-                <h3 className="font-semibold mb-2">Processing Time</h3>
+                <h3 className="font-semibold mb-2">Fast Processing</h3>
                 <p className="text-gray-600 text-sm">
-                  1-2 business days before shipping
+                  Same-day processing for orders before 2 PM EST
                 </p>
               </div>
             </div>
