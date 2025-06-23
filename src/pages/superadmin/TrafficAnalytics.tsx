@@ -219,7 +219,7 @@ const TrafficAnalytics: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
         <MetricCard
           title="Total Visits"
           value={summary?.total_visits.toLocaleString()}
@@ -244,7 +244,7 @@ const TrafficAnalytics: React.FC = () => {
       </div>
 
       {/* Peak Hours and Best Month */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Peak Traffic Hour</h3>

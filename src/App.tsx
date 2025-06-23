@@ -21,7 +21,7 @@ import RequestPasswordReset from './pages/auth/RequestPasswordReset';
 
 import Register from './pages/auth/Register';
 import WishList from './pages/WishList';
-
+import Games from './pages/Games';
 
 // import Wholesale from './pages/Wholesale';
 
@@ -121,7 +121,7 @@ const BusinessProducts = lazy(() => import('./pages/business/catalog/Products'))
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
 const Verification = lazy(() => import('./pages/business/Verification'));
-const ProductPlacements = lazy(() => import('./pages/business/ProductPlacements')); 
+const ProductPlacements = lazy(() => import('./pages/business/ProductPlacements'));
 
 // Lazy-loaded catalog pages
 const CatalogProducts = lazy(() => import('./pages/business/catalog/Products'));
@@ -146,7 +146,7 @@ const useScrollToTop = () => {
       window.scrollTo(0, 0);
       document.body.scrollTop = 0;
       document.documentElement.scrollTop = 0;
-      
+
       // Force layout recalculation
       document.body.style.overflow = 'hidden';
       setTimeout(() => {
@@ -175,13 +175,13 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 // Create a wrapper component for visit tracking
 const VisitTracker: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { markAsConverted } = useVisitTracking();
-  
+
   // Add this to your login/signup success handler
   const handleAuthSuccess = (userId: string) => {
     markAsConverted(userId);
     // ... rest of your auth success handling
   };
-  
+
   return <>{children}</>;
 };
 
@@ -197,22 +197,22 @@ const App: React.FC = () => {
                 <ScrollToTop />
                 <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                   <Routes>
-                  <Route path="/shop1" element={<Shop1LandingPage />} />
-                  <Route path="/shop2" element={<Shop2LandingPage />} />
+                    <Route path="/shop1" element={<Shop1LandingPage />} />
+                    <Route path="/shop2" element={<Shop2LandingPage />} />
 
-                  <Route
-                              path="/business/login"
-                              element={<BusinessLogin />}
-                            />
-                            <Route
-                              path="/register-business"
-                              element={<RegisterBusiness />}
-                            />
-                             <Route
-                                path="/request-password-reset"
-                                element={<RequestPasswordReset />}
-                              />
-                              <Route path="/superadmin/login" element={<SuperAdminLogin />} />
+                    <Route
+                      path="/business/login"
+                      element={<BusinessLogin />}
+                    />
+                    <Route
+                      path="/register-business"
+                      element={<RegisterBusiness />}
+                    />
+                    <Route
+                      path="/request-password-reset"
+                      element={<RequestPasswordReset />}
+                    />
+                    <Route path="/superadmin/login" element={<SuperAdminLogin />} />
                     {/* Business Dashboard Routes */}
                     <Route path="/business" element={<AdminLayout />}>
                       <Route
@@ -296,7 +296,7 @@ const App: React.FC = () => {
                         path="reports/sales"
                         element={
                           <Suspense fallback={<LoadingFallback />}>
-                            <Sales/>
+                            <Sales />
                           </Suspense>
                         }
                       />
@@ -319,14 +319,14 @@ const App: React.FC = () => {
                         }
                       />
 
-                    <Route
-                      path="settings"
-                      element={
-                        <Suspense fallback={<LoadingFallback />}>
-                          <Settingss />
-                        </Suspense>
-                      }
-                    />
+                      <Route
+                        path="settings"
+                        element={
+                          <Suspense fallback={<LoadingFallback />}>
+                            <Settingss />
+                          </Suspense>
+                        }
+                      />
 
                       <Route
                         path="support"
@@ -337,14 +337,14 @@ const App: React.FC = () => {
                         }
                       />
 
-                    <Route
-                      path="profile"
-                      element={
-                        <Suspense fallback={<LoadingFallback />}>
-                          <Profilee />
-                        </Suspense>
-                      }
-                    />
+                      <Route
+                        path="profile"
+                        element={
+                          <Suspense fallback={<LoadingFallback />}>
+                            <Profilee />
+                          </Suspense>
+                        }
+                      />
 
                       {/* Catalog Routes */}
                       <Route path="catalog">
@@ -391,7 +391,7 @@ const App: React.FC = () => {
                       </Route>
 
                       <Route
-                        path="product-placements" 
+                        path="product-placements"
                         element={
                           <Suspense fallback={<LoadingFallback />}>
                             <ProductPlacements />
@@ -400,57 +400,57 @@ const App: React.FC = () => {
                       />
                     </Route>
 
-                  {/* Superadmin Routes - Protected by role check in the component */}
-                  <Route path="/superadmin" element={<SuperAdminLayout />}>
-                    <Route
-                      index
-                      element={<Navigate to="/superadmin/dashboard" replace />}
-                    />
-                    <Route path="dashboard" element={<Dashboard />} />
-                    <Route
-                      path="user-report"
-                      element={<UserActivity />}
-                    />
-                    <Route path="users" element={<UserManagement />} />
+                    {/* Superadmin Routes - Protected by role check in the component */}
+                    <Route path="/superadmin" element={<SuperAdminLayout />}>
+                      <Route
+                        index
+                        element={<Navigate to="/superadmin/dashboard" replace />}
+                      />
+                      <Route path="dashboard" element={<Dashboard />} />
+                      <Route
+                        path="user-report"
+                        element={<UserActivity />}
+                      />
+                      <Route path="users" element={<UserManagement />} />
 
-                    <Route path="content-moderation" element={<ContentModeration />} />
-                    <Route path="products" element={<ProductMonitoring />} />
-                    <Route path="site-report" element={<TrafficAnalytics />} />
+                      <Route path="content-moderation" element={<ContentModeration />} />
+                      <Route path="products" element={<ProductMonitoring />} />
+                      <Route path="site-report" element={<TrafficAnalytics />} />
 
-                    <Route path="sales-report" element={<SalesReportPage />} />
-                    <Route path="fraud-detection" element={<FraudDetection />} />
-                    <Route
-                      path="marketplace-health"
-                      element={<MarketplaceHealth />}
-                    />
-                    <Route
-                      path="merchant-payment-report"
-                      element={<MerchantPaymentReport />}
-                    />
-                    <Route
-                      path="performance"
-                      element={<PlatformPerformance />}
-                    />
-                    <Route
-                      path="merchants"
-                      element={<MerchantManagement />}
-                    />
-                    <Route
-                      path="merchant-management/:id"
-                      element={<MerchantDetails />}
-                    />
-                    <Route path="categories" element={<Categories />} />
-                    <Route path="brands" element={<BrandCreation />} />
-                    <Route path="attribute" element={<Attribute />} />
-                    <Route path="homepages" element={<HomepageSettings />} />
-                    <Route path="user-support" element={<UserSupport />} />
-                    <Route path="merchant-support" element={<MerchantSupport />} />
-                    <Route path="settings" element={<Settings />} />
-                    <Route path="refund-and-return" element={<RefundAndReturnManagement />} />
-                    <Route path="payments" element={<PaymentAndTransactionMonitoring />} />
-                    <Route path="promotions" element={<Promotions />} />
-                    <Route path="profile" element={<Profile />} />
-                  </Route>
+                      <Route path="sales-report" element={<SalesReportPage />} />
+                      <Route path="fraud-detection" element={<FraudDetection />} />
+                      <Route
+                        path="marketplace-health"
+                        element={<MarketplaceHealth />}
+                      />
+                      <Route
+                        path="merchant-payment-report"
+                        element={<MerchantPaymentReport />}
+                      />
+                      <Route
+                        path="performance"
+                        element={<PlatformPerformance />}
+                      />
+                      <Route
+                        path="merchants"
+                        element={<MerchantManagement />}
+                      />
+                      <Route
+                        path="merchant-management/:id"
+                        element={<MerchantDetails />}
+                      />
+                      <Route path="categories" element={<Categories />} />
+                      <Route path="brands" element={<BrandCreation />} />
+                      <Route path="attribute" element={<Attribute />} />
+                      <Route path="homepages" element={<HomepageSettings />} />
+                      <Route path="user-support" element={<UserSupport />} />
+                      <Route path="merchant-support" element={<MerchantSupport />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="refund-and-return" element={<RefundAndReturnManagement />} />
+                      <Route path="payments" element={<PaymentAndTransactionMonitoring />} />
+                      <Route path="promotions" element={<Promotions />} />
+                      <Route path="profile" element={<Profile />} />
+                    </Route>
 
                     {/* Public Routes with header/footer */}
                     <Route
@@ -474,33 +474,33 @@ const App: React.FC = () => {
                               <Route path="/search" element={<SearchResultsPage />} />
                               <Route path="/search/:query" element={<Products />} />
 
-                            {/* These routes will have Navbar and Footer */}
-                            <Route path="/signup" element={<SignUp />} />
-                            <Route
-                              path="/verification-pending"
-                              element={<VerificationPending />}
-                            />
-                            <Route path="settings" element={<Settingss />} />
-                            <Route
-                              path="/verify-email/:token"
-                              element={<VerifyEmail />}
-                            />
-                          
+                              {/* These routes will have Navbar and Footer */}
+                              <Route path="/signup" element={<SignUp />} />
+                              <Route
+                                path="/verification-pending"
+                                element={<VerificationPending />}
+                              />
+                              <Route path="settings" element={<Settingss />} />
+                              <Route
+                                path="/verify-email/:token"
+                                element={<VerifyEmail />}
+                              />
+
 
                               <Route
                                 path="/password/reset"
                                 element={<PasswordReset />}
                               />
-                             
+
 
                               <Route path="/wishlist" element={<WishList />} />
+                              <Route path="/games" element={<Games />} />
 
-                             
                               {/* <Route path="/wholesale" element={<Wholesale />} /> */}
 
                               <Route path="/sign-in" element={<SignIn />} />
                               <Route path="/register" element={<Register />} />
-                              
+
                               <Route
                                 path="/become-merchant"
                                 element={<BecomeMerchant />}
@@ -565,7 +565,7 @@ const App: React.FC = () => {
                     />
 
                     {/* Add this route outside of /business and /superadmin, so it's public */}
-                    
+
                   </Routes>
                 </div>
                 {/* Add MessengerPopup here, outside of routes so it appears on all pages */}
@@ -574,28 +574,28 @@ const App: React.FC = () => {
             </Router>
 
             <Toaster
-  position="bottom-center"
-  toastOptions={{
-    style: {
-      background: "#FFEDD5",        // Tailwind orange-100 (soft warm background)
-      color: "#EA580C",             // Tailwind orange-600 (professional tone)
-      padding: "12px 20px",
-      borderRadius: "0.5rem",       // rounded-lg for softer edges
-      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // soft neutral shadow
-      fontWeight: "500",            // medium weight for readability
-      fontSize: "0.875rem",         // text-sm
-      minWidth: "260px",
-      textAlign: "center",
-      border: "1px solid #FDBA74",  // subtle border using orange-300
-    },
-    success: {
-      duration: 3000,
-    },
-    error: {
-      duration: 4000,
-    },
-  }}
-/>
+              position="bottom-center"
+              toastOptions={{
+                style: {
+                  background: "#FFEDD5",        // Tailwind orange-100 (soft warm background)
+                  color: "#EA580C",             // Tailwind orange-600 (professional tone)
+                  padding: "12px 20px",
+                  borderRadius: "0.5rem",       // rounded-lg for softer edges
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // soft neutral shadow
+                  fontWeight: "500",            // medium weight for readability
+                  fontSize: "0.875rem",         // text-sm
+                  minWidth: "260px",
+                  textAlign: "center",
+                  border: "1px solid #FDBA74",  // subtle border using orange-300
+                },
+                success: {
+                  duration: 3000,
+                },
+                error: {
+                  duration: 4000,
+                },
+              }}
+            />
 
           </GoogleOAuthProvider>
         </WishlistProvider>

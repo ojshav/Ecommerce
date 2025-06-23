@@ -203,7 +203,7 @@ const Sales = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center bg-[#FF4D00] text-white p-6 rounded-xl">
+      <div className="flex flex-wrap gap-4 justify-between items-center bg-[#FF4D00] text-white p-6 rounded-xl">
         <h1 className="text-2xl font-semibold">Sales Performance Report</h1>
         <div className="flex gap-3">
           <button

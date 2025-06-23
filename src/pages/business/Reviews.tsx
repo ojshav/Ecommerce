@@ -159,7 +159,7 @@ const Reviews: React.FC = () => {
 
   return (
     <div className="p-6 bg-[#f8f9fa]">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h1 className="text-2xl font-semibold text-black">Product Reviews</h1>
         <div className="flex gap-4">
           <div className="relative">

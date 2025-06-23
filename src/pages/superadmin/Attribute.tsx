@@ -553,7 +553,7 @@ const Attribute: React.FC = () => {
     }
 
     return (
-        <div className="p-6">
+        <div className="px-4 sm:px-6 py-6">
             <h1 className="text-2xl font-bold mb-6">Product Attributes</h1>
 
             <div className="bg-white rounded-lg shadow-md p-6">
@@ -575,18 +575,18 @@ const Attribute: React.FC = () => {
                 {/* Custom Attributes Tab */}
                 {activeTab === 'custom' && (
                     <div>
-                        <div className="flex justify-between items-center mb-4">
-                            <div className="flex items-center w-full max-w-md">
+                        <div className="flex flex-col lg:flex-row gap-4 justify-start xl:justify-between items-start lg:items-center mb-4">
+                            <div className="flex items-center w-full lg:w-auto max-w-md">
                                 <input
                                     type="text"
                                     placeholder="Search attributes..."
                                     value={searchQuery}
                                     onChange={e => setSearchQuery(e.target.value)}
-                                    className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-[#FF5733] focus:border-[#FF5733]"
+                                    className="border border-gray-300 rounded-md px-3 py-2 w-full xl:min-w-96 focus:ring-[#FF5733] focus:border-[#FF5733]"
                                 />
                             </div>
                             <button
-                                className="ml-4 bg-[#FF5733] text-white px-4 py-2 rounded flex items-center hover:bg-[#FF4500] transition-colors"
+                                className="bg-[#FF5733] text-white px-4 py-2 rounded flex items-center hover:bg-[#FF4500] transition-colors"
                                 onClick={() => setShowAddCustomAttribute(true)}
                             >
                                 <PlusCircle className="w-4 h-4 mr-1" />
