@@ -16,7 +16,7 @@ import {
   X,
   FolderOpen,
   ShieldCheck,
-  LucideIcon
+  LucideIcon,
 } from "lucide-react";
 import { ChartBarIcon } from "@heroicons/react/24/outline";
 import SuperadminHeader from "./SuperadminHeader";
@@ -49,12 +49,12 @@ export const dashboardSections: MenuSection[] = [
       {
         title: "Site Report",
         icon: BarChart3,
-        description: "Analyze visitor traffic, sources, and behavior patterns"
+        description: "Analyze visitor traffic, sources, and behavior patterns",
       },
       {
         title: "Sales Report",
         icon: FileBarChart2,
-        description: "Review comprehensive sales data, trends, and projections"
+        description: "Review comprehensive sales data, trends, and projections",
       },
       {
         title: "Performance",
@@ -76,17 +76,17 @@ export const dashboardSections: MenuSection[] = [
       {
         title: "Merchants",
         icon: UserCog,
-        description: "Review and manage merchant accounts and applications"
+        description: "Review and manage merchant accounts and applications",
       },
       {
         title: "Refund and Return",
         icon: ShoppingBag,
-        description: "Process refund requests and manage return policies"
+        description: "Process refund requests and manage return policies",
       },
       {
         title: "Products",
         icon: ShoppingBag,
-        description: "Track product listings, categories, and inventory status"
+        description: "Track product listings, categories, and inventory status",
       },
       /*
       {
@@ -104,9 +104,9 @@ export const dashboardSections: MenuSection[] = [
       {
         title: "Users",
         icon: Users,
-        description: "Manage user accounts, permissions, and access controls"
-      }
-    ]
+        description: "Manage user accounts, permissions, and access controls",
+      },
+    ],
   },
   {
     category: "Operations",
@@ -116,13 +116,13 @@ export const dashboardSections: MenuSection[] = [
       {
         title: "Payments",
         icon: ShieldCheck,
-        description: "Monitor payment processing and transaction security"
+        description: "Monitor payment processing and transaction security",
       },
       {
         title: "Promotions",
         icon: Percent,
-        description: "Create and manage platform-wide promotions and offers"
-      }
+        description: "Create and manage platform-wide promotions and offers",
+      },
       /*
       {
         title: "Content Moderation",
@@ -140,7 +140,13 @@ export const dashboardSections: MenuSection[] = [
         description: "Manage system notifications and alert thresholds"
       }
         */
-    ]
+
+      {
+        title: "GST Management",
+        icon: FileBarChart2, // Using an appropriate icon
+        description: "Manage Goods and Services Tax rules and applicability",
+      },
+    ],
   },
   /*
   {
@@ -174,16 +180,15 @@ export const dashboardSections: MenuSection[] = [
       {
         title: "User Support",
         icon: MessageSquare,
-        description: "Support for platform users"
+        description: "Support for platform users",
       },
       {
         title: "Merchant Support",
         icon: MessageSquare,
-        description: "Support for merchants"
-      }
-    ]
+        description: "Support for merchants",
+      },
+    ],
   },
-  
 ];
 
 // Add Category Management section
@@ -196,24 +201,24 @@ export const catalogSections: MenuSection[] = [
       {
         title: "Categories",
         icon: FolderOpen,
-        description: "Manage product categories and subcategories"
+        description: "Manage product categories and subcategories",
       },
       {
         title: "Brands",
         icon: ShoppingBag,
-        description: "Manage product brands"
+        description: "Manage product brands",
       },
       {
         title: "Attribute",
         icon: Settings,
-        description: "Manage product attributes and specifications"
+        description: "Manage product attributes and specifications",
       },
       {
         title: "Homepages",
         icon: Home,
-        description: "Manage categories displayed on homepage"
-      }
-    ]
+        description: "Manage categories displayed on homepage",
+      },
+    ],
   },
   {
     category: "Setting",
@@ -223,12 +228,11 @@ export const catalogSections: MenuSection[] = [
       {
         title: "Settings",
         icon: Settings,
-        description: "Manage platform settings"
-      }
-    ]
-  }
+        description: "Manage platform settings",
+      },
+    ],
+  },
 ];
-
 
 // Get color classes based on category
 export const getCategoryColorClasses = () => {
@@ -238,7 +242,7 @@ export const getCategoryColorClasses = () => {
     bg: "bg-orange-50",
     border: "border-orange-100",
     hover: "hover:text-orange-600",
-    active: "bg-orange-200 text-orange-700"
+    active: "bg-orange-200 text-orange-700",
   };
 };
 
@@ -252,7 +256,7 @@ const SuperAdminLayout = () => {
   // Get the active category based on current route
   const getActiveCategory = () => {
     const path = location.pathname;
-    
+
     // Check Dashboard first
     if (path === "/superadmin/dashboard") {
       return "Dashboard";
@@ -260,20 +264,26 @@ const SuperAdminLayout = () => {
 
     // Check all dashboard sections
     for (const section of dashboardSections) {
-      if (section.items.some(item => {
-        const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
-        return path.includes(itemPath);
-      })) {
+      if (
+        section.items.some((item) => {
+          const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
+          return path.includes(itemPath);
+        })
+      ) {
         return section.category;
       }
     }
 
     // Check Catalog Management
-    const catalogSection = catalogSections.find(section => section.category === "Catalog Management");
-    if (catalogSection?.items.some(item => {
-      const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
-      return path.includes(itemPath);
-    })) {
+    const catalogSection = catalogSections.find(
+      (section) => section.category === "Catalog Management"
+    );
+    if (
+      catalogSection?.items.some((item) => {
+        const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
+        return path.includes(itemPath);
+      })
+    ) {
       return "Catalog Management";
     }
 
@@ -294,11 +304,11 @@ const SuperAdminLayout = () => {
   }
 
   // Redirect to unauthorized page if authenticated but not a superadmin
-  const userRole = user?.role?.toLowerCase() || '';
-  const isAdmin = userRole.includes('admin') || userRole === 'super_admin';
-  
+  const userRole = user?.role?.toLowerCase() || "";
+  const isAdmin = userRole.includes("admin") || userRole === "super_admin";
+
   if (isAuthenticated && !isAdmin) {
-    console.log('Unauthorized access attempt with role:', user?.role);
+    console.log("Unauthorized access attempt with role:", user?.role);
     return <Navigate to="/unauthorized" replace />;
   }
 
@@ -310,10 +320,11 @@ const SuperAdminLayout = () => {
       return;
     }
     // Toggle category expansion - only one category can be expanded at a time
-    setExpandedCategories(prev => 
-      prev.includes(category) 
-        ? [] // Close if already expanded
-        : [category] // Open only this category
+    setExpandedCategories(
+      (prev) =>
+        prev.includes(category)
+          ? [] // Close if already expanded
+          : [category] // Open only this category
     );
     if (window.innerWidth < 768) {
       setIsSidebarOpen(false);
@@ -340,9 +351,11 @@ const SuperAdminLayout = () => {
     }
 
     // Check if any submenu item in the category is active
-    const section = dashboardSections.find(section => section.category === category);
+    const section = dashboardSections.find(
+      (section) => section.category === category
+    );
     if (section) {
-      return section.items.some(item => {
+      return section.items.some((item) => {
         const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
         return location.pathname.includes(itemPath);
       });
@@ -350,11 +363,15 @@ const SuperAdminLayout = () => {
 
     // Check Catalog Management items
     if (category === "Catalog Management") {
-      const catalogSection = catalogSections.find(section => section.category === "Catalog Management");
-      return catalogSection?.items.some(item => {
-        const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
-        return location.pathname.includes(itemPath);
-      }) || false;
+      const catalogSection = catalogSections.find(
+        (section) => section.category === "Catalog Management"
+      );
+      return (
+        catalogSection?.items.some((item) => {
+          const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
+          return location.pathname.includes(itemPath);
+        }) || false
+      );
     }
 
     return false;
@@ -383,17 +400,19 @@ const SuperAdminLayout = () => {
     <div className="min-h-screen bg-gradient-to-br from-white to-orange-50">
       {/* Fixed Header */}
       <div className="fixed top-0 left-0 right-0 z-30 bg-orange-500">
-      <SuperadminHeader onMenuClick={toggleSidebar} />
+        <SuperadminHeader onMenuClick={toggleSidebar} />
       </div>
 
       <div className="flex pt-16">
         {/* Fixed Sidebar */}
-        <div className={`
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+        <div
+          className={`
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
           fixed md:static z-20 transform md:translate-x-0 transition-transform duration-300 ease-in-out
           w-64 h-[calc(100vh-4rem)] top-16 bg-orange-100 shadow-md flex flex-col
           will-change-transform
-        `}>
+        `}
+        >
           {/* Sidebar Header */}
           <div className="p-4 border-b border-orange-200 flex-shrink-0">
             <div className="flex items-center justify-between">
@@ -419,10 +438,14 @@ const SuperAdminLayout = () => {
                   onClick={() => handleCategorySelect("Dashboard")}
                   className={`
                     w-full flex items-center px-4 py-3 rounded-lg text-left
-                    ${isCategoryActive("Dashboard") ? 'bg-orange-200 text-orange-700' : 'text-black hover:bg-orange-50'}
+                    ${
+                      isCategoryActive("Dashboard")
+                        ? "bg-orange-200 text-orange-700"
+                        : "text-black hover:bg-orange-50"
+                    }
                     transition-all duration-200
                   `}
-                >
+
                   <ChartBarIcon className={`w-5 h-5 ${isCategoryActive("Dashboard") ? '' : 'text-gray-500'} mr-3`} />
                   <span className="font-medium">Dashboard</span>
                 </button>
@@ -432,7 +455,9 @@ const SuperAdminLayout = () => {
                 const Icon = section.icon;
                 const colorClasses = getCategoryColorClasses();
                 const isActive = isCategoryActive(section.category);
-                const isExpanded = expandedCategories.includes(section.category);
+                const isExpanded = expandedCategories.includes(
+                  section.category
+                );
 
                 return (
                   <li key={index}>
@@ -440,15 +465,27 @@ const SuperAdminLayout = () => {
                       onClick={() => handleCategorySelect(section.category)}
                       className={`
                         w-full flex items-center px-4 py-3 rounded-lg text-left
-                        ${isActive ? colorClasses.active : 'text-black hover:bg-orange-50'}
+                        ${
+                          isActive
+                            ? colorClasses.active
+                            : "text-black hover:bg-orange-50"
+                        }
                         transition-all duration-200
                       `}
                     >
-                      <Icon className={`w-5 h-5 ${isActive ? '' : 'text-gray-500'} mr-3`} />
+                      <Icon
+                        className={`w-5 h-5 ${
+                          isActive ? "" : "text-gray-500"
+                        } mr-3`}
+                      />
                       <span className="font-medium">{section.category}</span>
-                      <ChevronRight className={`w-4 h-4 ml-auto transform transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
+                      <ChevronRight
+                        className={`w-4 h-4 ml-auto transform transition-transform duration-200 ${
+                          isExpanded ? "rotate-90" : ""
+                        }`}
+                      />
                     </button>
-                    
+
                     {/* Show section items when expanded */}
                     {isExpanded && (
                       <div className="mt-2 ml-6 space-y-1 overflow-hidden">
@@ -461,10 +498,20 @@ const SuperAdminLayout = () => {
                               onClick={() => handleNavigation(item.title)}
                               className={`
                                 w-full flex items-center px-3 py-2 rounded-md text-left
-                                ${isItemActive ? 'bg-orange-50 text-orange-700' : 'text-black hover:bg-orange-50'}
+                                ${
+                                  isItemActive
+                                    ? "bg-orange-50 text-orange-700"
+                                    : "text-black hover:bg-orange-50"
+                                }
                               `}
                             >
-                              <ItemIcon className={`w-4 h-4 ${isItemActive ? 'text-orange-600' : 'text-gray-500'} mr-2`} />
+                              <ItemIcon
+                                className={`w-4 h-4 ${
+                                  isItemActive
+                                    ? "text-orange-600"
+                                    : "text-gray-500"
+                                } mr-2`}
+                              />
                               <span className="text-sm">{item.title}</span>
                             </button>
                           );
@@ -474,44 +521,76 @@ const SuperAdminLayout = () => {
                   </li>
                 );
               })}
-              
+
               {/* Catalog Management Category */}
               <li>
                 <button
                   onClick={() => handleCategorySelect("Catalog Management")}
                   className={`
                     w-full flex items-center px-4 py-3 rounded-lg text-left
-                    ${isCategoryActive("Catalog Management") ? 
-                      getCategoryColorClasses().active : 
-                      'text-black hover:bg-orange-50'}
+                    ${
+                      isCategoryActive("Catalog Management")
+                        ? getCategoryColorClasses().active
+                        : "text-black hover:bg-orange-50"
+                    }
                     transition-all duration-200
                   `}
                 >
-                  <FolderOpen className={`w-5 h-5 ${isCategoryActive("Catalog Management") ? '' : 'text-gray-500'} mr-3`} />
+                  <FolderOpen
+                    className={`w-5 h-5 ${
+                      isCategoryActive("Catalog Management")
+                        ? ""
+                        : "text-gray-500"
+                    } mr-3`}
+                  />
                   <span className="font-medium">Catalog</span>
-                  <ChevronRight className={`w-4 h-4 ml-auto transform transition-transform duration-200 ${expandedCategories.includes("Catalog Management") ? 'rotate-90' : ''}`} />
+                  <ChevronRight
+                    className={`w-4 h-4 ml-auto transform transition-transform duration-200 ${
+                      expandedCategories.includes("Catalog Management")
+                        ? "rotate-90"
+                        : ""
+                    }`}
+                  />
                 </button>
-                
+
                 {/* Show catalog items when expanded */}
                 {expandedCategories.includes("Catalog Management") && (
                   <div className="mt-2 ml-6 space-y-1 overflow-hidden">
-                    {catalogSections.find(section => section.category === "Catalog Management")?.items.map((item, index) => {
-                      const ItemIcon = item.icon;
-                      const isItemActive = isSubmenuActive(item.title);
-                      return (
-                        <button
-                          key={index}
-                          onClick={() => handleCatalogItemClick(item.title.toLowerCase().replace(/\s+/g, "-"))}
-                          className={`
+                    {catalogSections
+                      .find(
+                        (section) => section.category === "Catalog Management"
+                      )
+                      ?.items.map((item, index) => {
+                        const ItemIcon = item.icon;
+                        const isItemActive = isSubmenuActive(item.title);
+                        return (
+                          <button
+                            key={index}
+                            onClick={() =>
+                              handleCatalogItemClick(
+                                item.title.toLowerCase().replace(/\s+/g, "-")
+                              )
+                            }
+                            className={`
                             w-full flex items-center px-3 py-2 rounded-md text-left
-                            ${isItemActive ? 'bg-orange-50 text-orange-700' : 'text-black hover:bg-orange-50'}
+                            ${
+                              isItemActive
+                                ? "bg-orange-50 text-orange-700"
+                                : "text-black hover:bg-orange-50"
+                            }
                           `}
-                        >
-                          <ItemIcon className={`w-4 h-4 ${isItemActive ? 'text-orange-600' : 'text-gray-500'} mr-2`} />
-                          <span className="text-sm">{item.title}</span>
-                        </button>
-                      );
-                    })}
+                          >
+                            <ItemIcon
+                              className={`w-4 h-4 ${
+                                isItemActive
+                                  ? "text-orange-600"
+                                  : "text-gray-500"
+                              } mr-2`}
+                            />
+                            <span className="text-sm">{item.title}</span>
+                          </button>
+                        );
+                      })}
                   </div>
                 )}
               </li>
@@ -522,13 +601,19 @@ const SuperAdminLayout = () => {
                   onClick={() => handleNavigation("Settings")}
                   className={`
                     w-full flex items-center px-4 py-3 rounded-lg text-left
-                    ${isCategoryActive("Setting") ? 
-                      getCategoryColorClasses().active : 
-                      'text-black hover:bg-orange-50'}
+                    ${
+                      isCategoryActive("Setting")
+                        ? getCategoryColorClasses().active
+                        : "text-black hover:bg-orange-50"
+                    }
                     transition-all duration-200
                   `}
                 >
-                  <Settings className={`w-5 h-5 ${isCategoryActive("Setting") ? '' : 'text-gray-500'} mr-3`} />
+                  <Settings
+                    className={`w-5 h-5 ${
+                      isCategoryActive("Setting") ? "" : "text-gray-500"
+                    } mr-3`}
+                  />
                   <span className="font-medium">Settings</span>
                 </button>
               </li>
