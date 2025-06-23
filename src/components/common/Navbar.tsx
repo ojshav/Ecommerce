@@ -7,6 +7,7 @@ import CategoryDropdown from '../home/CategoryDropdown';
 import SearchResults from './SearchResults';
 import useClickOutside from '../../hooks/useClickOutside';
 import LogoutConfirmationPopup from '../LogoutConfirmationPopup';
+import SpinWheel from '../promotional/SpinWheel';
 import toast from 'react-hot-toast';
 import '@fontsource/work-sans';
 
@@ -27,6 +28,7 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
   const [showPromoBar, setShowPromoBar] = useState(true);
+  const [isSpinWheelOpen, setIsSpinWheelOpen] = useState(false);
 
   const desktopSearchRef = useRef<HTMLDivElement>(null);
   const mobileSearchRef = useRef<HTMLDivElement>(null);
@@ -132,6 +134,34 @@ const Navbar: React.FC = () => {
     }
   };
 
+  const spinWheelSegments = [
+    { id: '1', label: '10% OFF', value: 'SAVE10', color: '#FF6B6B', probability: 30 },
+    { id: '2', label: '20% OFF', value: 'SAVE20', color: '#4ECDC4', probability: 25 },
+    { id: '3', label: '30% OFF', value: 'SAVE30', color: '#45B7D1', probability: 20 },
+    { id: '4', label: '40% OFF', value: 'SAVE40', color: '#96CEB4', probability: 15 },
+    { id: '5', label: '50% OFF', value: 'SAVE50', color: '#FFEEAD', probability: 5 },
+    { id: '6', label: 'FREE SHIP', value: 'FREESHIP', color: '#D4A5A5', probability: 5 },
+  ];
+
+  const handleSpinComplete = (segment: { label: string; value: string }) => {
+    toast.success(
+      <div className="text-center">
+        <p className="font-bold">🎉 Congratulations! 🎉</p>
+        <p>You won {segment.label}!</p>
+        <p className="mt-2">Use code: <span className="font-bold">{segment.value}</span></p>
+      </div>,
+      {
+        duration: 5000,
+        style: {
+          background: '#FFEDD5',
+          color: '#EA580C',
+          padding: '16px',
+        },
+      }
+    );
+    setIsSpinWheelOpen(false);
+  };
+
   const searchBarContent = (
     <div ref={desktopSearchRef} className="relative">
       <form onSubmit={handleSearchSubmit} className="relative">
@@ -159,6 +189,7 @@ const Navbar: React.FC = () => {
       </form>
       <SearchResults
         isVisible={showSearchResults}
+        setIsVisible={setShowSearchResults}
         searchQuery={searchQuery}
         searchType={searchType}
         onItemClick={() => {
@@ -196,6 +227,7 @@ const Navbar: React.FC = () => {
         </div>
         <SearchResults
           isVisible={showSearchResults}
+          setIsVisible={setShowSearchResults}
           searchQuery={searchQuery}
           searchType={searchType}
           onItemClick={() => {
@@ -329,6 +361,15 @@ const Navbar: React.FC = () => {
 
                   {/* Icons */}
                   <div className="flex items-center gap-2 nav:gap-3 mid:gap-4">
+                    <button
+                      onClick={() => setIsSpinWheelOpen(true)}
+                      className="flex items-center gap-2 text-white hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+                      title="Spin & Win Offers!"
+                    >
+                      <Gift className="w-5 h-5" />
+                      <span className="hidden md:inline">Spin & Win</span>
+                    </button>
+
                     <Link to="/wishlist" className="text-white hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <Heart className="w-5 h-5" />
                     </Link>
@@ -600,6 +641,14 @@ const Navbar: React.FC = () => {
         isOpen={isLogoutPopupOpen}
         onClose={() => setIsLogoutPopupOpen(false)}
         onConfirm={handleLogoutConfirm}
+      />
+
+      {/* Add SpinWheel component */}
+      <SpinWheel
+        segments={spinWheelSegments}
+        isOpen={isSpinWheelOpen}
+        onClose={() => setIsSpinWheelOpen(false)}
+        onSpinComplete={handleSpinComplete}
       />
     </header>
   );
