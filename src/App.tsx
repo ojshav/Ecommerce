@@ -59,6 +59,7 @@ import Categories from './pages/superadmin/Categories';
 import Attribute from './pages/superadmin/Attribute';
 import BrandCreation from './pages/superadmin/BrandCreation';
 import HomepageSettings from './pages/superadmin/HomepageSettings';
+import Shop1Productpage from './pages/Shop1Productpage';
 
 import FAQ from './pages/FAQ';
 import About from './pages/About';
@@ -200,7 +201,7 @@ const App: React.FC = () => {
                   <Routes>
                     <Route path="/shop1" element={<Shop1LandingPage />} />
                     <Route path="/shop2" element={<Shop2LandingPage />} />
-
+                    <Route path="/shop1-productpage" element={<Shop1Productpage />} />
                     <Route
                       path="/business/login"
                       element={<BusinessLogin />}

@@ -17,6 +17,8 @@ const SpinWheel: React.FC<SpinWheelProps> = ({ onWin, onBack }) => {
   const [isSpinning, setIsSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [hasSpun, setHasSpun] = useState(false);
+  const [wonPrize, setWonPrize] = useState<PromoCode | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
   const wheelRef = useRef<HTMLDivElement>(null);
 
   const prizes = [
@@ -50,6 +52,7 @@ const SpinWheel: React.FC<SpinWheelProps> = ({ onWin, onBack }) => {
     setTimeout(() => {
       setIsSpinning(false);
       setHasSpun(true);
+      setWonPrize(prizes[randomPrizeIndex]);
       onWin(prizes[randomPrizeIndex]);
     }, 3000);
   };
@@ -58,30 +61,49 @@ const SpinWheel: React.FC<SpinWheelProps> = ({ onWin, onBack }) => {
     setRotation(0);
     setHasSpun(false);
     setIsSpinning(false);
+    setWonPrize(null);
+    setCopySuccess(false);
+  };
+
+  const handleCopy = () => {
+    if (wonPrize) {
+      navigator.clipboard.writeText(wonPrize.code);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 1500);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center font-['Work_Sans']">
-      <div className="bg-white rounded-3xl p-8 shadow-2xl max-w-md w-full mx-4">
+    <div className="min-h-screen flex items-center justify-center font-['Work_Sans'] bg-gradient-to-br from-orange-50 via-white to-orange-100 relative overflow-hidden">
+      {/* Floating confetti background (optional, simple SVGs for now) */}
+      <svg className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-10 z-0" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10%" cy="20%" r="30" fill="#F2631F" />
+        <circle cx="80%" cy="10%" r="20" fill="#FF8A4C" />
+        <circle cx="50%" cy="80%" r="25" fill="#FF6B35" />
+        <circle cx="90%" cy="60%" r="15" fill="#E55A2B" />
+      </svg>
+      <div className="bg-white/70 backdrop-blur-lg rounded-3xl p-8 shadow-2xl max-w-md w-full mx-4 border border-orange-100 z-10 relative">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors font-['Work_Sans']"
+            className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors font-['Work_Sans']"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back to Games
+            <span className="hidden sm:inline">Back to Games</span>
           </button>
-          <h1 className="text-2xl font-bold text-gray-800 font-['Work_Sans']">Spin & Win</h1>
+          <h1 className="text-3xl font-extrabold text-orange-700 font-['Work_Sans'] tracking-tight drop-shadow-sm">Spin & Win</h1>
         </div>
 
         {/* Wheel Container */}
-        <div className="relative mb-8">
-          <div className="relative w-80 h-80 mx-auto">
+        <div className="relative mb-8 flex justify-center">
+          <div className="relative w-72 h-72 sm:w-80 sm:h-80 mx-auto flex items-center justify-center">
+            {/* Glowing Wheel Border */}
+            <div className="absolute w-full h-full rounded-full bg-gradient-to-br from-orange-200 via-orange-100 to-white blur-lg opacity-70 animate-pulse z-0"></div>
             {/* Wheel */}
             <div
               ref={wheelRef}
-              className="w-full h-full rounded-full relative overflow-hidden transition-transform duration-3000 ease-out"
+              className="w-full h-full rounded-full relative overflow-hidden transition-transform duration-3000 ease-out shadow-xl border-8 border-white z-10"
               style={{
                 transform: `rotate(${rotation}deg)`,
                 transition: isSpinning ? 'transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none'
@@ -113,14 +135,15 @@ const SpinWheel: React.FC<SpinWheelProps> = ({ onWin, onBack }) => {
               })}
             </div>
 
-            {/* Center Pointer */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-0 h-0 border-l-[15px] border-r-[15px] border-b-[30px] border-l-transparent border-r-transparent border-b-[#F2631F]"></div>
+            {/* Stylish Center Pointer */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/4 z-20">
+              <div className="w-0 h-0 border-l-[18px] border-r-[18px] border-b-[36px] border-l-transparent border-r-transparent border-b-[#F2631F] drop-shadow-lg animate-bounce"></div>
+              <div className="w-4 h-4 bg-white rounded-full border-2 border-orange-400 absolute left-1/2 -translate-x-1/2 -top-2"></div>
             </div>
 
             {/* Center Circle */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white rounded-full border-4 border-gray-300 flex items-center justify-center">
-              <div className="w-8 h-8 bg-[#F2631F] rounded-full"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white rounded-full border-4 border-orange-200 flex items-center justify-center z-20 shadow-md">
+              <div className="w-8 h-8 bg-[#F2631F] rounded-full shadow-inner"></div>
             </div>
           </div>
         </div>
@@ -131,7 +154,7 @@ const SpinWheel: React.FC<SpinWheelProps> = ({ onWin, onBack }) => {
             <button
               onClick={spinWheel}
               disabled={isSpinning}
-              className={`w-full py-4 px-8 rounded-2xl text-white font-bold text-lg transition-all duration-300 font-['Work_Sans'] ${
+              className={`w-full py-4 px-8 rounded-2xl text-white font-bold text-lg transition-all duration-300 font-['Work_Sans'] shadow-lg ${
                 isSpinning
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-[#F2631F] to-orange-600 hover:from-[#F2631F] hover:to-orange-700 transform hover:scale-105'
@@ -140,34 +163,58 @@ const SpinWheel: React.FC<SpinWheelProps> = ({ onWin, onBack }) => {
               {isSpinning ? 'Spinning...' : 'SPIN THE WHEEL!'}
             </button>
           ) : (
-            <div className="space-y-4">
-              <div className="bg-green-100 border-2 border-green-200 rounded-lg p-4">
-                <div className="text-green-800 font-bold text-lg mb-2 font-['Work_Sans']">
-                  🎉 Congratulations!
-                </div>
-                <div className="text-green-700 font-['Work_Sans']">
-                  You've won a promotional code! Check your rewards above.
+            <>
+              {/* Overlay for professional win message */}
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="relative bg-gradient-to-br from-white via-orange-50 to-orange-100 rounded-3xl shadow-2xl p-8 max-w-sm w-full border-4 border-orange-200 animate-fadeIn">
+                  <div className="flex flex-col items-center">
+                    <span className="text-5xl mb-2 animate-bounce">🎊</span>
+                    <h2 className="text-2xl font-bold text-orange-700 mb-2 font-['Work_Sans']">Congratulations!</h2>
+                    <p className="text-gray-700 mb-4 font-['Work_Sans']">You've won:</p>
+                    {wonPrize && (
+                      <div className="bg-white rounded-xl shadow p-4 mb-4 w-full text-center border border-orange-200">
+                        <div className="text-3xl font-extrabold text-orange-600 mb-1 font-['Work_Sans']">{wonPrize.discount}% OFF</div>
+                        <div className="text-lg font-semibold text-gray-800 mb-1 font-['Work_Sans']">Code: <span className="bg-orange-100 px-2 py-1 rounded font-mono text-orange-700">{wonPrize.code}</span></div>
+                        <div className="text-sm text-gray-600 mb-2 font-['Work_Sans']">{wonPrize.description}</div>
+                        <button
+                          onClick={handleCopy}
+                          className="mt-2 px-4 py-2 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-lg font-semibold shadow hover:from-orange-500 hover:to-orange-700 transition-all font-['Work_Sans']"
+                        >
+                          {copySuccess ? 'Copied!' : 'Copy Code'}
+                        </button>
+                      </div>
+                    )}
+                    <button
+                      onClick={resetWheel}
+                      className="w-full py-3 px-6 rounded-xl bg-gray-500 text-white font-semibold hover:bg-gray-600 transition-colors font-['Work_Sans'] mb-2 mt-2"
+                    >
+                      <RotateCcw className="w-5 h-5 inline mr-2" />
+                      Spin Again
+                    </button>
+                    <button
+                      onClick={onBack}
+                      className="w-full py-2 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition-colors font-['Work_Sans']"
+                    >
+                      <ArrowLeft className="w-4 h-4 inline mr-1" />
+                      Back to Games
+                    </button>
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={resetWheel}
-                className="w-full py-3 px-6 rounded-xl bg-gray-500 text-white font-semibold hover:bg-gray-600 transition-colors font-['Work_Sans']"
-              >
-                <RotateCcw className="w-5 h-5 inline mr-2" />
-                Spin Again
-              </button>
-            </div>
+            </>
           )}
         </div>
 
         {/* Instructions */}
-        <div className="mt-8 p-4 bg-gray-50 rounded-xl font-['Work_Sans']">
-          <h3 className="font-semibold text-gray-800 mb-2 font-['Work_Sans']">How to Play:</h3>
-          <ul className="text-sm text-gray-600 space-y-1 font-['Work_Sans']">
-            <li>• Click "SPIN THE WHEEL" to start</li>
-            <li>• Wait for the wheel to stop spinning</li>
-            <li>• The pointer will show your prize</li>
-            <li>• Win discounts from 5% to 20% off!</li>
+        <div className="mt-8 p-4 bg-white/60 rounded-xl font-['Work_Sans'] shadow border border-orange-100">
+          <h3 className="font-semibold text-orange-700 mb-2 font-['Work_Sans'] flex items-center gap-2">
+            <span className="inline-block text-xl">📝</span> How to Play:
+          </h3>
+          <ul className="text-sm text-gray-700 space-y-2 font-['Work_Sans']">
+            <li className="flex items-center gap-2"><span className="text-orange-500">🎯</span> Click <span className="font-bold">SPIN THE WHEEL</span> to start</li>
+            <li className="flex items-center gap-2"><span className="text-orange-500">⏳</span> Wait for the wheel to stop spinning</li>
+            <li className="flex items-center gap-2"><span className="text-orange-500">📍</span> The pointer will show your prize</li>
+            <li className="flex items-center gap-2"><span className="text-orange-500">🏆</span> Win discounts up to <span className="font-bold">20% off!</span></li>
           </ul>
         </div>
       </div>
