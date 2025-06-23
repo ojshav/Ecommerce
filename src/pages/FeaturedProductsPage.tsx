@@ -181,7 +181,7 @@ const FeaturedProductsPage: React.FC = () => {
 
       const data = await response.json();
       // Transform the API response to match the Product type
-      const transformedProducts = data.products.map((product: any) => ({
+      const transformedProducts = data.message.products.map((product: any) => ({
         id: String(product.product_id),
         name: product.product_name,
         description: product.product_description,
@@ -205,8 +205,8 @@ const FeaturedProductsPage: React.FC = () => {
         brand_id: product.brand?.brand_id
       }));
       setProducts(transformedProducts);
-      setTotalPages(data.pagination.pages);
-      setTotalProducts(data.pagination.total);
+      setTotalPages(data.message.pagination.pages);
+      setTotalProducts(data.message.pagination.total);
 
       if (categoryId && !selectedCategory) {
         setSelectedCategory(categoryId);

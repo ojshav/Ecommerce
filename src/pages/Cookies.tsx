@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Cookies: React.FC = () => {
+const CookiesPage: React.FC = () => {
   return (
     <div className="bg-white">
       <div className="container mx-auto px-4 py-16">
@@ -12,7 +12,7 @@ const Cookies: React.FC = () => {
           
           <div className="prose prose-lg max-w-none">
             <p>
-              This Cookie Policy explains how ShopEasy ("we", "us", or "our") uses cookies and similar technologies to recognize you when you visit our website ("Website"). It explains what these technologies are and why we use them, as well as your rights to control our use of them.
+              This Cookie Policy explains how AUIN ("we", "us", or "our") uses cookies and similar technologies to recognize you when you visit our website ("Website"). It explains what these technologies are and why we use them, as well as your rights to control our use of them.
             </p>
             
             <h2>What Are Cookies?</h2>
@@ -20,7 +20,7 @@ const Cookies: React.FC = () => {
               Cookies are small data files that are placed on your computer or mobile device when you visit a website. Cookies are widely used by website owners in order to make their websites work, or to work more efficiently, as well as to provide reporting information.
             </p>
             <p>
-              Cookies set by the website owner (in this case, ShopEasy) are called "first-party cookies". Cookies set by parties other than the website owner are called "third-party cookies". Third-party cookies enable third-party features or functionality to be provided on or through the website (e.g., advertising, interactive content, and analytics). The parties that set these third-party cookies can recognize your computer both when it visits the website in question and also when it visits certain other websites.
+              Cookies set by the website owner (in this case, AUIN) are called "first-party cookies". Cookies set by parties other than the website owner are called "third-party cookies". Third-party cookies enable third-party features or functionality to be provided on or through the website (e.g., advertising, interactive content, and analytics). The parties that set these third-party cookies can recognize your computer both when it visits the website in question and also when it visits certain other websites.
             </p>
             
             <h2>Why Do We Use Cookies?</h2>
@@ -99,13 +99,13 @@ const Cookies: React.FC = () => {
             
             <h2>Where Can I Get Further Information?</h2>
             <p>
-              If you have any questions about our use of cookies or other technologies, please email us at privacy@shopeasy.com or contact us at:
+              If you have any questions about our use of cookies or other technologies, please email us at privacy@auin.com or contact us at:
             </p>
             <p>
-              <strong>ShopEasy, Inc.</strong><br />
-              123 Commerce St, Suite 500<br />
-              New York, NY 10001<br />
-              Phone: 1-800-123-4567
+              <strong>AUIN</strong><br />
+              789 Fashion Avenue, Suite 1000<br />
+              New York, NY 10018<br />
+              Phone: 1-800-AUIN-HELP (1-800-284-6435)
             </p>
           </div>
         </div>
@@ -114,4 +114,4 @@ const Cookies: React.FC = () => {
   );
 };
 
-export default Cookies; 
+export default CookiesPage; 

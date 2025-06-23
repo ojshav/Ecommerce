@@ -82,35 +82,51 @@ const ReturnRefund = () => {
         {activeTab === 'returns' && (
           <div>
             <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-              <h2 className="text-xl font-medium mb-4 text-gray-900">Our Return Policy</h2>
+              <h2 className="text-xl font-medium mb-4 text-gray-900">AUIN Return Policy</h2>
               
               <p className="mb-6">
-                We offer a 30-day return policy for most items. To be eligible for a return, your item must be in the same condition that you received it, unworn or unused, with tags, and in its original packaging.
+                At AUIN, we want you to love your purchase. We offer a hassle-free 45-day return policy for most items. To be eligible for a return, your item must be in the same condition that you received it, unworn or unused, with tags, and in its original packaging.
               </p>
               
               <div className="bg-[#FFF9E5] p-4 rounded-lg mb-6">
                 <h3 className="font-medium mb-2 text-gray-900">Items that cannot be returned:</h3>
                 <ul className="list-disc pl-5 text-gray-700 space-y-1">
-                  <li>Downloadable software products</li>
-                  <li>Gift cards</li>
-                  <li>Perishable goods (like food or flowers)</li>
-                  <li>Custom products (such as special orders or personalized items)</li>
-                  <li>Personal care goods (for hygiene reasons)</li>
-                  <li>Hazardous materials, flammable liquids, or gases</li>
+                  <li>Digital products and downloadable items</li>
+                  <li>AUIN Gift cards</li>
+                  <li>Personal care and intimate items</li>
+                  <li>Custom-made or personalized products</li>
+                  <li>Final sale items (marked as non-returnable)</li>
+                  <li>Items damaged due to customer misuse</li>
                 </ul>
               </div>
               
               <div className="space-y-4 mb-6">
                 <h3 className="font-medium text-gray-900">Return Timeline:</h3>
                 <p>
-                  To start a return, you must contact us within <strong>30 days</strong> of receiving your item. If more than 30 days have passed since delivery, we cannot offer you a refund or exchange.
+                  To initiate a return, you must contact us within <strong>45 days</strong> of receiving your item. If more than 45 days have passed since delivery, we cannot offer you a refund or exchange.
                 </p>
               </div>
-              
-              <div className="space-y-4">
-                <h3 className="font-medium text-gray-900">Return Shipping:</h3>
-                <p>
-                  You are responsible for return shipping costs unless the item was defective, damaged, or incorrectly shipped. We recommend using a trackable shipping service to ensure your return arrives safely.
+
+              <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                <h3 className="font-medium mb-2 text-gray-900">Return Process:</h3>
+                <ol className="list-decimal pl-5 text-gray-700 space-y-2">
+                  <li>Log in to your AUIN account and visit the Orders section</li>
+                  <li>Select the item(s) you wish to return</li>
+                  <li>Choose your preferred return method</li>
+                  <li>Print the prepaid return label (free for store credit, $7.95 for refund to original payment method)</li>
+                  <li>Pack the item(s) securely with all original tags and packaging</li>
+                  <li>Drop off the package at any authorized shipping location</li>
+                </ol>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="font-medium mb-2 text-gray-900">Need Help?</h3>
+                <p className="text-gray-700">
+                  Contact our Returns Team:
+                  <br />
+                  Email: returns@auin.com
+                  <br />
+                  Phone: 1-800-AUIN-HELP (1-800-284-6435)
                 </p>
               </div>
             </div>
