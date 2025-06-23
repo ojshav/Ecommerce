@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings, LogOut, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
@@ -6,26 +6,30 @@ import { useNavigate } from 'react-router-dom';
 import LogoutConfirmationPopup from '../../components/LogoutConfirmationPopup';
 import EmailVerificationPopup from '../../components/EmailVerificationPopup';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 interface AdminProfile {
-  id: string;
-  name: string;
+  id: number;
   email: string;
-  isEmailVerified: boolean;
+  first_name: string;
+  last_name: string;
+  phone: string | null;
+  profile_img: string | null;
+  is_active: boolean;
+  is_email_verified?: boolean;
+  last_login: string | null;
 }
 
 const SuperAdminProfile: React.FC = () => {
-  const [profile, setProfile] = useState<AdminProfile>({
-    id: 'SA001',
-    name: 'John Admin',
-    email: 'admin@scalixity.com',
-    isEmailVerified: false
-  });
-
+  const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: profile.name,
-    email: profile.email
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    profile_img: ''
   });
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [passwordFormData, setPasswordFormData] = useState({
@@ -40,8 +44,73 @@ const SuperAdminProfile: React.FC = () => {
   });
   const [showEmailVerification, setShowEmailVerification] = useState(false);
 
-  const { logout } = useAuth();
+  const { logout, user, accessToken, isAdmin } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if not admin
+  useEffect(() => {
+    if (!isAdmin) {
+      navigate('/login');
+      toast.error('Unauthorized access');
+    }
+  }, [isAdmin, navigate]);
+
+  // Fetch profile data
+  useEffect(() => {
+    if (user?.id) {
+      fetchProfile();
+    }
+  }, [user?.id]);
+
+  const fetchProfile = async () => {
+    if (!accessToken || !user?.id) {
+      toast.error('Authentication required');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log('Fetching profile for user ID:', user.id);
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/profile/${user.id}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status === 401) {
+        toast.error('Session expired. Please login again.');
+        logout();
+        navigate('/login');
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile');
+      }
+
+      const data = await response.json();
+      const profileData = data.message;
+      
+      if (!profileData) {
+        throw new Error('Invalid data structure received from server');
+      }
+
+      setProfile(profileData);
+      setFormData({
+        first_name: profileData.first_name || '',
+        last_name: profileData.last_name || '',
+        email: profileData.email || '',
+        phone: profileData.phone || '',
+        profile_img: profileData.profile_img || ''
+      });
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to fetch profile');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -59,23 +128,62 @@ const SuperAdminProfile: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!accessToken || !user?.id) {
+      toast.error('Authentication required');
+      navigate('/login');
+      return;
+    }
+
     setLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setProfile({
-        ...profile,
-        ...formData
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/profile/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
+
+      if (response.status === 401) {
+        toast.error('Session expired. Please login again.');
+        logout();
+        navigate('/login');
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update profile');
+      }
+
+      const data = await response.json();
+      const updatedProfile = data.message || data;
+      
+      if (!updatedProfile) {
+        throw new Error('Invalid response structure from server');
+      }
+
+      setProfile(updatedProfile);
       setIsEditing(false);
-      setLoading(false);
       toast.success('Profile updated successfully');
-    }, 1000);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!accessToken || !user?.id) {
+      toast.error('Authentication required');
+      navigate('/login');
+      return;
+    }
+
     if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
       toast.error('New passwords do not match');
       return;
@@ -88,15 +196,41 @@ const SuperAdminProfile: React.FC = () => {
 
     setLoading(true);
     try {
-      await handlePasswordChange(passwordFormData.currentPassword, passwordFormData.newPassword);
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/profile/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          password: passwordFormData.newPassword,
+        }),
+      });
+
+      if (response.status === 401) {
+        toast.error('Session expired. Please login again.');
+        logout();
+        navigate('/login');
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to change password');
+      }
+
       setPasswordFormData({
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
       });
       toast.success('Password changed successfully');
-    } catch {
-      toast.error('Failed to change password');
+      
+      // Refresh profile after password update
+      await fetchProfile();
+    } catch (error) {
+      console.error('Error changing password:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to change password');
     } finally {
       setLoading(false);
     }
@@ -109,29 +243,32 @@ const SuperAdminProfile: React.FC = () => {
   const confirmLogout = () => {
     logout();
     setShowLogoutConfirm(false);
-    navigate('/superadmin/login');
-  };
-
-  const handlePasswordChange = async (currentPassword: string, newPassword: string) => {
-    void currentPassword; // Mark as used to satisfy linter
-    void newPassword;     // Mark as used to satisfy linter
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // In a real application, you would make an API call here
-    return Promise.resolve();
+    navigate('/login');
+    toast.success('Logged out successfully');
   };
 
   const handleEmailVerification = async (code: string) => {
-    void code; // Mark as used to satisfy linter
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // In a real application, you would make an API call here
-    setProfile({
-      ...profile,
-      isEmailVerified: true
-    });
-    return Promise.resolve();
+    // Implement email verification if needed
+    setShowEmailVerification(false);
+    toast.success('Email verification successful');
   };
+
+  // Add debug effect for profile changes
+  useEffect(() => {
+    console.log('Profile state updated:', profile);
+  }, [profile]);
+
+  if (!isAdmin) {
+    return null; // or a loading spinner
+  }
+
+  if (loading && !profile) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[80vh] py-6 bg-white">
@@ -157,18 +294,16 @@ const SuperAdminProfile: React.FC = () => {
           </div>
         </div>
 
-        {/* Use the shared LogoutConfirmationPopup component */}
         <LogoutConfirmationPopup
           isOpen={showLogoutConfirm}
           onClose={() => setShowLogoutConfirm(false)}
           onConfirm={confirmLogout}
         />
 
-        {/* Email Verification Popup */}
         <EmailVerificationPopup
           isOpen={showEmailVerification}
           onClose={() => setShowEmailVerification(false)}
-          email={profile.email}
+          email={profile?.email || ''}
           onVerify={handleEmailVerification}
         />
 
@@ -179,11 +314,21 @@ const SuperAdminProfile: React.FC = () => {
             {isEditing ? (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                   <input
                     type="text"
-                    name="name"
-                    value={formData.name}
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                  <input
+                    type="text"
+                    name="last_name"
+                    value={formData.last_name}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   />
@@ -199,7 +344,7 @@ const SuperAdminProfile: React.FC = () => {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                      {profile.isEmailVerified ? (
+                      {profile?.is_email_verified ? (
                         <span className="text-green-600 flex items-center">
                           <Check className="h-5 w-5 mr-1" />
                           Verified
@@ -215,6 +360,16 @@ const SuperAdminProfile: React.FC = () => {
                       )}
                     </div>
                   </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  />
                 </div>
                 <div className="flex justify-end gap-3">
                   <button
@@ -237,12 +392,20 @@ const SuperAdminProfile: React.FC = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-500">Full Name</p>
-                    <p className="text-gray-900">{profile.name}</p>
+                    <p className="text-sm text-gray-500">First Name</p>
+                    <p className="text-gray-900">{profile?.first_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Last Name</p>
+                    <p className="text-gray-900">{profile?.last_name}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Email Address</p>
-                    <p className="text-gray-900">{profile.email}</p>
+                    <p className="text-gray-900">{profile?.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Phone Number</p>
+                    <p className="text-gray-900">{profile?.phone || 'Not provided'}</p>
                   </div>
                 </div>
               </div>

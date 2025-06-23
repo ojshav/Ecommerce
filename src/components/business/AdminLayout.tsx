@@ -8,7 +8,6 @@ import {
   ChevronDownIcon, 
   Bars3Icon, 
   XMarkIcon, 
-  BellIcon, 
   ShoppingBagIcon, 
   CubeIcon, 
   TagIcon, 
@@ -36,7 +35,7 @@ const navigationItems = [
   },
   { name: 'Orders', path: '/business/orders', icon: ShoppingBagIcon },
   { name: 'Inventory', path: '/business/inventory', icon: TagIcon },
-  { name: 'Customers', path: '/business/customers', icon: UserGroupIcon },
+  // { name: 'Customers', path: '/business/customers', icon: UserGroupIcon },
   { name: 'Promotions', path: '/business/product-placements', icon: TagIcon },
   { name: 'Reviews', path: '/business/reviews', icon: StarIcon },
   { 
@@ -44,7 +43,7 @@ const navigationItems = [
     icon: DocumentChartBarIcon,
     submenu: [
       { name: 'Sales Report', path: '/business/reports/sales', icon: ChartBarIcon },
-      { name: 'Customers Report', path: '/business/reports/customers', icon: UserGroupIcon },
+      // { name: 'Customers Report', path: '/business/reports/customers', icon: UserGroupIcon },
       { name: 'Products Report', path: '/business/reports/products', icon: CubeIcon },
     ]
   },
@@ -58,7 +57,6 @@ const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
   const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
@@ -111,7 +109,6 @@ const AdminLayout: React.FC = () => {
   // Close dropdowns when route changes
   useEffect(() => {
     setIsProfileMenuOpen(false);
-    setIsNotificationsOpen(false);
   }, [location.pathname]);
 
   // Handle window resize
@@ -207,7 +204,7 @@ const AdminLayout: React.FC = () => {
           {/* Right: Notifications, Profile */}
           <div className="flex items-center space-x-4">
             {/* Notifications */}
-            <div className="relative">
+            {/* <div className="relative">
               <button
                 className="p-1 rounded-full text-orange-500 hover:text-orange-400 focus:outline-none"
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -217,7 +214,7 @@ const AdminLayout: React.FC = () => {
               </button>
               
               {/* Notifications Dropdown */}
-              {isNotificationsOpen && (
+              {/* {isNotificationsOpen && (
                 <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-black ring-1 ring-gray-800 ring-opacity-5 focus:outline-none z-50">
                   <div className="py-1" role="menu" aria-orientation="vertical">
                     <div className="px-4 py-2 border-b border-gray-800">
@@ -246,8 +243,8 @@ const AdminLayout: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
+              )} */}
+            {/* </div> */}
             
             {/* Profile Menu */}
             <div className="relative" ref={profileMenuRef}>
