@@ -99,13 +99,13 @@ const Cookies: React.FC = () => {
             
             <h2>Where Can I Get Further Information?</h2>
             <p>
-              If you have any questions about our use of cookies or other technologies, please email us at privacy@shopeasy.com or contact us at:
+              If you have any questions about our use of cookies or other technologies, please email us at privacy@auin.com or contact us at:
             </p>
             <p>
-              <strong>ShopEasy, Inc.</strong><br />
-              123 Commerce St, Suite 500<br />
-              New York, NY 10001<br />
-              Phone: 1-800-123-4567
+              <strong>AUIN</strong><br />
+              789 Fashion Avenue, Suite 1000<br />
+              New York, NY 10018<br />
+              Phone: 1-800-AUIN-HELP (1-800-284-6435)
             </p>
           </div>
         </div>
