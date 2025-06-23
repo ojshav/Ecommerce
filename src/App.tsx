@@ -418,42 +418,6 @@ const App: React.FC = () => {
                       <Route path="products" element={<ProductMonitoring />} />
                       <Route path="site-report" element={<TrafficAnalytics />} />
 
-<<<<<<< HEAD
-                      <Route path="sales-report" element={<SalesReportPage />} />
-                      <Route path="fraud-detection" element={<FraudDetection />} />
-                      <Route
-                        path="marketplace-health"
-                        element={<MarketplaceHealth />}
-                      />
-                      <Route
-                        path="merchant-payment-report"
-                        element={<MerchantPaymentReport />}
-                      />
-                      <Route
-                        path="performance"
-                        element={<PlatformPerformance />}
-                      />
-                      <Route
-                        path="merchants"
-                        element={<MerchantManagement />}
-                      />
-                      <Route
-                        path="merchant-management/:id"
-                        element={<MerchantDetails />}
-                      />
-                      <Route path="categories" element={<Categories />} />
-                      <Route path="brands" element={<BrandCreation />} />
-                      <Route path="attribute" element={<Attribute />} />
-                      <Route path="homepages" element={<HomepageSettings />} />
-                      <Route path="user-support" element={<UserSupport />} />
-                      <Route path="merchant-support" element={<MerchantSupport />} />
-                      <Route path="settings" element={<Settings />} />
-                      <Route path="refund-and-return" element={<RefundAndReturnManagement />} />
-                      <Route path="payments" element={<PaymentAndTransactionMonitoring />} />
-                      <Route path="promotions" element={<Promotions />} />
-                      <Route path="profile" element={<Profile />} />
-                    </Route>
-=======
                     <Route path="sales-report" element={<SalesReportPage />} />
                     <Route path="fraud-detection" element={<FraudDetection />} />
                     <Route
@@ -489,7 +453,6 @@ const App: React.FC = () => {
                     <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
                   </Route>
->>>>>>> 2f10b2f99e64cbe2ff3f00aa3029dee568e55b99
 
                     {/* Public Routes with header/footer */}
                     <Route
