@@ -1,0 +1,69 @@
+<svg width="360" height="360" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="slatGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#BDBDBD;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#9E9E9E;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#BDBDBD;stop-opacity:1" />
+    </linearGradient>
+
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="1" dy="2" result="offsetblur"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g id="shutter">
+    
+    <g id="slats">
+      <rect x="0" y="0" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="12" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="24" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="36" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="48" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="60" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="72" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="84" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="96" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="108" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="120" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="132" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="144" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="156" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="168" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="180" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="192" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="204" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="216" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="228" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="240" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="252" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="264" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="276" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="288" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="300" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="312" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+      <rect x="0" y="324" width="360" height="12" fill="url(#slatGradient)" stroke="#616161" stroke-width="0.5"/>
+    </g>
+
+    <g id="bottom-bar">
+      <rect x="0" y="336" width="360" height="24" fill="#424242" />
+      <rect x="150" y="342" width="60" height="12" fill="#212121" rx="6"/>
+    </g>
+
+  </g>
+
+  <g id="sign" style="filter:url(#dropShadow)" transform="translate(90, 125)">
+      <rect x="0" y="0" width="180" height="100" fill="#F5F5F5" stroke="#424242" stroke-width="2" rx="5"/>
+      <rect x="4" y="4" width="172" height="92" fill="none" stroke="#757575" stroke-width="1" rx="2"/>
+
+      <path d="M 85 0 C 85 -8, 95 -8, 95 0" stroke="#424242" stroke-width="2" fill="none"/>
+      
+      <text x="90" y="35" font-family="'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif" font-size="16" font-weight="bold" fill="#212121" text-anchor="middle">SORRY! WE'RE</text>
+      <text x="90" y="75" font-family="'Impact', 'Arial Black', sans-serif" font-size="36" fill="#C62828" text-anchor="middle" letter-spacing="1">CLOSED</text>
+  </g>
+
+</svg>

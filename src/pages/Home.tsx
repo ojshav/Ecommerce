@@ -7,7 +7,7 @@ import Categories from '../components/home/Categories';
 import PromoProducts from '../components/home/PromoProducts';
 import TrendingDeals from '../components/home/TrendingDeals';
 import Brands from '../components/home/brands';
-// import Shop from '../components/home/Shop';
+import Shop from '../components/home/Shop';
 import Services from '../components/home/Services';
 import HomepageProducts from '../components/home/HomepageProducts';
 import SearchResults from '../components/common/SearchResults';
@@ -142,7 +142,7 @@ const Home = () => {
           <Hero />
           <Categories />
           <Brands />
-          {/* <Shop /> */}
+          <Shop />
           <FeaturedProducts />
           <PromoProducts />
           <TrendingDeals />

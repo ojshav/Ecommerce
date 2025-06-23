@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight, ChevronLeft, Share2, X } from 'lucide-react';
+import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight, ChevronLeft, Share2, X, Copy, Facebook, Twitter, Mail } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -138,12 +138,12 @@ const ProductDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
   const { addToCart } = useCart();
   const { isAuthenticated, user } = useAuth();
-  const { 
-    addToWishlist, 
-    removeFromWishlist, 
-    isInWishlist, 
+  const {
+    addToWishlist,
+    removeFromWishlist,
+    isInWishlist,
     loading: wishlistLoading,
-    wishlistItems 
+    wishlistItems
   } = useWishlist();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
@@ -162,6 +162,45 @@ const ProductDetail: React.FC = () => {
   const [averageRating, setAverageRating] = useState<number>(0);
   const [selectedPreviewImage, setSelectedPreviewImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+  const [showShareOptions, setShowShareOptions] = useState(false);
+  const [copiedToClipboard, setCopiedToClipboard] = useState(false);
+
+  // copy product link to clipboard
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopiedToClipboard(true);
+    toast.success('Link copied to clipboard!');
+    setTimeout(() => setCopiedToClipboard(false), 2000);
+    setShowShareOptions(false);
+  };
+
+
+  // function to share via social platforms
+  const shareViaPlatform = (platform: string) => {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(product?.product_name || 'Check out this product');
+
+    let shareUrl = "";
+
+    switch (platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+        break;
+      case 'email':
+        shareUrl = `mailto:?subject=${title}&body=Check out this product: ${url}`;
+        break;
+      default:
+        return;
+    }
+
+    window.open(shareUrl, '_blank');
+    setShowShareOptions(false);
+  };
+
+
 
   // Add function to fetch variants
   const fetchProductVariants = async (productId: string) => {
@@ -192,7 +231,7 @@ const ProductDetail: React.FC = () => {
     try {
       setLoadingReviews(true);
       console.log('Fetching reviews for product:', productId, 'page:', page);
-      
+
       const response = await fetch(`${API_BASE_URL}/api/reviews/product/${productId}?page=${page}&per_page=5`, {
         headers: {
           'Content-Type': 'application/json',
@@ -201,7 +240,7 @@ const ProductDetail: React.FC = () => {
       });
 
       console.log('Review API Response Status:', response.status);
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Review API Error Response:', errorData);
@@ -210,12 +249,12 @@ const ProductDetail: React.FC = () => {
 
       const data: ReviewResponse = await response.json();
       console.log('Review API Success Response:', data);
-      
+
       if (data.status === 'success' && data.data) {
         console.log('Reviews Data:', data.data.reviews);
         console.log('Total Reviews:', data.data.total);
         console.log('Total Pages:', data.data.pages);
-        
+
         setReviews(data.data.reviews);
         setTotalReviewPages(data.data.pages);
         setReviewPage(page);
@@ -309,8 +348,8 @@ const ProductDetail: React.FC = () => {
         <div className="text-center p-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Product Not Found</h2>
           <p className="text-gray-600 mb-6">{error || "The product you're looking for does not exist or has been removed."}</p>
-          <Link 
-            to="/wholesale" 
+          <Link
+            to="/wholesale"
             className="inline-flex items-center space-x-2 bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 transition-colors"
           >
             <ArrowLeft size={18} />
@@ -340,7 +379,7 @@ const ProductDetail: React.FC = () => {
       brand: product.brand || { brand_id: 0, name: '' },
       is_deleted: false,
     };
-    
+
     addToCart(cartProduct, quantity);
     toast.success(`${product.product_name} added to cart`);
   };
@@ -365,11 +404,11 @@ const ProductDetail: React.FC = () => {
       toast.error('Merchants and admins cannot add items to wishlist');
       return;
     }
-    
+
     try {
       const productId = Number(product?.product_id);
       const isInWishlistItem = isInWishlist(productId);
-      
+
       if (isInWishlistItem) {
         // Find the wishlist item ID from the wishlist items
         const wishlistItem = wishlistItems.find(item => item.product_id === productId);
@@ -446,9 +485,8 @@ const ProductDetail: React.FC = () => {
           <Star
             key={star}
             size={16}
-            className={`${
-              star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-            }`}
+            className={`${star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+              }`}
           />
         ))}
       </div>
@@ -457,7 +495,7 @@ const ProductDetail: React.FC = () => {
 
   // Update the reviews tab content
   const renderTabContent = () => {
-    switch(activeTab) {
+    switch (activeTab) {
       case 'product-details':
         return (
           <div className="py-6">
@@ -465,7 +503,7 @@ const ProductDetail: React.FC = () => {
             {/* Short Description */}
             {product.meta?.short_desc && (
               <div className="mb-4">
-                <div 
+                <div
                   className="prose prose-sm max-w-none text-gray-700"
                   dangerouslySetInnerHTML={{ __html: product.meta.short_desc }}
                 />
@@ -475,7 +513,7 @@ const ProductDetail: React.FC = () => {
             {product.meta?.full_desc && (
               <div className="mt-6">
                 <h4 className="text-lg font-medium mb-3 text-gray-900">Full Description</h4>
-                <div 
+                <div
                   className="prose prose-sm max-w-none text-gray-700"
                   dangerouslySetInnerHTML={{ __html: product.meta.full_desc }}
                 />
@@ -485,7 +523,7 @@ const ProductDetail: React.FC = () => {
             {!product.meta?.full_desc && product.description && (
               <div className="mt-6">
                 <h4 className="text-lg font-medium mb-3 text-gray-900">Description</h4>
-                <div 
+                <div
                   className="prose prose-sm max-w-none text-gray-700"
                   dangerouslySetInnerHTML={{ __html: product.description }}
                 />
@@ -563,7 +601,7 @@ const ProductDetail: React.FC = () => {
                     {renderReviewImages(review.images)}
                   </div>
                 ))}
-                
+
                 {/* Pagination */}
                 {totalReviewPages > 1 && (
                   <div className="flex justify-center gap-2 mt-6">
@@ -592,7 +630,7 @@ const ProductDetail: React.FC = () => {
                 No reviews available yet.
               </div>
             )}
-            
+
             {/* Image Preview Modal */}
             <ImagePreviewModal
               imageUrl={selectedPreviewImage}
@@ -630,11 +668,10 @@ const ProductDetail: React.FC = () => {
           {sortedVariants.map((variant) => (
             <div
               key={variant.id}
-              className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                variant.id === product.product_id.toString()
+              className={`border rounded-lg p-4 cursor-pointer transition-all ${variant.id === product.product_id.toString()
                   ? 'border-blue-500 bg-blue-50'
                   : 'hover:border-gray-400'
-              }`}
+                }`}
               onClick={() => {
                 if (variant.id !== product.product_id.toString()) {
                   navigate(`/product/${variant.id}`);
@@ -679,8 +716,8 @@ const ProductDetail: React.FC = () => {
   };
 
   // Update the ImagePreviewModal component
-  const ImagePreviewModal: React.FC<{ 
-    imageUrl: string | null; 
+  const ImagePreviewModal: React.FC<{
+    imageUrl: string | null;
     onClose: () => void;
     images?: Review['images'];
     currentImageIndex?: number;
@@ -735,7 +772,7 @@ const ProductDetail: React.FC = () => {
               <X size={24} />
             </button>
           </div>
-          
+
           {/* Image Container */}
           <div className="relative p-4">
             <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
@@ -846,7 +883,7 @@ const ProductDetail: React.FC = () => {
           <ChevronRight size={12} className="mx-1 text-gray-400" />
           <span className="text-gray-900 font-medium">{product.product_name}</span>
         </nav>
-        
+
         {/* Product Overview Section */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
@@ -855,9 +892,9 @@ const ProductDetail: React.FC = () => {
               <div className="flex flex-col items-center">
                 {/* Main Product Image with Navigation */}
                 <div className="mb-6 w-full max-w-lg flex justify-center relative">
-                <img 
-                  src={selectedImage} 
-                  alt={product.product_name} 
+                  <img
+                    src={selectedImage}
+                    alt={product.product_name}
                     className="rounded-lg shadow-md object-contain max-h-96 w-full"
                   />
                   {/* Left Arrow Button */}
@@ -885,31 +922,30 @@ const ProductDetail: React.FC = () => {
                   >
                     <ChevronRight size={24} />
                   </button>
-              </div>
-              
+                </div>
+
                 {/* Thumbnail Images */}
                 <div className="flex space-x-3 overflow-x-auto scrollbar-hide">
-                    {product.media.map((media) => (
+                  {product.media.map((media) => (
                     <img
-                        key={media.media_id}
+                      key={media.media_id}
                       src={media.url}
                       alt={`${product.product_name} thumbnail`}
-                      className={`w-20 h-20 object-cover rounded-md cursor-pointer border-2 ${
-                        selectedImage === media.url ? 'border-orange-500' : 'border-transparent'
+                      className={`w-20 h-20 object-cover rounded-md cursor-pointer border-2 ${selectedImage === media.url ? 'border-orange-500' : 'border-transparent'
                         }`}
-                        onClick={() => setSelectedImage(media.url)}
-                        />
-                    ))}
-                  </div>
+                      onClick={() => setSelectedImage(media.url)}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
-            
+
             {/* Product Info */}
             <div className="flex flex-col">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
                 {product.product_name}
               </h1>
-              
+
               <div className="mb-3">
                 <div className="flex items-baseline space-x-2">
                   <span className="text-xl sm:text-2xl font-bold text-gray-900">
@@ -922,7 +958,7 @@ const ProductDetail: React.FC = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className="mb-2">
                 <div className="text-sm font-medium mb-1">Category: {product.category?.name}</div>
                 <div className="text-sm font-medium mb-1">Brand: {product.brand?.name}</div>
@@ -937,37 +973,38 @@ const ProductDetail: React.FC = () => {
               {/* Short Description */}
               {product.meta?.short_desc && (
                 <div className="mb-4">
-                  <div 
+                  <div
                     className="text-sm text-gray-600 prose prose-sm max-w-none"
                     dangerouslySetInnerHTML={{ __html: product.meta.short_desc }}
                   />
                 </div>
               )}
-              
+
               {/* Attribute Options */}
               {renderAttributeOptions()}
-              
+
               {/* Quantity Selector and Add to Cart Row */}
               <div className="mb-3">
                 <div className="text-sm font-medium mb-1">Quantity:</div>
                 <div className="flex items-center gap-3">
                   {/* Quantity Changer */}
                   <div className="flex items-center border border-gray-300 rounded-md overflow-hidden w-[90px] h-9">
-                    <button 
-                      className="w-8 h-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-lg"
+                    <button
+                      className="w-8 h-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-lg disabled:opacity-30"
                       onClick={() => handleQuantityChange(-1)}
                       disabled={quantity <= 1}
                     >
                       -
                     </button>
                     <span className="w-8 text-center text-sm select-none">{quantity}</span>
-                    <button 
+                    <button
                       className="w-8 h-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-lg"
                       onClick={() => handleQuantityChange(1)}
                     >
                       +
                     </button>
                   </div>
+
                   {/* Add to Cart Button */}
                   <button
                     onClick={handleAddToCart}
@@ -975,19 +1012,81 @@ const ProductDetail: React.FC = () => {
                   >
                     Add To Cart
                   </button>
+
+                  {/* Share Button */}
+                  <div className="relative">
+                    <button
+                      className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px] text-gray-600 flex items-center justify-center`}
+                      onClick={() => setShowShareOptions(!showShareOptions)}
+                      aria-label="Share this product"
+                    >
+                      <Share2 size={18} />
+                    </button>
+
+                    {/* Share Options Dropdown */}
+                    {showShareOptions && (
+                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                        <div className="p-3 border-b border-gray-100">
+                          <h3 className="text-sm font-medium text-gray-700">Share this product</h3>
+                        </div>
+
+                        <div className="p-2">
+                          <button
+                            onClick={copyToClipboard}
+                            className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                          >
+                            {copiedToClipboard ? (
+                              <>
+                                <Check size={16} className="text-green-500 mr-2" /> Copied!
+                              </>
+                            ) : (
+                              <>
+                                <Copy size={16} className="mr-2" /> Copy link
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            onClick={() => shareViaPlatform('facebook')}
+                            className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                          >
+                            <Facebook size={16} className="text-[#1877F2] mr-2" /> Facebook
+                          </button>
+
+                          <button
+                            onClick={() => shareViaPlatform('twitter')}
+                            className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                          >
+                            <Twitter size={16} className="text-[#1DA1F2] mr-2" /> Twitter
+                          </button>
+
+                          <button
+                            onClick={() => shareViaPlatform('email')}
+                            className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                          >
+                            <Mail size={16} className="text-gray-600 mr-2" /> Email
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Favourites Button */}
-                  <button 
-                    className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px] ${
-                      isInWishlist(Number(product?.product_id)) ? 'text-[#F2631F]' : 'text-gray-600'
-                    }`}
+                  <button
+                    className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px] ${isInWishlist(Number(product?.product_id)) ? 'text-[#F2631F]' : 'text-gray-600 flex items-center justify-center'
+                      }`}
                     onClick={handleWishlist}
                     disabled={wishlistLoading}
                     aria-label="Add to Wishlist"
                   >
-                    <Heart 
-                      size={18} 
-                      className={isInWishlist(Number(product?.product_id)) ? 'fill-current' : ''} 
-                    />
+                    {wishlistLoading ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#F2631F] mx-auto"></div>
+                    ) : (
+                      <Heart
+                        size={18}
+                        className={isInWishlist(Number(product?.product_id)) ? 'fill-current' : ''}
+                      />
+                    )}
                   </button>
                 </div>
               </div>
@@ -998,44 +1097,41 @@ const ProductDetail: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Tabs Section */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="border-b border-gray-200">
             <nav className="flex">
               <button
                 onClick={() => setActiveTab('product-details')}
-                className={`py-2 px-4 font-medium border-b-2 ${
-                  activeTab === 'product-details'
+                className={`py-2 px-4 font-medium border-b-2 ${activeTab === 'product-details'
                     ? 'border-orange-500 text-orange-500'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } transition-colors`}
+                  } transition-colors`}
               >
                 Description
               </button>
               <button
                 onClick={() => setActiveTab('information')}
-                className={`py-2 px-4 font-medium border-b-2 ${
-                  activeTab === 'information'
+                className={`py-2 px-4 font-medium border-b-2 ${activeTab === 'information'
                     ? 'border-orange-500 text-orange-500'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } transition-colors`}
+                  } transition-colors`}
               >
-                 Specifications
+                Specifications
               </button>
               <button
                 onClick={() => setActiveTab('reviews')}
-                className={`py-2 px-4 font-medium border-b-2 ${
-                  activeTab === 'reviews'
+                className={`py-2 px-4 font-medium border-b-2 ${activeTab === 'reviews'
                     ? 'border-orange-500 text-orange-500'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } transition-colors`}
+                  } transition-colors`}
               >
                 Reviews
               </button>
             </nav>
           </div>
-          
+
           <div className="p-4">
             {renderTabContent()}
           </div>

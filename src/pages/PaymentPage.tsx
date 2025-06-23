@@ -82,7 +82,7 @@ const PaymentPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState('credit_card');
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [showCountryCodes, setShowCountryCodes] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
+  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[19]);
   const [postalCodeError, setPostalCodeError] = useState<string>('');
   const [formData, setFormData] = useState({
     contact_name: '',
@@ -93,7 +93,7 @@ const PaymentPage: React.FC = () => {
     city: '',
     state_province: '',
     postal_code: '',
-    country_code: 'US',
+    country_code: 'IN',
     address_type: 'shipping' as 'shipping' | 'billing',
     is_default_shipping: true,
     is_default_billing: false

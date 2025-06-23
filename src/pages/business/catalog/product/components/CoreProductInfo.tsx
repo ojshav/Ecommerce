@@ -480,8 +480,8 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
     </div>
     {discount !== 0 && (
       <p className="mt-1 text-sm text-orange-600">
-        Based on cost price of ${parseFloat(costPrice).toFixed(2)} and selling
-        price of ${parseFloat(sellingPrice).toFixed(2)}.
+        Based on cost price of ₹{parseFloat(costPrice).toFixed(2)} and selling
+        price of ₹{parseFloat(sellingPrice).toFixed(2)}.
       </p>
     )}
   </div>

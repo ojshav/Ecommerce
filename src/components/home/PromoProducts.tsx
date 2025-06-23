@@ -188,7 +188,8 @@ const PromoProducts: React.FC = () => {
         id: product.product_id,
         name: product.product_name,
         price: product.special_price || product.selling_price,
-        originalPrice: product.selling_price,
+        original_price: product.selling_price,
+        special_price: product.special_price,
         image_url: product.images?.[0] || '/placeholder-image.jpg',
         stock: product.stock?.stock_qty || 0,
         sku: product.product_id.toString(),
@@ -284,7 +285,7 @@ const PromoProducts: React.FC = () => {
 
   return (
     <section className="py-8">
-      <div className="container mx-auto px-4">
+      {promoProducts && <div className="container mx-auto px-4">
         {/* Header with navigation */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-medium font-worksans">Promo Products</h2>
@@ -358,8 +359,8 @@ const PromoProducts: React.FC = () => {
                       {/* Wishlist Button */}
                       <button
                         className={`absolute top-2 right-2 z-10 p-1.5 rounded-full transition-all duration-300 ${isInWishlist(product.product_id)
-                            ? 'text-[#F2631F] bg-white shadow-md'
-                            : 'text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md'
+                          ? 'text-[#F2631F] bg-white shadow-md'
+                          : 'text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md'
                           }`}
                         onClick={(e) => handleWishlist(e, product)}
                         disabled={wishlistLoading}
@@ -373,10 +374,10 @@ const PromoProducts: React.FC = () => {
                       <div>
                         <p className="font-normal text-sm font-worksans mb-2">{product.product_name}</p>
                         <div className="flex items-baseline mb-4">
-                          <span className="text-xl font-bold">${product.special_price?.toFixed(2) || product.selling_price.toFixed(2)}</span>
+                          <span className="text-xl font-bold">₹{product.special_price?.toFixed(2) || product.selling_price.toFixed(2)}</span>
                           {product.special_price && (
                             <span className="text-sm text-gray-500 line-through ml-3">
-                              ${product.selling_price.toFixed(2)}
+                              ₹{product.selling_price.toFixed(2)}
                             </span>
                           )}
                         </div>
@@ -430,7 +431,7 @@ const PromoProducts: React.FC = () => {
         </div>
 
         {/* Full-width Banner */}
-        <div className="relative overflow-hidden h-96 w-screen -ml-[calc((100vw-100%)/2)]">
+        <div className="relative overflow-hidden h-[560px] w-screen -ml-[calc((100vw-100%)/2)]">
           <img
             src={banner.image}
             alt="Promo banner"
@@ -444,14 +445,16 @@ const PromoProducts: React.FC = () => {
                 </span>
                 <h4 className="text-white text-4xl font-semibold font-worksans mb-4">{banner.title}</h4>
                 <h4 className="text-white text-4xl font-semibold font-worksans mb-8">{banner.subtitle}</h4>
-                <button className="bg-[#F2631F] hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition font-worksans text-sm">
-                  Order Now
-                </button>
+                <Link to="/new-product">
+                  <button className="bg-[#F2631F] hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition font-worksans text-sm">
+                    Order Now
+                  </button>
+                </Link>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </div>}
     </section>
   );
 };

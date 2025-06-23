@@ -158,8 +158,54 @@ const Hero: React.FC = () => {
 
   return (
     <section className="w-full max-w-[1680px] mx-auto px-2 lg:px-4 pt-4">
+      {/* Mobile/Tablet Layout - Below mid screen (1080px) */}
+      <div className="block mid:hidden">
+        <div className="relative w-full">
+          <div className="bg-gradient-to-r from-purple-500 to-orange-400 rounded-lg overflow-hidden relative h-[367px]">
+            <div className="absolute inset-0 flex flex-col justify-center items-center">
+              <div className="w-full h-full relative">
+                <img
+                  src={current.image_url}
+                  alt="Carousel"
+                  className="w-full h-full object-cover rounded-lg"
+                  style={{ objectPosition: 'center' }}
+                />
+                <button
+                  onClick={() => handleOrderNowClick(current.shareable_link)}
+                  className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 sm:px-6 py-2 rounded font-medium hover:bg-gray-100 transition-colors text-sm sm:text-base shadow-lg"
+                >
+                  Order Now
+                </button>
+              </div>
+            </div>
+            {/* Pagination dots */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
+              {carouselItems.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => goToSlide(idx)}
+                  className={`h-1.5 sm:h-2 w-6 sm:w-8 rounded-full transition-all ${
+                    currentSlide === idx ? 'bg-white' : 'bg-white/50'
+                  }`}
+                />
+              ))}
+            </div>
+            {/* Arrows */}
+            <div className="absolute top-1/2 transform -translate-y-1/2 w-full px-4 flex justify-between">
+              <button onClick={prevSlide} className="p-1 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition">
+                <ChevronLeft size={20} />
+              </button>
+              <button onClick={nextSlide} className="p-1 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition">
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Layout - Above mid screen (1080px) */}
       <div
-        className="grid gap-6"
+        className="hidden mid:grid gap-6"
         style={{
           gridTemplateAreas: `
             'left main right'

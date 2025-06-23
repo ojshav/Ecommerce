@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  CloudArrowUpIcon, 
-  CheckCircleIcon, 
+import {
+  CloudArrowUpIcon,
+  CheckCircleIcon,
   ExclamationCircleIcon,
-  InformationCircleIcon 
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -118,7 +118,7 @@ const Verification: React.FC = () => {
   const [countryConfig, setCountryConfig] = useState<CountryConfig | null>(null);
   const [supportedCountries, setSupportedCountries] = useState<Array<{ code: string; name: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
   const [businessDetails, setBusinessDetails] = useState<BusinessDetails>({
@@ -156,7 +156,7 @@ const Verification: React.FC = () => {
       }
 
       const data = await response.json();
-      
+
       if (data.has_submitted_documents && !window.location.pathname.includes('/business/verification-status')) {
         navigate('/business/verification-pending');
         return;
@@ -194,7 +194,7 @@ const Verification: React.FC = () => {
 
   useEffect(() => {
     const fetchCountryConfig = async () => {
-      if (!selectedCountry || !accessToken) return; 
+      if (!selectedCountry || !accessToken) return;
       try {
         setIsLoading(true); // Indicate loading when config changes
         const response = await fetch(`${API_BASE_URL}/api/merchants/country-config/${selectedCountry}`, {
@@ -202,24 +202,24 @@ const Verification: React.FC = () => {
             'Authorization': `Bearer ${accessToken}`
           }
         });
-        
+
         if (!response.ok) throw new Error('Failed to fetch country configuration');
         const config = await response.json();
         setCountryConfig(config);
-        
+
         const newDocuments: { [key: string]: DocumentUpload } = {};
         if (config.required_documents) {
-            config.required_documents.forEach((doc: { type: string; name: string; required: boolean }) => {
+          config.required_documents.forEach((doc: { type: string; name: string; required: boolean }) => {
             newDocuments[doc.type] = {
-                id: doc.type,
-                file: null,
-                status: 'pending',
-                required: doc.required,
-                documentType: doc.type,
-                name: doc.name,
-                fileUrl: null 
+              id: doc.type,
+              file: null,
+              status: 'pending',
+              required: doc.required,
+              documentType: doc.type,
+              name: doc.name,
+              fileUrl: null
             };
-            });
+          });
         }
         setDocuments(newDocuments);
       } catch (error) {
@@ -252,7 +252,7 @@ const Verification: React.FC = () => {
 
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      
+
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
       if (!allowedTypes.includes(file.type)) {
         toast.error('Invalid file type. Please upload PDF, JPEG, or PNG files only.');
@@ -268,7 +268,7 @@ const Verification: React.FC = () => {
       }
 
       const toastId = toast.loading(`Uploading ${file.name}...`);
-      
+
       try {
         const formData = new FormData();
         formData.append('file', file);
@@ -342,13 +342,13 @@ const Verification: React.FC = () => {
 
   const validateField = (name: string, value: string) => {
     if (!countryConfig || !countryConfig.field_validations) return; // Add null check for field_validations
-    
+
     // console.log(`Validating field ${name} with value:`, value);
     // console.log('Current country config:', countryConfig);
-    
+
     const errors = { ...validationErrors };
     const validationRule = countryConfig.field_validations[name]; // Corrected access
-    
+
     if (validationRule) {
       const pattern = new RegExp(validationRule.pattern);
       if (!pattern.test(value) && value.trim() !== '') { // Only validate if not empty, empty check is for submit
@@ -364,7 +364,7 @@ const Verification: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user || !accessToken) {
       toast.error('Please log in to submit verification');
       return;
@@ -384,31 +384,31 @@ const Verification: React.FC = () => {
     // Validate required text fields based on country
     let fieldsToValidate = requiredFieldsMap[selectedCountry as keyof typeof requiredFieldsMap] || defaultRequiredFields;
     if (selectedCountry !== 'IN') { // Generic non-India case
-        fieldsToValidate = ['taxId', 'accountNumber', 'bankName', 'swiftCode'];
-        // Add routingNumber as optional or conditionally required for specific non-IN countries
+      fieldsToValidate = ['taxId', 'accountNumber', 'bankName', 'swiftCode'];
+      // Add routingNumber as optional or conditionally required for specific non-IN countries
     }
 
 
     fieldsToValidate.forEach(field => {
-        let value: string | undefined;
-        if (field in businessDetails) {
-            value = businessDetails[field as keyof BusinessDetails];
-        } else if (field in bankDetails) {
-            value = bankDetails[field as keyof BankDetails];
-        }
+      let value: string | undefined;
+      if (field in businessDetails) {
+        value = businessDetails[field as keyof BusinessDetails];
+      } else if (field in bankDetails) {
+        value = bankDetails[field as keyof BankDetails];
+      }
 
-        if (!value || value.trim() === '') {
-            currentValidationErrors[field as keyof ValidationErrors] = `${field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} is required.`;
-        } else if (countryConfig?.field_validations?.[field]) {
-            // Re-run pattern validation for required fields on submit
-            const rule = countryConfig.field_validations[field];
-            const pattern = new RegExp(rule.pattern);
-            if (!pattern.test(value)) {
-                currentValidationErrors[field as keyof ValidationErrors] = rule.message;
-            }
+      if (!value || value.trim() === '') {
+        currentValidationErrors[field as keyof ValidationErrors] = `${field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} is required.`;
+      } else if (countryConfig?.field_validations?.[field]) {
+        // Re-run pattern validation for required fields on submit
+        const rule = countryConfig.field_validations[field];
+        const pattern = new RegExp(rule.pattern);
+        if (!pattern.test(value)) {
+          currentValidationErrors[field as keyof ValidationErrors] = rule.message;
         }
+      }
     });
-    
+
 
     // Validate required documents
     let allRequiredDocsUploaded = true;
@@ -570,7 +570,7 @@ const Verification: React.FC = () => {
         GLOBAL: "Please enter a valid bank name"
       },
       routingNumber: {
-          GLOBAL: "Please enter a valid routing number"
+        GLOBAL: "Please enter a valid routing number"
       }
     };
     // Fallback logic for messages
@@ -583,17 +583,17 @@ const Verification: React.FC = () => {
         <div className="animate-pulse flex flex-col items-center w-full">
           <div className="h-8 w-3/4 bg-gray-200 rounded mb-4 self-center"></div>
           <div className="h-4 w-1/2 bg-gray-200 rounded mb-10 self-center"></div>
-          
+
           <div className="w-full bg-white rounded-lg shadow-md p-6 mb-8">
             <div className="h-6 w-1/3 bg-gray-200 rounded mb-6"></div>
             <div className="h-10 w-full max-w-md bg-gray-200 rounded mb-8"></div>
 
             <div className="h-6 w-1/3 bg-gray-200 rounded mb-6"></div>
             <div className="space-y-6">
-                <div className="h-10 w-full max-w-md bg-gray-200 rounded"></div>
-                <div className="h-10 w-full max-w-md bg-gray-200 rounded"></div>
+              <div className="h-10 w-full max-w-md bg-gray-200 rounded"></div>
+              <div className="h-10 w-full max-w-md bg-gray-200 rounded"></div>
             </div>
-             <div className="mt-4 h-4 w-3/4 max-w-md bg-gray-200 rounded"></div>
+            <div className="mt-4 h-4 w-3/4 max-w-md bg-gray-200 rounded"></div>
           </div>
           <div className="mt-6 text-gray-500">Loading verification form...</div>
         </div>
@@ -649,10 +649,9 @@ const Verification: React.FC = () => {
                       name="panNumber"
                       value={businessDetails.panNumber || ''}
                       onChange={handleBusinessDetailsChange}
-                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
-                        validationErrors.panNumber ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                                                   : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
-                      }`}
+                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${validationErrors.panNumber ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                        : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
+                        }`}
                       placeholder="e.g., ABCDE1234F"
                       disabled={isSubmitting}
                     />
@@ -669,10 +668,9 @@ const Verification: React.FC = () => {
                       name="gstin"
                       value={businessDetails.gstin || ''}
                       onChange={handleBusinessDetailsChange}
-                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
-                        validationErrors.gstin ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                                               : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
-                      }`}
+                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${validationErrors.gstin ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                        : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
+                        }`}
                       placeholder="e.g., 22AAAAA0000A1Z5"
                       disabled={isSubmitting}
                     />
@@ -692,10 +690,9 @@ const Verification: React.FC = () => {
                       name="taxId"
                       value={businessDetails.taxId || ''}
                       onChange={handleBusinessDetailsChange}
-                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
-                        validationErrors.taxId ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                                               : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
-                      }`}
+                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${validationErrors.taxId ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                        : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
+                        }`}
                       placeholder="e.g., XX-XXXXXXX"
                       disabled={isSubmitting}
                     />
@@ -714,7 +711,7 @@ const Verification: React.FC = () => {
               )}
             </div>
           </div>
-          
+
           {/* Bank Details Section */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 pb-2 border-b border-gray-200">
@@ -731,10 +728,9 @@ const Verification: React.FC = () => {
                   name="accountNumber"
                   value={bankDetails.accountNumber || ''}
                   onChange={handleBankDetailsChange}
-                  className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
-                    validationErrors.accountNumber ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                                                  : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
-                  }`}
+                  className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${validationErrors.accountNumber ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                    : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
+                    }`}
                   disabled={isSubmitting}
                 />
                 <p className="mt-1 text-sm text-gray-500">{getFieldHelperText('accountNumber', selectedCountry)}</p>
@@ -750,14 +746,13 @@ const Verification: React.FC = () => {
                   name="bankName"
                   value={bankDetails.bankName || ''}
                   onChange={handleBankDetailsChange}
-                  className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
-                    validationErrors.bankName ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                                             : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
-                  }`}
+                  className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${validationErrors.bankName ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                    : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
+                    }`}
                   disabled={isSubmitting}
                 />
                 <p className="mt-1 text-sm text-gray-500">{getFieldHelperText('bankName', selectedCountry)}</p>
-                 {validationErrors.bankName && <p className="mt-1 text-sm text-red-600">{validationErrors.bankName}</p>}
+                {validationErrors.bankName && <p className="mt-1 text-sm text-red-600">{validationErrors.bankName}</p>}
               </div>
               {selectedCountry === 'IN' ? (
                 <div>
@@ -770,10 +765,9 @@ const Verification: React.FC = () => {
                     name="ifscCode"
                     value={bankDetails.ifscCode || ''}
                     onChange={handleBankDetailsChange}
-                    className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
-                      validationErrors.ifscCode ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                                                : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
-                    }`}
+                    className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${validationErrors.ifscCode ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                      : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
+                      }`}
                     placeholder="e.g., SBIN0001234"
                     disabled={isSubmitting}
                   />
@@ -792,10 +786,9 @@ const Verification: React.FC = () => {
                       name="swiftCode"
                       value={bankDetails.swiftCode || ''}
                       onChange={handleBankDetailsChange}
-                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${
-                        validationErrors.swiftCode ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                                                   : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
-                      }`}
+                      className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${validationErrors.swiftCode ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                        : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'
+                        }`}
                       placeholder="e.g., SBINUS33"
                       disabled={isSubmitting}
                     />
@@ -804,7 +797,7 @@ const Verification: React.FC = () => {
                   </div>
                   <div>
                     <label htmlFor="routingNumber" className="block mb-2 font-medium text-gray-700">Routing Number</label>
-                    <input id="routingNumber" type="text" name="routingNumber" value={bankDetails.routingNumber || ''} onChange={handleBankDetailsChange} className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${ validationErrors.routingNumber ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'}`} placeholder="e.g., 123456789" disabled={isSubmitting} />
+                    <input id="routingNumber" type="text" name="routingNumber" value={bankDetails.routingNumber || ''} onChange={handleBankDetailsChange} className={`block w-full max-w-md rounded-md border px-3 py-2 shadow-sm focus:outline-none ${validationErrors.routingNumber ? 'border-red-500 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-gray-300 text-gray-900 placeholder-gray-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500'}`} placeholder="e.g., 123456789" disabled={isSubmitting} />
                     <p className="mt-1 text-sm text-gray-500">{getFieldHelperText('routingNumber', selectedCountry)}</p>
                     {validationErrors.routingNumber && <p className="mt-1 text-sm text-red-600">{validationErrors.routingNumber}</p>}
                   </div>
@@ -834,7 +827,7 @@ const Verification: React.FC = () => {
                           <InformationCircleIcon className="h-5 w-5 text-orange-500 mr-2 flex-shrink-0 mt-0.5" />
                           <div>
                             <p className="text-sm text-orange-700 font-medium">
-                              {doc.documentType === 'product_list' 
+                              {doc.documentType === 'product_list'
                                 ? 'Please provide a detailed list of products you plan to sell'
                                 : 'Please provide a list of product categories you plan to sell in'}
                             </p>
@@ -868,8 +861,8 @@ const Verification: React.FC = () => {
                         <div className="flex items-center p-2 bg-green-50 border border-green-200 rounded-md">
                           <CheckCircleIcon className="h-5 w-5 mr-2 text-green-600 flex-shrink-0" />
                           <p className="text-sm text-green-700 font-medium truncate flex-grow" title={doc.file?.name || 'Document uploaded'}>
-                            {doc.file?.name 
-                              ? (doc.file.name.length > 30 ? doc.file.name.substring(0,27) + '...' : doc.file.name) 
+                            {doc.file?.name
+                              ? (doc.file.name.length > 30 ? doc.file.name.substring(0, 27) + '...' : doc.file.name)
                               : 'Uploaded'}
                           </p>
                         </div>
@@ -882,7 +875,7 @@ const Verification: React.FC = () => {
                           >
                             View
                           </button>
-                          <label className={`text-sm font-medium py-1 px-2 rounded-md transition-colors ${isSubmitting ? 'text-gray-400 cursor-not-allowed' : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50 cursor-pointer'}`}>
+                          <label className={`mt-2 text-sm font-medium py-1 px-2 rounded-md transition-colors ${isSubmitting ? 'text-gray-400 cursor-not-allowed' : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50 cursor-pointer'}`}>
                             Update
                             <input
                               type="file"
