@@ -60,36 +60,36 @@ const ShippingPolicy: React.FC = () => {
             
             <div className="border-t border-gray-200">
               <div className="py-4 border-b border-gray-200">
-                <h3 className="font-semibold mb-2">Standard Shipping</h3>
+                <h3 className="font-semibold mb-2">AUIN Standard Shipping</h3>
                 <p className="text-gray-700 mb-2">
                   Delivery in 3-5 business days within the continental United States.
                 </p>
                 <ul className="list-disc list-inside text-gray-600 text-sm pl-4">
-                  <li>Free for orders over $50</li>
-                  <li>$4.99 for orders under $50</li>
+                  <li>Free for orders over $75</li>
+                  <li>$6.95 for orders under $75</li>
                 </ul>
               </div>
               
               <div className="py-4 border-b border-gray-200">
-                <h3 className="font-semibold mb-2">Express Shipping</h3>
+                <h3 className="font-semibold mb-2">AUIN Express Shipping</h3>
                 <p className="text-gray-700 mb-2">
                   Delivery in 2 business days within the continental United States.
                 </p>
                 <ul className="list-disc list-inside text-gray-600 text-sm pl-4">
-                  <li>$9.99 flat rate for all orders</li>
-                  <li>Order must be placed before 1PM EST for same-day processing</li>
+                  <li>$12.95 flat rate for all orders</li>
+                  <li>Order must be placed before 2 PM EST for same-day processing</li>
                 </ul>
               </div>
               
               <div className="py-4 border-b border-gray-200">
-                <h3 className="font-semibold mb-2">Overnight Shipping</h3>
+                <h3 className="font-semibold mb-2">AUIN Priority Overnight</h3>
                 <p className="text-gray-700 mb-2">
-                  Delivery by the next business day within the continental United States.
+                  Next business day delivery within the continental United States.
                 </p>
                 <ul className="list-disc list-inside text-gray-600 text-sm pl-4">
-                  <li>$19.99 flat rate for all orders</li>
-                  <li>Order must be placed before 12PM EST for same-day processing</li>
-                  <li>Not available for PO Boxes</li>
+                  <li>$24.95 flat rate for all orders</li>
+                  <li>Order must be placed before 1 PM EST for same-day processing</li>
+                  <li>Not available for PO Boxes or APO/FPO addresses</li>
                 </ul>
               </div>
               
@@ -139,20 +139,20 @@ const ShippingPolicy: React.FC = () => {
               </p>
             </div>
             
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">Questions About Shipping?</h2>
-              <p className="text-gray-700 mb-6">
-                If you have any questions about our shipping policy or the status of your order, please contact our customer service team:
-              </p>
-              <div className="bg-gray-50 p-6 rounded-lg inline-block">
-                <p className="text-gray-700 mb-2">
-                  <strong>Email:</strong> <a href="mailto:shipping@aoin.com" className="text-blue-600 hover:underline">shipping@aoin.com</a>
+                          <div>
+                <h2 className="text-2xl font-semibold mb-4">Questions About Your Shipment?</h2>
+                <p className="text-gray-700 mb-6">
+                  Our dedicated shipping support team is here to help:
                 </p>
-                <p className="text-gray-700">
-                  <strong>Phone:</strong> <a href="tel:+18001234567" className="text-blue-600 hover:underline">1-800-123-4567</a>
-                </p>
+                <div className="bg-gray-50 p-6 rounded-lg inline-block">
+                  <p className="text-gray-700 mb-2">
+                    <strong>Email:</strong> <a href="mailto:shipping@auin.com" className="text-blue-600 hover:underline">shipping@auin.com</a>
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Phone:</strong> <a href="tel:+18002846435" className="text-blue-600 hover:underline">1-800-AUIN-HELP (1-800-284-6435)</a>
+                  </p>
+                </div>
               </div>
-            </div>
           </div>
         </div>
       </div>
