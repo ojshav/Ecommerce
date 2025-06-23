@@ -1,6 +1,8 @@
 import React from 'react';
 
-const Cookies: React.FC = () => {
+interface CookiesProps {}
+
+const Cookies: React.FC<CookiesProps> = () => {
   return (
     <div className="bg-white">
       <div className="container mx-auto px-4 py-16">
