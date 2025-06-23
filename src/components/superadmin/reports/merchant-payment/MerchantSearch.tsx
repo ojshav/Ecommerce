@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { FaSearch, FaFilter } from 'react-icons/fa';
 
 interface FilterOptions {
-  category: string;
   status: string;
   dateFrom: string;
   dateTo: string;
@@ -15,7 +14,6 @@ interface MerchantSearchProps {
 
 const MerchantSearch: React.FC<MerchantSearchProps> = ({ onSearch, onFilterChange }) => {
   const [filters, setFilters] = useState<FilterOptions>({
-    category: '',
     status: '',
     dateFrom: '',
     dateTo: ''
@@ -44,22 +42,7 @@ const MerchantSearch: React.FC<MerchantSearchProps> = ({ onSearch, onFilterChang
         </div>
 
         {/* Filter Dropdowns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <select
-            value={filters.category}
-            className="w-full px-4 py-3 border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-orange-50/50 text-gray-700"
-            onChange={(e) => handleFilterChange('category', e.target.value)}
-          >
-            <option value="">All Categories</option>
-            <option value="electronics">Electronics</option>
-            <option value="fashion">Fashion</option>
-            <option value="home">Home & Living</option>
-            <option value="beauty">Beauty & Personal Care</option>
-            <option value="sports">Sports & Outdoors</option>
-            <option value="books">Books & Stationery</option>
-            <option value="food">Food & Beverages</option>
-          </select>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <select
             value={filters.status}
             className="w-full px-4 py-3 border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-orange-50/50 text-gray-700"
@@ -74,7 +57,7 @@ const MerchantSearch: React.FC<MerchantSearchProps> = ({ onSearch, onFilterChang
           </select>
 
           {/* Date Range Picker */}
-          <div className="flex flex-col sm:flex-row gap-2 col-span-1 sm:col-span-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex-1">
               <input
                 type="date"
@@ -98,19 +81,8 @@ const MerchantSearch: React.FC<MerchantSearchProps> = ({ onSearch, onFilterChang
         </div>
 
         {/* Active Filters Display */}
-        {(filters.category || filters.status || filters.dateFrom || filters.dateTo) && (
+        {(filters.status || filters.dateFrom || filters.dateTo) && (
           <div className="flex flex-wrap gap-2 mt-2">
-            {filters.category && (
-              <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm flex items-center gap-2">
-                Category: {filters.category}
-                <button
-                  onClick={() => handleFilterChange('category', '')}
-                  className="hover:text-orange-900"
-                >
-                  ×
-                </button>
-              </span>
-            )}
             {filters.status && (
               <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm flex items-center gap-2">
                 Status: {filters.status}
@@ -138,8 +110,8 @@ const MerchantSearch: React.FC<MerchantSearchProps> = ({ onSearch, onFilterChang
             )}
             <button
               onClick={() => {
-                setFilters({ category: '', status: '', dateFrom: '', dateTo: '' });
-                onFilterChange({ category: '', status: '', dateFrom: '', dateTo: '' });
+                setFilters({ status: '', dateFrom: '', dateTo: '' });
+                onFilterChange({ status: '', dateFrom: '', dateTo: '' });
               }}
               className="px-3 py-1 text-orange-600 text-sm hover:text-orange-800 flex items-center gap-1"
             >

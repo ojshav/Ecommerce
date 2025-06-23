@@ -286,7 +286,7 @@ const PromoProducts: React.FC = () => {
 
   return (
     <section className="py-8">
-      <div className="container mx-auto px-4">
+      {promoProducts && <div className="container mx-auto px-4">
         {/* Header with navigation */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-medium font-worksans">Promo Products</h2>
@@ -455,7 +455,7 @@ const PromoProducts: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>}
     </section>
   );
 };

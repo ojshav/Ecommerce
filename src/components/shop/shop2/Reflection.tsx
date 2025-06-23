@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 const Reflection = () => {
-  const colors = ['#D5FF4F', '#02E6FF', '#F9A7DB']; // Your custom colors
+  const colors = ['#D5FF4F', '#02E6FF', '#F9A7DB'];
   const [colorIndex, setColorIndex] = useState(0);
 
   useEffect(() => {
@@ -12,19 +12,18 @@ const Reflection = () => {
   }, []);
 
   return (
-    <div className="w-screen h-[1024px] bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center flex items-center justify-center relative overflow-hidden">
-      {/* Central container */}
-      <div className="w-[1440px] h-[1024px] relative">
+    <div className="w-full h-[90vh] sm:h-[100vh] md:h-[1024px] lg:h-[1024px] bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center flex items-center justify-center relative overflow-hidden">
+      <div className="w-full max-w-[1440px] h-full px-4 sm:px-8 relative">
 
         {/* Gradient Title */}
-        <div className="absolute top-[132px] left-1/2 -translate-x-1/2 z-10">
-          <h1 className="text-[154px] font-bold tracking-wide font-zen text-transparent bg-clip-text bg-gradient-to-b from-[#17002C] to-[#4D0092] drop-shadow-[4px_0_0_#5C5353]">
+        <div className="absolute top-[18%] left-1/2 -translate-x-1/2 z-10 text-center">
+          <h1 className="text-[11vw] sm:text-[96px] md:text-[88px] lg:text-[154px] font-bold tracking-wide font-zen text-transparent bg-clip-text bg-gradient-to-b from-[#17002C] to-[#4D0092] drop-shadow-[4px_0_0_#5C5353] leading-none">
             REFLECTION
           </h1>
         </div>
 
         {/* Center Circular Video */}
-        <div className="absolute top-[262px] left-1/2 -translate-x-1/2 w-[469px] h-[520px] rounded-full overflow-hidden z-10">
+        <div className="absolute top-[27%] left-1/2 -translate-x-1/2 w-[60vw] max-w-[469px] aspect-[469/520] rounded-full overflow-hidden z-10">
           <video
             src="/assets/videos/Panther.mp4"
             autoPlay
@@ -35,9 +34,9 @@ const Reflection = () => {
           />
         </div>
 
-        {/* Tagline Bottom Right with color changing */}
+        {/* Tagline */}
         <div
-          className="absolute top-[845px] font-inter w-[365px] h-[101px] left-[1012px] text-left text-[28px] font-semibold leading-snug z-10 "
+          className="absolute left-1/2 translate-x-[-50%] sm:left-auto sm:translate-x-0 sm:right-8 bottom-24 sm:bottom-30 text-center sm:text-left w-[90%] sm:w-[365px] font-inter text-[5vw] sm:text-[28px] font-semibold leading-snug z-10"
           style={{ color: colors[colorIndex] }}
         >
           <p>
@@ -48,8 +47,8 @@ const Reflection = () => {
           </p>
         </div>
 
-        {/* SEE ALL Button */}
-        <button className="absolute top-[923px] w-[191px] h-[59px] left-1/2 font-zen text-[24px] -translate-x-1/2 text-white border border-[#4D107F] px-8 py-2 font-bold text-sm tracking-wide transition z-10">
+        {/* Button */}
+        <button className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 sm:px-8 sm:py-3 font-zen text-[4vw] sm:text-[20px] md:text-[24px] text-white border border-[#4D107F] font-bold tracking-wide transition z-10">
           SEE ALL
         </button>
       </div>

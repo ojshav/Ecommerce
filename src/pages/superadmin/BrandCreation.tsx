@@ -725,7 +725,7 @@ const BrandCreation: React.FC = () => {
                                 <div className="text-center py-4 text-gray-500">No brands found</div>
                             ) : (
                                 filteredBrands.map((brand) => (
-                                    <div key={brand.brand_id} className="flex items-center justify-between p-3 border-b hover:bg-gray-50">
+                                    <div key={brand.brand_id} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between p-3 border-b hover:bg-gray-50">
                                         <div className="flex items-center">
                                             {brand.icon_url ? (
                                                 <img 
@@ -768,7 +768,7 @@ const BrandCreation: React.FC = () => {
 
             {/* Edit Brand Modal */}
             {isEditing && editingBrand && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center px-4 pb-4 pt-72 overflow-y-auto">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md">
                         <h3 className="text-lg font-medium mb-4">Edit Brand</h3>
                         <form onSubmit={handleEditBrand}>

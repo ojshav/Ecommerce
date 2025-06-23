@@ -641,7 +641,7 @@ export default function PlatformPerformance() {
   return (
     <div className="flex flex-col space-y-6 bg-white p-6 rounded-xl">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap gap-4 justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-black">Platform Performance Dashboard</h1>
           <p className="text-sm text-gray-500">Monitor real-time metrics and service health</p>
@@ -657,7 +657,7 @@ export default function PlatformPerformance() {
       </div>
 
       {/* System Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         <div className={`p-4 rounded-lg shadow-sm border ${getStatusBgColor(systemHealth)} flex items-center justify-between`}>
           <div className="flex items-center gap-3">
             {getStatusIcon(systemHealth)}

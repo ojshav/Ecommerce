@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, Heart, ChevronDown, ChevronUp, SlidersHorizontal, ArrowUpDown, X, Check } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Heart, ChevronDown, ChevronUp, SlidersHorizontal, ArrowUpDown, X, Check, Star } from 'lucide-react';
 import { Product } from '../types';
 import ProductCard from '../components/product/ProductCard';
-import debounce from 'lodash/debounce';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -32,6 +31,8 @@ const Products: React.FC = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
+  const [selectedDiscounts, setSelectedDiscounts] = useState<string[]>([]);
+  const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -59,248 +60,8 @@ const Products: React.FC = () => {
     { label: 'Price: Low to High', value: 'price-asc', sort_by: 'selling_price', order: 'asc' }
   ];
 
-  // Add a new state for price range changes
-  const [priceRangeChanged, setPriceRangeChanged] = useState(false);
-
-  // Add these to the existing state declarations
-  const [discountFilter, setDiscountFilter] = useState<number>(0);
-  const [ratingFilter, setRatingFilter] = useState<number>(0);
-  const [productType, setProductType] = useState<string[]>([]);
-  const [deliveryOptions, setDeliveryOptions] = useState<string[]>([]);
-  const [warrantyFilter, setWarrantyFilter] = useState<boolean>(false);
-  const [shippingFilter, setShippingFilter] = useState<string[]>([]);
-
-  // Add price range presets
-  const priceRanges = [
-    { label: 'Under ₹1,000', min: 0, max: 1000 },
-    { label: '₹1,000 - ₹5,000', min: 1000, max: 5000 },
-    { label: '₹5,000 - ₹10,000', min: 5000, max: 10000 },
-    { label: '₹10,000 - ₹20,000', min: 10000, max: 20000 },
-    { label: '₹20,000 - ₹50,000', min: 20000, max: 50000 },
-    { label: 'Above ₹50,000', min: 50000, max: 1000000 }
-  ];
-
-  // Add new state for filter changes
-  const [filterChanged, setFilterChanged] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-
-  // Add these functions after the state declarations
-  const toggleBrand = (brandId: string) => {
-    setSelectedBrands(prev => 
-      prev.includes(brandId) 
-        ? prev.filter(id => id !== brandId)
-        : [...prev, brandId]
-    );
-  };
-
-  const resetFilters = () => {
-    setSelectedCategory('');
-    setSelectedBrands([]);
-    setPriceRange([0, 1000000]);
-    setSearchQuery('');
-    setRatingFilter(0);
-    setDiscountFilter(0);
-    setCurrentPage(1);
-  };
-
-  // Add debounced fetch products function
-  const debouncedFetchProducts = useCallback(
-    debounce(async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const params = new URLSearchParams({
-          page: currentPage.toString(),
-          per_page: perPage.toString(),
-          sort_by: 'created_at',
-          order: 'desc'
-        });
-
-        // Get URL parameters
-        const urlParams = new URLSearchParams(location.search);
-        const categoryId = urlParams.get('category') || location.pathname.split('/').pop();
-        const brandId = urlParams.get('brand');
-
-        // Add filters if they exist
-        if (categoryId && categoryId !== 'products') {
-          params.append('category_id', categoryId);
-        }
-        if (brandId) {
-          params.append('brand_id', brandId);
-          setSelectedBrands([brandId]);
-        } else if (selectedBrands.length > 0) {
-          params.append('brand_id', selectedBrands.join(','));
-        }
-        if (priceRange[0] > 0) {
-          params.append('min_price', priceRange[0].toString());
-        }
-        if (priceRange[1] < 1000000) {
-          params.append('max_price', priceRange[1].toString());
-        }
-        if (searchQuery) {
-          params.append('search', searchQuery);
-        }
-        if (ratingFilter > 0) {
-          params.append('min_rating', ratingFilter.toString());
-        }
-        if (discountFilter > 0) {
-          params.append('min_discount', discountFilter.toString());
-        }
-
-        const apiUrl = `${API_BASE_URL}/api/products?${params}`;
-        console.log('Fetching products with URL:', apiUrl);
-
-        const response = await fetch(apiUrl, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch products: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('Products response:', data);
-        
-        setProducts(data.products);
-        setTotalPages(data.pagination.pages);
-        setTotalProducts(data.pagination.total);
-
-        // Update selected category if coming from navigation
-        if (categoryId && !selectedCategory) {
-          setSelectedCategory(categoryId);
-        }
-      } catch (err) {
-        console.error('Error fetching products:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch products');
-      } finally {
-        setLoading(false);
-      }
-    }, 500),
-    [currentPage, selectedCategory, selectedBrands, priceRange, searchQuery, ratingFilter, discountFilter]
-  );
-
-  // Initial data fetch
-  useEffect(() => {
-    console.log('Initial data fetch started');
-    console.log('API Base URL:', API_BASE_URL);
-    fetchCategories();
-    fetchBrands();
-    fetchRecentlyViewed();
-    setIsInitialLoad(false);
-  }, []);
-
-  // Effect for filter changes
-  useEffect(() => {
-    if (!isInitialLoad) {
-      setFilterChanged(true);
-      debouncedFetchProducts();
-    }
-  }, [currentPage, selectedCategory, selectedBrands, priceRange, searchQuery, ratingFilter, discountFilter]);
-
-  // Cleanup debounced function
-  useEffect(() => {
-    return () => {
-      debouncedFetchProducts.cancel();
-    };
-  }, [debouncedFetchProducts]);
-
-  // Update handlers to use debounced fetch
-  const handlePriceRangeSelect = (min: number, max: number) => {
-    setPriceRange([min, max]);
-  };
-
-  // Add debounced search handler
-  const debouncedSearch = useCallback(
-    debounce((value: string) => {
-      setSearchQuery(value);
-      setCurrentPage(1); // Reset to first page on new search
-    }, 500),
-    []
-  );
-
-  // Update search handler
-  const handleSearchChange = (value: string) => {
-    debouncedSearch(value);
-  };
-
-  // Add search suggestions state
-  const [searchSuggestions, setSearchSuggestions] = useState<{
-    products: Product[];
-    categories: Category[];
-    brands: any[];
-  }>({
-    products: [],
-    categories: [],
-    brands: []
-  });
-
-  // Add function to fetch search suggestions
-  const fetchSearchSuggestions = async (query: string) => {
-    if (!query.trim()) {
-      setSearchSuggestions({ products: [], categories: [], brands: [] });
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/products/search-suggestions?q=${encodeURIComponent(query)}`);
-      if (response.ok) {
-        const data = await response.json();
-        setSearchSuggestions(data);
-      }
-    } catch (error) {
-      console.error('Error fetching search suggestions:', error);
-    }
-  };
-
-  // Update search input to show suggestions
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    handleSearchChange(value);
-    fetchSearchSuggestions(value);
-  };
-
-  // Add star rating component
-  const StarRating = ({ rating, onClick, selected }: { rating: number; onClick: () => void; selected: boolean }) => (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-1 w-full text-left px-3 py-2 rounded-lg transition-colors ${
-        selected ? 'bg-orange-50 text-[#F2631F]' : 'hover:bg-gray-50'
-      }`}
-    >
-      <div className="flex items-center">
-        {[...Array(5)].map((_, index) => (
-          <svg
-            key={index}
-            className={`w-4 h-4 ${index < rating ? 'text-yellow-400' : 'text-gray-300'}`}
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        ))}
-      </div>
-      <span className="text-sm ml-1">& Up</span>
-    </button>
-  );
-
-  // Add rating options
-  const ratingOptions = [4, 3, 2, 1];
-
-  // Add back the missing handler functions
-  const handleRatingFilter = (rating: number) => {
-    setRatingFilter(rating === ratingFilter ? 0 : rating);
-  };
-
-  const handleDiscountFilter = (discount: number) => {
-    setDiscountFilter(discount === discountFilter ? 0 : discount);
-  };
-
-  // Update handleProductClick to handle string IDs
-  const handleProductClick = async (productId: string | number) => {
+  // Handle product click to track recently viewed
+  const handleProductClick = async (productId: string) => {
     try {
       // Navigate to product detail page
       navigate(`/product/${productId}`);
@@ -422,8 +183,9 @@ const Products: React.FC = () => {
               toggleCategoryExpand(category.category_id);
             } else {
               setSelectedCategory(String(category.category_id));
-              // Update URL with selected category
-              navigate(`/products/${category.category_id}`);
+              const params = new URLSearchParams(location.search);
+              params.set('category', String(category.category_id));
+              navigate(`?${params.toString()}`);
             }
           }}
           className={btnClass}
@@ -473,6 +235,7 @@ const Products: React.FC = () => {
       }
       if (brandId) {
         params.append('brand_id', brandId);
+        // If brand is selected via URL, update selectedBrands
         setSelectedBrands([brandId]);
       } else if (selectedBrands.length > 0) {
         params.append('brand_id', selectedBrands.join(','));
@@ -486,17 +249,14 @@ const Products: React.FC = () => {
       if (searchQuery) {
         params.append('search', searchQuery);
       }
-
-      // Add rating filter
-      if (ratingFilter > 0) {
-        params.append('min_rating', ratingFilter.toString());
+      if (selectedDiscounts.length > 0) {
+        params.append('min_discount', Math.max(...selectedDiscounts.map(d => parseInt(d))).toString());
+      }
+      if (selectedRatings.length > 0) {
+        params.append('min_rating', Math.max(...selectedRatings.map(r => parseFloat(r))).toString());
       }
 
-      // Add discount filter
-      if (discountFilter > 0) {
-        params.append('min_discount', discountFilter.toString());
-      }
-
+      // Always use the main products endpoint with filters
       const apiUrl = `${API_BASE_URL}/api/products?${params}`;
 
       console.log('Fetching products with URL:', apiUrl);
@@ -574,6 +334,97 @@ const Products: React.FC = () => {
     } catch (err) {
       console.error('Error fetching brands:', err);
     }
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    console.log('Initial data fetch started');
+    console.log('API Base URL:', API_BASE_URL);
+    fetchProducts();
+    fetchRecentlyViewed();
+    fetchCategories();
+    fetchBrands();
+  }, []);
+
+  // Refetch products when filters or pagination changes
+  useEffect(() => {
+    console.log('Refetching products due to filter/pagination change:', {
+      currentPage,
+      selectedCategory,
+      selectedBrands,
+      priceRange,
+      searchQuery,
+      selectedDiscounts,
+      selectedRatings
+    });
+    fetchProducts();
+  }, [currentPage, selectedCategory, selectedBrands, priceRange, searchQuery, selectedDiscounts, selectedRatings]);
+  
+  // Toggle brand selection
+  const toggleBrand = (brand: string) => {
+    setSelectedBrands(prev => {
+      const newBrands = prev.includes(brand)
+        ? [] // Clear selection if clicking the same brand
+        : [brand]; // Select only one brand at a time
+      
+      // Update URL with selected brand
+      const params = new URLSearchParams(location.search);
+      if (newBrands.length > 0) {
+        params.set('brand', newBrands[0]);
+      } else {
+        params.delete('brand');
+      }
+      navigate(`?${params.toString()}`);
+      
+      return newBrands;
+    });
+  };
+
+  // Toggle color selection
+  const toggleColor = (color: string) => {
+    setSelectedColors(prev => 
+      prev.includes(color) 
+        ? prev.filter(c => c !== color)
+        : [...prev, color]
+    );
+  };
+
+  // Toggle discount selection
+  const toggleDiscount = (discount: string) => {
+    setSelectedDiscounts(prev => 
+      prev.includes(discount) 
+        ? prev.filter(d => d !== discount)
+        : [...prev, discount]
+    );
+  };
+
+  // Toggle rating selection
+  const toggleRating = (rating: string) => {
+    setSelectedRatings(prev => {
+      if (prev.length === 1 && prev[0] === rating) {
+        return []; // Deselect if clicking the same rating
+      }
+      return [rating]; // Select/change the rating
+    });
+  };
+  
+  // Reset all filters
+  const resetFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('');
+    setSelectedBrands([]);
+    setSelectedColors([]);
+    setPriceRange([0, 1000000]);
+    setSelectedDiscounts([]);
+    setSelectedRatings([]);
+    setCurrentPage(1);
+    
+    // Clear URL parameters
+    const params = new URLSearchParams(location.search);
+    params.delete('category');
+    params.delete('brand');
+    params.delete('search');
+    navigate(`?${params.toString()}`);
   };
 
   // Sort products based on selected sort option
@@ -705,56 +556,134 @@ const Products: React.FC = () => {
               {/* Price Range */}
               <div className="mb-8">
                 <h3 className="font-semibold text-base mb-4 text-black">Price</h3>
-                <div className="space-y-2">
-                  {priceRanges.map((range) => (
-                    <button
-                      key={range.label}
-                      onClick={() => handlePriceRangeSelect(range.min, range.max)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        priceRange[0] === range.min && priceRange[1] === range.max
-                          ? 'bg-orange-50 text-[#F2631F]'
-                          : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      {range.label}
-                    </button>
-                  ))}
-                  </div>
+                <div className="px-2">
+                  {/* Manual Input Fields */}
+                  <div className="flex gap-2 mb-3">
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-600 mb-1">Min Price</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max={priceRange[1]}
+                        value={priceRange[0]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 0;
+                          setPriceRange([value, Math.max(value, priceRange[1])]);
+                        }}
+                        className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                        placeholder="0"
+                      />
                     </div>
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-600 mb-1">Max Price</label>
+                      <input
+                        type="number"
+                        min={priceRange[0]}
+                        max="1000000"
+                        value={priceRange[1]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 1000000;
+                          setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                        }}
+                        className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                        placeholder="1000000"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Slider */}
+                  <div className="flex justify-between text-xs text-gray-700 mb-2 font-normal">
+                    <span>₹{priceRange[0].toLocaleString()}</span>
+                    <span>₹{priceRange[1].toLocaleString()}</span>
+                  </div>
+                  <div className="relative pt-1">
+                    <div className="w-full h-1 bg-gray-200 rounded-lg">
+                      <div
+                        className="absolute h-1 bg-[#F2631F] rounded-lg"
+                        style={{ width: `${(priceRange[1] / 1000000) * 100}%` }}
+                      ></div>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1000000"
+                      step="10000"
+                      value={priceRange[1]}
+                      onChange={(e) => {setPriceRange([priceRange[0], parseInt(e.target.value)])}}
+                      className="absolute top-0 w-full h-2 opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
 
               {/* Discount Filter */}
               <div className="mb-8">
                 <h3 className="font-semibold text-base mb-4 text-black">Discount</h3>
-                <div className="space-y-2">
-                  {[0, 10, 20, 30, 40, 50].map((discount) => (
-                    <button
-                      key={discount}
-                      onClick={() => handleDiscountFilter(discount)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        discountFilter === discount
-                          ? 'bg-orange-50 text-[#F2631F]'
-                          : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      {discount === 0 ? 'All Discounts' : `${discount}% and above`}
-                    </button>
-                  ))}
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: '10% or more', value: '10' },
+                    { label: '20% or more', value: '20' },
+                    { label: '30% or more', value: '30' },
+                    { label: '40% or more', value: '40' },
+                    { label: '50% or more', value: '50' }
+                  ].map((discount) => {
+                    const isSelected = selectedDiscounts.includes(discount.value);
+                    return (
+                      <button
+                        key={discount.value}
+                        onClick={() => toggleDiscount(discount.value)}
+                        className={`px-3 py-1.5 rounded-full border text-xs font-normal transition-colors focus:outline-none ${
+                          isSelected
+                            ? 'bg-[#F2631F] text-white border-[#F2631F] shadow'
+                            : 'bg-gray-100 border-gray-200 text-black hover:border-[#F2631F] hover:text-[#F2631F]'
+                        }`}
+                      >
+                        {discount.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              {/* Rating Filter */}
+              {/* Ratings Filter */}
               <div className="mb-8">
-                <h3 className="font-semibold text-base mb-4 text-black">Customer Rating</h3>
-                <div className="space-y-2">
-                  {ratingOptions.map((rating) => (
-                    <StarRating
-                      key={rating}
-                      rating={rating}
-                      selected={ratingFilter === rating}
-                      onClick={() => handleRatingFilter(rating)}
-                    />
-                  ))}
-                </div>
+                <h3 className="font-semibold text-base mb-4 text-black">Ratings</h3>
+                {(() => {
+                  const selectedRatingValue = selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
+                  return (
+                    <div className="flex items-center">
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map(star => {
+                          const isFull = selectedRatingValue >= star;
+                          const isHalf = selectedRatingValue >= star - 0.5 && selectedRatingValue < star;
+
+                          return (
+                            <div key={star} className="relative cursor-pointer" style={{ width: 28, height: 28 }} onClick={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              const clickX = e.clientX - rect.left;
+                              const rating = clickX < rect.width / 2 ? star - 0.5 : star;
+                              toggleRating(rating.toString());
+                            }}>
+                              <Star className="text-gray-300" fill="currentColor" size={28}/>
+                              {isFull ? (
+                                <div className="absolute top-0 left-0">
+                                  <Star className="text-yellow-400" fill="currentColor" size={28}/>
+                                </div>
+                              ) : isHalf ? (
+                                <div className="absolute top-0 left-0 w-1/2 overflow-hidden">
+                                  <Star className="text-yellow-400" fill="currentColor" size={28}/>
+                                </div>
+                              ) : null}
+                            </div>
+                          )
+                        })}
+                      </div>
+                      {selectedRatingValue > 0 && (
+                        <span className="ml-2 text-sm font-medium text-gray-700">{selectedRatingValue}★ & up</span>
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
 
               {/* Reset Filters */}
@@ -770,72 +699,14 @@ const Products: React.FC = () => {
           {/* Products Grid */}
           <div className="flex-1">
             {/* Search Bar */}
-            <div className="mb-6 relative">
+            <div className="mb-6">
               <input
                 type="text"
                 value={searchQuery}
-                onChange={handleSearchInputChange}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products..."
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F2631F] focus:border-transparent"
               />
-              {searchQuery && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
-                  {searchSuggestions.products.length > 0 && (
-                    <div className="p-2">
-                      <h3 className="text-sm font-semibold text-gray-500 mb-2">Products</h3>
-                      {searchSuggestions.products.map(product => (
-                        <div
-                          key={product.id}
-                          onClick={() => handleProductClick(product.id)}
-                          className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer rounded"
-                        >
-                          {product.primary_image && (
-                            <img src={product.primary_image} alt={product.name} className="w-10 h-10 object-cover rounded" />
-                          )}
-                          <div>
-                            <p className="text-sm font-medium">{product.name}</p>
-                            <p className="text-xs text-gray-500">₹{product.price}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {searchSuggestions.categories.length > 0 && (
-                    <div className="p-2 border-t">
-                      <h3 className="text-sm font-semibold text-gray-500 mb-2">Categories</h3>
-                      {searchSuggestions.categories.map(category => (
-                        <div
-                          key={category.category_id}
-                          onClick={() => {
-                            setSelectedCategory(String(category.category_id));
-                            setSearchQuery('');
-                          }}
-                          className="p-2 hover:bg-gray-50 cursor-pointer rounded"
-                        >
-                          <p className="text-sm">{category.name}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {searchSuggestions.brands.length > 0 && (
-                    <div className="p-2 border-t">
-                      <h3 className="text-sm font-semibold text-gray-500 mb-2">Brands</h3>
-                      {searchSuggestions.brands.map(brand => (
-                        <div
-                          key={brand.brand_id}
-                          onClick={() => {
-                            setSelectedBrands([String(brand.brand_id)]);
-                            setSearchQuery('');
-                          }}
-                          className="p-2 hover:bg-gray-50 cursor-pointer rounded"
-                        >
-                          <p className="text-sm">{brand.name}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* Desktop Sort Dropdown */}
@@ -894,8 +765,8 @@ const Products: React.FC = () => {
             )}
             
             {/* Pagination */}
-            {totalPages > 0 && (
-              <div className="flex justify-end items-center gap-2 my-8">
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 my-8">
                 <button 
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
@@ -1012,9 +883,9 @@ const Products: React.FC = () => {
 
       {/* Mobile Filter Drawer */}
       {isFilterOpen && (
-        <div className="fixed inset-0 bg-white bg-opacity-50 z-40 lg:hidden">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden">
           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] flex flex-col">
-            <div className="p-4 border-b mt-6 sm:mt-10 nav:mt-20">
+            <div className="p-4 border-b">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Filters</h3>
                 <button onClick={() => setIsFilterOpen(false)} className="p-2">
@@ -1056,58 +927,136 @@ const Products: React.FC = () => {
               </div>
 
               {/* Price Range */}
-              <div className="mb-6">
+              <div className="mb-8">
                 <h4 className="font-medium mb-3">Price</h4>
-                <div className="space-y-2">
-                  {priceRanges.map((range) => (
-                    <button
-                      key={range.label}
-                      onClick={() => handlePriceRangeSelect(range.min, range.max)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        priceRange[0] === range.min && priceRange[1] === range.max
-                          ? 'bg-orange-50 text-[#F2631F]'
-                          : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      {range.label}
-                    </button>
-                  ))}
-                  </div>
+                <div className="px-2">
+                  {/* Manual Input Fields */}
+                  <div className="flex gap-2 mb-3">
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-600 mb-1">Min Price</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max={priceRange[1]}
+                        value={priceRange[0]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 0;
+                          setPriceRange([value, Math.max(value, priceRange[1])]);
+                        }}
+                        className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                        placeholder="0"
+                      />
                     </div>
-
-              {/* Mobile Rating Filter */}
-              <div className="mb-6">
-                <h4 className="font-medium mb-3">Customer Rating</h4>
-                <div className="space-y-2">
-                  {ratingOptions.map((rating) => (
-                    <StarRating
-                      key={rating}
-                      rating={rating}
-                      selected={ratingFilter === rating}
-                      onClick={() => handleRatingFilter(rating)}
-                    />
-                  ))}
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-600 mb-1">Max Price</label>
+                      <input
+                        type="number"
+                        min={priceRange[0]}
+                        max="1000000"
+                        value={priceRange[1]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 1000000;
+                          setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                        }}
+                        className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                        placeholder="1000000"
+                      />
+                    </div>
                   </div>
+                  
+                  {/* Slider */}
+                  <div className="flex justify-between text-xs text-gray-700 mb-2 font-normal">
+                    <span>₹{priceRange[0].toLocaleString()}</span>
+                    <span>₹{priceRange[1].toLocaleString()}</span>
+                  </div>
+                  <div className="relative pt-1">
+                    <div className="w-full h-1 bg-gray-200 rounded-lg">
+                      <div
+                        className="absolute h-1 bg-[#F2631F] rounded-lg"
+                        style={{ width: `${(priceRange[1] / 1000000) * 100}%` }}
+                      ></div>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1000000"
+                      step="10000"
+                      value={priceRange[1]}
+                      onChange={(e) => {setPriceRange([priceRange[0], parseInt(e.target.value)])}}
+                      className="absolute top-0 w-full h-2 opacity-0 cursor-pointer"
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Mobile Discount Filter */}
-              <div className="mb-6">
+              {/* Discount Filter */}
+              <div className="mb-8">
                 <h4 className="font-medium mb-3">Discount</h4>
-                <div className="space-y-2">
-                  {[0, 10, 20, 30, 40, 50].map((discount) => (
-                    <button
-                      key={discount}
-                      onClick={() => handleDiscountFilter(discount)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        discountFilter === discount
-                          ? 'bg-orange-50 text-[#F2631F]'
-                          : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      {discount === 0 ? 'All Discounts' : `${discount}% and above`}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: '10% or more', value: '10' },
+                    { label: '20% or more', value: '20' },
+                    { label: '30% or more', value: '30' },
+                    { label: '40% or more', value: '40' },
+                    { label: '50% or more', value: '50' }
+                  ].map((discount) => {
+                    const isSelected = selectedDiscounts.includes(discount.value);
+                    return (
+                      <button
+                        key={discount.value}
+                        onClick={() => toggleDiscount(discount.value)}
+                        className={`px-3 py-1.5 rounded-full border text-xs font-normal transition-colors focus:outline-none ${
+                          isSelected
+                            ? 'bg-[#F2631F] text-white border-[#F2631F] shadow'
+                            : 'bg-gray-100 border-gray-200 text-black hover:border-[#F2631F] hover:text-[#F2631F]'
+                        }`}
+                      >
+                        {discount.label}
+                      </button>
+                    );
+                  })}
                 </div>
+              </div>
+
+              {/* Ratings Filter */}
+              <div className="mb-8">
+                <h4 className="font-medium mb-3">Ratings</h4>
+                {(() => {
+                  const selectedRatingValue = selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
+                  return (
+                    <div className="flex items-center">
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map(star => {
+                          const isFull = selectedRatingValue >= star;
+                          const isHalf = selectedRatingValue >= star - 0.5 && selectedRatingValue < star;
+
+                          return (
+                            <div key={star} className="relative cursor-pointer" style={{ width: 28, height: 28 }} onClick={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              const clickX = e.clientX - rect.left;
+                              const rating = clickX < rect.width / 2 ? star - 0.5 : star;
+                              toggleRating(rating.toString());
+                            }}>
+                              <Star className="text-gray-300" fill="currentColor" size={28}/>
+                              {isFull ? (
+                                <div className="absolute top-0 left-0">
+                                  <Star className="text-yellow-400" fill="currentColor" size={28}/>
+                                </div>
+                              ) : isHalf ? (
+                                <div className="absolute top-0 left-0 w-1/2 overflow-hidden">
+                                  <Star className="text-yellow-400" fill="currentColor" size={28}/>
+                                </div>
+                              ) : null}
+                            </div>
+                          )
+                        })}
+                      </div>
+                      {selectedRatingValue > 0 && (
+                        <span className="ml-2 text-sm font-medium text-gray-700">{selectedRatingValue}★ & up</span>
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
             </div>
             

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, ChevronDown, ChevronUp, SlidersHorizontal, ArrowUpDown, X, Check } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ChevronDown, ChevronUp, SlidersHorizontal, ArrowUpDown, X, Check, Star } from 'lucide-react';
 import { Product } from '../types';
 import ProductCard from '../components/product/ProductCard';
 import { toast } from 'react-hot-toast';
@@ -31,6 +31,7 @@ const PromoProductsPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
+  const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -387,6 +388,40 @@ const PromoProductsPage: React.FC = () => {
     navigate(`?${params.toString()}`);
   };
 
+  // Sort products based on selected sort option (client-side)
+  const sortProducts = (productsToSort: Product[], sortValue: string) => {
+    const sortedProducts = [...productsToSort];
+    switch (sortValue) {
+      case 'newest':
+        return sortedProducts.sort((a, b) => 
+          new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
+        );
+      case 'oldest':
+        return sortedProducts.sort((a, b) => 
+          new Date(a.created_at || '').getTime() - new Date(b.created_at || '').getTime()
+        );
+      case 'price-desc':
+        return sortedProducts.sort((a, b) => b.price - a.price);
+      case 'price-asc':
+        return sortedProducts.sort((a, b) => a.price - b.price);
+      default:
+        return sortedProducts;
+    }
+  };
+
+  // Handle sort change
+  const handleSort = (value: string) => {
+    setSelectedSort(value);
+    setIsMobileSortOpen(false);
+    setIsDesktopSortOpen(false);
+    setProducts(prevProducts => sortProducts(prevProducts, value));
+  };
+
+  // When products are fetched or selectedSort changes, sort them
+  useEffect(() => {
+    setProducts(prevProducts => sortProducts(prevProducts, selectedSort));
+  }, [selectedSort]);
+
   if (loading && products.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -442,7 +477,7 @@ const PromoProductsPage: React.FC = () => {
           {/* Category Sidebar */}
           <aside className="hidden lg:block w-72 pr-6 border-r border-gray-100">
             <div className="mb-8">
-              <h3 className="font-semibold text-base mb-3 text-black">Category</h3>
+              <h3 className="font-semibold text-base mb-4 text-black">Category</h3>
               <div className="space-y-1">
                 {categories.map(category => renderCategoryTree(category))}
               </div>
@@ -450,7 +485,7 @@ const PromoProductsPage: React.FC = () => {
             
             {/* Brand Filter */}
             <div className="mb-8">
-              <h3 className="font-semibold text-base mb-3 text-black">Brand</h3>
+              <h3 className="font-semibold text-base mb-4 text-black">Brand</h3>
               <div className="flex flex-wrap gap-2">
                 {brands && brands.map((brand) => {
                   const isSelected = selectedBrands.includes(String(brand.brand_id || brand.id));
@@ -470,36 +505,109 @@ const PromoProductsPage: React.FC = () => {
                 })}
               </div>
             </div>
-              
+            
             {/* Price Range */}
-              <div className="mb-8">
-                <h3 className="font-semibold text-base mb-4 text-black">Price</h3>
-                <div className="px-2">
-                  <div className="flex justify-between text-xs text-gray-700 mb-2 font-normal">
-                    <span>₹{priceRange[0]}</span>
-                    <span>₹{priceRange[1]}</span>
-                  </div>
-                  <div className="relative pt-1">
-                    <div className="w-full h-1 bg-gray-200 rounded-lg">
-                      <div
-                        className="absolute h-1 bg-[#F2631F] rounded-lg"
-                        style={{ width: `${(priceRange[1] / 1000000) * 100}%` }}
-                      ></div>
-                    </div>
+            <div className="mb-8">
+              <h3 className="font-semibold text-base mb-4 text-black">Price</h3>
+              <div className="px-2">
+                {/* Manual Input Fields */}
+                <div className="flex gap-2 mb-3">
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-600 mb-1">Min Price</label>
                     <input
-                      type="range"
+                      type="number"
                       min="0"
+                      max={priceRange[1]}
+                      value={priceRange[0]}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 0;
+                        setPriceRange([value, Math.max(value, priceRange[1])]);
+                      }}
+                      className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-600 mb-1">Max Price</label>
+                    <input
+                      type="number"
+                      min={priceRange[0]}
                       max="1000000"
-                      step="10000"
                       value={priceRange[1]}
-                      onChange={(e) => {setPriceRange([priceRange[0], parseInt(e.target.value)])}}
-                      className="absolute top-0 w-full h-2 opacity-0 cursor-pointer"
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 1000000;
+                        setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                      }}
+                      className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                      placeholder="1000000"
                     />
                   </div>
                 </div>
+                {/* Slider */}
+                <div className="flex justify-between text-xs text-gray-700 mb-2 font-normal">
+                  <span>₹{priceRange[0].toLocaleString()}</span>
+                  <span>₹{priceRange[1].toLocaleString()}</span>
+                </div>
+                <div className="relative pt-1">
+                  <div className="w-full h-1 bg-gray-200 rounded-lg">
+                    <div
+                      className="absolute h-1 bg-[#F2631F] rounded-lg"
+                      style={{ width: `${(priceRange[1] / 1000000) * 100}%` }}
+                    ></div>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1000000"
+                    step="10000"
+                    value={priceRange[1]}
+                    onChange={(e) => {setPriceRange([priceRange[0], parseInt(e.target.value)])}}
+                    className="absolute top-0 w-full h-2 opacity-0 cursor-pointer"
+                  />
+                </div>
               </div>
+            </div>
 
-            
+            {/* Ratings Filter */}
+            <div className="mb-8">
+              <h3 className="font-semibold text-base mb-4 text-black">Ratings</h3>
+              {(() => {
+                const selectedRatingValue = selectedRatings && selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
+                return (
+                  <div className="flex items-center">
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map(star => {
+                        const isFull = selectedRatingValue >= star;
+                        const isHalf = selectedRatingValue >= star - 0.5 && selectedRatingValue < star;
+                        return (
+                          <div key={star} className="relative cursor-pointer" style={{ width: 28, height: 28 }} onClick={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const clickX = e.clientX - rect.left;
+                            const rating = clickX < rect.width / 2 ? star - 0.5 : star;
+                            setSelectedRatings([rating.toString()]);
+                          }}>
+                            <Star className="text-gray-300" fill="currentColor" size={28}/>
+                            {isFull ? (
+                              <div className="absolute top-0 left-0">
+                                <Star className="text-yellow-400" fill="currentColor" size={28}/>
+                              </div>
+                            ) : isHalf ? (
+                              <div className="absolute top-0 left-0 w-1/2 overflow-hidden">
+                                <Star className="text-yellow-400" fill="currentColor" size={28}/>
+                              </div>
+                            ) : null}
+                          </div>
+                        )
+                      })}
+                    </div>
+                    {selectedRatingValue > 0 && (
+                      <span className="ml-2 text-sm font-medium text-gray-700">{selectedRatingValue}★ & up</span>
+                    )}
+                  </div>
+                )
+              })()}
+            </div>
+
             {/* Reset Filters Button */}
             <button
               onClick={resetFilters}
@@ -520,6 +628,38 @@ const PromoProductsPage: React.FC = () => {
                 placeholder="Search promo products..."
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
+            </div>
+
+            {/* Desktop Sort Dropdown */}
+            <div className="hidden lg:flex justify-end mb-6">
+              <div className="relative" ref={desktopSortRef}>
+                <button
+                  className="flex items-center gap-2 px-4 py-2 border rounded-lg bg-white hover:border-[#F2631F] transition-colors"
+                  onClick={() => setIsDesktopSortOpen(!isDesktopSortOpen)}
+                >
+                  <span>Sort By: </span>
+                  <span className="text-[#F2631F]">
+                    {sortOptions.find(opt => opt.value === selectedSort)?.label}
+                  </span>
+                  <ChevronDown size={16} />
+                </button>
+                {isDesktopSortOpen && (
+                  <div className="absolute z-20 w-48 bg-white border rounded-lg shadow-lg top-full mt-1">
+                    {sortOptions.map(option => (
+                      <button
+                        key={option.value}
+                        onClick={() => handleSort(option.value)}
+                        className={`flex items-center w-full px-4 py-2 text-left hover:bg-gray-50 ${
+                          selectedSort === option.value ? 'bg-orange-50 text-[#F2631F]' : ''
+                        }`}
+                      >
+                        {selectedSort === option.value && <Check size={16} className="mr-2 text-[#F2631F]" />}
+                        <span>{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {!loading && products.length === 0 ? (
@@ -673,9 +813,43 @@ const PromoProductsPage: React.FC = () => {
               <div className="mb-6">
                 <h4 className="font-medium mb-3">Price</h4>
                 <div className="px-2">
+                  {/* Manual Input Fields */}
+                  <div className="flex gap-2 mb-3">
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-600 mb-1">Min Price</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max={priceRange[1]}
+                        value={priceRange[0]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 0;
+                          setPriceRange([value, Math.max(value, priceRange[1])]);
+                        }}
+                        className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-600 mb-1">Max Price</label>
+                      <input
+                        type="number"
+                        min={priceRange[0]}
+                        max="1000000"
+                        value={priceRange[1]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 1000000;
+                          setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                        }}
+                        className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
+                        placeholder="1000000"
+                      />
+                    </div>
+                  </div>
+                  {/* Slider */}
                   <div className="flex justify-between text-xs text-gray-700 mb-2 font-normal">
-                    <span>₹{priceRange[0]}</span>
-                    <span>₹{priceRange[1]}</span>
+                    <span>₹{priceRange[0].toLocaleString()}</span>
+                    <span>₹{priceRange[1].toLocaleString()}</span>
                   </div>
                   <div className="relative pt-1">
                     <div className="w-full h-1 bg-gray-200 rounded-lg">
@@ -695,6 +869,46 @@ const PromoProductsPage: React.FC = () => {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Ratings Filter */}
+              <div className="mb-6">
+                <h4 className="font-medium mb-3">Ratings</h4>
+                {(() => {
+                  const selectedRatingValue = selectedRatings && selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
+                  return (
+                    <div className="flex items-center">
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map(star => {
+                          const isFull = selectedRatingValue >= star;
+                          const isHalf = selectedRatingValue >= star - 0.5 && selectedRatingValue < star;
+                          return (
+                            <div key={star} className="relative cursor-pointer" style={{ width: 28, height: 28 }} onClick={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              const clickX = e.clientX - rect.left;
+                              const rating = clickX < rect.width / 2 ? star - 0.5 : star;
+                              setSelectedRatings([rating.toString()]);
+                            }}>
+                              <Star className="text-gray-300" fill="currentColor" size={28}/>
+                              {isFull ? (
+                                <div className="absolute top-0 left-0">
+                                  <Star className="text-yellow-400" fill="currentColor" size={28}/>
+                                </div>
+                              ) : isHalf ? (
+                                <div className="absolute top-0 left-0 w-1/2 overflow-hidden">
+                                  <Star className="text-yellow-400" fill="currentColor" size={28}/>
+                                </div>
+                              ) : null}
+                            </div>
+                          )
+                        })}
+                      </div>
+                      {selectedRatingValue > 0 && (
+                        <span className="ml-2 text-sm font-medium text-gray-700">{selectedRatingValue}★ & up</span>
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
             </div>
             
@@ -733,15 +947,7 @@ const PromoProductsPage: React.FC = () => {
                 {sortOptions.map((option) => (
                   <button
                     key={option.value}
-                    onClick={() => {
-                      setSelectedSort(option.value);
-                      setIsMobileSortOpen(false);
-                      // Update URL with sort parameters
-                      const params = new URLSearchParams(location.search);
-                      params.set('sort_by', option.sort_by);
-                      params.set('order', option.order);
-                      navigate(`?${params.toString()}`);
-                    }}
+                    onClick={() => handleSort(option.value)}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                       selectedSort === option.value
                         ? 'bg-orange-50 text-[#F2631F]'

@@ -646,10 +646,10 @@ const Aoinlive: React.FC = () => {
         {!isLive && (
           <div className="bg-white shadow rounded-lg p-6 space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Go Live Now</h2>
-            <div className="flex justify-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-center justify-start gap-4">
               <button
                 onClick={requestCameraAccess}
-                className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                className={`w-full sm:w-fit inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
                   hasCameraAccess ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'
                 } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
               >
@@ -658,7 +658,7 @@ const Aoinlive: React.FC = () => {
               </button>
               <button
                 onClick={requestMicAccess}
-                className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                className={`w-full sm:w-fit inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
                   hasMicAccess ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'
                 } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
               >
@@ -668,7 +668,7 @@ const Aoinlive: React.FC = () => {
               <button
                 onClick={startLiveStream}
                 disabled={!hasCameraAccess || !hasMicAccess || !currentStream}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-fit inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FaPlay className="mr-2" />
                 Go Live

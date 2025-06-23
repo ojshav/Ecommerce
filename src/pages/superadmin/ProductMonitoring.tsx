@@ -615,7 +615,7 @@ const ProductMonitoring: React.FC = () => {
                             </div>
 
                             {/* Product Image */}
-                            <div className="aspect-w-16 aspect-h-9 bg-gray-100">
+                            <div className="h-64 w-full bg-gray-100">
                                 {product.media && product.media.length > 0 ? (
                                     <img
                                         src={product.media[0].url}
@@ -623,22 +623,22 @@ const ProductMonitoring: React.FC = () => {
                                         className="object-cover w-full h-full"
                                     />
                                 ) : (
-                                    <div className="flex items-center justify-center text-gray-400">
+                                    <div className="h-64 w-full flex items-center justify-center text-gray-400">
                                         No image available
                                     </div>
                                 )}
                             </div>
 
                             {/* Product Info */}
-                            <div className="p-4">
+                            <div className="flex flex-col justify-end items-start p-4">
                                 <div>
-                                    <h3 className="text-lg font-medium text-gray-900 truncate">
-                                        {product.product_name}
+                                    <h3 className="flex flex-wrap text-lg font-medium text-gray-900">
+                                        {product.product_name.slice(0, product.product_name.length > 20 ? 20 : product.product_name.length) + "..."}
                                     </h3>
                                     <p className="text-sm text-gray-500">{product.sku}</p>
                                 </div>
 
-                                <div className="mt-4 space-y-2">
+                                <div className="mt-4 space-y-2 w-full">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Category:</span>
                                         <span className="text-gray-900">{product.category?.name || 'N/A'}</span>
