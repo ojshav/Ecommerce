@@ -1,35 +1,35 @@
 import React from 'react';
 
-const SweatShirts: React.FC = () => {
+const Shirts: React.FC = () => {
   return (
-    <section className="relative w-screen h-[60vh] md:h-[80vh] sm:h-[70vh] lg:h-[1024px] bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center flex items-center justify-center overflow-hidden">
+    <section className="relative w-screen h-[60vh] md:h-[80vh]  sm:h-[70vh] lg:h-[1024px]  bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center flex items-center justify-center overflow-hidden">
       
       {/* Content Wrapper */}
       <div className="relative w-full h-full max-w-[1440px] mx-auto flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 lg:px-8">
 
-        {/* SweatShirts Text */}
-        <h1 className="text-[8vw] xs:text-[7vw] sm:text-[6vw] top-[10vw] left-[16vw] md:left-[16vw] xl:left-[16vw] md:text-[5vw] lg:text-[4vw] xl:text-[80px] font-normal tracking-wider text-transparent font-nosifer bg-clip-text bg-gradient-to-b from-[#C28BF9] to-[#411271] relative text-center leading-none">
-          SWEATSHIRTS
+        {/* SHIRTS Text */}
+        <h1 className="text-[8vw] xs:text-[7vw] sm:text-[6vw] top-[12vw] left-[20vw] md:left-[20vw] xl:left-[20vw] md:text-[5vw] lg:text-[4vw] xl:text-[96px] font-normal tracking-wider text-transparent font-nosifer bg-clip-text bg-gradient-to-b from-purple-400 to-purple-800 relative text-center leading-none">
+          SHIRTS
         </h1>
 
         {/* Models Container */}
         <div className="relative w-full h-full flex items-end justify-center">
           
           {/* Left Model */}
-          <div className="absolute left-1 sm:left-4 md:left-8 lg:left-16 xl:left-16 bottom-[28vh] sm:bottom-[28vh] md:bottom-[25vh] lg:bottom-[410px]">
+          <div className="absolute left-1 sm:left-4 md:left-8 lg:left-16 xl:left-16 bottom-[16vh] sm:bottom-[28vh] md:bottom-[25vh] lg:bottom-[370px]">
             <img
-              src="/assets/shop2/Sweatshirt1.png"
+              src="/assets/shop2/shirt1.png"
               alt="Left Model"
-              className="w-[35vw] sm:w-[40vw] md:w-[25vw] lg:w-[20vw] xl:w-[472px] max-w-[326px] h-auto object-contain animate-shakeY"
+              className="w-[35vw] sm:w-[40vw] md:w-[25vw] lg:w-[20vw] xl:w-[377px] max-w-[377px] h-auto object-contain"
             />
           </div>
 
           {/* Right Model */}
-          <div className="absolute left-[40%] sm:left-[45%] md:left-[40%] lg:left-[40%] xl:left-[590px] bottom-[12vh] sm:bottom-[16vh] md:bottom-[10vh] lg:bottom-[100px] -translate-x-1/2">
+          <div className="absolute left-[50%] sm:left-[45%] md:left-[50%] lg:left-[55%] xl:left-[590px] bottom-[4vh] sm:bottom-[8vh] md:bottom-[10vh] lg:bottom-[100px] -translate-x-1/2">
             <img
-              src="/assets/shop2/Sweatshirt2.png"
+              src="/assets/shop2/shirt2.png"
               alt="Right Model"
-              className="w-[24vw] sm:w-[22vw] md:w-[22vw] lg:w-[18vw] xl:w-[317px] max-w-[280px] h-auto object-contain animate-leftRightFastSecond"
+              className="w-[30vw] sm:w-[32vw] md:w-[22vw] lg:w-[18vw] xl:w-[339px] max-w-[339px] h-auto object-contain animate-shakeY"
             />
           </div>
 
@@ -48,4 +48,4 @@ const SweatShirts: React.FC = () => {
   );
 };
 
-export default SweatShirts;
+export default Shirts;
