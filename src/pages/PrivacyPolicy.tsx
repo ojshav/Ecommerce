@@ -70,7 +70,7 @@ const PrivacyPolicy = () => {
           <SectionHeader id="introduction" title="Introduction" />
           <SectionContent id="introduction">
             <p className="text-gray-700">
-              Thank you for choosing our online store. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and share your information when you visit our website, use our services, or make purchases.
+              Thank you for choosing AUIN. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and share your information when you visit our website, use our services, or make purchases through AUIN's platform.
             </p>
           </SectionContent>
 
@@ -130,15 +130,15 @@ const PrivacyPolicy = () => {
               We may share your information with:
             </p>
             <ul className="list-disc pl-6 text-gray-700 mb-4 space-y-1">
-              <li>Payment processors to complete transactions</li>
-              <li>Shipping partners to deliver your orders</li>
-              <li>Service providers who help us operate our business</li>
-              <li>Marketing partners (with your consent where required)</li>
-              <li>Law enforcement when required by law</li>
+              <li>AUIN's trusted payment processors to complete transactions</li>
+              <li>AUIN's verified shipping partners to deliver your orders</li>
+              <li>Service providers who assist in operating AUIN's platform</li>
+              <li>Marketing partners (with your explicit consent)</li>
+              <li>Law enforcement when required by applicable laws</li>
             </ul>
             <div className="bg-green-50 border-l-4 border-[#FF4D00] p-4 rounded">
               <p className="text-gray-900 font-medium">
-                We do not sell your personal information to third parties.
+                AUIN does not sell your personal information to third parties.
               </p>
             </div>
           </SectionContent>
@@ -196,7 +196,13 @@ const PrivacyPolicy = () => {
               </div>
             </div>
             <p className="text-gray-700">
-              To exercise these rights, please contact us using the information provided at the end of this policy.
+              To exercise these rights or for any privacy-related inquiries, please contact us at:
+              <br />
+              Email: privacy@auin.com
+              <br />
+              Phone: 1-800-AUIN-HELP (1-800-284-6435)
+              <br />
+              Address: AUIN Headquarters, 789 Fashion Avenue, Suite 1000, New York, NY 10018
             </p>
           </SectionContent>
 
