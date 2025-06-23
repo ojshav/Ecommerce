@@ -176,7 +176,7 @@ export default function SalesReport() {
       <div className="max-w-7xl mx-auto">
         {/* Header with updated styling */}
         <div className="bg-white rounded-lg shadow-lg mb-8 p-6" style={{background: 'linear-gradient(135deg, #FF5733 0%, #FF8C33 100%)'}}>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap gap-4 justify-between items-center">
             <h1 className="text-3xl font-bold text-white">Sales Performance Report</h1>
             <div className="flex space-x-4">
               <button 
@@ -212,7 +212,7 @@ export default function SalesReport() {
         )}
 
         {/* Summary Cards with enhanced styling */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-lg border-l-4" style={{borderLeftColor: '#FF5733'}}>
             <h3 className="text-gray-500 text-sm font-medium mb-1">Total Revenue</h3>
             <div className="flex items-end">

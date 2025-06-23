@@ -341,7 +341,7 @@ const MerchantManagement: React.FC = () => {
                               setSelectedMerchant(merchant);
                               setShowApprovalModal(true);
                             }}
-                            className="bg-[#FF5733] text-white px-3 py-1 rounded hover:bg-[#FF4500] transition-colors"
+                            className="bg-[#FF5733] text-white px-3 py-2 rounded hover:bg-[#FF4500] transition-colors"
                           >
                             Approve
                           </button>
@@ -350,7 +350,7 @@ const MerchantManagement: React.FC = () => {
                               setSelectedMerchant(merchant);
                               setShowRejectionModal(true);
                             }}
-                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
+                            className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition-colors"
                           >
                             Reject
                           </button>
@@ -438,7 +438,7 @@ const MerchantManagement: React.FC = () => {
       )}
       
       {/* Summary Stats */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         <div className="bg-blue-50 p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <h4 className="font-medium text-blue-700">Pending Applications</h4>

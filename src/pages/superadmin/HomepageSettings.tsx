@@ -418,10 +418,9 @@ const HomepageSettings: React.FC = () => {
 
         return (
             <div key={category.category_id} className="mb-2">
-                <div 
-                    className={`flex items-center p-3 rounded-lg ${
-                        isSelected ? 'bg-[#FF5733] bg-opacity-10' : 'hover:bg-gray-50'
-                    }`}
+                <div
+                    className={`flex items-center p-3 rounded-lg ${isSelected ? 'bg-[#FF5733] bg-opacity-10' : 'hover:bg-gray-50'
+                        }`}
                     style={{ paddingLeft: `${level * 2 + 1}rem` }}
                 >
                     {hasSubcategories && (
@@ -432,17 +431,19 @@ const HomepageSettings: React.FC = () => {
                             {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </button>
                     )}
-                    <div className="flex items-center flex-1">
-                        {category.icon_url && (
-                            <img
-                                src={category.icon_url}
-                                alt={category.name}
-                                className="w-8 h-8 mr-3 rounded-full"
-                            />
-                        )}
-                        <div className="flex-1">
-                            <h3 className="font-medium">{category.name}</h3>
-                            <p className="text-sm text-gray-500">{category.slug}</p>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-center sm:justify-between gap-4 flex-1">
+                        <div className='flex flex-row gap-2'>
+                            {category.icon_url && (
+                                <img
+                                    src={category.icon_url}
+                                    alt={category.name}
+                                    className="w-8 h-8 mr-3 rounded-full"
+                                />
+                            )}
+                            <div className="flex-1">
+                                <h3 className="font-medium">{category.name}</h3>
+                                <p className="text-sm text-gray-500">{category.slug}</p>
+                            </div>
                         </div>
                         <label className="flex items-center space-x-2 cursor-pointer">
                             <input
@@ -535,7 +536,7 @@ const HomepageSettings: React.FC = () => {
             formData.append('type', type);
             formData.append('target_id', editingCarousel.type === 'brand' ? selectedBrand?.toString() || '1' : '1');
             formData.append('shareable_link', generateShareableLink(type, editingCarousel.type === 'brand' ? selectedBrand || 1 : 1));
-            
+
             if (selectedImage) {
                 formData.append('image', selectedImage);
             }
@@ -625,8 +626,8 @@ const HomepageSettings: React.FC = () => {
     }
 
     return (
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
+        <div className="px-4 sm:px-6 py-6">
+            <div className="flex flex-col gap-4 sm:flex-row justify-between items-start sm:items-center mb-6">
                 <h1 className="text-2xl font-bold">Homepage Settings</h1>
                 <button
                     onClick={handleSaveSettings}
@@ -692,7 +693,7 @@ const HomepageSettings: React.FC = () => {
                     <div className="space-y-4">
                         {/* Image size suggestion for Brand Carousel */}
                         <div className="mb-2 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded text-sm text-yellow-800">
-                            <strong>Suggestion:</strong> For your Brand Carousel, use images that are at least <b>1920 x 450 px</b> or larger, with a wide aspect ratio (16:9, 21:9, or wider). 
+                            <strong>Suggestion:</strong> For your Brand Carousel, use images that are at least <b>1920 x 450 px</b> or larger, with a wide aspect ratio (16:9, 21:9, or wider).
                         </div>
                         <div className="flex items-center space-x-4">
                             <label className="flex-1">
@@ -794,7 +795,7 @@ const HomepageSettings: React.FC = () => {
                     <div className="space-y-4">
                         {/* Image size suggestion for Product Carousel */}
                         <div className="mb-2 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded text-sm text-yellow-800">
-                            <strong>Suggestion:</strong> For your Product Group Carousel, use images that are at least <b>1920 x 450 px</b> or larger, with a wide aspect ratio (16:9, 21:9, or wider). 
+                            <strong>Suggestion:</strong> For your Product Group Carousel, use images that are at least <b>1920 x 450 px</b> or larger, with a wide aspect ratio (16:9, 21:9, or wider).
                         </div>
                         <div className="flex items-center space-x-4">
                             <label className="flex-1">
@@ -856,8 +857,8 @@ const HomepageSettings: React.FC = () => {
                         <div className="mt-4 space-y-2">
                             {productCarousel.map((item) => {
                                 const groupName = item.type === 'promo' ? 'Promo Products' :
-                                                item.type === 'new' ? 'New Products' :
-                                                item.type === 'featured' ? 'Featured Products' : '';
+                                    item.type === 'new' ? 'New Products' :
+                                        item.type === 'featured' ? 'Featured Products' : '';
                                 return (
                                     <div key={item.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                                         <div className="flex items-center space-x-2">

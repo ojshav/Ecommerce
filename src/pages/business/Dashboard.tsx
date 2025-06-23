@@ -357,7 +357,7 @@ const Dashboard: React.FC = () => {
             key={stat.name}
             className="bg-white rounded-lg shadow-sm p-5 border border-gray-200 hover:border-orange-300 transition-colors"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col-reverse sm:flex-row md:flex-col-reverse xl:flex-row items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-gray-500">{stat.name}</p>
                 <p className="mt-1 text-2xl font-semibold text-gray-900">{stat.value}</p>

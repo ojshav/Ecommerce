@@ -140,7 +140,7 @@ const ProductsReport = () => {
   return (
     <div className="p-6 space-y-6">
       {/* Header with date range */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap gap-4 justify-between items-center">
         <h1 className="text-2xl font-semibold text-black">Products Report</h1>
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:border-[#FF4D00] transition-colors">

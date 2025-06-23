@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Heart, Facebook, Instagram, Twitter, Mail, LogOut, User, ChevronDown, Menu, X, Gift } from 'lucide-react';
+import { ShoppingCart, Heart, Facebook, Instagram, Twitter, Mail, LogOut, User, ChevronDown, Menu, X, Gift, Sparkles } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import CategoryDropdown from '../home/CategoryDropdown';
@@ -27,6 +27,7 @@ const Navbar: React.FC = () => {
   const [searchType, setSearchType] = useState<'all' | 'products' | 'categories'>('all');
   const location = useLocation();
   const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
+  const [showPromoBar, setShowPromoBar] = useState(true);
   const [isSpinWheelOpen, setIsSpinWheelOpen] = useState(false);
 
   const desktopSearchRef = useRef<HTMLDivElement>(null);
@@ -267,8 +268,40 @@ const Navbar: React.FC = () => {
             75% { background-color: #8B4CCE; }
             100% { background-color: #F2631F; }
           }
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+          }
         `}
       </style>
+
+      {/* Promotional Bar */}
+      {showPromoBar && (
+        <div className="bg-gradient-to-r from-[#F2631F] via-orange-500 to-[#F2631F] text-white py-2 px-4 relative overflow-hidden">
+          <div className="container mx-auto flex items-center justify-center relative">
+            <div className="flex items-center space-x-2 animate-pulse">
+              <Sparkles className="w-4 h-4 text-yellow-300" />
+              <span className="font-['Work_Sans'] font-semibold text-sm md:text-base">
+                🎮 Play Games & Win Up to 20% OFF! 
+              </span>
+              <Gift className="w-4 h-4 text-yellow-300" />
+            </div>
+            <Link
+              to="/games"
+              className="ml-4 bg-white text-[#F2631F] px-3 py-1 rounded-full text-xs md:text-sm font-['Work_Sans'] font-bold hover:bg-gray-100 transition-colors"
+            >
+              PLAY NOW
+            </Link>
+            <button
+              onClick={() => setShowPromoBar(false)}
+              className="absolute right-4 text-white hover:text-gray-200 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Top navigation - black bar */}
       <div className="bg-black text-white pb-2 md:pb-3 lg:pb-4">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 2xl:px-6 3xl:px-8 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px] 2xl:max-w-[1440px] 3xl:max-w-[1680px] 4xl:max-w-[1920px]">
