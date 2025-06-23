@@ -445,7 +445,7 @@ const SuperAdminLayout = () => {
                     }
                     transition-all duration-200
                   `}
-
+                >
                   <ChartBarIcon className={`w-5 h-5 ${isCategoryActive("Dashboard") ? '' : 'text-gray-500'} mr-3`} />
                   <span className="font-medium">Dashboard</span>
                 </button>
