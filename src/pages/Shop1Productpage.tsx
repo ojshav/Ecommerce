@@ -3,6 +3,9 @@ import '../styles/globals.css';
 import Header from '../components/shop/shop1/Header';
 import Hero from '../components/shop/shop1/Productpage/Hero';
 import FashionCardsSection from '../components/shop/shop1/Productpage/FashionCardsSection';
+import RatingsReviews from '../components/shop/shop1/Productpage/Rating';
+import SimilarProducts from '../components/shop/shop1/Productpage/SimilarProducts';
+import InstagramPromo from '../components/shop/shop1/Productpage/InstagramPromo';
 
 function Shop1LandingPage() {
   React.useEffect(() => {
@@ -18,6 +21,9 @@ function Shop1LandingPage() {
       
         <Hero />
         <FashionCardsSection />
+        <RatingsReviews />
+        <SimilarProducts />
+        <InstagramPromo />
     </div>  
   );
 }

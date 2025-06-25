@@ -108,6 +108,8 @@ export default {
         bebas: ['Bebas Neue', 'sans-serif'],
         montserrat: ['Montserrat', 'sans-serif'],
         archivio: ['Archivio', 'sans-serif'],
+        bebas: ['Bebas Neue', 'sans-serif'],
+        gilroy: ['Gilroy', 'sans-serif'],
       },
       fontSize: {
         display: ['96px', { lineHeight: '90px' }],

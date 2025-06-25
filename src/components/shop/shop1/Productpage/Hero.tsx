@@ -75,7 +75,7 @@ const Hero: React.FC = () => {
         {/* LEFT: Product Info */}
         <div className="flex-1 min-w-[220px]">
           {/* Product Name */}
-          <h2 className="text-[36px] font-serif font-semibold text-black">
+          <h2 className="text-[42px] font-playfair font-semibold text-black">
             NADETTA COAT <span className="italic font-normal text-gray-800">Beige</span>
           </h2>
 
@@ -183,7 +183,7 @@ const Hero: React.FC = () => {
 <div className="w-full mt-20 flex flex-col lg:flex-row justify-between gap-10">
   {/* Left - Description List */}
   <div className="flex-1">
-    <h3 className="text-[32px] font-bold text-black mb-6">
+    <h3 className="text-[32px] font-playfair font-bold text-black mb-6">
       Product <span className="italic font-normal">Details</span>
     </h3>
     <ul className="space-y-4">
@@ -226,7 +226,7 @@ const Hero: React.FC = () => {
     </div>
 
     {/* Measurement Table */}
-    <div className="grid grid-cols-2 gap-y-3 gap-x-4 mt-10 text-[16px]">
+    <div className="grid grid-cols-2 font-archivio gap-y-3 gap-x-4 mt-10 text-[16px]">
       <div className="font-semibold text-black">Shoulder</div>
       <div className="text-gray-500">50cm /19.75 in</div>
 

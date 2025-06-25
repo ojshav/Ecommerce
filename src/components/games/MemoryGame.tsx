@@ -171,7 +171,7 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ onWin, onBack }) => {
   }, [gameWon, wonPrize]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center font-['Work_Sans'] bg-gradient-to-br from-orange-50 via-white to-orange-100 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center font-['Work_Sans'] bg-gradient-to-br from-orange-50 via-white to-orange-100 relative overflow-hidden px-4 py-6">
       {/* Floating confetti background (SVGs) */}
       <svg className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-10 z-0" xmlns="http://www.w3.org/2000/svg">
         <circle cx="10%" cy="20%" r="30" fill="#F2631F" />
@@ -195,12 +195,12 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ onWin, onBack }) => {
       )}
       {/* Out of Moves Modal */}
       {outOfMoves && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="relative bg-gradient-to-br from-white via-orange-50 to-orange-100 rounded-3xl shadow-2xl p-8 max-w-sm w-full border-4 border-yellow-300 animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
+          <div className="relative bg-gradient-to-br from-white via-orange-50 to-orange-100 rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-sm border-4 border-yellow-300 animate-fadeIn">
             <div className="flex flex-col items-center">
-              <span className="text-5xl mb-2">⏳</span>
-              <h2 className="text-2xl font-bold text-yellow-700 mb-2 font-['Work_Sans']">Your Moves Are Over!</h2>
-              <p className="text-gray-700 mb-4 font-['Work_Sans']">You have used all your moves. Try again to win a promo code!</p>
+              <span className="text-4xl sm:text-5xl mb-2">⏳</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-yellow-700 mb-2 font-['Work_Sans'] text-center">Your Moves Are Over!</h2>
+              <p className="text-gray-700 mb-4 font-['Work_Sans'] text-sm sm:text-base text-center">You have used all your moves. Try again to win a promo code!</p>
               <button
                 onClick={initializeGame}
                 className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold shadow hover:from-yellow-500 hover:to-orange-600 transition-all font-['Work_Sans'] mb-2 mt-2"
@@ -219,17 +219,17 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ onWin, onBack }) => {
           </div>
         </div>
       )}
-      <div className="bg-white/70 backdrop-blur-lg rounded-3xl p-8 shadow-2xl max-w-xl w-full mx-4 border border-orange-100 z-10 relative" style={{ animation: 'fadeInBoard 0.7s cubic-bezier(.4,0,.2,1) both' }}>
+      <div className="bg-white/70 backdrop-blur-lg rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl w-full max-w-xl mx-auto border border-orange-100 z-10 relative" style={{ animation: 'fadeInBoard 0.7s cubic-bezier(.4,0,.2,1) both' }}>
         {/* Reset Button */}
         <button
           onClick={initializeGame}
           title="Reset Game"
-          className="absolute top-7 right-[270px] z-20 w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-lg hover:from-orange-500 hover:to-orange-700 transition-all focus:outline-none focus:ring-2 focus:ring-orange-300"
+          className="absolute top-4 sm:top-7 right-4 sm:right-8 lg:right-[270px] z-20 w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-lg hover:from-orange-500 hover:to-orange-700 transition-all focus:outline-none focus:ring-2 focus:ring-orange-300"
         >
           <RefreshCw className="w-5 h-5" />
         </button>
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <button
             onClick={onBack}
             className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors font-['Work_Sans'] text-sm"
@@ -237,24 +237,24 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ onWin, onBack }) => {
             <ArrowLeft className="w-5 h-5" />
             <span className="hidden sm:inline">Back to Games</span>
           </button>
-          <h1 className="text-2xl font-extrabold text-orange-700 font-['Work_Sans'] tracking-tight drop-shadow-sm">Memory Match</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-orange-700 font-['Work_Sans'] tracking-tight drop-shadow-sm">Memory Match</h1>
         </div>
 
         {/* Game Stats */}
-        <div className="flex justify-between items-center mb-4 gap-1 text-xs">
-          <div className="flex-1 flex items-center justify-center">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2 sm:gap-1 text-xs">
+          <div className="w-full sm:flex-1 flex items-center justify-center">
             <div className="bg-white/60 backdrop-blur rounded-full px-3 py-1 shadow border border-orange-100 flex items-center gap-1">
               <span className="text-orange-500 text-base">🔢</span>
               <span className="text-orange-800 font-semibold">Moves: {moves}</span>
             </div>
           </div>
-          <div className="flex-1 flex items-center justify-center">
+          <div className="w-full sm:flex-1 flex items-center justify-center">
             <div className="bg-white/60 backdrop-blur rounded-full px-3 py-1 shadow border border-yellow-100 flex items-center gap-1">
               <span className="text-yellow-500 text-base">🧩</span>
               <span className="text-yellow-800 font-semibold">Pairs: {matchedPairs}/{emojis.length}</span>
             </div>
           </div>
-          <div className="flex-1 flex items-center justify-center">
+          <div className="w-full sm:flex-1 flex items-center justify-center">
             <div className={`bg-white/60 backdrop-blur rounded-full px-3 py-1 shadow border ${moves > MOVE_LIMIT ? 'border-red-200' : 'border-orange-100'} flex items-center gap-1`}>
               <span className="text-orange-500 text-base">⏳</span>
               <span className={`font-semibold ${moves > MOVE_LIMIT ? 'text-red-600' : 'text-orange-800'}`}>Moves Left: {Math.max(0, MOVE_LIMIT - moves)}</span>
@@ -263,67 +263,69 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ onWin, onBack }) => {
         </div>
 
         {/* Game Board */}
-        <div className="grid grid-cols-4 gap-2 mb-8 mt-8 ml-12" style={{ animation: 'fadeInBoard 0.8s 0.2s both' }}>
-          {cards.map((card, idx) => (
-            <div
-              key={card.id}
-              onClick={() => handleCardClick(card.id)}
-              className={`aspect-square rounded-xl cursor-pointer transition-all duration-300 transform shadow-md relative group perspective-1000
-                ${!canFlip && !card.isFlipped && !card.isMatched ? 'pointer-events-none' : ''}
-                ${card.isMatched ? 'animate-[cardPulse_0.7s]' : ''}`}
-              style={{
-                perspective: 1000,
-                width: 56,
-                height: 56,
-                minWidth: 56,
-                minHeight: 56,
-                maxWidth: 64,
-                maxHeight: 64,
-                animation: `fadeInBoard 0.7s ${0.2 + idx * 0.03}s both`
-              }}
-            >
+        <div className="flex justify-center mb-6 sm:mb-8 mt-6 sm:mt-8">
+          <div className="grid grid-cols-4 gap-1 sm:gap-2" style={{ animation: 'fadeInBoard 0.8s 0.2s both' }}>
+            {cards.map((card, idx) => (
               <div
-                className={`relative w-full h-full transition-transform duration-500 transform-style-preserve-3d ${
-                  card.isFlipped || card.isMatched ? 'rotate-y-180' : ''
-                } group-hover:scale-105 group-hover:shadow-lg`}
+                key={card.id}
+                onClick={() => handleCardClick(card.id)}
+                className={`aspect-square rounded-xl cursor-pointer transition-all duration-300 transform shadow-md relative group perspective-1000
+                  ${!canFlip && !card.isFlipped && !card.isMatched ? 'pointer-events-none' : ''}
+                  ${card.isMatched ? 'animate-[cardPulse_0.7s]' : ''}`}
                 style={{
-                  transform: (card.isFlipped || card.isMatched)
-                    ? 'rotateY(180deg)'
-                    : 'rotateY(0deg)',
-                  transformStyle: 'preserve-3d',
-                  animation: card.isFlipped && !card.isMatched ? 'cardFlip 0.5s' : undefined
+                  perspective: 1000,
+                  width: 'clamp(48px, 12vw, 64px)',
+                  height: 'clamp(48px, 12vw, 64px)',
+                  minWidth: 48,
+                  minHeight: 48,
+                  maxWidth: 64,
+                  maxHeight: 64,
+                  animation: `fadeInBoard 0.7s ${0.2 + idx * 0.03}s both`
                 }}
               >
-                {/* Card Back (Question Mark) */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white text-xl font-bold font-['Work_Sans'] backface-hidden" style={{ backfaceVisibility: 'hidden' }}>
-                  ❓
-                </div>
-                {/* Card Front (Emoji) */}
-                <div className="absolute inset-0 rounded-xl bg-white/80 border-2 border-orange-200 flex items-center justify-center text-2xl font-extrabold font-['Work_Sans'] backface-hidden" style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
-                  {card.emoji}
+                <div
+                  className={`relative w-full h-full transition-transform duration-500 transform-style-preserve-3d ${
+                    card.isFlipped || card.isMatched ? 'rotate-y-180' : ''
+                  } group-hover:scale-105 group-hover:shadow-lg`}
+                  style={{
+                    transform: (card.isFlipped || card.isMatched)
+                      ? 'rotateY(180deg)'
+                      : 'rotateY(0deg)',
+                    transformStyle: 'preserve-3d',
+                    animation: card.isFlipped && !card.isMatched ? 'cardFlip 0.5s' : undefined
+                  }}
+                >
+                  {/* Card Back (Question Mark) */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center text-white text-lg sm:text-xl font-bold font-['Work_Sans'] backface-hidden" style={{ backfaceVisibility: 'hidden' }}>
+                    ❓
+                  </div>
+                  {/* Card Front (Emoji) */}
+                  <div className="absolute inset-0 rounded-xl bg-white/80 border-2 border-orange-200 flex items-center justify-center text-xl sm:text-2xl font-extrabold font-['Work_Sans'] backface-hidden" style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
+                    {card.emoji}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Controls & Win Modal */}
         <div className="text-center space-y-4">
           {gameWon ? (
             wonPrize ? (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                <div className="relative bg-gradient-to-br from-white via-orange-50 to-orange-100 rounded-3xl shadow-2xl p-8 max-w-sm w-full border-4 border-orange-200 animate-fadeIn">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
+                <div className="relative bg-gradient-to-br from-white via-orange-50 to-orange-100 rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-sm border-4 border-orange-200 animate-fadeIn">
                   <div className="flex flex-col items-center">
-                    <span className="text-5xl mb-2 animate-bounce">🎉</span>
-                    <h2 className="text-2xl font-bold text-orange-700 mb-2 font-['Work_Sans']">Congratulations!</h2>
-                    <p className="text-gray-700 mb-4 font-['Work_Sans']">You've completed the memory game and won:</p>
+                    <span className="text-4xl sm:text-5xl mb-2 animate-bounce">🎉</span>
+                    <h2 className="text-xl sm:text-2xl font-bold text-orange-700 mb-2 font-['Work_Sans'] text-center">Congratulations!</h2>
+                    <p className="text-gray-700 mb-4 font-['Work_Sans'] text-sm sm:text-base text-center">You've completed the memory game and won:</p>
                     <div className="bg-white rounded-xl shadow p-4 mb-4 w-full text-center border border-orange-200">
-                      <div className="text-3xl font-extrabold text-orange-600 mb-1 font-['Work_Sans']">{wonPrize.discount}% OFF</div>
-                      <div className="text-lg font-semibold text-gray-800 mb-1 font-['Work_Sans']">Code: <span className="bg-orange-100 px-2 py-1 rounded font-mono text-orange-700">{wonPrize.code}</span></div>
-                      <div className="text-sm text-gray-600 mb-2 font-['Work_Sans']">{wonPrize.description}</div>
+                      <div className="text-2xl sm:text-3xl font-extrabold text-orange-600 mb-1 font-['Work_Sans']">{wonPrize.discount}% OFF</div>
+                      <div className="text-base sm:text-lg font-semibold text-gray-800 mb-1 font-['Work_Sans']">Code: <span className="bg-orange-100 px-2 py-1 rounded font-mono text-orange-700 text-sm sm:text-base">{wonPrize.code}</span></div>
+                      <div className="text-xs sm:text-sm text-gray-600 mb-2 font-['Work_Sans']">{wonPrize.description}</div>
                       <button
                         onClick={handleCopy}
-                        className="mt-2 px-4 py-2 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-lg font-semibold shadow hover:from-orange-500 hover:to-orange-700 transition-all font-['Work_Sans']"
+                        className="mt-2 px-4 py-2 bg-gradient-to-r from-orange-400 to-orange-600 text-white rounded-lg font-semibold shadow hover:from-orange-500 hover:to-orange-700 transition-all font-['Work_Sans'] text-sm sm:text-base"
                       >
                         {copySuccess ? 'Copied!' : 'Copy Code'}
                       </button>
@@ -346,12 +348,12 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ onWin, onBack }) => {
                 </div>
               </div>
             ) : (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                <div className="relative bg-gradient-to-br from-white via-orange-50 to-orange-100 rounded-3xl shadow-2xl p-8 max-w-sm w-full border-4 border-red-200 animate-fadeIn">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
+                <div className="relative bg-gradient-to-br from-white via-orange-50 to-orange-100 rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-sm border-4 border-red-200 animate-fadeIn">
                   <div className="flex flex-col items-center">
-                    <span className="text-5xl mb-2">😅</span>
-                    <h2 className="text-2xl font-bold text-red-700 mb-2 font-['Work_Sans']">No Prize This Time</h2>
-                    <p className="text-gray-700 mb-4 font-['Work_Sans']">You exceeded the move limit of {MOVE_LIMIT}. Try again to win a promo code!</p>
+                    <span className="text-4xl sm:text-5xl mb-2">😅</span>
+                    <h2 className="text-xl sm:text-2xl font-bold text-red-700 mb-2 font-['Work_Sans'] text-center">No Prize This Time</h2>
+                    <p className="text-gray-700 mb-4 font-['Work_Sans'] text-sm sm:text-base text-center">You exceeded the move limit of {MOVE_LIMIT}. Try again to win a promo code!</p>
                     <button
                       onClick={initializeGame}
                       className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-red-400 to-orange-500 text-white font-semibold shadow hover:from-red-500 hover:to-orange-600 transition-all font-['Work_Sans'] mb-2 mt-2"
@@ -375,10 +377,10 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ onWin, onBack }) => {
 
         {/* Instructions */}
         <div className="mt-4 p-3 bg-white/60 rounded-xl font-['Work_Sans'] shadow border border-orange-100 text-xs">
-          <h3 className="font-semibold text-orange-700 mb-2 font-['Work_Sans'] flex items-center gap-2 text-base">
-            <span className="inline-block text-xl">📝</span> Game Rules:
+          <h3 className="font-semibold text-orange-700 mb-2 font-['Work_Sans'] flex items-center gap-2 text-sm sm:text-base">
+            <span className="inline-block text-lg sm:text-xl">📝</span> Game Rules:
           </h3>
-          <ul className="text-sm text-gray-700 space-y-2 font-['Work_Sans']">
+          <ul className="text-xs sm:text-sm text-gray-700 space-y-1 sm:space-y-2 font-['Work_Sans']">
             <li className="flex items-center gap-2"><span className="text-orange-500">🃏</span> Click cards to flip them</li>
             <li className="flex items-center gap-2"><span className="text-orange-500">🔍</span> Find matching pairs of emojis</li>
             <li className="flex items-center gap-2"><span className="text-orange-500">🏆</span> Complete all pairs to win</li>
