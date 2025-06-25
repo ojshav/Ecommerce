@@ -120,6 +120,7 @@ import Aoinlive from './pages/business/Aoinlive';
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
 const BusinessProducts = lazy(() => import('./pages/business/catalog/Products'));
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
+const BusinessOrderDetail = lazy(() => import('./pages/business/OrderDetail'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
 const Verification = lazy(() => import('./pages/business/Verification'));
 const ProductPlacements = lazy(() => import('./pages/business/ProductPlacements'));
@@ -273,6 +274,14 @@ const App: React.FC = () => {
                         element={
                           <Suspense fallback={<LoadingFallback />}>
                             <BusinessOrders />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="orders/:orderId"
+                        element={
+                          <Suspense fallback={<LoadingFallback />}>
+                            <BusinessOrderDetail />
                           </Suspense>
                         }
                       />

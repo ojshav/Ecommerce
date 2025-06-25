@@ -164,7 +164,7 @@ const Hero: React.FC = () => {
           <div className="bg-gradient-to-r from-purple-500 to-orange-400 rounded-lg overflow-hidden relative h-[367px]">
             <div className="absolute inset-0 flex flex-col justify-center items-center">
               <div className="w-full h-full relative">
-                <img
+              <img
                   src={current.image_url}
                   alt="Carousel"
                   className="w-full h-full object-cover rounded-lg"
