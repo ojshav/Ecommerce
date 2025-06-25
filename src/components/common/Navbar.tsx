@@ -7,7 +7,6 @@ import CategoryDropdown from '../home/CategoryDropdown';
 import SearchResults from './SearchResults';
 import useClickOutside from '../../hooks/useClickOutside';
 import LogoutConfirmationPopup from '../LogoutConfirmationPopup';
-import SpinWheel from '../promotional/SpinWheel';
 import toast from 'react-hot-toast';
 import '@fontsource/work-sans';
 
@@ -28,7 +27,6 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
   const [showPromoBar, setShowPromoBar] = useState(true);
-  const [isSpinWheelOpen, setIsSpinWheelOpen] = useState(false);
 
   const desktopSearchRef = useRef<HTMLDivElement>(null);
   const mobileSearchRef = useRef<HTMLDivElement>(null);
@@ -132,34 +130,6 @@ const Navbar: React.FC = () => {
       setShowSearchResults(false);
       setSearchQuery('');
     }
-  };
-
-  const spinWheelSegments = [
-    { id: '1', label: '10% OFF', value: 'SAVE10', color: '#FF6B6B', probability: 30 },
-    { id: '2', label: '20% OFF', value: 'SAVE20', color: '#4ECDC4', probability: 25 },
-    { id: '3', label: '30% OFF', value: 'SAVE30', color: '#45B7D1', probability: 20 },
-    { id: '4', label: '40% OFF', value: 'SAVE40', color: '#96CEB4', probability: 15 },
-    { id: '5', label: '50% OFF', value: 'SAVE50', color: '#FFEEAD', probability: 5 },
-    { id: '6', label: 'FREE SHIP', value: 'FREESHIP', color: '#D4A5A5', probability: 5 },
-  ];
-
-  const handleSpinComplete = (segment: { label: string; value: string }) => {
-    toast.success(
-      <div className="text-center">
-        <p className="font-bold">🎉 Congratulations! 🎉</p>
-        <p>You won {segment.label}!</p>
-        <p className="mt-2">Use code: <span className="font-bold">{segment.value}</span></p>
-      </div>,
-      {
-        duration: 5000,
-        style: {
-          background: '#FFEDD5',
-          color: '#EA580C',
-          padding: '16px',
-        },
-      }
-    );
-    setIsSpinWheelOpen(false);
   };
 
   const searchBarContent = (
@@ -275,33 +245,6 @@ const Navbar: React.FC = () => {
         `}
       </style>
 
-      {/* Promotional Bar */}
-      {showPromoBar && (
-        <div className="bg-gradient-to-r from-[#F2631F] via-orange-500 to-[#F2631F] text-white py-2 px-4 relative overflow-hidden">
-          <div className="container mx-auto flex items-center justify-center relative">
-            <div className="flex items-center space-x-2 animate-pulse">
-              <Sparkles className="w-4 h-4 text-yellow-300" />
-              <span className="font-['Work_Sans'] font-semibold text-sm md:text-base">
-                🎮 Play Games & Win Up to 20% OFF! 
-              </span>
-              <Gift className="w-4 h-4 text-yellow-300" />
-            </div>
-            <Link
-              to="/games"
-              className="ml-4 bg-white text-[#F2631F] px-3 py-1 rounded-full text-xs md:text-sm font-['Work_Sans'] font-bold hover:bg-gray-100 transition-colors"
-            >
-              PLAY NOW
-            </Link>
-            <button
-              onClick={() => setShowPromoBar(false)}
-              className="absolute right-4 text-white hover:text-gray-200 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Top navigation - black bar */}
       <div className="bg-black text-white pb-2 md:pb-3 lg:pb-4">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 2xl:px-6 3xl:px-8 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px] 2xl:max-w-[1440px] 3xl:max-w-[1680px] 4xl:max-w-[1920px]">
@@ -361,14 +304,6 @@ const Navbar: React.FC = () => {
 
                   {/* Icons */}
                   <div className="flex items-center gap-2 nav:gap-3 mid:gap-4">
-                    <button
-                      onClick={() => setIsSpinWheelOpen(true)}
-                      className="flex items-center gap-2 text-white hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
-                      title="Spin & Win Offers!"
-                    >
-                      <Gift className="w-5 h-5" />
-                      <span className="hidden md:inline">Spin & Win</span>
-                    </button>
 
                     <Link to="/wishlist" className="text-white hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <Heart className="w-5 h-5" />
@@ -626,6 +561,47 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
+      {/* Promotional Bar */}
+      {showPromoBar && (
+        <div className="relative z-50 animate-slideDown w-full">
+          <div className="backdrop-blur bg-gradient-to-r from-white/80 via-orange-50 to-orange-100/80 border border-orange-200/60 rounded-b-md mx-auto px-2 py-0.5 flex items-center justify-center gap-1 max-w-full mt-0 mb-0 min-h-0">
+            <span className="flex items-center gap-1 text-orange-600 font-bold text-xs md:text-sm">
+              <Gift className="w-4 h-4 animate-bounce-slow text-yellow-400 mr-0.5" />
+              <span className="font-worksans text-sm hidden sm:inline">Play & Win</span>
+              <span className="font-worksans text-sm inline sm:hidden">20% OFF!</span>
+            </span>
+            <span className="text-gray-800 font-medium text-xs md:text-sm mx-1">
+              🎮 <span className="text-orange-600 font-bold">20% OFF</span>
+            </span>
+            <Link
+              to="/games"
+              className="ml-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-1 rounded-full font-semibold text-xs font-worksans hover:scale-105 transition-transform border border-orange-300"
+            >
+              PLAY
+            </Link>
+            <button
+              onClick={() => setShowPromoBar(false)}
+              className="absolute right-1 top-1/2 -translate-y-1/2 text-orange-400 hover:text-orange-600 bg-white/60 rounded-full p-0.5 transition-colors border border-orange-100"
+              aria-label="Close promo bar"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <style>{`
+            @keyframes slideDown {
+              0% { transform: translateY(-100%); opacity: 0; }
+              100% { transform: translateY(0); opacity: 1; }
+            }
+            .animate-slideDown { animation: slideDown 0.7s cubic-bezier(.4,0,.2,1) both; }
+            .animate-bounce-slow { animation: bounce 2.2s infinite; }
+            @keyframes bounce {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-3px); }
+            }
+          `}</style>
+        </div>
+      )}
+
       {/* Category dropdown - for desktop */}
       {isCategoryDropdownOpen && !mobileMenuOpen && !lowerMobileMenuOpen && (
         <div ref={categoryDropdownRef} className="z-40">
@@ -641,14 +617,6 @@ const Navbar: React.FC = () => {
         isOpen={isLogoutPopupOpen}
         onClose={() => setIsLogoutPopupOpen(false)}
         onConfirm={handleLogoutConfirm}
-      />
-
-      {/* Add SpinWheel component */}
-      <SpinWheel
-        segments={spinWheelSegments}
-        isOpen={isSpinWheelOpen}
-        onClose={() => setIsSpinWheelOpen(false)}
-        onSpinComplete={handleSpinComplete}
       />
     </header>
   );
