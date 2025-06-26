@@ -1,6 +1,6 @@
 import React from 'react';
 import { ShoppingBag } from 'lucide-react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const FreshOffRunway = () => {
   const products = [
@@ -67,11 +67,13 @@ const FreshOffRunway = () => {
             <div key={product.id} className="group cursor-pointer">
              
               <div className="relative overflow-hidden mb-6">
-              <img
-  src={product.image}
-  alt={product.name}
-  className="w-[413px] h-[370px] object-cover group-hover:scale-105 transition-transform duration-300"
-/>
+                <Link to="/shop1-productpage">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-[413px] h-[370px] object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </Link>
 
                 
                 

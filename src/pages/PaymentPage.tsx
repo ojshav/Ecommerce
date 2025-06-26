@@ -482,9 +482,13 @@ const PaymentPage: React.FC = () => {
         unit_price_at_purchase: item.product.price.toString(),
         item_subtotal_amount: (item.product.price * item.quantity).toString(),
         final_price_for_item: (item.product.price * item.quantity).toString(),
+<<<<<<< master
         item_discount_inclusive: (
           itemDiscounts[item.product_id] || 0
         ).toString(), // NEW: item-specific discount
+=======
+        selected_attributes: item.selected_attributes || {}
+>>>>>>> master
       })),
       subtotal_amount: subtotal.toString(),
       discount_amount: "0.00", // Set to 0 since discounts are now item-specific

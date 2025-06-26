@@ -227,7 +227,7 @@ const UserSupportAdminPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className=" px-4 sm:px-6 py-6 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">User Support Tickets</h1>
          <button onClick={() => fetchTickets(1)} className="p-2 rounded-md hover:bg-gray-100 text-gray-600" title="Refresh Tickets">
@@ -238,7 +238,7 @@ const UserSupportAdminPage: React.FC = () => {
       {/* Filters (Similar to Merchant Support) */}
       <div className="mb-6 p-4 bg-white rounded-lg shadow grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
             type="text"
             placeholder="Search UID, title, user..."

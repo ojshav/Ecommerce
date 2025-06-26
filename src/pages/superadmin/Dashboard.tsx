@@ -524,11 +524,11 @@ const Dashboard = () => {
             <p className="text-gray-600 mt-1">Overview of platform performance and key metrics</p>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-center gap-3">
             <select 
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
-              className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              className="w-full sm:w-fit bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             >
               <option value="1month">Last Month</option>
               <option value="3months">Last 3 Months</option>
@@ -538,7 +538,7 @@ const Dashboard = () => {
             
             <button 
               onClick={refreshData}
-              className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
+              className="w-full sm:w-fit bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
             >
               <Activity className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               Refresh

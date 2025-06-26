@@ -9,11 +9,9 @@ interface ProfileData {
   business_name: string;
   business_email: string;
   business_phone: string;
-  business_address: string;
 }
 
 interface AccountData {
-  username: string;
   email: string;
   phone: string;
   is_email_verified: boolean;
@@ -25,16 +23,22 @@ interface BankAccountData {
   account_number: string;
   bank_name: string;
   branch_name: string;
-  routing_number: string;
-  swift_code: string;
+  ifsc_code: string;
 }
 
-interface VerificationData {
-  email_code: string;
-  phone_code: string;
+interface UserInfo {
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  role: string;
+  is_email_verified: boolean;
+  is_phone_verified: boolean;
+  is_active: boolean;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
 
 const Settings: React.FC = () => {
   const { accessToken, user } = useAuth();
@@ -49,13 +53,11 @@ const Settings: React.FC = () => {
     last_name: '',
     business_name: '',
     business_email: '',
-    business_phone: '',
-    business_address: ''
+    business_phone: ''
   });
 
   // Account form state
   const [accountData, setAccountData] = useState<AccountData>({
-    username: '',
     email: '',
     phone: '',
     is_email_verified: false,
@@ -68,9 +70,11 @@ const Settings: React.FC = () => {
     account_number: '',
     bank_name: '',
     branch_name: '',
-    routing_number: '',
-    swift_code: ''
+    ifsc_code: ''
   });
+
+  // User info state
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
   // Password form state
   const [passwordData, setPasswordData] = useState({
@@ -84,71 +88,65 @@ const Settings: React.FC = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Verification states
-  const [verificationData, setVerificationData] = useState<VerificationData>({
-    email_code: '',
-    phone_code: ''
-  });
-  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
-  const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
-  const [showEmailVerification, setShowEmailVerification] = useState(false);
-  const [showPhoneVerification, setShowPhoneVerification] = useState(false);
-  const [isSendingCode, setIsSendingCode] = useState(false);
-
   // Fetch profile and account data
   useEffect(() => {
     const fetchData = async () => {
       if (!accessToken) return;
       
       try {
-        // Fetch profile data
-        const profileResponse = await fetch(`${API_BASE_URL}/api/auth/merchant/profile`, {
+        // Fetch user info
+        const userInfoResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/user-info`, {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         });
         
-        if (!profileResponse.ok) throw new Error('Failed to fetch profile');
-        
-        const profileData = await profileResponse.json();
-        setProfileData({
-          first_name: profileData.first_name || '',
-          last_name: profileData.last_name || '',
-          business_name: profileData.business_name || '',
-          business_email: profileData.business_email || '',
-          business_phone: profileData.business_phone || '',
-          business_address: profileData.business_address || ''
-        });
+        if (userInfoResponse.ok) {
+          const userInfoData = await userInfoResponse.json();
+          setUserInfo(userInfoData);
+          
+          // Set profile data from user info
+          setProfileData(prev => ({
+            ...prev,
+            first_name: userInfoData.first_name || '',
+            last_name: userInfoData.last_name || '',
+            business_email: userInfoData.email || '',
+            business_phone: userInfoData.phone || ''
+          }));
 
-        // Fetch account data
-        const accountResponse = await fetch(`${API_BASE_URL}/api/auth/merchant/account`, {
-          headers: { 'Authorization': `Bearer ${accessToken}` }
-        });
-
-        if (!accountResponse.ok) throw new Error('Failed to fetch account details');
-
-        const accountData = await accountResponse.json();
-        setAccountData({
-          username: accountData.username || '',
-          email: accountData.email || '',
-          phone: accountData.phone || '',
-          is_email_verified: accountData.is_email_verified || false,
-          is_phone_verified: accountData.is_phone_verified || false
-        });
-
-        // Fetch bank account data
-        const bankAccountResponse = await fetch(`${API_BASE_URL}/api/auth/merchant/bank-account`, {
-          headers: { 'Authorization': `Bearer ${accessToken}` }
-        });
-
-        if (bankAccountResponse.ok) {
-          const bankData = await bankAccountResponse.json();
-          setBankAccountData({
-            account_name: bankData.account_name || '',
-            account_number: bankData.account_number || '',
-            bank_name: bankData.bank_name || '',
-            branch_name: bankData.branch_name || '',
-            routing_number: bankData.routing_number || '',
-            swift_code: bankData.swift_code || ''
+          // Set account data from user info
+          setAccountData({
+            email: userInfoData.email || '',
+            phone: userInfoData.phone || '',
+            is_email_verified: userInfoData.is_email_verified || false,
+            is_phone_verified: userInfoData.is_phone_verified || false
           });
+        }
+
+        // Fetch account settings (includes bank details)
+        const accountResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/account`, {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (accountResponse.ok) {
+          const accountData = await accountResponse.json();
+          
+          // Set bank account data
+          if (accountData.bank_details) {
+            setBankAccountData({
+              account_name: accountData.bank_details.account_name || '',
+              account_number: accountData.bank_details.account_number || '',
+              bank_name: accountData.bank_details.bank_name || '',
+              branch_name: accountData.bank_details.branch_name || '',
+              ifsc_code: accountData.bank_details.ifsc_code || ''
+            });
+          }
+
+          // Update profile data with business name from bank details
+          if (accountData.bank_details?.account_name) {
+            setProfileData(prev => ({
+              ...prev,
+              business_name: accountData.bank_details.account_name
+            }));
+          }
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -197,173 +195,76 @@ const Settings: React.FC = () => {
     }));
   };
 
-  // Handle verification code changes
-  const handleVerificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setVerificationData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // Send verification code
-  const handleSendVerificationCode = async (type: 'email' | 'phone') => {
-    setIsSendingCode(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/merchant/send-verification-code`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          type,
-          [type]: type === 'email' ? accountData.email : accountData.phone
-        })
-      });
-
-      if (!response.ok) throw new Error(`Failed to send ${type} verification code`);
-      
-      toast.success(`Verification code sent to your ${type}`);
-      if (type === 'email') {
-        setShowEmailVerification(true);
-      } else {
-        setShowPhoneVerification(true);
-      }
-    } catch (error) {
-      console.error(`Error sending ${type} verification code:`, error);
-      toast.error(`Failed to send verification code to ${type}`);
-    } finally {
-      setIsSendingCode(false);
-    }
-  };
-
-  // Verify code
-  const handleVerifyCode = async (type: 'email' | 'phone') => {
-    const isEmail = type === 'email';
-    const setVerifying = isEmail ? setIsVerifyingEmail : setIsVerifyingPhone;
-    const code = isEmail ? verificationData.email_code : verificationData.phone_code;
-    
-    setVerifying(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/merchant/verify-code`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          type,
-          code,
-          [type]: isEmail ? accountData.email : accountData.phone
-        })
-      });
-
-      if (!response.ok) throw new Error(`Invalid ${type} verification code`);
-      
-      setAccountData(prev => ({
-        ...prev,
-        [isEmail ? 'is_email_verified' : 'is_phone_verified']: true
-      }));
-      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} verified successfully`);
-      
-      if (isEmail) {
-        setShowEmailVerification(false);
-        setVerificationData(prev => ({ ...prev, email_code: '' }));
-      } else {
-        setShowPhoneVerification(false);
-        setVerificationData(prev => ({ ...prev, phone_code: '' }));
-      }
-    } catch (error) {
-      console.error(`Error verifying ${type}:`, error);
-      toast.error(`Invalid verification code`);
-    } finally {
-      setVerifying(false);
-    }
-  };
-
   // Save profile changes
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/merchant/profile`, {
+      // Update profile data in user info
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/user-info`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(profileData)
+        body: JSON.stringify({
+          first_name: profileData.first_name,
+          last_name: profileData.last_name,
+          email: profileData.business_email,
+          phone: profileData.business_phone
+        })
       });
 
-      if (!response.ok) throw new Error('Failed to update profile');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update profile');
+      }
       
       toast.success('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
+      toast.error(error instanceof Error ? error.message : 'Failed to update profile');
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Modified account submit handler
+  // Save account and bank details
   const handleAccountSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check if email or phone has changed and needs verification
-    const needsEmailVerification = !accountData.is_email_verified;
-    const needsPhoneVerification = !accountData.is_phone_verified;
-
-    if (needsEmailVerification || needsPhoneVerification) {
-      toast.error('Please verify your email and phone number before saving');
-      return;
-    }
-
     setIsSaving(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/merchant/account`, {
+      // Update profile with account and bank details
+      const updateData = {
+        business_name: bankAccountData.account_name,
+        business_email: accountData.email,
+        business_phone: accountData.phone,
+        bank_account_number: bankAccountData.account_number,
+        bank_ifsc_code: bankAccountData.ifsc_code,
+        bank_name: bankAccountData.bank_name,
+        bank_branch: bankAccountData.branch_name
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/merchants/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(accountData)
+        body: JSON.stringify(updateData)
       });
 
-      if (!response.ok) throw new Error('Failed to update account');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update account');
+      }
       
-      toast.success('Account updated successfully');
+      toast.success('Account settings updated successfully');
     } catch (error) {
       console.error('Error updating account:', error);
-      toast.error('Failed to update account');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Save bank account changes
-  const handleBankAccountSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/merchant/bank-account`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(bankAccountData)
-      });
-
-      if (!response.ok) throw new Error('Failed to update bank account details');
-      
-      toast.success('Bank account details updated successfully');
-    } catch (error) {
-      console.error('Error updating bank account:', error);
-      toast.error('Failed to update bank account details');
+      toast.error(error instanceof Error ? error.message : 'Failed to update account');
     } finally {
       setIsSaving(false);
     }
@@ -372,39 +273,87 @@ const Settings: React.FC = () => {
   // Change password
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.debug('Password change initiated');
     
+    // Validate passwords
+    if (!passwordData.current_password || !passwordData.new_password || !passwordData.confirm_password) {
+      console.debug('Validation failed: Empty password fields');
+      toast.error('All password fields are required');
+      return;
+    }
+
+    if (passwordData.new_password.length < 8) {
+      console.debug('Validation failed: New password too short');
+      toast.error('New password must be at least 8 characters long');
+      return;
+    }
+
     if (passwordData.new_password !== passwordData.confirm_password) {
+      console.debug('Validation failed: Passwords do not match');
       toast.error('New passwords do not match');
       return;
     }
 
+    if (passwordData.current_password === passwordData.new_password) {
+      console.debug('Validation failed: New password same as current');
+      toast.error('New password must be different from current password');
+      return;
+    }
+
+    console.debug('Password validation passed, proceeding with change request');
     setIsChangingPassword(true);
+    const toastId = toast.loading('Changing password...');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/merchant/change-password`, {
+      console.debug('Sending password change request');
+      const response = await fetch(`${API_BASE_URL}/api/users/profile/change-password`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          current_password: passwordData.current_password,
-          new_password: passwordData.new_password
+          old_password: passwordData.current_password,
+          new_password: passwordData.new_password,
+          confirm_password: passwordData.confirm_password
         })
       });
 
-      if (!response.ok) throw new Error('Failed to change password');
-      
-      toast.success('Password changed successfully');
+      console.debug('Password change response status:', response.status);
+      const data = await response.json();
+      console.debug('Password change response data:', data);
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          console.debug('Password change failed: Incorrect current password');
+          throw new Error('Current password is incorrect');
+        } else if (response.status === 404) {
+          console.debug('Password change failed: User not found');
+          throw new Error('User not found');
+        } else {
+          console.debug('Password change failed:', data.message || data.error);
+          throw new Error(data.message || data.error || 'Failed to change password');
+        }
+      }
+
+      // Clear password fields after successful change
+      console.debug('Password change successful, clearing form');
       setPasswordData({
         current_password: '',
         new_password: '',
         confirm_password: ''
       });
+      
+      toast.success('Password changed successfully!', { id: toastId });
     } catch (error) {
-      console.error('Error changing password:', error);
-      toast.error('Failed to change password');
+      console.error('Error in password change:', error);
+      console.debug('Full error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        error
+      });
+      toast.error(error instanceof Error ? error.message : 'Failed to change password', { id: toastId });
     } finally {
+      console.debug('Password change process completed');
       setIsChangingPassword(false);
     }
   };
@@ -468,97 +417,25 @@ const Settings: React.FC = () => {
                     {/* Email Field */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                      <div className="relative">
-                        <input
-                          type="email"
-                          name="email"
-                          value={accountData.email}
-                          onChange={(e) => {
-                            handleAccountChange(e);
-                            setAccountData(prev => ({ ...prev, is_email_verified: false }));
-                          }}
-                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-24 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                        />
-                        <div className="absolute inset-y-0 right-0 flex items-center">
-                          {accountData.is_email_verified && (
-                            <span className="text-green-600 flex items-center px-3">
-                              <Check className="h-5 w-5 mr-1" />
-                              Verified
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {showEmailVerification && (
-                        <div className="mt-3">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Verification Code</label>
-                          <div className="flex space-x-2">
-                            <input
-                              type="text"
-                              name="email_code"
-                              value={verificationData.email_code}
-                              onChange={handleVerificationChange}
-                              placeholder="Enter code"
-                              className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleVerifyCode('email')}
-                              disabled={isVerifyingEmail || !verificationData.email_code}
-                              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
-                            >
-                              {isVerifyingEmail ? 'Verifying...' : 'Submit'}
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                      <input
+                        type="email"
+                        name="email"
+                        value={accountData.email}
+                        onChange={handleAccountChange}
+                        className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                      />
                     </div>
 
                     {/* Phone Field */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                      <div className="relative">
-                        <input
-                          type="tel"
-                          name="phone"
-                          value={accountData.phone}
-                          onChange={(e) => {
-                            handleAccountChange(e);
-                            setAccountData(prev => ({ ...prev, is_phone_verified: false }));
-                          }}
-                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-24 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                        />
-                        <div className="absolute inset-y-0 right-0 flex items-center">
-                          {accountData.is_phone_verified && (
-                            <span className="text-green-600 flex items-center px-3">
-                              <Check className="h-5 w-5 mr-1" />
-                                Verified
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {showPhoneVerification && (
-                        <div className="mt-3">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Verification Code</label>
-                          <div className="flex space-x-2">
-                            <input
-                              type="text"
-                              name="phone_code"
-                              value={verificationData.phone_code}
-                              onChange={handleVerificationChange}
-                              placeholder="Enter code"
-                              className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleVerifyCode('phone')}
-                              disabled={isVerifyingPhone || !verificationData.phone_code}
-                              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
-                            >
-                              {isVerifyingPhone ? 'Verifying...' : 'Submit'}
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={accountData.phone}
+                        onChange={handleAccountChange}
+                        className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                      />
                     </div>
 
                     <div>
@@ -578,7 +455,7 @@ const Settings: React.FC = () => {
               <div className="bg-white rounded-lg shadow">
                 <div className="p-6 sm:p-8">
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">Bank Account Details</h2>
-                  <form onSubmit={handleBankAccountSubmit} className="space-y-6">
+                  <form onSubmit={handleAccountSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
@@ -600,19 +477,19 @@ const Settings: React.FC = () => {
                           className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
                         />
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Reenter Account Number</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">IFSC Code</label>
                         <input
                           type="text"
-                          name="reenter_account_number"
-                          value={bankAccountData.account_number}
+                          name="ifsc_code"
+                          value={bankAccountData.ifsc_code}
                           onChange={handleBankAccountChange}
                           className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
                         />
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
                         <input
@@ -623,16 +500,17 @@ const Settings: React.FC = () => {
                           className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Branch Name</label>
-                        <input
-                          type="text"
-                          name="branch_name"
-                          value={bankAccountData.branch_name}
-                          onChange={handleBankAccountChange}
-                          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                        />
-                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Branch Name</label>
+                      <input
+                        type="text"
+                        name="branch_name"
+                        value={bankAccountData.branch_name}
+                        onChange={handleBankAccountChange}
+                        className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
+                      />
                     </div>
 
                     <div>
@@ -764,17 +642,6 @@ const Settings: React.FC = () => {
                       name="business_name"
                       value={profileData.business_name}
                       onChange={handleProfileChange}
-                      className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Business Address</label>
-                    <textarea
-                      name="business_address"
-                      value={profileData.business_address}
-                      onChange={handleProfileChange}
-                      rows={3}
                       className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
                     />
                   </div>

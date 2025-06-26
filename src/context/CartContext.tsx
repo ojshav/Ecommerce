@@ -17,7 +17,7 @@ const formatCurrency = (amount: number) => {
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product, quantity?: number) => Promise<void>;
+  addToCart: (product: Product, quantity?: number, selectedAttributes?: {[key: number]: string | string[]}) => Promise<void>;
   removeFromCart: (cartItemId: number) => Promise<void>;
   updateQuantity: (cartItemId: number, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -79,6 +79,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           product_id: item.product_id,
           merchant_id: item.merchant_id,
           quantity: item.quantity,
+          selected_attributes: item.selected_attributes || {},
           product: {
             id: item.product_id,
             name: item.product.name,
@@ -111,7 +112,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [accessToken, user?.role]);
 
-  const addToCart = async (product: Product, quantity = 1) => {
+  const addToCart = async (product: Product, quantity = 1, selectedAttributes: {[key: number]: string | string[]} = {}) => {
     if (!accessToken || user?.role !== 'customer') {
       toast.error('Only customers can add items to cart');
       return;
@@ -120,7 +121,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const payload = {
         product_id: product.id,
-        quantity
+        quantity,
+        selected_attributes: selectedAttributes
       };
 
       const response = await fetch(`${API_BASE_URL}/api/cart/add`, {

@@ -3,6 +3,7 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     screens: {
+      xs: '475px',
       sm: '640px',
       md: '768px',
       nav: '968px',
@@ -106,6 +107,9 @@ export default {
         quicksand: ['Quicksand', 'sans-serif'],
         bebas: ['Bebas Neue', 'sans-serif'],
         montserrat: ['Montserrat', 'sans-serif'],
+        archivio: ['Archivio', 'sans-serif'],
+        bebas: ['Bebas Neue', 'sans-serif'],
+        gilroy: ['Gilroy', 'sans-serif'],
       },
       fontSize: {
         display: ['96px', { lineHeight: '90px' }],

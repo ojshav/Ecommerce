@@ -1,3 +1,4 @@
+<<<<<<< master
 import React, { useState } from "react";
 import CartItem from "../components/CartItem";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +7,18 @@ import { useAuth } from "../context/AuthContext";
 import { toast } from "react-hot-toast";
 import { ShoppingCart, ArrowRight, Loader2, X } from "lucide-react";
 import { CartItem as CartItemType } from "../types";
+=======
+// FILE: src/pages/Cart.tsx
+import React, { useState } from 'react';
+import CartItem from '../components/CartItem';
+import CartSummary from '../components/CartSummary';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-hot-toast';
+import { ShoppingCart, ArrowRight, Loader2, X } from 'lucide-react';
+import { CartItem as CartItemType } from '../types';
+>>>>>>> master
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
@@ -20,7 +33,10 @@ const Cart: React.FC = () => {
   const { accessToken } = useAuth();
 
   // --- Promotion State ---
+<<<<<<< master
   const [promoCodeInput, setPromoCodeInput] = useState("");
+=======
+>>>>>>> master
   const [discount, setDiscount] = useState(0);
   const [promoLoading, setPromoLoading] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState<{
@@ -43,8 +59,8 @@ const Cart: React.FC = () => {
     navigate("/payment", { state: { discount, appliedPromo, itemDiscounts } });
   };
 
-  const handleApplyPromo = async () => {
-    if (!promoCodeInput.trim()) {
+  const handleApplyPromo = async (promoCode: string) => {
+    if (!promoCode.trim()) {
       toast.error("Please enter a promotion code.");
       return;
     }
@@ -66,7 +82,7 @@ const Cart: React.FC = () => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          promo_code: promoCodeInput,
+          promo_code: promoCode,
           cart_items: cartItemsPayload,
         }),
       });
@@ -79,11 +95,16 @@ const Cart: React.FC = () => {
 
       toast.success(result.message);
       setDiscount(result.discount_amount);
+<<<<<<< master
       setAppliedPromo({
         id: result.promotion_id,
         code: promoCodeInput.toUpperCase(),
       });
       setItemDiscounts(result.item_discounts || {});
+=======
+      setAppliedPromo({ id: result.promotion_id, code: promoCode.toUpperCase() });
+
+>>>>>>> master
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "An unknown error occurred."
@@ -95,7 +116,10 @@ const Cart: React.FC = () => {
 
   const removePromo = () => {
     setDiscount(0);
+<<<<<<< master
     setPromoCodeInput("");
+=======
+>>>>>>> master
     setAppliedPromo(null);
     setItemDiscounts({});
     toast.success("Promotion removed.");
@@ -169,6 +193,7 @@ const Cart: React.FC = () => {
                   price={item.product.price}
                   quantity={item.quantity}
                   stock={item.product.stock}
+                  selectedAttributes={item.selected_attributes}
                   onRemove={removeFromCart}
                   onUpdateQuantity={updateQuantity}
                 />
@@ -194,6 +219,7 @@ const Cart: React.FC = () => {
 
           {/* Cart summary section integrated here */}
           <div className="lg:col-span-1 sticky top-4">
+<<<<<<< master
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h2 className="text-xl font-semibold mb-4">Cart Summary</h2>
 
@@ -275,6 +301,21 @@ const Cart: React.FC = () => {
                 </button>
               </div>
             </div>
+=======
+            <CartSummary
+              cartItems={activeCartItems}
+              totalPrice={totalPrice}
+              discount={discount}
+              appliedPromo={appliedPromo}
+              onApplyPromo={handleApplyPromo}
+              onRemovePromo={removePromo}
+              onCheckout={handleCheckout}
+              onContinueShopping={handleContinueShopping}
+              onClearCart={handleClearCart}
+              loading={loading}
+              finalTotal={finalTotal}
+            />
+>>>>>>> master
           </div>
         </div>
       )}

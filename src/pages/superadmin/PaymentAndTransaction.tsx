@@ -230,7 +230,7 @@ const PaymentAndTransactionMonitoring: React.FC = () => {
       <h1 className="text-2xl font-bold text-orange-500 mb-6">Payment & Transaction Monitoring</h1>
 
       {/* Filters: Search and Plan */}
-      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
+      <div className="flex flex-wrap flex-col md:flex-row md:items-center gap-4 mb-6">
         <input
           type="text"
           className="md:flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -239,7 +239,7 @@ const PaymentAndTransactionMonitoring: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
 
-        <div className="flex rounded-lg border border-gray-300 overflow-hidden w-fit">
+        <div className="flex flex-wrap rounded-lg border border-gray-300 overflow-hidden sm:w-fit">
           <button
             className={`px-4 py-2 text-sm font-medium ${planFilter === '' ? 'bg-orange-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
             onClick={() => setPlanFilter('')}
