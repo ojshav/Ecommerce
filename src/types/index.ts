@@ -49,16 +49,22 @@ export interface Business {
 
 export interface CartItem {
   cart_item_id: number;
-  cart_id: number;
+  cart_id?: number;
   product_id: number;
+  merchant_id?: number;
   quantity: number;
-  is_deleted: boolean;
+  selected_attributes?: {[key: number]: string | string[]};
+  is_deleted?: boolean;
   product: {
+    id: string | number;
     name: string;
-    sku: string;
+    sku?: string;
     price: number;
+    original_price?: number;
+    special_price?: number;
     image_url: string;
     stock: number;
+    is_deleted?: boolean;
   };
 }
 

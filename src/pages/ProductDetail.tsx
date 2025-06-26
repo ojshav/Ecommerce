@@ -42,6 +42,7 @@ interface ProductDetails {
   cost_price: number;
   selling_price: number;
   discount_pct: number;
+  special_price: number | null;
   description: string;
   media: ProductMedia[];
   meta: ProductMeta;
@@ -64,6 +65,8 @@ interface CartProduct extends Omit<ProductDetails, 'category' | 'brand'> {
   id: number;
   name: string;
   price: number;
+  original_price: number;
+  special_price: number | null;
   currency: string;
   image: string;
   image_url: string;
@@ -164,6 +167,7 @@ const ProductDetail: React.FC = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
+  const [selectedAttributes, setSelectedAttributes] = useState<{[key: number]: string | string[]}>({});
 
   // copy product link to clipboard
   const copyToClipboard = () => {
@@ -174,6 +178,20 @@ const ProductDetail: React.FC = () => {
     setShowShareOptions(false);
   };
 
+  // Handle attribute selection for multi-select attributes
+  const handleAttributeSelect = (attributeId: number, value: string, isMultiSelect: boolean) => {
+    setSelectedAttributes(prev => {
+      if (isMultiSelect) {
+        const currentValues = (prev[attributeId] as string[]) || [];
+        const newValues = currentValues.includes(value)
+          ? currentValues.filter(v => v !== value)
+          : [...currentValues, value];
+        return { ...prev, [attributeId]: newValues };
+      } else {
+        return { ...prev, [attributeId]: value };
+      }
+    });
+  };
 
   // function to share via social platforms
   const shareViaPlatform = (platform: string) => {
@@ -366,6 +384,8 @@ const ProductDetail: React.FC = () => {
       id: product.product_id,
       name: product.product_name,
       price: product.selling_price,
+      original_price: product.cost_price,
+      special_price: product.special_price,
       currency: 'INR',
       image: product.media[0]?.url || '',
       image_url: product.media[0]?.url || '',
@@ -380,7 +400,7 @@ const ProductDetail: React.FC = () => {
       is_deleted: false,
     };
 
-    addToCart(cartProduct, quantity);
+    addToCart(cartProduct, quantity, selectedAttributes);
     toast.success(`${product.product_name} added to cart`);
   };
 
@@ -435,26 +455,36 @@ const ProductDetail: React.FC = () => {
     const storageAttribute = product.attributes.find(attr => attr.attribute_name === 'Storage SSD');
     const otherAttributes = product.attributes.filter(attr => attr.attribute_name !== 'RAM' && attr.attribute_name !== 'Storage SSD');
 
+    // Group attributes by name to combine similar ones
+    const groupedAttributes = otherAttributes.reduce((groups, attr) => {
+      const key = attr.attribute_name.toLowerCase();
+      if (!groups[key]) {
+        groups[key] = [];
+      }
+      groups[key].push(attr);
+      return groups;
+    }, {} as { [key: string]: typeof otherAttributes });
+
     return (
-      <div className="mb-4 space-y-3">
-        {/* RAM and Storage in a flex row if they exist */}
+      <div className="mb-6 space-y-4">
+        {/* RAM and Storage in a horizontal row if they exist */}
         {(ramAttribute || storageAttribute) && (
-          <div className="flex flex-row gap-6">
+          <div className="flex flex-wrap gap-4">
             {ramAttribute && (
-              <div>
-                <div className="text-sm font-medium mb-1">{ramAttribute.attribute_name}:</div>
+              <div className="flex-1 min-w-[200px]">
+                <div className="text-sm font-medium mb-2 text-gray-700">{ramAttribute.attribute_name}</div>
                 <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white">
+                  <span className="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-700 font-medium">
                     {ramAttribute.is_text_based ? ramAttribute.value_text : ramAttribute.value_label || ramAttribute.value_text}
                   </span>
                 </div>
               </div>
             )}
             {storageAttribute && (
-              <div>
-                <div className="text-sm font-medium mb-1">{storageAttribute.attribute_name}:</div>
+              <div className="flex-1 min-w-[200px]">
+                <div className="text-sm font-medium mb-2 text-gray-700">{storageAttribute.attribute_name}</div>
                 <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white">
+                  <span className="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-700 font-medium">
                     {storageAttribute.is_text_based ? storageAttribute.value_text : storageAttribute.value_label || storageAttribute.value_text}
                   </span>
                 </div>
@@ -462,17 +492,69 @@ const ProductDetail: React.FC = () => {
             )}
           </div>
         )}
-        {/* Other attributes rendered as before */}
-        {otherAttributes.map((attr) => (
-          <div key={attr.attribute_id}>
-            <div className="text-sm font-medium mb-1">{attr.attribute_name}:</div>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white">
-                {attr.is_text_based ? attr.value_text : attr.value_label || attr.value_text}
-              </span>
-            </div>
-          </div>
-        ))}
+        
+        {/* Grouped attributes with interactive selection in horizontal layout */}
+        {Object.entries(groupedAttributes).map(([groupKey, attributes]) => {
+          const firstAttr = attributes[0];
+          const isMultiSelect = firstAttr.attribute_name.toLowerCase().includes('color') || 
+                               firstAttr.attribute_name.toLowerCase().includes('size') ||
+                               firstAttr.attribute_name.toLowerCase().includes('style');
+          
+          if (isMultiSelect) {
+            // For multi-select attributes, show all options in one row
+            const selectedValues = (selectedAttributes[firstAttr.attribute_id] as string[]) || [];
+            
+            return (
+              <div key={groupKey} className="flex flex-wrap items-center gap-4">
+                <div className="text-sm font-medium text-gray-700 min-w-[100px]">
+                  {firstAttr.attribute_name}:
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {attributes.map((attr) => {
+                    const currentValue = attr.is_text_based ? attr.value_text : attr.value_label || attr.value_text;
+                    const isSelected = selectedValues.includes(currentValue) || selectedValues.length === 0;
+                    
+                    return (
+                      <button
+                        key={attr.attribute_id}
+                        onClick={() => handleAttributeSelect(firstAttr.attribute_id, currentValue, true)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          isSelected
+                            ? 'border-2 border-orange-500 bg-orange-50 text-orange-700 shadow-sm'
+                            : 'border-2 border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {currentValue}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          } else {
+            // For single-select attributes, show as read-only
+            return (
+              <div key={groupKey} className="flex flex-wrap items-center gap-4">
+                <div className="text-sm font-medium text-gray-700 min-w-[100px]">
+                  {firstAttr.attribute_name}:
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {attributes.map((attr) => {
+                    const value = attr.is_text_based ? attr.value_text : attr.value_label || attr.value_text;
+                    return (
+                      <span 
+                        key={attr.attribute_id}
+                        className="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm bg-white text-gray-700 font-medium"
+                      >
+                        {value}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          }
+        })}
       </div>
     );
   };
@@ -982,6 +1064,49 @@ const ProductDetail: React.FC = () => {
 
               {/* Attribute Options */}
               {renderAttributeOptions()}
+
+              {/* Selected Attributes Summary */}
+              {Object.keys(selectedAttributes).length > 0 && (
+                <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                  <div className="text-sm font-medium text-orange-800 mb-2">Selected Options:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(selectedAttributes).map(([attributeId, values]) => {
+                      const attribute = product.attributes.find(attr => attr.attribute_id.toString() === attributeId);
+                      const attributeName = attribute?.attribute_name || `Attribute ${attributeId}`;
+                      const displayValues = Array.isArray(values) ? values : [values];
+                      
+                      return displayValues.map((value, index) => (
+                        <span 
+                          key={`${attributeId}-${index}`}
+                          className="inline-flex items-center px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full font-medium"
+                        >
+                          {attributeName}: {value}
+                        </span>
+                      ));
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Current Product Attributes Summary (when no explicit selection) */}
+              {Object.keys(selectedAttributes).length === 0 && product.attributes && product.attributes.length > 0 && (
+                <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                  <div className="text-sm font-medium text-gray-700 mb-2">Product Specifications:</div>
+                  <div className="flex flex-wrap gap-2">
+                    {product.attributes.map((attr) => {
+                      const value = attr.is_text_based ? attr.value_text : attr.value_label || attr.value_text;
+                      return (
+                        <span 
+                          key={attr.attribute_id}
+                          className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full font-medium"
+                        >
+                          {attr.attribute_name}: {value}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Quantity Selector and Add to Cart Row */}
               <div className="mb-3">

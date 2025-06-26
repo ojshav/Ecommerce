@@ -59,7 +59,8 @@ import Categories from './pages/superadmin/Categories';
 import Attribute from './pages/superadmin/Attribute';
 import BrandCreation from './pages/superadmin/BrandCreation';
 import HomepageSettings from './pages/superadmin/HomepageSettings';
-
+import Shop1Productpage from './pages/Shop1Productpage';
+import Shop2Productpage from './pages/Shop2Productpage';
 import FAQ from './pages/FAQ';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -120,6 +121,7 @@ import Aoinlive from './pages/business/Aoinlive';
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
 const BusinessProducts = lazy(() => import('./pages/business/catalog/Products'));
 const BusinessOrders = lazy(() => import('./pages/business/Orders'));
+const BusinessOrderDetail = lazy(() => import('./pages/business/OrderDetail'));
 const BusinessCustomers = lazy(() => import('./pages/business/Customers'));
 const Verification = lazy(() => import('./pages/business/Verification'));
 const ProductPlacements = lazy(() => import('./pages/business/ProductPlacements'));
@@ -200,7 +202,8 @@ const App: React.FC = () => {
                   <Routes>
                     <Route path="/shop1" element={<Shop1LandingPage />} />
                     <Route path="/shop2" element={<Shop2LandingPage />} />
-
+                    <Route path="/shop1-productpage" element={<Shop1Productpage />} />
+                    <Route path="/shop2-productpage" element={<Shop2Productpage />} />
                     <Route
                       path="/business/login"
                       element={<BusinessLogin />}
@@ -273,6 +276,14 @@ const App: React.FC = () => {
                         element={
                           <Suspense fallback={<LoadingFallback />}>
                             <BusinessOrders />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="orders/:orderId"
+                        element={
+                          <Suspense fallback={<LoadingFallback />}>
+                            <BusinessOrderDetail />
                           </Suspense>
                         }
                       />
