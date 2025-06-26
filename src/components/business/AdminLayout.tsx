@@ -62,8 +62,11 @@ const AdminLayout: React.FC = () => {
   const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  
+  const [popoverOpenMenus, setPopoverOpenMenus] = useState<{ [key: string]: boolean }>({});
   
   useClickOutside(profileMenuRef, () => {
     setIsProfileMenuOpen(false);
@@ -181,6 +184,10 @@ const AdminLayout: React.FC = () => {
     navigate('/');
   };
 
+  const toggleSidebarCollapse = () => {
+    setIsSidebarCollapsed((prev) => !prev);
+  };
+
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-gray-100">
       {/* Top Navigation - fixed height */}
@@ -294,122 +301,181 @@ const AdminLayout: React.FC = () => {
         </div>
       </header>
 
+      {/* Main flex container for sidebar + content */}
       <div className="flex-1 flex overflow-hidden">
-      {/* Sidebar */}
-      <div
-        className={`${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed inset-y-0 left-0 z-30 w-64 bg-[#ffedd5] shadow-lg transform transition-transform duration-300 ease-in-out md:translate-x-0 md:static h-screen flex flex-col`}
-      >
-        {/* Sidebar Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-orange-200 flex-shrink-0">
+        {/* Sidebar */}
+        <div
+          className={`
+            ${isMobile
+              ? `${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-30`
+              : 'relative'}
+            ${!isMobile && isSidebarCollapsed ? 'w-16' : 'w-64'}
+            bg-[#ffedd5] shadow-lg transform transition-all duration-300 ease-in-out flex flex-col flex-shrink-0
+          `}
+        >
+          {/* Sidebar Header */}
+          <div className="h-16 flex items-center justify-between px-4 border-b border-orange-200 flex-shrink-0">
             <div className="flex flex-col items-center w-full">
-              <span className="text-lg font-semibold text-orange-800">Merchant Portal</span>
-          </div>
-          {isMobile && (
-            <button 
-              onClick={toggleSidebar}
+              <span className={`text-lg font-semibold text-orange-800 transition-opacity duration-200 ${!isMobile && isSidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>Merchant Portal</span>
+            </div>
+            {/* Collapse/Expand Button (Desktop only) */}
+            {!isMobile && (
+              <button
+                onClick={toggleSidebarCollapse}
+                className="ml-2 text-orange-500 hover:text-orange-400 focus:outline-none"
+                title={isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              >
+                {isSidebarCollapsed ? (
+                  <ChevronDownIcon className="h-6 w-6 rotate-90" />
+                ) : (
+                  <ChevronDownIcon className="h-6 w-6 -rotate-90" />
+                )}
+              </button>
+            )}
+            {isMobile && (
+              <button 
+                onClick={toggleSidebar}
                 className="ml-4 md:hidden text-orange-500 hover:text-orange-400 focus:outline-none"
-            >
-              <XMarkIcon className="h-6 w-6" />
-            </button>
-          )}
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            )}
+          </div>
+          
+          {/* Sidebar Content */}
+          <div className="py-4 flex-1 overflow-y-auto">
+            <nav className="px-2 space-y-1">
+              {navigationItems.map((item) => {
+                const hasSubmenu = !!item.submenu;
+                const isMenuActive = hasSubmenu 
+                  ? item.submenu.some(subItem => location.pathname.startsWith(subItem.path))
+                  : location.pathname === item.path || 
+                    (item.name === 'Catalog' && location.pathname.startsWith('/business/catalog'));
+                const isExpanded = expandedMenus[item.name] || false;
+                const popoverOpen = popoverOpenMenus[item.name] || false;
+                return (
+                  <div key={item.name} className="relative group">
+                    {hasSubmenu ? (
+                      <div
+                        onMouseEnter={() => { if (!isMobile && isSidebarCollapsed) setPopoverOpenMenus(prev => ({ ...prev, [item.name]: true })); }}
+                        onMouseLeave={() => { if (!isMobile && isSidebarCollapsed) setPopoverOpenMenus(prev => ({ ...prev, [item.name]: false })); }}
+                      >
+                        <button
+                          onClick={() => {
+                            if (!isMobile && isSidebarCollapsed) {
+                              setPopoverOpenMenus(prev => ({ ...prev, [item.name]: !prev[item.name] }));
+                            } else {
+                              toggleSubmenu(item.name);
+                            }
+                          }}
+                          className={
+                            `${isMenuActive ? 'bg-[#fed7aa] text-orange-800' : 'text-orange-800 hover:bg-[#fed7aa] hover:text-orange-800'}
+                            w-full flex items-center justify-between px-2 py-2 text-base font-medium rounded-md transition-colors
+                            ${!isMobile && isSidebarCollapsed ? 'justify-center px-0' : ''}`
+                          }
+                          title={!isMobile && isSidebarCollapsed ? item.name : undefined}
+                        >
+                          <div className="flex items-center">
+                            <item.icon
+                              className={
+                                `${isMenuActive ? 'text-orange-800' : 'text-orange-600 group-hover:text-orange-800'}
+                                mr-3 flex-shrink-0 h-6 w-6 transition-colors
+                                ${!isMobile && isSidebarCollapsed ? 'mx-auto mr-0' : ''}`
+                              }
+                            />
+                            {!isMobile && !isSidebarCollapsed && item.name}
+                          </div>
+                          {!isMobile && !isSidebarCollapsed && (
+                            <ChevronDownIcon
+                              className={`${isExpanded ? 'transform rotate-180' : ''} h-4 w-4 text-orange-600 transition-transform`}
+                            />
+                          )}
+                        </button>
+                        {/* Submenu items */}
+                        {/* Expanded sidebar: show submenu inline */}
+                        {!isMobile && !isSidebarCollapsed && isExpanded && (
+                          <div className="ml-6 mt-1 space-y-1">
+                            {item.submenu.map(subItem => {
+                              const isSubItemActive = location.pathname.startsWith(subItem.path);
+                              return (
+                                <Link
+                                  key={subItem.name}
+                                  to={subItem.path}
+                                  className={
+                                    `${isSubItemActive ? 'bg-[#fed7aa] text-orange-800' : 'text-orange-800 hover:bg-[#fed7aa] hover:text-orange-800'}
+                                    group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`
+                                  }
+                                >
+                                  <subItem.icon
+                                    className={
+                                      `${isSubItemActive ? 'text-orange-800' : 'text-orange-600 group-hover:text-orange-800'}
+                                      mr-3 flex-shrink-0 h-5 w-5 transition-colors`
+                                    }
+                                  />
+                                  {subItem.name}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        )}
+                        {/* Collapsed sidebar: show submenu as popover */}
+                        {!isMobile && isSidebarCollapsed && popoverOpen && (
+                          <div className="absolute left-full top-0 mt-0 ml-2 w-48 rounded-md shadow-lg bg-[#ffedd5] ring-1 ring-gray-800 ring-opacity-5 z-50">
+                            <div className="py-1">
+                              {item.submenu.map(subItem => {
+                                const isSubItemActive = location.pathname.startsWith(subItem.path);
+                                return (
+                                  <Link
+                                    key={subItem.name}
+                                    to={subItem.path}
+                                    className={
+                                      `${isSubItemActive ? 'bg-[#fed7aa] text-orange-800' : 'text-orange-800 hover:bg-[#fed7aa] hover:text-orange-800'}
+                                      group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`
+                                    }
+                                  >
+                                    <subItem.icon
+                                      className={
+                                        `${isSubItemActive ? 'text-orange-800' : 'text-orange-600 group-hover:text-orange-800'}
+                                        mr-3 flex-shrink-0 h-5 w-5 transition-colors`
+                                      }
+                                    />
+                                    {subItem.name}
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Link
+                        to={item.path}
+                        className={
+                          `${isMenuActive ? 'bg-[#fed7aa] text-orange-800' : 'text-orange-800 hover:bg-[#fed7aa] hover:text-orange-800'}
+                          group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors
+                          ${!isMobile && isSidebarCollapsed ? 'justify-center px-0' : ''}`
+                        }
+                        title={!isMobile && isSidebarCollapsed ? item.name : undefined}
+                      >
+                        <item.icon
+                          className={
+                            `${isMenuActive ? 'text-orange-800' : 'text-orange-600 group-hover:text-orange-800'}
+                            mr-3 flex-shrink-0 h-6 w-6 transition-colors
+                            ${!isMobile && isSidebarCollapsed ? 'mx-auto mr-0' : ''}`
+                          }
+                        />
+                        {!isMobile && !isSidebarCollapsed && item.name}
+                      </Link>
+                    )}
+                  </div>
+                );
+              })}
+            </nav>
+          </div>
         </div>
         
-        {/* Sidebar Content */}
-        <div className="py-4 flex-1 overflow-y-auto">
-          <nav className="px-2 space-y-1">
-            {navigationItems.map((item) => {
-              // Determine if this item or any of its subitems is active
-              const hasSubmenu = !!item.submenu;
-              const isMenuActive = hasSubmenu 
-                ? item.submenu.some(subItem => location.pathname.startsWith(subItem.path))
-                : location.pathname === item.path || 
-                  (item.name === 'Catalog' && location.pathname.startsWith('/business/catalog'));
-              const isExpanded = expandedMenus[item.name] || false;
-
-              return (
-                <div key={item.name}>
-                  {hasSubmenu ? (
-                    // Menu item with submenu
-                    <div>
-                      <button
-                        onClick={() => toggleSubmenu(item.name)}
-                        className={`${
-                          isMenuActive
-                              ? 'bg-[#fed7aa] text-orange-800'
-                              : 'text-orange-800 hover:bg-[#fed7aa] hover:text-orange-800'
-                        } w-full group flex items-center justify-between px-2 py-2 text-base font-medium rounded-md transition-colors`}
-                      >
-                        <div className="flex items-center">
-                          <item.icon
-                            className={`${
-                                isMenuActive ? 'text-orange-800' : 'text-orange-600 group-hover:text-orange-800'
-                            } mr-3 flex-shrink-0 h-6 w-6 transition-colors`}
-                          />
-                          {item.name}
-                        </div>
-                        <ChevronDownIcon
-                          className={`${
-                            isExpanded ? 'transform rotate-180' : ''
-                            } h-4 w-4 text-orange-600 transition-transform`}
-                        />
-                      </button>
-                      
-                      {/* Submenu items */}
-                      {isExpanded && (
-                        <div className="ml-6 mt-1 space-y-1">
-                          {item.submenu.map(subItem => {
-                            const isSubItemActive = location.pathname.startsWith(subItem.path);
-                            return (
-                              <Link
-                                key={subItem.name}
-                                to={subItem.path}
-                                className={`${
-                                  isSubItemActive
-                                      ? 'bg-[#fed7aa] text-orange-800'
-                                      : 'text-orange-800 hover:bg-[#fed7aa] hover:text-orange-800'
-                                } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`}
-                              >
-                                <subItem.icon
-                                  className={`${
-                                      isSubItemActive ? 'text-orange-800' : 'text-orange-600 group-hover:text-orange-800'
-                                  } mr-3 flex-shrink-0 h-5 w-5 transition-colors`}
-                                />
-                                {subItem.name}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    // Regular menu item without submenu
-                    <Link
-                      to={item.path}
-                      className={`${
-                        isMenuActive
-                            ? 'bg-[#fed7aa] text-orange-800'
-                            : 'text-orange-800 hover:bg-[#fed7aa] hover:text-orange-800'
-                      } group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors`}
-                    >
-                      <item.icon
-                        className={`${
-                            isMenuActive ? 'text-orange-800' : 'text-orange-600 group-hover:text-orange-800'
-                        } mr-3 flex-shrink-0 h-6 w-6 transition-colors`}
-                      />
-                      {item.name}
-                    </Link>
-                  )}
-                </div>
-              );
-            })}
-          </nav>
-        </div>
-      </div>
-      
         {/* Main Content - allows scrolling within content area */}
-        <main className="flex-1 overflow-auto relative">
+        <main className="flex-1 overflow-auto relative transition-all duration-300">
           <div className="p-6">
             <Outlet />
           </div>
