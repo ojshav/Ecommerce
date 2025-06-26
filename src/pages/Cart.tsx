@@ -1,14 +1,4 @@
-<<<<<<< master
-import React, { useState } from "react";
-import CartItem from "../components/CartItem";
-import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
-import { useAuth } from "../context/AuthContext";
-import { toast } from "react-hot-toast";
-import { ShoppingCart, ArrowRight, Loader2, X } from "lucide-react";
-import { CartItem as CartItemType } from "../types";
-=======
-// FILE: src/pages/Cart.tsx
+
 import React, { useState } from 'react';
 import CartItem from '../components/CartItem';
 import CartSummary from '../components/CartSummary';
@@ -18,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { ShoppingCart, ArrowRight, Loader2, X } from 'lucide-react';
 import { CartItem as CartItemType } from '../types';
->>>>>>> master
+
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
@@ -33,10 +23,9 @@ const Cart: React.FC = () => {
   const { accessToken } = useAuth();
 
   // --- Promotion State ---
-<<<<<<< master
+
   const [promoCodeInput, setPromoCodeInput] = useState("");
-=======
->>>>>>> master
+
   const [discount, setDiscount] = useState(0);
   const [promoLoading, setPromoLoading] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState<{
@@ -95,16 +84,13 @@ const Cart: React.FC = () => {
 
       toast.success(result.message);
       setDiscount(result.discount_amount);
-<<<<<<< master
+
       setAppliedPromo({
         id: result.promotion_id,
         code: promoCodeInput.toUpperCase(),
       });
       setItemDiscounts(result.item_discounts || {});
-=======
-      setAppliedPromo({ id: result.promotion_id, code: promoCode.toUpperCase() });
 
->>>>>>> master
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "An unknown error occurred."
@@ -116,10 +102,9 @@ const Cart: React.FC = () => {
 
   const removePromo = () => {
     setDiscount(0);
-<<<<<<< master
+
     setPromoCodeInput("");
-=======
->>>>>>> master
+
     setAppliedPromo(null);
     setItemDiscounts({});
     toast.success("Promotion removed.");
@@ -219,7 +204,7 @@ const Cart: React.FC = () => {
 
           {/* Cart summary section integrated here */}
           <div className="lg:col-span-1 sticky top-4">
-<<<<<<< master
+
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h2 className="text-xl font-semibold mb-4">Cart Summary</h2>
 
@@ -301,7 +286,7 @@ const Cart: React.FC = () => {
                 </button>
               </div>
             </div>
-=======
+
             <CartSummary
               cartItems={activeCartItems}
               totalPrice={totalPrice}
@@ -315,7 +300,7 @@ const Cart: React.FC = () => {
               loading={loading}
               finalTotal={finalTotal}
             />
->>>>>>> master
+
           </div>
         </div>
       )}
