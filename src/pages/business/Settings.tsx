@@ -480,20 +480,11 @@ const Settings: React.FC = () => {
                           className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-24 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
                         />
                         <div className="absolute inset-y-0 right-0 flex items-center">
-                          {accountData.is_email_verified ? (
+                          {accountData.is_email_verified && (
                             <span className="text-green-600 flex items-center px-3">
                               <Check className="h-5 w-5 mr-1" />
                               Verified
                             </span>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => handleSendVerificationCode('email')}
-                              disabled={isSendingCode || !accountData.email}
-                              className="text-[#FF4D00] hover:text-[#FF6B00] px-3 py-1 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {isSendingCode ? 'Sending...' : 'Verify Email'}
-                            </button>
                           )}
                         </div>
                       </div>
@@ -537,20 +528,11 @@ const Settings: React.FC = () => {
                           className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 pr-24 focus:outline-none focus:ring-[#FF4D00] focus:border-[#FF4D00]"
                         />
                         <div className="absolute inset-y-0 right-0 flex items-center">
-                          {accountData.is_phone_verified ? (
+                          {accountData.is_phone_verified && (
                             <span className="text-green-600 flex items-center px-3">
                               <Check className="h-5 w-5 mr-1" />
-                              Verified
+                                Verified
                             </span>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => handleSendVerificationCode('phone')}
-                              disabled={isSendingCode || !accountData.phone}
-                              className="text-[#FF4D00] hover:text-[#FF6B00] px-3 py-1 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {isSendingCode ? 'Sending...' : 'Verify Phone'}
-                            </button>
                           )}
                         </div>
                       </div>
@@ -582,16 +564,11 @@ const Settings: React.FC = () => {
                     <div>
                       <button
                         type="submit"
-                        disabled={isSaving || !accountData.is_email_verified || !accountData.is_phone_verified}
+                        disabled={isSaving}
                         className="w-full sm:w-auto inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#FF4D00] hover:bg-[#FF6B00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF4D00] disabled:opacity-50"
                       >
                         {isSaving ? 'Saving...' : 'Save Account Details'}
                       </button>
-                      {(!accountData.is_email_verified || !accountData.is_phone_verified) && (
-                        <p className="mt-2 text-sm text-red-600">
-                          Please verify both email and phone number before saving
-                        </p>
-                      )}
                     </div>
                   </form>
                 </div>

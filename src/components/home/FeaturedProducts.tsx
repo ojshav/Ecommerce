@@ -168,11 +168,11 @@ const FeaturedProducts: React.FC = () => {
 
   return (
     <section className="pb-12">
-      <div className="container mx-auto px-4">
+      {products && <div className="container mx-auto px-4">
         <div className="flex flex-col space-y-6">
           {/* Header with navigation */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-            <h2 className="text-2xl font-semibold">Featured Products</h2>
+            <h6 className="text-xl font-medium font-worksans">Featured Products</h6>
             
             {/* Navigation */}
             <div className="flex items-center w-full md:w-auto space-x-4">
@@ -242,7 +242,7 @@ const FeaturedProducts: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>}
     </section>
   );
 };

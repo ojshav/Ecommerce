@@ -10,6 +10,7 @@ const NewProduct: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -18,6 +19,11 @@ const NewProduct: React.FC = () => {
   const [isDesktopSortOpen, setIsDesktopSortOpen] = useState(false);
   const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState('newest');
+  
+  // Price filter states
+  const [priceFilter, setPriceFilter] = useState<string>('all');
+  const [customMinPrice, setCustomMinPrice] = useState<string>('');
+  const [customMaxPrice, setCustomMaxPrice] = useState<string>('');
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,6 +34,7 @@ const NewProduct: React.FC = () => {
   // Refs for dropdowns
   const desktopSortRef = useRef<HTMLDivElement>(null);
   const mobileSortRef = useRef<HTMLDivElement>(null);
+  const mobileFilterRef = useRef<HTMLDivElement>(null);
 
   // Sort options
   const sortOptions = [
@@ -35,6 +42,17 @@ const NewProduct: React.FC = () => {
     { label: 'Oldest First', value: 'oldest', sort_by: 'created_at', order: 'asc' },
     { label: 'Price: High to Low', value: 'price-desc', sort_by: 'selling_price', order: 'desc' },
     { label: 'Price: Low to High', value: 'price-asc', sort_by: 'selling_price', order: 'asc' }
+  ];
+
+  // Price filter options
+  const priceFilterOptions = [
+    { label: 'All Prices', value: 'all' },
+    { label: 'Under ₹500', value: 'under-500', min: 0, max: 500 },
+    { label: '₹500 - ₹1,000', value: '500-1000', min: 500, max: 1000 },
+    { label: '₹1,000 - ₹2,500', value: '1000-2500', min: 1000, max: 2500 },
+    { label: '₹2,500 - ₹5,000', value: '2500-5000', min: 2500, max: 5000 },
+    { label: 'Above ₹5,000', value: 'above-5000', min: 5000, max: Infinity },
+    { label: 'Custom Range', value: 'custom' }
   ];
 
   // Sort products based on selected sort option
@@ -56,6 +74,37 @@ const NewProduct: React.FC = () => {
       default:
         return sortedProducts;
     }
+  };
+
+  // Filter products by price
+  const filterProductsByPrice = (productsToFilter: Product[], filterValue: string) => {
+    if (filterValue === 'all') {
+      return productsToFilter;
+    }
+
+    if (filterValue === 'custom') {
+      const minPrice = parseFloat(customMinPrice) || 0;
+      const maxPrice = parseFloat(customMaxPrice) || Infinity;
+      return productsToFilter.filter(product => 
+        product.price >= minPrice && product.price <= maxPrice
+      );
+    }
+
+    const filterOption = priceFilterOptions.find(option => option.value === filterValue);
+    if (filterOption && 'min' in filterOption && 'max' in filterOption) {
+      return productsToFilter.filter(product => 
+        product.price >= filterOption.min! && product.price <= filterOption.max!
+      );
+    }
+
+    return productsToFilter;
+  };
+
+  // Apply filters and sorting
+  const applyFiltersAndSort = () => {
+    let filtered = filterProductsByPrice(products, priceFilter);
+    let sorted = sortProducts(filtered, selectedSort);
+    setFilteredProducts(sorted);
   };
 
   // Fetch new products
@@ -121,11 +170,7 @@ const NewProduct: React.FC = () => {
         };
       });
       
-      // Sort the transformed products
-      const sortedProducts = sortProducts(transformedProducts, selectedSort);
-      console.log('Transformed and sorted products:', sortedProducts);
-      
-      setProducts(sortedProducts);
+      setProducts(transformedProducts);
       setTotalPages(data.pagination.pages);
       setTotalProducts(data.pagination.total);
     } catch (err) {
@@ -141,14 +186,22 @@ const NewProduct: React.FC = () => {
     setSelectedSort(value);
     setIsMobileSortOpen(false);
     setIsDesktopSortOpen(false);
-    // Sort existing products without making a new API call
-    setProducts(prevProducts => sortProducts(prevProducts, value));
   };
 
-  // Fetch products on mount and when pagination changes
-  useEffect(() => {
-    fetchNewProducts();
-  }, [currentPage]);
+  // Handle price filter change
+  const handlePriceFilter = (value: string) => {
+    setPriceFilter(value);
+    if (value !== 'custom') {
+      setCustomMinPrice('');
+      setCustomMaxPrice('');
+    }
+  };
+
+  // Apply filters
+  const applyFilters = () => {
+    setIsFilterOpen(false);
+    setCurrentPage(1); // Reset to first page when applying filters
+  };
 
   // Reset filters
   const resetFilters = () => {
@@ -156,7 +209,23 @@ const NewProduct: React.FC = () => {
     setFilterType(null);
     setIsFilterOpen(false);
     setSelectedSort('newest');
+    setPriceFilter('all');
+    setCustomMinPrice('');
+    setCustomMaxPrice('');
+    setCurrentPage(1);
   };
+
+  // Apply filters and sort whenever dependencies change
+  useEffect(() => {
+    if (products.length > 0) {
+      applyFiltersAndSort();
+    }
+  }, [products, priceFilter, selectedSort, customMinPrice, customMaxPrice]);
+
+  // Fetch products on mount and when pagination changes
+  useEffect(() => {
+    fetchNewProducts();
+  }, [currentPage]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -166,6 +235,9 @@ const NewProduct: React.FC = () => {
       }
       if (mobileSortRef.current && !mobileSortRef.current.contains(event.target as Node)) {
         setIsMobileSortOpen(false);
+      }
+      if (mobileFilterRef.current && !mobileFilterRef.current.contains(event.target as Node)) {
+        setIsFilterOpen(false);
       }
     };
 
@@ -200,16 +272,42 @@ const NewProduct: React.FC = () => {
     );
   }
 
+  const displayProducts = filteredProducts.length > 0 ? filteredProducts : products;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 sm:gap-0">
           <div className="flex flex-col">
             <h1 className="text-2xl font-bold text-gray-900">New Products</h1>
-            {activeFilter && (
-              <div className="text-sm text-gray-600 mt-1">
-                {filterType === 'category' && `Category: ${activeFilter}`}
-                {filterType === 'brand' && `Brand: ${activeFilter}`}
+            {(priceFilter !== 'all' || activeFilter) && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {priceFilter !== 'all' && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
+                    Price: {priceFilterOptions.find(opt => opt.value === priceFilter)?.label || 'Custom'}
+                    <button 
+                      onClick={() => setPriceFilter('all')}
+                      className="hover:bg-orange-200 rounded-full p-0.5"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+                {activeFilter && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                    {filterType === 'category' && `Category: ${activeFilter}`}
+                    {filterType === 'brand' && `Brand: ${activeFilter}`}
+                    <button 
+                      onClick={() => {
+                        setActiveFilter(null);
+                        setFilterType(null);
+                      }}
+                      className="hover:bg-blue-200 rounded-full p-0.5"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -254,6 +352,11 @@ const NewProduct: React.FC = () => {
           >
             <SlidersHorizontal size={20} />
             <span>Filters</span>
+            {priceFilter !== 'all' && (
+              <span className="bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                1
+              </span>
+            )}
           </button>
           <button
             onClick={() => setIsMobileSortOpen(true)}
@@ -264,13 +367,13 @@ const NewProduct: React.FC = () => {
           </button>
         </div>
 
-        {products.length === 0 ? (
+        {displayProducts.length === 0 ? (
           <div className="flex justify-center items-center py-16">
-            <p className="text-gray-500">No new products available.</p>
+            <p className="text-gray-500">No products found matching your criteria.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-            {products.map(product => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+            {displayProducts.map(product => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -281,38 +384,166 @@ const NewProduct: React.FC = () => {
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-8 mb-8">
+        {totalPages > 0 && (
+          <div className="flex justify-end items-center gap-1 my-6">
             <button 
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 rounded border border-gray-200 text-gray-700 disabled:opacity-50"
+              className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg disabled:opacity-50 p-2"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-6 w-6" />
             </button>
-            {[...Array(totalPages)].map((_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded mx-1 ${
-                  currentPage === i + 1
-                    ? 'bg-[#F15A24] text-white'
-                    : 'border border-gray-200 text-gray-700'
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+            {/* Page numbers with ... */}
+            {(() => {
+              const pages = [];
+              let start = Math.max(1, currentPage - 2);
+              let end = Math.min(totalPages, currentPage + 2);
+
+              if (currentPage <= 3) {
+                end = Math.min(5, totalPages);
+              }
+              if (currentPage >= totalPages - 2) {
+                start = Math.max(1, totalPages - 4);
+              }
+
+              if (start > 1) {
+                pages.push(
+                  <button
+                    key={1}
+                    onClick={() => setCurrentPage(1)}
+                    className={`w-10 h-10 flex items-center justify-center border rounded-lg ${currentPage === 1 ? 'bg-primary-500 text-white border-primary-500' : 'border-gray-300'}`}
+                  >
+                    1
+                  </button>
+                );
+                if (start > 2) {
+                  pages.push(<span key="start-ellipsis" className="px-1">...</span>);
+                }
+              }
+
+              for (let i = start; i <= end; i++) {
+                pages.push(
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i)}
+                    className={`py-2 px-1 w-10 h-10 flex items-center justify-center border rounded-lg ${currentPage === i ? 'bg-primary-500 text-white border-primary-500' : 'border-gray-300'}`}
+                  >
+                    {i}
+                  </button>
+                );
+              }
+
+              if (end < totalPages) {
+                if (end < totalPages - 1) {
+                  pages.push(<span key="end-ellipsis" className="px-1">...</span>);
+                }
+                pages.push(
+                  <button
+                    key={totalPages}
+                    onClick={() => setCurrentPage(totalPages)}
+                    className={`py-2 px-1 w-10 h-10 flex items-center justify-center border rounded-lg ${currentPage === totalPages ? 'bg-primary-500 text-white border-primary-500' : 'border-gray-300'}`}
+                  >
+                    {totalPages}
+                  </button>
+                );
+              }
+
+              return pages;
+            })()}
             <button 
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded border border-gray-200 text-gray-700 disabled:opacity-50"
+              className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg disabled:opacity-50 p-2"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-6 w-6" />
             </button>
           </div>
         )}
       </div>
+
+      {/* Mobile Filter Modal */}
+      {isFilterOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40">
+          <div ref={mobileFilterRef} className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] flex flex-col">
+            <div className="p-4 border-b">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Filters</h3>
+                <button onClick={() => setIsFilterOpen(false)} className="p-2">
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4">
+              {/* Price Filter Section */}
+              <div className="mb-6">
+                <h4 className="font-medium mb-3">Price Range</h4>
+                <div className="space-y-2">
+                  {priceFilterOptions.map((option) => (
+                    <label key={option.value} className="flex items-center">
+                      <input
+                        type="radio"
+                        name="priceFilter"
+                        value={option.value}
+                        checked={priceFilter === option.value}
+                        onChange={(e) => handlePriceFilter(e.target.value)}
+                        className="mr-3 text-orange-500"
+                      />
+                      <span>{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+                
+                {/* Custom Price Range Inputs */}
+                {priceFilter === 'custom' && (
+
+                  <div className="mt-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 max-w-[120px]">
+                        <input
+                          type="number"
+                          placeholder="Min"
+                          value={customMinPrice}
+                          onChange={(e) => setCustomMinPrice(e.target.value)}
+                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <span className="text-gray-500 text-sm">to</span>
+                      <div className="flex-1 max-w-[120px]">
+                        <input
+                          type="number"
+                          placeholder="Max"
+                          value={customMaxPrice}
+                          onChange={(e) => setCustomMaxPrice(e.target.value)}
+                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="p-4 border-t bg-gray-50">
+              <div className="flex gap-2">
+                <button
+                  onClick={resetFilters}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={applyFilters}
+                  className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Sort Dropdown */}
       {isMobileSortOpen && (
@@ -348,4 +579,4 @@ const NewProduct: React.FC = () => {
   );
 };
 
-export default NewProduct; 
+export default NewProduct;

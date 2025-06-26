@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-black text-white w-full">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-x-10 gap-y-12">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-x-6 gap-y-12">
 
           {/* Column 1 - Logo & Contact */}
           <div>
@@ -38,35 +38,35 @@ const Footer: React.FC = () => {
             <h4 className="text-[18px] font-medium text-white mb-4">Shop</h4>
             <ul className="space-y-3 text-[14px] text-white font-light">
               <li><Link to="/new-product">New Product</Link></li>
-              <li><Link to="/shop-live">Live Shop</Link></li>
+              <li><Link to="/live-shop">Live Shop</Link></li>
               <li><Link to="/promo-products">Promotion</Link></li>
-              <li><Link to="#">Top Brands</Link></li>
+           {/* <li><Link to="#">Top Brands</Link></li> */}
 
             </ul>
           </div>
 
           {/* Column 3 - Policies */}
-          <div>
+          <div className="md:-ml-20">
             <h4 className="text-[18px] font-medium text-white mb-4">Policies</h4>
             <ul className="space-y-3 text-[14px] text-white font-light">
-              <li><Link to="#">Privacy Policy</Link></li>
-              <li><Link to="#">Cancellation Policy</Link></li>
-              <li><Link to="#">Return & Refund</Link></li>
-              <li><Link to="#">Shipping & Delivery Policy</Link></li>
+              <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+              <li><Link to="/cancellation-policy">Cancellation Policy</Link></li>
+              <li><Link to="/return-refund">Return & Refund</Link></li>
+              <li><Link to="/shipping-delivery">Shipping & Delivery Policy</Link></li>
             </ul>
           </div>
 
           {/* Column 4 - Customer Support */}
-          <div>
+          <div className="md:-ml-28">
             <h4 className="text-[18px] font-medium text-white mb-4">Customer Support</h4>
             <ul className="space-y-3 text-[14px] text-white font-light">
               <li>
                 <div>Call us at</div>
                 <a href="tel:2129299953" className="text-[#F2631F]">212 929 9953</a>
               </li>
-              <li><Link to="#">Frequently asked Questions</Link></li>
-              <li><Link to="#">Terms & Conditions</Link></li>
-              <li><Link to="#">Shipping Methods</Link></li>
+              <li><Link to="/faq">Frequently asked Questions</Link></li>
+              <li><Link to="terms">Terms & Conditions</Link></li>
+              <li><Link to="/shipping">Shipping Methods</Link></li>
               <li className="mt-2">
                 <div>Mail us at</div>
                 <span className="text-[#F2631F]">******@gmail.com</span>
@@ -75,7 +75,7 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Column 5 - Follow Us & Newsletter */}
-          <div>
+          <div className="md:-ml-32">
             <h4 className="text-[18px] font-medium text-white mb-4">Follow Us</h4>
             <div className="flex space-x-5 mb-6">
               <a href="#" className="text-[#F2631F] hover:text-white"><Twitter size={20} /></a>
@@ -85,31 +85,28 @@ const Footer: React.FC = () => {
             </div>
 
             {/* Email Subscription */}
-            <form className="flex bg-white rounded-md overflow-hidden max-w-xs">
-              <div className="flex items-center px-3 text-gray-500">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
-                  viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                    d="M16 12H8m0 0H6a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2h-2m-8 0V6a4 4 0 018 0v6" />
-                </svg>
+            <form className="flex items-center bg-white rounded-xl overflow-hidden shadow-sm max-w-[330px]">
+              <div className="flex items-center px-2 text-black">
+                <Mail size={16} />
               </div>
               <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full text-sm text-gray-700 placeholder-gray-400 bg-white outline-none px-2 py-2 placeholder:text-sm"
-              />
+              type="email"
+              placeholder="Enter your email"
+              className="w-40 text-sm text-gray-700 placeholder-black bg-white border-none outline-none py-1 px-0 text-left"
+            />
+
               <button
                 type="submit"
-                className="bg-[#F2631F] hover:bg-[#d44f12] text-white px-4 text-sm"
+                className="bg-[#F2631F] hover:bg-[#d44f12] text-white px-3 ml-9 my-1 text-xs font-medium"
               >
                 Submit
               </button>
             </form>
 
-            <p className="mt-4 text-[14px] text-white font-normal leading-snug">
-  Receive our latest update about our <br />
-  products &nbsp;<span className="whitespace-nowrap">promotion</span>
-</p>
+
+            <p className="mt-4 text-[18px] text-white font-normal leading-snug">
+              Receive our latest updates about our products&nbsp;& promotions
+            </p>
           </div>
         </div>
       </div>

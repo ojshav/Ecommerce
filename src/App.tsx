@@ -11,7 +11,8 @@ import Cart from './pages/Cart';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import ShippingMethods from './pages/ShippingMethods';
-
+import Shop1LandingPage from './pages/Shop1LandingPage';
+import Shop2LandingPage from './pages/Shop2LandingPage';
 import VerificationPending from './pages/auth/VerificationPending';
 
 import PasswordReset from './pages/auth/PasswordReset';
@@ -110,6 +111,10 @@ import MerchantSupport from './pages/superadmin/MerchantSupport';
 import RaiseTicket from './pages/RaiseTicket';
 
 import { useVisitTracking } from './hooks/useVisitTracking';
+import SearchResultsPage from './pages/SearchResultsPage';
+import MerchantPaymentReport from './pages/superadmin/reports/MerchantPaymentReport';
+
+import Aoinlive from './pages/business/Aoinlive';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -193,6 +198,9 @@ const App: React.FC = () => {
                 <ScrollToTop />
                 <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                   <Routes>
+                  <Route path="/shop1" element={<Shop1LandingPage />} />
+                  <Route path="/shop2" element={<Shop2LandingPage />} />
+
                   <Route
                               path="/business/login"
                               element={<BusinessLogin />}
@@ -350,6 +358,14 @@ const App: React.FC = () => {
                           }
                         />
                         <Route
+                          path="aoinlive"
+                          element={
+                            <Suspense fallback={<LoadingFallback />}>
+                              <Aoinlive />
+                            </Suspense>
+                          }
+                        />
+                        <Route
                           path="product/new"
                           element={
                             <Suspense fallback={<LoadingFallback />}>
@@ -408,7 +424,10 @@ const App: React.FC = () => {
                       path="marketplace-health"
                       element={<MarketplaceHealth />}
                     />
-                    
+                    <Route
+                      path="merchant-payment-report"
+                      element={<MerchantPaymentReport />}
+                    />
                     <Route
                       path="performance"
                       element={<PlatformPerformance />}
@@ -454,6 +473,8 @@ const App: React.FC = () => {
                               <Route path="/cart" element={<Cart />} />
                               <Route path="/payment" element={<PaymentPage />} />
                               <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+                              <Route path="/search" element={<SearchResultsPage />} />
+                              <Route path="/search/:query" element={<Products />} />
 
                             {/* These routes will have Navbar and Footer */}
                             <Route path="/signup" element={<SignUp />} />

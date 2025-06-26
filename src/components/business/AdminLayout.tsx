@@ -30,7 +30,8 @@ const navigationItems = [
     icon: CubeIcon,
     submenu: [
       { name: 'Products', path: '/business/catalog/products', icon: CubeIcon },
-      { name: 'Wholesale', path: '/business/catalog/wholesale', icon: CubeIcon },
+      // { name: 'Wholesale', path: '/business/catalog/wholesale', icon: CubeIcon },
+      { name: 'Aoin Live', path: '/business/catalog/aoinlive', icon: ChatBubbleLeftIcon },
     ]
   },
   { name: 'Orders', path: '/business/orders', icon: ShoppingBagIcon },
