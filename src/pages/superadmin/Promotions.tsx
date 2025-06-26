@@ -67,6 +67,13 @@ const Promotions: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterTargetType, setFilterTargetType] = useState('');
   
+  // --- Game Promos Table ---
+  const [gamePromos, setGamePromos] = useState<any[]>([]);
+  const [gamePromoLoading, setGamePromoLoading] = useState(false);
+  const [gamePromoSearch, setGamePromoSearch] = useState('');
+  const [gamePromoDiscount, setGamePromoDiscount] = useState('');
+  const [gamePromoType, setGamePromoType] = useState('');
+
   // --- Data Fetching ---
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -141,6 +148,28 @@ const Promotions: React.FC = () => {
 
   }, [targetType, targetId, discountValue, categories, brands, products, editingPromotion, isCodeManuallySet, generatePromotionCode]);
 
+  useEffect(() => {
+    const fetchGamePromos = async () => {
+      setGamePromoLoading(true);
+      try {
+        const token = getAuthToken();
+        if (!token) return;
+        const params = [];
+        if (gamePromoDiscount) params.push(`discount=${gamePromoDiscount}`);
+        if (gamePromoType) params.push(`game_type=${gamePromoType}`);
+        const url = `${API_BASE_URL}/api/games/current-promos${params.length ? '?' + params.join('&') : ''}`;
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        const data = await res.json();
+        setGamePromos(data.promotions || []);
+      } catch (e) {
+        setGamePromos([]);
+      } finally {
+        setGamePromoLoading(false);
+      }
+    };
+    fetchGamePromos();
+    // eslint-disable-next-line
+  }, [gamePromoDiscount, gamePromoType]);
 
   // --- Utility Functions ---
   const resetForm = () => {
@@ -301,8 +330,76 @@ const Promotions: React.FC = () => {
     return matchesSearch && matchesTargetType;
   });
 
+  const filteredGamePromos = gamePromos.filter(promo => {
+    const search = gamePromoSearch.toLowerCase();
+    return (
+      promo.code.toLowerCase().includes(search) ||
+      (promo.description && promo.description.toLowerCase().includes(search))
+    );
+  });
+
   return (
     <div className="p-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
+      {/* --- Game Promos Table Section --- */}
+      <div className="mb-12">
+        <div className="bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-xl shadow-lg p-6 mb-4">
+          <h2 className="text-2xl font-extrabold mb-4 text-orange-700 tracking-tight flex items-center gap-2">
+            🎮 Current Game Promo Codes
+          </h2>
+          <div className="flex flex-wrap gap-4 mb-4">
+            <input
+              type="text"
+              value={gamePromoSearch}
+              onChange={e => setGamePromoSearch(e.target.value)}
+              placeholder="Search by code or description..."
+              className="p-2 border border-gray-300 rounded-md min-w-[200px]"
+            />
+            <select value={gamePromoDiscount} onChange={e => setGamePromoDiscount(e.target.value)} className="p-2 border border-gray-300 rounded-md">
+              <option value="">All Discounts</option>
+              {[5, 10, 15, 20].map(d => <option key={d} value={d}>{d}%</option>)}
+            </select>
+            <select value={gamePromoType} onChange={e => setGamePromoType(e.target.value)} className="p-2 border border-gray-300 rounded-md">
+              <option value="">All Game Types</option>
+              <option value="spin-wheel">Spin Wheel</option>
+              <option value="match-card">Memory Match</option>
+            </select>
+          </div>
+          <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-orange-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-orange-700 uppercase">Code</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-orange-700 uppercase">Discount</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-orange-700 uppercase">Type</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-orange-700 uppercase">Validity</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-orange-700 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-orange-700 uppercase">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {gamePromoLoading ? (
+                  <tr><td colSpan={6} className="text-center py-8"><Loader2 className="mx-auto animate-spin text-orange-500" /></td></tr>
+                ) : filteredGamePromos.length > 0 ? filteredGamePromos.map(promo => (
+                  <tr key={promo.promotion_id} className="hover:bg-orange-50">
+                    <td className="px-4 py-3 font-mono text-orange-700 font-bold">{promo.code}</td>
+                    <td className="px-4 py-3">{promo.discount_value}%</td>
+                    <td className="px-4 py-3 capitalize">{promo.code.includes('SPIN') ? 'Spin Wheel' : promo.code.includes('MATCH') ? 'Memory Match' : '-'}</td>
+                    <td className="px-4 py-3 text-xs">{new Date(promo.start_date).toLocaleDateString()} - {new Date(promo.end_date).toLocaleDateString()}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${promo.active_flag ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{promo.active_flag ? 'Active' : 'Inactive'}</span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">{promo.description}</td>
+                  </tr>
+                )) : (
+                  <tr><td colSpan={6} className="text-center py-8 text-gray-500">No game promos found.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className="border-b-2 border-orange-200 my-8"></div>
+      </div>
+      {/* --- End Game Promos Table Section --- */}
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Promotions Management</h1>
       
       {/* Form */}
