@@ -59,14 +59,15 @@ export const dashboardSections: MenuSection[] = [
       {
         title: "Performance",
         icon: ActivitySquare,
-        description: "Monitor system health, response times, and resource usage"
+        description:
+          "Monitor system health, response times, and resource usage",
       },
       {
         title: "Merchant Payment Report",
         icon: FileBarChart2,
-        description: "Track and manage merchant payments and delivery status"
-      }
-    ]
+        description: "Track and manage merchant payments and delivery status",
+      },
+    ],
   },
   {
     category: "Management",
@@ -445,8 +446,12 @@ const SuperAdminLayout = () => {
                     }
                     transition-all duration-200
                   `}
-
-                  <ChartBarIcon className={`w-5 h-5 ${isCategoryActive("Dashboard") ? '' : 'text-gray-500'} mr-3`} />
+                >
+                  <ChartBarIcon
+                    className={`w-5 h-5 ${
+                      isCategoryActive("Dashboard") ? "" : "text-gray-500"
+                    } mr-3`}
+                  />
                   <span className="font-medium">Dashboard</span>
                 </button>
               </li>
