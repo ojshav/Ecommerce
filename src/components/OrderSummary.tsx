@@ -16,16 +16,6 @@ interface ExchangeRates {
   [key: string]: number;
 }
 
-<<<<<<< master
-const OrderSummary: React.FC<OrderSummaryProps> = ({
-  className = "",
-  selectedCountry,
-  discount = 0, // default to zero
-  promoCode = "", 
-  itemDiscounts = {}, 
-}) => {
-  const { cart, totalPrice: baseTotal, totalItems } = useCart();
-=======
 // Helper function to format selected attributes for display
 const formatSelectedAttributes = (selectedAttributes: {[key: number]: string | string[]} | undefined) => {
   if (!selectedAttributes || Object.keys(selectedAttributes).length === 0) {
@@ -47,9 +37,14 @@ const formatSelectedAttributes = (selectedAttributes: {[key: number]: string | s
   return formattedAttributes.length > 0 ? formattedAttributes : null;
 };
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ className = '', selectedCountry }) => {
-  const { cart, totalPrice, totalItems } = useCart();
->>>>>>> master
+const OrderSummary: React.FC<OrderSummaryProps> = ({
+  className = "",
+  selectedCountry,
+  discount = 0, // default to zero
+  promoCode = "", 
+  itemDiscounts = {}, 
+}) => {
+  const { cart, totalPrice: baseTotal, totalItems } = useCart();
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -192,45 +187,17 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ className = '', selectedCou
       <h2 className="text-lg font-semibold mb-6">Your Order</h2>
       <div className="space-y-4 mb-6">
         {activeCartItems.map((item) => {
-<<<<<<< master
           // Calculate the item's effective price after discount
           const itemDiscount = itemDiscounts[item.product_id] || 0;
           const originalItemTotal = item.product.price * item.quantity;
           const effectiveItemTotal = originalItemTotal - itemDiscount;
-
-          return (
-            <div key={item.cart_item_id} className="flex items-center gap-4">
-              <img
-                src={item.product.image_url}
-                alt={item.product.name}
-                className="w-16 h-16 rounded object-cover"
-              />
-              <div className="flex-1">
-                <div className="font-medium text-sm">{item.product.name}</div>
-                <div className="text-xs text-gray-500">
-                  Qty: {item.quantity}
-                </div>
-                {itemDiscount > 0 && (
-                  <div className="text-xs text-green-600">
-                    Discount: -{formatPrice(itemDiscount)}
-                  </div>
-                )}
-              </div>
-              <div className="font-medium text-sm">
-                {formatPrice(effectiveItemTotal)}
-                {itemDiscount > 0 && (
-                  <div className="text-xs text-gray-500 line-through">
-                    {formatPrice(originalItemTotal)}
-                  </div>
-                )}
-=======
           const selectedAttributes = formatSelectedAttributes(item.selected_attributes);
           
           return (
             <div key={item.cart_item_id} className="flex items-start gap-4">
-              <img 
-                src={item.product.image_url} 
-                alt={item.product.name} 
+              <img
+                src={item.product.image_url}
+                alt={item.product.name}
                 className="w-16 h-16 rounded object-cover flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
@@ -238,7 +205,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ className = '', selectedCou
                 <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
                 {selectedAttributes && (
                   <div className="mt-1">
-                    {selectedAttributes.map((attr, index) => (
+                    {selectedAttributes.map((attr: string, index: number) => (
                       <span 
                         key={index}
                         className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded mr-1 mb-1"
@@ -248,10 +215,19 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ className = '', selectedCou
                     ))}
                   </div>
                 )}
+                {itemDiscount > 0 && (
+                  <div className="text-xs text-green-600">
+                    Discount: -{formatPrice(itemDiscount)}
+                  </div>
+                )}
               </div>
               <div className="font-medium text-sm text-gray-900 flex-shrink-0">
-                {formatPrice(item.product.price * item.quantity)}
->>>>>>> master
+                {formatPrice(effectiveItemTotal)}
+                {itemDiscount > 0 && (
+                  <div className="text-xs text-gray-500 line-through">
+                    {formatPrice(originalItemTotal)}
+                  </div>
+                )}
               </div>
             </div>
           );

@@ -447,15 +447,13 @@ const SuperAdminLayout = () => {
                     transition-all duration-200
                   `}
                 >
-<<<<<<< master
+
                   <ChartBarIcon
                     className={`w-5 h-5 ${
                       isCategoryActive("Dashboard") ? "" : "text-gray-500"
                     } mr-3`}
                   />
-=======
-                  <ChartBarIcon className={`w-5 h-5 ${isCategoryActive("Dashboard") ? '' : 'text-gray-500'} mr-3`} />
->>>>>>> master
+
                   <span className="font-medium">Dashboard</span>
                 </button>
               </li>
