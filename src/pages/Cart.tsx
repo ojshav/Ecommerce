@@ -1,6 +1,7 @@
 // FILE: src/pages/Cart.tsx
 import React, { useState } from 'react';
 import CartItem from '../components/CartItem';
+import CartSummary from '../components/CartSummary';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -14,7 +15,6 @@ const Cart: React.FC = () => {
   const { accessToken } = useAuth();
   
   // --- Promotion State ---
-  const [promoCodeInput, setPromoCodeInput] = useState('');
   const [discount, setDiscount] = useState(0);
   const [promoLoading, setPromoLoading] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState<{ id: number; code: string } | null>(null);
@@ -31,8 +31,8 @@ const Cart: React.FC = () => {
     navigate('/payment', { state: { discount, appliedPromo } });
   };
 
-  const handleApplyPromo = async () => {
-    if (!promoCodeInput.trim()) {
+  const handleApplyPromo = async (promoCode: string) => {
+    if (!promoCode.trim()) {
       toast.error("Please enter a promotion code.");
       return;
     }
@@ -54,7 +54,7 @@ const Cart: React.FC = () => {
           'Authorization': `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          promo_code: promoCodeInput,
+          promo_code: promoCode,
           cart_items: cartItemsPayload,
         }),
       });
@@ -67,7 +67,7 @@ const Cart: React.FC = () => {
 
       toast.success(result.message);
       setDiscount(result.discount_amount);
-      setAppliedPromo({ id: result.promotion_id, code: promoCodeInput.toUpperCase() });
+      setAppliedPromo({ id: result.promotion_id, code: promoCode.toUpperCase() });
 
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'An unknown error occurred.');
@@ -78,7 +78,6 @@ const Cart: React.FC = () => {
   
   const removePromo = () => {
     setDiscount(0);
-    setPromoCodeInput('');
     setAppliedPromo(null);
     toast.success('Promotion removed.');
   };
@@ -149,6 +148,7 @@ const Cart: React.FC = () => {
                   price={item.product.price}
                   quantity={item.quantity}
                   stock={item.product.stock}
+                  selectedAttributes={item.selected_attributes}
                   onRemove={removeFromCart}
                   onUpdateQuantity={updateQuantity}
                   productId={item.product_id}
@@ -175,71 +175,19 @@ const Cart: React.FC = () => {
           
           {/* Cart summary section integrated here */}
           <div className="lg:col-span-1 sticky top-4">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold mb-4">Cart Summary</h2>
-
-                <div className="space-y-3 text-gray-700">
-                    <div className="flex justify-between">
-                        <span>Subtotal</span>
-                        <span>₹{totalPrice.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span>Shipping</span>
-                        <span>Free</span>
-                    </div>
-                    {discount > 0 && appliedPromo && (
-                        <div className="flex justify-between items-center text-green-600">
-                            <span>Discount ({appliedPromo.code})</span>
-                            <span>- ₹{discount.toFixed(2)}</span>
-                        </div>
-                    )}
-                </div>
-
-                <hr className="my-4" />
-
-                <div className="flex justify-between font-bold text-lg mb-4">
-                    <span>Total</span>
-                    <span>₹{(finalTotal > 0 ? finalTotal : 0).toFixed(2)}</span>
-                </div>
-
-                <div className="space-y-4">
-                    {!appliedPromo ? (
-                        <div className="flex flex-wrap gap-2">
-                            <input
-                                type="text"
-                                placeholder="Enter promo code"
-                                value={promoCodeInput}
-                                onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
-                                className="flex-grow p-2 border rounded-md"
-                                disabled={promoLoading}
-                            />
-                            <button
-                                onClick={handleApplyPromo}
-                                disabled={promoLoading}
-                                className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-wait inline-flex items-center justify-center"
-                            >
-                                {promoLoading ? <Loader2 className="h-5 w-5 animate-spin"/> : 'Apply'}
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex justify-between items-center bg-green-50 p-2 rounded-md">
-                            <p className="text-green-700 text-sm">Promo applied: <span className="font-bold">{appliedPromo.code}</span></p>
-                            <button onClick={removePromo} className="text-red-500 hover:text-red-700">
-                                <X size={16} />
-                            </button>
-                        </div>
-                    )}
-                    
-                    <button
-                        onClick={handleCheckout}
-                        disabled={loading}
-                        className="w-full bg-orange-500 text-white py-3 rounded-md hover:bg-orange-600 font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-                    >
-                        {loading ? <Loader2 className="h-5 w-5 animate-spin"/> : 'Proceed to Checkout'}
-                        {!loading && <ArrowRight size={18} />}
-                    </button>
-                </div>
-            </div>
+            <CartSummary
+              cartItems={activeCartItems}
+              totalPrice={totalPrice}
+              discount={discount}
+              appliedPromo={appliedPromo}
+              onApplyPromo={handleApplyPromo}
+              onRemovePromo={removePromo}
+              onCheckout={handleCheckout}
+              onContinueShopping={handleContinueShopping}
+              onClearCart={handleClearCart}
+              loading={loading}
+              finalTotal={finalTotal}
+            />
           </div>
         </div>
       )}

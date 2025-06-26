@@ -433,7 +433,8 @@ const PaymentPage: React.FC = () => {
         quantity: item.quantity,
         unit_price_at_purchase: item.product.price.toString(),
         item_subtotal_amount: (item.product.price * item.quantity).toString(),
-        final_price_for_item: (item.product.price * item.quantity).toString()
+        final_price_for_item: (item.product.price * item.quantity).toString(),
+        selected_attributes: item.selected_attributes || {}
       })),
       subtotal_amount: subtotal.toString(),
       discount_amount: discount.toString(), 

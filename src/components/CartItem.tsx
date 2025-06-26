@@ -20,9 +20,31 @@ interface CartItemProps {
   price: number;
   quantity: number;
   stock: number;
+  selectedAttributes?: {[key: number]: string | string[]};
   onRemove: (id: number) => void;
   onUpdateQuantity: (id: number, quantity: number) => void;
 }
+
+// Helper function to format selected attributes for display
+const formatSelectedAttributes = (selectedAttributes: {[key: number]: string | string[]} | undefined) => {
+  if (!selectedAttributes || Object.keys(selectedAttributes).length === 0) {
+    return null;
+  }
+
+  const formattedAttributes: string[] = [];
+  
+  Object.entries(selectedAttributes).forEach(([attributeId, value]) => {
+    if (Array.isArray(value)) {
+      if (value.length > 0) {
+        formattedAttributes.push(...value);
+      }
+    } else if (value) {
+      formattedAttributes.push(value);
+    }
+  });
+
+  return formattedAttributes.length > 0 ? formattedAttributes : null;
+};
 
 const CartItem: React.FC<CartItemProps> = ({
   id,
@@ -31,6 +53,7 @@ const CartItem: React.FC<CartItemProps> = ({
   price,
   quantity,
   stock,
+  selectedAttributes,
   onRemove,
   onUpdateQuantity
 }) => {
@@ -177,6 +200,18 @@ const CartItem: React.FC<CartItemProps> = ({
           <div className="flex-1 min-w-0">
             <p className="text-sm text-gray-800 font-medium line-clamp-2 mb-1">{name}</p>
             <p className="text-sm text-gray-600">{formatCurrency(price)}</p>
+            {formatSelectedAttributes(selectedAttributes) && (
+              <div className="mt-1 flex flex-wrap gap-1">
+                {formatSelectedAttributes(selectedAttributes)?.map((attr, index) => (
+                  <span 
+                    key={index}
+                    className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
+                  >
+                    {attr}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <button
             onClick={handleRemove}
@@ -251,6 +286,18 @@ const CartItem: React.FC<CartItemProps> = ({
           </div>
           <div className="ml-4 w-48">
             <p className="text-sm text-gray-600 line-clamp-2">{name}</p>
+            {formatSelectedAttributes(selectedAttributes) && (
+              <div className="mt-1 flex flex-wrap gap-1">
+                {formatSelectedAttributes(selectedAttributes)?.map((attr, index) => (
+                  <span 
+                    key={index}
+                    className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
+                  >
+                    {attr}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

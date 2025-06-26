@@ -13,6 +13,27 @@ interface ExchangeRates {
   [key: string]: number;
 }
 
+// Helper function to format selected attributes for display
+const formatSelectedAttributes = (selectedAttributes: {[key: number]: string | string[]} | undefined) => {
+  if (!selectedAttributes || Object.keys(selectedAttributes).length === 0) {
+    return null;
+  }
+
+  const formattedAttributes: string[] = [];
+  
+  Object.entries(selectedAttributes).forEach(([attributeId, value]) => {
+    if (Array.isArray(value)) {
+      if (value.length > 0) {
+        formattedAttributes.push(...value);
+      }
+    } else if (value) {
+      formattedAttributes.push(value);
+    }
+  });
+
+  return formattedAttributes.length > 0 ? formattedAttributes : null;
+};
+
 const OrderSummary: React.FC<OrderSummaryProps> = ({ className = '', selectedCountry }) => {
   const { cart, totalPrice, totalItems } = useCart();
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates>({});
@@ -147,22 +168,38 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ className = '', selectedCou
     <div className={`w-full lg:w-[400px] bg-white rounded-lg p-8 h-fit ${className}`}>
       <h2 className="text-lg font-semibold mb-6">Your Order</h2>
       <div className="space-y-4 mb-6">
-        {activeCartItems.map((item) => (
-          <div key={item.cart_item_id} className="flex items-center gap-4">
-            <img 
-              src={item.product.image_url} 
-              alt={item.product.name} 
-              className="w-16 h-16 rounded object-cover"
-            />
-            <div className="flex-1">
-              <div className="font-medium text-sm">{item.product.name}</div>
-              <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
+        {activeCartItems.map((item) => {
+          const selectedAttributes = formatSelectedAttributes(item.selected_attributes);
+          
+          return (
+            <div key={item.cart_item_id} className="flex items-start gap-4">
+              <img 
+                src={item.product.image_url} 
+                alt={item.product.name} 
+                className="w-16 h-16 rounded object-cover flex-shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-sm text-gray-900 truncate">{item.product.name}</div>
+                <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
+                {selectedAttributes && (
+                  <div className="mt-1">
+                    {selectedAttributes.map((attr, index) => (
+                      <span 
+                        key={index}
+                        className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded mr-1 mb-1"
+                      >
+                        {attr}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="font-medium text-sm text-gray-900 flex-shrink-0">
+                {formatPrice(item.product.price * item.quantity)}
+              </div>
             </div>
-            <div className="font-medium text-sm">
-              {formatPrice(item.product.price * item.quantity)}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="border-t pt-4 space-y-2">
