@@ -294,19 +294,41 @@ const Products: React.FC = () => {
 
         {/* Product List Table */}
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50"><tr><th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8"><input type="checkbox" className="rounded border-gray-300 text-orange-600 focus:ring-orange-500" checked={selectedItems.length === sortedProducts.length && sortedProducts.length > 0} onChange={toggleSelectAll} /></th><th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><div className="flex items-center cursor-pointer" onClick={() => requestSort('product_name')}>Name / SKU{getSortIndicator('product_name')}</div></th><th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><div className="flex items-center cursor-pointer" onClick={() => requestSort('selling_price')}>Price{getSortIndicator('selling_price')}</div></th><th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category / Brand</th><th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><div className="flex items-center cursor-pointer" onClick={() => requestSort('active_flag')}>Status{getSortIndicator('active_flag')}</div></th><th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><div className="flex items-center cursor-pointer" onClick={() => requestSort('approval_status')}>Approval{getSortIndicator('approval_status')}</div></th><th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th></tr></thead>
+          <table className="min-w-full divide-y divide-gray-200 text-xs" style={{ fontSize: '0.99rem' }}>
+            <thead className="bg-gray-50">
+              <tr>
+                <th scope="col" className="px-2 py-1 text-left font-medium text-gray-500 uppercase tracking-wider w-8">
+                  <input type="checkbox" className="rounded border-gray-300 text-orange-600 focus:ring-orange-500 h-3 w-3" checked={selectedItems.length === sortedProducts.length && sortedProducts.length > 0} onChange={toggleSelectAll} />
+                </th>
+                <th scope="col" className="px-2 py-1 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('product_name')}>Name / SKU{getSortIndicator('product_name')}</div>
+                </th>
+                <th scope="col" className="px-2 py-1 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('selling_price')}>Price{getSortIndicator('selling_price')}</div>
+                </th>
+                <th scope="col" className="px-2 py-1 text-left font-medium text-gray-500 uppercase tracking-wider">Category / Brand</th>
+                <th scope="col" className="px-2 py-1 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('active_flag')}>Status{getSortIndicator('active_flag')}</div>
+                </th>
+                <th scope="col" className="px-2 py-1 text-left font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="flex items-center cursor-pointer" onClick={() => requestSort('approval_status')}>Approval{getSortIndicator('approval_status')}</div>
+                </th>
+                <th scope="col" className="px-2 py-1 text-center  font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedProducts.map((product) => (
                 <React.Fragment key={product.product_id}>
                   {/* Parent Product Row */}
                   <tr className="hover:bg-orange-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap w-8"><input type="checkbox" className="rounded border-gray-300 text-orange-600 focus:ring-orange-500" checked={selectedItems.includes(product.product_id)} onChange={() => toggleSelectItem(product.product_id)} /></td>
-                    <td className="px-6 py-4 whitespace-nowrap"><div className="flex items-center"><div className="ml-4"><div className="text-sm font-medium text-gray-900">{product.product_name}</div><div className="text-sm text-gray-500">SKU - {product.sku}</div></div></div></td>
-
-
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                    <td className="px-2 py-1 whitespace-nowrap w-8">
+                      <input type="checkbox" className="rounded border-gray-300 text-orange-600 focus:ring-orange-500 h-3 w-3" checked={selectedItems.includes(product.product_id)} onChange={() => toggleSelectItem(product.product_id)} />
+                    </td>
+                    <td className="px-2 py-1 whitespace-normal max-w-xs">
+                      <div className="flex items-center"><div className="ml-2"><div className="font-medium text-gray-900 break-words">{product.product_name}</div><div className="text-gray-500 break-words">SKU - {product.sku}</div></div></div>
+                    </td>
+                    <td className="px-2 py-1 whitespace-nowrap">
+                      <div className="font-medium text-gray-900">
                         {formatINR(product.selling_price)}
                         {product.special_price && (
                           <span className="ml-2 text-red-600">
@@ -315,47 +337,49 @@ const Products: React.FC = () => {
                         )}
                       </div>
                     </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm text-gray-900">{product.category?.name || 'No Category'}</div><div className="text-sm text-gray-500">{product.brand?.name || 'No Brand'}</div></td>
-                    <td className="px-6 py-4 whitespace-nowrap"><StatusBadge active={product.active_flag} /></td>
-                    <td className="px-6 py-4 whitespace-nowrap"><ApprovalStatusBadge status={product.approval_status} reason={product.rejection_reason} /></td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><div className="flex items-center justify-end space-x-3"><Link to={`/business/catalog/product/${product.product_id}/edit`} className="text-orange-600 hover:text-orange-700"><PencilIcon className="h-5 w-5" /></Link><button onClick={() => handleDeleteClick(product.product_id, product.product_name)} className="text-orange-600 hover:text-orange-900"><TrashIcon className="h-5 w-5" /></button></div></td>
+                    <td className="px-2 py-1 whitespace-normal max-w-xs"><div className="text-gray-900 break-words">{product.category?.name || 'No Category'}</div><div className="text-gray-500 break-words">{product.brand?.name || 'No Brand'}</div></td>
+                    <td className="px-2 py-1 whitespace-nowrap"><StatusBadge active={product.active_flag} /></td>
+                    <td className="px-1 py-1 whitespace-nowrap text-center align-middle">
+                      <div className="flex justify-center items-center h-full">
+                        <ApprovalStatusBadge status={product.approval_status} reason={product.rejection_reason} />
+                      </div>
+                    </td>
+                    <td className="px-2 py-1 whitespace-nowrap font-medium pl-4 sm:pl-10 min-w-[80px]">
+                      <div className="flex flex-col space-y-1 sm:flex-row sm:space-y-0 sm:space-x-2 mr-2">
+                        <Link to={`/business/catalog/product/${product.product_id}/edit`} className="text-orange-600 hover:text-orange-700"><PencilIcon className="h-4 w-4" /></Link>
+                        <button onClick={() => handleDeleteClick(product.product_id, product.product_name)} className="text-orange-600 hover:text-orange-900"><TrashIcon className="h-4 w-4" /></button>
+                      </div>
+                    </td>
                   </tr>
 
                   {/* Variants Rows */}
                   {product.variants?.map((variant) => (
                     <tr key={variant.product_id} className="bg-gray-50 hover:bg-orange-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap w-8"><input type="checkbox" className="rounded border-gray-300 text-orange-600 focus:ring-orange-500" checked={selectedItems.includes(variant.product_id)} onChange={() => toggleSelectItem(variant.product_id)} /></td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center pl-8">
-                          <div className="ml-4"><div className="text-sm text-gray-900">{(variant as any).attributes?.map((attr: any, index: number) => (<span key={index} className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-700 mr-1">{attr.name}: {attr.value}</span>))}</div><div className="text-sm text-gray-500">SKU - {variant.sku}</div></div></div></td>
-                      <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-medium text-gray-900">{formatINR(variant.selling_price)}</div></td><td className="px-6 py-4 whitespace-nowrap"><div className="text-sm text-gray-500">Stock: {variant.stock_qty}</div></td>
-                      <td className="px-6 py-4 whitespace-nowrap"><StatusBadge active={product.active_flag} /></td>
-                      <td className="px-6 py-4 whitespace-nowrap"><ApprovalStatusBadge status={product.approval_status} reason={product.rejection_reason} /></td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><div className="flex items-center justify-end space-x-3"><Link to={`/business/catalog/product/${variant.product_id}/edit`} className="text-orange-600 hover:text-orange-700"><PencilIcon className="h-5 w-5" /></Link><button onClick={() => handleDeleteClick(variant.product_id, `${product.product_name} variant`)} className="text-orange-600 hover:text-orange-900"><TrashIcon className="h-5 w-5" /></button></div></td>
+                      <td className="px-2 py-1 whitespace-nowrap w-8"><input type="checkbox" className="rounded border-gray-300 text-orange-600 focus:ring-orange-500 h-3 w-3" checked={selectedItems.includes(variant.product_id)} onChange={() => toggleSelectItem(variant.product_id)} /></td>
+                      <td className="px-2 py-1 whitespace-normal max-w-xs">
+                        <div className="flex items-center pl-6">
+                          <div className="ml-2"><div className="text-gray-900 break-words">{(variant as any).attributes?.map((attr: any, index: number) => (<span key={index} className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-700 mr-1">{attr.name}: {attr.value}</span>))}</div><div className="text-gray-500 break-words">SKU - {variant.sku}</div></div></div></td>
+                      <td className="px-2 py-1 whitespace-nowrap"><div className="font-medium text-gray-900">{formatINR(variant.selling_price)}</div></td><td className="px-2 py-1 whitespace-nowrap"><div className="text-gray-500">Stock: {variant.stock_qty}</div></td>
+                      <td className="px-2 py-1 whitespace-nowrap"><StatusBadge active={product.active_flag} /></td>
+                      <td className="px-1 py-1 whitespace-nowrap text-center align-middle">
+                        <div className="flex justify-center items-center h-full">
+                          <ApprovalStatusBadge status={product.approval_status} reason={product.rejection_reason} />
+                        </div>
+                      </td>
+                      <td className="px-2 py-1 whitespace-nowrap font-medium pl-4 sm:pl-10 min-w-[80px]">
+                        <div className="flex flex-col space-y-1 sm:flex-row sm:space-y-0 sm:space-x-2 mr-2">
+                          <Link to={`/business/catalog/product/${variant.product_id}/edit`} className="text-orange-600 hover:text-orange-700"><PencilIcon className="h-4 w-4" /></Link>
+                          <button onClick={() => handleDeleteClick(variant.product_id, variant.product_name)} className="text-orange-600 hover:text-orange-900"><TrashIcon className="h-4 w-4" /></button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </React.Fragment>
               ))}
             </tbody>
           </table>
-          {sortedProducts.length === 0 && (<div className="px-6 py-10 text-center"><p className="text-gray-500 text-lg">No products found matching your filters.</p><button onClick={clearFilters} className="mt-2 text-orange-600 font-medium hover:text-orange-700">Clear all filters</button></div>)}
         </div>
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && showDeleteModal.visible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div className="flex items-center justify-start mb-4"><AlertCircle className="h-8 w-8 text-orange-500 mr-3" /><h3 className="text-xl font-semibold text-gray-900">Confirm Deletion</h3></div>
-            <div className="mt-2"><p className="text-sm text-gray-700">Are you sure you want to delete {showDeleteModal.isBulk ? `the selected ${showDeleteModal.productName}` : `the product '${showDeleteModal.productName}'`}? This action cannot be undone.</p></div>
-            <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
-              <button type="button" disabled={isDeleting} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-600 text-base font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleConfirmDelete}>{isDeleting ? (<div className="flex items-center"><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>Deleting...</div>) : ('Delete')}</button>
-              <button type="button" disabled={isDeleting} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:mt-0 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed" onClick={cancelDelete}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

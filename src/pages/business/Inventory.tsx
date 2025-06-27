@@ -2,14 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { 
   ArrowUpIcon, 
   ArrowDownIcon,
-  EyeIcon,
   PencilIcon,
   PrinterIcon,
   DocumentTextIcon,
   ExclamationCircleIcon,
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
-import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -52,11 +50,6 @@ interface PaginationInfo {
   total_pages: number;
   has_next: boolean;
   has_prev: boolean;
-}
-
-interface ApiResponse {
-  products: Product[];
-  pagination: PaginationInfo;
 }
 
 // Stock status options
@@ -184,6 +177,69 @@ const UpdateStockModal: React.FC<UpdateStockModalProps> = ({ isOpen, onClose, pr
   );
 };
 
+// Mobile Product Card Component
+const MobileProductCard: React.FC<{ 
+  product: Product; 
+  onEditClick: (product: Product) => void;
+}> = ({ product, onEditClick }) => {
+  const getStockStatus = (product: Product) => {
+    if (product.stock_qty === 0) return 'out_of_stock';
+    if (product.stock_qty <= product.low_stock_threshold) return 'low_stock';
+    return 'in_stock';
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
+      <div className="flex items-start space-x-3 mb-3">
+        <div className="w-12 h-12 rounded-md bg-gray-200 flex items-center justify-center flex-shrink-0">
+          <img 
+            src={product.image_url || '/api/placeholder/50/50'} 
+            alt={product.name} 
+            className="h-12 w-12 rounded-md object-cover"
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-medium text-gray-900 truncate">{product.name}</h3>
+          <p className="text-xs text-gray-500">SKU: {product.sku}</p>
+        </div>
+        <button 
+          className="text-orange-600 hover:text-orange-900 flex-shrink-0"
+          onClick={() => onEditClick(product)}
+        >
+          <PencilIcon className="h-4 w-4" />
+        </button>
+      </div>
+      
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between">
+          <span className="text-gray-500">Category:</span>
+          <span className="text-gray-900 truncate max-w-32">
+            {product.category?.name || 'N/A'}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-500">Brand:</span>
+          <span className="text-gray-900 truncate max-w-32">
+            {product.brand?.name || 'N/A'}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-500">Stock Qty:</span>
+          <span className="text-gray-900">{product.stock_qty}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-500">Available:</span>
+          <span className="text-gray-900">{product.available}</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-gray-500">Status:</span>
+          <StockStatusBadge status={getStockStatus(product)} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Add these interfaces after the existing interfaces
 interface Category {
   category_id: number;
@@ -198,7 +254,6 @@ interface Brand {
 }
 
 const Inventory: React.FC = () => {
-  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [stats, setStats] = useState<InventoryStats>({
     total_products: 0,
@@ -218,7 +273,6 @@ const Inventory: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedBrand, setSelectedBrand] = useState<string>('All');
   const [selectedStockStatus, setSelectedStockStatus] = useState<string>('All');
-  const [showFilters, setShowFilters] = useState(false);
   const [pagination, setPagination] = useState<PaginationInfo>({
     total: 0,
     page: 1,
@@ -236,7 +290,6 @@ const Inventory: React.FC = () => {
   });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [isLoadingFilters, setIsLoadingFilters] = useState(false);
 
   // Add debounce effect for search
   useEffect(() => {
@@ -470,7 +523,7 @@ const Inventory: React.FC = () => {
 
   // Sort products
   const sortedProducts = React.useMemo(() => {
-    let sortableProducts = [...products];
+    const sortableProducts = [...products];
     if (sortConfig.key !== null) {
       sortableProducts.sort((a, b) => {
         const aValue = a[sortConfig.key as keyof Product];
@@ -524,75 +577,77 @@ const Inventory: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap gap-4 items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Inventory Management</h1>
-        <div className="flex space-x-3">
-          <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 items-start sm:items-center sm:justify-between">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Inventory Management</h1>
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+          <button className="flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
             <PrinterIcon className="h-4 w-4 mr-2" />
-            Export
+            <span className="hidden sm:inline">Export</span>
+            <span className="sm:hidden">Export</span>
           </button>
-          <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+          <button className="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
             <DocumentTextIcon className="h-4 w-4 mr-2" />
-            Add Product
+            <span className="hidden sm:inline">Add Product</span>
+            <span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow p-5 flex items-center hover:border-orange-300 transition-colors">
-          <div className="rounded-full bg-orange-100 p-3 mr-4">
-            <DocumentTextIcon className="h-6 w-6 text-orange-600" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-5 flex items-center hover:border-orange-300 transition-colors">
+          <div className="rounded-full bg-orange-100 p-2 sm:p-3 mr-3 sm:mr-4">
+            <DocumentTextIcon className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
           </div>
           <div>
-            <p className="text-sm text-gray-500">Total Products</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.total_products}</p>
+            <p className="text-xs sm:text-sm text-gray-500">Total Products</p>
+            <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.total_products}</p>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-5 flex items-center hover:border-orange-300 transition-colors">
-          <div className="rounded-full bg-orange-100 p-3 mr-4">
-            <ExclamationCircleIcon className="h-6 w-6 text-orange-600" />
+        <div className="bg-white rounded-lg shadow p-4 sm:p-5 flex items-center hover:border-orange-300 transition-colors">
+          <div className="rounded-full bg-orange-100 p-2 sm:p-3 mr-3 sm:mr-4">
+            <ExclamationCircleIcon className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
           </div>
           <div>
-            <p className="text-sm text-gray-500">Low Stock Alerts</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.low_stock_count}</p>
+            <p className="text-xs sm:text-sm text-gray-500">Low Stock Alerts</p>
+            <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.low_stock_count}</p>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-5 flex items-center hover:border-orange-300 transition-colors">
-          <div className="rounded-full bg-orange-100 p-3 mr-4">
-            <DocumentTextIcon className="h-6 w-6 text-orange-600" />
+        <div className="bg-white rounded-lg shadow p-4 sm:p-5 flex items-center hover:border-orange-300 transition-colors">
+          <div className="rounded-full bg-orange-100 p-2 sm:p-3 mr-3 sm:mr-4">
+            <DocumentTextIcon className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
           </div>
           <div>
-            <p className="text-sm text-gray-500">Out of Stock Items</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.out_of_stock_count}</p>
+            <p className="text-xs sm:text-sm text-gray-500">Out of Stock Items</p>
+            <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.out_of_stock_count}</p>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-5 flex items-center hover:border-orange-300 transition-colors">
-          <div className="rounded-full bg-orange-100 p-3 mr-4">
-            <CurrencyDollarIcon className="h-6 w-6 text-orange-600" />
+        <div className="bg-white rounded-lg shadow p-4 sm:p-5 flex items-center hover:border-orange-300 transition-colors">
+          <div className="rounded-full bg-orange-100 p-2 sm:p-3 mr-3 sm:mr-4">
+            <CurrencyDollarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
           </div>
           <div>
-            <p className="text-sm text-gray-500">Total Stock</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.total_stock}</p>
+            <p className="text-xs sm:text-sm text-gray-500">Total Stock</p>
+            <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.total_stock}</p>
           </div>
         </div>
       </div>
       
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div className="relative">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by product name or SKU..."
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm pl-10"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm pl-10"
             />
             
             {searchTerm && (
@@ -610,7 +665,7 @@ const Inventory: React.FC = () => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm"
           >
             <option value="All">All Categories</option>
             {categories.map((category) => (
@@ -623,7 +678,7 @@ const Inventory: React.FC = () => {
           <select
             value={selectedBrand}
             onChange={(e) => setSelectedBrand(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm"
           >
             <option value="All">All Brands</option>
             {brands.map((brand) => (
@@ -636,7 +691,7 @@ const Inventory: React.FC = () => {
           <select
             value={selectedStockStatus}
             onChange={(e) => setSelectedStockStatus(e.target.value)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm"
           >
             <option value="All">All Stock Status</option>
             {STOCK_STATUS_OPTIONS.map((status) => (
@@ -648,94 +703,118 @@ const Inventory: React.FC = () => {
         </div>
       </div>
         
-      {/* Products Table */}
+      {/* Products Display */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                {['Image', 'Product Name', 'SKU', 'Category', 'Brand', 'Stock Qty', 'Available', 'Status', 'Actions'].map((header) => (
-                  <th
-                    key={header}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-orange-600"
-                    onClick={() => requestSort(header.toLowerCase().replace(' ', '_'))}
-                  >
-                    <div className="flex items-center space-x-1">
-                      <span>{header}</span>
-                      {getSortIndicator(header.toLowerCase().replace(' ', '_'))}
-                    </div>
-                  </th>
+        {/* Mobile View - Cards */}
+        <div className="block lg:hidden">
+          <div className="p-4">
+            {sortedProducts.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No products found</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {sortedProducts.map((product) => (
+                  <MobileProductCard 
+                    key={product.id} 
+                    product={product} 
+                    onEditClick={handleEditClick}
+                  />
                 ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {sortedProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-orange-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="w-12 h-12 rounded-md bg-gray-200 flex items-center justify-center">
-                      <img 
-                        src={product.image_url || '/api/placeholder/50/50'} 
-                        alt={product.name} 
-                        className="h-10 w-10 rounded-md object-cover"
-                      />
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {product.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.sku}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.category?.name || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.brand?.name || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.stock_qty}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.available}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <StockStatusBadge 
-                      status={product.stock_qty === 0 ? 'out_of_stock' : 
-                             product.stock_qty <= product.low_stock_threshold ? 'low_stock' : 
-                             'in_stock'} 
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="flex space-x-2">
-                      <button 
-                        className="text-orange-600 hover:text-orange-900"
-                        onClick={() => handleEditClick(product)}
-                      >
-                        <PencilIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </td>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop View - Table */}
+        <div className="hidden lg:block">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {['Image', 'Product Name', 'SKU', 'Category', 'Brand', 'Stock Qty', 'Available', 'Status', 'Actions'].map((header) => (
+                    <th
+                      key={header}
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-orange-600"
+                      onClick={() => requestSort(header.toLowerCase().replace(' ', '_'))}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>{header}</span>
+                        {getSortIndicator(header.toLowerCase().replace(' ', '_'))}
+                      </div>
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {sortedProducts.map((product) => (
+                  <tr key={product.id} className="hover:bg-orange-50">
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="w-8 h-8 rounded-md bg-gray-200 flex items-center justify-center">
+                        <img 
+                          src={product.image_url || '/api/placeholder/50/50'} 
+                          alt={product.name} 
+                          className="h-8 w-8 rounded-md object-cover"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 whitespace-normal max-w-48 font-medium text-gray-900">
+                      {product.name}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-gray-500">
+                      {product.sku}
+                    </td>
+                    <td className="px-4 py-4 whitespace-normal max-w-32 text-gray-500">
+                      {product.category?.name || 'N/A'}
+                    </td>
+                    <td className="px-4 py-4 whitespace-normal max-w-32 text-gray-500">
+                      {product.brand?.name || 'N/A'}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-gray-500">
+                      {product.stock_qty}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-gray-500">
+                      {product.available}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <StockStatusBadge 
+                        status={product.stock_qty === 0 ? 'out_of_stock' : 
+                               product.stock_qty <= product.low_stock_threshold ? 'low_stock' : 
+                               'in_stock'} 
+                      />
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-gray-500">
+                      <div className="flex space-x-2">
+                        <button 
+                          className="text-orange-600 hover:text-orange-900"
+                          onClick={() => handleEditClick(product)}
+                        >
+                          <PencilIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Pagination */}
         {pagination.total_pages > 1 && (
-          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          <div className="bg-white px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                 disabled={!pagination.has_prev}
-                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                className="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                 disabled={!pagination.has_next}
-                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                className="ml-3 relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>
@@ -755,14 +834,14 @@ const Inventory: React.FC = () => {
                   <button
                     onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                     disabled={!pagination.has_prev}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                     disabled={!pagination.has_next}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next
                   </button>
