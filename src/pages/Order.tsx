@@ -110,42 +110,7 @@ const Order: React.FC = () => {
       console.log('Orders API Response:', data);
       
       if (data.status === 'success') {
-        // Get tracking info for each order to get product images
-        const ordersWithImages = await Promise.all(
-          data.data.orders.map(async (order) => {
-            try {
-              const trackingResponse = await fetch(`${API_BASE_URL}/api/orders/${order.order_id}/track`, {
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json'
-                }
-              });
-              
-              if (trackingResponse.ok) {
-                const trackingData = await trackingResponse.json();
-                if (trackingData.status === 'success') {
-                  // Map tracking items to order items
-                  order.items = order.items.map(item => {
-                    const trackingItem = trackingData.data.items.find(
-                      (ti: any) => ti.order_item_id === item.order_item_id
-                    );
-                    return {
-                      ...item,
-                      product_image: trackingItem?.product_image || '/placeholder-image.jpg'
-                    };
-                  });
-                }
-              }
-            } catch (error) {
-              console.error(`Error fetching tracking info for order ${order.order_id}:`, error);
-            }
-            return order;
-          })
-        );
-
-        console.log('Orders with images:', ordersWithImages);
-        setOrders(ordersWithImages);
+        setOrders(data.data.orders);
         setTotalPages(data.data.pages);
       } else {
         throw new Error(data.message || 'Failed to fetch orders');

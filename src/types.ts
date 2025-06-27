@@ -3,6 +3,7 @@ export interface CartItem {
   product_id: number;
   merchant_id: number;
   quantity: number;
+  selected_attributes?: {[key: number]: string | string[]};
   product: {
     id: number;
     name: string;

@@ -271,6 +271,71 @@ const PaymentPage: React.FC = () => {
     }
   };
 
+  // Add function to create merchant transactions
+  const createMerchantTransactions = async (orderId: string): Promise<boolean> => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        console.error("No access token found for merchant transaction creation");
+        return false;
+      }
+
+      console.log("Creating merchant transactions for order:", orderId);
+
+      const response = await fetch(`${API_BASE_URL}/api/merchant-transactions/from-order`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          order_id: orderId
+        }),
+      });
+
+      console.log("Merchant transaction API response status:", response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to create merchant transactions:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+        // Don't throw error here as order is already created successfully
+        return false;
+      }
+
+      const data = await response.json();
+      console.log("Merchant transaction API response data:", data);
+
+      if (data.status === "success") {
+        console.log("Merchant transactions created successfully:", {
+          orderId,
+          transactionCount: data.transactions?.length || 0,
+          transactions: data.transactions
+        });
+        return true;
+      } else {
+        console.error("Failed to create merchant transactions:", {
+          orderId,
+          message: data.message,
+          data
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error("Error creating merchant transactions:", {
+        orderId,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      // Don't throw error here as order is already created successfully
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchAddresses();
     fetchSavedCards();
@@ -469,7 +534,8 @@ const PaymentPage: React.FC = () => {
 
     setProcessingPayment(true);
 
-    const subtotal = totalPrice;
+    // Calculate subtotal using original prices instead of cart context totalPrice
+    const subtotal = cart.reduce((total, item) => total + (item.product.original_price * item.quantity), 0);
     const finalTotal = subtotal - discount;
 
     // Calculate distributed discount per item if there's a total discount but no itemDiscounts
@@ -482,7 +548,9 @@ const PaymentPage: React.FC = () => {
       totalItemDiscounts,
       remainingDiscount,
       itemDiscounts,
-      subtotal
+      subtotal,
+      cartTotalPrice: totalPrice, // Original cart total for comparison
+      finalTotal
     });
     
     // Debug: Log promo information
@@ -496,7 +564,9 @@ const PaymentPage: React.FC = () => {
     
     const orderData = {
       items: cart.map((item) => {
-        const itemTotal = item.product.price * item.quantity;
+        // Use original_price as the base price for calculations
+        const basePrice = item.product.original_price;
+        const itemTotal = basePrice * item.quantity;
         let itemDiscountAmount = (itemDiscounts && itemDiscounts[item.product_id]) ? Number(itemDiscounts[item.product_id]) : 0;
         
         // If there's remaining discount to distribute (sitewide discount not in itemDiscounts)
@@ -516,14 +586,19 @@ const PaymentPage: React.FC = () => {
         const perUnitDiscount = itemDiscountAmount / item.quantity;
         const roundedPerUnitDiscount = Math.round(perUnitDiscount * 100) / 100;
 
+        // Calculate final unit price after discount
+        const finalUnitPrice = basePrice - roundedPerUnitDiscount;
+
         console.log(`Product ${item.product_id}:`, {
           name: item.product.name,
           quantity: item.quantity,
+          originalPrice: basePrice,
+          specialPrice: item.product.special_price,
           unitPrice: item.product.price,
           itemTotal: itemTotal,
           totalDiscountForItem: itemDiscountAmount,
           perUnitDiscount: roundedPerUnitDiscount,
-          finalUnitPrice: item.product.price - roundedPerUnitDiscount
+          finalUnitPrice: finalUnitPrice
         });
 
         return {
@@ -532,9 +607,9 @@ const PaymentPage: React.FC = () => {
           product_name_at_purchase: item.product.name,
           sku_at_purchase: item.product.sku || "",
           quantity: item.quantity,
-          unit_price_inclusive_gst: item.product.price.toString(),
-          line_item_total_inclusive_gst: (item.product.price * item.quantity).toString(),
-          final_price_for_item: (item.product.price * item.quantity).toString(),
+          unit_price_inclusive_gst: finalUnitPrice.toString(),
+          line_item_total_inclusive_gst: (finalUnitPrice * item.quantity).toString(),
+          final_price_for_item: (finalUnitPrice * item.quantity).toString(),
 
           item_discount_inclusive: roundedPerUnitDiscount.toString(), // Per-unit discount, not total discount for item
 
@@ -601,6 +676,14 @@ const PaymentPage: React.FC = () => {
           if (!paymentSuccess) {
             return;
           }
+        }
+
+        // Create merchant transactions for all merchants involved in the order
+        const merchantTransactionsSuccess = await createMerchantTransactions(orderId);
+        if (!merchantTransactionsSuccess) {
+          console.warn("Failed to create merchant transactions, but order was successful");
+          // Don't fail the order if merchant transaction creation fails
+          // The admin can manually create transactions later if needed
         }
 
         // Clear the cart after successful order

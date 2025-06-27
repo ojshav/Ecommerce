@@ -224,19 +224,18 @@ const FeaturedProducts: React.FC = () => {
                     product={{
                       id: product.product_id,
                       name: product.product_name,
-                      price: product.special_price || product.selling_price,
+                      price: product.selling_price,
                       rating: 0,
                       reviews: 0,
                       stock: product.stock?.stock_qty || 0,
                       description: product.product_description,
-                      image: product.images?.[0] || '',
                       images: product.images || [],
-                      category: product.category || { category_id: 0, name: '' },
+                      category: product.category?.name || '',
                       currency: 'INR',
                       tags: [],
-                      original_price: product.selling_price,
-                      special_price: product.special_price,
-                      is_deleted: false
+                      originalPrice: product.special_price || undefined,
+                      sku: '',
+                      primary_image: product.images?.[0] || ''
                     }}
                     salePercentage={product.discount_pct || undefined}
                   />
