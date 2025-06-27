@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import CartItem from '../components/CartItem';
 import CartSummary from '../components/CartSummary';
@@ -6,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { ShoppingCart, ArrowRight, Loader2, X } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { CartItem as CartItemType } from '../types';
 
 
@@ -204,89 +203,6 @@ const Cart: React.FC = () => {
 
           {/* Cart summary section integrated here */}
           <div className="lg:col-span-1 sticky top-4">
-
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-4">Cart Summary</h2>
-
-              <div className="space-y-3 text-gray-700">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>₹{totalPrice.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span>Free</span>
-                </div>
-                {discount > 0 && appliedPromo && (
-                  <div className="flex justify-between items-center text-green-600">
-                    <span>Discount ({appliedPromo.code})</span>
-                    <span>- ₹{discount.toFixed(2)}</span>
-                  </div>
-                )}
-              </div>
-
-              <hr className="my-4" />
-
-              <div className="flex justify-between font-bold text-lg mb-4">
-                <span>Total</span>
-                <span>₹{(finalTotal > 0 ? finalTotal : 0).toFixed(2)}</span>
-              </div>
-
-              <div className="space-y-4">
-                {!appliedPromo ? (
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Enter promo code"
-                      value={promoCodeInput}
-                      onChange={(e) =>
-                        setPromoCodeInput(e.target.value.toUpperCase())
-                      }
-                      className="flex-grow p-2 border rounded-md"
-                      disabled={promoLoading}
-                    />
-                    <button
-                      onClick={handleApplyPromo}
-                      disabled={promoLoading}
-                      className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-wait inline-flex items-center justify-center"
-                    >
-                      {promoLoading ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        "Apply"
-                      )}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex justify-between items-center bg-green-50 p-2 rounded-md">
-                    <p className="text-green-700 text-sm">
-                      Promo applied:{" "}
-                      <span className="font-bold">{appliedPromo.code}</span>
-                    </p>
-                    <button
-                      onClick={removePromo}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                )}
-
-                <button
-                  onClick={handleCheckout}
-                  disabled={loading}
-                  className="w-full bg-orange-500 text-white py-3 rounded-md hover:bg-orange-600 font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {loading ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    "Proceed to Checkout"
-                  )}
-                  {!loading && <ArrowRight size={18} />}
-                </button>
-              </div>
-            </div>
-
             <CartSummary
               cartItems={activeCartItems}
               totalPrice={totalPrice}
@@ -300,7 +216,6 @@ const Cart: React.FC = () => {
               loading={loading}
               finalTotal={finalTotal}
             />
-
           </div>
         </div>
       )}
