@@ -182,7 +182,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
               onClick={handleAddToCart}
               disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
               aria-label="Add to Cart"
+              
             >
+              
               <ShoppingCart className="w-7 h-7" />
             </button>
           </div>
