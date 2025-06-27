@@ -472,24 +472,75 @@ const PaymentPage: React.FC = () => {
     const subtotal = totalPrice;
     const finalTotal = subtotal - discount;
 
+    // Calculate distributed discount per item if there's a total discount but no itemDiscounts
+    const totalItemDiscounts = Object.values(itemDiscounts || {}).reduce((sum: number, discount: any) => sum + (typeof discount === 'number' ? discount : 0), 0);
+    const remainingDiscount = discount - totalItemDiscounts;
+    
+    // Debug: Log discount distribution
+    console.log("Discount Distribution Debug:", {
+      totalDiscount: discount,
+      totalItemDiscounts,
+      remainingDiscount,
+      itemDiscounts,
+      subtotal
+    });
+    
+    // Debug: Log promo information
+    console.log("Promo Debug:", {
+      appliedPromo,
+      promoCode: appliedPromo?.code,
+      internalNotes: appliedPromo && appliedPromo.code ? `Promo code used: ${appliedPromo.code}` : ""
+    });
+    
+    console.log("Individual item calculations:");
+    
     const orderData = {
-      items: cart.map((item) => ({
-        product_id: item.product_id,
-        merchant_id: item.merchant_id,
-        product_name_at_purchase: item.product.name,
-        sku_at_purchase: item.product.sku || "",
-        quantity: item.quantity,
-        unit_price_at_purchase: item.product.price.toString(),
-        item_subtotal_amount: (item.product.price * item.quantity).toString(),
-        final_price_for_item: (item.product.price * item.quantity).toString(),
+      items: cart.map((item) => {
+        const itemTotal = item.product.price * item.quantity;
+        let itemDiscountAmount = (itemDiscounts && itemDiscounts[item.product_id]) ? Number(itemDiscounts[item.product_id]) : 0;
+        
+        // If there's remaining discount to distribute (sitewide discount not in itemDiscounts)
+        if (remainingDiscount > 0 && subtotal > 0) {
+          const itemProportion = itemTotal / subtotal;
+          const distributedDiscount = remainingDiscount * itemProportion;
+          itemDiscountAmount += distributedDiscount;
+        }
 
-        item_discount_inclusive: (
-          itemDiscounts[item.product_id] || 0
-        ).toString(), // NEW: item-specific discount
+        // Ensure discount doesn't exceed item total
+        itemDiscountAmount = Math.min(itemDiscountAmount, itemTotal);
+        
+        // Round to 2 decimal places
+        itemDiscountAmount = Math.round(itemDiscountAmount * 100) / 100;
 
-        selected_attributes: item.selected_attributes || {}
+        // Calculate per-unit discount for this item
+        const perUnitDiscount = itemDiscountAmount / item.quantity;
+        const roundedPerUnitDiscount = Math.round(perUnitDiscount * 100) / 100;
 
-      })),
+        console.log(`Product ${item.product_id}:`, {
+          name: item.product.name,
+          quantity: item.quantity,
+          unitPrice: item.product.price,
+          itemTotal: itemTotal,
+          totalDiscountForItem: itemDiscountAmount,
+          perUnitDiscount: roundedPerUnitDiscount,
+          finalUnitPrice: item.product.price - roundedPerUnitDiscount
+        });
+
+        return {
+          product_id: item.product_id,
+          merchant_id: item.merchant_id,
+          product_name_at_purchase: item.product.name,
+          sku_at_purchase: item.product.sku || "",
+          quantity: item.quantity,
+          unit_price_inclusive_gst: item.product.price.toString(),
+          line_item_total_inclusive_gst: (item.product.price * item.quantity).toString(),
+          final_price_for_item: (item.product.price * item.quantity).toString(),
+
+          item_discount_inclusive: roundedPerUnitDiscount.toString(), // Per-unit discount, not total discount for item
+
+          selected_attributes: (item as any).selected_attributes || {}
+        };
+      }),
       subtotal_amount: subtotal.toString(),
       discount_amount: "0.00", // Set to 0 since discounts are now item-specific
       tax_amount: "0.00",
@@ -501,7 +552,7 @@ const PaymentPage: React.FC = () => {
       billing_address_id: selectedAddressId,
       shipping_method_name: "Standard Shipping",
       customer_notes: "",
-      internal_notes: appliedPromo
+      internal_notes: appliedPromo && appliedPromo.code
         ? `Promo code used: ${appliedPromo.code}`
         : "",
       payment_card_id:
@@ -515,10 +566,10 @@ const PaymentPage: React.FC = () => {
       ...orderData,
       items: orderData.items.map((item) => ({
         ...item,
-        unit_price_at_purchase: parseFloat(item.unit_price_at_purchase).toFixed(
+        unit_price_inclusive_gst: parseFloat(item.unit_price_inclusive_gst).toFixed(
           2
         ),
-        item_subtotal_amount: parseFloat(item.item_subtotal_amount).toFixed(2),
+        line_item_total_inclusive_gst  : parseFloat(item.line_item_total_inclusive_gst  ).toFixed(2),
         final_price_for_item: parseFloat(item.final_price_for_item).toFixed(2),
       })),
     });

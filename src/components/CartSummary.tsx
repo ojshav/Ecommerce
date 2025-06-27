@@ -142,13 +142,13 @@ const CartSummary: React.FC<CartSummaryProps> = ({
         <p className="text-gray-600">Free</p>
       </div>
 
-      {/* Discount */}
-      {discount && discount > 0 && appliedPromo && (
-        <div className="flex justify-between mb-4 text-green-600">
-          <p>Discount ({appliedPromo.code})</p>
-          <p>-{formatCurrency(discount)}</p>
-        </div>
-      )}
+      {typeof discount === 'number' && discount > 0 && appliedPromo && (
+  <div className="flex justify-between mb-4 text-green-600">
+    <p>Discount ({appliedPromo.code})</p>
+    <p>-{formatCurrency(discount)}</p>
+  </div>
+)}
+
       
       <div className="border-b border-gray-200 pb-3 mb-4">
         <div 

@@ -11,7 +11,7 @@ interface OrderItem {
   product_id: number;
   product_name_at_purchase: string;
   quantity: number;
-  unit_price_at_purchase: string;
+  unit_price_inclusive_gst: string;
   final_price_for_item: string;
   product_image: string;
   item_status: string;
