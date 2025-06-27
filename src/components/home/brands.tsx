@@ -14,8 +14,8 @@ const Brands = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
 
   const scrollLeft = () => {
     scrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
@@ -25,6 +25,36 @@ const Brands = () => {
     scrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
   };
 
+  // Animation effect for continuous scrolling
+  useEffect(() => {
+    if (!scrollRef.current || isPaused) return;
+    const scrollContainer = scrollRef.current;
+    let frameId: number;
+    let lastTimestamp: number | null = null;
+    const speed = 0.5; // px per ms, adjust for desired speed
+
+    const step = (timestamp: number) => {
+      if (lastTimestamp !== null) {
+        const delta = timestamp - lastTimestamp;
+        scrollContainer.scrollLeft += speed * delta;
+        // Loop scroll
+        if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
+          scrollContainer.scrollLeft = 0;
+        }
+      }
+      lastTimestamp = timestamp;
+      frameId = requestAnimationFrame(step);
+    };
+
+    frameId = requestAnimationFrame(step);
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
+  }, [isPaused, brands]);
+
+  const pauseMarquee = () => setIsPaused(true);
+  const resumeMarquee = () => setIsPaused(false);
+
   useEffect(() => {
     fetchBrands();
   }, []);
@@ -33,11 +63,9 @@ const Brands = () => {
     try {
       setLoading(true);
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/brands/icons`);
-
       if (!response.ok) {
         throw new Error('Failed to fetch brands');
       }
-
       const data = await response.json();
       setBrands(data);
     } catch (err) {
@@ -115,27 +143,34 @@ const Brands = () => {
           </div>
         </div>
 
-        {/* Scrollable brand icons */}
-        <div ref={scrollRef} className="flex space-x-4 overflow-x-auto pb-4 pt-2 pl-2 scroll-smooth">
-          {brands.map((brand) => (
-            <div
-              key={brand.brand_id}
-              onClick={() => navigate(`/all-products?brand=${brand.brand_id}`)}
-              className="flex-shrink-0 w-36 h-40 bg-transparent rounded-lg flex flex-col items-center justify-center text-center p-4 transition duration-200 hover:scale-105 cursor-pointer"
-            >
-              <div className="w-20 h-20 flex items-center justify-center">
-                {brand.icon_url ? (
-                  <img
-                    src={brand.icon_url}
-                    alt={brand.name}
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <span className="text-3xl">🏷️</span>
-                )}
+        {/* Scrollable brand icons with animation */}
+        <div className="relative overflow-x-hidden pb-4 pt-2 pl-2">
+          <div
+            className="flex animate-marquee space-x-4"
+            onMouseEnter={pauseMarquee}
+            onMouseLeave={resumeMarquee}
+            style={{ animationPlayState: isPaused ? 'paused' : 'running' }}
+          >
+            {[...brands, ...brands].map((brand, idx) => (
+              <div
+                key={brand.brand_id + '-' + idx}
+                onClick={() => navigate(`/all-products?brand=${brand.brand_id}`)}
+                className="flex-shrink-0 w-36 h-40 bg-transparent rounded-lg flex flex-col items-center justify-center text-center p-4 transition duration-200 hover:scale-105 cursor-pointer"
+              >
+                <div className="w-20 h-20 flex items-center justify-center">
+                  {brand.icon_url ? (
+                    <img
+                      src={brand.icon_url}
+                      alt={brand.name}
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-3xl">🏷️</span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>

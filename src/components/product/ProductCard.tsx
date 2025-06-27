@@ -94,11 +94,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
       toast.error(error instanceof Error ? error.message : 'Failed to update wishlist');
     }
   };
-  
+
   // Calculate sale percentage if original price exists
   const calculateSalePercentage = () => {
-    if (product.originalPrice && product.price) {
-      const percentage = ((product.originalPrice - product.price) / product.originalPrice) * 100;
+    if (product.original_price && product.price) {
+      const percentage = ((product.original_price - product.price) / product.original_price) * 100;
       return Math.round(percentage);
     }
     return 0;
@@ -166,17 +166,26 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="mt-auto w-full">
           <div className="flex flex-wrap sm:flex-nowrap items-center space-x-2 mb-4">
             <span className="text-lg font-semibold">₹{product.price.toFixed(2)}</span>
-            {product.originalPrice && (
-              <span className="text-gray-400 text-sm line-through">₹{product.originalPrice.toFixed(2)}</span>
+            {product.original_price && (
+              <span className="text-gray-400 text-sm line-through">₹{product.original_price.toFixed(2)}</span>
             )}
           </div>
-          <button
-            className="w-auto sm:min-w-[139px] mx-auto bg-[#F2631F] text-white text-xs sm:text-sm font-worksans font-medium hover:bg-orange-600 py-2 px-4 sm:px-6 rounded-xl duration-300 transition"
-            onClick={handleAddToCart}
-            disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
-          >
-            {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
-          </button>
+          <div className="flex gap-2 w-full">
+            <button
+              className="w-1/2 bg-[#F2631F] text-white text-base font-worksans font-medium hover:bg-orange-600 py-2 rounded-xl duration-300 transition shadow-md"
+              disabled
+            >
+              Buy Now
+            </button>
+            <button
+              className="w-1/2 flex items-center justify-center bg-gray-200 text-black rounded-xl shadow-md hover:bg-gray-300 transition"
+              onClick={handleAddToCart}
+              disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
+              aria-label="Add to Cart"
+            >
+              <ShoppingCart className="w-7 h-7" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

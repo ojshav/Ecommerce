@@ -21,28 +21,42 @@ const services = [
 
 const Services: React.FC = () => {
   return (
-    <section className="pb-12">
-      <div className="container mx-auto px-4 xl:px-14">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {services.map((service, index) => (
-            <div 
-              key={index}
-              className="flex flex-col items-center text-center px-0 py-6 border border-gray-200 rounded-lg bg-white hover:shadow-md transition-shadow"
-            >
-              <div className="mb-4">
-                {service.icon}
+    <div>
+      <section className="pb-12">
+        <div className="container mx-auto px-4 xl:px-14">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {services.map((service, index) => (
+              <div 
+                key={index}
+                className="flex flex-col items-center text-center px-0 py-6 border border-gray-200 rounded-lg bg-white hover:shadow-md transition-shadow"
+              >
+                <div className="mb-4">
+                  {service.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-black">
+                  {service.title}
+                </h3>
+                <p className="text-gray-700">
+                  {service.description}
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-black">
-                {service.title}
-              </h3>
-              <p className="text-gray-700">
-                {service.description}
-              </p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+      </section>
+      <div className="flex justify-center my-20">
+        <video
+          autoPlay
+          loop
+          muted
+          className="rounded-lg shadow-lg"
+          style={{ width: '100%', maxWidth: '1169px', height: '422px', objectFit: 'cover' }}
+        >
+          <source src="/assets/videos/lp1.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
       </div>
-    </section>
+    </div>
   );
 };
 

@@ -135,7 +135,7 @@ const Navbar: React.FC = () => {
   const searchBarContent = (
     <div ref={desktopSearchRef} className="relative">
       <form onSubmit={handleSearchSubmit} className="relative">
-        <div className="w-full xl:w-[580px] h-10 flex justify-between items-center rounded-lg overflow-hidden bg-white overflow-hidden">
+        <div className="w-full xl:w-[580px] h-10 flex justify-between items-center rounded-lg  bg-white overflow-hidden">
           <input
             type="text"
             placeholder="What are you looking for?"
@@ -144,7 +144,7 @@ const Navbar: React.FC = () => {
             onChange={handleSearchInputChange}
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
-          <div className="relative w-[196px] flex items-center bg-gray-100">
+          <div className="relative w-[196px] flex items-center  bg-[#FBF4CE]">
             <select
               className="w-full h-full appearance-none bg-transparent py-3 pl-4 pr-[120px] text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-normal text-[14px] leading-6 tracking-[0%]"
               value={searchType}
@@ -182,7 +182,7 @@ const Navbar: React.FC = () => {
             onChange={handleSearchInputChange}
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
-          <div className="relative flex items-center border-t border-gray-200 bg-white">
+          <div className="relative flex items-center border-t border-gray-200 bg-[#FBF4CE]">
             <select
               className="w-full h-full appearance-none bg-transparent py-2.5 pl-4 pr-8 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
               value={searchType}
@@ -246,7 +246,7 @@ const Navbar: React.FC = () => {
       </style>
 
       {/* Top navigation - black bar */}
-      <div className="bg-black text-white pb-2 md:pb-3 lg:pb-4">
+      <div className="bg-[#FFE7DB] text-white pb-2 md:pb-3 lg:pb-4">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 2xl:px-6 3xl:px-8 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px] 2xl:max-w-[1440px] 3xl:max-w-[1680px] 4xl:max-w-[1920px]">
           <div className="flex flex-col sm:pl-1 md:pl-0">
             <div className="flex flex-start py-2 sm:py-3">
@@ -277,7 +277,7 @@ const Navbar: React.FC = () => {
 
               {/* Mobile menu toggle - use custom breakpoint at 968px */}
               <button
-                className="block nav:hidden text-white p-2 sm:ml-auto"
+                className="block nav:hidden text-black p-2 sm:ml-auto"
                 onClick={toggleMobileMenu}
                 aria-label="Toggle mobile menu"
                 ref={mobileMenuButtonRef}
@@ -293,7 +293,7 @@ const Navbar: React.FC = () => {
                   </div>
 
                   <button
-                    className="w-24 h-11 bg-black hover:bg-gray-900 text-white py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-white whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+                    className="w-24 h-11  hover:bg-gray-900 text-[#692C2C] py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-[#692C2C] whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
                     onClick={() => {
                       setShowSearchResults(false);
                       setSearchQuery('');
@@ -305,11 +305,11 @@ const Navbar: React.FC = () => {
                   {/* Icons */}
                   <div className="flex items-center gap-2 nav:gap-3 mid:gap-4">
 
-                    <Link to="/wishlist" className="text-white hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
+                    <Link to="/wishlist" className="text-[#692C2C] hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <Heart className="w-5 h-5" />
                     </Link>
 
-                    <Link to="/cart" className="text-white hover:text-[#F2631F] relative font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
+                    <Link to="/cart" className="text-[#692C2C] hover:text-[#F2631F] relative font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <ShoppingCart className="w-5 h-5" />
                       {totalItems > 0 && (
                         <span className="absolute -top-2 -right-2 bg-[#F2631F] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -318,7 +318,7 @@ const Navbar: React.FC = () => {
                       )}
                     </Link>
 
-                    <Link to="/profile" className="text-white hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
+                    <Link to="/profile" className="text-[#692C2C] hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <User className="w-5 h-5" />
                     </Link>
                   </div>
@@ -436,7 +436,7 @@ const Navbar: React.FC = () => {
 
           {/* Mobile lower navigation dropdown - use custom breakpoint at 968px */}
           {lowerMobileMenuOpen && (
-            <div className="nav:hidden border-t border-gray-200 pt-2 pb-1" ref={lowerMobileMenuRef}>
+            <div className="nav:hidden border-t border-gray-200 pt-2 pb-1 bg-gradient-to-b from-white to-black" ref={lowerMobileMenuRef}>
               <Link to="/track-order" className="flex items-center py-1.5 px-2 text-sm hover:text-[#F2631F] mb-2" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                 <img src="/assets/images/track-order.png" alt="Track Order" className="w-4 h-4 mr-2" />
                 <span>Track Your Order</span>
@@ -581,7 +581,7 @@ const Navbar: React.FC = () => {
             </Link>
             <button
               onClick={() => setShowPromoBar(false)}
-              className="absolute right-1 top-1/2 -translate-y-1/2 text-orange-400 hover:text-orange-600 bg-white/60 rounded-full p-0.5 transition-colors border border-orange-100"
+              className="absolute right-1 top-1/2 -translate-y-1/2 text-black hover:text-gray-800 bg-white/60 rounded-full p-0.5 transition-colors border border-orange-100"
               aria-label="Close promo bar"
             >
               <X className="w-3.5 h-3.5" />
