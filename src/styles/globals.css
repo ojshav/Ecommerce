@@ -31,6 +31,28 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;  /* Chrome, Safari and Opera */
   }
+  .category-hover-shadow {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .category-hover-shadow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -10%;
+    width: 10%;
+    height: 100%;
+    background: radial-gradient(circle at left center, rgba(0, 0, 0, 0.18), transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+  }
+
+  .category-hover-shadow:hover::before {
+    opacity: 1;
+  }
 }
 
 @layer base {
@@ -180,4 +202,9 @@
   .nav-button {
     @apply transition-colors duration-200;
   }
+}
+
+/* Category hover left inset shadow */
+.category-hover-shadow {
+  box-shadow: inset 12px 0 18px -8px rgba(0,0,0,0.18);
 } 
