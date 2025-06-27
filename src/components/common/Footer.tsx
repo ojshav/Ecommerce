@@ -4,7 +4,7 @@ import { Mail, Phone, MapPin, Twitter, Facebook, Github, Instagram } from 'lucid
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-black text-white w-full">
+    <footer className="bg-[#FFE7DB] text-black w-full">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-x-6 gap-y-12">
 
@@ -14,19 +14,19 @@ const Footer: React.FC = () => {
               <img src="/assets/images/logo.svg" alt="AUIN" className="h-10" />
             </Link>
 
-            <div className="space-y-4 text-[14px] font-light text-white">
+            <div className="space-y-4 text-[14px] font-light text-[#161616]">
               <div className="flex items-start space-x-3">
-                <MapPin size={18} className="text-gray-400 mt-1" />
+                <MapPin size={18} className="text-black mt-1" />
                 <span className="leading-tight">
                   1658 Rosewood Lane<br />New York city, NY
                 </span>
               </div>
               <div className="flex items-center space-x-3">
-                <Phone size={18} className="text-gray-400" />
+                <Phone size={18} className="text-[#161616" />
                 <a href="tel:2129299953" className="text-[#F2631F] hover:text-white">212 929 9953</a>
               </div>
               <div className="flex items-center space-x-3">
-                <Mail size={18} className="text-gray-400" />
+                <Mail size={18} className="text-[#161616" />
                 <span className="text-[#F2631F]">************.com</span>
               </div>
             </div>
@@ -35,8 +35,8 @@ const Footer: React.FC = () => {
 
           {/* Column 2 - Shop */}
           <div>
-            <h4 className="text-[18px] font-medium text-white mb-4">Shop</h4>
-            <ul className="space-y-3 text-[14px] text-white font-light">
+            <h4 className="text-[18px] font-medium text-[#161616] mb-4">Shop</h4>
+            <ul className="space-y-3 text-[14px] text-[#161616] font-light">
               <li><Link to="/new-product">New Product</Link></li>
               <li><Link to="/live-shop">Live Shop</Link></li>
               <li><Link to="/promo-products">Promotion</Link></li>
@@ -47,8 +47,8 @@ const Footer: React.FC = () => {
 
           {/* Column 3 - Policies */}
           <div className="md:-ml-20">
-            <h4 className="text-[18px] font-medium text-white mb-4">Policies</h4>
-            <ul className="space-y-3 text-[14px] text-white font-light">
+            <h4 className="text-[18px] font-medium text-[#161616] mb-4">Policies</h4>
+            <ul className="space-y-3 text-[14px] text-[#161616] font-light">
               <li><Link to="/privacy-policy">Privacy Policy</Link></li>
               <li><Link to="/cancellation-policy">Cancellation Policy</Link></li>
               <li><Link to="/return-refund">Return & Refund</Link></li>
@@ -58,8 +58,8 @@ const Footer: React.FC = () => {
 
           {/* Column 4 - Customer Support */}
           <div className="md:-ml-28">
-            <h4 className="text-[18px] font-medium text-white mb-4">Customer Support</h4>
-            <ul className="space-y-3 text-[14px] text-white font-light">
+            <h4 className="text-[18px] font-medium text-[#161616] mb-4">Customer Support</h4>
+            <ul className="space-y-3 text-[14px] text-[#161616] font-light">
               <li>
                 <div>Call us at</div>
                 <a href="tel:2129299953" className="text-[#F2631F]">212 929 9953</a>
@@ -76,7 +76,7 @@ const Footer: React.FC = () => {
 
           {/* Column 5 - Follow Us & Newsletter */}
           <div className="md:-ml-32">
-            <h4 className="text-[18px] font-medium text-white mb-4">Follow Us</h4>
+            <h4 className="text-[18px] font-medium text-[#161616] mb-4">Follow Us</h4>
             <div className="flex space-x-5 mb-6">
               <a href="#" className="text-[#F2631F] hover:text-white"><Twitter size={20} /></a>
               <a href="#" className="text-[#F2631F] hover:text-white"><Facebook size={20} /></a>
@@ -104,7 +104,7 @@ const Footer: React.FC = () => {
             </form>
 
 
-            <p className="mt-4 text-[18px] text-white font-normal leading-snug">
+            <p className="mt-4 text-[18px] text-[#161616] font-normal leading-snug">
               Receive our latest updates about our products&nbsp;& promotions
             </p>
           </div>
@@ -114,7 +114,7 @@ const Footer: React.FC = () => {
       {/* Bottom White Bar */}
       <div className="bg-white py-4">
         <div className="container mx-auto px-4">
-          <p className="text-center text-[13px] text-gray-400">
+          <p className="text-left text-[13px] text-gray-400">
             © 2000–2021, All Rights Reserved
           </p>
         </div>
