@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Heart, Facebook, Instagram, Twitter, Mail, LogOut, User, ChevronDown, Menu, X, Gift, Sparkles } from 'lucide-react';
+import { ShoppingCart, Heart, Facebook, Instagram, Twitter, Mail, LogOut, User, ChevronDown, Menu, X, Gift } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import CategoryDropdown from '../home/CategoryDropdown';
@@ -293,7 +293,7 @@ const Navbar: React.FC = () => {
                   </div>
 
                   <button
-                    className="w-24 h-11  hover:bg-gray-900 text-[#692C2C] py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-[#692C2C] whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+                    className="w-24 h-11 hover:bg-[#F2631F] hover:border-[#F2631F] hover:text-white text-[#692C2C] py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-[#692C2C] whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] transition-colors"
                     onClick={() => {
                       setShowSearchResults(false);
                       setSearchQuery('');
