@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, Heart, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Heart, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import { Product } from '../types';
 import ProductCard from '../components/product/ProductCard';
 
@@ -19,6 +19,7 @@ const FeaturedProductsPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
+  const [originalProducts, setOriginalProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,6 +30,8 @@ const FeaturedProductsPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
+  const [selectedDiscounts, setSelectedDiscounts] = useState<string[]>([]);
+  const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -185,8 +188,10 @@ const FeaturedProductsPage: React.FC = () => {
         id: String(product.product_id),
         name: product.product_name,
         description: product.product_description,
+
         price: product.price, // Use the backend-calculated price
         original_price: product.originalPrice, // Use the backend-calculated originalPrice
+
         currency: 'INR',
         image: product.images?.[0] || '',
         images: product.images || [],
@@ -204,9 +209,45 @@ const FeaturedProductsPage: React.FC = () => {
         category_id: product.category?.category_id,
         brand_id: product.brand?.brand_id
       }));
-      setProducts(transformedProducts);
-      setTotalPages(data.message.pagination.pages);
-      setTotalProducts(data.message.pagination.total);
+
+      // Store original products and apply initial filtering
+      setOriginalProducts(transformedProducts);
+      
+      // Apply client-side filters for discount and rating
+      let filteredProducts = transformedProducts;
+      
+      // Apply discount filter
+      if (selectedDiscounts && selectedDiscounts.length > 0) {
+        const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
+        console.log('Applying discount filter with minimum discount:', minDiscount);
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          if (product.original_price && product.price && product.original_price > product.price) {
+            const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
+            const hasDiscount = discountPercentage >= minDiscount;
+            console.log(`Product ${product.name}: Original: ${product.original_price}, Price: ${product.price}, Discount: ${discountPercentage.toFixed(1)}%, Meets filter: ${hasDiscount}`);
+            return hasDiscount;
+          }
+          return false;
+        });
+        console.log(`Discount filter applied: ${filteredProducts.length} products remaining`);
+      }
+      
+      // Apply rating filter
+      if (selectedRatings && selectedRatings.length > 0) {
+        const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
+        console.log('Applying rating filter with minimum rating:', minRating);
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          const productRating = product.rating || 0;
+          const meetsRating = productRating >= minRating;
+          console.log(`Product ${product.name}: Rating: ${productRating}, Meets filter: ${meetsRating}`);
+          return meetsRating;
+        });
+        console.log(`Rating filter applied: ${filteredProducts.length} products remaining`);
+      }
+      
+      setProducts(filteredProducts);
+      setTotalPages(Math.ceil(filteredProducts.length / perPage));
+      setTotalProducts(filteredProducts.length);
 
       if (categoryId && !selectedCategory) {
         setSelectedCategory(categoryId);
@@ -259,6 +300,41 @@ const FeaturedProductsPage: React.FC = () => {
     fetchFeaturedProducts();
   }, [currentPage, selectedCategory, selectedBrands, priceRange, searchQuery]);
 
+  // Apply client-side filters when discount or rating changes
+  useEffect(() => {
+    if (originalProducts.length > 0) {
+      console.log('Applying client-side filters:', {
+        selectedDiscounts,
+        selectedRatings
+      });
+      
+      // Apply discount filter
+      let filteredProducts = originalProducts;
+      if (selectedDiscounts && selectedDiscounts.length > 0) {
+        const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          if (product.original_price && product.price && product.original_price > product.price) {
+            const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
+            return discountPercentage >= minDiscount;
+          }
+          return false;
+        });
+      }
+      
+      // Apply rating filter
+      if (selectedRatings && selectedRatings.length > 0) {
+        const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          return (product.rating || 0) >= minRating;
+        });
+      }
+      
+      setProducts(filteredProducts);
+      setTotalPages(Math.ceil(filteredProducts.length / perPage));
+      setTotalProducts(filteredProducts.length);
+    }
+  }, [selectedDiscounts, selectedRatings, originalProducts]);
+
   // Toggle brand selection
   const toggleBrand = (brand: string) => {
     setSelectedBrands(prev => {
@@ -280,7 +356,14 @@ const FeaturedProductsPage: React.FC = () => {
     setSelectedCategory('');
     setSelectedBrands([]);
     setPriceRange([0, 1000000]);
+    setSelectedDiscounts([]);
+    setSelectedRatings([]);
     setCurrentPage(1);
+    
+    // Reset products to original state
+    setProducts(originalProducts);
+    setTotalPages(Math.ceil(originalProducts.length / perPage));
+    setTotalProducts(originalProducts.length);
     
     const params = new URLSearchParams(location.search);
     params.delete('category');
@@ -381,6 +464,81 @@ const FeaturedProductsPage: React.FC = () => {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Discount Filter */}
+            <div className="mb-8">
+              <h3 className="font-semibold text-base mb-3 text-black">Discount</h3>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: '10% or more', value: '10' },
+                  { label: '20% or more', value: '20' },
+                  { label: '30% or more', value: '30' },
+                  { label: '40% or more', value: '40' },
+                  { label: '50% or more', value: '50' }
+                ].map((discount) => {
+                  const isSelected = selectedDiscounts && selectedDiscounts.includes(discount.value);
+                  return (
+                    <button
+                      key={discount.value}
+                      onClick={() => {
+                        setSelectedDiscounts(prev => 
+                          prev && prev.includes(discount.value) 
+                            ? prev.filter(d => d !== discount.value)
+                            : [...(prev || []), discount.value]
+                        );
+                      }}
+                      className={`px-3 py-1.5 rounded-full border text-xs font-normal transition-colors focus:outline-none ${
+                        isSelected
+                          ? 'bg-[#F2631F] text-white border-[#F2631F] shadow'
+                          : 'bg-gray-100 border-gray-200 text-black hover:border-[#F2631F] hover:text-[#F2631F]'
+                      }`}
+                    >
+                      {discount.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Ratings Filter */}
+            <div className="mb-8">
+              <h3 className="font-semibold text-base mb-3 text-black">Ratings</h3>
+              {(() => {
+                const selectedRatingValue = selectedRatings && selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
+                return (
+                  <div className="flex items-center">
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map(star => {
+                        const isFull = selectedRatingValue >= star;
+                        const isHalf = selectedRatingValue >= star - 0.5 && selectedRatingValue < star;
+                        return (
+                          <div key={star} className="relative cursor-pointer" style={{ width: 28, height: 28 }} onClick={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const clickX = e.clientX - rect.left;
+                            const rating = clickX < rect.width / 2 ? star - 0.5 : star;
+                            setSelectedRatings([rating.toString()]);
+                          }}>
+                            <Star className="text-gray-300" fill="currentColor" size={28}/>
+                            {isFull ? (
+                              <div className="absolute top-0 left-0">
+                                <Star className="text-yellow-400" fill="currentColor" size={28}/>
+                              </div>
+                            ) : isHalf ? (
+                              <div className="absolute top-0 left-0 w-1/2 overflow-hidden">
+                                <Star className="text-yellow-400" fill="currentColor" size={28}/>
+                              </div>
+                            ) : null}
+                          </div>
+                        )
+                      })}
+                    </div>
+                    {selectedRatingValue > 0 && (
+                      <span className="ml-2 text-sm font-medium text-gray-700">{selectedRatingValue}★ & up</span>
+                    )}
+                  </div>
+                )
+              })()}
             </div>
 
             {/* Reset Filters */}

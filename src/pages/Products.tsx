@@ -19,6 +19,7 @@ const Products: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
+  const [originalProducts, setOriginalProducts] = useState<Product[]>([]);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
@@ -249,12 +250,6 @@ const Products: React.FC = () => {
       if (searchQuery) {
         params.append('search', searchQuery);
       }
-      if (selectedDiscounts.length > 0) {
-        params.append('min_discount', Math.max(...selectedDiscounts.map(d => parseInt(d))).toString());
-      }
-      if (selectedRatings.length > 0) {
-        params.append('min_rating', Math.max(...selectedRatings.map(r => parseFloat(r))).toString());
-      }
 
       // Always use the main products endpoint with filters
       const apiUrl = `${API_BASE_URL}/api/products?${params}`;
@@ -275,9 +270,44 @@ const Products: React.FC = () => {
       const data = await response.json();
       console.log('Products response:', data);
       
-      setProducts(data.products);
-      setTotalPages(data.pagination.pages);
-      setTotalProducts(data.pagination.total);
+      // Store original products and apply initial filtering
+      setOriginalProducts(data.products);
+      
+      // Apply client-side filters for discount and rating
+      let filteredProducts = data.products;
+      
+      // Apply discount filter
+      if (selectedDiscounts.length > 0) {
+        const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
+        console.log('Applying discount filter with minimum discount:', minDiscount);
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          if (product.original_price && product.price && product.original_price > product.price) {
+            const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
+            const hasDiscount = discountPercentage >= minDiscount;
+            console.log(`Product ${product.name}: Original: ${product.original_price}, Price: ${product.price}, Discount: ${discountPercentage.toFixed(1)}%, Meets filter: ${hasDiscount}`);
+            return hasDiscount;
+          }
+          return false;
+        });
+        console.log(`Discount filter applied: ${filteredProducts.length} products remaining`);
+      }
+      
+      // Apply rating filter
+      if (selectedRatings.length > 0) {
+        const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
+        console.log('Applying rating filter with minimum rating:', minRating);
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          const productRating = product.rating || 0;
+          const meetsRating = productRating >= minRating;
+          console.log(`Product ${product.name}: Rating: ${productRating}, Meets filter: ${meetsRating}`);
+          return meetsRating;
+        });
+        console.log(`Rating filter applied: ${filteredProducts.length} products remaining`);
+      }
+      
+      setProducts(filteredProducts);
+      setTotalPages(Math.ceil(filteredProducts.length / perPage));
+      setTotalProducts(filteredProducts.length);
 
       // Update selected category if coming from navigation
       if (categoryId && !selectedCategory) {
@@ -353,12 +383,45 @@ const Products: React.FC = () => {
       selectedCategory,
       selectedBrands,
       priceRange,
-      searchQuery,
-      selectedDiscounts,
-      selectedRatings
+      searchQuery
     });
     fetchProducts();
-  }, [currentPage, selectedCategory, selectedBrands, priceRange, searchQuery, selectedDiscounts, selectedRatings]);
+  }, [currentPage, selectedCategory, selectedBrands, priceRange, searchQuery]);
+  
+  // Apply client-side filters when discount or rating changes
+  useEffect(() => {
+    if (originalProducts.length > 0) {
+      console.log('Applying client-side filters:', {
+        selectedDiscounts,
+        selectedRatings
+      });
+      
+      // Apply discount filter
+      let filteredProducts = originalProducts;
+      if (selectedDiscounts.length > 0) {
+        const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          if (product.original_price && product.price) {
+            const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
+            return discountPercentage >= minDiscount;
+          }
+          return false;
+        });
+      }
+      
+      // Apply rating filter
+      if (selectedRatings.length > 0) {
+        const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          return (product.rating || 0) >= minRating;
+        });
+      }
+      
+      setProducts(filteredProducts);
+      setTotalPages(Math.ceil(filteredProducts.length / perPage));
+      setTotalProducts(filteredProducts.length);
+    }
+  }, [selectedDiscounts, selectedRatings]);
   
   // Toggle brand selection
   const toggleBrand = (brand: string) => {
@@ -418,6 +481,11 @@ const Products: React.FC = () => {
     setSelectedDiscounts([]);
     setSelectedRatings([]);
     setCurrentPage(1);
+    
+    // Reset products to original state
+    setProducts(originalProducts);
+    setTotalPages(Math.ceil(originalProducts.length / perPage));
+    setTotalProducts(originalProducts.length);
     
     // Clear URL parameters
     const params = new URLSearchParams(location.search);
