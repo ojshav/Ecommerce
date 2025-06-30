@@ -31,6 +31,40 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;  /* Chrome, Safari and Opera */
   }
+  .category-hover-shadow {
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+}
+  
+  .category-hover-shadow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 40%;
+    width: 100%;
+    height: 130%;
+    box-shadow: inset 12px 12px  10px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+    pointer-events: none;
+    -webkit-border-radius: 40%;
+    -moz-border-radius: 40%;
+    -ms-border-radius: 40%;
+    -o-border-radius: 40%;
+}
+  
+  .category-hover-shadow:hover::before {
+    opacity: 1;
+  }
+  
+  
 }
 
 @layer base {
@@ -180,4 +214,9 @@
   .nav-button {
     @apply transition-colors duration-200;
   }
+}
+
+/* Category hover left inset shadow */
+.category-hover-shadow {
+  box-shadow: inset 12px 0 18px -8px rgba(0,0,0,0.18);
 } 

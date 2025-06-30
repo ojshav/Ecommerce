@@ -184,7 +184,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
               aria-label="Add to Cart"
               
             >
-              
               <ShoppingCart className="w-7 h-7" />
             </button>
           </div>
