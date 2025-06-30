@@ -383,7 +383,7 @@ const AdminLayout: React.FC = () => {
                                 ${!isMobile && isSidebarCollapsed ? 'mx-auto mr-0' : ''}`
                               }
                             />
-                            {!isMobile && !isSidebarCollapsed && item.name}
+                            {((!isMobile && !isSidebarCollapsed) || (isMobile && isSidebarOpen)) && item.name}
                           </div>
                           {!isMobile && !isSidebarCollapsed && (
                             <ChevronDownIcon
@@ -464,7 +464,7 @@ const AdminLayout: React.FC = () => {
                             ${!isMobile && isSidebarCollapsed ? 'mx-auto mr-0' : ''}`
                           }
                         />
-                        {!isMobile && !isSidebarCollapsed && item.name}
+                        {((!isMobile && !isSidebarCollapsed) || (isMobile && isSidebarOpen)) && item.name}
                       </Link>
                     )}
                   </div>

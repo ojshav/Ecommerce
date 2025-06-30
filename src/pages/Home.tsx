@@ -12,6 +12,7 @@ import Services from '../components/home/Services';
 import HomepageProducts from '../components/home/HomepageProducts';
 import SearchResults from '../components/common/SearchResults';
 import useClickOutside from '../hooks/useClickOutside';
+import NewProductCarousel from '../components/home/NewProductCarousel';
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -145,6 +146,7 @@ const Home = () => {
           <Shop />
           <FeaturedProducts />
           <PromoProducts />
+          <NewProductCarousel />
           <TrendingDeals />
           <HomepageProducts />
           <Services />
