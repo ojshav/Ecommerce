@@ -21,6 +21,7 @@ const PromoProductsPage: React.FC = () => {
   const navigate = useNavigate();
   
   const [products, setProducts] = useState<Product[]>([]);
+  const [originalProducts, setOriginalProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,6 +33,7 @@ const PromoProductsPage: React.FC = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
   const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
+  const [selectedDiscounts, setSelectedDiscounts] = useState<string[]>([]);
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -240,6 +242,7 @@ const PromoProductsPage: React.FC = () => {
         name: product.product_name,
         description: product.product_description,
         price: product.special_price || product.selling_price,
+        original_price: product.selling_price,
         originalPrice: product.selling_price,
         currency: 'INR',
         image: product.images?.[0] || '',
@@ -258,9 +261,45 @@ const PromoProductsPage: React.FC = () => {
         category_id: product.category?.category_id,
         brand_id: product.brand?.brand_id
       }));
-      setProducts(transformedProducts);
-      setTotalPages(data.message.pagination.pages);
-      setTotalProducts(data.message.pagination.total);
+
+      // Store original products and apply initial filtering
+      setOriginalProducts(transformedProducts);
+      
+      // Apply client-side filters for discount and rating
+      let filteredProducts = transformedProducts;
+      
+      // Apply discount filter
+      if (selectedDiscounts && selectedDiscounts.length > 0) {
+        const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
+        console.log('Applying discount filter with minimum discount:', minDiscount);
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          if (product.original_price && product.price && product.original_price > product.price) {
+            const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
+            const hasDiscount = discountPercentage >= minDiscount;
+            console.log(`Product ${product.name}: Original: ${product.original_price}, Price: ${product.price}, Discount: ${discountPercentage.toFixed(1)}%, Meets filter: ${hasDiscount}`);
+            return hasDiscount;
+          }
+          return false;
+        });
+        console.log(`Discount filter applied: ${filteredProducts.length} products remaining`);
+      }
+      
+      // Apply rating filter
+      if (selectedRatings && selectedRatings.length > 0) {
+        const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
+        console.log('Applying rating filter with minimum rating:', minRating);
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          const productRating = product.rating || 0;
+          const meetsRating = productRating >= minRating;
+          console.log(`Product ${product.name}: Rating: ${productRating}, Meets filter: ${meetsRating}`);
+          return meetsRating;
+        });
+        console.log(`Rating filter applied: ${filteredProducts.length} products remaining`);
+      }
+      
+      setProducts(filteredProducts);
+      setTotalPages(Math.ceil(filteredProducts.length / perPage));
+      setTotalProducts(filteredProducts.length);
 
       if (categoryId && !selectedCategory) {
         setSelectedCategory(categoryId);
@@ -316,6 +355,41 @@ const PromoProductsPage: React.FC = () => {
 
     return () => clearTimeout(timeoutId);
   }, [location.search, currentPage]);
+
+  // Apply client-side filters when discount or rating changes
+  useEffect(() => {
+    if (originalProducts.length > 0) {
+      console.log('Applying client-side filters:', {
+        selectedDiscounts,
+        selectedRatings
+      });
+      
+      // Apply discount filter
+      let filteredProducts = originalProducts;
+      if (selectedDiscounts && selectedDiscounts.length > 0) {
+        const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          if (product.original_price && product.price && product.original_price > product.price) {
+            const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
+            return discountPercentage >= minDiscount;
+          }
+          return false;
+        });
+      }
+      
+      // Apply rating filter
+      if (selectedRatings && selectedRatings.length > 0) {
+        const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
+        filteredProducts = filteredProducts.filter((product: Product) => {
+          return (product.rating || 0) >= minRating;
+        });
+      }
+      
+      setProducts(filteredProducts);
+      setTotalPages(Math.ceil(filteredProducts.length / perPage));
+      setTotalProducts(filteredProducts.length);
+    }
+  }, [selectedDiscounts, selectedRatings, originalProducts]);
 
   // Toggle brand selection
   const toggleBrand = (brand: string) => {
@@ -379,7 +453,14 @@ const PromoProductsPage: React.FC = () => {
     setSelectedCategory('');
     setSelectedBrands([]);
     setPriceRange([0, 1000000]);
+    setSelectedDiscounts([]);
+    setSelectedRatings([]);
     setCurrentPage(1);
+    
+    // Reset products to original state
+    setProducts(originalProducts);
+    setTotalPages(Math.ceil(originalProducts.length / perPage));
+    setTotalProducts(originalProducts.length);
     
     const params = new URLSearchParams(location.search);
     params.delete('category');
@@ -565,6 +646,41 @@ const PromoProductsPage: React.FC = () => {
                     className="absolute top-0 w-full h-2 opacity-0 cursor-pointer"
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Discount Filter */}
+            <div className="mb-8">
+              <h3 className="font-semibold text-base mb-4 text-black">Discount</h3>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: '10% or more', value: '10' },
+                  { label: '20% or more', value: '20' },
+                  { label: '30% or more', value: '30' },
+                  { label: '40% or more', value: '40' },
+                  { label: '50% or more', value: '50' }
+                ].map((discount) => {
+                  const isSelected = selectedDiscounts && selectedDiscounts.includes(discount.value);
+                  return (
+                    <button
+                      key={discount.value}
+                      onClick={() => {
+                        setSelectedDiscounts(prev => 
+                          prev && prev.includes(discount.value) 
+                            ? prev.filter(d => d !== discount.value)
+                            : [...(prev || []), discount.value]
+                        );
+                      }}
+                      className={`px-3 py-1.5 rounded-full border text-xs font-normal transition-colors focus:outline-none ${
+                        isSelected
+                          ? 'bg-[#F2631F] text-white border-[#F2631F] shadow'
+                          : 'bg-gray-100 border-gray-200 text-black hover:border-[#F2631F] hover:text-[#F2631F]'
+                      }`}
+                    >
+                      {discount.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -868,6 +984,41 @@ const PromoProductsPage: React.FC = () => {
                       className="absolute top-0 w-full h-2 opacity-0 cursor-pointer"
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Discount Filter */}
+              <div className="mb-6">
+                <h4 className="font-medium mb-3">Discount</h4>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: '10% or more', value: '10' },
+                    { label: '20% or more', value: '20' },
+                    { label: '30% or more', value: '30' },
+                    { label: '40% or more', value: '40' },
+                    { label: '50% or more', value: '50' }
+                  ].map((discount) => {
+                    const isSelected = selectedDiscounts && selectedDiscounts.includes(discount.value);
+                    return (
+                      <button
+                        key={discount.value}
+                        onClick={() => {
+                          setSelectedDiscounts(prev => 
+                            prev && prev.includes(discount.value) 
+                              ? prev.filter(d => d !== discount.value)
+                              : [...(prev || []), discount.value]
+                          );
+                        }}
+                        className={`px-3 py-1.5 rounded-full border text-xs font-normal transition-colors focus:outline-none ${
+                          isSelected
+                            ? 'bg-[#F2631F] text-white border-[#F2631F] shadow'
+                            : 'bg-gray-100 border-gray-200 text-black hover:border-[#F2631F] hover:text-[#F2631F]'
+                        }`}
+                      >
+                        {discount.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
