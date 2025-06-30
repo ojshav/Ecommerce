@@ -40,15 +40,17 @@
   .category-hover-shadow::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: -80;
     left: -10%;
-    width: 10%;
+    width: 35%;
     height: 100%;
-    background: radial-gradient(circle at left center, rgba(0, 0, 0, 0.18), transparent 100%);
+    background: radial-gradient(ellipse at left center, rgba(0, 0, 0, 0.18), transparent 70%);
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: 0;
+    pointer-events: none;
   }
+  
 
   .category-hover-shadow:hover::before {
     opacity: 1;
