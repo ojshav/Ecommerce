@@ -123,27 +123,26 @@ const Categories: React.FC = () => {
         >
           {categories.map((category) => (
             <div 
-              key={category.category_id} 
-              onClick={() => {
-                navigate(`/all-products?category=${category.category_id}`);
-              }}
-              className="flex-shrink-0 w-44 h-44 bg-[#F3FBEE] rounded-full flex flex-col items-center justify-center text-center px-2 py-[26px] transition duration-200 hover:border-[1px] hover:border-[#F2631F] hover:relative cursor-pointer group relative"
-            >
-              <div className='absolute -bottom-[3px] rotate-45 h-2 w-2 bg-[#F3FBEE]'></div>
-              <div className='absolute -bottom-1 rotate-45 h-2 w-2 bg-[#F3FBEE] -z-10 group-hover:border-[1px] group-hover:border-[#F2631F]'></div>
-              <div className="w-12 h-12 mb-4 flex items-center justify-center p-[6px]">
-                {category.icon_url ? (
-                  <img 
-                    src={category.icon_url} 
-                    alt={category.name}
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <span className="text-3xl">📦</span>
-                )}
-              </div>
-              <h3 className="font-semibold text-lg font-worksans">{category.name}</h3>
+            key={category.category_id} 
+            onClick={() => {
+              navigate(`/all-products?category=${category.category_id}`);
+            }}
+            className="  hover:category-hover-shadow relative overflow-hidden z-10 flex-shrink-0 w-44 h-44 bg-[#FFEEE2] rounded-full shadow-[4px_4px_4px_0px_rgba(205,160,160,0.25)] flex flex-col items-center justify-center text-center px-2 py-[26px] transition duration-300 hover:bg-[#FFDADE]"
+          >
+            <div className="w-12 h-12 mb-4 flex items-center justify-center p-[6px] z-10">
+              {category.icon_url ? (
+                <img 
+                  src={category.icon_url} 
+                  alt={category.name}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <span className="text-3xl">📦</span>
+              )}
             </div>
+            <h3 className="font-semibold text-lg font-worksans z-10">{category.name}</h3>
+          </div>
+          
           ))}
         </div>
       </div>

@@ -33,10 +33,10 @@ const Services: React.FC = () => {
                 <div className="mb-4">
                   {service.icon}
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-black">
+                <h3 className="text-[18px] font-worksans font-semibold mb-2 text-black">
                   {service.title}
                 </h3>
-                <p className="text-gray-700">
+                <p className="text-gray-700 text-[14px] font-worksans ">
                   {service.description}
                 </p>
               </div>
@@ -44,13 +44,13 @@ const Services: React.FC = () => {
           </div>
         </div>
       </section>
-      <div className="flex justify-center my-20">
+      <div className="container mx-auto px-4 xl:px-14 my-20">
         <video
           autoPlay
           loop
           muted
-          className="rounded-lg shadow-lg"
-          style={{ width: '100%', maxWidth: '1169px', height: '422px', objectFit: 'cover' }}
+          className="rounded-lg shadow-lg w-full h-auto"
+          style={{ height: '422px', objectFit: 'cover' }}
         >
           <source src="/assets/videos/lp1.mp4" type="video/mp4" />
           Your browser does not support the video tag.
