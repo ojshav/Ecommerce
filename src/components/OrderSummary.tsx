@@ -10,6 +10,11 @@ interface OrderSummaryProps {
   discount?: number; // NEW: total discount amount (in base currency)
   promoCode?: string; // NEW: applied promo code string
   itemDiscounts?: { [productId: number]: number }; // NEW: per-item discount amounts
+  shippingCost?: number; // NEW: shipping cost
+  shippingLoading?: boolean; // NEW: shipping calculation loading state
+  availableCouriers?: any[]; // NEW: available couriers from ShipRocket
+  selectedCourier?: any; // NEW: selected courier
+  onRefreshShipping?: () => void; // NEW: callback to refresh shipping
 }
 
 interface ExchangeRates {
@@ -43,6 +48,11 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   discount = 0, // default to zero
   promoCode = "", 
   itemDiscounts = {}, 
+  shippingCost = 0,
+  shippingLoading = false,
+  availableCouriers = [],
+  selectedCourier,
+  onRefreshShipping,
 }) => {
   const { cart, totalPrice: baseTotal, totalItems } = useCart();
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates>({});
@@ -249,15 +259,44 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
         <div className="flex justify-between text-sm">
           <span>Shipping</span>
-          <span>Calculated at next step</span>
+          {shippingLoading ? (
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">Calculating...</span>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>
+            </div>
+          ) : shippingCost > 0 ? (
+            <div className="text-right">
+              <div className="flex items-center gap-2">
+                <span>{formatPrice(shippingCost)}</span>
+                {onRefreshShipping && (
+                  <button
+                    onClick={onRefreshShipping}
+                    className="text-orange-500 hover:text-orange-600 text-xs"
+                    title="Refresh shipping cost"
+                  >
+                    ↻
+                  </button>
+                )}
+              </div>
+              {selectedCourier && (
+                <div className="text-xs text-gray-500">
+                  {selectedCourier.courier_name}
+                </div>
+              )}
+            </div>
+          ) : (
+            <span className="text-gray-500">Free</span>
+          )}
         </div>
+        
         <div className="flex justify-between text-sm">
           <span>Tax</span>
-          <span>Calculated at next step</span>
+          <span>Included</span>
         </div>
+        
         <div className="flex justify-between font-semibold pt-2 border-t">
           <span>Total</span>
-          <span>{formatPrice(discountedTotal)}</span>
+          <span>{formatPrice(discountedTotal + shippingCost)}</span>
         </div>
       </div>
     </div>

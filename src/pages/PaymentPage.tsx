@@ -120,6 +120,11 @@ const PaymentPage: React.FC = () => {
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [showCardForm, setShowCardForm] = useState(false);
   const [savingCard, setSavingCard] = useState(false);
+  const [shippingCost, setShippingCost] = useState<number>(0);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [availableCouriers, setAvailableCouriers] = useState<any[]>([]);
+  const [selectedCourier, setSelectedCourier] = useState<any>(null);
+  const [shippingRequestId, setShippingRequestId] = useState<string>(''); // To prevent duplicate requests
   const [cardFormData, setCardFormData] = useState({
     card_number: "",
     cvv: "",
@@ -336,10 +341,176 @@ const PaymentPage: React.FC = () => {
     }
   };
 
+  // Add function to calculate shipping costs
+  const calculateShippingCost = async () => {
+    if (!selectedAddressId || !user?.id) {
+      return;
+    }
+
+    // Generate a unique request ID to prevent duplicate requests
+    const currentRequestId = `${selectedAddressId}-${paymentMethod}-${JSON.stringify(cart.map(item => `${item.product_id}-${item.quantity}`))}`;
+    
+    // If this is the same request as the last one, don't make another API call
+    if (shippingRequestId === currentRequestId && !shippingLoading) {
+      return;
+    }
+
+    try {
+      setShippingLoading(true);
+      setShippingRequestId(currentRequestId);
+      
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        console.error("No access token found for shipping calculation");
+        return;
+      }
+
+      // Get the selected address
+      const selectedAddress = addresses.find(addr => addr.address_id === selectedAddressId);
+      if (!selectedAddress) {
+        console.error("Selected address not found");
+        return;
+      }
+
+      // Calculate total weight (assuming 0.5kg per item as default)
+      const totalWeight = cart.reduce((weight, item) => weight + (item.quantity * 0.5), 0);
+      
+      // Determine if this is COD or prepaid
+      const isCOD = paymentMethod === "cash_on_delivery";
+      const codAmount = isCOD ? (totalPrice - discount) : 0;
+
+      console.log("Calculating shipping for:", {
+        pickupPincode: "474005", // Default pickup pincode (should come from merchant)
+        deliveryPincode: selectedAddress.postal_code,
+        weight: totalWeight,
+        isCOD,
+        codAmount,
+        requestId: currentRequestId
+      });
+
+      const requestBody: any = {
+        pickup_pincode: "474005", // This should come from merchant's address
+        delivery_pincode: selectedAddress.postal_code,
+        weight: totalWeight,
+        cod: isCOD, // Boolean: true for COD, false for prepaid
+      };
+
+      // Add cod_amount only if it's a COD order
+      if (isCOD && codAmount > 0) {
+        requestBody.cod_amount = codAmount;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/shiprocket/serviceability`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      // Check if this request is still current (not cancelled by a newer request)
+      if (shippingRequestId !== currentRequestId) {
+        console.log("Shipping request was superseded by a newer request, ignoring response");
+        return;
+      }
+
+      console.log("Shipping calculation response status:", response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to calculate shipping:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+        
+        // Handle different error types
+        if (response.status === 403) {
+          console.warn("Access denied to shipping calculation, using default cost");
+          setShippingCost(150); // Default shipping cost for access denied
+        } else if (response.status === 422) {
+          console.warn("Invalid shipping parameters, using default cost");
+          setShippingCost(120); // Default shipping cost for invalid params
+        } else {
+          // Set default shipping cost for other errors
+          setShippingCost(100);
+        }
+        return; // Exit early, loading state will be reset in finally block
+      }
+
+      const data = await response.json();
+      console.log("Shipping calculation response status:", data.message);
+
+      // Check if response has the expected structure (backend uses 'message' not 'status')
+      if (data.message && data.data?.available_courier_companies) {
+        const couriers = data.data.available_courier_companies;
+        console.log(`Available couriers: ${couriers.length} options`);
+        setAvailableCouriers(couriers);
+        
+        // Select the best courier (lowest price or highest rating)
+        if (couriers.length > 0) {
+          const bestCourier = couriers.reduce((best: any, current: any) => {
+            const bestRating = parseFloat(best.rating || "0");
+            const currentRating = parseFloat(current.rating || "0");
+            const bestPrice = parseFloat(best.rate || "999999");
+            const currentPrice = parseFloat(current.rate || "999999");
+            
+            // Prefer higher rating, then lower price
+            if (currentRating > bestRating) return current;
+            if (currentRating === bestRating && currentPrice < bestPrice) return current;
+            return best;
+          });
+          
+          console.log(`Selected courier: ${bestCourier.courier_name} - ₹${bestCourier.rate} (Rating: ${bestCourier.rating})`);
+          setSelectedCourier(bestCourier);
+          setShippingCost(parseFloat(bestCourier.rate || "0"));
+        } else {
+          console.log("No couriers available, using default cost");
+          setShippingCost(100); // Default shipping cost if no couriers available
+        }
+      } else {
+        console.log("Invalid response structure, using default cost");
+        setShippingCost(100); // Default shipping cost
+      }
+    } catch (error) {
+      console.error("Error calculating shipping cost:", error);
+      setShippingCost(100); // Default shipping cost on error
+    } finally {
+      // Only update loading state if this is still the current request
+      if (shippingRequestId === currentRequestId) {
+        setShippingLoading(false);
+      }
+    }
+  };
+
+  // Add manual refresh function for shipping calculation
+  const refreshShippingCost = () => {
+    // Clear the current request ID to force a new calculation
+    setShippingRequestId('');
+    calculateShippingCost();
+  };
+
   useEffect(() => {
     fetchAddresses();
     fetchSavedCards();
   }, []);
+
+  // Calculate shipping when address or payment method changes
+  useEffect(() => {
+    if (selectedAddressId && cart.length > 0) {
+      // Add a small delay to prevent rapid successive calls
+      const timeoutId = setTimeout(() => {
+        calculateShippingCost();
+      }, 300); // 300ms debounce
+
+      // Cleanup function to cancel the timeout if the effect runs again
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [selectedAddressId, paymentMethod, cart]);
 
   const fetchAddresses = async () => {
     try {
@@ -502,7 +673,7 @@ const PaymentPage: React.FC = () => {
           city: "",
           state_province: "",
           postal_code: "",
-          country_code: "US",
+          country_code: "IN",
           address_type: "shipping",
           is_default_shipping: true,
           is_default_billing: false,
@@ -536,7 +707,7 @@ const PaymentPage: React.FC = () => {
 
     // Calculate subtotal using original prices instead of cart context totalPrice
     const subtotal = cart.reduce((total, item) => total + (item.product.original_price * item.quantity), 0);
-    const finalTotal = subtotal - discount;
+    const finalTotal = subtotal - discount + shippingCost; // Add shipping cost to final total
 
     // Calculate distributed discount per item if there's a total discount but no itemDiscounts
     const totalItemDiscounts = Object.values(itemDiscounts || {}).reduce((sum: number, discount: any) => sum + (typeof discount === 'number' ? discount : 0), 0);
@@ -619,8 +790,8 @@ const PaymentPage: React.FC = () => {
       subtotal_amount: subtotal.toString(),
       discount_amount: "0.00", // Set to 0 since discounts are now item-specific
       tax_amount: "0.00",
-      shipping_amount: "0.00",
-      total_amount: (finalTotal > 0 ? finalTotal : 0).toString(),
+      shipping_amount: shippingCost.toString(),
+      total_amount: finalTotal.toString(),
       currency: "INR",
       payment_method: paymentMethod,
       shipping_address_id: selectedAddressId,
@@ -684,6 +855,79 @@ const PaymentPage: React.FC = () => {
           console.warn("Failed to create merchant transactions, but order was successful");
           // Don't fail the order if merchant transaction creation fails
           // The admin can manually create transactions later if needed
+        }
+
+        // ------------- ShipRocket shipment creation -------------
+        try {
+          console.log("Creating ShipRocket orders for all merchants in order:", {
+            order_id: orderId,
+            delivery_address_id: selectedAddressId,
+            courier_id: selectedCourier?.courier_company_id,
+          });
+
+          const shiprocketResp = await fetch(`${API_BASE_URL}/api/shiprocket/create-orders-for-all-merchants`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              order_id: orderId,
+              delivery_address_id: selectedAddressId,
+              courier_id: selectedCourier?.courier_company_id, // Include selected courier
+            }),
+          });
+          
+          const srData = await shiprocketResp.json();
+          console.log("ShipRocket API response status:", shiprocketResp.status);
+          console.log("ShipRocket API response data:", srData);
+          
+          if (shiprocketResp.ok && srData.status === "success") {
+            const response = srData.data;
+            console.log("ShipRocket orders created successfully:", {
+              total_merchants: response.total_merchants,
+              successful_merchants: response.successful_merchants,
+              failed_merchants: response.failed_merchants,
+            });
+            
+            // Show success message to user
+            if (response.successful_merchants.length > 0) {
+              const successCount = response.successful_merchants.length;
+              const totalCount = response.total_merchants;
+              
+              if (successCount === totalCount) {
+                toast.success(`Shipments created successfully for all ${totalCount} merchant(s)`);
+              } else {
+                toast.success(`Shipments created for ${successCount}/${totalCount} merchants. Some failed.`);
+              }
+            }
+            
+            // Log failed merchants for debugging
+            if (response.failed_merchants.length > 0) {
+              console.warn("Failed to create shipments for merchants:", response.failed_merchants);
+              response.failed_merchants.forEach((merchantId: number) => {
+                const error = response.merchant_responses[merchantId]?.error;
+                console.error(`Merchant ${merchantId} shipment creation failed:`, error);
+              });
+            }
+          } else {
+            console.warn("ShipRocket create-orders-for-all-merchants failed:", {
+              status: shiprocketResp.status,
+              statusText: shiprocketResp.statusText,
+              data: srData,
+            });
+            
+            // Don't fail the order if ShipRocket fails, but log the issue
+            toast.error("Order placed successfully, but shipment creation failed. Please contact support.");
+          }
+        } catch (srErr) {
+          console.error("ShipRocket call error:", {
+            error: srErr instanceof Error ? srErr.message : String(srErr),
+            stack: srErr instanceof Error ? srErr.stack : undefined,
+          });
+          
+          // Don't fail the order if ShipRocket fails, but log the issue
+          toast.error("Order placed successfully, but shipment creation failed. Please contact support.");
         }
 
         // Clear the cart after successful order
@@ -1569,6 +1813,11 @@ const PaymentPage: React.FC = () => {
           discount={discount}
           promoCode={appliedPromo?.code}
           itemDiscounts={itemDiscounts}
+          shippingCost={shippingCost}
+          shippingLoading={shippingLoading}
+          availableCouriers={availableCouriers}
+          selectedCourier={selectedCourier}
+          onRefreshShipping={refreshShippingCost}
         />
         <div className="mb-6">
           <div className="font-medium mb-2">Payment Method</div>
