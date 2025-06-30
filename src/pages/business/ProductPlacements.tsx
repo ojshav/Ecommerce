@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { PlusIcon, TrashIcon, EyeIcon, StarIcon as SolidStarIcon, ShoppingBagIcon, ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, TrashIcon, StarIcon as SolidStarIcon, ShoppingBagIcon, ChevronDownIcon, XMarkIcon, PencilIcon } from '@heroicons/react/24/solid';
 import { StarIcon as OutlineStarIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'; 
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -35,6 +35,8 @@ interface SubscriptionStatus {
   can_place_premium: boolean;
   subscription_started_at: string | null;
   subscription_expires_at: string | null;
+  monthly_featured_used: number;
+  monthly_promo_used: number;
   plan: {
     plan_id: number;
     name: string;
@@ -68,9 +70,12 @@ const ProductPlacements: React.FC = () => {
   const [selectedProductIdToAdd, setSelectedProductIdToAdd] = useState<string>('');
   const [sortOrderToAdd, setSortOrderToAdd] = useState<number>(0);
 
+  // Edit placement states
+  const [editingPlacement, setEditingPlacement] = useState<ProductPlacement | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const [filterType, setFilterType] = useState<'ALL' | 'FEATURED' | 'PROMOTED'>('ALL');
-  
-  const PLACEMENT_LIMIT = 10;
 
   const [promotionalPrice, setPromotionalPrice] = useState<string>('');
   const [specialStartDate, setSpecialStartDate] = useState<string>('');
@@ -110,6 +115,22 @@ const ProductPlacements: React.FC = () => {
     };
 
     fetchSubscriptionStatus();
+  }, [accessToken, user]);
+
+  const refreshSubscriptionStatus = useCallback(async () => {
+    if (!accessToken || !user) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/subscription/current`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+      });
+      
+      if (response.ok) {
+        const statusData = await response.json();
+        setSubscriptionStatus(statusData);
+      }
+    } catch (error) {
+      console.error("Error refreshing subscription status:", error);
+    }
   }, [accessToken, user]);
 
   const fetchData = useCallback(async () => {
@@ -193,6 +214,16 @@ const ProductPlacements: React.FC = () => {
         toast.error('Promotion cannot last more than 30 days.');
         return;
       }
+      
+      // Check if promotional end date exceeds subscription end date
+      if (subscriptionStatus?.subscription_expires_at) {
+        const subscriptionExpiryDate = new Date(subscriptionStatus.subscription_expires_at);
+        subscriptionExpiryDate.setHours(0, 0, 0, 0);
+        if (endDate > subscriptionExpiryDate) {
+          toast.error(`Promotion end date cannot be beyond your subscription expiry date (${subscriptionExpiryDate.toLocaleDateString()}).`);
+          return;
+        }
+      }
     }
 
     setIsSubmitting(true);
@@ -225,6 +256,8 @@ const ProductPlacements: React.FC = () => {
       setSpecialStartDate('');
       setSpecialEndDate('');
       await fetchData();
+      await refreshSubscriptionStatus(); // Refresh to update monthly usage
+      await refreshSubscriptionStatus();
     } catch (error) {
       console.error("Error adding placement:", error);
       toast.error(error instanceof Error ? error.message : 'Failed to add placement.');
@@ -243,9 +276,17 @@ const ProductPlacements: React.FC = () => {
     
     setIsDeleting(placementToDelete);
     try {
+      const placementToRemove = placements.find(p => p.placement_id === placementToDelete);
+      
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/product-placements/${placementToDelete}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${accessToken}` },
+        headers: { 
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          cleanup_promotion: placementToRemove?.placement_type === 'promoted'
+        })
       });
 
       if (response.status !== 204 && !response.ok ) {
@@ -255,6 +296,8 @@ const ProductPlacements: React.FC = () => {
       
       toast.success('Product placement removed successfully!');
       await fetchData();
+      await refreshSubscriptionStatus(); // Refresh to update monthly usage
+      await refreshSubscriptionStatus();
     } catch (error) {
       console.error("Error deleting placement:", error);
       toast.error(error instanceof Error ? error.message : 'Failed to delete placement.');
@@ -265,24 +308,138 @@ const ProductPlacements: React.FC = () => {
     }
   };
 
+  const handleEditPlacement = (placement: ProductPlacement) => {
+    if (placement.placement_type === 'promoted') {
+      setEditingPlacement(placement);
+      setPromotionalPrice(placement.product_details?.promotional_price?.toString() || '');
+      setSpecialStartDate(placement.product_details?.special_start || '');
+      setSpecialEndDate(placement.product_details?.special_end || '');
+      setEditModalOpen(true);
+    }
+  };
+
+  const handleUpdatePlacement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPlacement) return;
+
+    // Validate promotional data
+    if (!promotionalPrice || isNaN(parseFloat(promotionalPrice)) || parseFloat(promotionalPrice) <= 0) {
+      toast.error('Please enter a valid promotional price.');
+      return;
+    }
+    if (!specialStartDate || !specialEndDate) {
+      toast.error('Please select both start and end dates for the promotion.');
+      return;
+    }
+    
+    const startDate = new Date(specialStartDate);
+    const endDate = new Date(specialEndDate);
+    const today = new Date();
+    
+    // Set today's time to start of day for comparison
+    today.setHours(0, 0, 0, 0);
+    startDate.setHours(0, 0, 0, 0);
+    
+    if (startDate < today) {
+      toast.error('Promotion start date cannot be in the past.');
+      return;
+    }
+    if (endDate <= startDate) {
+      toast.error('Promotion end date must be after the start date.');
+      return;
+    }
+    if (endDate > new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000))) {
+      toast.error('Promotion cannot last more than 30 days.');
+      return;
+    }
+    
+    // Check if promotional end date exceeds subscription end date
+    if (subscriptionStatus?.subscription_expires_at) {
+      const subscriptionExpiryDate = new Date(subscriptionStatus.subscription_expires_at);
+      subscriptionExpiryDate.setHours(0, 0, 0, 0);
+      if (endDate > subscriptionExpiryDate) {
+        toast.error(`Promotion end date cannot be beyond your subscription expiry date (${subscriptionExpiryDate.toLocaleDateString()}).`);
+        return;
+      }
+    }
+
+    setIsUpdating(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/product-placements/${editingPlacement.placement_id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          promotional_price: parseFloat(promotionalPrice),
+          special_start: specialStartDate,
+          special_end: specialEndDate,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update placement');
+      }
+
+      toast.success('Product placement updated successfully!');
+      setEditModalOpen(false);
+      setEditingPlacement(null);
+      setPromotionalPrice('');
+      setSpecialStartDate('');
+      setSpecialEndDate('');
+      await fetchData();
+      await refreshSubscriptionStatus(); // Refresh to update monthly usage
+      await refreshSubscriptionStatus();
+    } catch (error) {
+      console.error("Error updating placement:", error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update placement.');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const filteredPlacements = useMemo(() => {
     if (filterType === 'ALL') return placements;
     return placements.filter(p => p.placement_type.toUpperCase() === filterType);
   }, [placements, filterType]);
 
   const getSlotInfo = useCallback((type: 'featured' | 'promoted') => {
-    const count = placements.filter(p => p.placement_type === type).length;
+    const planLimit = type === 'featured' 
+      ? subscriptionStatus?.plan?.featured_limit || 0
+      : subscriptionStatus?.plan?.promo_limit || 0;
+    
+    const monthlyUsed = type === 'featured'
+      ? subscriptionStatus?.monthly_featured_used || 0
+      : subscriptionStatus?.monthly_promo_used || 0;
+    
+    const currentActive = placements.filter(p => p.placement_type === type).length;
+    
     return {
-      used: count,
-      remaining: PLACEMENT_LIMIT - count,
-      limitReached: count >= PLACEMENT_LIMIT,
+      used: monthlyUsed,
+      currentActive: currentActive,
+      remaining: Math.max(0, planLimit - monthlyUsed),
+      limitReached: monthlyUsed >= planLimit,
+      planLimit: planLimit
     };
-  }, [placements]);
+  }, [placements, subscriptionStatus]);
 
   const featuredSlots = getSlotInfo('featured');
   const promotedSlots = getSlotInfo('promoted');
   
   const currentSlotsInfo = selectedPlacementTypeToAdd === 'FEATURED' ? featuredSlots : promotedSlots;
+
+  const getMaxPromotionEndDate = useCallback(() => {
+    const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    
+    if (subscriptionStatus?.subscription_expires_at) {
+      const subscriptionExpiryDate = new Date(subscriptionStatus.subscription_expires_at);
+      return thirtyDaysFromNow <= subscriptionExpiryDate ? thirtyDaysFromNow : subscriptionExpiryDate;
+    }
+    
+    return thirtyDaysFromNow;
+  }, [subscriptionStatus?.subscription_expires_at]);
 
   if (isSubscriptionLoading) {
     return (
@@ -362,6 +519,127 @@ const ProductPlacements: React.FC = () => {
         </div>
       )}
 
+      {/* Edit Promoted Placement Modal */}
+      {editModalOpen && editingPlacement && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Edit Promoted Product</h3>
+              <button
+                onClick={() => {
+                  setEditModalOpen(false);
+                  setEditingPlacement(null);
+                  setPromotionalPrice('');
+                  setSpecialStartDate('');
+                  setSpecialEndDate('');
+                }}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="mb-4 p-3 bg-gray-50 rounded-md">
+              <p className="text-sm text-gray-600">
+                <span className="font-medium">Product:</span> {editingPlacement.product_details?.product_name}
+              </p>
+            </div>
+
+            <form onSubmit={handleUpdatePlacement} className="space-y-4">
+              <div>
+                <label htmlFor="editPromotionalPrice" className="block text-sm font-medium text-gray-700 mb-1">
+                  Promotional Price
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                  <input
+                    type="number"
+                    id="editPromotionalPrice"
+                    value={promotionalPrice}
+                    onChange={(e) => setPromotionalPrice(e.target.value)}
+                    min="0.01"
+                    step="0.01"
+                    className="w-full pl-8 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-accent-500 focus:border-accent-500"
+                    placeholder="0.00"
+                    disabled={isUpdating}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="editSpecialStartDate" className="block text-sm font-medium text-gray-700 mb-1">
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    id="editSpecialStartDate"
+                    value={specialStartDate}
+                    onChange={(e) => setSpecialStartDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-accent-500 focus:border-accent-500"
+                    disabled={isUpdating}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="editSpecialEndDate" className="block text-sm font-medium text-gray-700 mb-1">
+                    End Date
+                  </label>
+                  <input
+                    type="date"
+                    id="editSpecialEndDate"
+                    value={specialEndDate}
+                    onChange={(e) => setSpecialEndDate(e.target.value)}
+                    min={specialStartDate || new Date().toISOString().split('T')[0]}
+                    max={getMaxPromotionEndDate().toISOString().split('T')[0]}
+                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-accent-500 focus:border-accent-500"
+                    disabled={isUpdating}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditModalOpen(false);
+                    setEditingPlacement(null);
+                    setPromotionalPrice('');
+                    setSpecialStartDate('');
+                    setSpecialEndDate('');
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                  disabled={isUpdating}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="px-4 py-2 text-sm font-medium text-white bg-accent-500 hover:bg-accent-600 rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                >
+                  {isUpdating ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Updating...
+                    </>
+                  ) : (
+                    'Update Placement'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Manage Featured & Promoted Products</h1>
 
       <div className="bg-white p-6 rounded-lg shadow-md border border-orange-200">
@@ -408,7 +686,11 @@ const ProductPlacements: React.FC = () => {
                 <select
                 id="placementTypeToAdd"
                 value={selectedPlacementTypeToAdd}
-                onChange={(e) => setSelectedPlacementTypeToAdd(e.target.value as 'FEATURED' | 'PROMOTED')}
+                onChange={(e) => {
+                  setSelectedPlacementTypeToAdd(e.target.value as 'FEATURED' | 'PROMOTED');
+                  // Refresh subscription status when placement type changes to get latest slot info
+                  refreshSubscriptionStatus();
+                }}
                 className="w-full p-2 pr-8 border border-gray-300 rounded-md shadow-sm focus:ring-accent-500 focus:border-accent-500 appearance-none"
                 disabled={!canPlacePremium || isSubmitting}
                 >
@@ -493,11 +775,11 @@ const ProductPlacements: React.FC = () => {
                     value={specialEndDate}
                     onChange={(e) => setSpecialEndDate(e.target.value)}
                     min={specialStartDate || new Date().toISOString().split('T')[0]}
-                    max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                    max={getMaxPromotionEndDate().toISOString().split('T')[0]}
                     className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-accent-500 focus:border-accent-500"
                     disabled={!canPlacePremium || isSubmitting || currentSlotsInfo.limitReached}
                   />
-                  <p className="text-xs text-gray-500 mt-1">When should the promotion end? (max 30 days)</p>
+                  <p className="text-xs text-gray-500 mt-1">When should the promotion end? {subscriptionStatus?.subscription_expires_at ? `(Cannot exceed subscription expiry: ${new Date(subscriptionStatus.subscription_expires_at).toLocaleDateString()})` : '(max 30 days)'}</p>
                 </div>
               </div>
             </>
@@ -518,9 +800,10 @@ const ProductPlacements: React.FC = () => {
           </div>
 
           <div className="text-sm text-gray-600 p-3 bg-orange-50 rounded-md border border-orange-100">
-            <p>Slots for <span className="font-medium">{selectedPlacementTypeToAdd.toLowerCase()}</span>: <span className="font-semibold">{currentSlotsInfo.used} / {PLACEMENT_LIMIT}</span></p>
+            <p>Monthly slots for <span className="font-medium">{selectedPlacementTypeToAdd.toLowerCase()}</span>: <span className="font-semibold">{currentSlotsInfo.used} / {currentSlotsInfo.planLimit}</span></p>
+            <p>Currently active: <span className="font-semibold">{currentSlotsInfo.currentActive}</span></p>
             <p className={`font-semibold ${currentSlotsInfo.remaining > 0 ? 'text-green-600' : 'text-red-600'}`}>
-              Remaining Slots: {currentSlotsInfo.remaining}
+              Remaining slots this month: {currentSlotsInfo.remaining}
             </p>
           </div>
 
@@ -545,7 +828,7 @@ const ProductPlacements: React.FC = () => {
           </button>
           {currentSlotsInfo.limitReached && canPlacePremium && (
             <p className="text-xs text-red-600 mt-2 text-center">
-                Slot limit reached for {selectedPlacementTypeToAdd.toLowerCase()} products.
+                Monthly slot limit reached for {selectedPlacementTypeToAdd.toLowerCase()} products. You can still manage existing placements.
             </p>
           )}
         </form>
@@ -613,13 +896,16 @@ const ProductPlacements: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      {placement.placement_type === 'promoted' && placement.product_details?.promotional_price ? (
+                      {/* Display price: special promotional price for promoted, selling price for featured */}
+                      {placement.placement_type === 'promoted' && placement.product_details?.promotional_price != null ? (
                         <div className="text-sm">
-                          <span className="text-gray-500 line-through">${placement.product_details.original_price?.toFixed(2)}</span>
+                          {placement.product_details.original_price != null && (
+                            <span className="text-gray-500 line-through">${placement.product_details.original_price.toFixed(2)}</span>
+                          )}
                           <span className="ml-2 text-red-600 font-semibold">${placement.product_details.promotional_price.toFixed(2)}</span>
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-500">${placement.product_details?.original_price?.toFixed(2) || 'N/A'}</span>
+                        <span className="text-sm text-gray-500">${placement.product_details.original_price?.toFixed(2) || 'N/A'}</span>
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{placement.sort_order}</td>
@@ -641,21 +927,33 @@ const ProductPlacements: React.FC = () => {
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => handleDeletePlacement(placement.placement_id)}
-                        className="text-orange-400 hover:text-orange-600 disabled:opacity-50 p-1 rounded-full hover:bg-red-50"
-                        disabled={isDeleting === placement.placement_id}
-                        title="Delete Placement"
-                      >
-                        {isDeleting === placement.placement_id ? (
-                          <svg className="animate-spin h-5 w-5 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        ) : (
-                          <TrashIcon className="h-5 w-5" />
+                      <div className="flex items-center space-x-2">
+                        {placement.placement_type === 'promoted' && (
+                          <button
+                            onClick={() => handleEditPlacement(placement)}
+                            className="text-blue-400 hover:text-blue-600 disabled:opacity-50 p-1 rounded-full hover:bg-blue-50"
+                            disabled={isDeleting === placement.placement_id || isUpdating}
+                            title="Edit Placement"
+                          >
+                            <PencilIcon className="h-5 w-5" />
+                          </button>
                         )}
-                      </button>
+                        <button
+                          onClick={() => handleDeletePlacement(placement.placement_id)}
+                          className="text-red-400 hover:text-red-600 disabled:opacity-50 p-1 rounded-full hover:bg-red-50"
+                          disabled={isDeleting === placement.placement_id}
+                          title="Delete Placement"
+                        >
+                          {isDeleting === placement.placement_id ? (
+                            <svg className="animate-spin h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : (
+                            <TrashIcon className="h-5 w-5" />
+                          )}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
