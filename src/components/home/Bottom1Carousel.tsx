@@ -14,7 +14,7 @@ const Bottom1Carousel: React.FC = () => {
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
       setCurrent((prev) => (prev + 1) % images.length);
-    }, 2000);
+    }, 1200);
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };

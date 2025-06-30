@@ -127,7 +127,7 @@ const Categories: React.FC = () => {
             onClick={() => {
               navigate(`/all-products?category=${category.category_id}`);
             }}
-            className="hover:category-hover-shadow relative overflow-hidden z-10 flex-shrink-0 w-44 h-44 bg-[#FFEEE2] rounded-full shadow-[4px_4px_4px_0px_rgba(205,160,160,0.25)] flex flex-col items-center justify-center text-center px-2 py-[26px] transition duration-300 hover:bg-[#FFDADE]"
+            className="  hover:category-hover-shadow relative overflow-hidden z-10 flex-shrink-0 w-44 h-44 bg-[#FFEEE2] rounded-full shadow-[4px_4px_4px_0px_rgba(205,160,160,0.25)] flex flex-col items-center justify-center text-center px-2 py-[26px] transition duration-300 hover:bg-[#FFDADE]"
           >
             <div className="w-12 h-12 mb-4 flex items-center justify-center p-[6px] z-10">
               {category.icon_url ? (
