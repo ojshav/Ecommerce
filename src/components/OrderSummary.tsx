@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
+import { DirectPurchaseItem } from "../types";
 
 interface OrderSummaryProps {
   className?: string;
@@ -15,6 +16,10 @@ interface OrderSummaryProps {
   availableCouriers?: any[]; // NEW: available couriers from ShipRocket
   selectedCourier?: any; // NEW: selected courier
   onRefreshShipping?: () => void; // NEW: callback to refresh shipping
+  directPurchaseItem?: DirectPurchaseItem | null; // NEW: direct purchase item
+  onApplyPromo?: (code: string) => void; // NEW: callback to apply promo code
+  onRemovePromo?: () => void; // NEW: callback to remove promo code
+  promoLoading?: boolean; // NEW: promo code loading state
 }
 
 interface ExchangeRates {
@@ -53,14 +58,49 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   availableCouriers = [],
   selectedCourier,
   onRefreshShipping,
+  directPurchaseItem = null,
+  onApplyPromo,
+  onRemovePromo,
+  promoLoading = false,
 }) => {
-  const { cart, totalPrice: baseTotal, totalItems } = useCart();
+  const { cart } = useCart();
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [promoCodeInput, setPromoCodeInput] = useState("");
 
-  // Filter out deleted items
-  const activeCartItems = cart.filter((item) => !item.product.is_deleted);
+  // Determine if this is direct purchase mode
+  const isDirectPurchase = directPurchaseItem !== null;
+  
+  // Get items to display - either cart items or direct purchase item
+  const displayItems = isDirectPurchase && directPurchaseItem
+    ? [{
+        cart_item_id: 0,
+        product_id: directPurchaseItem.product.id,
+        merchant_id: 1,
+        quantity: directPurchaseItem.quantity,
+        selected_attributes: directPurchaseItem.selected_attributes,
+        product: {
+          id: directPurchaseItem.product.id,
+          name: directPurchaseItem.product.name,
+          price: directPurchaseItem.product.price,
+          original_price: directPurchaseItem.product.original_price || directPurchaseItem.product.price,
+          special_price: directPurchaseItem.product.special_price,
+          image_url: directPurchaseItem.product.image_url,
+          stock: directPurchaseItem.product.stock,
+          is_deleted: false,
+          sku: directPurchaseItem.product.sku
+        }
+      }]
+    : cart.filter((item) => !item.product.is_deleted);
+
+  // Calculate totals based on display items
+  const itemsTotal = displayItems.reduce((total, item) => {
+    const price = item.product.original_price || item.product.price;
+    return total + (price * item.quantity);
+  }, 0);
+
+  const displayTotalItems = displayItems.reduce((total, item) => total + item.quantity, 0);
 
   useEffect(() => {
     const fetchExchangeRates = async () => {
@@ -154,7 +194,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   };
 
   // Compute final total after discount, clamped to >=0
-  const discountedTotal = Math.max(baseTotal - discount, 0);
+  const discountedTotal = Math.max(itemsTotal - discount, 0);
 
   if (isLoading) {
     return (
@@ -196,15 +236,15 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     >
       <h2 className="text-lg font-semibold mb-6">Your Order</h2>
       <div className="space-y-4 mb-6">
-        {activeCartItems.map((item) => {
+        {displayItems.map((item) => {
           // Calculate the item's effective price after discount
-          const itemDiscount = itemDiscounts[item.product_id] || 0;
+          const itemDiscount = itemDiscounts[item.product.id || item.product_id] || 0;
           const originalItemTotal = item.product.price * item.quantity;
           const effectiveItemTotal = originalItemTotal - itemDiscount;
           const selectedAttributes = formatSelectedAttributes(item.selected_attributes);
           
           return (
-            <div key={item.cart_item_id} className="flex items-start gap-4">
+            <div key={item.cart_item_id || item.product.id} className="flex items-start gap-4">
               <img
                 src={item.product.image_url}
                 alt={item.product.name}
@@ -244,10 +284,55 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         })}
       </div>
 
+      {/* Promo Code Section (only for direct purchases) */}
+      {directPurchaseItem && onApplyPromo && (
+        <div className="border-t pt-4 mb-4">
+          <h3 className="font-medium text-sm mb-3">Promo Code</h3>
+          {!promoCode ? (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter promo code"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                value={promoCodeInput}
+                onChange={(e) => setPromoCodeInput(e.target.value)}
+                disabled={promoLoading}
+              />
+              <button
+                onClick={() => onApplyPromo(promoCodeInput)}
+                disabled={promoLoading || !promoCodeInput.trim()}
+                className="px-4 py-2 bg-orange-500 text-white rounded-md text-sm hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {promoLoading ? "Applying..." : "Apply"}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md">
+              <div>
+                <div className="text-sm font-medium text-green-800">
+                  Code: {promoCode}
+                </div>
+                <div className="text-xs text-green-600">
+                  Discount: {formatPrice(discount)}
+                </div>
+              </div>
+              {onRemovePromo && (
+                <button
+                  onClick={onRemovePromo}
+                  className="text-red-500 hover:text-red-700 text-sm"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="border-t pt-4 space-y-2">
         <div className="flex justify-between text-sm">
-          <span>Subtotal ({totalItems} items)</span>
-          <span>{formatPrice(baseTotal)}</span>
+          <span>Subtotal ({displayTotalItems} items)</span>
+          <span>{formatPrice(itemsTotal)}</span>
         </div>
 
         {discount > 0 && (

@@ -56,6 +56,51 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
+  const handleBuyNow = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      toast.error('Please sign in to proceed with purchase');
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      navigate(`/sign-in?returnUrl=${returnUrl}`);
+      return;
+    }
+
+    // Check if user is a merchant or admin
+    if (user?.role === 'merchant' || user?.role === 'admin') {
+      toast.error('Merchants and admins cannot make purchases');
+      return;
+    }
+
+    // Create direct purchase item with default attributes (if any)
+    const defaultAttributes: {[key: number]: string | string[]} = {};
+    if (product.attributes && product.attributes.length > 0) {
+      // For product cards, we'll use first available attribute values as defaults
+      product.attributes.forEach((attr: any) => {
+        if (!defaultAttributes[attr.attribute_id]) {
+          defaultAttributes[attr.attribute_id] = attr.value_text || attr.value_label;
+        }
+      });
+    }
+
+    const directPurchaseItem = {
+      product,
+      quantity: 1,
+      selected_attributes: Object.keys(defaultAttributes).length > 0 ? defaultAttributes : undefined
+    };
+
+    // Navigate to payment page with direct purchase data
+    navigate('/payment', {
+      state: {
+        directPurchase: directPurchaseItem,
+        discount: 0,
+        appliedPromo: null,
+        itemDiscounts: {}
+      }
+    });
+  };
+
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -144,7 +189,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Product image */}
         <Link to={`/product/${product.id}`} className="block h-full">
           <img 
-            src={product.primary_image || product.image || '/placeholder-image.png'}
+            src={product.primary_image || product.image_url || '/placeholder-image.png'}
             alt={product.name} 
             className="w-full h-full object-cover rounded-lg"
             onError={(e) => {
@@ -173,7 +218,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex gap-2 w-full">
             <button
               className="w-1/2 bg-[#F2631F] text-white text-base font-worksans font-medium hover:bg-orange-600 py-2 rounded-xl duration-300 transition shadow-md"
-              disabled
+              onClick={handleBuyNow}
+              disabled={product.stock === 0 || user?.role === 'merchant' || user?.role === 'admin'}
             >
               Buy Now
             </button>

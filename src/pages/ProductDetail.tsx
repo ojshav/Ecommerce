@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Star, Check, ShoppingCart, Heart, ArrowLeft, ChevronRight, ChevronLeft, Share2, X, Copy, Facebook, Twitter, Mail } from 'lucide-react';
+import { Star, Check, Heart, ArrowLeft, ChevronRight, ChevronLeft, Share2, X, Copy, Facebook, Twitter, Mail } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -155,12 +155,9 @@ const ProductDetail: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('product-details');
-  const [selectedColor, setSelectedColor] = useState('black');
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [variants, setVariants] = useState<ProductVariant[]>([]);
-  const [loadingVariants, setLoadingVariants] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewPage, setReviewPage] = useState(1);
   const [totalReviewPages, setTotalReviewPages] = useState(1);
@@ -226,30 +223,6 @@ const ProductDetail: React.FC = () => {
   };
 
 
-
-  // Add function to fetch variants
-  const fetchProductVariants = async (productId: string) => {
-    try {
-      setLoadingVariants(true);
-      const response = await fetch(`${API_BASE_URL}/api/products/${productId}/variants`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch product variants');
-      }
-
-      const data = await response.json();
-      setVariants(data.variants);
-    } catch (error) {
-      console.error('Error fetching variants:', error);
-    } finally {
-      setLoadingVariants(false);
-    }
-  };
 
   // Add function to fetch reviews
   const fetchProductReviews = async (page: number = 1) => {
@@ -331,11 +304,6 @@ const ProductDetail: React.FC = () => {
         setProduct(data);
         if (data.media && data.media.length > 0) {
           setSelectedImage(data.media[0].url);
-        }
-
-        // Fetch variants after getting product details
-        if (productId) {
-          fetchProductVariants(productId);
         }
       } catch (err) {
         setError('Failed to fetch product details');
@@ -422,6 +390,54 @@ const ProductDetail: React.FC = () => {
 
     addToCart(cartProduct, quantity, selectedAttributes);
     toast.success(`${product.product_name} added to cart`);
+  };
+
+  const handleBuyNow = () => {
+    if (!isAuthenticated) {
+      toast.error('Please sign in to proceed with purchase');
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      navigate(`/sign-in?returnUrl=${returnUrl}`);
+      return;
+    }
+
+    // Check if user is a merchant or admin
+    if (user?.role === 'merchant' || user?.role === 'admin') {
+      toast.error('Merchants and admins cannot make purchases');
+      return;
+    }
+
+    const calculatedPrice = product.price || product.selling_price;
+    const calculatedOriginalPrice = product.originalPrice || product.cost_price;
+
+    const productForPurchase = {
+      id: product.product_id,
+      name: product.product_name,
+      price: calculatedPrice,
+      original_price: calculatedOriginalPrice,
+      special_price: product.special_price,
+      image_url: product.media[0]?.url || '',
+      stock: 100,
+      is_deleted: false,
+      sku: `SKU-${product.product_id}`,
+      category: product.category,
+      brand: product.brand,
+    };
+
+    const directPurchaseItem = {
+      product: productForPurchase,
+      quantity: quantity,
+      selected_attributes: Object.keys(selectedAttributes).length > 0 ? selectedAttributes : undefined
+    };
+
+    // Navigate to payment page with direct purchase data
+    navigate('/payment', {
+      state: {
+        directPurchase: directPurchaseItem,
+        discount: 0,
+        appliedPromo: null,
+        itemDiscounts: {}
+      }
+    });
   };
 
   const handleQuantityChange = (value: number) => {
@@ -1143,13 +1159,24 @@ const ProductDetail: React.FC = () => {
                     </button>
                   </div>
 
-                  {/* Add to Cart Button */}
-                  <button
-                    onClick={handleAddToCart}
-                    className="bg-orange-500 text-white px-5 py-2 rounded-md hover:bg-black duration-300 transition-colors font-medium text-sm min-w-[120px]"
-                  >
-                    Add To Cart
-                  </button>
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    {/* Buy Now Button */}
+                    <button
+                      onClick={handleBuyNow}
+                      className="bg-black text-white px-5 py-2 rounded-md hover:bg-gray-800 duration-300 transition-colors font-medium text-sm min-w-[120px]"
+                    >
+                      Buy Now
+                    </button>
+
+                    {/* Add to Cart Button */}
+                    <button
+                      onClick={handleAddToCart}
+                      className="bg-orange-500 text-white px-5 py-2 rounded-md hover:bg-orange-600 duration-300 transition-colors font-medium text-sm min-w-[120px]"
+                    >
+                      Add To Cart
+                    </button>
+                  </div>
 
                   {/* Share Button */}
                   <div className="relative">

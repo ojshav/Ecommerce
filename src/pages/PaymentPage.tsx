@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CartItem } from "../types";
+import { CartItem, DirectPurchaseItem } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -138,12 +138,20 @@ const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // --- Read state passed from Cart.tsx ---
-  const { discount, appliedPromo, itemDiscounts } = location.state || {
-    discount: 0,
-    appliedPromo: null,
-    itemDiscounts: {},
-  };
+  // --- Read state passed from Cart.tsx or direct purchase ---
+  const stateData = location.state || {};
+  const [discount, setDiscount] = useState(stateData.discount || 0);
+  const [appliedPromo, setAppliedPromo] = useState(stateData.appliedPromo || null);
+  const [itemDiscounts, setItemDiscounts] = useState(stateData.itemDiscounts || {});
+  const directPurchase = stateData.directPurchase || null;
+
+  // Determine if this is a direct purchase or cart checkout
+  const isDirectPurchase = directPurchase !== null;
+  const directPurchaseItem = directPurchase as DirectPurchaseItem | null;
+
+  // Promo code state for direct purchases
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [promoLoading, setPromoLoading] = useState(false);
 
   const validatePostalCode = (
     postalCode: string,
@@ -347,8 +355,13 @@ const PaymentPage: React.FC = () => {
       return;
     }
 
+    // Get items for calculation
+    const itemsForShipping = isDirectPurchase && directPurchaseItem 
+      ? [{ product_id: directPurchaseItem.product.id, quantity: directPurchaseItem.quantity }]
+      : cart.map(item => ({ product_id: item.product_id, quantity: item.quantity }));
+
     // Generate a unique request ID to prevent duplicate requests
-    const currentRequestId = `${selectedAddressId}-${paymentMethod}-${JSON.stringify(cart.map(item => `${item.product_id}-${item.quantity}`))}`;
+    const currentRequestId = `${selectedAddressId}-${paymentMethod}-${JSON.stringify(itemsForShipping)}`;
     
     // If this is the same request as the last one, don't make another API call
     if (shippingRequestId === currentRequestId && !shippingLoading) {
@@ -373,11 +386,16 @@ const PaymentPage: React.FC = () => {
       }
 
       // Calculate total weight (assuming 0.5kg per item as default)
-      const totalWeight = cart.reduce((weight, item) => weight + (item.quantity * 0.5), 0);
+      const totalWeight = itemsForShipping.reduce((weight, item) => weight + (item.quantity * 0.5), 0);
       
       // Determine if this is COD or prepaid
       const isCOD = paymentMethod === "cash_on_delivery";
-      const codAmount = isCOD ? (totalPrice - discount) : 0;
+      
+      // Calculate total price for COD amount
+      const currentTotal = isDirectPurchase && directPurchaseItem
+        ? (directPurchaseItem.product.price * directPurchaseItem.quantity)
+        : totalPrice;
+      const codAmount = isCOD ? (currentTotal - discount) : 0;
 
       console.log("Calculating shipping for:", {
         pickupPincode: "474005", // Default pickup pincode (should come from merchant)
@@ -385,6 +403,7 @@ const PaymentPage: React.FC = () => {
         weight: totalWeight,
         isCOD,
         codAmount,
+        isDirectPurchase,
         requestId: currentRequestId
       });
 
@@ -492,6 +511,72 @@ const PaymentPage: React.FC = () => {
     calculateShippingCost();
   };
 
+  // Promo code application for direct purchases
+  const handleApplyPromo = async (promoCode: string) => {
+    if (!promoCode.trim()) {
+      toast.error("Please enter a promotion code.");
+      return;
+    }
+
+    if (!isDirectPurchase || !directPurchaseItem) {
+      toast.error("Promo codes can only be applied to purchases");
+      return;
+    }
+
+    setPromoLoading(true);
+    setDiscount(0);
+    setAppliedPromo(null);
+
+    try {
+      const cartItemsPayload = [{
+        product_id: directPurchaseItem.product.id,
+        quantity: directPurchaseItem.quantity,
+        price: directPurchaseItem.product.price,
+      }];
+
+      const response = await fetch(`${API_BASE_URL}/api/promo-code/apply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          promo_code: promoCode,
+          cart_items: cartItemsPayload,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to apply promo code.");
+      }
+
+      toast.success(result.message);
+      setDiscount(result.discount_amount);
+      setAppliedPromo({
+        id: result.promotion_id,
+        code: promoCodeInput.toUpperCase(),
+      });
+      setItemDiscounts(result.item_discounts || {});
+
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "An unknown error occurred."
+      );
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const removePromo = () => {
+    setDiscount(0);
+    setPromoCodeInput("");
+    setAppliedPromo(null);
+    setItemDiscounts({});
+    toast.success("Promotion removed.");
+  };
+
   useEffect(() => {
     fetchAddresses();
     fetchSavedCards();
@@ -499,7 +584,8 @@ const PaymentPage: React.FC = () => {
 
   // Calculate shipping when address or payment method changes
   useEffect(() => {
-    if (selectedAddressId && cart.length > 0) {
+    const hasItems = isDirectPurchase ? (directPurchaseItem !== null) : (cart.length > 0);
+    if (selectedAddressId && hasItems) {
       // Add a small delay to prevent rapid successive calls
       const timeoutId = setTimeout(() => {
         calculateShippingCost();
@@ -510,7 +596,7 @@ const PaymentPage: React.FC = () => {
         clearTimeout(timeoutId);
       };
     }
-  }, [selectedAddressId, paymentMethod, cart]);
+  }, [selectedAddressId, paymentMethod, cart, isDirectPurchase, directPurchaseItem]);
 
   const fetchAddresses = async () => {
     try {
@@ -705,40 +791,45 @@ const PaymentPage: React.FC = () => {
 
     setProcessingPayment(true);
 
-    // Calculate subtotal using original prices instead of cart context totalPrice
-    const subtotal = cart.reduce((total, item) => total + (item.product.original_price * item.quantity), 0);
-    const finalTotal = subtotal - discount + shippingCost; // Add shipping cost to final total
+    // Determine items source: cart or direct purchase
+    const itemsSource = isDirectPurchase && directPurchaseItem 
+      ? [{ 
+          product_id: directPurchaseItem.product.id,
+          merchant_id: 1, // Default merchant ID for direct purchase
+          quantity: directPurchaseItem.quantity,
+          selected_attributes: directPurchaseItem.selected_attributes,
+          product: directPurchaseItem.product
+        }]
+      : cart;
+
+    // Calculate subtotal using original prices
+    const subtotal = itemsSource.reduce((total, item) => {
+      const price = item.product.original_price || item.product.price;
+      return total + (price * item.quantity);
+    }, 0);
+    const finalTotal = subtotal - discount + shippingCost;
 
     // Calculate distributed discount per item if there's a total discount but no itemDiscounts
     const totalItemDiscounts = Object.values(itemDiscounts || {}).reduce((sum: number, discount: any) => sum + (typeof discount === 'number' ? discount : 0), 0);
     const remainingDiscount = discount - totalItemDiscounts;
     
     // Debug: Log discount distribution
-    console.log("Discount Distribution Debug:", {
+    console.log("Order Processing Debug:", {
+      isDirectPurchase,
+      itemsCount: itemsSource.length,
       totalDiscount: discount,
       totalItemDiscounts,
       remainingDiscount,
-      itemDiscounts,
       subtotal,
-      cartTotalPrice: totalPrice, // Original cart total for comparison
       finalTotal
     });
     
-    // Debug: Log promo information
-    console.log("Promo Debug:", {
-      appliedPromo,
-      promoCode: appliedPromo?.code,
-      internalNotes: appliedPromo && appliedPromo.code ? `Promo code used: ${appliedPromo.code}` : ""
-    });
-    
-    console.log("Individual item calculations:");
-    
     const orderData = {
-      items: cart.map((item) => {
+      items: itemsSource.map((item) => {
         // Use original_price as the base price for calculations
-        const basePrice = item.product.original_price;
+        const basePrice = item.product.original_price || item.product.price;
         const itemTotal = basePrice * item.quantity;
-        let itemDiscountAmount = (itemDiscounts && itemDiscounts[item.product_id]) ? Number(itemDiscounts[item.product_id]) : 0;
+        let itemDiscountAmount = (itemDiscounts && itemDiscounts[item.product.id || item.product_id]) ? Number(itemDiscounts[item.product.id || item.product_id]) : 0;
         
         // If there's remaining discount to distribute (sitewide discount not in itemDiscounts)
         if (remainingDiscount > 0 && subtotal > 0) {
@@ -760,12 +851,10 @@ const PaymentPage: React.FC = () => {
         // Calculate final unit price after discount
         const finalUnitPrice = basePrice - roundedPerUnitDiscount;
 
-        console.log(`Product ${item.product_id}:`, {
+        console.log(`Product ${item.product.id || item.product_id}:`, {
           name: item.product.name,
           quantity: item.quantity,
           originalPrice: basePrice,
-          specialPrice: item.product.special_price,
-          unitPrice: item.product.price,
           itemTotal: itemTotal,
           totalDiscountForItem: itemDiscountAmount,
           perUnitDiscount: roundedPerUnitDiscount,
@@ -773,18 +862,16 @@ const PaymentPage: React.FC = () => {
         });
 
         return {
-          product_id: item.product_id,
-          merchant_id: item.merchant_id,
+          product_id: item.product.id || item.product_id,
+          merchant_id: item.merchant_id || 1,
           product_name_at_purchase: item.product.name,
           sku_at_purchase: item.product.sku || "",
           quantity: item.quantity,
           unit_price_inclusive_gst: finalUnitPrice.toString(),
           line_item_total_inclusive_gst: (finalUnitPrice * item.quantity).toString(),
           final_price_for_item: (finalUnitPrice * item.quantity).toString(),
-
-          item_discount_inclusive: roundedPerUnitDiscount.toString(), // Per-unit discount, not total discount for item
-
-          selected_attributes: (item as any).selected_attributes || {}
+          item_discount_inclusive: roundedPerUnitDiscount.toString(),
+          selected_attributes: item.selected_attributes || {}
         };
       }),
       subtotal_amount: subtotal.toString(),
@@ -930,8 +1017,10 @@ const PaymentPage: React.FC = () => {
           toast.error("Order placed successfully, but shipment creation failed. Please contact support.");
         }
 
-        // Clear the cart after successful order
-        await clearCart();
+        // Clear the cart after successful order (only for cart checkout, not direct purchase)
+        if (!isDirectPurchase) {
+          await clearCart();
+        }
         toast.success("Order placed successfully");
         // Redirect to order confirmation page
         navigate("/order-confirmation", { state: { orderId } });
@@ -1818,6 +1907,10 @@ const PaymentPage: React.FC = () => {
           availableCouriers={availableCouriers}
           selectedCourier={selectedCourier}
           onRefreshShipping={refreshShippingCost}
+          directPurchaseItem={directPurchaseItem}
+          onApplyPromo={handleApplyPromo}
+          onRemovePromo={removePromo}
+          promoLoading={promoLoading}
         />
         <div className="mb-6">
           <div className="font-medium mb-2">Payment Method</div>
