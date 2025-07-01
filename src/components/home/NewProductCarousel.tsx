@@ -39,7 +39,12 @@ const NewProductCarousel: React.FC = () => {
     <div className="w-full relative mb-8 sm:mb-12 md:mb-16 lg:mb-20">
       <div 
         ref={containerRef}
-        className="relative overflow-hidden mx-auto w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] xl:h-[560px]"
+        className="relative w-full h-auto aspect-[16/6] sm:aspect-[16/5] md:aspect-[16/4.5] lg:aspect-[16/4]"
+        style={{
+          marginLeft: 'calc(-50vw + 50%)',
+          marginRight: 'calc(-50vw + 50%)',
+          width: '100vw'
+        }}
       >
         <motion.div
           className="flex h-full"
@@ -71,10 +76,8 @@ const NewProductCarousel: React.FC = () => {
                 <img 
                   src={src} 
                   alt={`Carousel ${idx + 1}`} 
-                  className="w-full h-full"
+                  className="w-full h-full object-cover"
                   style={{
-                    objectFit: 'contain',
-                    objectPosition: 'left center',
                     backgroundColor: '#f8f8f8'
                   }}
                 />
@@ -82,6 +85,19 @@ const NewProductCarousel: React.FC = () => {
             </div>
           ))}
         </motion.div>
+
+        {/* Navigation Dots */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          {images.map((_, idx) => (
+            <button
+              key={idx}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                current === idx ? 'bg-black w-4' : 'bg-gray-400'
+              }`}
+              onClick={() => setCurrent(idx)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
