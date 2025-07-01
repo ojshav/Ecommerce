@@ -105,13 +105,14 @@ interface UserGrowthData {
   month: string;
   users: number;
   merchants: number;
-  user_growth: number;
-  merchant_growth: number;
+  cumulative_users: number;
+  cumulative_merchants: number;
 }
 
 interface UserGrowthResponse {
   status: string;
   data: {
+    trend: UserGrowthData[];
     summary: {
       total_users: number;
       total_merchants: number;
@@ -218,12 +219,26 @@ const Dashboard = () => {
     return date.toLocaleString('default', { month: 'short' });
   };
 
+  // Helper function to get months parameter from timeRange
+  const getMonthsFromTimeRange = (timeRange: string): number => {
+    switch (timeRange) {
+      case '1month': return 1;
+      case '3months': return 3;
+      case '6months': return 6;
+      case '1year': return 12;
+      default: return 6;
+    }
+  };
+
   const fetchMetrics = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/dashboard`, {
+      const months = getMonthsFromTimeRange(timeRange);
+      
+      // Use the new period-based dashboard endpoint
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/dashboard-by-period?months=${months}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -250,7 +265,8 @@ const Dashboard = () => {
 
   const fetchTrendData = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/revenue-orders-trend?months=${timeRange === '1month' ? 1 : timeRange === '3months' ? 3 : timeRange === '6months' ? 6 : 12}`, {
+      const months = getMonthsFromTimeRange(timeRange);
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/revenue-orders-trend?months=${months}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -279,7 +295,8 @@ const Dashboard = () => {
 
   const fetchUserGrowthData = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/user-growth-trend?months=${timeRange === '1month' ? 1 : timeRange === '3months' ? 3 : timeRange === '6months' ? 6 : 12}`, {
+      const months = getMonthsFromTimeRange(timeRange);
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/user-growth-trend?months=${months}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -293,16 +310,15 @@ const Dashboard = () => {
       const data: UserGrowthResponse = await response.json();
       console.log('Raw API Response:', data);
 
-      if (data.status === 'success' && data.data?.summary) {
-        // Create a single data point for the current month
-        const currentDate = new Date();
-        const formattedData = [{
-          month: currentDate.toLocaleString('default', { month: 'short' }),
-          users: data.data.summary.total_users,
-          merchants: data.data.summary.total_merchants,
-          user_growth: data.data.summary.average_user_growth,
-          merchant_growth: data.data.summary.average_merchant_growth
-        }];
+      if (data.status === 'success' && data.data?.trend) {
+        // Format the trend data for the chart
+        const formattedData = data.data.trend.map(item => ({
+          month: formatMonth(item.month),
+          users: item.cumulative_users,
+          merchants: item.cumulative_merchants,
+          cumulative_users: item.cumulative_users,
+          cumulative_merchants: item.cumulative_merchants
+        }));
         
         console.log('Formatted user growth data:', formattedData);
         setUserGrowthData(formattedData);
@@ -319,7 +335,8 @@ const Dashboard = () => {
 
   const fetchAverageOrderValue = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/average-order-value`, {
+      const months = getMonthsFromTimeRange(timeRange);
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/average-order-value-by-period?months=${months}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -343,7 +360,8 @@ const Dashboard = () => {
 
   const fetchTotalProducts = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/total-products`, {
+      const months = getMonthsFromTimeRange(timeRange);
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/total-products-by-period?months=${months}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -392,7 +410,8 @@ const Dashboard = () => {
 
   const fetchTopMerchants = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/top-merchants`, {
+      const months = getMonthsFromTimeRange(timeRange);
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/merchant-performance?months=${months}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -402,9 +421,16 @@ const Dashboard = () => {
         throw new Error('Failed to fetch top merchants data');
       }
 
-      const data: TopMerchantsResponse = await response.json();
+      const data = await response.json();
       if (data.status === 'success') {
-        setTopMerchants(data.data.merchants);
+        // Format the merchant data to match the expected interface
+        const formattedMerchants = data.data.merchants.slice(0, 5).map((merchant: any) => ({
+          name: merchant.business_name,
+          revenue: `₹${merchant.total_revenue.toLocaleString()}`,
+          orders: merchant.total_orders,
+          growth: '+0%' // Since we don't have growth data in this endpoint
+        }));
+        setTopMerchants(formattedMerchants);
       } else {
         throw new Error(data.message || 'Failed to fetch top merchants data');
       }
@@ -418,7 +444,8 @@ const Dashboard = () => {
   const fetchConversionRate = async () => {
     try {
       console.log('Fetching conversion rate data...');
-      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/conversion-rate?months=${timeRange === '1month' ? 1 : timeRange === '3months' ? 3 : timeRange === '6months' ? 6 : 12}`, {
+      const months = getMonthsFromTimeRange(timeRange);
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/conversion-rate?months=${months}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -575,7 +602,7 @@ const Dashboard = () => {
             color: "purple"
           },
           {
-            title: "Orders This Month",
+            title: `Orders (${timeRange === '1month' ? 'This Month' : timeRange === '3months' ? 'Last 3 Months' : timeRange === '6months' ? 'Last 6 Months' : 'Last Year'})`,
             value: metrics?.monthly_orders?.count?.current?.toLocaleString() ?? '0',
             change: formatPercentage(metrics?.monthly_orders?.count?.change_percentage ?? 0),
             trend: (metrics?.monthly_orders?.count?.change_percentage ?? 0) >= 0 ? "up" : "down",

@@ -162,6 +162,7 @@ const HomepageProducts: React.FC = () => {
           special_price: product.special_price,
           image_url: product.media?.[0]?.url || product.image,
           images: product.media?.map(m => m.url) || [product.image],
+          primary_image: product.media?.[0]?.url || product.image,  // Add primary_image field
           stock: product.stock,
           is_deleted: false,
           sku: product.sku,
