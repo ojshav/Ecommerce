@@ -1,16 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Star, Check, Heart, ArrowLeft, ChevronRight, ChevronLeft, Share2, X, Copy, Facebook, Twitter, Mail } from 'lucide-react';
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
-import { useWishlist } from '../context/WishlistContext';
-import { toast } from 'react-hot-toast';
-
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import {
+  Star,
+  Check,
+  Heart,
+  ArrowLeft,
+  ChevronRight,
+  ChevronLeft,
+  Share2,
+  X,
+  Copy,
+  Facebook,
+  Twitter,
+  Mail,
+} from "lucide-react";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../context/WishlistContext";
+import { toast } from "react-hot-toast";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Tab type
-type TabType = 'product-details' | 'information' | 'reviews';
+type TabType = "product-details" | "information" | "reviews";
 
 interface ProductMedia {
   media_id: number;
@@ -64,7 +76,7 @@ interface ProductDetails {
 }
 
 // Extend the Product type to match what the cart expects
-interface CartProduct extends Omit<ProductDetails, 'category' | 'brand'> {
+interface CartProduct extends Omit<ProductDetails, "category" | "brand"> {
   id: number;
   name: string;
   price: number;
@@ -149,12 +161,12 @@ const ProductDetail: React.FC = () => {
     removeFromWishlist,
     isInWishlist,
     loading: wishlistLoading,
-    wishlistItems
+    wishlistItems,
   } = useWishlist();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState('');
-  const [activeTab, setActiveTab] = useState<TabType>('product-details');
+  const [selectedImage, setSelectedImage] = useState("");
+  const [activeTab, setActiveTab] = useState<TabType>("product-details");
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -163,35 +175,43 @@ const ProductDetail: React.FC = () => {
   const [totalReviewPages, setTotalReviewPages] = useState(1);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [averageRating, setAverageRating] = useState<number>(0);
-  const [selectedPreviewImage, setSelectedPreviewImage] = useState<string | null>(null);
+  const [selectedPreviewImage, setSelectedPreviewImage] = useState<
+    string | null
+  >(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
-  const [selectedAttributes, setSelectedAttributes] = useState<{[key: number]: string | string[]}>({});
+  const [selectedAttributes, setSelectedAttributes] = useState<{
+    [key: number]: string | string[];
+  }>({});
 
   // copy product link to clipboard
   const copyToClipboard = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopiedToClipboard(true);
-    toast.success('Link copied to clipboard!');
+    toast.success("Link copied to clipboard!");
     setTimeout(() => setCopiedToClipboard(false), 2000);
     setShowShareOptions(false);
   };
 
   // Handle attribute selection for multi-select attributes
-  const handleAttributeSelect = (attributeId: number, value: string, isMultiSelect: boolean) => {
-    console.log('Attribute selection:', { attributeId, value, isMultiSelect });
-    setSelectedAttributes(prev => {
-      console.log('Previous selected attributes:', prev);
+  const handleAttributeSelect = (
+    attributeId: number,
+    value: string,
+    isMultiSelect: boolean
+  ) => {
+    console.log("Attribute selection:", { attributeId, value, isMultiSelect });
+    setSelectedAttributes((prev) => {
+      console.log("Previous selected attributes:", prev);
       if (isMultiSelect) {
         const currentValues = (prev[attributeId] as string[]) || [];
         const newValues = currentValues.includes(value)
-          ? currentValues.filter(v => v !== value)
+          ? currentValues.filter((v) => v !== value)
           : [...currentValues, value];
-        console.log('New multi-select values:', newValues);
+        console.log("New multi-select values:", newValues);
         return { ...prev, [attributeId]: newValues };
       } else {
-        console.log('New single-select value:', value);
+        console.log("New single-select value:", value);
         return { ...prev, [attributeId]: value };
       }
     });
@@ -200,58 +220,61 @@ const ProductDetail: React.FC = () => {
   // function to share via social platforms
   const shareViaPlatform = (platform: string) => {
     const url = encodeURIComponent(window.location.href);
-    const title = encodeURIComponent(product?.product_name || 'Check out this product');
+    const title = encodeURIComponent(
+      product?.product_name || "Check out this product"
+    );
 
     let shareUrl = "";
 
     switch (platform) {
-      case 'facebook':
+      case "facebook":
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
         break;
-      case 'twitter':
+      case "twitter":
         shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
         break;
-      case 'email':
+      case "email":
         shareUrl = `mailto:?subject=${title}&body=Check out this product: ${url}`;
         break;
       default:
         return;
     }
 
-    window.open(shareUrl, '_blank');
+    window.open(shareUrl, "_blank");
     setShowShareOptions(false);
   };
-
-
 
   // Add function to fetch reviews
   const fetchProductReviews = async (page: number = 1) => {
     try {
       setLoadingReviews(true);
-      console.log('Fetching reviews for product:', productId, 'page:', page);
+      console.log("Fetching reviews for product:", productId, "page:", page);
 
-      const response = await fetch(`${API_BASE_URL}/api/reviews/product/${productId}?page=${page}&per_page=5`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+      const response = await fetch(
+        `${API_BASE_URL}/api/reviews/product/${productId}?page=${page}&per_page=5`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
         }
-      });
+      );
 
-      console.log('Review API Response Status:', response.status);
+      console.log("Review API Response Status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Review API Error Response:', errorData);
-        throw new Error(errorData.message || 'Failed to fetch reviews');
+        console.error("Review API Error Response:", errorData);
+        throw new Error(errorData.message || "Failed to fetch reviews");
       }
 
       const data: ReviewResponse = await response.json();
-      console.log('Review API Success Response:', data);
+      console.log("Review API Success Response:", data);
 
-      if (data.status === 'success' && data.data) {
-        console.log('Reviews Data:', data.data.reviews);
-        console.log('Total Reviews:', data.data.total);
-        console.log('Total Pages:', data.data.pages);
+      if (data.status === "success" && data.data) {
+        console.log("Reviews Data:", data.data.reviews);
+        console.log("Total Reviews:", data.data.total);
+        console.log("Total Pages:", data.data.pages);
 
         setReviews(data.data.reviews);
         setTotalReviewPages(data.data.pages);
@@ -259,21 +282,24 @@ const ProductDetail: React.FC = () => {
 
         // Calculate average rating
         if (data.data.reviews.length > 0) {
-          const totalRating = data.data.reviews.reduce((sum, review) => sum + review.rating, 0);
+          const totalRating = data.data.reviews.reduce(
+            (sum, review) => sum + review.rating,
+            0
+          );
           const avgRating = totalRating / data.data.reviews.length;
           setAverageRating(Number(avgRating.toFixed(1)));
         }
       } else {
-        console.error('Unexpected API Response Format:', data);
-        throw new Error('Invalid response format from review API');
+        console.error("Unexpected API Response Format:", data);
+        throw new Error("Invalid response format from review API");
       }
     } catch (error) {
-      console.error('Error in fetchProductReviews:', error);
-      console.error('Error details:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
+      console.error("Error in fetchProductReviews:", error);
+      console.error("Error details:", {
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
       });
-      toast.error('Failed to load reviews');
+      toast.error("Failed to load reviews");
     } finally {
       setLoadingReviews(false);
     }
@@ -283,31 +309,36 @@ const ProductDetail: React.FC = () => {
     const fetchProductDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/api/products/${productId}/details`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+        const response = await fetch(
+          `${API_BASE_URL}/api/products/${productId}/details`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
           }
-        });
+        );
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch product details: ${response.status}`);
+          throw new Error(
+            `Failed to fetch product details: ${response.status}`
+          );
         }
 
         const data = await response.json();
-        console.log('Product Data:', {
+        console.log("Product Data:", {
           selling_price: data.selling_price,
           cost_price: data.cost_price,
           discount_pct: data.discount_pct,
-          attributes: data.attributes
+          attributes: data.attributes,
         });
         setProduct(data);
         if (data.media && data.media.length > 0) {
           setSelectedImage(data.media[0].url);
         }
       } catch (err) {
-        setError('Failed to fetch product details');
-        console.error('Error fetching product:', err);
+        setError("Failed to fetch product details");
+        console.error("Error fetching product:", err);
       } finally {
         setLoading(false);
       }
@@ -340,8 +371,13 @@ const ProductDetail: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Product Not Found</h2>
-          <p className="text-gray-600 mb-6">{error || "The product you're looking for does not exist or has been removed."}</p>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            Product Not Found
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {error ||
+              "The product you're looking for does not exist or has been removed."}
+          </p>
           <Link
             to="/wholesale"
             className="inline-flex items-center space-x-2 bg-primary-600 text-white px-6 py-3 rounded-md hover:bg-primary-700 transition-colors"
@@ -357,14 +393,14 @@ const ProductDetail: React.FC = () => {
   const handleAddToCart = () => {
     const calculatedPrice = product.price || product.selling_price;
     const calculatedOriginalPrice = product.originalPrice || product.cost_price;
-    
-    console.log('Cart Debug:', {
-      'product.price': product.price,
-      'product.originalPrice': product.originalPrice,
-      'product.selling_price': product.selling_price,
-      'product.cost_price': product.cost_price,
-      'calculatedPrice': calculatedPrice,
-      'calculatedOriginalPrice': calculatedOriginalPrice
+
+    console.log("Cart Debug:", {
+      "product.price": product.price,
+      "product.originalPrice": product.originalPrice,
+      "product.selling_price": product.selling_price,
+      "product.cost_price": product.cost_price,
+      calculatedPrice: calculatedPrice,
+      calculatedOriginalPrice: calculatedOriginalPrice,
     });
 
     const cartProduct: CartProduct = {
@@ -374,17 +410,17 @@ const ProductDetail: React.FC = () => {
       price: calculatedPrice, // Use backend-calculated price (with special price logic)
       original_price: calculatedOriginalPrice, // Use backend-calculated original price
       special_price: product.special_price,
-      currency: 'INR',
-      image: product.media[0]?.url || '',
-      image_url: product.media[0]?.url || '',
+      currency: "INR",
+      image: product.media[0]?.url || "",
+      image_url: product.media[0]?.url || "",
       stock: 100,
       isNew: true,
       isBuiltIn: false,
       rating: 0,
       reviews: 0,
       sku: `SKU-${product.product_id}`,
-      category: product.category || { category_id: 0, name: '' },
-      brand: product.brand || { brand_id: 0, name: '' },
+      category: product.category || { category_id: 0, name: "" },
+      brand: product.brand || { brand_id: 0, name: "" },
       is_deleted: false,
     };
 
@@ -394,15 +430,15 @@ const ProductDetail: React.FC = () => {
 
   const handleBuyNow = () => {
     if (!isAuthenticated) {
-      toast.error('Please sign in to proceed with purchase');
+      toast.error("Please sign in to proceed with purchase");
       const returnUrl = encodeURIComponent(window.location.pathname);
       navigate(`/sign-in?returnUrl=${returnUrl}`);
       return;
     }
 
     // Check if user is a merchant or admin
-    if (user?.role === 'merchant' || user?.role === 'admin') {
-      toast.error('Merchants and admins cannot make purchases');
+    if (user?.role === "merchant" || user?.role === "admin") {
+      toast.error("Merchants and admins cannot make purchases");
       return;
     }
 
@@ -415,7 +451,7 @@ const ProductDetail: React.FC = () => {
       price: calculatedPrice,
       original_price: calculatedOriginalPrice,
       special_price: product.special_price,
-      image_url: product.media[0]?.url || '',
+      image_url: product.media[0]?.url || "",
       stock: 100,
       is_deleted: false,
       sku: `SKU-${product.product_id}`,
@@ -426,17 +462,20 @@ const ProductDetail: React.FC = () => {
     const directPurchaseItem = {
       product: productForPurchase,
       quantity: quantity,
-      selected_attributes: Object.keys(selectedAttributes).length > 0 ? selectedAttributes : undefined
+      selected_attributes:
+        Object.keys(selectedAttributes).length > 0
+          ? selectedAttributes
+          : undefined,
     };
 
     // Navigate to payment page with direct purchase data
-    navigate('/payment', {
+    navigate("/payment", {
       state: {
         directPurchase: directPurchaseItem,
         discount: 0,
         appliedPromo: null,
-        itemDiscounts: {}
-      }
+        itemDiscounts: {},
+      },
     });
   };
 
@@ -449,15 +488,15 @@ const ProductDetail: React.FC = () => {
 
   const handleWishlist = async () => {
     if (!isAuthenticated) {
-      toast.error('Please sign in to add items to wishlist');
+      toast.error("Please sign in to add items to wishlist");
       const returnUrl = encodeURIComponent(window.location.pathname);
       navigate(`/sign-in?returnUrl=${returnUrl}`);
       return;
     }
 
     // Check if user is a merchant or admin
-    if (user?.role === 'merchant' || user?.role === 'admin') {
-      toast.error('Merchants and admins cannot add items to wishlist');
+    if (user?.role === "merchant" || user?.role === "admin") {
+      toast.error("Merchants and admins cannot add items to wishlist");
       return;
     }
 
@@ -467,19 +506,23 @@ const ProductDetail: React.FC = () => {
 
       if (isInWishlistItem) {
         // Find the wishlist item ID from the wishlist items
-        const wishlistItem = wishlistItems.find(item => item.product_id === productId);
+        const wishlistItem = wishlistItems.find(
+          (item) => item.product_id === productId
+        );
         if (wishlistItem) {
           await removeFromWishlist(wishlistItem.wishlist_item_id);
-          toast.success('Product removed from wishlist');
+          toast.success("Product removed from wishlist");
         }
       } else {
-        console.log('Attempting to add to wishlist, product ID:', productId);
+        console.log("Attempting to add to wishlist, product ID:", productId);
         await addToWishlist(productId);
-        toast.success('Product added to wishlist');
+        toast.success("Product added to wishlist");
       }
     } catch (error) {
-      console.error('Wishlist error details:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to update wishlist');
+      console.error("Wishlist error details:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update wishlist"
+      );
     }
   };
 
@@ -502,18 +545,20 @@ const ProductDetail: React.FC = () => {
         {Object.entries(groupedAttributes).map(([groupKey, attributes]) => {
           const firstAttr = attributes[0];
           // Determine if attribute should be multi-select based on common patterns
-          const isMultiSelect = firstAttr.attribute_name.toLowerCase().includes('color') || 
-                               firstAttr.attribute_name.toLowerCase().includes('size') ||
-                               firstAttr.attribute_name.toLowerCase().includes('style') ||
-                               firstAttr.attribute_name.toLowerCase().includes('ram') ||
-                               firstAttr.attribute_name.toLowerCase().includes('storage') ||
-                               firstAttr.attribute_name.toLowerCase().includes('memory') ||
-                               firstAttr.attribute_name.toLowerCase().includes('capacity');
-          
+          const isMultiSelect =
+            firstAttr.attribute_name.toLowerCase().includes("color") ||
+            firstAttr.attribute_name.toLowerCase().includes("size") ||
+            firstAttr.attribute_name.toLowerCase().includes("style") ||
+            firstAttr.attribute_name.toLowerCase().includes("ram") ||
+            firstAttr.attribute_name.toLowerCase().includes("storage") ||
+            firstAttr.attribute_name.toLowerCase().includes("memory") ||
+            firstAttr.attribute_name.toLowerCase().includes("capacity");
+
           if (isMultiSelect) {
             // For multi-select attributes, show all options in one row
-            const selectedValues = (selectedAttributes[firstAttr.attribute_id] as string[]) || [];
-            
+            const selectedValues =
+              (selectedAttributes[firstAttr.attribute_id] as string[]) || [];
+
             return (
               <div key={groupKey} className="flex flex-wrap items-center gap-4">
                 <div className="text-sm font-medium text-gray-700 min-w-[100px]">
@@ -521,18 +566,25 @@ const ProductDetail: React.FC = () => {
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {attributes.map((attr) => {
-                    const currentValue = attr.is_text_based ? attr.value_text : attr.value_label || attr.value_text;
+                    const currentValue = attr.is_text_based
+                      ? attr.value_text
+                      : attr.value_label || attr.value_text;
                     const isSelected = selectedValues.includes(currentValue);
-                    
+
                     return (
                       <button
                         key={attr.attribute_id}
-                        onClick={() => handleAttributeSelect(firstAttr.attribute_id, currentValue, true)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                          isSelected
-                            ? 'border-2 border-orange-500 bg-orange-50 text-orange-700 shadow-sm'
-                            : 'border-2 border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                        }`}
+                        onClick={() =>
+                          handleAttributeSelect(
+                            firstAttr.attribute_id,
+                            currentValue,
+                            true
+                          )
+                        }
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isSelected
+                            ? "border-2 border-orange-500 bg-orange-50 text-orange-700 shadow-sm"
+                            : "border-2 border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+                          }`}
                       >
                         {currentValue}
                       </button>
@@ -543,8 +595,10 @@ const ProductDetail: React.FC = () => {
             );
           } else {
             // For single-select attributes, show as interactive buttons
-            const selectedValue = selectedAttributes[firstAttr.attribute_id] as string;
-            
+            const selectedValue = selectedAttributes[
+              firstAttr.attribute_id
+            ] as string;
+
             return (
               <div key={groupKey} className="flex flex-wrap items-center gap-4">
                 <div className="text-sm font-medium text-gray-700 min-w-[100px]">
@@ -552,18 +606,25 @@ const ProductDetail: React.FC = () => {
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {attributes.map((attr) => {
-                    const value = attr.is_text_based ? attr.value_text : attr.value_label || attr.value_text;
+                    const value = attr.is_text_based
+                      ? attr.value_text
+                      : attr.value_label || attr.value_text;
                     const isSelected = selectedValue === value;
-                    
+
                     return (
                       <button
                         key={attr.attribute_id}
-                        onClick={() => handleAttributeSelect(firstAttr.attribute_id, value, false)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                          isSelected
-                            ? 'border-2 border-orange-500 bg-orange-50 text-orange-700 shadow-sm'
-                            : 'border-2 border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                        }`}
+                        onClick={() =>
+                          handleAttributeSelect(
+                            firstAttr.attribute_id,
+                            value,
+                            false
+                          )
+                        }
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isSelected
+                            ? "border-2 border-orange-500 bg-orange-50 text-orange-700 shadow-sm"
+                            : "border-2 border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+                          }`}
                       >
                         {value}
                       </button>
@@ -586,7 +647,7 @@ const ProductDetail: React.FC = () => {
           <Star
             key={star}
             size={16}
-            className={`${star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+            className={`${star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
               }`}
           />
         ))}
@@ -597,10 +658,12 @@ const ProductDetail: React.FC = () => {
   // Update the reviews tab content
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'product-details':
+      case "product-details":
         return (
           <div className="py-6">
-            <h3 className="text-xl font-medium mb-4 text-gray-900">{product.meta?.meta_title || product.product_name}</h3>
+            <h3 className="text-xl font-medium mb-4 text-gray-900">
+              {product.meta?.meta_title || product.product_name}
+            </h3>
             {/* Short Description */}
             {product.meta?.short_desc && (
               <div className="mb-4">
@@ -613,7 +676,9 @@ const ProductDetail: React.FC = () => {
             {/* Full Description */}
             {product.meta?.full_desc && (
               <div className="mt-6">
-                <h4 className="text-lg font-medium mb-3 text-gray-900">Full Description</h4>
+                <h4 className="text-lg font-medium mb-3 text-gray-900">
+                  Full Description
+                </h4>
                 <div
                   className="prose prose-sm max-w-none text-gray-700"
                   dangerouslySetInnerHTML={{ __html: product.meta.full_desc }}
@@ -623,7 +688,9 @@ const ProductDetail: React.FC = () => {
             {/* Fallback to basic description if no meta description */}
             {!product.meta?.full_desc && product.description && (
               <div className="mt-6">
-                <h4 className="text-lg font-medium mb-3 text-gray-900">Description</h4>
+                <h4 className="text-lg font-medium mb-3 text-gray-900">
+                  Description
+                </h4>
                 <div
                   className="prose prose-sm max-w-none text-gray-700"
                   dangerouslySetInnerHTML={{ __html: product.description }}
@@ -632,48 +699,78 @@ const ProductDetail: React.FC = () => {
             )}
           </div>
         );
-      case 'information':
+      case "information":
         return (
           <div className="py-6">
-            <h3 className="text-xl font-medium mb-6 text-gray-900">Specifications</h3>
+            <h3 className="text-xl font-medium mb-6 text-gray-900">
+              Specifications
+            </h3>
             <div className="border-t border-gray-200">
               <table className="min-w-full">
                 <tbody>
                   <tr className="border-b border-gray-200">
-                    <td className="py-3 pr-4 font-medium text-gray-700 w-1/3">Product</td>
-                    <td className="py-3 text-gray-800">{product.product_name}</td>
+                    <td className="py-3 pr-4 font-medium text-gray-700 w-1/3">
+                      Product
+                    </td>
+                    <td className="py-3 text-gray-800">
+                      {product.product_name}
+                    </td>
                   </tr>
                   <tr className="border-b border-gray-200">
-                    <td className="py-3 pr-4 font-medium text-gray-700">Category</td>
-                    <td className="py-3 text-gray-800">{product.category?.name}</td>
+                    <td className="py-3 pr-4 font-medium text-gray-700">
+                      Category
+                    </td>
+                    <td className="py-3 text-gray-800">
+                      {product.category?.name}
+                    </td>
                   </tr>
                   <tr className="border-b border-gray-200">
-                    <td className="py-3 pr-4 font-medium text-gray-700">Brand</td>
-                    <td className="py-3 text-gray-800">{product.brand?.name}</td>
+                    <td className="py-3 pr-4 font-medium text-gray-700">
+                      Brand
+                    </td>
+                    <td className="py-3 text-gray-800">
+                      {product.brand?.name}
+                    </td>
                   </tr>
                   <tr className="border-b border-gray-200">
-                    <td className="py-3 pr-4 font-medium text-gray-700">Price</td>
-                    <td className="py-3 text-gray-800">₹{product.price || product.selling_price}</td>
+                    <td className="py-3 pr-4 font-medium text-gray-700">
+                      Price
+                    </td>
+                    <td className="py-3 text-gray-800">
+                      ₹{product.price || product.selling_price}
+                    </td>
                   </tr>
                   <tr className="border-b border-gray-200">
-                    <td className="py-3 pr-4 font-medium text-gray-700">Discount</td>
-                    <td className="py-3 text-gray-800">{product.discount_pct}%</td>
+                    <td className="py-3 pr-4 font-medium text-gray-700">
+                      Discount
+                    </td>
+                    <td className="py-3 text-gray-800">
+                      {product.discount_pct}%
+                    </td>
                   </tr>
                   {/* Product Attributes */}
-                  {product.attributes && product.attributes.map((attr) => (
-                    <tr key={`${attr.attribute_id}-${attr.value_code}`} className="border-b border-gray-200">
-                      <td className="py-3 pr-4 font-medium text-gray-700">{attr.attribute_name}</td>
-                      <td className="py-3 text-gray-800">
-                        {attr.is_text_based ? attr.value_text : attr.value_label || attr.value_text}
-                      </td>
-                    </tr>
-                  ))}
+                  {product.attributes &&
+                    product.attributes.map((attr) => (
+                      <tr
+                        key={`${attr.attribute_id}-${attr.value_code}`}
+                        className="border-b border-gray-200"
+                      >
+                        <td className="py-3 pr-4 font-medium text-gray-700">
+                          {attr.attribute_name}
+                        </td>
+                        <td className="py-3 text-gray-800">
+                          {attr.is_text_based
+                            ? attr.value_text
+                            : attr.value_label || attr.value_text}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
           </div>
         );
-      case 'reviews':
+      case "reviews":
         return (
           <div className="py-6">
             {loadingReviews ? (
@@ -683,14 +780,20 @@ const ProductDetail: React.FC = () => {
             ) : reviews.length > 0 ? (
               <div className="space-y-6">
                 {reviews.map((review) => (
-                  <div key={review.review_id} className="border-b border-gray-200 pb-6 last:border-b-0">
+                  <div
+                    key={review.review_id}
+                    className="border-b border-gray-200 pb-6 last:border-b-0"
+                  >
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h4 className="font-medium text-gray-900">{review.title}</h4>
+                        <h4 className="font-medium text-gray-900">
+                          {review.title}
+                        </h4>
                         <div className="flex items-center gap-2 mt-1">
                           {renderStars(review.rating)}
                           <span className="text-sm text-gray-500">
-                            by {review.user?.first_name || 'Anonymous'} {review.user?.last_name || ''}
+                            by {review.user?.first_name || "Anonymous"}{" "}
+                            {review.user?.last_name || ""}
                           </span>
                         </div>
                       </div>
@@ -736,7 +839,9 @@ const ProductDetail: React.FC = () => {
             <ImagePreviewModal
               imageUrl={selectedPreviewImage}
               onClose={() => setSelectedPreviewImage(null)}
-              images={reviews[activeTab === 'reviews' ? reviewPage - 1 : 0]?.images}
+              images={
+                reviews[activeTab === "reviews" ? reviewPage - 1 : 0]?.images
+              }
               currentImageIndex={selectedImageIndex}
               onImageChange={handleImageChange}
             />
@@ -763,15 +868,15 @@ const ProductDetail: React.FC = () => {
     return (
       <div className="mt-8">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
-          {product.is_variant ? 'Related Products' : 'Available Variants'}
+          {product.is_variant ? "Related Products" : "Available Variants"}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {sortedVariants.map((variant) => (
             <div
               key={variant.id}
               className={`border rounded-lg p-4 cursor-pointer transition-all ${variant.id === product.product_id.toString()
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'hover:border-gray-400'
+                  ? "border-blue-500 bg-blue-50"
+                  : "hover:border-gray-400"
                 }`}
               onClick={() => {
                 if (variant.id !== product.product_id.toString()) {
@@ -806,7 +911,9 @@ const ProductDetail: React.FC = () => {
                   )}
                 </div>
                 {variant.id === product.product_id.toString() && (
-                  <span className="text-sm text-blue-600 font-medium">Current Selection</span>
+                  <span className="text-sm text-blue-600 font-medium">
+                    Current Selection
+                  </span>
                 )}
               </div>
             </div>
@@ -820,128 +927,147 @@ const ProductDetail: React.FC = () => {
   const ImagePreviewModal: React.FC<{
     imageUrl: string | null;
     onClose: () => void;
-    images?: Review['images'];
+    images?: Review["images"];
     currentImageIndex?: number;
     onImageChange?: (index: number) => void;
-  }> = ({ imageUrl, onClose, images = [], currentImageIndex = 0, onImageChange }) => {
-    if (!imageUrl) return null;
+  }> = ({
+    imageUrl,
+    onClose,
+    images = [],
+    currentImageIndex = 0,
+    onImageChange,
+  }) => {
+      if (!imageUrl) return null;
 
-    const handlePrevious = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (images.length > 1 && onImageChange) {
-        const newIndex = (currentImageIndex - 1 + images.length) % images.length;
-        onImageChange(newIndex);
-      }
-    };
-
-    const handleNext = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (images.length > 1 && onImageChange) {
-        const newIndex = (currentImageIndex + 1) % images.length;
-        onImageChange(newIndex);
-      }
-    };
-
-    // Add keyboard event listener
-    useEffect(() => {
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'ArrowLeft') {
-          handlePrevious(e as any);
-        } else if (e.key === 'ArrowRight') {
-          handleNext(e as any);
-        } else if (e.key === 'Escape') {
-          onClose();
+      const handlePrevious = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (images.length > 1 && onImageChange) {
+          const newIndex =
+            (currentImageIndex - 1 + images.length) % images.length;
+          onImageChange(newIndex);
         }
       };
 
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [currentImageIndex, images.length]);
+      const handleNext = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (images.length > 1 && onImageChange) {
+          const newIndex = (currentImageIndex + 1) % images.length;
+          onImageChange(newIndex);
+        }
+      };
 
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" onClick={onClose}>
-        <div className="relative max-w-4xl w-full mx-4 bg-white rounded-lg overflow-hidden" onClick={e => e.stopPropagation()}>
-          {/* Header */}
-          <div className="flex justify-between items-center p-4 border-b">
-            <h3 className="text-lg font-medium text-gray-900">
-              Review Image {images.length > 1 ? `(${currentImageIndex + 1}/${images.length})` : ''}
-            </h3>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              <X size={24} />
-            </button>
-          </div>
+      // Add keyboard event listener
+      useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === "ArrowLeft") {
+            handlePrevious(e as any);
+          } else if (e.key === "ArrowRight") {
+            handleNext(e as any);
+          } else if (e.key === "Escape") {
+            onClose();
+          }
+        };
 
-          {/* Image Container */}
-          <div className="relative p-4">
-            <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
-              <img
-                src={imageUrl}
-                alt="Review"
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  console.error('Error loading preview image:', imageUrl);
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/placeholder-image.jpg';
-                }}
-              />
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+      }, [currentImageIndex, images.length]);
+
+      return (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+          onClick={onClose}
+        >
+          <div
+            className="relative max-w-4xl w-full mx-4 bg-white rounded-lg overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="text-lg font-medium text-gray-900">
+                Review Image{" "}
+                {images.length > 1
+                  ? `(${currentImageIndex + 1}/${images.length})`
+                  : ""}
+              </h3>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <X size={24} />
+              </button>
             </div>
 
-            {/* Navigation Arrows */}
-            {images.length > 1 && (
-              <>
-                <button
-                  onClick={handlePrevious}
-                  className="absolute left-6 top-1/2 -translate-y-1/2 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft size={24} className="text-gray-700" />
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="absolute right-6 top-1/2 -translate-y-1/2 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-                  aria-label="Next image"
-                >
-                  <ChevronRight size={24} className="text-gray-700" />
-                </button>
-              </>
-            )}
-          </div>
+            {/* Image Container */}
+            <div className="relative p-4">
+              <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
+                <img
+                  src={imageUrl}
+                  alt="Review"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    console.error("Error loading preview image:", imageUrl);
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/placeholder-image.jpg";
+                  }}
+                />
+              </div>
 
-          {/* Footer */}
-          <div className="p-4 border-t bg-gray-50">
-            <p className="text-sm text-gray-500 text-center">
-              {images.length > 1 ? (
+              {/* Navigation Arrows */}
+              {images.length > 1 && (
                 <>
-                  Use arrow keys or click the arrows to navigate between images.
-                  <br />
-                  Press ESC or click outside to close
+                  <button
+                    onClick={handlePrevious}
+                    className="absolute left-6 top-1/2 -translate-y-1/2 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft size={24} className="text-gray-700" />
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="absolute right-6 top-1/2 -translate-y-1/2 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight size={24} className="text-gray-700" />
+                  </button>
                 </>
-              ) : (
-                'Click outside to close'
               )}
-            </p>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t bg-gray-50">
+              <p className="text-sm text-gray-500 text-center">
+                {images.length > 1 ? (
+                  <>
+                    Use arrow keys or click the arrows to navigate between images.
+                    <br />
+                    Press ESC or click outside to close
+                  </>
+                ) : (
+                  "Click outside to close"
+                )}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    );
-  };
+      );
+    };
 
   // Update the review images section to handle image navigation
-  const handleImageClick = (images: Review['images'], index: number) => {
+  const handleImageClick = (images: Review["images"], index: number) => {
     setSelectedImageIndex(index);
     setSelectedPreviewImage(images[index].image_url);
   };
 
   const handleImageChange = (index: number) => {
     setSelectedImageIndex(index);
-    setSelectedPreviewImage(reviews[activeTab === 'reviews' ? reviewPage - 1 : 0].images[index].image_url);
+    setSelectedPreviewImage(
+      reviews[activeTab === "reviews" ? reviewPage - 1 : 0].images[index]
+        .image_url
+    );
   };
 
   // Update the renderReviewImages function
-  const renderReviewImages = (images: Review['images']) => {
+  const renderReviewImages = (images: Review["images"]) => {
     if (!images || images.length === 0) return null;
 
     return (
@@ -957,9 +1083,9 @@ const ProductDetail: React.FC = () => {
               alt="Review"
               className="w-full h-full object-cover rounded-md hover:opacity-90 transition-opacity"
               onError={(e) => {
-                console.error('Error loading review image:', image.image_url);
+                console.error("Error loading review image:", image.image_url);
                 const target = e.target as HTMLImageElement;
-                target.src = '/placeholder-image.jpg';
+                target.src = "/placeholder-image.jpg";
               }}
             />
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity rounded-md" />
@@ -974,15 +1100,30 @@ const ProductDetail: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumbs */}
         <nav className="flex items-center text-xs mb-3">
-          <Link to="/" className="text-gray-500 hover:text-primary-600 transition-colors">Home</Link>
+          <Link
+            to="/"
+            className="text-gray-500 hover:text-primary-600 transition-colors"
+          >
+            Home
+          </Link>
           <ChevronRight size={12} className="mx-1 text-gray-400" />
-          <Link to="/products" className="text-gray-500 hover:text-primary-600 transition-colors">Products</Link>
+          <Link
+            to="/products"
+            className="text-gray-500 hover:text-primary-600 transition-colors"
+          >
+            Products
+          </Link>
           <ChevronRight size={12} className="mx-1 text-gray-400" />
-          <Link to={`/category/${product.category?.category_id}`} className="text-gray-500 hover:text-primary-600 transition-colors">
+          <Link
+            to={`/category/${product.category?.category_id}`}
+            className="text-gray-500 hover:text-primary-600 transition-colors"
+          >
             {product.category?.name}
           </Link>
           <ChevronRight size={12} className="mx-1 text-gray-400" />
-          <span className="text-gray-900 font-medium">{product.product_name}</span>
+          <span className="text-gray-900 font-medium">
+            {product.product_name}
+          </span>
         </nav>
 
         {/* Product Overview Section */}
@@ -1001,8 +1142,12 @@ const ProductDetail: React.FC = () => {
                   {/* Left Arrow Button */}
                   <button
                     onClick={() => {
-                      const currentIndex = product.media.findIndex(media => media.url === selectedImage);
-                      const previousIndex = (currentIndex - 1 + product.media.length) % product.media.length;
+                      const currentIndex = product.media.findIndex(
+                        (media) => media.url === selectedImage
+                      );
+                      const previousIndex =
+                        (currentIndex - 1 + product.media.length) %
+                        product.media.length;
                       setSelectedImage(product.media[previousIndex].url);
                     }}
                     className="absolute left-2 top-1/2 transform -translate-y-1/2 p-3 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-100 transition-colors z-10"
@@ -1014,8 +1159,11 @@ const ProductDetail: React.FC = () => {
                   {/* Right Arrow Button */}
                   <button
                     onClick={() => {
-                      const currentIndex = product.media.findIndex(media => media.url === selectedImage);
-                      const nextIndex = (currentIndex + 1) % product.media.length;
+                      const currentIndex = product.media.findIndex(
+                        (media) => media.url === selectedImage
+                      );
+                      const nextIndex =
+                        (currentIndex + 1) % product.media.length;
                       setSelectedImage(product.media[nextIndex].url);
                     }}
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-100 transition-colors z-10"
@@ -1032,7 +1180,9 @@ const ProductDetail: React.FC = () => {
                       key={media.media_id}
                       src={media.url}
                       alt={`${product.product_name} thumbnail`}
-                      className={`w-20 h-20 object-cover rounded-md cursor-pointer border-2 ${selectedImage === media.url ? 'border-orange-500' : 'border-transparent'
+                      className={`w-20 h-20 object-cover rounded-md cursor-pointer border-2 ${selectedImage === media.url
+                          ? "border-orange-500"
+                          : "border-transparent"
                         }`}
                       onClick={() => setSelectedImage(media.url)}
                     />
@@ -1052,16 +1202,20 @@ const ProductDetail: React.FC = () => {
                   <span className="text-xl sm:text-2xl font-bold text-gray-900">
                     ₹{product.price || product.selling_price}
                   </span>
-                  {(product.originalPrice && product.originalPrice > (product.price || product.selling_price)) && (
-                    <span className="text-sm text-gray-500 line-through">
-                      ₹{product.originalPrice}
-                    </span>
-                  )}
-                  {(!product.originalPrice && product.cost_price > (product.price || product.selling_price)) && (
-                    <span className="text-sm text-gray-500 line-through">
-                      ₹{product.cost_price}
-                    </span>
-                  )}
+                  {product.originalPrice &&
+                    product.originalPrice >
+                    (product.price || product.selling_price) && (
+                      <span className="text-sm text-gray-500 line-through">
+                        ₹{product.originalPrice}
+                      </span>
+                    )}
+                  {!product.originalPrice &&
+                    product.cost_price >
+                    (product.price || product.selling_price) && (
+                      <span className="text-sm text-gray-500 line-through">
+                        ₹{product.cost_price}
+                      </span>
+                    )}
                   {product.is_on_special_offer && (
                     <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium">
                       Special Offer
@@ -1071,12 +1225,18 @@ const ProductDetail: React.FC = () => {
               </div>
 
               <div className="mb-2">
-                <div className="text-sm font-medium mb-1">Category: {product.category?.name}</div>
-                <div className="text-sm font-medium mb-1">Brand: {product.brand?.name}</div>
+                <div className="text-sm font-medium mb-1">
+                  Category: {product.category?.name}
+                </div>
+                <div className="text-sm font-medium mb-1">
+                  Brand: {product.brand?.name}
+                </div>
                 <div className="flex items-center gap-2 mt-1">
                   {renderStars(averageRating)}
                   <span className="text-sm text-gray-600">
-                    {averageRating > 0 ? `${averageRating} (${reviews.length} reviews)` : 'No reviews yet'}
+                    {averageRating > 0
+                      ? `${averageRating} (${reviews.length} reviews)`
+                      : "No reviews yet"}
                   </span>
                 </div>
               </div>
@@ -1086,7 +1246,9 @@ const ProductDetail: React.FC = () => {
                 <div className="mb-4">
                   <div
                     className="text-sm text-gray-600 prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: product.meta.short_desc }}
+                    dangerouslySetInnerHTML={{
+                      __html: product.meta.short_desc,
+                    }}
                   />
                 </div>
               )}
@@ -1097,45 +1259,61 @@ const ProductDetail: React.FC = () => {
               {/* Selected Attributes Summary */}
               {Object.keys(selectedAttributes).length > 0 && (
                 <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                  <div className="text-sm font-medium text-orange-800 mb-2">Selected Options:</div>
+                  <div className="text-sm font-medium text-orange-800 mb-2">
+                    Selected Options:
+                  </div>
                   <div className="flex flex-wrap gap-2">
-                    {Object.entries(selectedAttributes).map(([attributeId, values]) => {
-                      const attribute = product.attributes.find(attr => attr.attribute_id.toString() === attributeId);
-                      const attributeName = attribute?.attribute_name || `Attribute ${attributeId}`;
-                      const displayValues = Array.isArray(values) ? values : [values];
-                      
-                      return displayValues.map((value, index) => (
-                        <span 
-                          key={`${attributeId}-${index}`}
-                          className="inline-flex items-center px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full font-medium"
-                        >
-                          {attributeName}: {value}
-                        </span>
-                      ));
-                    })}
+                    {Object.entries(selectedAttributes).map(
+                      ([attributeId, values]) => {
+                        const attribute = product.attributes.find(
+                          (attr) => attr.attribute_id.toString() === attributeId
+                        );
+                        const attributeName =
+                          attribute?.attribute_name ||
+                          `Attribute ${attributeId}`;
+                        const displayValues = Array.isArray(values)
+                          ? values
+                          : [values];
+
+                        return displayValues.map((value, index) => (
+                          <span
+                            key={`${attributeId}-${index}`}
+                            className="inline-flex items-center px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full font-medium"
+                          >
+                            {attributeName}: {value}
+                          </span>
+                        ));
+                      }
+                    )}
                   </div>
                 </div>
               )}
 
               {/* Current Product Attributes Summary (when no explicit selection) */}
-              {Object.keys(selectedAttributes).length === 0 && product.attributes && product.attributes.length > 0 && (
-                <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                  <div className="text-sm font-medium text-gray-700 mb-2">Product Specifications:</div>
-                  <div className="flex flex-wrap gap-2">
-                    {product.attributes.map((attr) => {
-                      const value = attr.is_text_based ? attr.value_text : attr.value_label || attr.value_text;
-                      return (
-                        <span 
-                          key={attr.attribute_id}
-                          className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full font-medium"
-                        >
-                          {attr.attribute_name}: {value}
-                        </span>
-                      );
-                    })}
+              {Object.keys(selectedAttributes).length === 0 &&
+                product.attributes &&
+                product.attributes.length > 0 && (
+                  <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div className="text-sm font-medium text-gray-700 mb-2">
+                      Product Specifications:
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {product.attributes.map((attr) => {
+                        const value = attr.is_text_based
+                          ? attr.value_text
+                          : attr.value_label || attr.value_text;
+                        return (
+                          <span
+                            key={attr.attribute_id}
+                            className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full font-medium"
+                          >
+                            {attr.attribute_name}: {value}
+                          </span>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Quantity Selector and Add to Cart Row */}
               <div className="mb-3">
@@ -1150,7 +1328,9 @@ const ProductDetail: React.FC = () => {
                     >
                       -
                     </button>
-                    <span className="w-8 text-center text-sm select-none">{quantity}</span>
+                    <span className="w-8 text-center text-sm select-none">
+                      {quantity}
+                    </span>
                     <button
                       className="w-8 h-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-lg"
                       onClick={() => handleQuantityChange(1)}
@@ -1164,7 +1344,7 @@ const ProductDetail: React.FC = () => {
                     {/* Buy Now Button */}
                     <button
                       onClick={handleBuyNow}
-                      className="bg-black text-white px-5 py-2 rounded-md hover:bg-gray-800 duration-300 transition-colors font-medium text-sm min-w-[120px]"
+                      className="bg-orange-500 text-white px-5 py-2 rounded-md hover:bg-orange-600 duration-300 transition-colors font-medium text-sm min-w-[120px]"
                     >
                       Buy Now
                     </button>
@@ -1192,7 +1372,9 @@ const ProductDetail: React.FC = () => {
                     {showShareOptions && (
                       <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-10">
                         <div className="p-3 border-b border-gray-100">
-                          <h3 className="text-sm font-medium text-gray-700">Share this product</h3>
+                          <h3 className="text-sm font-medium text-gray-700">
+                            Share this product
+                          </h3>
                         </div>
 
                         <div className="p-2">
@@ -1202,7 +1384,11 @@ const ProductDetail: React.FC = () => {
                           >
                             {copiedToClipboard ? (
                               <>
-                                <Check size={16} className="text-green-500 mr-2" /> Copied!
+                                <Check
+                                  size={16}
+                                  className="text-green-500 mr-2"
+                                />{" "}
+                                Copied!
                               </>
                             ) : (
                               <>
@@ -1212,24 +1398,33 @@ const ProductDetail: React.FC = () => {
                           </button>
 
                           <button
-                            onClick={() => shareViaPlatform('facebook')}
+                            onClick={() => shareViaPlatform("facebook")}
                             className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                           >
-                            <Facebook size={16} className="text-[#1877F2] mr-2" /> Facebook
+                            <Facebook
+                              size={16}
+                              className="text-[#1877F2] mr-2"
+                            />{" "}
+                            Facebook
                           </button>
 
                           <button
-                            onClick={() => shareViaPlatform('twitter')}
+                            onClick={() => shareViaPlatform("twitter")}
                             className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                           >
-                            <Twitter size={16} className="text-[#1DA1F2] mr-2" /> Twitter
+                            <Twitter
+                              size={16}
+                              className="text-[#1DA1F2] mr-2"
+                            />{" "}
+                            Twitter
                           </button>
 
                           <button
-                            onClick={() => shareViaPlatform('email')}
+                            onClick={() => shareViaPlatform("email")}
                             className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                           >
-                            <Mail size={16} className="text-gray-600 mr-2" /> Email
+                            <Mail size={16} className="text-gray-600 mr-2" />{" "}
+                            Email
                           </button>
                         </div>
                       </div>
@@ -1238,7 +1433,9 @@ const ProductDetail: React.FC = () => {
 
                   {/* Favourites Button */}
                   <button
-                    className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px] ${isInWishlist(Number(product?.product_id)) ? 'text-[#F2631F]' : 'text-gray-600 flex items-center justify-center'
+                    className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px] ${isInWishlist(Number(product?.product_id))
+                        ? "text-[#F2631F]"
+                        : "text-gray-600 flex items-center justify-center"
                       }`}
                     onClick={handleWishlist}
                     disabled={wishlistLoading}
@@ -1249,7 +1446,11 @@ const ProductDetail: React.FC = () => {
                     ) : (
                       <Heart
                         size={18}
-                        className={isInWishlist(Number(product?.product_id)) ? 'fill-current' : ''}
+                        className={
+                          isInWishlist(Number(product?.product_id))
+                            ? "fill-current"
+                            : ""
+                        }
                       />
                     )}
                   </button>
@@ -1258,7 +1459,6 @@ const ProductDetail: React.FC = () => {
 
               {/* Replace the dummy variant selector with the new renderVariants function */}
               {renderVariants()}
-
             </div>
           </div>
         </div>
@@ -1268,28 +1468,28 @@ const ProductDetail: React.FC = () => {
           <div className="border-b border-gray-200">
             <nav className="flex">
               <button
-                onClick={() => setActiveTab('product-details')}
-                className={`py-2 px-4 font-medium border-b-2 ${activeTab === 'product-details'
-                    ? 'border-orange-500 text-orange-500'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                onClick={() => setActiveTab("product-details")}
+                className={`py-2 px-4 font-medium border-b-2 ${activeTab === "product-details"
+                    ? "border-orange-500 text-orange-500"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   } transition-colors`}
               >
                 Description
               </button>
               <button
-                onClick={() => setActiveTab('information')}
-                className={`py-2 px-4 font-medium border-b-2 ${activeTab === 'information'
-                    ? 'border-orange-500 text-orange-500'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                onClick={() => setActiveTab("information")}
+                className={`py-2 px-4 font-medium border-b-2 ${activeTab === "information"
+                    ? "border-orange-500 text-orange-500"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   } transition-colors`}
               >
                 Specifications
               </button>
               <button
-                onClick={() => setActiveTab('reviews')}
-                className={`py-2 px-4 font-medium border-b-2 ${activeTab === 'reviews'
-                    ? 'border-orange-500 text-orange-500'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                onClick={() => setActiveTab("reviews")}
+                className={`py-2 px-4 font-medium border-b-2 ${activeTab === "reviews"
+                    ? "border-orange-500 text-orange-500"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   } transition-colors`}
               >
                 Reviews
@@ -1297,9 +1497,7 @@ const ProductDetail: React.FC = () => {
             </nav>
           </div>
 
-          <div className="p-4">
-            {renderTabContent()}
-          </div>
+          <div className="p-4">{renderTabContent()}</div>
         </div>
       </div>
     </div>

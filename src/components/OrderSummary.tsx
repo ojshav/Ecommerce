@@ -27,13 +27,15 @@ interface ExchangeRates {
 }
 
 // Helper function to format selected attributes for display
-const formatSelectedAttributes = (selectedAttributes: {[key: number]: string | string[]} | undefined) => {
+const formatSelectedAttributes = (
+  selectedAttributes: { [key: number]: string | string[] } | undefined
+) => {
   if (!selectedAttributes || Object.keys(selectedAttributes).length === 0) {
     return null;
   }
 
   const formattedAttributes: string[] = [];
-  
+
   Object.entries(selectedAttributes).forEach(([attributeId, value]) => {
     if (Array.isArray(value)) {
       if (value.length > 0) {
@@ -51,8 +53,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   className = "",
   selectedCountry,
   discount = 0, // default to zero
-  promoCode = "", 
-  itemDiscounts = {}, 
+  promoCode = "",
+  itemDiscounts = {},
   shippingCost = 0,
   shippingLoading = false,
   availableCouriers = [],
@@ -71,36 +73,44 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   // Determine if this is direct purchase mode
   const isDirectPurchase = directPurchaseItem !== null;
-  
+
   // Get items to display - either cart items or direct purchase item
-  const displayItems = isDirectPurchase && directPurchaseItem
-    ? [{
-        cart_item_id: 0,
-        product_id: directPurchaseItem.product.id,
-        merchant_id: 1,
-        quantity: directPurchaseItem.quantity,
-        selected_attributes: directPurchaseItem.selected_attributes,
-        product: {
-          id: directPurchaseItem.product.id,
-          name: directPurchaseItem.product.name,
-          price: directPurchaseItem.product.price,
-          original_price: directPurchaseItem.product.original_price || directPurchaseItem.product.price,
-          special_price: directPurchaseItem.product.special_price,
-          image_url: directPurchaseItem.product.image_url,
-          stock: directPurchaseItem.product.stock,
-          is_deleted: false,
-          sku: directPurchaseItem.product.sku
-        }
-      }]
-    : cart.filter((item) => !item.product.is_deleted);
+  const displayItems =
+    isDirectPurchase && directPurchaseItem
+      ? [
+        {
+          cart_item_id: 0,
+          product_id: directPurchaseItem.product.id,
+          merchant_id: 1,
+          quantity: directPurchaseItem.quantity,
+          selected_attributes: directPurchaseItem.selected_attributes,
+          product: {
+            id: directPurchaseItem.product.id,
+            name: directPurchaseItem.product.name,
+            price: directPurchaseItem.product.price,
+            original_price:
+              directPurchaseItem.product.original_price ||
+              directPurchaseItem.product.price,
+            special_price: directPurchaseItem.product.special_price,
+            image_url: directPurchaseItem.product.image_url,
+            stock: directPurchaseItem.product.stock,
+            is_deleted: false,
+            sku: directPurchaseItem.product.sku,
+          },
+        },
+      ]
+      : cart.filter((item) => !item.product.is_deleted);
 
   // Calculate totals based on display items
   const itemsTotal = displayItems.reduce((total, item) => {
     const price = item.product.original_price || item.product.price;
-    return total + (price * item.quantity);
+    return total + price * item.quantity;
   }, 0);
 
-  const displayTotalItems = displayItems.reduce((total, item) => total + item.quantity, 0);
+  const displayTotalItems = displayItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
 
   useEffect(() => {
     const fetchExchangeRates = async () => {
@@ -238,25 +248,35 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       <div className="space-y-4 mb-6">
         {displayItems.map((item) => {
           // Calculate the item's effective price after discount
-          const itemDiscount = itemDiscounts[item.product.id || item.product_id] || 0;
+          const itemDiscount =
+            itemDiscounts[item.product.id || item.product_id] || 0;
           const originalItemTotal = item.product.price * item.quantity;
           const effectiveItemTotal = originalItemTotal - itemDiscount;
-          const selectedAttributes = formatSelectedAttributes(item.selected_attributes);
-          
+          const selectedAttributes = formatSelectedAttributes(
+            item.selected_attributes
+          );
+
           return (
-            <div key={item.cart_item_id || item.product.id} className="flex items-start gap-4">
+            <div
+              key={item.cart_item_id || item.product.id}
+              className="flex items-start gap-4"
+            >
               <img
                 src={item.product.image_url}
                 alt={item.product.name}
                 className="w-16 h-16 rounded object-cover flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm text-gray-900 truncate">{item.product.name}</div>
-                <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
+                <div className="font-medium text-sm text-gray-900 truncate">
+                  {item.product.name}
+                </div>
+                <div className="text-xs text-gray-500">
+                  Qty: {item.quantity}
+                </div>
                 {selectedAttributes && (
                   <div className="mt-1">
                     {selectedAttributes.map((attr: string, index: number) => (
-                      <span 
+                      <span
                         key={index}
                         className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded mr-1 mb-1"
                       >
@@ -373,12 +393,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <span className="text-gray-500">Free</span>
           )}
         </div>
-        
+
         <div className="flex justify-between text-sm">
           <span>Tax</span>
           <span>Included</span>
         </div>
-        
+
         <div className="flex justify-between font-semibold pt-2 border-t">
           <span>Total</span>
           <span>{formatPrice(discountedTotal + shippingCost)}</span>
