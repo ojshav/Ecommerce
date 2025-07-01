@@ -13,6 +13,7 @@ import SignUp from './pages/auth/SignUp';
 import ShippingMethods from './pages/ShippingMethods';
 import Shop1LandingPage from './pages/Shop1LandingPage';
 import Shop2LandingPage from './pages/Shop2LandingPage';
+import Shop3LandingPage from './pages/Shop3LandingPage';
 import VerificationPending from './pages/auth/VerificationPending';
 
 import PasswordReset from './pages/auth/PasswordReset';
@@ -202,6 +203,7 @@ const App: React.FC = () => {
                   <Routes>
                     <Route path="/shop1" element={<Shop1LandingPage />} />
                     <Route path="/shop2" element={<Shop2LandingPage />} />
+                    <Route path="/shop3" element={<Shop3LandingPage />} />
                     <Route path="/shop1-productpage" element={<Shop1Productpage />} />
                     <Route path="/shop2-productpage" element={<Shop2Productpage />} />
                     <Route
