@@ -9,7 +9,22 @@ const images = [svgImage1, svgImage2, svgImage3];
 
 const NewProductCarousel: React.FC = () => {
   const [current, setCurrent] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
@@ -23,20 +38,19 @@ const NewProductCarousel: React.FC = () => {
   return (
     <div className="w-full relative mb-16 sm:mb-20 md:mb-24 lg:mb-32">
       <div 
-        className="relative overflow-hidden mx-auto"
+        ref={containerRef}
+        className="relative overflow-hidden mx-auto w-full"
         style={{
-          width: '1680px',
-          height: '560px',
-          margin: '0 auto'
+          height: '560px'
         }}
       >
         <motion.div
           className="flex h-full"
           style={{
-            width: `${images.length * 1680}px`,
+            width: `${images.length * 100}%`,
           }}
           animate={{
-            x: -current * 1680,
+            x: -current * containerWidth,
           }}
           transition={{
             type: "spring",
@@ -52,17 +66,16 @@ const NewProductCarousel: React.FC = () => {
               key={idx}
               className="relative flex-shrink-0"
               style={{
-                width: '1680px',
-                height: '560px'
+                width: `${100 / images.length}%`,
+                height: '100%'
               }}
             >
-              <Link to="/new-product">
+              <Link to="/new-product" className="block h-full">
                 <img 
                   src={src} 
                   alt={`Carousel ${idx + 1}`} 
+                  className="w-full h-full"
                   style={{
-                    width: '1680px',
-                    height: '560px',
                     objectFit: 'cover'
                   }}
                 />
