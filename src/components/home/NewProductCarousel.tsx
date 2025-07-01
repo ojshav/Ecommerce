@@ -36,13 +36,10 @@ const NewProductCarousel: React.FC = () => {
   }, [current]);
 
   return (
-    <div className="w-full relative mb-16 sm:mb-20 md:mb-24 lg:mb-32">
+    <div className="w-full relative mb-8 sm:mb-12 md:mb-16 lg:mb-20">
       <div 
         ref={containerRef}
-        className="relative overflow-hidden mx-auto w-full"
-        style={{
-          height: '560px'
-        }}
+        className="relative overflow-hidden mx-auto w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] xl:h-[560px]"
       >
         <motion.div
           className="flex h-full"
@@ -76,7 +73,9 @@ const NewProductCarousel: React.FC = () => {
                   alt={`Carousel ${idx + 1}`} 
                   className="w-full h-full"
                   style={{
-                    objectFit: 'cover'
+                    objectFit: 'contain',
+                    objectPosition: 'left center',
+                    backgroundColor: '#f8f8f8'
                   }}
                 />
               </Link>
