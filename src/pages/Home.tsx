@@ -2,9 +2,9 @@ import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import Hero from '../components/home/Hero';
-import FeaturedProducts from '../components/home/FeaturedProducts';
+import ConditionalFeaturedProducts from '../components/home/ConditionalFeaturedProducts';
 import Categories from '../components/home/Categories';
-import PromoProducts from '../components/home/PromoProducts';
+import ConditionalPromoProducts from '../components/home/ConditionalPromoProducts';
 import TrendingDeals from '../components/home/TrendingDeals';
 import Brands from '../components/home/brands';
 import Shop from '../components/home/Shop';
@@ -132,6 +132,7 @@ const Home = () => {
                 setShowSearchResults(false);
                 setSearchQuery('');
               }}
+              setIsVisible={setShowSearchResults}
             />
           </form>
         </div>
@@ -144,9 +145,9 @@ const Home = () => {
           <Categories />
           <Brands />
           <Shop />
-          <FeaturedProducts />
-          <PromoProducts />
-          <NewProductCarousel />
+
+          <ConditionalFeaturedProducts />
+          <ConditionalPromoProducts />
           <TrendingDeals />
           <HomepageProducts />
           <Services />
