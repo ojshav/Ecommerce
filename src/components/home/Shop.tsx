@@ -65,7 +65,7 @@ const Shop = () => {
       id: 3,
       title: "AOIN VAULT",
       timeLeft: calculateTimeLeft(),
-      navigationPath: "/shop/vault",
+      navigationPath: "/shop3",
       bannerImage: Vault,
       innerBannerImage: VaultInner
     },
