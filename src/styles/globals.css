@@ -219,4 +219,23 @@
 /* Category hover left inset shadow */
 .category-hover-shadow {
   box-shadow: inset 12px 0 18px -8px rgba(0,0,0,0.18);
+}
+
+@keyframes colorCycle {
+  0% {
+    color: #fff;
+  }
+  33% {
+    color: #C703EB;
+  }
+  66% {
+    color: #CCFF00;
+  }
+  100% {
+    color: #fff;
+  }
+}
+
+.aoin-animated-title {
+  animation: colorCycle 2s linear infinite;
 } 
