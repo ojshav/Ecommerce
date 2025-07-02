@@ -110,6 +110,7 @@ export default {
         archivio: ['Archivio', 'sans-serif'],
         bebas: ['Bebas Neue', 'sans-serif'],
         gilroy: ['Gilroy', 'sans-serif'],
+        clash: ['Clash Display', 'sans-serif'],
       },
       fontSize: {
         display: ['96px', { lineHeight: '90px' }],
@@ -125,6 +126,8 @@ export default {
         leftRightFastSecond: 'leftRightFastSecond 3s ease-in-out infinite',
         shakeX: 'shakeX 3s ease-in-out infinite',
         marquee: 'marquee 6s  linear infinite',
+        'marquee-pingpong': 'marquee-pingpong 15s ease-in-out infinite',
+        'color-cycle': 'color-cycle 1.2s linear infinite',
       },
       keyframes: {
         float: {
@@ -181,6 +184,17 @@ export default {
         marquee: {
           '0%': { transform: 'translateX(0%)' },
           '100%': { transform: 'translateX(-40%)' },
+        },
+        'marquee-pingpong': {
+          '0%':   { transform: 'translateX(0%)' },
+          '50%':  { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(0%)' },
+        },
+        'color-cycle': {
+          '0%, 100%': { color: '#fff' },
+          '25%': { color: '#13EA59' },
+          '50%': { color: '#8D1177' },
+          '75%': { color: '#CCFF00' },
         },
       },
     },
