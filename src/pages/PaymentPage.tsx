@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CartItem } from "../types";
+import { CartItem, DirectPurchaseItem } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -96,16 +96,16 @@ const PaymentPage: React.FC = () => {
   const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
   const [postalCodeError, setPostalCodeError] = useState<string>("");
   const [formData, setFormData] = useState({
-    contact_name: '',
-    contact_phone: '',
-    address_line1: '',
-    address_line2: '',
-    landmark: '',
-    city: '',
-    state_province: '',
-    postal_code: '',
-    country_code: 'IN',
-    address_type: 'shipping' as 'shipping' | 'billing',
+    contact_name: "",
+    contact_phone: "",
+    address_line1: "",
+    address_line2: "",
+    landmark: "",
+    city: "",
+    state_province: "",
+    postal_code: "",
+    country_code: "IN",
+    address_type: "shipping" as "shipping" | "billing",
     is_default_shipping: true,
     is_default_billing: false,
   });
@@ -124,7 +124,7 @@ const PaymentPage: React.FC = () => {
   const [shippingLoading, setShippingLoading] = useState(false);
   const [availableCouriers, setAvailableCouriers] = useState<any[]>([]);
   const [selectedCourier, setSelectedCourier] = useState<any>(null);
-  const [shippingRequestId, setShippingRequestId] = useState<string>(''); // To prevent duplicate requests
+  const [shippingRequestId, setShippingRequestId] = useState<string>(""); // To prevent duplicate requests
   const [cardFormData, setCardFormData] = useState({
     card_number: "",
     cvv: "",
@@ -138,12 +138,24 @@ const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // --- Read state passed from Cart.tsx ---
-  const { discount, appliedPromo, itemDiscounts } = location.state || {
-    discount: 0,
-    appliedPromo: null,
-    itemDiscounts: {},
-  };
+  // --- Read state passed from Cart.tsx or direct purchase ---
+  const stateData = location.state || {};
+  const [discount, setDiscount] = useState(stateData.discount || 0);
+  const [appliedPromo, setAppliedPromo] = useState(
+    stateData.appliedPromo || null
+  );
+  const [itemDiscounts, setItemDiscounts] = useState(
+    stateData.itemDiscounts || {}
+  );
+  const directPurchase = stateData.directPurchase || null;
+
+  // Determine if this is a direct purchase or cart checkout
+  const isDirectPurchase = directPurchase !== null;
+  const directPurchaseItem = directPurchase as DirectPurchaseItem | null;
+
+  // Promo code state for direct purchases
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [promoLoading, setPromoLoading] = useState(false);
 
   const validatePostalCode = (
     postalCode: string,
@@ -277,27 +289,34 @@ const PaymentPage: React.FC = () => {
   };
 
   // Add function to create merchant transactions
-  const createMerchantTransactions = async (orderId: string): Promise<boolean> => {
+  const createMerchantTransactions = async (
+    orderId: string
+  ): Promise<boolean> => {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
-        console.error("No access token found for merchant transaction creation");
+        console.error(
+          "No access token found for merchant transaction creation"
+        );
         return false;
       }
 
       console.log("Creating merchant transactions for order:", orderId);
 
-      const response = await fetch(`${API_BASE_URL}/api/merchant-transactions/from-order`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          order_id: orderId
-        }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/merchant-transactions/from-order`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            order_id: orderId,
+          }),
+        }
+      );
 
       console.log("Merchant transaction API response status:", response.status);
 
@@ -306,7 +325,7 @@ const PaymentPage: React.FC = () => {
         console.error("Failed to create merchant transactions:", {
           status: response.status,
           statusText: response.statusText,
-          error: errorData
+          error: errorData,
         });
         // Don't throw error here as order is already created successfully
         return false;
@@ -319,14 +338,14 @@ const PaymentPage: React.FC = () => {
         console.log("Merchant transactions created successfully:", {
           orderId,
           transactionCount: data.transactions?.length || 0,
-          transactions: data.transactions
+          transactions: data.transactions,
         });
         return true;
       } else {
         console.error("Failed to create merchant transactions:", {
           orderId,
           message: data.message,
-          data
+          data,
         });
         return false;
       }
@@ -334,7 +353,7 @@ const PaymentPage: React.FC = () => {
       console.error("Error creating merchant transactions:", {
         orderId,
         error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       });
       // Don't throw error here as order is already created successfully
       return false;
@@ -347,9 +366,25 @@ const PaymentPage: React.FC = () => {
       return;
     }
 
+    // Get items for calculation
+    const itemsForShipping =
+      isDirectPurchase && directPurchaseItem
+        ? [
+          {
+            product_id: directPurchaseItem.product.id,
+            quantity: directPurchaseItem.quantity,
+          },
+        ]
+        : cart.map((item) => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+        }));
+
     // Generate a unique request ID to prevent duplicate requests
-    const currentRequestId = `${selectedAddressId}-${paymentMethod}-${JSON.stringify(cart.map(item => `${item.product_id}-${item.quantity}`))}`;
-    
+    const currentRequestId = `${selectedAddressId}-${paymentMethod}-${JSON.stringify(
+      itemsForShipping
+    )}`;
+
     // If this is the same request as the last one, don't make another API call
     if (shippingRequestId === currentRequestId && !shippingLoading) {
       return;
@@ -358,7 +393,7 @@ const PaymentPage: React.FC = () => {
     try {
       setShippingLoading(true);
       setShippingRequestId(currentRequestId);
-      
+
       const token = localStorage.getItem("access_token");
       if (!token) {
         console.error("No access token found for shipping calculation");
@@ -366,18 +401,29 @@ const PaymentPage: React.FC = () => {
       }
 
       // Get the selected address
-      const selectedAddress = addresses.find(addr => addr.address_id === selectedAddressId);
+      const selectedAddress = addresses.find(
+        (addr) => addr.address_id === selectedAddressId
+      );
       if (!selectedAddress) {
         console.error("Selected address not found");
         return;
       }
 
       // Calculate total weight (assuming 0.5kg per item as default)
-      const totalWeight = cart.reduce((weight, item) => weight + (item.quantity * 0.5), 0);
-      
+      const totalWeight = itemsForShipping.reduce(
+        (weight, item) => weight + item.quantity * 0.5,
+        0
+      );
+
       // Determine if this is COD or prepaid
       const isCOD = paymentMethod === "cash_on_delivery";
-      const codAmount = isCOD ? (totalPrice - discount) : 0;
+
+      // Calculate total price for COD amount
+      const currentTotal =
+        isDirectPurchase && directPurchaseItem
+          ? directPurchaseItem.product.price * directPurchaseItem.quantity
+          : totalPrice;
+      const codAmount = isCOD ? currentTotal - discount : 0;
 
       console.log("Calculating shipping for:", {
         pickupPincode: "474005", // Default pickup pincode (should come from merchant)
@@ -385,7 +431,8 @@ const PaymentPage: React.FC = () => {
         weight: totalWeight,
         isCOD,
         codAmount,
-        requestId: currentRequestId
+        isDirectPurchase,
+        requestId: currentRequestId,
       });
 
       const requestBody: any = {
@@ -400,19 +447,24 @@ const PaymentPage: React.FC = () => {
         requestBody.cod_amount = codAmount;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/shiprocket/serviceability`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/shiprocket/serviceability`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
       // Check if this request is still current (not cancelled by a newer request)
       if (shippingRequestId !== currentRequestId) {
-        console.log("Shipping request was superseded by a newer request, ignoring response");
+        console.log(
+          "Shipping request was superseded by a newer request, ignoring response"
+        );
         return;
       }
 
@@ -423,12 +475,14 @@ const PaymentPage: React.FC = () => {
         console.error("Failed to calculate shipping:", {
           status: response.status,
           statusText: response.statusText,
-          error: errorData
+          error: errorData,
         });
-        
+
         // Handle different error types
         if (response.status === 403) {
-          console.warn("Access denied to shipping calculation, using default cost");
+          console.warn(
+            "Access denied to shipping calculation, using default cost"
+          );
           setShippingCost(150); // Default shipping cost for access denied
         } else if (response.status === 422) {
           console.warn("Invalid shipping parameters, using default cost");
@@ -448,7 +502,7 @@ const PaymentPage: React.FC = () => {
         const couriers = data.data.available_courier_companies;
         console.log(`Available couriers: ${couriers.length} options`);
         setAvailableCouriers(couriers);
-        
+
         // Select the best courier (lowest price or highest rating)
         if (couriers.length > 0) {
           const bestCourier = couriers.reduce((best: any, current: any) => {
@@ -456,14 +510,17 @@ const PaymentPage: React.FC = () => {
             const currentRating = parseFloat(current.rating || "0");
             const bestPrice = parseFloat(best.rate || "999999");
             const currentPrice = parseFloat(current.rate || "999999");
-            
+
             // Prefer higher rating, then lower price
             if (currentRating > bestRating) return current;
-            if (currentRating === bestRating && currentPrice < bestPrice) return current;
+            if (currentRating === bestRating && currentPrice < bestPrice)
+              return current;
             return best;
           });
-          
-          console.log(`Selected courier: ${bestCourier.courier_name} - ₹${bestCourier.rate} (Rating: ${bestCourier.rating})`);
+
+          console.log(
+            `Selected courier: ${bestCourier.courier_name} - ₹${bestCourier.rate} (Rating: ${bestCourier.rating})`
+          );
           setSelectedCourier(bestCourier);
           setShippingCost(parseFloat(bestCourier.rate || "0"));
         } else {
@@ -488,8 +545,75 @@ const PaymentPage: React.FC = () => {
   // Add manual refresh function for shipping calculation
   const refreshShippingCost = () => {
     // Clear the current request ID to force a new calculation
-    setShippingRequestId('');
+    setShippingRequestId("");
     calculateShippingCost();
+  };
+
+  // Promo code application for direct purchases
+  const handleApplyPromo = async (promoCode: string) => {
+    if (!promoCode.trim()) {
+      toast.error("Please enter a promotion code.");
+      return;
+    }
+
+    if (!isDirectPurchase || !directPurchaseItem) {
+      toast.error("Promo codes can only be applied to purchases");
+      return;
+    }
+
+    setPromoLoading(true);
+    setDiscount(0);
+    setAppliedPromo(null);
+
+    try {
+      const cartItemsPayload = [
+        {
+          product_id: directPurchaseItem.product.id,
+          quantity: directPurchaseItem.quantity,
+          price: directPurchaseItem.product.price,
+        },
+      ];
+
+      const response = await fetch(`${API_BASE_URL}/api/promo-code/apply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          promo_code: promoCode,
+          cart_items: cartItemsPayload,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to apply promo code.");
+      }
+
+      toast.success(result.message);
+      setDiscount(result.discount_amount);
+      setAppliedPromo({
+        id: result.promotion_id,
+        code: promoCodeInput.toUpperCase(),
+      });
+      setItemDiscounts(result.item_discounts || {});
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "An unknown error occurred."
+      );
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const removePromo = () => {
+    setDiscount(0);
+    setPromoCodeInput("");
+    setAppliedPromo(null);
+    setItemDiscounts({});
+    toast.success("Promotion removed.");
   };
 
   useEffect(() => {
@@ -499,7 +623,10 @@ const PaymentPage: React.FC = () => {
 
   // Calculate shipping when address or payment method changes
   useEffect(() => {
-    if (selectedAddressId && cart.length > 0) {
+    const hasItems = isDirectPurchase
+      ? directPurchaseItem !== null
+      : cart.length > 0;
+    if (selectedAddressId && hasItems) {
       // Add a small delay to prevent rapid successive calls
       const timeoutId = setTimeout(() => {
         calculateShippingCost();
@@ -510,7 +637,13 @@ const PaymentPage: React.FC = () => {
         clearTimeout(timeoutId);
       };
     }
-  }, [selectedAddressId, paymentMethod, cart]);
+  }, [
+    selectedAddressId,
+    paymentMethod,
+    cart,
+    isDirectPurchase,
+    directPurchaseItem,
+  ]);
 
   const fetchAddresses = async () => {
     try {
@@ -634,8 +767,7 @@ const PaymentPage: React.FC = () => {
         const errorText = await response.text();
         console.error("Error response:", errorText);
         throw new Error(
-          `Failed to ${selectedAddressId ? "update" : "save"} address: ${
-            response.status
+          `Failed to ${selectedAddressId ? "update" : "save"} address: ${response.status
           } ${errorText}`
         );
       }
@@ -705,41 +837,56 @@ const PaymentPage: React.FC = () => {
 
     setProcessingPayment(true);
 
-    // Calculate subtotal using original prices instead of cart context totalPrice
-    const subtotal = cart.reduce((total, item) => total + (item.product.original_price * item.quantity), 0);
-    const finalTotal = subtotal - discount + shippingCost; // Add shipping cost to final total
+    // Determine items source: cart or direct purchase
+    const itemsSource =
+      isDirectPurchase && directPurchaseItem
+        ? [
+          {
+            product_id: directPurchaseItem.product.id,
+            merchant_id: 1, // Default merchant ID for direct purchase
+            quantity: directPurchaseItem.quantity,
+            selected_attributes: directPurchaseItem.selected_attributes,
+            product: directPurchaseItem.product,
+          },
+        ]
+        : cart;
+
+    // Calculate subtotal using original prices
+    const subtotal = itemsSource.reduce((total, item) => {
+      const price = item.product.original_price || item.product.price;
+      return total + price * item.quantity;
+    }, 0);
+    const finalTotal = subtotal - discount + shippingCost;
 
     // Calculate distributed discount per item if there's a total discount but no itemDiscounts
-    const totalItemDiscounts = Object.values(itemDiscounts || {}).reduce((sum: number, discount: any) => sum + (typeof discount === 'number' ? discount : 0), 0);
+    const totalItemDiscounts = Object.values(itemDiscounts || {}).reduce(
+      (sum: number, discount: any) =>
+        sum + (typeof discount === "number" ? discount : 0),
+      0
+    );
     const remainingDiscount = discount - totalItemDiscounts;
-    
+
     // Debug: Log discount distribution
-    console.log("Discount Distribution Debug:", {
+    console.log("Order Processing Debug:", {
+      isDirectPurchase,
+      itemsCount: itemsSource.length,
       totalDiscount: discount,
       totalItemDiscounts,
       remainingDiscount,
-      itemDiscounts,
       subtotal,
-      cartTotalPrice: totalPrice, // Original cart total for comparison
-      finalTotal
+      finalTotal,
     });
-    
-    // Debug: Log promo information
-    console.log("Promo Debug:", {
-      appliedPromo,
-      promoCode: appliedPromo?.code,
-      internalNotes: appliedPromo && appliedPromo.code ? `Promo code used: ${appliedPromo.code}` : ""
-    });
-    
-    console.log("Individual item calculations:");
-    
+
     const orderData = {
-      items: cart.map((item) => {
+      items: itemsSource.map((item) => {
         // Use original_price as the base price for calculations
-        const basePrice = item.product.original_price;
+        const basePrice = item.product.original_price || item.product.price;
         const itemTotal = basePrice * item.quantity;
-        let itemDiscountAmount = (itemDiscounts && itemDiscounts[item.product_id]) ? Number(itemDiscounts[item.product_id]) : 0;
-        
+        let itemDiscountAmount =
+          itemDiscounts && itemDiscounts[item.product.id || item.product_id]
+            ? Number(itemDiscounts[item.product.id || item.product_id])
+            : 0;
+
         // If there's remaining discount to distribute (sitewide discount not in itemDiscounts)
         if (remainingDiscount > 0 && subtotal > 0) {
           const itemProportion = itemTotal / subtotal;
@@ -749,7 +896,7 @@ const PaymentPage: React.FC = () => {
 
         // Ensure discount doesn't exceed item total
         itemDiscountAmount = Math.min(itemDiscountAmount, itemTotal);
-        
+
         // Round to 2 decimal places
         itemDiscountAmount = Math.round(itemDiscountAmount * 100) / 100;
 
@@ -760,31 +907,29 @@ const PaymentPage: React.FC = () => {
         // Calculate final unit price after discount
         const finalUnitPrice = basePrice - roundedPerUnitDiscount;
 
-        console.log(`Product ${item.product_id}:`, {
+        console.log(`Product ${item.product.id || item.product_id}:`, {
           name: item.product.name,
           quantity: item.quantity,
           originalPrice: basePrice,
-          specialPrice: item.product.special_price,
-          unitPrice: item.product.price,
           itemTotal: itemTotal,
           totalDiscountForItem: itemDiscountAmount,
           perUnitDiscount: roundedPerUnitDiscount,
-          finalUnitPrice: finalUnitPrice
+          finalUnitPrice: finalUnitPrice,
         });
 
         return {
-          product_id: item.product_id,
-          merchant_id: item.merchant_id,
+          product_id: item.product.id || item.product_id,
+          merchant_id: item.merchant_id || 1,
           product_name_at_purchase: item.product.name,
           sku_at_purchase: item.product.sku || "",
           quantity: item.quantity,
           unit_price_inclusive_gst: finalUnitPrice.toString(),
-          line_item_total_inclusive_gst: (finalUnitPrice * item.quantity).toString(),
+          line_item_total_inclusive_gst: (
+            finalUnitPrice * item.quantity
+          ).toString(),
           final_price_for_item: (finalUnitPrice * item.quantity).toString(),
-
-          item_discount_inclusive: roundedPerUnitDiscount.toString(), // Per-unit discount, not total discount for item
-
-          selected_attributes: (item as any).selected_attributes || {}
+          item_discount_inclusive: roundedPerUnitDiscount.toString(),
+          selected_attributes: item.selected_attributes || {},
         };
       }),
       subtotal_amount: subtotal.toString(),
@@ -798,9 +943,10 @@ const PaymentPage: React.FC = () => {
       billing_address_id: selectedAddressId,
       shipping_method_name: "Standard Shipping",
       customer_notes: "",
-      internal_notes: appliedPromo && appliedPromo.code
-        ? `Promo code used: ${appliedPromo.code}`
-        : "",
+      internal_notes:
+        appliedPromo && appliedPromo.code
+          ? `Promo code used: ${appliedPromo.code}`
+          : "",
       payment_card_id:
         paymentMethod === "credit_card" || paymentMethod === "debit_card"
           ? selectedCardId
@@ -812,10 +958,12 @@ const PaymentPage: React.FC = () => {
       ...orderData,
       items: orderData.items.map((item) => ({
         ...item,
-        unit_price_inclusive_gst: parseFloat(item.unit_price_inclusive_gst).toFixed(
-          2
-        ),
-        line_item_total_inclusive_gst  : parseFloat(item.line_item_total_inclusive_gst  ).toFixed(2),
+        unit_price_inclusive_gst: parseFloat(
+          item.unit_price_inclusive_gst
+        ).toFixed(2),
+        line_item_total_inclusive_gst: parseFloat(
+          item.line_item_total_inclusive_gst
+        ).toFixed(2),
         final_price_for_item: parseFloat(item.final_price_for_item).toFixed(2),
       })),
     });
@@ -850,38 +998,48 @@ const PaymentPage: React.FC = () => {
         }
 
         // Create merchant transactions for all merchants involved in the order
-        const merchantTransactionsSuccess = await createMerchantTransactions(orderId);
+        const merchantTransactionsSuccess = await createMerchantTransactions(
+          orderId
+        );
         if (!merchantTransactionsSuccess) {
-          console.warn("Failed to create merchant transactions, but order was successful");
+          console.warn(
+            "Failed to create merchant transactions, but order was successful"
+          );
           // Don't fail the order if merchant transaction creation fails
           // The admin can manually create transactions later if needed
         }
 
         // ------------- ShipRocket shipment creation -------------
         try {
-          console.log("Creating ShipRocket orders for all merchants in order:", {
-            order_id: orderId,
-            delivery_address_id: selectedAddressId,
-            courier_id: selectedCourier?.courier_company_id,
-          });
-
-          const shiprocketResp = await fetch(`${API_BASE_URL}/api/shiprocket/create-orders-for-all-merchants`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
+          console.log(
+            "Creating ShipRocket orders for all merchants in order:",
+            {
               order_id: orderId,
               delivery_address_id: selectedAddressId,
-              courier_id: selectedCourier?.courier_company_id, // Include selected courier
-            }),
-          });
-          
+              courier_id: selectedCourier?.courier_company_id,
+            }
+          );
+
+          const shiprocketResp = await fetch(
+            `${API_BASE_URL}/api/shiprocket/create-orders-for-all-merchants`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                order_id: orderId,
+                delivery_address_id: selectedAddressId,
+                courier_id: selectedCourier?.courier_company_id, // Include selected courier
+              }),
+            }
+          );
+
           const srData = await shiprocketResp.json();
           console.log("ShipRocket API response status:", shiprocketResp.status);
           console.log("ShipRocket API response data:", srData);
-          
+
           if (shiprocketResp.ok && srData.status === "success") {
             const response = srData.data;
             console.log("ShipRocket orders created successfully:", {
@@ -889,25 +1047,35 @@ const PaymentPage: React.FC = () => {
               successful_merchants: response.successful_merchants,
               failed_merchants: response.failed_merchants,
             });
-            
+
             // Show success message to user
             if (response.successful_merchants.length > 0) {
               const successCount = response.successful_merchants.length;
               const totalCount = response.total_merchants;
-              
+
               if (successCount === totalCount) {
-                toast.success(`Shipments created successfully for all ${totalCount} merchant(s)`);
+                toast.success(
+                  `Shipments created successfully for all ${totalCount} merchant(s)`
+                );
               } else {
-                toast.success(`Shipments created for ${successCount}/${totalCount} merchants. Some failed.`);
+                toast.success(
+                  `Shipments created for ${successCount}/${totalCount} merchants. Some failed.`
+                );
               }
             }
-            
+
             // Log failed merchants for debugging
             if (response.failed_merchants.length > 0) {
-              console.warn("Failed to create shipments for merchants:", response.failed_merchants);
+              console.warn(
+                "Failed to create shipments for merchants:",
+                response.failed_merchants
+              );
               response.failed_merchants.forEach((merchantId: number) => {
                 const error = response.merchant_responses[merchantId]?.error;
-                console.error(`Merchant ${merchantId} shipment creation failed:`, error);
+                console.error(
+                  `Merchant ${merchantId} shipment creation failed:`,
+                  error
+                );
               });
             }
           } else {
@@ -916,22 +1084,28 @@ const PaymentPage: React.FC = () => {
               statusText: shiprocketResp.statusText,
               data: srData,
             });
-            
+
             // Don't fail the order if ShipRocket fails, but log the issue
-            toast.error("Order placed successfully, but shipment creation failed. Please contact support.");
+            toast.error(
+              "Order placed successfully, but shipment creation failed. Please contact support."
+            );
           }
         } catch (srErr) {
           console.error("ShipRocket call error:", {
             error: srErr instanceof Error ? srErr.message : String(srErr),
             stack: srErr instanceof Error ? srErr.stack : undefined,
           });
-          
+
           // Don't fail the order if ShipRocket fails, but log the issue
-          toast.error("Order placed successfully, but shipment creation failed. Please contact support.");
+          toast.error(
+            "Order placed successfully, but shipment creation failed. Please contact support."
+          );
         }
 
-        // Clear the cart after successful order
-        await clearCart();
+        // Clear the cart after successful order (only for cart checkout, not direct purchase)
+        if (!isDirectPurchase) {
+          await clearCart();
+        }
         toast.success("Order placed successfully");
         // Redirect to order confirmation page
         navigate("/order-confirmation", { state: { orderId } });
@@ -1304,11 +1478,10 @@ const PaymentPage: React.FC = () => {
           {savedCards.map((card) => (
             <div
               key={card.card_id}
-              className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                selectedCardId === card.card_id
+              className={`p-4 border rounded-lg cursor-pointer transition-colors ${selectedCardId === card.card_id
                   ? "border-orange-500 bg-orange-50"
                   : "border-gray-200 hover:border-orange-300"
-              }`}
+                }`}
               onClick={() => setSelectedCardId(card.card_id)}
             >
               <div className="flex items-start justify-between">
@@ -1487,11 +1660,10 @@ const PaymentPage: React.FC = () => {
           <button
             onClick={handleSaveCard}
             disabled={savingCard}
-            className={`w-full py-2 rounded font-medium transition-colors ${
-              savingCard
+            className={`w-full py-2 rounded font-medium transition-colors ${savingCard
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-orange-500 text-white hover:bg-orange-600"
-            }`}
+              }`}
           >
             {savingCard ? "Saving..." : "Save Card"}
           </button>
@@ -1522,11 +1694,10 @@ const PaymentPage: React.FC = () => {
               {addresses.map((address) => (
                 <div
                   key={address.address_id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                    selectedAddressId === address.address_id
+                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${selectedAddressId === address.address_id
                       ? "border-orange-500 bg-orange-50"
                       : "border-gray-200 hover:border-orange-300"
-                  }`}
+                    }`}
                   onClick={() => handleAddressSelect(address)}
                 >
                   <div className="flex items-start justify-between">
@@ -1599,11 +1770,11 @@ const PaymentPage: React.FC = () => {
         {/* Saved Cards */}
         {(paymentMethod === "credit_card" ||
           paymentMethod === "debit_card") && (
-          <>
-            {renderSavedCards()}
-            {showCardForm && renderCardForm()}
-          </>
-        )}
+            <>
+              {renderSavedCards()}
+              {showCardForm && renderCardForm()}
+            </>
+          )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1695,11 +1866,10 @@ const PaymentPage: React.FC = () => {
                 value={formData.postal_code}
                 onChange={handleInputChange}
                 onBlur={handlePostalCodeBlur}
-                className={`w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
-                  postalCodeError
+                className={`w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 ${postalCodeError
                     ? "border-red-500 focus:ring-red-500 focus:border-red-500"
                     : "border-gray-300 focus:ring-orange-500 focus:border-orange-500"
-                }`}
+                  }`}
                 placeholder={`Enter postal code for ${selectedCountry.name}`}
                 required
               />
@@ -1818,6 +1988,10 @@ const PaymentPage: React.FC = () => {
           availableCouriers={availableCouriers}
           selectedCourier={selectedCourier}
           onRefreshShipping={refreshShippingCost}
+          directPurchaseItem={directPurchaseItem}
+          onApplyPromo={handleApplyPromo}
+          onRemovePromo={removePromo}
+          promoLoading={promoLoading}
         />
         <div className="mb-6">
           <div className="font-medium mb-2">Payment Method</div>
@@ -1860,11 +2034,10 @@ const PaymentPage: React.FC = () => {
         <button
           onClick={handleOrder}
           disabled={!selectedAddressId || processingPayment}
-          className={`w-full py-3 rounded font-medium transition-colors ${
-            selectedAddressId && !processingPayment
+          className={`w-full py-3 rounded font-medium transition-colors ${selectedAddressId && !processingPayment
               ? "bg-orange-500 text-white hover:bg-orange-600"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+            }`}
         >
           {processingPayment ? "Processing Payment..." : "Place Order"}
         </button>

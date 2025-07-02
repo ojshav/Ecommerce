@@ -69,3 +69,9 @@ export interface Category {
   parent_id: number | null;
   children?: Category[];
 }
+
+export interface DirectPurchaseItem {
+  product: Product;
+  quantity: number;
+  selected_attributes?: {[key: number]: string | string[]};
+}

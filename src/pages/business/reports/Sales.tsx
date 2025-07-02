@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ArrowPathIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../../context/AuthContext';
+import ExportModal from '../../../components/business/reports/ExportModal';
 import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -51,6 +52,8 @@ const Sales = () => {
   const [productPerformance, setProductPerformance] = useState<ProductPerformance[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
   const [merchantPerformance, setMerchantPerformance] = useState<MerchantPerformance | null>(null);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const { accessToken } = useAuth();
 
   const formatCurrency = (amount: number) => {
@@ -155,6 +158,54 @@ const Sales = () => {
     }
   };
 
+  const handleExportReport = async (format: string) => {
+    try {
+      setIsExporting(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/reports/sales/export?format=${format}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to export report');
+      }
+
+      // Get filename from Content-Disposition header or create default
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `sales_report_${new Date().toISOString().split('T')[0]}.${format}`;
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`Report exported successfully as ${format.toUpperCase()}`);
+      setIsExportModalOpen(false);
+      
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export report. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -213,7 +264,10 @@ const Sales = () => {
             <ArrowPathIcon className="w-5 h-5" />
             Refresh Data
           </button>
-          <button className="flex items-center gap-2 bg-[#FF3800] text-white px-4 py-2 rounded-lg hover:bg-opacity-90">
+          <button 
+            onClick={() => setIsExportModalOpen(true)}
+            className="flex items-center gap-2 bg-[#FF3800] text-white px-4 py-2 rounded-lg hover:bg-opacity-90"
+          >
             <ArrowDownTrayIcon className="w-5 h-5" />
             Export Report
           </button>
@@ -349,6 +403,14 @@ const Sales = () => {
           </div>
         </div>
       </div>
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={handleExportReport}
+        isExporting={isExporting}
+      />
     </div>
   );
 };
