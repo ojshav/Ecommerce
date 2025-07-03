@@ -51,7 +51,7 @@ const Home = () => {
   return (
     <div className="pb-10">
       {/* Mobile Search Bar (Copied from Navbar) */}
-      <div className="container mx-auto px-4 nav:hidden mt-2 mb-2 py-2">
+      <div className="container mx-auto px-4 nav:hidden mt-8 mb-4 py-2">
         <div ref={searchRef} className="relative">
           <form onSubmit={handleSearchSubmit} className="relative">
             {/* Layout for screens >= sm and < nav */}
