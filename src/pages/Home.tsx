@@ -148,6 +148,7 @@ const Home = () => {
 
           <ConditionalFeaturedProducts />
           <ConditionalPromoProducts />
+          <NewProductCarousel />
           <TrendingDeals />
           <HomepageProducts />
           <Services />
