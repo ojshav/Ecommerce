@@ -54,7 +54,6 @@ export const useHorizontalScroll = ({ scrollAmount = 300 }: UseHorizontalScrollP
 
   const handleWheel = (e: React.WheelEvent) => {
     if (!containerRef.current) return;
-    e.preventDefault();
 
     // Get the container's current scroll position and dimensions
     const container = containerRef.current;
@@ -63,28 +62,42 @@ export const useHorizontalScroll = ({ scrollAmount = 300 }: UseHorizontalScrollP
     // Calculate the maximum scroll position
     const maxScroll = scrollWidth - clientWidth;
 
-    // Determine if we're using a touchpad (deltaMode === 0) or mouse wheel (deltaMode === 1)
-    const isTouchpad = e.deltaMode === 0;
+    // Only handle horizontal scrolling if there's content to scroll horizontally
+    // and the wheel movement is primarily horizontal or shift+wheel
+    const hasHorizontalContent = maxScroll > 0;
+    const isHorizontalScroll = e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY);
     
-    // Apply different scrolling behavior based on input device
-    if (isTouchpad) {
-      // For touchpad, use a smoother scrolling with momentum
-      const scrollAmount = e.deltaY * 0.5; // Reduce the scroll amount for smoother movement
-      const newScrollLeft = scrollLeft + scrollAmount;
+    // Only prevent default and handle horizontally if we should
+    if (hasHorizontalContent && isHorizontalScroll) {
+      e.preventDefault();
       
-      // Apply smooth scrolling with bounds checking
-      container.scrollTo({
-        left: Math.max(0, Math.min(newScrollLeft, maxScroll)),
-        behavior: 'smooth'
-      });
-    } else {
-      // For mouse wheel, use a more traditional scrolling
-      const scrollAmount = e.deltaY * 2; // Increase scroll amount for mouse wheel
-      container.scrollBy({
-        left: scrollAmount,
-        behavior: 'smooth'
-      });
+      // Determine if we're using a touchpad (deltaMode === 0) or mouse wheel (deltaMode === 1)
+      const isTouchpad = e.deltaMode === 0;
+      
+      // Use deltaX for horizontal scrolling, or deltaY when shift is pressed
+      const scrollDelta = e.deltaX !== 0 ? e.deltaX : e.deltaY;
+      
+      // Apply different scrolling behavior based on input device
+      if (isTouchpad) {
+        // For touchpad, use a smoother scrolling with momentum
+        const scrollAmount = scrollDelta * 0.5; // Reduce the scroll amount for smoother movement
+        const newScrollLeft = scrollLeft + scrollAmount;
+        
+        // Apply smooth scrolling with bounds checking
+        container.scrollTo({
+          left: Math.max(0, Math.min(newScrollLeft, maxScroll)),
+          behavior: 'smooth'
+        });
+      } else {
+        // For mouse wheel, use a more traditional scrolling
+        const scrollAmount = scrollDelta * 2; // Increase scroll amount for mouse wheel
+        container.scrollBy({
+          left: scrollAmount,
+          behavior: 'smooth'
+        });
+      }
     }
+    // If not horizontal scrolling, let the default vertical scroll behavior happen
   };
 
   const scroll = (direction: 'left' | 'right') => {
