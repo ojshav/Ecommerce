@@ -9,6 +9,7 @@ import {
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
+import ExportModal from '../../components/business/reports/ExportModal';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -273,6 +274,8 @@ const Inventory: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedBrand, setSelectedBrand] = useState<string>('All');
   const [selectedStockStatus, setSelectedStockStatus] = useState<string>('All');
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [pagination, setPagination] = useState<PaginationInfo>({
     total: 0,
     page: 1,
@@ -495,6 +498,80 @@ const Inventory: React.FC = () => {
   };
 
   // Add this function to handle opening the modal
+  const handleExportClick = () => {
+    setIsExportModalOpen(true);
+  };
+
+  // Add export function
+  const handleExport = async (format: string) => {
+    try {
+      setIsExporting(true);
+      
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      // Build query parameters with current filters
+      const params = new URLSearchParams({
+        format: format
+      });
+
+      if (debouncedSearchTerm) {
+        params.append('search', debouncedSearchTerm.trim());
+      }
+
+      if (selectedCategory !== 'All') {
+        params.append('category', selectedCategory);
+      }
+
+      if (selectedBrand !== 'All') {
+        params.append('brand', selectedBrand);
+      }
+
+      if (selectedStockStatus !== 'All') {
+        params.append('stock_status', selectedStockStatus);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/inventory/export?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || `Failed to export inventory report: ${response.status} ${response.statusText}`);
+      }
+
+      // Get the filename from response headers
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filename = contentDisposition 
+        ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
+        : `inventory_report_${format}_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`Inventory report exported successfully as ${format.toUpperCase()}`);
+      setIsExportModalOpen(false);
+    } catch (error) {
+      console.error('Error exporting inventory report:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to export inventory report';
+      toast.error(errorMessage);
+    } finally {
+      setIsExporting(false);
+    }
+  };
   const handleEditClick = (product: Product) => {
     setSelectedProduct(product);
     setIsUpdateModalOpen(true);
@@ -582,7 +659,10 @@ const Inventory: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 items-start sm:items-center sm:justify-between">
         <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Inventory Management</h1>
         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-          <button className="flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+          <button 
+            onClick={handleExportClick}
+            className="flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+          >
             <PrinterIcon className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">Export</span>
             <span className="sm:hidden">Export</span>
@@ -864,6 +944,14 @@ const Inventory: React.FC = () => {
           onUpdate={updateStock}
         />
       )}
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={handleExport}
+        isExporting={isExporting}
+      />
     </div>
   );
 };
