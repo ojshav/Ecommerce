@@ -16,6 +16,8 @@ const Brands = () => {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [isPaused, setIsPaused] = useState(false);
+  const [direction, setDirection] = useState(1); // 1 for right, -1 for left
+  const [position, setPosition] = useState(0);
 
   const scrollLeft = () => {
     scrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
@@ -25,21 +27,36 @@ const Brands = () => {
     scrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
   };
 
-  // Animation effect for continuous scrolling
+  // Pendulum animation effect
   useEffect(() => {
-    if (!scrollRef.current || isPaused) return;
+    if (!scrollRef.current || isPaused || brands.length === 0) return;
+    
     const scrollContainer = scrollRef.current;
     let frameId: number;
     let lastTimestamp: number | null = null;
-    const speed = 0.5; // px per ms, adjust for desired speed
+    const speed = 0.3; // px per ms, adjust for desired speed
+    const maxScroll = scrollContainer.scrollWidth / 2; // Maximum scroll distance
 
     const step = (timestamp: number) => {
       if (lastTimestamp !== null) {
         const delta = timestamp - lastTimestamp;
-        scrollContainer.scrollLeft += speed * delta;
-        // Loop scroll
-        if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
+        const movement = speed * delta * direction;
+        
+        // Update position
+        const newPosition = position + movement;
+        
+        // Check boundaries and reverse direction if needed
+        if (newPosition >= maxScroll) {
+          setDirection(-1);
+          setPosition(maxScroll);
+          scrollContainer.scrollLeft = maxScroll;
+        } else if (newPosition <= 0) {
+          setDirection(1);
+          setPosition(0);
           scrollContainer.scrollLeft = 0;
+        } else {
+          setPosition(newPosition);
+          scrollContainer.scrollLeft = newPosition;
         }
       }
       lastTimestamp = timestamp;
@@ -50,7 +67,7 @@ const Brands = () => {
     return () => {
       cancelAnimationFrame(frameId);
     };
-  }, [isPaused, brands]);
+  }, [isPaused, brands, direction, position]);
 
   const pauseMarquee = () => setIsPaused(true);
   const resumeMarquee = () => setIsPaused(false);
@@ -143,15 +160,19 @@ const Brands = () => {
           </div>
         </div>
 
-        {/* Scrollable brand icons with animation */}
+        {/* Scrollable brand icons with pendulum animation */}
         <div className="relative overflow-x-hidden pb-4 pt-2 pl-2">
           <div
-            className="flex animate-marquee space-x-4"
+            ref={scrollRef}
+            className="flex space-x-4 overflow-x-hidden"
             onMouseEnter={pauseMarquee}
             onMouseLeave={resumeMarquee}
-            style={{ animationPlayState: isPaused ? 'paused' : 'running' }}
+            style={{ 
+              scrollBehavior: 'auto',
+              transition: isPaused ? 'none' : 'scroll-left 0.1s ease-out'
+            }}
           >
-            {[...brands, ...brands].map((brand, idx) => (
+            {[...brands, ...brands, ...brands].map((brand, idx) => (
               <div
                 key={brand.brand_id + '-' + idx}
                 onClick={() => navigate(`/all-products?brand=${brand.brand_id}`)}
