@@ -209,11 +209,11 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                                 </div>
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500">Cost Price</h4>
-                                    <p className="mt-1 text-gray-900">${product.cost_price.toFixed(2)}</p>
+                                    <p className="mt-1 text-gray-900">₹{product.cost_price.toFixed(2)}</p>
                                 </div>
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500">Selling Price</h4>
-                                    <p className="mt-1 text-gray-900">${product.selling_price.toFixed(2)}</p>
+                                    <p className="mt-1 text-gray-900">₹{product.selling_price.toFixed(2)}</p>
                                 </div>
                             </div>
 
@@ -256,7 +256,7 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                                             <div key={variant.product_id} className="border rounded-lg p-4">
                                                 <h5 className="font-medium text-sm">{variant.product_name}</h5>
                                                 <p className="text-xs text-gray-600">SKU: {variant.sku}</p>
-                                                <p className="text-xs">Price: ${variant.selling_price.toFixed(2)}</p>
+                                                <p className="text-xs">Price: ₹{variant.selling_price.toFixed(2)}</p>
                                                 <span className={`inline-block px-2 py-1 rounded text-xs mt-2 ${getStatusBadgeClass(variant.status)}`}>
                                                     {variant.status}
                                                 </span>
@@ -649,11 +649,11 @@ const ProductMonitoring: React.FC = () => {
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Cost Price:</span>
-                                        <span className="text-gray-900">${product.cost_price.toFixed(2)}</span>
+                                        <span className="text-gray-900">₹{product.cost_price.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Selling Price:</span>
-                                        <span className="text-gray-900">${product.selling_price.toFixed(2)}</span>
+                                        <span className="text-gray-900">₹{product.selling_price.toFixed(2)}</span>
                                     </div>
                                 </div>
 
