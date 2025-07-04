@@ -338,7 +338,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile menu dropdown - use custom breakpoint at 968px */}
       {mobileMenuOpen && (
-        <div className="nav:hidden bg-black text-white border-t border-gray-800 py-3 px-4" ref={mobileMenuRef}>
+        <div className="nav:hidden bg-[#FFE7DB] text-[#692C2C] border-t border-gray-200 py-3 px-4" ref={mobileMenuRef}>
           {mobileSearchBar}
 
           {/* Mobile action links */}
