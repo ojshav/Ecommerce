@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { CloudArrowUpIcon, XMarkIcon, PlayIcon } from '@heroicons/react/24/outline';
 import { useDropzone } from 'react-dropzone';
+import { toast } from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -27,8 +28,7 @@ interface MediaStats {
 interface ProductMediaUploadProps {
   productId: number;
   onMediaChange?: (media: Media[]) => void;
-  maxFiles?: number;
-  maxSize?: number; // in bytes
+  maxSize?: number; // in bytes (for images only)
   onUploadComplete?: () => void;
   onUploadError?: (error: string) => void;
 }
@@ -36,8 +36,7 @@ interface ProductMediaUploadProps {
 const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
   productId,
   onMediaChange,
-  maxFiles = 5,
-  maxSize = 10 * 1024 * 1024, // 10MB
+  maxSize = 10 * 1024 * 1024, // 10MB for images
   onUploadComplete,
   onUploadError,
 }) => {
@@ -65,15 +64,19 @@ const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch media stats');
+        const errorData = await response.json();
+        const errorMsg = errorData.message || 'Failed to fetch media stats';
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();
       setStats(data);
     } catch (error) {
       console.error('Error fetching media stats:', error);
-      setError('Failed to fetch media statistics');
-      onUploadError?.('Failed to fetch media statistics');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to fetch media statistics';
+      setError(errorMsg);
+      onUploadError?.(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
@@ -89,7 +92,9 @@ const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch media');
+        const errorData = await response.json();
+        const errorMsg = errorData.message || 'Failed to fetch media';
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();
@@ -98,8 +103,10 @@ const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
       onMediaChange?.(data);
     } catch (error) {
       console.error('Error fetching media:', error);
-      setError('Failed to load media. Please try again later.');
-      onUploadError?.('Failed to load media');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to load media. Please try again later.';
+      setError(errorMsg);
+      onUploadError?.(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -108,15 +115,46 @@ const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       if (!productId) {
-        setError('Product ID is required for media upload');
-        onUploadError?.('Product ID is required for media upload');
+        const errorMsg = 'Product ID is required for media upload';
+        setError(errorMsg);
+        onUploadError?.(errorMsg);
+        toast.error(errorMsg);
         return;
       }
 
-      if (!stats || stats.remaining_slots < acceptedFiles.length) {
-        const errorMsg = `You can only upload up to ${stats?.remaining_slots || 0} more files.`;
+      if (!stats) {
+        const errorMsg = 'Unable to fetch media statistics. Please try again.';
         setError(errorMsg);
         onUploadError?.(errorMsg);
+        toast.error(errorMsg);
+        return;
+      }
+
+      // Check if any file is a video and if we already have a video
+      const videoFiles = acceptedFiles.filter(file => file.type.startsWith('video/'));
+      const hasExistingVideo = stats.video_count > 0;
+      
+      if (videoFiles.length > 0 && hasExistingVideo) {
+        const errorMsg = 'Only 1 video file is allowed per product. Please remove the existing video first.';
+        setError(errorMsg);
+        onUploadError?.(errorMsg);
+        toast.error(errorMsg);
+        return;
+      }
+
+      if (videoFiles.length > 1) {
+        const errorMsg = 'Only 1 video file can be uploaded at a time.';
+        setError(errorMsg);
+        onUploadError?.(errorMsg);
+        toast.error(errorMsg);
+        return;
+      }
+
+      if (stats.remaining_slots < acceptedFiles.length) {
+        const errorMsg = `You can only upload up to ${stats.remaining_slots} more files.`;
+        setError(errorMsg);
+        onUploadError?.(errorMsg);
+        toast.error(errorMsg);
         return;
       }
 
@@ -142,7 +180,8 @@ const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
 
           if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || `Failed to upload ${file.name}`);
+            const errorMsg = errorData.message || `Failed to upload ${file.name}`;
+            throw new Error(errorMsg);
           }
 
           const newMedia = await response.json();
@@ -152,11 +191,13 @@ const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
           
           // Update progress to 100% for successful upload
           setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
+          toast.success(`${file.name} uploaded successfully!`);
         } catch (error) {
           console.error(`Error uploading ${file.name}:`, error);
-          const errorMsg = `Failed to upload ${file.name}. Please try again.`;
+          const errorMsg = error instanceof Error ? error.message : `Failed to upload ${file.name}. Please try again.`;
           setError(errorMsg);
           onUploadError?.(errorMsg);
+          toast.error(errorMsg);
         }
       }
 
@@ -172,8 +213,31 @@ const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
       'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
       'video/*': ['.mp4', '.mov', '.avi'],
     },
-    maxSize,
+    maxSize: 50 * 1024 * 1024, // 50MB for videos
     disabled: isUploading || !productId,
+    validator: (file) => {
+      // Custom validation for file size based on type
+      const isVideo = file.type.startsWith('video/');
+      const isImage = file.type.startsWith('image/');
+      
+      if (isVideo && file.size > 50 * 1024 * 1024) {
+        toast.error(`Video file ${file.name} is too large. Maximum size is 50MB.`);
+        return {
+          code: "file-too-large",
+          message: `Video file is too large. Maximum size is 50MB.`
+        };
+      }
+      
+      if (isImage && file.size > maxSize) {
+        toast.error(`Image file ${file.name} is too large. Maximum size is ${maxSize / 1024 / 1024}MB.`);
+        return {
+          code: "file-too-large",
+          message: `Image file is too large. Maximum size is ${maxSize / 1024 / 1024}MB.`
+        };
+      }
+      
+      return null;
+    }
   });
 
   const removeMedia = async (mediaId: number) => {
@@ -190,17 +254,21 @@ const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete media');
+        const errorData = await response.json();
+        const errorMsg = errorData.message || 'Failed to delete media';
+        throw new Error(errorMsg);
       }
 
       setMedia(prev => prev.filter(m => m.media_id !== mediaId));
       onMediaChange?.(media.filter(m => m.media_id !== mediaId));
       await fetchMediaStats(); // Refresh stats after deletion
+      toast.success('Media deleted successfully!');
     } catch (error) {
       console.error('Error deleting media:', error);
-      const errorMsg = 'Failed to delete media. Please try again.';
+      const errorMsg = error instanceof Error ? error.message : 'Failed to delete media. Please try again.';
       setError(errorMsg);
       onUploadError?.(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
@@ -263,7 +331,7 @@ const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
                 : 'Drag and drop files here, or click to select files'}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Supported formats: JPEG, PNG, GIF, WebP, MP4, MOV, AVI (max {maxSize / 1024 / 1024}MB per file)
+              Supported formats: JPEG, PNG, GIF, WebP (max {maxSize / 1024 / 1024}MB), MP4, MOV, AVI (max 50MB). Only 1 video file allowed.
             </p>
           </div>
         </div>
