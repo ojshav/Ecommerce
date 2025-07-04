@@ -309,10 +309,10 @@ const Navbar: React.FC = () => {
                       <Heart className="w-5 h-5" />
                     </Link>
 
-                    <Link to="/cart" className="text-[#692C2C] hover:text-[#F2631F] relative font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
+                    <Link to="/cart" className="text-[#692C2C] hover:text-[#F2631F] relative inline-flex items-center font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <ShoppingCart className="w-5 h-5" />
                       {totalItems > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-[#F2631F] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        <span className="absolute -top-2 -right-1 md:-right-2 bg-[#F2631F] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                           {totalItems}
                         </span>
                       )}
@@ -351,12 +351,14 @@ const Navbar: React.FC = () => {
               <span>Wishlist</span>
             </Link>
             <Link to="/cart" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F] relative" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
-              <ShoppingCart className="w-4 h-4 mb-1" />
-              {totalItems > 0 && (
-                <span className="absolute top-0 right-6 bg-[#F2631F] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
+              <div className="relative">
+                <ShoppingCart className="w-4 h-4 mb-1" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-1 bg-[#F2631F] text-white text-[10px] rounded-full w-3.5 h-3.5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </div>
               <span>Cart</span>
             </Link>
             <Link to="/profile" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>

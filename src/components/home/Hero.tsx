@@ -69,7 +69,7 @@ const Hero: React.FC = () => {
   const current = carouselItems[currentSlide];
 
   return (
-    <section className="w-full max-w-[1680px] mx-auto px-2 lg:px-4 pt-4">
+    <section className="w-full max-w-[1680px] mx-auto px-1 sm:px-2 lg:px-4 pt-2 sm:pt-4">
       {/* Mobile/Tablet Layout - Below mid screen (1080px) */}
       <div className="block mid:hidden">
         <div className="relative w-full">
