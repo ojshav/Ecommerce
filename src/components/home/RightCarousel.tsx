@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import svgImage1 from '/src/assets/rightcrousel/Image1.svg';
-import svgImage2 from '/src/assets/rightcrousel/Image2.svg';
-import svgImage3 from '/src/assets/rightcrousel/Image3.svg';
 
-const images = [svgImage1, svgImage2, svgImage3];
+const images = [
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544913/svg_assets/rightcrousel_Image3.svg",
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/rightcrousel_Image2.svg",
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/rightcrousel_Image3.svg"
+];
 
 const CAROUSEL_HEIGHT = 564; // px, adjust as needed for your SVG size + margin
 

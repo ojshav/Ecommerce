@@ -52,7 +52,7 @@ const Categories: React.FC = () => {
   if (loading) {
     return (
       <section className="pt-8">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 xl:px-14">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Shop By Categories</h2>
           </div>
@@ -72,7 +72,7 @@ const Categories: React.FC = () => {
   if (error) {
     return (
       <section className="pt-8">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 xl:px-14">
           <div className="text-red-500 text-center">
             <p>Error loading categories: {error}</p>
             <button 
@@ -89,7 +89,7 @@ const Categories: React.FC = () => {
 
   return (
     <section className="pt-8">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 xl:px-14">
         {/* Categories header with navigation */}
         <div className="flex justify-between items-center mb-6">
           <h6 className="text-xl font-medium font-worksans">Shop By Categories</h6>

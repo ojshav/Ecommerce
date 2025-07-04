@@ -185,7 +185,7 @@
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
-    touch-action: pan-x;
+    touch-action: auto;
   }
 }
 

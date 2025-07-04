@@ -143,7 +143,7 @@ const FeaturedProducts: React.FC = () => {
   if (loading) {
     return (
       <section className="pb-12">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 xl:px-14">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
           </div>
@@ -155,7 +155,7 @@ const FeaturedProducts: React.FC = () => {
   if (error) {
     return (
       <section className="pb-12">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 xl:px-14">
           <div className="flex flex-col items-center justify-center h-64">
             <p className="text-red-500 mb-4">Error loading featured products: {error}</p>
             <button 
@@ -172,7 +172,7 @@ const FeaturedProducts: React.FC = () => {
 
   return (
     <section className="pb-12">
-      {products && <div className="container mx-auto px-4">
+      {products && <div className="container mx-auto px-4 xl:px-14">
         <div className="flex flex-col space-y-6">
           {/* Header with navigation */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">

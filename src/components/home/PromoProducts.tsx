@@ -6,7 +6,6 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { toast } from 'react-hot-toast';
-import bannerImage from '../../../public/assets/images/banner.png';
 
 // Product type for promo products from API
 export type PromoProduct = {
@@ -242,22 +241,12 @@ const PromoProducts: React.FC = () => {
     }
   };
 
-  // Banner data
-  const banner = {
-    title: "LUXURY COLLECTION",
-    subtitle: "EXCLUSIVE DEALS UP TO 50% OFF",
-    tag: "Limited Time Offer",
-    image: bannerImage, // Replace with your banner image path
-    overlayColor: "rgba(242, 99, 31, 0.05)", // Your brand orange with transparency
-    textColor: "#F2631F", // Your brand orange
-    buttonText: "Shop Now",
-    buttonClass: "bg-[#F2631F] hover:bg-orange-600 text-white px-8 py-3 rounded-md transition-all duration-300 text-lg font-medium"
-  };
+
 
   if (loading) {
     return (
       <section className="py-8">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 xl:px-14">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Promo Products</h2>
           </div>
@@ -272,7 +261,7 @@ const PromoProducts: React.FC = () => {
   if (error) {
     return (
       <section className="py-8">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 xl:px-14">
           <div className="flex flex-col items-center justify-center h-64">
             <p className="text-red-500 mb-4">Error loading promo products: {error}</p>
             <button
@@ -289,7 +278,7 @@ const PromoProducts: React.FC = () => {
 
   return (
     <section className="py-8">
-      {promoProducts && <div className="container mx-auto px-4">
+      {promoProducts && <div className="container mx-auto px-4 xl:px-14">
         {/* Header with navigation */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-medium font-worksans">Promo Products</h2>
@@ -434,30 +423,7 @@ const PromoProducts: React.FC = () => {
           </div>
         </div>
 
-        {/* Full-width Banner */}
-        <div className="relative overflow-hidden h-[560px] w-screen -ml-[calc((100vw-100%)/2)]">
-          <img
-            src={banner.image}
-            alt="Promo banner"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 flex items-center p-8">
-            <div className="container mx-auto px-4 flex items-end justify-center">
-              <div className="ml-auto mr-8">
-                <span className="font-worksans font-medium inline-block text-white text-base mb-4">
-                  {banner.tag}
-                </span>
-                <h4 className="text-white text-4xl font-semibold font-worksans mb-4">{banner.title}</h4>
-                <h4 className="text-white text-4xl font-semibold font-worksans mb-8">{banner.subtitle}</h4>
-                <Link to="/new-product">
-                  <button className="bg-[#F2631F] hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition font-worksans text-sm">
-                    Order Now
-                  </button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>}
     </section>
   );

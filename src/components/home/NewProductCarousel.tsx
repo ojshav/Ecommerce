@@ -1,15 +1,31 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import svgImage1 from '/src/assets/newproductcarousel/Image1.svg';
-import svgImage2 from '/src/assets/newproductcarousel/Image2.svg';
-import svgImage3 from '/src/assets/newproductcarousel/Image3.svg';
 import { Link } from 'react-router-dom';
 
-const images = [svgImage1, svgImage2, svgImage3];
+const images = [
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/newproductcarousel_Image1.svg",
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/newproductcarousel_Image2.svg",
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/newproductcarousel_Image3.svg"
+];
 
 const NewProductCarousel: React.FC = () => {
   const [current, setCurrent] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {
@@ -21,22 +37,23 @@ const NewProductCarousel: React.FC = () => {
   }, [current]);
 
   return (
-    <div className="w-full relative mb-16 sm:mb-20 md:mb-24 lg:mb-32">
+    <div className="w-full relative mb-8 sm:mb-12 md:mb-16 lg:mb-20">
       <div 
-        className="relative overflow-hidden mx-auto"
+        ref={containerRef}
+        className="relative w-full h-auto aspect-[16/6] sm:aspect-[16/5] md:aspect-[16/4.5] lg:aspect-[16/4]"
         style={{
-          width: '1680px',
-          height: '560px',
-          margin: '0 auto'
+          marginLeft: 'calc(-50vw + 50%)',
+          marginRight: 'calc(-50vw + 50%)',
+          width: '100vw'
         }}
       >
         <motion.div
           className="flex h-full"
           style={{
-            width: `${images.length * 1680}px`,
+            width: `${images.length * 100}%`,
           }}
           animate={{
-            x: -current * 1680,
+            x: -current * containerWidth,
           }}
           transition={{
             type: "spring",
@@ -52,24 +69,36 @@ const NewProductCarousel: React.FC = () => {
               key={idx}
               className="relative flex-shrink-0"
               style={{
-                width: '1680px',
-                height: '560px'
+                width: `${100 / images.length}%`,
+                height: '100%'
               }}
             >
-              <Link to="/new-product">
+              <Link to="/new-product" className="block h-full">
                 <img 
                   src={src} 
                   alt={`Carousel ${idx + 1}`} 
+                  className="w-full h-full object-cover"
                   style={{
-                    width: '1680px',
-                    height: '560px',
-                    objectFit: 'cover'
+                    backgroundColor: '#f8f8f8'
                   }}
                 />
               </Link>
             </div>
           ))}
         </motion.div>
+
+        {/* Navigation Dots */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          {images.map((_, idx) => (
+            <button
+              key={idx}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                current === idx ? 'bg-black w-4' : 'bg-gray-400'
+              }`}
+              onClick={() => setCurrent(idx)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

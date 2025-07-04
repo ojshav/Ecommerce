@@ -2,12 +2,12 @@ import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import Hero from '../components/home/Hero';
-import FeaturedProducts from '../components/home/FeaturedProducts';
+import ConditionalFeaturedProducts from '../components/home/ConditionalFeaturedProducts';
 import Categories from '../components/home/Categories';
-import PromoProducts from '../components/home/PromoProducts';
+import ConditionalPromoProducts from '../components/home/ConditionalPromoProducts';
 import TrendingDeals from '../components/home/TrendingDeals';
 import Brands from '../components/home/brands';
-import Shop from '../components/home/Shop';
+//import Shop from '../components/home/Shop';
 import Services from '../components/home/Services';
 import HomepageProducts from '../components/home/HomepageProducts';
 import SearchResults from '../components/common/SearchResults';
@@ -51,7 +51,7 @@ const Home = () => {
   return (
     <div className="pb-10">
       {/* Mobile Search Bar (Copied from Navbar) */}
-      <div className="container mx-auto px-4 nav:hidden mt-2 mb-2 py-2">
+      <div className="container mx-auto px-4 nav:hidden mt-8 mb-4 py-2">
         <div ref={searchRef} className="relative">
           <form onSubmit={handleSearchSubmit} className="relative">
             {/* Layout for screens >= sm and < nav */}
@@ -132,6 +132,7 @@ const Home = () => {
                 setShowSearchResults(false);
                 setSearchQuery('');
               }}
+              setIsVisible={setShowSearchResults}
             />
           </form>
         </div>
@@ -143,9 +144,10 @@ const Home = () => {
           <Hero />
           <Categories />
           <Brands />
-          <Shop />
-          <FeaturedProducts />
-          <PromoProducts />
+          {/*<Shop />*/}
+
+          <ConditionalFeaturedProducts />
+          <ConditionalPromoProducts />
           <NewProductCarousel />
           <TrendingDeals />
           <HomepageProducts />

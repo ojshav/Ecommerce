@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Bell, User, Menu, ChevronDown } from 'lucide-react';
+import { User, Menu, ChevronDown } from 'lucide-react';
 import LogoutConfirmationPopup from '../../components/LogoutConfirmationPopup';
 import useClickOutside from '../../hooks/useClickOutside';
 import toast from 'react-hot-toast';
@@ -62,10 +62,6 @@ const SuperadminHeader: React.FC<SuperadminHeaderProps> = ({ onMenuClick }) => {
           
           {/* Right side icons and profile */}
           <div className="flex items-center space-x-4">
-            <button className="text-orange-500 hover:text-orange-400 p-1 rounded-full">
-              <Bell className="h-6 w-6" />
-            </button>
-            
             {/* Profile dropdown */}
             <div className="relative" ref={profileMenuRef}>
               <button

@@ -338,7 +338,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile menu dropdown - use custom breakpoint at 968px */}
       {mobileMenuOpen && (
-        <div className="nav:hidden bg-black text-white border-t border-gray-800 py-3 px-4" ref={mobileMenuRef}>
+        <div className="nav:hidden bg-[#FFE7DB] text-[#692C2C] border-t border-gray-200 py-3 px-4" ref={mobileMenuRef}>
           {mobileSearchBar}
 
           {/* Mobile action links */}
@@ -436,7 +436,7 @@ const Navbar: React.FC = () => {
 
           {/* Mobile lower navigation dropdown - use custom breakpoint at 968px */}
           {lowerMobileMenuOpen && (
-            <div className="nav:hidden border-t border-gray-200 pt-2 pb-1 bg-gradient-to-b from-white to-black" ref={lowerMobileMenuRef}>
+            <div className="nav:hidden border-t border-gray-200 pt-2 pb-1 bg-white" ref={lowerMobileMenuRef}>
               <Link to="/track-order" className="flex items-center py-1.5 px-2 text-sm hover:text-[#F2631F] mb-2" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                 <img src="/assets/images/track-order.png" alt="Track Order" className="w-4 h-4 mr-2" />
                 <span>Track Your Order</span>
