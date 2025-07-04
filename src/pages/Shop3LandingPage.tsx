@@ -3,7 +3,10 @@ import '../styles/globals.css';
 import Aoinpeople from '../components/shop/shop3/AoinPeople';
 import Aoinfashion from '../components/shop/shop3/AoinFashion';
 import Aoinmasteriece from '../components/shop/shop3/AoinMasteriece';
-//import Sydneycity from '../components/shop/shop3/SydneyCity';
+import Sydneycity from '../components/shop/shop3/SydneyCity';
+import AoinCatalog from '../components/shop/shop3/AoinCatalog';
+import AoinJoinus from '../components/shop/shop3/AoinJoinUs';
+
 function Shop3LandingPage() {
   React.useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
@@ -17,7 +20,9 @@ function Shop3LandingPage() {
       <Aoinpeople />
       <Aoinfashion />
       <Aoinmasteriece />
-     
+     <Sydneycity/>
+     <AoinCatalog/>
+     <AoinJoinus />
     </div>  
   );
 }

@@ -111,6 +111,7 @@ export default {
         bebas: ['Bebas Neue', 'sans-serif'],
         gilroy: ['Gilroy', 'sans-serif'],
         clash: ['Clash Display', 'sans-serif'],
+        alexandria: ['Alexandria', 'sans-serif'],
       },
       fontSize: {
         display: ['96px', { lineHeight: '90px' }],
@@ -126,7 +127,7 @@ export default {
         leftRightFastSecond: 'leftRightFastSecond 3s ease-in-out infinite',
         shakeX: 'shakeX 3s ease-in-out infinite',
         marquee: 'marquee 6s  linear infinite',
-        'marquee-pingpong': 'marquee-pingpong 15s ease-in-out infinite',
+        'marquee-pingpong': 'marquee-pingpong 25s ease-in-out infinite',
         'color-cycle': 'color-cycle 1.2s linear infinite',
       },
       keyframes: {
@@ -188,7 +189,7 @@ export default {
         'marquee-pingpong': {
           '0%':   { transform: 'translateX(0%)' },
           '50%':  { transform: 'translateX(-50%)' },
-          '100%': { transform: 'translateX(0%)' },
+          '90%': { transform: 'translateX(0%)' },
         },
         'color-cycle': {
           '0%, 100%': { color: '#fff' },

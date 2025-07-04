@@ -4,7 +4,7 @@ import Union from '/src/assets/Shop3/Union.svg';
 
 const AoinMasteriece: React.FC = () => {
   return (
-    <div className="min-h-screen relative w-full mx-auto bg-black flex items-center justify-center pt-12 pb-48">
+    <div className="min-h-screen relative w-full mx-auto bg-black flex items-center justify-center pt-12 pb-32">
       <div className="mx-auto max-w-[1800px] w-full px-2 sm:px-4">
         <div className="flex flex-col md:flex-row items-center justify-center w-full gap-8 md:gap-12">
           {/* Left: Image with banners */}
@@ -64,7 +64,7 @@ const AoinMasteriece: React.FC = () => {
               WITH OUR MASTERPIECE COLLECTION, WE HAVE CURATED A SERIES OF EXQUISITE AND EXTRAORDINARY EXCLUSIVE PIECES THAT SHOWCASE THE BEST OF CRAFTSMANSHIP AND DESIGN.<br /><br />
               EVERY ITEM IS CAREFULLY SELECTED TO CAPTIVATE AND INSPIRE, MAKING YOU FEEL LIKE A WALKING MASTERPIECE FASHION
             </p>
-            <button className="mt-2 px-5 py-2 border border-white rounded-full text-white font-normal text-[14px] font-clash hover:bg-white hover:text-black transition-all duration-200">
+            <button className="mt-2 px-5 py-2 border border-white rounded-full text-white font-normal text-[14px] font-clash hover:bg-[#3D5914] transition-colors duration-300">
               EXPLORE COLLECTION
             </button>
           </div>
