@@ -146,6 +146,7 @@ const OrderDetail: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const { } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
+  const [merchantProfile, setMerchantProfile] = useState<{ business_name: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -163,6 +164,7 @@ const OrderDetail: React.FC = () => {
         throw new Error('No authentication token found');
       }
 
+      // Fetch order details
       const apiUrl = `${API_BASE_URL}/api/merchant-dashboard/orders/${orderId}`;
       
       const response = await fetch(apiUrl, {
@@ -179,6 +181,20 @@ const OrderDetail: React.FC = () => {
 
       const data = await response.json();
       setOrder(data);
+
+      // Fetch merchant profile for business name
+      const profileResponse = await fetch(`${API_BASE_URL}/api/merchants/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        setMerchantProfile(profileData.profile);
+      }
+
     } catch (err) {
       console.error('Error in fetchOrderDetails:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch order details';
@@ -568,7 +584,7 @@ const OrderDetail: React.FC = () => {
           {/* Invoice Header */}
           <div className="invoice-header">
             <div className="invoice-logo">
-              YourStore
+              {merchantProfile?.business_name || 'Your Store'}
             </div>
             <div className="invoice-title">
               <h1>TAX INVOICE</h1>
@@ -868,12 +884,12 @@ const OrderDetail: React.FC = () => {
                   <span className="text-sm text-gray-600">Shipping</span>
                   <span className="text-sm font-medium">{order.currency} {parseFloat(order.shipping_amount).toFixed(2)}</span>
                 </div>
-                {parseFloat(order.discount_amount) > 0 && (
+                {/* {parseFloat(order.discount_amount) > 0 && (
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Discount</span>
                     <span className="text-sm font-medium text-green-600">-{order.currency} {parseFloat(order.discount_amount).toFixed(2)}</span>
                   </div>
-                )}
+                )} */}
                 <div className="border-t pt-3">
                   <div className="flex justify-between">
                     <span className="text-base font-medium text-gray-900">Total</span>
