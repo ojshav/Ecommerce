@@ -276,7 +276,7 @@ const NewProduct: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 xl:px-14 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 sm:gap-0">
           <div className="flex flex-col">
             <h1 className="text-2xl font-bold text-gray-900">New Products</h1>
