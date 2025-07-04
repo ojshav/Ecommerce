@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
@@ -33,23 +33,6 @@ export type FeaturedProduct = {
   stock?: {
     stock_qty: number;
   };
-};
-
-// Type for ProductCard props
-type ProductCardProps = {
-  id: number;
-  name: string;
-  price: number;
-  rating: number;
-  reviews: number;
-  stock: number;
-  description: string;
-  image: string;
-  images: string[];
-  category: string;
-  currency: string;
-  tags: string[];
-  originalPrice: number;
 };
 
 const FeaturedProducts: React.FC = () => {
@@ -130,16 +113,7 @@ const FeaturedProducts: React.FC = () => {
     window.addEventListener('resize', updateItemsPerView);
     return () => window.removeEventListener('resize', updateItemsPerView);
   }, []);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  const scrollLeft = () => {
-    scrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
-  };
-  
-  const scrollRight = () => {
-    scrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
-  };
-  
   if (loading) {
     return (
       <section className="pb-12">
@@ -173,18 +147,14 @@ const FeaturedProducts: React.FC = () => {
   return (
     <section className="py-4">
       {products && <div className="container mx-auto px-4 xl:px-14">
-        <div className="flex flex-col space-y-6">
-          {/* Header with navigation */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-            <h6 className="text-xl font-medium font-worksans">Featured Products</h6>
-            
-            {/* Navigation */}
-            <div className="flex items-center w-full md:w-auto space-x-4">
-              <Link to="/featured-products" className="text-orange-500 text-sm font-medium mr-6">
-                See All
-              </Link>
-              
-              <div className="flex items-center space-x-3">
+        {/* Header with navigation */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-medium font-worksans">Featured Products</h2>
+          <div className="flex items-center">
+            <Link to="/featured-products" className="text-orange-500 text-sm font-medium mr-10">
+              See All
+            </Link>
+            <div className="flex items-center space-x-3">
               <button
                 onClick={() => scroll('left')}
                 className="focus:outline-none"
@@ -200,51 +170,51 @@ const FeaturedProducts: React.FC = () => {
                 <ChevronRight size={20} className="text-gray-500 hover:text-black duration-300" />
               </button>
             </div>
-            </div>
           </div>
+        </div>
 
-          {/* Products carousel */}
-          <div className="relative">
-            <div
-              ref={containerRef}
-              className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
-              onMouseDown={handleMouseDown}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              onMouseMove={handleMouseMove}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onWheel={handleWheel}
-              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-            >
-              {products.map((product) => (
-                <div 
-                  key={product.product_id} 
-                  className="flex-none"
-                  style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 12 / itemsPerView}px)` }}
-                >
-                  <ProductCard 
-                    product={{
-                      id: product.product_id,
-                      name: product.product_name,
-                      price: product.price, // Use backend-calculated price
-                      rating: 0,
-                      reviews: 0,
-                      stock: product.stock?.stock_qty || 0,
-                      description: product.product_description,
-                      images: product.images || [],
-                      category: product.category?.name || '',
-                      currency: 'INR',
-                      tags: [],
-                      original_price: product.originalPrice || 0, // Use backend-calculated originalPrice
-                      sku: '',
-                      primary_image: product.images?.[0] || ''
-                    }}
-                    salePercentage={product.discount_pct || undefined}
-                  />
-                </div>
-              ))}
-            </div>
+        {/* Products carousel */}
+        <div className="relative">
+          <div
+            ref={containerRef}
+            className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onWheel={handleWheel}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          >
+            {products.map((product) => (
+              <div 
+                key={product.product_id} 
+                className="flex-none"
+                style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 12 / itemsPerView}px)` }}
+              >
+                <ProductCard 
+                  product={{
+                    id: String(product.product_id),
+                    name: product.product_name,
+                    price: product.price, // Use backend-calculated price
+                    rating: 0,
+                    reviews: 0,
+                    stock: product.stock?.stock_qty || 0,
+                    description: product.product_description,
+                    images: product.images || [],
+                    image: product.images?.[0] || '',
+                    category: product.category?.name || '',
+                    currency: 'INR',
+                    tags: [],
+                    originalPrice: product.originalPrice || 0, // Use backend-calculated originalPrice
+                    sku: '',
+                    primary_image: product.images?.[0] || ''
+                  }}
+                  salePercentage={product.discount_pct || undefined}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>}
