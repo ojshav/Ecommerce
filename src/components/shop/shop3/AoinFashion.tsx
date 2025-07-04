@@ -8,9 +8,9 @@ const AoinFashion: React.FC = () => {
   return (
     <div className="bg-black w-full mx-auto relative flex flex-col items-center justify-start py-4 pb-20 px-2 sm:px-4">
       {/* Yellow Banner */}
-      <div className="w-[2240px] bg-[#d4ff00] py-2 h-[60px] sm:h-[80px] md:h-[100px] px-2 mb-16 sm:mb-24 md:mb-40 flex items-center transform rotate-[-1.5deg] overflow-x-auto whitespace-nowrap">
+      <div className="w-full min-w-[100vw] bg-[#d4ff00] py-2 h-[60px] sm:h-[80px] md:h-[100px] px-2 mb-16 sm:mb-24 md:mb-40 flex items-center transform rotate-[-1.5deg] overflow-x-auto whitespace-nowrap">
         <span className="text-black text-[22px] sm:text-[32px] md:text-[43px] font-extrabold tracking-wider inline-block min-w-[200%] animate-marquee-pingpong">
-          SHOP NOW!  DISCOUNT UP TO 80%  SHOP NOW!  DISCOUNT UP TO 80%  SHOP NOW!  DISCOUNT UP TO 80% SHOP NOW!  DISCOUNT UP TO 80%  SHOP NOW!  DISCOUNT UP TO 80%  SHOP NOW!  DISCOUNT UP TO 80%
+          SHOP NOW!  DISCOUNT UP TO 80%  SHOP NOW!  DISCOUNT UP TO 80%  SHOP NOW!  DISCOUNT UP TO 80% SHOP NOW!  DISCOUNT UP TO 80%  SHOP NOW!  DISCOUNT UP TO 80%  SHOP NOW!  DISCOUNT UP TO 80% 
         </span>
       </div>
       {/* Main Centered Content */}
