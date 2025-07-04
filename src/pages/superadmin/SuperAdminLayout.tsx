@@ -79,11 +79,13 @@ export const dashboardSections: MenuSection[] = [
         icon: UserCog,
         description: "Review and manage merchant accounts and applications",
       },
+      /*
       {
         title: "Refund and Return",
         icon: ShoppingBag,
         description: "Process refund requests and manage return policies",
       },
+      */
       {
         title: "Products",
         icon: ShoppingBag,
