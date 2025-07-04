@@ -1,6 +1,7 @@
 import React from 'react';
-import Image1 from '/src/assets/Shop3/Component3/Image1.svg';
-import Union from '/src/assets/Shop3/Union.svg';
+
+const IMAGE1_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component3_Image1.svg";
+const UNION_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Union.svg";
 
 const AoinMasteriece: React.FC = () => {
   return (
@@ -22,7 +23,7 @@ const AoinMasteriece: React.FC = () => {
               }}
             />
             <img
-              src={Union}
+              src={UNION_URL}
               alt="Union Background"
               className="hidden lg:block absolute left-1/2 top-[100px] sm:left-[100px] sm:top-[450px] -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none"
               style={{ width: 581, height: 581, opacity: 1 }}
@@ -31,7 +32,7 @@ const AoinMasteriece: React.FC = () => {
             <div className="relative w-full h-full overflow-hidden rounded-3xl">
               {/* Main Image */}
               <img
-                src={Image1}
+                src={IMAGE1_URL}
                 alt="Aoin Masterpiece Hero"
                 className="w-full h-full object-cover min-h-[220px] md:w-[765px] md:h-[586px] relative z-10"
               />

@@ -271,7 +271,7 @@ const HomepageProducts: React.FC = () => {
     <div className="space-y-12">
       {categoriesWithProducts.map((categoryData) => (
         <section key={categoryData.category.category_id} className="pb-12">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 xl:px-14">
             <div className="flex flex-col space-y-6">
               {/* Header with navigation */}
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import svgImage1 from '/src/assets/newproductcarousel/Image1.svg';
-import svgImage2 from '/src/assets/newproductcarousel/Image2.svg';
-import svgImage3 from '/src/assets/newproductcarousel/Image3.svg';
 import { Link } from 'react-router-dom';
 
-const images = [svgImage1, svgImage2, svgImage3];
+const images = [
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/newproductcarousel_Image1.svg",
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/newproductcarousel_Image2.svg",
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/newproductcarousel_Image3.svg"
+];
 
 const NewProductCarousel: React.FC = () => {
   const [current, setCurrent] = useState(0);

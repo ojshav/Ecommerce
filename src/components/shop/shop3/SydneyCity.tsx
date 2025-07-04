@@ -1,5 +1,6 @@
 import React from 'react';
-import Image1 from '/src/assets/Shop3/Component4/Image1.svg';
+
+const IMAGE1_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component4_Image1.svg";
 
 const SydneyCity: React.FC = () => {
   return (
@@ -7,7 +8,7 @@ const SydneyCity: React.FC = () => {
       {/* Background Image inside the bigger section */}
       
       <img
-        src={Image1}
+        src={IMAGE1_URL}
         alt="Sydney City Fashion"
         width={1400}
         height={750}

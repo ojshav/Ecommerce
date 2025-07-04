@@ -1,23 +1,20 @@
 import React from 'react';
-import Image1 from '/src/assets/Shop3/Component5/Image1.svg';
-import Image2 from '/src/assets/Shop3/Component5/Image2.svg';
-import Image3 from '/src/assets/Shop3/Component5/Image3.svg';
 
 const products = [
   {
     name: 'HERAHEUR SHOES',
     price: '$43',
-    image: Image1,
+    image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component5_Image1.svg",
   },
   {
     name: 'HERAHEUR BOTTOMS',
     price: '$43',
-    image: Image2,
+    image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component5_Image2.svg",
   },
   {
     name: 'HERAHEUR JACKETS',
     price: '$43',
-    image: Image3,
+    image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component5_Image3.svg",
   },
 ];
 

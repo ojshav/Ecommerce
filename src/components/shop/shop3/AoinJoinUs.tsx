@@ -1,8 +1,9 @@
 import React from 'react';
-import Image1 from '/src/assets/Shop3/Component6/Image1.svg';
-import Union from '/src/assets/Shop3/Union.svg';
 
-const compositeImage = Image1;
+const IMAGE1_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component6_Image1.svg";
+const UNION_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Union.svg";
+
+const compositeImage = IMAGE1_URL;
 
 const AoinJoinUs: React.FC = () => {
   return (
@@ -23,7 +24,7 @@ const AoinJoinUs: React.FC = () => {
             }}
           />
           <img
-            src={Union}
+            src={UNION_URL}
             alt="Union Background"
             className="hidden lg:block absolute left-1/2 top-[100px] sm:left-[130px] sm:top-[750px] -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none"
             style={{ width: 581, height: 581, opacity: 1 }}
