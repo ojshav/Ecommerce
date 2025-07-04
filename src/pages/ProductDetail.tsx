@@ -305,6 +305,40 @@ const ProductDetail: React.FC = () => {
     }
   };
 
+  // Function to convert video URLs from non-browser-compatible formats to .mp4 for Cloudinary
+  const convertVideoUrl = (url: string, mediaType: string): string => {
+    if (mediaType?.toLowerCase() === 'video' && url.includes('cloudinary')) {
+      // List of video extensions that are not directly playable in browsers
+      const nonBrowserCompatibleExtensions = [
+        '.ts',     // MPEG Transport Stream
+        '.avi',    // Audio Video Interleave
+        '.wmv',    // Windows Media Video
+        '.flv',    // Flash Video
+        '.mov',    // QuickTime Movie (limited browser support)
+        '.mkv',    // Matroska Video
+        '.m4v',    // iTunes Video
+        '.3gp',    // 3GP multimedia
+        '.asf',    // Advanced Systems Format
+        '.vob',    // DVD Video Object
+        '.mts',    // MPEG Transport Stream
+        '.m2ts',   // Blu-ray MPEG-2 Transport Stream
+        '.f4v',    // Flash MP4 Video
+        '.rm',     // RealMedia
+        '.rmvb',   // RealMedia Variable Bitrate
+        '.divx',   // DivX Video
+        '.xvid'    // Xvid Video
+      ];
+      
+      // Check if URL ends with any of the non-compatible extensions
+      for (const ext of nonBrowserCompatibleExtensions) {
+        if (url.endsWith(ext)) {
+          return url.replace(new RegExp(`\\${ext}$`), '.mp4');
+        }
+      }
+    }
+    return url;
+  };
+
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
@@ -326,12 +360,34 @@ const ProductDetail: React.FC = () => {
         }
 
         const data = await response.json();
-        // console.log("Product Data:", {
-        //   selling_price: data.selling_price,
-        //   cost_price: data.cost_price,
-        //   discount_pct: data.discount_pct,
-        //   attributes: data.attributes,
-        // });
+
+//         console.log("Product Data:", {
+//           selling_price: data.selling_price,
+//           cost_price: data.cost_price,
+//           discount_pct: data.discount_pct,
+//           attributes: data.attributes,
+//         });
+        
+        // Convert video URLs in media array
+        if (data.media && data.media.length > 0) {
+          data.media = data.media.map((media: ProductMedia) => ({
+            ...media,
+            url: convertVideoUrl(media.url, media.type)
+          }));
+        }
+        
+        // Convert video URLs in variants media array
+        if (data.variants && data.variants.length > 0) {
+          data.variants = data.variants.map((variant: ProductVariant) => ({
+            ...variant,
+            media: variant.media ? variant.media.map((media: ProductMedia) => ({
+              ...media,
+              url: convertVideoUrl(media.url, media.type)
+            })) : []
+          }));
+        }
+        
+
         setProduct(data);
         if (data.media && data.media.length > 0) {
           setSelectedImage(data.media[0].url);
@@ -886,11 +942,28 @@ const ProductDetail: React.FC = () => {
             >
               <div className="aspect-w-1 aspect-h-1 mb-4">
                 {variant.media && variant.media.length > 0 ? (
-                  <img
-                    src={variant.media[0].url}
-                    alt={variant.name}
-                    className="object-cover rounded-lg"
-                  />
+                  variant.media[0].type?.toLowerCase() === 'video' ? (
+                    <div className="relative rounded-lg overflow-hidden">
+                      <video
+                        src={variant.media[0].url}
+                        className="object-cover w-full h-full"
+                        muted
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                          <svg className="w-4 h-4 text-gray-800 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <img
+                      src={variant.media[0].url}
+                      alt={variant.name}
+                      className="object-cover rounded-lg"
+                    />
+                  )
                 ) : (
                   <div className="bg-gray-100 rounded-lg flex items-center justify-center">
                     <span className="text-gray-400">No image</span>
@@ -1134,11 +1207,20 @@ const ProductDetail: React.FC = () => {
               <div className="flex flex-col items-center">
                 {/* Main Product Image with Navigation */}
                 <div className="mb-6 w-full max-w-lg flex justify-center relative">
-                  <img
-                    src={selectedImage}
-                    alt={product.product_name}
-                    className="rounded-lg shadow-md object-contain max-h-96 w-full"
-                  />
+                  {/* Check if current selected image is a video */}
+                  {product.media.find(media => media.url === selectedImage)?.type?.toLowerCase() === 'video' ? (
+                    <video
+                      src={selectedImage}
+                      controls
+                      className="rounded-lg shadow-md object-contain max-h-96 w-full"
+                    />
+                  ) : (
+                    <img
+                      src={selectedImage}
+                      alt={product.product_name}
+                      className="rounded-lg shadow-md object-contain max-h-96 w-full"
+                    />
+                  )}
                   {/* Left Arrow Button */}
                   <button
                     onClick={() => {
@@ -1176,16 +1258,37 @@ const ProductDetail: React.FC = () => {
                 {/* Thumbnail Images */}
                 <div className="flex space-x-3 overflow-x-auto scrollbar-hide">
                   {product.media.map((media) => (
-                    <img
+                    <div
                       key={media.media_id}
-                      src={media.url}
-                      alt={`${product.product_name} thumbnail`}
-                      className={`w-20 h-20 object-cover rounded-md cursor-pointer border-2 ${selectedImage === media.url
+                      className={`relative w-20 h-20 cursor-pointer border-2 rounded-md overflow-hidden ${selectedImage === media.url
                           ? "border-orange-500"
                           : "border-transparent"
                         }`}
                       onClick={() => setSelectedImage(media.url)}
-                    />
+                    >
+                      {media.type?.toLowerCase() === 'video' ? (
+                        <div className="relative w-full h-full">
+                          <video
+                            src={media.url}
+                            className="w-full h-full object-cover"
+                            muted
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                              <svg className="w-3 h-3 text-gray-800 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <img
+                          src={media.url}
+                          alt={`${product.product_name} thumbnail`}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>

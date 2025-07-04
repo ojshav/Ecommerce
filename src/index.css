@@ -216,3 +216,93 @@
   will-change: transform;
   -webkit-animation: marquee 10s linear infinite;
 }
+
+/* Print Styles for Invoice */
+@media print {
+  /* Hide all non-print elements */
+  body > *:not(.print-only) {
+    display: none !important;
+  }
+  
+  /* Show only print content */
+  .print-only {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    visibility: visible !important;
+  }
+  
+  /* Reset margins and padding for print */
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 12pt !important;
+    line-height: 1.4 !important;
+    color: black !important;
+    background: white !important;
+  }
+  
+  /* Page setup */
+  @page {
+    margin: 0.5in;
+    size: A4;
+  }
+  
+  /* Remove any transforms or positioning that might interfere */
+  * {
+    transform: none !important;
+    position: static !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  /* Ensure tables display properly */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+  
+  table, th, td {
+    border: 1px solid black !important;
+  }
+  
+  th, td {
+    padding: 8pt !important;
+    text-align: left !important;
+  }
+  
+  th {
+    background: #e5e5e5 !important;
+    font-weight: bold !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Page break controls */
+  .print-page-break {
+    page-break-before: always;
+  }
+  
+  .print-no-break {
+    page-break-inside: avoid;
+  }
+}
+
+/* Screen-only styles - hide print content on screen */
+@media screen {
+  .print-only {
+    display: none;
+  }
+}
+
+/* When printing is active, hide all dashboard content */
+body.printing-active > *:not(.print-only) {
+  display: none !important;
+}
+
+body.printing-active .print-only {
+  display: block !important;
+}
+
+
