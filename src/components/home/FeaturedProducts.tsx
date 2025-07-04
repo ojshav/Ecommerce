@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
@@ -33,6 +33,23 @@ export type FeaturedProduct = {
   stock?: {
     stock_qty: number;
   };
+};
+
+// Type for ProductCard props
+type ProductCardProps = {
+  id: number;
+  name: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  stock: number;
+  description: string;
+  image: string;
+  images: string[];
+  category: string;
+  currency: string;
+  tags: string[];
+  originalPrice: number;
 };
 
 const FeaturedProducts: React.FC = () => {
@@ -113,7 +130,16 @@ const FeaturedProducts: React.FC = () => {
     window.addEventListener('resize', updateItemsPerView);
     return () => window.removeEventListener('resize', updateItemsPerView);
   }, []);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
+  const scrollLeft = () => {
+    scrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
+  };
+  
+  const scrollRight = () => {
+    scrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
+  };
+  
   if (loading) {
     return (
       <section className="pb-12">
@@ -149,7 +175,7 @@ const FeaturedProducts: React.FC = () => {
       {products && <div className="container mx-auto px-4 xl:px-14">
         {/* Header with navigation */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-medium font-worksans">Featured Products</h2>
+          <h6 className="text-xl font-medium font-worksans">Featured Products</h6>
           <div className="flex items-center">
             <Link to="/featured-products" className="text-orange-500 text-sm font-medium mr-10">
               See All
@@ -195,7 +221,7 @@ const FeaturedProducts: React.FC = () => {
               >
                 <ProductCard 
                   product={{
-                    id: String(product.product_id),
+                    id: product.product_id,
                     name: product.product_name,
                     price: product.price, // Use backend-calculated price
                     rating: 0,
@@ -203,11 +229,10 @@ const FeaturedProducts: React.FC = () => {
                     stock: product.stock?.stock_qty || 0,
                     description: product.product_description,
                     images: product.images || [],
-                    image: product.images?.[0] || '',
                     category: product.category?.name || '',
                     currency: 'INR',
                     tags: [],
-                    originalPrice: product.originalPrice || 0, // Use backend-calculated originalPrice
+                    original_price: product.originalPrice || 0, // Use backend-calculated originalPrice
                     sku: '',
                     primary_image: product.images?.[0] || ''
                   }}

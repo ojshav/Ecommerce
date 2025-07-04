@@ -133,19 +133,15 @@ const TrendingDeals: React.FC = () => {
   return (
     <section className="py-4">
       <div className="container mx-auto px-4 xl:px-14">
-        <div className="flex flex-col space-y-6">
-          {/* Header with navigation */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-            <h6 className="text-xl font-medium font-worksans">Trending Deals</h6>
-            
-            {/* Navigation */}
-            <div className="flex items-center w-full md:w-auto space-x-4">
-              <Link to="/trending" className="text-orange-500 text-sm font-medium mr-10">
-                See All
-              </Link>
-              <div className="flex items-center space-x-3">
+        <div className="flex justify-between items-center mb-6">
+          <h6 className="text-xl font-medium font-worksans">Trending Deals</h6>
+          <div className="flex items-center">
+            <Link to="/trending" className="text-orange-500 text-sm font-medium mr-10">
+              See All
+            </Link>
+            <div className="flex items-center space-x-3">
               <button
-                 onClick={() => scroll('left')}
+                onClick={() => scroll('left')}
                 className="focus:outline-none"
                 aria-label="Scroll Left"
               >
@@ -159,37 +155,35 @@ const TrendingDeals: React.FC = () => {
                 <ChevronRight size={20} className="text-gray-500 hover:text-black duration-300" />
               </button>
             </div>
-            </div>
           </div>
-
-          {/* Products carousel */}
-          <div className="relative">
-            <div
-              ref={containerRef}
-              className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
-              onMouseDown={handleMouseDown}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              onMouseMove={handleMouseMove}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onWheel={handleWheel}
-              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-            >
-              {products.map((product) => (
-                <div 
-                  key={product.id} 
-                  className="flex-none"
-                  style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 12 / itemsPerView}px)` }}
-                >
-                  <ProductCard 
-                    product={product}
-                    isNew={product.isNew ?? false}
-                    isBuiltIn={product.isBuiltIn ?? false}
-                  />
-                </div>
-              ))}
-            </div>
+        </div>
+        {/* Products carousel */}
+        <div className="relative">
+          <div
+            ref={containerRef}
+            className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onWheel={handleWheel}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          >
+            {products.map((product) => (
+              <div 
+                key={product.id} 
+                className="flex-none"
+                style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 12 / itemsPerView}px)` }}
+              >
+                <ProductCard 
+                  product={product}
+                  isNew={product.isNew ?? false}
+                  isBuiltIn={product.isBuiltIn ?? false}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>

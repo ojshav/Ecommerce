@@ -275,9 +275,38 @@ const HomepageProducts: React.FC = () => {
             <div className="flex flex-col space-y-6">
               {/* Header with navigation */}
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-                <h6 className="text-xl font-medium font-worksans">{categoryData.category.name}</h6>
-                
-                {/* Categories and Navigation */}
+                {/* Category name and arrows for mobile */}
+                <div className="flex items-center w-full md:w-auto">
+                  <h6 className="text-xl font-medium font-worksans mr-2">{categoryData.category.name}</h6>
+                  {/* Arrows: visible only on mobile (md:hidden) */}
+                  <div className="flex items-center space-x-3 md:hidden">
+                    <button 
+                      className={
+                        categoryStates[categoryData.category.category_id]?.currentPage === 1 
+                          ? 'text-gray-400 cursor-not-allowed' 
+                          : 'hover:text-black text-gray-500 transition-colors'
+                      }
+                      onClick={() => handlePrevPage(categoryData.category.category_id)}
+                      disabled={categoryStates[categoryData.category.category_id]?.currentPage === 1}
+                      aria-label="Previous products"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <button 
+                      className={
+                        categoryStates[categoryData.category.category_id]?.currentPage === getTotalPages(categoryData)
+                          ? 'text-gray-400 cursor-not-allowed'
+                          : 'hover:text-black text-gray-500 transition-colors'
+                      }
+                      onClick={() => handleNextPage(categoryData.category.category_id)}
+                      disabled={categoryStates[categoryData.category.category_id]?.currentPage === getTotalPages(categoryData)}
+                      aria-label="Next products"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  </div>
+                </div>
+                {/* Categories and Navigation (arrows here only for md+) */}
                 <div className="flex items-center w-full md:w-auto overflow-x-auto pb-2 md:pb-0 space-x-6">
                   <button
                     className={`whitespace-nowrap ${
@@ -302,7 +331,8 @@ const HomepageProducts: React.FC = () => {
                       {subcategory.category.name}
                     </button>
                   ))}
-                  <div className="flex items-center space-x-3">
+                  {/* Arrows for md+ */}
+                  <div className="hidden md:flex items-center space-x-3">
                     <button 
                       className={
                         categoryStates[categoryData.category.category_id]?.currentPage === 1 
