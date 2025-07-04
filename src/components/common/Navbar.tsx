@@ -326,12 +326,6 @@ const Navbar: React.FC = () => {
                   
                 </div>
               </div>
-              <Link
-                    to="/business/login"
-                    className="w-40 h-10 flex justify-center items-center bg-[#F2631F] xl:ml-6 text-white rounded-md px-3 nav:px-2.5 mid:px-3 py-2 hover:bg-orange-600 transition-colors whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
-                  >
-                    Become a Merchant
-                  </Link>
             </div>
           </div>
         </div>
