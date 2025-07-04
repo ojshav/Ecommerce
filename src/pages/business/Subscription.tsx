@@ -41,7 +41,7 @@ const Subscription: React.FC = () => {
         throw new Error('No authentication token found');
       }
 
-      console.log('Fetching subscription plans...');
+      // console.log('Fetching subscription plans...');
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/subscription/plans`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -55,7 +55,7 @@ const Subscription: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Plans response:', data);
+      // console.log('Plans response:', data);
       setPlans(data);
     } catch (err) {
       console.error('Error fetching plans:', err);
@@ -73,7 +73,7 @@ const Subscription: React.FC = () => {
         throw new Error('No authentication token found');
       }
 
-      console.log('Fetching current subscription...');
+      // console.log('Fetching current subscription...');
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/subscription/current`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -87,7 +87,7 @@ const Subscription: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Current subscription response:', data);
+      // console.log('Current subscription response:', data);
       setCurrentSubscription(data);
     } catch (err) {
       console.error('Error fetching subscription:', err);
@@ -108,7 +108,7 @@ const Subscription: React.FC = () => {
         throw new Error('No authentication token found');
       }
 
-      console.log('Subscribing to plan:', planId);
+      // console.log('Subscribing to plan:', planId);
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/subscription/subscribe`, {
         method: 'POST',
         headers: {
@@ -124,7 +124,7 @@ const Subscription: React.FC = () => {
       }
       
       const data = await response.json();
-      console.log('Subscribe response:', data);
+      // console.log('Subscribe response:', data);
       setCurrentSubscription(data.subscription);
       setSuccess('Successfully subscribed to plan');
       toast.success('Successfully subscribed to plan');
@@ -147,7 +147,7 @@ const Subscription: React.FC = () => {
         throw new Error('No authentication token found');
       }
 
-      console.log('Cancelling subscription...');
+      // console.log('Cancelling subscription...');
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/subscription/cancel`, {
         method: 'POST',
         headers: {
@@ -162,7 +162,7 @@ const Subscription: React.FC = () => {
       }
       
       const data = await response.json();
-      console.log('Cancel response:', data);
+      // console.log('Cancel response:', data);
       setCurrentSubscription(data.subscription);
       setSuccess('Successfully cancelled subscription');
       toast.success('Successfully cancelled subscription');
@@ -177,8 +177,8 @@ const Subscription: React.FC = () => {
 
   // Initial data fetch
   useEffect(() => {
-    console.log('Initial data fetch started');
-    console.log('API Base URL:', API_BASE_URL);
+    // console.log('Initial data fetch started');
+    // console.log('API Base URL:', API_BASE_URL);
     fetchPlans();
     fetchCurrentSubscription();
   }, []);

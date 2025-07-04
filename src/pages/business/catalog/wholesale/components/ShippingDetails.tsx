@@ -91,7 +91,7 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
         shipping_class: shippingClass
       };
 
-      console.log('Sending shipping data for product:', productId, shippingData);
+      // console.log('Sending shipping data for product:', productId, shippingData);
 
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/shipping`, {
         method: 'POST',
@@ -108,7 +108,7 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
       }
 
       const updatedData = await response.json();
-      console.log('Shipping update response:', updatedData);
+      // console.log('Shipping update response:', updatedData);
       
       setSuccess('Shipping details updated successfully');
     } catch (error) {

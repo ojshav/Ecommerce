@@ -158,7 +158,7 @@ const AddWholesaleProduct: React.FC = () => {
          tax_category_id: formData.taxCategoryId,
       };
 
-      console.log('Submitting Final Wholesale Product Data:', finalProductData);
+      // console.log('Submitting Final Wholesale Product Data:', finalProductData);
 
       // *** API CALLS FOR CREATING WHOLESALE PRODUCT ***
       // This section needs to be implemented based on your backend API.

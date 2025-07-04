@@ -308,7 +308,7 @@ const Dashboard = () => {
       }
 
       const data: UserGrowthResponse = await response.json();
-      console.log('Raw API Response:', data);
+      // console.log('Raw API Response:', data);
 
       if (data.status === 'success' && data.data?.trend) {
         // Format the trend data for the chart
@@ -320,7 +320,7 @@ const Dashboard = () => {
           cumulative_merchants: item.cumulative_merchants
         }));
         
-        console.log('Formatted user growth data:', formattedData);
+        // console.log('Formatted user growth data:', formattedData);
         setUserGrowthData(formattedData);
       } else {
         console.error('Invalid response format:', data);
@@ -443,7 +443,7 @@ const Dashboard = () => {
 
   const fetchConversionRate = async () => {
     try {
-      console.log('Fetching conversion rate data...');
+      // console.log('Fetching conversion rate data...');
       const months = getMonthsFromTimeRange(timeRange);
       const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/conversion-rate?months=${months}`, {
         headers: {
@@ -451,17 +451,17 @@ const Dashboard = () => {
         }
       });
 
-      console.log('Conversion rate response status:', response.status);
+      // console.log('Conversion rate response status:', response.status);
       
       if (!response.ok) {
         throw new Error('Failed to fetch conversion rate data');
       }
 
       const data: ConversionRateResponse = await response.json();
-      console.log('Conversion rate API response:', data);
+      // console.log('Conversion rate API response:', data);
 
       if (data.status === 'success') {
-        console.log('Setting conversion rate data:', data.data);
+        // console.log('Setting conversion rate data:', data.data);
         setConversionRate(data.data);
       } else {
         console.error('Conversion rate API error:', data.message);
@@ -539,7 +539,7 @@ const Dashboard = () => {
   }
 
   // Add debug statement in the render to see the current state
-  console.log('Current conversion rate state:', conversionRate);
+  // console.log('Current conversion rate state:', conversionRate);
 
   return (
     <div className="space-y-6">
