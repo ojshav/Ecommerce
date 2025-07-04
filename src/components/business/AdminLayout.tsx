@@ -273,13 +273,6 @@ const AdminLayout: React.FC = () => {
                 <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-[#ffedd5] ring-1 ring-gray-800 ring-opacity-5 focus:outline-none z-50">
                   <div className="py-1" role="menu" aria-orientation="vertical">
                     <Link
-                      to="/business/profile"
-                      className="block px-4 py-2 text-sm text-orange-800 hover:bg-[#fed7aa] hover:text-orange-900"
-                      role="menuitem"
-                    >
-                      Your Profile
-                    </Link>
-                    <Link
                       to="/business/settings"
                       className="block px-4 py-2 text-sm text-orange-800 hover:bg-[#fed7aa] hover:text-orange-900"
                       role="menuitem"
