@@ -58,7 +58,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
     
     try {
-      console.log('Fetching cart items...');
+      // console.log('Fetching cart items...');
       const response = await fetch(`${API_BASE_URL}/api/cart/items`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -71,7 +71,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       const data = await response.json();
-      console.log('Cart API Response:', data);
+      // console.log('Cart API Response:', data);
 
       if (data.status === 'success') {
         const formattedCart = data.data.map((item: any) => ({

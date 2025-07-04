@@ -160,7 +160,7 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
           throw new Error(data.message || 'Failed to save attribute values');
         }
         
-        console.log('Attribute values saved successfully:', data);
+        // console.log('Attribute values saved successfully:', data);
       })
       .catch(error => {
         console.error('Error saving attribute values:', error);

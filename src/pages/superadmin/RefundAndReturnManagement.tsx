@@ -82,7 +82,7 @@ const RefundAndReturnManagement: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 300));
       // In a real application, you would make an API call here with requestIdToDelete
       // For now, we'll just show a success message
-      console.log(`Deleting request with ID: ${requestIdToDelete}`);
+      // console.log(`Deleting request with ID: ${requestIdToDelete}`);
       toast.success(`Request for ${requestNameToDelete} deleted successfully`);
     } catch (err) {
       console.error('Error deleting request:', err);

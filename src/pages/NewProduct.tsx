@@ -119,9 +119,9 @@ const NewProduct: React.FC = () => {
       });
 
       const apiUrl = `${API_BASE_URL}/api/products/new?${params}`;
-      console.log('Fetching new products with URL:', apiUrl);
+      // console.log('Fetching new products with URL:', apiUrl);
 
-      const response = await fetch(apiUrl, {
+      const response = await fetch(apiUrl, {  
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -133,7 +133,7 @@ const NewProduct: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('New products response:', data);
+      // console.log('New products response:', data);
       
       // Transform the API response to match the Product type
       const transformedProducts = data.products.map((product: any) => {

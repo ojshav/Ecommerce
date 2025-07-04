@@ -137,8 +137,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       role = 'admin';
     }
     
-    console.log('Original role from backend:', userData.role);
-    console.log('Transformed role for frontend:', role);
+    // console.log('Original role from backend:', userData.role);
+    // console.log('Transformed role for frontend:', role);
     
     return {
       id: userData.id,

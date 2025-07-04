@@ -29,7 +29,7 @@ const TrendingDeals: React.FC = () => {
   const fetchTrendingDeals = async () => {
     try {
       setLoading(true);
-      console.log('Fetching trending deals from:', `${API_BASE_URL}/api/products/trendy-deals`);
+      // console.log('Fetching trending deals from:', `${API_BASE_URL}/api/products/trendy-deals`);
       
       const response = await fetch(`${API_BASE_URL}/api/products/trendy-deals`, {
         headers: {
@@ -45,14 +45,14 @@ const TrendingDeals: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('=== API Response Debug ===');
-      console.log('Full API Response:', data);
-      console.log('Response Type:', typeof data);
-      console.log('Response Keys:', Object.keys(data));
-      console.log('Products Array:', data.products);
-      console.log('First Product Sample:', data.products?.[0]);
-      console.log('Products Length:', data.products?.length);
-      console.log('========================');
+      // console.log('=== API Response Debug ===');
+      // console.log('Full API Response:', data);
+      // console.log('Response Type:', typeof data);
+      // console.log('Response Keys:', Object.keys(data));
+      // console.log('Products Array:', data.products);
+      // console.log('First Product Sample:', data.products?.[0]);
+      // console.log('Products Length:', data.products?.length);
+      // console.log('========================');
 
       if (data.products && Array.isArray(data.products)) {
         setProducts(data.products);

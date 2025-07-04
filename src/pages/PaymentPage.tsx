@@ -301,7 +301,7 @@ const PaymentPage: React.FC = () => {
         return false;
       }
 
-      console.log("Creating merchant transactions for order:", orderId);
+      // console.log("Creating merchant transactions for order:", orderId);
 
       const response = await fetch(
         `${API_BASE_URL}/api/merchant-transactions/from-order`,
@@ -318,7 +318,7 @@ const PaymentPage: React.FC = () => {
         }
       );
 
-      console.log("Merchant transaction API response status:", response.status);
+      // console.log("Merchant transaction API response status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -332,14 +332,14 @@ const PaymentPage: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log("Merchant transaction API response data:", data);
+      // console.log("Merchant transaction API response data:", data);
 
       if (data.status === "success") {
-        console.log("Merchant transactions created successfully:", {
-          orderId,
-          transactionCount: data.transactions?.length || 0,
-          transactions: data.transactions,
-        });
+        // console.log("Merchant transactions created successfully:", {
+        //   orderId,
+        //   transactionCount: data.transactions?.length || 0,
+        //   transactions: data.transactions,
+        // });
         return true;
       } else {
         console.error("Failed to create merchant transactions:", {
@@ -425,15 +425,15 @@ const PaymentPage: React.FC = () => {
           : totalPrice;
       const codAmount = isCOD ? currentTotal - discount : 0;
 
-      console.log("Calculating shipping for:", {
-        pickupPincode: "474005", // Default pickup pincode (should come from merchant)
-        deliveryPincode: selectedAddress.postal_code,
-        weight: totalWeight,
-        isCOD,
-        codAmount,
-        isDirectPurchase,
-        requestId: currentRequestId,
-      });
+      // console.log("Calculating shipping for:", {
+      //   pickupPincode: "474005", // Default pickup pincode (should come from merchant)
+      //   deliveryPincode: selectedAddress.postal_code,
+      //   weight: totalWeight,
+      //   isCOD,
+      //   codAmount,
+      //   isDirectPurchase,
+      //   requestId: currentRequestId,
+      // });
 
       const requestBody: any = {
         pickup_pincode: "474005", // This should come from merchant's address
@@ -462,13 +462,13 @@ const PaymentPage: React.FC = () => {
 
       // Check if this request is still current (not cancelled by a newer request)
       if (shippingRequestId !== currentRequestId) {
-        console.log(
-          "Shipping request was superseded by a newer request, ignoring response"
-        );
+        // console.log(
+        //   "Shipping request was superseded by a newer request, ignoring response"
+        // );
         return;
       }
 
-      console.log("Shipping calculation response status:", response.status);
+      // console.log("Shipping calculation response status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -495,12 +495,12 @@ const PaymentPage: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log("Shipping calculation response status:", data.message);
+      // console.log("Shipping calculation response status:", data.message);
 
       // Check if response has the expected structure (backend uses 'message' not 'status')
       if (data.message && data.data?.available_courier_companies) {
         const couriers = data.data.available_courier_companies;
-        console.log(`Available couriers: ${couriers.length} options`);
+        // console.log(`Available couriers: ${couriers.length} options`);
         setAvailableCouriers(couriers);
 
         // Select the best courier (lowest price or highest rating)
@@ -518,17 +518,17 @@ const PaymentPage: React.FC = () => {
             return best;
           });
 
-          console.log(
-            `Selected courier: ${bestCourier.courier_name} - ₹${bestCourier.rate} (Rating: ${bestCourier.rating})`
-          );
+          // console.log(
+          //   `Selected courier: ${bestCourier.courier_name} - ₹${bestCourier.rate} (Rating: ${bestCourier.rating})`
+          // );
           setSelectedCourier(bestCourier);
           setShippingCost(parseFloat(bestCourier.rate || "0"));
         } else {
-          console.log("No couriers available, using default cost");
+          // console.log("No couriers available, using default cost");
           setShippingCost(100); // Default shipping cost if no couriers available
         }
       } else {
-        console.log("Invalid response structure, using default cost");
+        // console.log("Invalid response structure, using default cost");
         setShippingCost(100); // Default shipping cost
       }
     } catch (error) {
@@ -649,13 +649,13 @@ const PaymentPage: React.FC = () => {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
-        console.log("No token found, skipping address fetch");
+        // console.log("No token found, skipping address fetch");
         return;
       }
 
       const baseUrl = API_BASE_URL.replace(/\/+$/, "");
       const url = `${baseUrl}/api/user-address?user_id=${user?.id}`;
-      console.log("Fetching addresses from:", url);
+      // console.log("Fetching addresses from:", url);
 
       const response = await fetch(url, {
         headers: {
@@ -674,7 +674,7 @@ const PaymentPage: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log("Addresses data:", data);
+      // console.log("Addresses data:", data);
       setAddresses(data.addresses);
 
       // If there are addresses, select the default shipping address
@@ -729,7 +729,7 @@ const PaymentPage: React.FC = () => {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
-        console.log("No token found, cannot save address");
+        // console.log("No token found, cannot save address");
         toast.error("Please login to continue");
         return;
       }
@@ -773,7 +773,7 @@ const PaymentPage: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log("Save address response:", data);
+      // console.log("Save address response:", data);
       toast.success(
         `Address ${selectedAddressId ? "updated" : "saved"} successfully`
       );
@@ -867,15 +867,15 @@ const PaymentPage: React.FC = () => {
     const remainingDiscount = discount - totalItemDiscounts;
 
     // Debug: Log discount distribution
-    console.log("Order Processing Debug:", {
-      isDirectPurchase,
-      itemsCount: itemsSource.length,
-      totalDiscount: discount,
-      totalItemDiscounts,
-      remainingDiscount,
-      subtotal,
-      finalTotal,
-    });
+    // console.log("Order Processing Debug:", {
+    //   isDirectPurchase,
+    //   itemsCount: itemsSource.length,
+    //   totalDiscount: discount,
+    //   totalItemDiscounts,
+    //   remainingDiscount,
+    //   subtotal,
+    //   finalTotal,
+    // });
 
     const orderData = {
       items: itemsSource.map((item) => {
@@ -907,15 +907,15 @@ const PaymentPage: React.FC = () => {
         // Calculate final unit price after discount
         const finalUnitPrice = basePrice - roundedPerUnitDiscount;
 
-        console.log(`Product ${item.product.id || item.product_id}:`, {
-          name: item.product.name,
-          quantity: item.quantity,
-          originalPrice: basePrice,
-          itemTotal: itemTotal,
-          totalDiscountForItem: itemDiscountAmount,
-          perUnitDiscount: roundedPerUnitDiscount,
-          finalUnitPrice: finalUnitPrice,
-        });
+        // console.log(`Product ${item.product.id || item.product_id}:`, {
+        //   name: item.product.name,
+        //   quantity: item.quantity,
+        //   originalPrice: basePrice,
+        //   itemTotal: itemTotal,
+        //   totalDiscountForItem: itemDiscountAmount,
+        //   perUnitDiscount: roundedPerUnitDiscount,
+        //   finalUnitPrice: finalUnitPrice,
+        // });
 
         return {
           product_id: item.product.id || item.product_id,
@@ -954,19 +954,19 @@ const PaymentPage: React.FC = () => {
     };
 
     // Debug: Log the request data
-    console.log("Sending order data:", {
-      ...orderData,
-      items: orderData.items.map((item) => ({
-        ...item,
-        unit_price_inclusive_gst: parseFloat(
-          item.unit_price_inclusive_gst
-        ).toFixed(2),
-        line_item_total_inclusive_gst: parseFloat(
-          item.line_item_total_inclusive_gst
-        ).toFixed(2),
-        final_price_for_item: parseFloat(item.final_price_for_item).toFixed(2),
-      })),
-    });
+    // console.log("Sending order data:", {
+    //   ...orderData,
+    //   items: orderData.items.map((item) => ({
+    //     ...item,
+    //     unit_price_inclusive_gst: parseFloat(
+    //       item.unit_price_inclusive_gst
+    //     ).toFixed(2),
+    //     line_item_total_inclusive_gst: parseFloat(
+    //       item.line_item_total_inclusive_gst
+    //     ).toFixed(2),
+    //     final_price_for_item: parseFloat(item.final_price_for_item).toFixed(2),
+    //   })),
+    // });
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders`, {
@@ -1011,14 +1011,14 @@ const PaymentPage: React.FC = () => {
 
         // ------------- ShipRocket shipment creation -------------
         try {
-          console.log(
-            "Creating ShipRocket orders for all merchants in order:",
-            {
-              order_id: orderId,
-              delivery_address_id: selectedAddressId,
-              courier_id: selectedCourier?.courier_company_id,
-            }
-          );
+          // console.log(
+          //   "Creating ShipRocket orders for all merchants in order:",
+          //   {
+          //     order_id: orderId,
+          //     delivery_address_id: selectedAddressId,
+          //     courier_id: selectedCourier?.courier_company_id,
+          //   }
+          // );
 
           const shiprocketResp = await fetch(
             `${API_BASE_URL}/api/shiprocket/create-orders-for-all-merchants`,
@@ -1037,16 +1037,16 @@ const PaymentPage: React.FC = () => {
           );
 
           const srData = await shiprocketResp.json();
-          console.log("ShipRocket API response status:", shiprocketResp.status);
-          console.log("ShipRocket API response data:", srData);
+          // console.log("ShipRocket API response status:", shiprocketResp.status);
+          // console.log("ShipRocket API response data:", srData);
 
           if (shiprocketResp.ok && srData.status === "success") {
             const response = srData.data;
-            console.log("ShipRocket orders created successfully:", {
-              total_merchants: response.total_merchants,
-              successful_merchants: response.successful_merchants,
-              failed_merchants: response.failed_merchants,
-            });
+            // console.log("ShipRocket orders created successfully:", {
+            //   total_merchants: response.total_merchants,
+            //   successful_merchants: response.successful_merchants,
+            //   failed_merchants: response.failed_merchants,
+            // });
 
             // Show success message to user
             if (response.successful_merchants.length > 0) {
@@ -1303,11 +1303,11 @@ const PaymentPage: React.FC = () => {
       };
 
       // Debug: Log the request data (masked for security)
-      console.log("Sending card data:", {
-        ...cardData,
-        card_number: "****" + cardData.card_number.slice(-4), // Only log last 4 digits for security
-        cvv: "***", // Mask CVV
-      });
+      // console.log("Sending card data:", {
+      //   ...cardData,
+      //   card_number: "****" + cardData.card_number.slice(-4), // Only log last 4 digits for security
+      //   cvv: "***", // Mask CVV
+      // });
 
       const baseUrl = API_BASE_URL.replace(/\/+$/, "");
       const response = await fetch(`${baseUrl}/api/payment-cards`, {
@@ -1321,15 +1321,15 @@ const PaymentPage: React.FC = () => {
       });
 
       // Debug: Log the response status and headers
-      console.log("Response status:", response.status);
-      console.log(
-        "Response headers:",
-        Object.fromEntries(response.headers.entries())
-      );
+      // console.log("Response status:", response.status);
+      // console.log(
+      //   "Response headers:",
+      //   Object.fromEntries(response.headers.entries())
+      // );
 
       const responseData = await response.json();
       // Debug: Log the full response data
-      console.log("Response data:", responseData);
+      // console.log("Response data:", responseData);
 
       if (!response.ok) {
         throw new Error(

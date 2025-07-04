@@ -75,7 +75,7 @@ export const useVisitTracking = () => {
   const trackVisit = async () => {
     // Skip tracking for excluded routes
     if (isExcludedRoute(location.pathname)) {
-      console.log('Skipping visit tracking for excluded route:', location.pathname);
+      // console.log('Skipping visit tracking for excluded route:', location.pathname);
       return;
     }
 
@@ -90,7 +90,7 @@ export const useVisitTracking = () => {
         ...deviceInfo
       };
 
-      console.log('Tracking visit:', visitData);
+      // console.log('Tracking visit:', visitData);
 
       const response = await fetch(`${API_BASE_URL}/api/analytics/track-visit`, {
         method: 'POST',
@@ -102,7 +102,7 @@ export const useVisitTracking = () => {
       });
 
       const data = await response.json();
-      console.log('Visit tracking response:', data);
+      // console.log('Visit tracking response:', data);
 
       if (data.status === 'success') {
         visitId.current = data.visit_id;
@@ -116,7 +116,7 @@ export const useVisitTracking = () => {
   const updateVisit = async () => {
     // Skip update for excluded routes
     if (isExcludedRoute(lastPath.current)) {
-      console.log('Skipping visit update for excluded route:', lastPath.current);
+      // console.log('Skipping visit update for excluded route:', lastPath.current);
       return;
     }
 
@@ -129,7 +129,7 @@ export const useVisitTracking = () => {
         time_spent: Math.floor((Date.now() - startTime.current) / 1000), // Convert to seconds
       };
 
-      console.log('Updating visit:', exitData);
+      // console.log('Updating visit:', exitData);
 
       // Use sendBeacon for more reliable exit tracking
       if (navigator.sendBeacon) {
@@ -147,7 +147,7 @@ export const useVisitTracking = () => {
         });
 
         const data = await response.json();
-        console.log('Visit update response:', data);
+        // console.log('Visit update response:', data);
       }
     } catch (error) {
       console.error('Error updating visit:', error);
@@ -158,14 +158,14 @@ export const useVisitTracking = () => {
   const markAsConverted = async (userId: string) => {
     // Skip conversion tracking for excluded routes
     if (isExcludedRoute(location.pathname)) {
-      console.log('Skipping conversion tracking for excluded route:', location.pathname);
+      // console.log('Skipping conversion tracking for excluded route:', location.pathname);
       return;
     }
 
     if (!visitId.current) return;
 
     try {
-      console.log('Marking visit as converted:', { sessionId: sessionId.current, userId });
+      // console.log('Marking visit as converted:', { sessionId: sessionId.current, userId });
 
       const response = await fetch(`${API_BASE_URL}/api/analytics/mark-converted`, {
         method: 'POST',
@@ -180,7 +180,7 @@ export const useVisitTracking = () => {
       });
 
       const data = await response.json();
-      console.log('Conversion response:', data);
+      // console.log('Conversion response:', data);
     } catch (error) {
       console.error('Error marking visit as converted:', error);
     }
