@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import svgImage1 from '/src/assets/bottom2crousel/Image1.svg';
-import svgImage2 from '/src/assets/bottom2crousel/Image2.svg';
-import svgImage3 from '/src/assets/bottom2crousel/Image3.svg';
 
-const images = [svgImage1, svgImage2, svgImage3];
+const images = [
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/bottom2crousel_Image1.svg",
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/bottom2crousel_Image2.svg",
+  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/bottom2crousel_Image3.svg"
+];
 
 const CAROUSEL_HEIGHT = 172; // px, same as Bottom1Carousel
 

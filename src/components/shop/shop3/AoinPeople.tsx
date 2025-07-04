@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import Image1 from '/src/assets/Shop3/Image1.svg';
-import Image2 from '/src/assets/Shop3/Image2.svg';
+
+const IMAGE1_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Image1.svg";
+const IMAGE2_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Image2.svg";
 
 const AoinPeople: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -10,7 +11,7 @@ const AoinPeople: React.FC = () => {
       {/* Background Image */}
       <div
         className="absolute inset-0 w-screen h-full bg-cover bg-center z-0"
-        style={{ backgroundImage: `url(${Image1})` }}
+        style={{ backgroundImage: `url(${IMAGE1_URL})` }}
       />
 
       {/* Overlay for darkening or color effect if needed */}
@@ -81,7 +82,7 @@ const AoinPeople: React.FC = () => {
             </h1>
             {/* Small Rotated Image Overlay - Responsive positioning and sizing */}
             <div className="absolute top-[15vw]  sm:top-[18vw] md:top-[20vw] lg:top-[18vw] right-[2vw] sm:right-[4vw] md:right-[6vw] lg:right-[9vw] w-[120px] h-[140px] sm:w-[180px] sm:h-[210px] md:w-[240px] md:h-[280px] lg:w-[280px] lg:h-[330px] xl:w-[320px] xl:h-[380px] transform translate-x-1/2 -translate-y-1/2 rotate-[1deg]">
-              <img src={Image2} alt="model" className="w-full h-full rounded-lg object-cover" />
+              <img src={IMAGE2_URL} alt="model" className="w-full h-full rounded-lg object-cover" />
             </div>
           </div>
           {/* Subtitle Text */}

@@ -1,8 +1,9 @@
 import React from 'react';
-import Image1 from '/src/assets/Shop3/Image3.svg';
-import Image2 from '/src/assets/Shop3/Image4.svg';
-import Image3 from '/src/assets/Shop3/Image5.svg';
-import Union from '/src/assets/Shop3/Union.svg';
+
+const IMAGE1_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Image3.svg";
+const IMAGE2_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Image4.svg";
+const IMAGE3_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Image5.svg";
+const UNION_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Union.svg";
 
 const AoinFashion: React.FC = () => {
   return (
@@ -39,7 +40,7 @@ const AoinFashion: React.FC = () => {
 
           {/* Union SVG Background */}
           <img
-            src={Union}
+            src={UNION_URL}
             alt="Union Background"
             className="absolute left-[800px] top-[390px] -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none"
             style={{ width: 581, height: 581, opacity: 1 }}
@@ -48,7 +49,7 @@ const AoinFashion: React.FC = () => {
           {/* Images */}
           <div className="rounded-3xl overflow-hidden w-[427px] h-[427px] flex-shrink-0 shadow-lg mb-4 md:mb-0 z-20">
             <img
-              src={Image1}
+              src={IMAGE1_URL}
               alt="Aoin Fashion 1"
               className="object-cover w-full h-full"
             />
@@ -56,7 +57,7 @@ const AoinFashion: React.FC = () => {
           {/* Center Circle Image */}
           <div className="rounded-full overflow-hidden w-[427px] h-[427px] flex-shrink-0 border-4 sm:border-8 border-black relative flex items-center justify-center shadow-lg mb-4 md:mb-0 z-20">
             <img
-              src={Image2}
+              src={IMAGE2_URL}
               alt="Aoin Fashion 2"
               className="object-cover w-full h-full"
             />
@@ -65,7 +66,7 @@ const AoinFashion: React.FC = () => {
           {/* Right Square Image */}
           <div className="rounded-3xl overflow-hidden w-[427px] h-[427px] flex-shrink-0 shadow-lg z-20">
             <img
-              src={Image3}
+              src={IMAGE3_URL}
               alt="Aoin Fashion 3"
               className="object-cover w-full h-full"
             />

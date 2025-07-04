@@ -246,7 +246,7 @@ const PromoProducts: React.FC = () => {
   if (loading) {
     return (
       <section className="py-8">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 xl:px-14">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Promo Products</h2>
           </div>
@@ -261,7 +261,7 @@ const PromoProducts: React.FC = () => {
   if (error) {
     return (
       <section className="py-8">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 xl:px-14">
           <div className="flex flex-col items-center justify-center h-64">
             <p className="text-red-500 mb-4">Error loading promo products: {error}</p>
             <button
@@ -278,7 +278,7 @@ const PromoProducts: React.FC = () => {
 
   return (
     <section className="py-8">
-      {promoProducts && <div className="container mx-auto px-4">
+      {promoProducts && <div className="container mx-auto px-4 xl:px-14">
         {/* Header with navigation */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-medium font-worksans">Promo Products</h2>
