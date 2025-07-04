@@ -135,7 +135,7 @@ const Navbar: React.FC = () => {
   const searchBarContent = (
     <div ref={desktopSearchRef} className="relative">
       <form onSubmit={handleSearchSubmit} className="relative">
-        <div className="w-full xl:w-[580px] h-10 flex justify-between items-center rounded-lg  bg-white overflow-hidden">
+        <div className="w-full xl:w-[580px] h-10  flex justify-between items-center rounded-lg  bg-white overflow-hidden">
           <input
             type="text"
             placeholder="What are you looking for?"
@@ -246,7 +246,7 @@ const Navbar: React.FC = () => {
       </style>
 
       {/* Top navigation - black bar */}
-      <div className="bg-[#FFE7DB] text-white pb-2 md:pb-3 lg:pb-4">
+      <div className="bg-[#FFE7DB] text-white  pb-2 md:pb-3 lg:pb-4">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 2xl:px-6 3xl:px-8 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px] 2xl:max-w-[1440px] 3xl:max-w-[1680px] 4xl:max-w-[1920px]">
           <div className="flex flex-col sm:pl-1 md:pl-0">
             <div className="flex flex-start py-2 sm:py-3">
@@ -293,7 +293,7 @@ const Navbar: React.FC = () => {
                   </div>
 
                   <button
-                    className="w-24 h-11 hover:bg-[#F2631F] hover:border-[#F2631F] hover:text-white text-[#692C2C] py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-[#692C2C] whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] transition-colors"
+                    className="w-24 h-11 hover:bg-[#F2631F] hover:border-[#F2631F] hover:text-white xl:mr-12 text-[#692C2C] py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-[#692C2C] whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] transition-colors"
                     onClick={() => {
                       setShowSearchResults(false);
                       setSearchQuery('');
@@ -303,16 +303,16 @@ const Navbar: React.FC = () => {
                   </button>
 
                   {/* Icons */}
-                  <div className="flex items-center gap-2 nav:gap-3 mid:gap-4">
+                  <div className="flex items-center gap-2 nav:gap-3 mid:gap-4 xl:gap-8 xl:mr-6 mid:mr-4">
 
                     <Link to="/wishlist" className="text-[#692C2C] hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <Heart className="w-5 h-5" />
                     </Link>
 
-                    <Link to="/cart" className="text-[#692C2C] hover:text-[#F2631F] relative font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
+                    <Link to="/cart" className="text-[#692C2C] hover:text-[#F2631F] relative inline-flex items-center font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <ShoppingCart className="w-5 h-5" />
                       {totalItems > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-[#F2631F] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        <span className="absolute -top-2 -right-1 md:-right-2 bg-[#F2631F] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                           {totalItems}
                         </span>
                       )}
@@ -321,14 +321,17 @@ const Navbar: React.FC = () => {
                     <Link to="/profile" className="text-[#692C2C] hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <User className="w-5 h-5" />
                     </Link>
+
+                    {/* Add Become a Merchant button for desktop */}
+                    <Link
+                      to="/business/login"
+                      className="hidden nav:flex w-40 h-10 justify-center items-center bg-[#F2631F] text-white rounded-md px-3 py-2 hover:bg-orange-600 transition-colors whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+                    >
+                      Become a Merchant
+                    </Link>
                   </div>
 
-                  <Link
-                    to="/business/login"
-                    className="w-40 h-10 flex justify-center items-center bg-[#F2631F] text-white rounded-md px-3 nav:px-2.5 mid:px-3 py-2 hover:bg-orange-600 transition-colors whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
-                  >
-                    Become a Merchant
-                  </Link>
+                  
                 </div>
               </div>
             </div>
@@ -348,12 +351,14 @@ const Navbar: React.FC = () => {
               <span>Wishlist</span>
             </Link>
             <Link to="/cart" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F] relative" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
-              <ShoppingCart className="w-4 h-4 mb-1" />
-              {totalItems > 0 && (
-                <span className="absolute top-0 right-6 bg-[#F2631F] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
+              <div className="relative">
+                <ShoppingCart className="w-4 h-4 mb-1" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-1 bg-[#F2631F] text-white text-[10px] rounded-full w-3.5 h-3.5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </div>
               <span>Cart</span>
             </Link>
             <Link to="/profile" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
@@ -499,7 +504,7 @@ const Navbar: React.FC = () => {
             </div>
 
             {/* Main Nav Links */}
-            <nav className="flex items-center">
+            <nav className="flex items-center gap-4 2xl:gap-12">
               <Link to="/" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                 Home
               </Link>
@@ -524,7 +529,7 @@ const Navbar: React.FC = () => {
               {isAuthenticated ? (
                 <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
                   <span className="font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] text-gray-600">
-                    Welcome, {user?.name || 'User'}
+                     {user?.name || 'User'}
                   </span>
                   <button
                     onClick={handleLogoutClick}

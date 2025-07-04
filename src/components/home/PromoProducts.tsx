@@ -141,10 +141,10 @@ const PromoProducts: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('API Response:', data);
+      // console.log('API Response:', data);
 
       if (data.message?.products && Array.isArray(data.message.products)) {
-        console.log('Products array:', data.message.products);
+        // console.log('Products array:', data.message.products);
         setPromoProducts(data.message.products);
         setError(null);
       } else {
@@ -277,7 +277,7 @@ const PromoProducts: React.FC = () => {
   }
 
   return (
-    <section className="py-8">
+    <section className="py-4">
       {promoProducts && <div className="container mx-auto px-4 xl:px-14">
         {/* Header with navigation */}
         <div className="flex justify-between items-center mb-6">

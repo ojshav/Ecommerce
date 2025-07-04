@@ -305,7 +305,7 @@ const MerchantPaymentReport: React.FC = () => {
 
   const handleViewOrder = useCallback((orderId: string) => {
     // Implement order view logic here
-    console.log("Viewing order:", orderId);
+    // console.log("Viewing order:", orderId);
   }, []);
 
   const handleBulkPayment = useCallback(async (selectedTransactionIds: number[]) => {

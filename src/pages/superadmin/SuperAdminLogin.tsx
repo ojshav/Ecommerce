@@ -46,8 +46,8 @@ const SuperAdminLogin: React.FC = () => {
 
       if (response.status === 200) {
         // Log the user data to see what we're getting from the backend
-        console.log('Login response data:', data);
-        console.log('User role from backend:', data.user?.role);
+        // console.log('Login response data:', data);
+        // console.log('User role from backend:', data.user?.role);
         
         // The backend might be returning a different role format
         // Accept any role that includes 'admin' (case insensitive)

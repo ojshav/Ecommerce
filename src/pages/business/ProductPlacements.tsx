@@ -91,7 +91,7 @@ const ProductPlacements: React.FC = () => {
       setIsSubscriptionLoading(true);
       setSubscriptionError(null);
       try {
-        console.log('Fetching subscription status...');
+        // console.log('Fetching subscription status...');
         const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/subscription/current`, {
           headers: { 'Authorization': `Bearer ${accessToken}` },
         });
@@ -103,7 +103,7 @@ const ProductPlacements: React.FC = () => {
         }
         
         const statusData = await response.json();
-        console.log('Subscription status received:', statusData);
+        // console.log('Subscription status received:', statusData);
         setSubscriptionStatus(statusData);
       } catch (error) {
         console.error("Error fetching subscription status:", error);
@@ -168,7 +168,7 @@ const ProductPlacements: React.FC = () => {
   }, [fetchData, isSubscriptionLoading, subscriptionError]);
 
   const canPlacePremium = useMemo(() => {
-    console.log('Current subscription status:', subscriptionStatus);
+    // console.log('Current subscription status:', subscriptionStatus);
     return subscriptionStatus?.can_place_premium === true;
   }, [subscriptionStatus]);
 

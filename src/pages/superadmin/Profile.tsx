@@ -71,7 +71,7 @@ const SuperAdminProfile: React.FC = () => {
 
     try {
       setLoading(true);
-      console.log('Fetching profile for user ID:', user.id);
+      // console.log('Fetching profile for user ID:', user.id);
       const response = await fetch(`${API_BASE_URL}/api/superadmin/profile/${user.id}`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -255,7 +255,7 @@ const SuperAdminProfile: React.FC = () => {
 
   // Add debug effect for profile changes
   useEffect(() => {
-    console.log('Profile state updated:', profile);
+    // console.log('Profile state updated:', profile);
   }, [profile]);
 
   if (!isAdmin) {

@@ -132,7 +132,7 @@ const Brands = () => {
   }
 
   return (
-    <section className="py-0">
+    <section className="py-4">
       <div className="container mx-auto px-4 xl:px-14">
         {/* Header with scroll buttons */}
         <div className="flex justify-between items-center mb-6">

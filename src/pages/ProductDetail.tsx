@@ -200,18 +200,18 @@ const ProductDetail: React.FC = () => {
     value: string,
     isMultiSelect: boolean
   ) => {
-    console.log("Attribute selection:", { attributeId, value, isMultiSelect });
+    // console.log("Attribute selection:", { attributeId, value, isMultiSelect });
     setSelectedAttributes((prev) => {
-      console.log("Previous selected attributes:", prev);
+      // console.log("Previous selected attributes:", prev);
       if (isMultiSelect) {
         const currentValues = (prev[attributeId] as string[]) || [];
         const newValues = currentValues.includes(value)
           ? currentValues.filter((v) => v !== value)
           : [...currentValues, value];
-        console.log("New multi-select values:", newValues);
+        // console.log("New multi-select values:", newValues);
         return { ...prev, [attributeId]: newValues };
       } else {
-        console.log("New single-select value:", value);
+        // console.log("New single-select value:", value);
         return { ...prev, [attributeId]: value };
       }
     });
@@ -248,7 +248,7 @@ const ProductDetail: React.FC = () => {
   const fetchProductReviews = async (page: number = 1) => {
     try {
       setLoadingReviews(true);
-      console.log("Fetching reviews for product:", productId, "page:", page);
+      // console.log("Fetching reviews for product:", productId, "page:", page);
 
       const response = await fetch(
         `${API_BASE_URL}/api/reviews/product/${productId}?page=${page}&per_page=5`,
@@ -260,7 +260,7 @@ const ProductDetail: React.FC = () => {
         }
       );
 
-      console.log("Review API Response Status:", response.status);
+      // console.log("Review API Response Status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -269,12 +269,12 @@ const ProductDetail: React.FC = () => {
       }
 
       const data: ReviewResponse = await response.json();
-      console.log("Review API Success Response:", data);
+      // console.log("Review API Success Response:", data);
 
       if (data.status === "success" && data.data) {
-        console.log("Reviews Data:", data.data.reviews);
-        console.log("Total Reviews:", data.data.total);
-        console.log("Total Pages:", data.data.pages);
+        // console.log("Reviews Data:", data.data.reviews);
+        // console.log("Total Reviews:", data.data.total);
+        // console.log("Total Pages:", data.data.pages);
 
         setReviews(data.data.reviews);
         setTotalReviewPages(data.data.pages);
@@ -360,12 +360,13 @@ const ProductDetail: React.FC = () => {
         }
 
         const data = await response.json();
-        console.log("Product Data:", {
-          selling_price: data.selling_price,
-          cost_price: data.cost_price,
-          discount_pct: data.discount_pct,
-          attributes: data.attributes,
-        });
+
+//         console.log("Product Data:", {
+//           selling_price: data.selling_price,
+//           cost_price: data.cost_price,
+//           discount_pct: data.discount_pct,
+//           attributes: data.attributes,
+//         });
         
         // Convert video URLs in media array
         if (data.media && data.media.length > 0) {
@@ -386,6 +387,7 @@ const ProductDetail: React.FC = () => {
           }));
         }
         
+
         setProduct(data);
         if (data.media && data.media.length > 0) {
           setSelectedImage(data.media[0].url);
@@ -448,14 +450,14 @@ const ProductDetail: React.FC = () => {
     const calculatedPrice = product.price || product.selling_price;
     const calculatedOriginalPrice = product.originalPrice || product.cost_price;
 
-    console.log("Cart Debug:", {
-      "product.price": product.price,
-      "product.originalPrice": product.originalPrice,
-      "product.selling_price": product.selling_price,
-      "product.cost_price": product.cost_price,
-      calculatedPrice: calculatedPrice,
-      calculatedOriginalPrice: calculatedOriginalPrice,
-    });
+    // console.log("Cart Debug:", {
+    //   "product.price": product.price,
+    //   "product.originalPrice": product.originalPrice,
+    //   "product.selling_price": product.selling_price,
+    //   "product.cost_price": product.cost_price,
+    //   calculatedPrice: calculatedPrice,
+    //   calculatedOriginalPrice: calculatedOriginalPrice,
+    // });
 
     const cartProduct: CartProduct = {
       ...product,
@@ -568,7 +570,7 @@ const ProductDetail: React.FC = () => {
           toast.success("Product removed from wishlist");
         }
       } else {
-        console.log("Attempting to add to wishlist, product ID:", productId);
+        // console.log("Attempting to add to wishlist, product ID:", productId);
         await addToWishlist(productId);
         toast.success("Product added to wishlist");
       }

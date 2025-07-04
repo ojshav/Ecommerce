@@ -98,7 +98,7 @@ const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
       }
 
       const data = await response.json();
-      console.log('Media data from API:', data);
+      // console.log('Media data from API:', data);
       setMedia(data);
       onMediaChange?.(data);
     } catch (error) {

@@ -172,7 +172,7 @@ const Dashboard: React.FC = () => {
       }
 
       const trendData: TrendResponse = await trendResponse.json();
-      console.log('Revenue Orders Trend Response:', trendData);
+      // console.log('Revenue Orders Trend Response:', trendData);
       if (trendData.status === 'success') {
         setTrendData(trendData.data);
       }
@@ -189,7 +189,7 @@ const Dashboard: React.FC = () => {
       }
 
       const statsData: OrderStatsResponse = await statsResponse.json();
-      console.log('Order Stats Response:', statsData);
+      // console.log('Order Stats Response:', statsData);
       if (statsData.status === 'success') {
         setOrderStats(statsData.data);
       }
@@ -206,7 +206,7 @@ const Dashboard: React.FC = () => {
       }
 
       const ordersData: RecentOrdersResponse = await ordersResponse.json();
-      console.log('Recent Orders Response:', ordersData);
+      // console.log('Recent Orders Response:', ordersData);
       if (ordersData.status === 'success') {
         setRecentOrders(ordersData.data);
       }
@@ -223,7 +223,7 @@ const Dashboard: React.FC = () => {
       }
 
       const productsData: TopProductsResponse = await productsResponse.json();
-      console.log('Top Products Response:', productsData);
+      // console.log('Top Products Response:', productsData);
       if (productsData.status === 'success') {
         setTopProducts(productsData.data);
       }

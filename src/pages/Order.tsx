@@ -107,7 +107,7 @@ const Order: React.FC = () => {
       }
 
       const data: ApiResponse = await response.json();
-      console.log('Orders API Response:', data);
+      // console.log('Orders API Response:', data);
       
       if (data.status === 'success') {
         setOrders(data.data.orders);
@@ -144,7 +144,7 @@ const Order: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Order Tracking Response:', data);
+      // console.log('Order Tracking Response:', data);
       return data.data;
     } catch (err) {
       console.error('Error fetching order tracking:', err);
@@ -313,7 +313,7 @@ const Order: React.FC = () => {
           </div>
         ) : (
           filteredOrders.map((order) => {
-            console.log('Rendering order:', order);
+            // console.log('Rendering order:', order);
             return (
               <div
                 key={order.order_id}

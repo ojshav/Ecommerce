@@ -170,7 +170,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
   // Desktop View (existing code)
   return (
     <div className="container mx-auto px-2 sm:px-4 md:px-4 lg:px-4 xl:px-4 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px] -mt-0.5 z-40 flex justify-center">
-      <div className="bg-[#fdf6ee] border border-[#e8e8e8] shadow-lg rounded-b-lg w-full max-w-full md:max-w-[1060px]">
+      <div className="bg-[#fdf6ee] border border-[#e8e8e8] shadow-lg rounded-b-lg w-full max-w-full md:max-w-[1360px]">
         <div className="flex flex-col md:flex-row">
           {/* Left sidebar categories */}
           <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#e8e8e8] bg-[#fdf6ee]">

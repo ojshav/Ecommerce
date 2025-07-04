@@ -185,21 +185,21 @@ export default function PlatformPerformance() {
       };
 
       // Fetch system status
-      console.log('Fetching system status...');
+      // console.log('Fetching system status...');
       const statusResponse = await fetch(`${API_BASE_URL}/api/superadmin/monitoring/system/status`, {
         method: 'GET',
         headers,
         credentials: 'include'
       });
       const statusData: SystemStatusResponse = await statusResponse.json();
-      console.log('System status response:', statusData);
+      // console.log('System status response:', statusData);
       if (statusData.status === 'success') {
         setUptimeStatus(statusData.data.status);
         setUptimePercentage(statusData.data.uptime);
       }
 
       // Fetch response times
-      console.log('Fetching response times...');
+      // console.log('Fetching response times...');
       const responseTimeResponse = await fetch(
         `${API_BASE_URL}/api/superadmin/monitoring/system/response-times?hours=${selectedTimeframe === '24h' ? 24 : selectedTimeframe === '7d' ? 168 : 720}`,
         { 
@@ -209,7 +209,7 @@ export default function PlatformPerformance() {
         }
       );
       const responseTimeData: ResponseTimeResponse = await responseTimeResponse.json();
-      console.log('Response times data:', responseTimeData);
+      // console.log('Response times data:', responseTimeData);
       if (responseTimeData.status === 'success' && responseTimeData.data.response_times) {
         setResponseTimeData(responseTimeData.data.response_times.map(item => ({
           name: item.timestamp,
@@ -218,7 +218,7 @@ export default function PlatformPerformance() {
       }
 
       // Fetch error distribution
-      console.log('Fetching error distribution...');
+      // console.log('Fetching error distribution...');
       const errorResponse = await fetch(
         `${API_BASE_URL}/api/superadmin/monitoring/system/errors?hours=${selectedTimeframe === '24h' ? 24 : selectedTimeframe === '7d' ? 168 : 720}`,
         { 
@@ -228,7 +228,7 @@ export default function PlatformPerformance() {
         }
       );
       const errorData: ErrorDistributionResponse = await errorResponse.json();
-      console.log('Error distribution data:', errorData);
+      // console.log('Error distribution data:', errorData);
       if (errorData.status === 'success' && errorData.data.error_distribution) {
         setErrorData(errorData.data.error_distribution.map(error => ({
           name: error.error_type,
@@ -237,14 +237,14 @@ export default function PlatformPerformance() {
       }
 
       // Fetch service status
-      console.log('Fetching service status...');
+      // console.log('Fetching service status...');
       const serviceResponse = await fetch(`${API_BASE_URL}/api/superadmin/monitoring/system/health`, {
         method: 'GET',
         headers,
         credentials: 'include'
       });
       const serviceData: ServiceStatusResponse = await serviceResponse.json();
-      console.log('Service status data:', serviceData);
+      // console.log('Service status data:', serviceData);
       if (serviceData.status === 'success' && serviceData.data.service_health) {
         setServicesStatus(serviceData.data.service_health.map(service => ({
           name: service.service_name,
@@ -312,7 +312,7 @@ export default function PlatformPerformance() {
         'Content-Type': 'application/json'
       };
 
-      console.log(`Fetching metrics for service: ${serviceName}`);
+      // console.log(`Fetching metrics for service: ${serviceName}`);
       const response = await fetch(
         `${API_BASE_URL}/api/superadmin/monitoring/service/${serviceName}/metrics?hours=${selectedTimeframe === '24h' ? 24 : selectedTimeframe === '7d' ? 168 : 720}`,
         {
@@ -322,20 +322,20 @@ export default function PlatformPerformance() {
         }
       );
       const data: ServiceStatusResponse = await response.json();
-      console.log(`Service metrics response for ${serviceName}:`, {
-        status: data.status,
-        metrics: data.data.metrics,
-        hourly_trends: data.data.hourly_trends,
-        recent_errors: data.data.recent_errors
-      });
+      // console.log(`Service metrics response for ${serviceName}:`, {
+      //   status: data.status,
+      //   metrics: data.data.metrics,
+      //   hourly_trends: data.data.hourly_trends,
+      //   recent_errors: data.data.recent_errors
+      // });
 
       if (data.status === 'success' && data.data.metrics) {
-        console.log(`Processing metrics for ${serviceName}:`, {
-          uptime: data.data.metrics.uptime,
-          response_time: data.data.metrics.response_time,
-          requests: data.data.metrics.requests,
-          resources: data.data.metrics.resources
-        });
+        // console.log(`Processing metrics for ${serviceName}:`, {
+        //   uptime: data.data.metrics.uptime,
+        //   response_time: data.data.metrics.response_time,
+        //   requests: data.data.metrics.requests,
+        //   resources: data.data.metrics.resources
+        // });
 
         setServiceMetrics(prev => {
           const updated = [...prev];
@@ -351,7 +351,7 @@ export default function PlatformPerformance() {
               requestCount: data.data.metrics!.requests.total,
               lastUpdated: new Date().toISOString()
             };
-            console.log(`Updated metrics for ${serviceName}:`, newMetrics);
+            // console.log(`Updated metrics for ${serviceName}:`, newMetrics);
             updated[index] = newMetrics;
           }
           return updated;
@@ -366,7 +366,7 @@ export default function PlatformPerformance() {
           errorCount: data.data.metrics.requests.error_count,
           uptime: data.data.metrics.uptime
         };
-        console.log(`Updated analytics for ${serviceName}:`, newAnalytics);
+        // console.log(`Updated analytics for ${serviceName}:`, newAnalytics);
         setServiceAnalytics(newAnalytics);
       } else {
         console.error(`Error in service metrics response for ${serviceName}:`, data.message);
@@ -558,18 +558,18 @@ export default function PlatformPerformance() {
           <tbody className="bg-white divide-y divide-gray-200">
             {servicesStatus.map((service, index) => {
               const metrics = serviceMetrics.find(s => s.name === service.name);
-              console.log(`Rendering service row for ${service.name}:`, {
-                service,
-                metrics,
-                selected: selectedService === service.name
-              });
+              // console.log(`Rendering service row for ${service.name}:`, {
+              //   service,
+              //   metrics,
+              //   selected: selectedService === service.name
+              // });
               
               return (
                 <tr 
                   key={index} 
                   className={`hover:bg-gray-50 cursor-pointer ${selectedService === service.name ? 'bg-gray-50' : ''}`}
                   onClick={() => {
-                    console.log(`Selected service: ${service.name}`);
+                    // console.log(`Selected service: ${service.name}`);
                     setSelectedService(service.name);
                   }}
                 >
@@ -618,11 +618,11 @@ export default function PlatformPerformance() {
                       style={{ color: '#FF5733' }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        console.log(`Investigating service: ${service.name}`, {
-                          service,
-                          metrics,
-                          analytics: serviceAnalytics
-                        });
+                        // console.log(`Investigating service: ${service.name}`, {
+                        //   service,
+                        //   metrics,
+                        //   analytics: serviceAnalytics
+                        // });
                         alert(`Investigating ${service.name} status...`);
                       }}
                     >
