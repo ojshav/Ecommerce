@@ -321,6 +321,14 @@ const Navbar: React.FC = () => {
                     <Link to="/profile" className="text-[#692C2C] hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <User className="w-5 h-5" />
                     </Link>
+
+                    {/* Add Become a Merchant button for desktop */}
+                    <Link
+                      to="/business/login"
+                      className="hidden nav:flex w-40 h-10 justify-center items-center bg-[#F2631F] text-white rounded-md px-3 py-2 hover:bg-orange-600 transition-colors whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+                    >
+                      Become a Merchant
+                    </Link>
                   </div>
 
                   
