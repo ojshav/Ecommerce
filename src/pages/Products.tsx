@@ -563,7 +563,7 @@ const Products: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
+      <div className="container mx-auto px-4 xl:px-16 py-4 sm:py-6 md:py-8">
         {/* Breadcrumb */}
         <div className="text-xs text-gray-500 mb-4 sm:mb-6">
           <span>Home</span> / <span>Products</span>

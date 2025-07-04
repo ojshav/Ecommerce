@@ -531,7 +531,7 @@ const PromoProductsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-2 xl:px-16 py-4">
         {/* Breadcrumb */}
         <div className="text-xs text-gray-500 mb-4">
           <Link to="/">Home</Link> / <span>Promo Products</span>
