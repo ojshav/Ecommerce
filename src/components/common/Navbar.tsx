@@ -529,7 +529,7 @@ const Navbar: React.FC = () => {
               {isAuthenticated ? (
                 <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
                   <span className="font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] text-gray-600">
-                    Welcome, {user?.name || 'User'}
+                     {user?.name || 'User'}
                   </span>
                   <button
                     onClick={handleLogoutClick}
