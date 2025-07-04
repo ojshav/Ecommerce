@@ -116,11 +116,16 @@ const Products: React.FC = () => {
     const params = new URLSearchParams(location.search);
     const categoryId = params.get('category');
     const pathCategoryId = location.pathname.split('/').pop(); // Get category ID from path
+    const brandId = params.get('brand');
+    const search = params.get('search');
+    const minPrice = params.get('min_price');
+    const maxPrice = params.get('max_price');
 
     // Handle both query parameter and path-based category IDs
     const finalCategoryId = categoryId || pathCategoryId;
     
-    if (finalCategoryId) {
+    // Update category
+    if (finalCategoryId && finalCategoryId !== 'products') {
       setSelectedCategory(finalCategoryId);
       // Expand the parent category if it exists
       const category = categories.find(cat => cat.category_id === Number(finalCategoryId));
@@ -132,6 +137,30 @@ const Products: React.FC = () => {
       }
     } else {
       setSelectedCategory('');
+    }
+
+    // Update brand
+    if (brandId) {
+      setSelectedBrands([brandId]);
+    } else {
+      setSelectedBrands([]);
+    }
+
+    // Update search
+    if (search) {
+      setSearchQuery(search);
+    } else {
+      setSearchQuery('');
+    }
+
+    // Update price range
+    if (minPrice || maxPrice) {
+      setPriceRange([
+        minPrice ? Number(minPrice) : 0,
+        maxPrice ? Number(maxPrice) : 1000000
+      ]);
+    } else {
+      setPriceRange([0, 1000000]);
     }
   }, [location.search, location.pathname, categories]);
 
@@ -236,8 +265,6 @@ const Products: React.FC = () => {
       }
       if (brandId) {
         params.append('brand_id', brandId);
-        // If brand is selected via URL, update selectedBrands
-        setSelectedBrands([brandId]);
       } else if (selectedBrands.length > 0) {
         params.append('brand_id', selectedBrands.join(','));
       }
@@ -254,8 +281,6 @@ const Products: React.FC = () => {
       // Always use the main products endpoint with filters
       const apiUrl = `${API_BASE_URL}/api/products?${params}`;
 
-      // console.log('Fetching products with URL:', apiUrl);
-
       const response = await fetch(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
@@ -268,41 +293,72 @@ const Products: React.FC = () => {
       }
 
       const data = await response.json();
-      // console.log('Products response:', data);
+      
+      // Transform the API response to match the Product type
+      const transformedProducts = data.products.map((product: any) => {
+        // Calculate original price from discount percentage if available
+        let originalPrice = product.originalPrice;
+        if (!originalPrice && product.discount_pct && product.discount_pct > 0 && product.selling_price) {
+          // If there's a discount percentage, calculate the original price
+          originalPrice = product.selling_price / (1 - (product.discount_pct / 100));
+        } else if (!originalPrice) {
+          // If no special offer and no discount percentage, use selling_price as original
+          originalPrice = product.selling_price;
+        }
+
+        return {
+          id: String(product.product_id || product.id),
+          name: product.product_name || product.name,
+          description: product.product_description || product.description,
+          price: product.price || product.selling_price,
+          original_price: originalPrice,
+          currency: 'INR',
+          image: product.primary_image || product.image || '',
+          images: product.images || [],
+          category: product.category_name || product.category || '',
+          featured: product.featured || false,
+          isNew: product.isNew || false,
+          isBuiltIn: product.isBuiltIn || false,
+          rating: product.rating || 0,
+          reviews: product.reviews || 0,
+          stock: product.stock || 0,
+          tags: product.tags || [],
+          primary_image: product.primary_image || product.image || '',
+          brand: product.brand_name || product.brand || '',
+          sku: product.sku || '',
+          category_id: product.category_id,
+          brand_id: product.brand_id,
+          created_at: product.created_at
+        };
+      });
       
       // Store original products and apply initial filtering
-      setOriginalProducts(data.products);
+      setOriginalProducts(transformedProducts);
       
       // Apply client-side filters for discount and rating
-      let filteredProducts = data.products;
+      let filteredProducts = transformedProducts;
       
       // Apply discount filter
       if (selectedDiscounts.length > 0) {
         const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
-        // console.log('Applying discount filter with minimum discount:', minDiscount);
         filteredProducts = filteredProducts.filter((product: Product) => {
           if (product.original_price && product.price && product.original_price > product.price) {
             const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
             const hasDiscount = discountPercentage >= minDiscount;
-            // console.log(`Product ${product.name}: Original: ${product.original_price}, Price: ${product.price}, Discount: ${discountPercentage.toFixed(1)}%, Meets filter: ${hasDiscount}`);
             return hasDiscount;
           }
           return false;
         });
-        // console.log(`Discount filter applied: ${filteredProducts.length} products remaining`);
       }
       
       // Apply rating filter
       if (selectedRatings.length > 0) {
         const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
-        // console.log('Applying rating filter with minimum rating:', minRating);
         filteredProducts = filteredProducts.filter((product: Product) => {
           const productRating = product.rating || 0;
           const meetsRating = productRating >= minRating;
-          // console.log(`Product ${product.name}: Rating: ${productRating}, Meets filter: ${meetsRating}`);
           return meetsRating;
         });
-        // console.log(`Rating filter applied: ${filteredProducts.length} products remaining`);
       }
       
       setProducts(filteredProducts);
@@ -321,20 +377,6 @@ const Products: React.FC = () => {
     }
   };
 
-  // Update URL when brand selection changes
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (selectedBrands.length > 0) {
-      const brand = brands.find(b => String(b.brand_id) === selectedBrands[0]);
-      if (brand) {
-        params.set('brand', brand.slug);
-      }
-    } else {
-      params.delete('brand');
-    }
-    navigate(`?${params.toString()}`);
-  }, [selectedBrands, brands, navigate, location.search]);
-
   // Update fetchCategories to use the new categories endpoint
   const fetchCategories = async () => {
     try {
@@ -343,7 +385,6 @@ const Products: React.FC = () => {
         throw new Error('Failed to fetch categories');
       }
       const data = await response.json();
-      // console.log('Categories data:', data);
       // No need to organize categories as they come pre-organized from the backend
       setCategories(data);
     } catch (err) {
@@ -359,7 +400,6 @@ const Products: React.FC = () => {
         throw new Error('Failed to fetch brands');
       }
       const data = await response.json();
-      // console.log('Brands data:', data);
       setBrands(data);
     } catch (err) {
       console.error('Error fetching brands:', err);
@@ -368,8 +408,6 @@ const Products: React.FC = () => {
 
   // Initial data fetch
   useEffect(() => {
-    // console.log('Initial data fetch started');
-    // console.log('API Base URL:', API_BASE_URL);
     fetchProducts();
     fetchRecentlyViewed();
     fetchCategories();
@@ -378,30 +416,22 @@ const Products: React.FC = () => {
 
   // Refetch products when filters or pagination changes
   useEffect(() => {
-    // console.log('Refetching products due to filter/pagination change:', {
-    //   currentPage,
-    //   selectedCategory,
-    //   selectedBrands,
-    //   priceRange,
-    //   searchQuery
-    // });
-    fetchProducts();
-  }, [currentPage, selectedCategory, selectedBrands, priceRange, searchQuery]);
+    const timeoutId = setTimeout(() => {
+      fetchProducts();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [location.search, currentPage]);
   
   // Apply client-side filters when discount or rating changes
   useEffect(() => {
     if (originalProducts.length > 0) {
-      // console.log('Applying client-side filters:', {
-      //   selectedDiscounts,
-      //   selectedRatings
-      // });
-      
       // Apply discount filter
       let filteredProducts = originalProducts;
-      if (selectedDiscounts.length > 0) {
+      if (selectedDiscounts && selectedDiscounts.length > 0) {
         const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
         filteredProducts = filteredProducts.filter((product: Product) => {
-          if (product.original_price && product.price) {
+          if (product.original_price && product.price && product.original_price > product.price) {
             const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
             return discountPercentage >= minDiscount;
           }
@@ -410,7 +440,7 @@ const Products: React.FC = () => {
       }
       
       // Apply rating filter
-      if (selectedRatings.length > 0) {
+      if (selectedRatings && selectedRatings.length > 0) {
         const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
         filteredProducts = filteredProducts.filter((product: Product) => {
           return (product.rating || 0) >= minRating;
@@ -421,16 +451,12 @@ const Products: React.FC = () => {
       setTotalPages(Math.ceil(filteredProducts.length / perPage));
       setTotalProducts(filteredProducts.length);
     }
-  }, [selectedDiscounts, selectedRatings]);
+  }, [selectedDiscounts, selectedRatings, originalProducts]);
   
   // Toggle brand selection
   const toggleBrand = (brand: string) => {
     setSelectedBrands(prev => {
-      const newBrands = prev.includes(brand)
-        ? [] // Clear selection if clicking the same brand
-        : [brand]; // Select only one brand at a time
-      
-      // Update URL with selected brand
+      const newBrands = prev.includes(brand) ? [] : [brand];
       const params = new URLSearchParams(location.search);
       if (newBrands.length > 0) {
         params.set('brand', newBrands[0]);
@@ -438,10 +464,50 @@ const Products: React.FC = () => {
         params.delete('brand');
       }
       navigate(`?${params.toString()}`);
-      
       return newBrands;
     });
   };
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    
+    if (selectedCategory) {
+      params.set('category', selectedCategory);
+    } else {
+      params.delete('category');
+    }
+
+    if (selectedBrands.length > 0) {
+      params.set('brand', selectedBrands[0]);
+    } else {
+      params.delete('brand');
+    }
+
+    if (searchQuery) {
+      params.set('search', searchQuery);
+    } else {
+      params.delete('search');
+    }
+
+    if (priceRange[0] > 0) {
+      params.set('min_price', priceRange[0].toString());
+    } else {
+      params.delete('min_price');
+    }
+
+    if (priceRange[1] < 1000000) {
+      params.set('max_price', priceRange[1].toString());
+    } else {
+      params.delete('max_price');
+    }
+
+    // Only update URL if there are actual changes
+    const newUrl = `?${params.toString()}`;
+    if (newUrl !== `?${location.search}`) {
+      navigate(newUrl);
+    }
+  }, [selectedCategory, selectedBrands, searchQuery, priceRange]);
 
   // Toggle color selection
   const toggleColor = (color: string) => {
@@ -695,11 +761,17 @@ const Products: React.FC = () => {
                     { label: '40% or more', value: '40' },
                     { label: '50% or more', value: '50' }
                   ].map((discount) => {
-                    const isSelected = selectedDiscounts.includes(discount.value);
+                    const isSelected = selectedDiscounts && selectedDiscounts.includes(discount.value);
                     return (
                       <button
                         key={discount.value}
-                        onClick={() => toggleDiscount(discount.value)}
+                        onClick={() => {
+                          setSelectedDiscounts(prev => 
+                            prev && prev.includes(discount.value) 
+                              ? prev.filter(d => d !== discount.value)
+                              : [...(prev || []), discount.value]
+                          );
+                        }}
                         className={`px-3 py-1.5 rounded-full border text-xs font-normal transition-colors focus:outline-none ${
                           isSelected
                             ? 'bg-[#F2631F] text-white border-[#F2631F] shadow'
@@ -717,7 +789,7 @@ const Products: React.FC = () => {
               <div className="mb-8">
                 <h3 className="font-semibold text-base mb-4 text-black">Ratings</h3>
                 {(() => {
-                  const selectedRatingValue = selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
+                  const selectedRatingValue = selectedRatings && selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
                   return (
                     <div className="flex items-center">
                       <div className="flex">
@@ -730,7 +802,7 @@ const Products: React.FC = () => {
                               const rect = e.currentTarget.getBoundingClientRect();
                               const clickX = e.clientX - rect.left;
                               const rating = clickX < rect.width / 2 ? star - 0.5 : star;
-                              toggleRating(rating.toString());
+                              setSelectedRatings([rating.toString()]);
                             }}>
                               <Star className="text-gray-300" fill="currentColor" size={28}/>
                               {isFull ? (
@@ -1068,11 +1140,17 @@ const Products: React.FC = () => {
                     { label: '40% or more', value: '40' },
                     { label: '50% or more', value: '50' }
                   ].map((discount) => {
-                    const isSelected = selectedDiscounts.includes(discount.value);
+                    const isSelected = selectedDiscounts && selectedDiscounts.includes(discount.value);
                     return (
                       <button
                         key={discount.value}
-                        onClick={() => toggleDiscount(discount.value)}
+                        onClick={() => {
+                          setSelectedDiscounts(prev => 
+                            prev && prev.includes(discount.value) 
+                              ? prev.filter(d => d !== discount.value)
+                              : [...(prev || []), discount.value]
+                          );
+                        }}
                         className={`px-3 py-1.5 rounded-full border text-xs font-normal transition-colors focus:outline-none ${
                           isSelected
                             ? 'bg-[#F2631F] text-white border-[#F2631F] shadow'
@@ -1090,7 +1168,7 @@ const Products: React.FC = () => {
               <div className="mb-8">
                 <h4 className="font-medium mb-3">Ratings</h4>
                 {(() => {
-                  const selectedRatingValue = selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
+                  const selectedRatingValue = selectedRatings && selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
                   return (
                     <div className="flex items-center">
                       <div className="flex">
@@ -1103,7 +1181,7 @@ const Products: React.FC = () => {
                               const rect = e.currentTarget.getBoundingClientRect();
                               const clickX = e.clientX - rect.left;
                               const rating = clickX < rect.width / 2 ? star - 0.5 : star;
-                              toggleRating(rating.toString());
+                              setSelectedRatings([rating.toString()]);
                             }}>
                               <Star className="text-gray-300" fill="currentColor" size={28}/>
                               {isFull ? (
