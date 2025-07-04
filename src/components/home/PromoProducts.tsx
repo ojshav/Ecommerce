@@ -277,7 +277,7 @@ const PromoProducts: React.FC = () => {
   }
 
   return (
-    <section className="py-8">
+    <section className="py-4">
       {promoProducts && <div className="container mx-auto px-4 xl:px-14">
         {/* Header with navigation */}
         <div className="flex justify-between items-center mb-6">

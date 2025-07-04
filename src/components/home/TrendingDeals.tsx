@@ -131,7 +131,7 @@ const TrendingDeals: React.FC = () => {
   }
 
   return (
-    <section className="pb-12">
+    <section className="py-4">
       <div className="container mx-auto px-4 xl:px-14">
         <div className="flex flex-col space-y-6">
           {/* Header with navigation */}

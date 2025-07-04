@@ -22,7 +22,7 @@ const services = [
 const Services: React.FC = () => {
   return (
     <div>
-      <section className="pb-12">
+      <section className="pb-8">
         <div className="container mx-auto px-4 xl:px-14">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {services.map((service, index) => (
