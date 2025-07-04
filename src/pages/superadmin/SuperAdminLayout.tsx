@@ -309,7 +309,7 @@ const SuperAdminLayout = () => {
   const isAdmin = userRole.includes("admin") || userRole === "super_admin";
 
   if (isAuthenticated && !isAdmin) {
-    console.log("Unauthorized access attempt with role:", user?.role);
+    // console.log("Unauthorized access attempt with role:", user?.role);
     return <Navigate to="/unauthorized" replace />;
   }
 

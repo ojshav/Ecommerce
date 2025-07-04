@@ -310,7 +310,7 @@ const Inventory: React.FC = () => {
         throw new Error('No authentication token found');
       }
 
-      console.log('Fetching inventory stats...'); // Debug log
+      // console.log('Fetching inventory stats...'); // Debug log
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/inventory/stats`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -318,7 +318,7 @@ const Inventory: React.FC = () => {
         }
       });
 
-      console.log('Stats response status:', response.status); // Debug log
+      // console.log('Stats response status:', response.status); // Debug log
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
@@ -327,7 +327,7 @@ const Inventory: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Received stats data:', data); // Debug log
+      // console.log('Received stats data:', data); // Debug log
       setStats(data);
     } catch (err) {
       console.error('Error in fetchInventoryStats:', err);

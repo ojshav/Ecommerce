@@ -238,7 +238,7 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
       }
 
       const data = await response.json();
-      console.log('Product core info saved successfully:', data);
+      // console.log('Product core info saved successfully:', data);
       
       const newProductId = data.product_id;
       setProductId(newProductId);

@@ -112,7 +112,7 @@ const MerchantManagement: React.FC = () => {
         }
         
         const data = await response.json();
-        console.log('Fetched merchants:', data);
+        // console.log('Fetched merchants:', data);
                 // Transform the data to match our component's expected format
         const transformedMerchants = data.merchants.map((merchant: any) => ({
           id: merchant.id,

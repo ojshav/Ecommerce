@@ -230,7 +230,7 @@ const EditProduct: React.FC = () => {
       }
 
       const mediaData = await mediaResponse.json();
-      console.log('Media data from API:', mediaData);
+      // console.log('Media data from API:', mediaData);
 
       // Combine product and media data
       const combinedData = {
@@ -238,8 +238,8 @@ const EditProduct: React.FC = () => {
         media: mediaData
       };
 
-      console.log('Combined data:', combinedData);
-      console.log('Media type check:', mediaData.map((m: Media) => ({ id: m.media_id, type: m.type, url: m.url })));
+      // console.log('Combined data:', combinedData);
+      // console.log('Media type check:', mediaData.map((m: Media) => ({ id: m.media_id, type: m.type, url: m.url })));
       setProduct(combinedData);
       setFormData({
         product_name: productData.product_name,
@@ -281,7 +281,7 @@ const EditProduct: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Media stats received:', data);
+      // console.log('Media stats received:', data);
       setMediaStats(data);
     } catch (error) {
       console.error('Error fetching media stats:', error);
@@ -303,7 +303,7 @@ const EditProduct: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Raw shipping data from API:', data);
+      // console.log('Raw shipping data from API:', data);
 
       // Store the raw data
       setShippingData({
@@ -482,7 +482,7 @@ const EditProduct: React.FC = () => {
         }
       };
 
-      console.log('Sending shipping data:', shippingData);
+      // console.log('Sending shipping data:', shippingData);
 
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${id}/shipping`, {
         method: 'POST',
@@ -823,8 +823,8 @@ const EditProduct: React.FC = () => {
           </div>
 
           {(() => {
-            console.log('Current product state:', product);
-            console.log('Media array:', product?.media);
+            // console.log('Current product state:', product);
+            // console.log('Media array:', product?.media);
             return null;
           })()}
           {product?.media && product.media.length > 0 ? (

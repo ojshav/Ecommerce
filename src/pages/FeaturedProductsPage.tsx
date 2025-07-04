@@ -219,30 +219,30 @@ const FeaturedProductsPage: React.FC = () => {
       // Apply discount filter
       if (selectedDiscounts && selectedDiscounts.length > 0) {
         const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
-        console.log('Applying discount filter with minimum discount:', minDiscount);
+        // console.log('Applying discount filter with minimum discount:', minDiscount);
         filteredProducts = filteredProducts.filter((product: Product) => {
           if (product.original_price && product.price && product.original_price > product.price) {
             const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
             const hasDiscount = discountPercentage >= minDiscount;
-            console.log(`Product ${product.name}: Original: ${product.original_price}, Price: ${product.price}, Discount: ${discountPercentage.toFixed(1)}%, Meets filter: ${hasDiscount}`);
+            // console.log(`Product ${product.name}: Original: ${product.original_price}, Price: ${product.price}, Discount: ${discountPercentage.toFixed(1)}%, Meets filter: ${hasDiscount}`);
             return hasDiscount;
           }
           return false;
         });
-        console.log(`Discount filter applied: ${filteredProducts.length} products remaining`);
+        // console.log(`Discount filter applied: ${filteredProducts.length} products remaining`);
       }
       
       // Apply rating filter
       if (selectedRatings && selectedRatings.length > 0) {
         const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
-        console.log('Applying rating filter with minimum rating:', minRating);
+        // console.log('Applying rating filter with minimum rating:', minRating);
         filteredProducts = filteredProducts.filter((product: Product) => {
           const productRating = product.rating || 0;
           const meetsRating = productRating >= minRating;
-          console.log(`Product ${product.name}: Rating: ${productRating}, Meets filter: ${meetsRating}`);
+          // console.log(`Product ${product.name}: Rating: ${productRating}, Meets filter: ${meetsRating}`);
           return meetsRating;
         });
-        console.log(`Rating filter applied: ${filteredProducts.length} products remaining`);
+        // console.log(`Rating filter applied: ${filteredProducts.length} products remaining`);
       }
       
       setProducts(filteredProducts);
@@ -303,10 +303,10 @@ const FeaturedProductsPage: React.FC = () => {
   // Apply client-side filters when discount or rating changes
   useEffect(() => {
     if (originalProducts.length > 0) {
-      console.log('Applying client-side filters:', {
-        selectedDiscounts,
-        selectedRatings
-      });
+      // console.log('Applying client-side filters:', {
+      //   selectedDiscounts,
+      //   selectedRatings
+      // });
       
       // Apply discount filter
       let filteredProducts = originalProducts;

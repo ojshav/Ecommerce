@@ -141,10 +141,10 @@ const PromoProducts: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('API Response:', data);
+      // console.log('API Response:', data);
 
       if (data.message?.products && Array.isArray(data.message.products)) {
-        console.log('Products array:', data.message.products);
+        // console.log('Products array:', data.message.products);
         setPromoProducts(data.message.products);
         setError(null);
       } else {

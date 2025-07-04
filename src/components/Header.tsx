@@ -9,7 +9,7 @@ const Header = () => {
   const handleLogout = () => {
     // Implement your logout logic here
     // For example: clear local storage, reset auth state, etc.
-    console.log('Logging out...');
+    // console.log('Logging out...');
     navigate('/login');
   };
 

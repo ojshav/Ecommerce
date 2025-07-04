@@ -136,7 +136,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           toast.success("Product removed from wishlist");
         }
       } else {
-        console.log("Attempting to add to wishlist, product ID:", productId);
+        // console.log("Attempting to add to wishlist, product ID:", productId);
         await addToWishlist(productId);
         toast.success("Product added to wishlist");
       }

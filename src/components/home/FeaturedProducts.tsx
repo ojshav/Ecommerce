@@ -81,10 +81,10 @@ const FeaturedProducts: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('API Response:', data);
+      // console.log('API Response:', data);
 
       if (data.message?.products && Array.isArray(data.message.products)) {
-        console.log('Products array:', data.message.products);
+        // console.log('Products array:', data.message.products);
         setProducts(data.message.products);
         setError(null);
       } else {
