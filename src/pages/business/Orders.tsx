@@ -163,9 +163,6 @@ const MobileOrderCard: React.FC<{ order: Order }> = ({ order }) => (
         <Link to={`/business/orders/${order.order_id}`} className="text-orange-600 hover:text-orange-900">
           <EyeIcon className="h-4 w-4" />
         </Link>
-        <button className="text-orange-600 hover:text-orange-900">
-          <PencilIcon className="h-4 w-4" />
-        </button>
       </div>
     </div>
     
@@ -534,9 +531,6 @@ const Orders: React.FC = () => {
                          <Link to={`/business/orders/${order.order_id}`} className="text-orange-600 hover:text-orange-900">
                           <EyeIcon className="h-5 w-5" />
                         </Link>
-                        <button className="text-orange-600 hover:text-orange-900">
-                          <PencilIcon className="h-5 w-5" />
-                        </button>
                       </div>
                     </td>
                   </tr>

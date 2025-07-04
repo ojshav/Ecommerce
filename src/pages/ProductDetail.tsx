@@ -874,10 +874,11 @@ const ProductDetail: React.FC = () => {
           {sortedVariants.map((variant) => (
             <div
               key={variant.id}
-              className={`border rounded-lg p-4 cursor-pointer transition-all ${variant.id === product.product_id.toString()
+              className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                variant.id === product.product_id.toString()
                   ? "border-blue-500 bg-blue-50"
                   : "hover:border-gray-400"
-                }`}
+              }`}
               onClick={() => {
                 if (variant.id !== product.product_id.toString()) {
                   navigate(`/product/${variant.id}`);
@@ -902,11 +903,11 @@ const ProductDetail: React.FC = () => {
               <div className="mt-2 flex justify-between items-center">
                 <div>
                   <span className="text-lg font-medium text-gray-900">
-                    ${variant.price.toFixed(2)}
+                    ₹{variant.price.toFixed(2)}
                   </span>
                   {variant.originalPrice > variant.price && (
                     <span className="ml-2 text-sm text-gray-500 line-through">
-                      ${variant.originalPrice.toFixed(2)}
+                      ₹{variant.originalPrice.toFixed(2)}
                     </span>
                   )}
                 </div>
