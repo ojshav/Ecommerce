@@ -268,7 +268,7 @@ const HomepageProducts: React.FC = () => {
   }
 
   return (
-    <div className="space-y-12">
+    <div className=" py-4">
       {categoriesWithProducts.map((categoryData) => (
         <section key={categoryData.category.category_id} className="pb-12">
           <div className="container mx-auto px-4 xl:px-14">
