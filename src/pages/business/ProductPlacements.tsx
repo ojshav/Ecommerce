@@ -23,10 +23,14 @@ interface ProductPlacement {
   product_details: {
     product_id: number;
     product_name: string;
-    original_price?: number;
-    promotional_price?: number;
+    selling_price?: number;
+    special_price?: number;
     special_start?: string;
     special_end?: string;
+    is_on_special_offer?: boolean;
+    // Legacy fields for backward compatibility
+    original_price?: number;
+    promotional_price?: number;
   };
 }
 
@@ -320,7 +324,9 @@ const ProductPlacements: React.FC = () => {
   const handleEditPlacement = (placement: ProductPlacement) => {
     if (placement.placement_type === 'promoted') {
       setEditingPlacement(placement);
-      setPromotionalPrice(placement.product_details?.promotional_price?.toString() || '');
+      // Use special_price if available, fallback to promotional_price for backward compatibility
+      const currentPrice = placement.product_details?.special_price ?? placement.product_details?.promotional_price;
+      setPromotionalPrice(currentPrice?.toString() || '');
       setSpecialStartDate(placement.product_details?.special_start || '');
       setSpecialEndDate(placement.product_details?.special_end || '');
       setEditModalOpen(true);
@@ -683,7 +689,7 @@ const ProductPlacements: React.FC = () => {
                   Promotional Price
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
                   <input
                     type="number"
                     id="editPromotionalPrice"
@@ -969,7 +975,7 @@ const ProductPlacements: React.FC = () => {
                   Promotional Price
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
                   <input
                     type="number"
                     id="promotionalPrice"
@@ -1133,16 +1139,23 @@ const ProductPlacements: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      {/* Display price: special promotional price for promoted, selling price for featured */}
-                      {placement.placement_type === 'promoted' && placement.product_details?.promotional_price != null ? (
+                      {/* 
+                        Price Display Logic:
+                        - For promoted products with active special offers: show special_price with strikethrough selling_price
+                        - For all other cases (featured products or promoted without special offers): show selling_price
+                      */}
+                      {placement.placement_type === 'promoted' && 
+                       placement.product_details?.special_price != null && 
+                       placement.product_details?.is_on_special_offer ? (
                         <div className="text-sm">
-                          {placement.product_details.original_price != null && (
-                            <span className="text-gray-500 line-through">${placement.product_details.original_price.toFixed(2)}</span>
+                          {placement.product_details.selling_price != null && (
+                            <span className="text-gray-500 line-through">₹{placement.product_details.selling_price.toFixed(2)}</span>
                           )}
-                          <span className="ml-2 text-red-600 font-semibold">${placement.product_details.promotional_price.toFixed(2)}</span>
+                          <span className="ml-2 text-red-600 font-semibold">₹{placement.product_details.special_price.toFixed(2)}</span>
+                          <div className="text-xs text-green-600 mt-1">Special Offer Active</div>
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-500">${placement.product_details.original_price?.toFixed(2) || 'N/A'}</span>
+                        <span className="text-sm text-gray-500">₹{placement.product_details?.selling_price?.toFixed(2) || 'N/A'}</span>
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{placement.sort_order}</td>
