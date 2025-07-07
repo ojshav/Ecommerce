@@ -5,13 +5,13 @@ import { Mail, Phone, MapPin, Twitter, Facebook, Github, Instagram } from 'lucid
 const Footer: React.FC = () => {
   return (
     <footer className="bg-[#FFE7DB] text-black w-full ">
-      <div className="container mx-auto px-1 sm:px-2 md:px-2 lg:px-12 2xl:pl-16 py-8 sm:py-12  lg:py-16">
+      <div className="container mx-auto px-16 xs:px-2 sm:px-2 md:px-2 lg:px-12 xl:px-16 2xl:pl-16 py-8 sm:py-12  lg:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-6 xl:gap-8">
 
           {/* Column 1 - Logo & Contact */}
           <div className="lg:col-span-1">
             <Link to="/" className="inline-block mb-6 lg:mb-8">
-              <img src="/assets/images/logo.svg" alt="AUIN" className="h-8 sm:h-10" />
+              <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687784/public_assets_images/public_assets_images_logo.svg" alt="AUIN" className="h-8 sm:h-10" />
             </Link>
 
             <div className="space-y-3 lg:space-y-4 text-[13px] sm:text-[14px] font-light text-[#161616]">
@@ -107,10 +107,10 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom White Bar */}
-      <div className="bg-white py-3 lg:py-4">
-        <div className="container mx-auto px-4 sm:px-6 md:px-6 nav:px-6 lg:px-6">
+      <div className="bg-white py-3 lg:py-4  xl:pl-28 sm:pl-16">
+        <div className="container mx-auto ">
           <p className="text-center sm:text-left text-[11px] sm:text-[13px] text-gray-400">
-            © 2000–2021, All Rights Reserved
+            © 2025, All Rights Reserved
           </p>
         </div>
       </div>

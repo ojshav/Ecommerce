@@ -255,6 +255,14 @@ const Promotions: React.FC = () => {
     setStartDate(promotion.start_date.split('T')[0]);
     setEndDate(promotion.end_date.split('T')[0]);
     setIsCodeManuallySet(true); // When editing, assume manual control of the code
+    
+    // Auto-scroll to form
+    setTimeout(() => {
+      const formElement = document.querySelector('form');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   const handleDelete = async (id: number) => {
@@ -382,7 +390,9 @@ const Promotions: React.FC = () => {
                 ) : filteredGamePromos.length > 0 ? filteredGamePromos.map(promo => (
                   <tr key={promo.promotion_id} className="hover:bg-orange-50">
                     <td className="px-4 py-3 font-mono text-orange-700 font-bold">{promo.code}</td>
-                    <td className="px-4 py-3">{promo.discount_value}%</td>
+                    <td className="px-4 py-3">
+                      {promo.discount_type === 'percentage' ? `${promo.discount_value}%` : `₹${promo.discount_value}`}
+                    </td>
                     <td className="px-4 py-3 capitalize">{promo.code.includes('SPIN') ? 'Spin Wheel' : promo.code.includes('MATCH') ? 'Memory Match' : '-'}</td>
                     <td className="px-4 py-3 text-xs">{new Date(promo.start_date).toLocaleDateString()} - {new Date(promo.end_date).toLocaleDateString()}</td>
                     <td className="px-4 py-3">

@@ -871,7 +871,7 @@ const UserProfile: React.FC = () => {
 
   // --- JSX ---
   return (
-    <div className="py-10 px-4">
+    <div className="py-10 lg:pr-2 xl:pr-32 2xl:pr-[350px]">
       {/* Image Preview Modal (Responsive) */}
       {isImageModalOpen && (
         <div
@@ -955,7 +955,7 @@ const UserProfile: React.FC = () => {
       )}
 
       {/* Main Layout */}
-      <div className="max-w-8xl mx-auto flex flex-col md:flex-row gap-8 md:gap-0">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 md:gap-0">
         <aside className="w-full md:w-1/4 md:pr-8">
           <div className="flex flex-col items-center mb-8">
             <div className="relative">
@@ -1897,7 +1897,7 @@ const UserProfile: React.FC = () => {
           ) : (
             <div className="bg-white border rounded-md p-6 mt-8 text-center">
               <img
-                src="/assets/images/google_logo.png"
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687781/public_assets_images/public_assets_images_google_logo.svg"
                 alt="Google Logo"
                 className="w-10 h-10 mx-auto mb-3"
               />

@@ -9,7 +9,7 @@ const PromotionalBanners = () => {
           <div className="relative w-full lg:w-[522px] h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden">
             <div className="relative h-full">
               <video
-                src="/assets/videos/promo-video.mp4"
+                src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691077/public_assets_videos/promo-video.mp4"
                 className="w-full h-full object-cover"
                 autoPlay
                 loop
