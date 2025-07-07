@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { Download, Filter, RefreshCw, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import ExportModal from '../../components/business/reports/ExportModal';
 import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -94,6 +95,8 @@ export default function SalesReport() {
     average_order_value: number;
     currency: string;
   } | null>(null);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const { accessToken, user } = useAuth();
 
   // Remove the manual calculations since we'll use the summary data
@@ -171,6 +174,57 @@ export default function SalesReport() {
     }).format(value);
   };
 
+  const handleExportReport = async (format: string) => {
+    try {
+      setIsExporting(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/analytics/superadmin/analytics/export-sales-report?format=${format}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': '*/*'
+        },
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to export report');
+      }
+
+      // Get filename from Content-Disposition header or create default
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `sales_report_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`Report exported successfully as ${format.toUpperCase()}`);
+      setIsExportModalOpen(false);
+      
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to export report. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="bg-white min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
@@ -187,6 +241,7 @@ export default function SalesReport() {
                 Refresh Data
               </button>
               <button 
+                onClick={() => setIsExportModalOpen(true)}
                 className="flex items-center gap-2 bg-[#FF5733] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#FF4500] transition-all duration-300 border border-[#FF5733]"
               >
                 <Download className="w-5 h-5" />
@@ -357,6 +412,14 @@ export default function SalesReport() {
             </div>
           )}
         </div>
+
+        {/* Export Modal */}
+        <ExportModal
+          isOpen={isExportModalOpen}
+          onClose={() => setIsExportModalOpen(false)}
+          onExport={handleExportReport}
+          isExporting={isExporting}
+        />
       </div>
     </div>
   );
