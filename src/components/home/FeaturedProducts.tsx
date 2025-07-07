@@ -81,10 +81,10 @@ const FeaturedProducts: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('API Response:', data);
+      // console.log('API Response:', data);
 
       if (data.message?.products && Array.isArray(data.message.products)) {
-        console.log('Products array:', data.message.products);
+        // console.log('Products array:', data.message.products);
         setProducts(data.message.products);
         setError(null);
       } else {
@@ -171,20 +171,16 @@ const FeaturedProducts: React.FC = () => {
   }
 
   return (
-    <section className="pb-12">
+    <section className="py-4">
       {products && <div className="container mx-auto px-4 xl:px-14">
-        <div className="flex flex-col space-y-6">
-          {/* Header with navigation */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-            <h6 className="text-xl font-medium font-worksans">Featured Products</h6>
-            
-            {/* Navigation */}
-            <div className="flex items-center w-full md:w-auto space-x-4">
-              <Link to="/featured-products" className="text-orange-500 text-sm font-medium mr-6">
-                See All
-              </Link>
-              
-              <div className="flex items-center space-x-3">
+        {/* Header with navigation */}
+        <div className="flex justify-between items-center mb-6">
+          <h6 className="text-xl font-medium font-worksans">Featured Products</h6>
+          <div className="flex items-center">
+            <Link to="/featured-products" className="text-orange-500 text-sm font-medium mr-10">
+              See All
+            </Link>
+            <div className="flex items-center space-x-3">
               <button
                 onClick={() => scroll('left')}
                 className="focus:outline-none"
@@ -200,51 +196,50 @@ const FeaturedProducts: React.FC = () => {
                 <ChevronRight size={20} className="text-gray-500 hover:text-black duration-300" />
               </button>
             </div>
-            </div>
           </div>
+        </div>
 
-          {/* Products carousel */}
-          <div className="relative">
-            <div
-              ref={containerRef}
-              className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
-              onMouseDown={handleMouseDown}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              onMouseMove={handleMouseMove}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onWheel={handleWheel}
-              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-            >
-              {products.map((product) => (
-                <div 
-                  key={product.product_id} 
-                  className="flex-none"
-                  style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 12 / itemsPerView}px)` }}
-                >
-                  <ProductCard 
-                    product={{
-                      id: product.product_id,
-                      name: product.product_name,
-                      price: product.price, // Use backend-calculated price
-                      rating: 0,
-                      reviews: 0,
-                      stock: product.stock?.stock_qty || 0,
-                      description: product.product_description,
-                      images: product.images || [],
-                      category: product.category?.name || '',
-                      currency: 'INR',
-                      tags: [],
-                      original_price: product.originalPrice || 0, // Use backend-calculated originalPrice
-                      sku: '',
-                      primary_image: product.images?.[0] || ''
-                    }}
-                    salePercentage={product.discount_pct || undefined}
-                  />
-                </div>
-              ))}
-            </div>
+        {/* Products carousel */}
+        <div className="relative">
+          <div
+            ref={containerRef}
+            className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onWheel={handleWheel}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          >
+            {products.map((product) => (
+              <div 
+                key={product.product_id} 
+                className="flex-none"
+                style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 12 / itemsPerView}px)` }}
+              >
+                <ProductCard 
+                  product={{
+                    id: product.product_id,
+                    name: product.product_name,
+                    price: product.price, // Use backend-calculated price
+                    rating: 0,
+                    reviews: 0,
+                    stock: product.stock?.stock_qty || 0,
+                    description: product.product_description,
+                    images: product.images || [],
+                    category: product.category?.name || '',
+                    currency: 'INR',
+                    tags: [],
+                    original_price: product.originalPrice || 0, // Use backend-calculated originalPrice
+                    sku: '',
+                    primary_image: product.images?.[0] || ''
+                  }}
+                  salePercentage={product.discount_pct || undefined}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>}

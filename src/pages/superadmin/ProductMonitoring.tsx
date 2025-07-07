@@ -209,11 +209,11 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                                 </div>
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500">Cost Price</h4>
-                                    <p className="mt-1 text-gray-900">${product.cost_price.toFixed(2)}</p>
+                                    <p className="mt-1 text-gray-900">₹{product.cost_price.toFixed(2)}</p>
                                 </div>
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500">Selling Price</h4>
-                                    <p className="mt-1 text-gray-900">${product.selling_price.toFixed(2)}</p>
+                                    <p className="mt-1 text-gray-900">₹{product.selling_price.toFixed(2)}</p>
                                 </div>
                             </div>
 
@@ -256,7 +256,7 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                                             <div key={variant.product_id} className="border rounded-lg p-4">
                                                 <h5 className="font-medium text-sm">{variant.product_name}</h5>
                                                 <p className="text-xs text-gray-600">SKU: {variant.sku}</p>
-                                                <p className="text-xs">Price: ${variant.selling_price.toFixed(2)}</p>
+                                                <p className="text-xs">Price: ₹{variant.selling_price.toFixed(2)}</p>
                                                 <span className={`inline-block px-2 py-1 rounded text-xs mt-2 ${getStatusBadgeClass(variant.status)}`}>
                                                     {variant.status}
                                                 </span>
@@ -348,11 +348,11 @@ const ProductMonitoring: React.FC = () => {
 
     // Add debug function
     const debugLog = (message: string, data?: any) => {
-        console.log(`[ProductMonitoring Debug] ${message}`, data || '');
+        // console.log(`[ProductMonitoring Debug] ${message}`, data || '');
     };
 
     const getStatusBadgeClass = (status: string) => {
-        debugLog('Getting status badge class for status:', status);
+        // debugLog('Getting status badge class for status:', status);
         switch (status) {
             case 'APPROVED':
                 return 'bg-green-100 text-green-800';
@@ -381,7 +381,7 @@ const ProductMonitoring: React.FC = () => {
             setIsLoading(true);
             setError(null);
 
-            debugLog('Fetching products from superadmin endpoints...');
+            // debugLog('Fetching products from superadmin endpoints...');
             const [pendingResponse, approvedResponse, rejectedResponse] = await Promise.all([
                 fetch(`${API_BASE_URL}/api/superadmin/products/pending`, {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
@@ -394,21 +394,21 @@ const ProductMonitoring: React.FC = () => {
                 })
             ]);
 
-            debugLog('API Responses Status:', {
-                pending: pendingResponse.status,
-                approved: approvedResponse.status,
-                rejected: rejectedResponse.status
-            });
+            // debugLog('API Responses Status:', {
+            //     pending: pendingResponse.status,
+            //     approved: approvedResponse.status,
+            //     rejected: rejectedResponse.status
+            // });
 
             if (!pendingResponse.ok || !approvedResponse.ok || !rejectedResponse.ok) {
                 const pendingError = await pendingResponse.text();
                 const approvedError = await approvedResponse.text();
                 const rejectedError = await rejectedResponse.text();
-                debugLog('API Error Responses:', {
-                    pending: pendingError,
-                    approved: approvedError,
-                    rejected: rejectedError
-                });
+                // debugLog('API Error Responses:', {
+                //     pending: pendingError,
+                //     approved: approvedError,
+                //     rejected: rejectedError
+                // });
                 throw new Error('Failed to fetch products');
             }
 
@@ -418,11 +418,11 @@ const ProductMonitoring: React.FC = () => {
                 rejectedResponse.json()
             ]);
 
-            debugLog('Fetched Products:', {
-                pending: pendingProducts,
-                approved: approvedProducts,
-                rejected: rejectedProducts
-            });
+            // debugLog('Fetched Products:', {
+            //     pending: pendingProducts,
+            //     approved: approvedProducts,
+            //     rejected: rejectedProducts
+            // });
 
             // Map the products to include status
             const allProducts = [
@@ -431,7 +431,7 @@ const ProductMonitoring: React.FC = () => {
                 ...rejectedProducts.map((p: Product) => ({ ...p, status: 'REJECTED' }))
             ];
 
-            debugLog('Combined Products:', allProducts);
+            // debugLog('Combined Products:', allProducts);
             setProducts(allProducts);
         } catch (error) {
             console.error('Error in fetchProducts:', error);
@@ -468,7 +468,7 @@ const ProductMonitoring: React.FC = () => {
 
         setIsActionLoading(true);
         try {
-            console.log('Approving product:', productId);
+            // console.log('Approving product:', productId);
             const response = await fetch(`${API_BASE_URL}/api/superadmin/products/${productId}/approve`, {
                 method: 'POST',
                 headers: {
@@ -477,7 +477,7 @@ const ProductMonitoring: React.FC = () => {
                 }
             });
 
-            console.log('Approve Response Status:', response.status);
+            // console.log('Approve Response Status:', response.status);
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Approve Error Response:', errorText);
@@ -485,7 +485,7 @@ const ProductMonitoring: React.FC = () => {
             }
 
             const responseData = await response.json();
-            console.log('Approve Success Response:', responseData);
+            // console.log('Approve Success Response:', responseData);
 
             toast.success('Product approved successfully');
             await fetchProducts();
@@ -503,7 +503,7 @@ const ProductMonitoring: React.FC = () => {
 
         setIsActionLoading(true);
         try {
-            console.log('Rejecting product:', { productId, reason });
+            // console.log('Rejecting product:', { productId, reason });
             const response = await fetch(`${API_BASE_URL}/api/superadmin/products/${productId}/reject`, {
                 method: 'POST',
                 headers: {
@@ -513,7 +513,7 @@ const ProductMonitoring: React.FC = () => {
                 body: JSON.stringify({ reason })
             });
 
-            console.log('Reject Response Status:', response.status);
+            // console.log('Reject Response Status:', response.status);
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Reject Error Response:', errorText);
@@ -521,7 +521,7 @@ const ProductMonitoring: React.FC = () => {
             }
 
             const responseData = await response.json();
-            console.log('Reject Success Response:', responseData);
+            // console.log('Reject Success Response:', responseData);
 
             toast.success('Product rejected successfully');
             await fetchProducts();
@@ -535,7 +535,7 @@ const ProductMonitoring: React.FC = () => {
     };
 
     const handleViewDetails = (product: Product) => {
-        debugLog('Opening product details for:', product);
+        // debugLog('Opening product details for:', product);
         setSelectedProduct(product);
     };
 
@@ -649,11 +649,11 @@ const ProductMonitoring: React.FC = () => {
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Cost Price:</span>
-                                        <span className="text-gray-900">${product.cost_price.toFixed(2)}</span>
+                                        <span className="text-gray-900">₹{product.cost_price.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Selling Price:</span>
-                                        <span className="text-gray-900">${product.selling_price.toFixed(2)}</span>
+                                        <span className="text-gray-900">₹{product.selling_price.toFixed(2)}</span>
                                     </div>
                                 </div>
 
@@ -683,7 +683,7 @@ const ProductMonitoring: React.FC = () => {
                 <ProductViewer
                     product={selectedProduct}
                     onClose={() => {
-                        debugLog('Closing product details for:', selectedProduct);
+                        // debugLog('Closing product details for:', selectedProduct);
                         setSelectedProduct(null);
                     }}
                     onApprove={handleApprove}

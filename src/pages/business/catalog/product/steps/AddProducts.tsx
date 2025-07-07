@@ -38,7 +38,7 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
 
   useEffect(() => {
     if (mode !== 'new' && id) {
-      console.log('Fetching product data for ID:', id);
+      // console.log('Fetching product data for ID:', id);
       setCreatedProductId(parseInt(id)); // Assume ID is the created product ID for edit mode
     }
   }, [mode, id]);
@@ -90,7 +90,7 @@ const AddProducts: React.FC<AddProductsProps> = ({ mode = 'new' }) => {
   // Callback for CoreProductInfo to inform AddProducts that the product's core details are saved
   const handleProductCreated = (productId: number) => {
     setCreatedProductId(productId);
-    console.log('Product core created with ID:', productId);
+    // console.log('Product core created with ID:', productId);
     // Potentially auto-advance to next relevant section or enable further actions
   };
   

@@ -141,10 +141,10 @@ const PromoProducts: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('API Response:', data);
+      // console.log('API Response:', data);
 
       if (data.message?.products && Array.isArray(data.message.products)) {
-        console.log('Products array:', data.message.products);
+        // console.log('Products array:', data.message.products);
         setPromoProducts(data.message.products);
         setError(null);
       } else {
@@ -277,7 +277,7 @@ const PromoProducts: React.FC = () => {
   }
 
   return (
-    <section className="py-8">
+    <section className="py-4">
       {promoProducts && <div className="container mx-auto px-4 xl:px-14">
         {/* Header with navigation */}
         <div className="flex justify-between items-center mb-6">
@@ -331,7 +331,7 @@ const PromoProducts: React.FC = () => {
                   className="flex-none"
                   style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 24 / itemsPerView}px)` }}
                 >
-                  <div className="bg-white rounded-lg overflow-hidden border border-orange-100 hover:border-orange-300 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col md:flex-row relative h-full">
+                  <div className="bg-white rounded-lg overflow-hidden border border-orange-100 shadow-sm transition-all duration-300 flex flex-col md:flex-row relative h-full">
                     {/* Discount Badge */}
                     <div className="absolute top-2 left-2 z-10">
                       <span className="bg-[#F2631F] text-white text-xs py-[3px] px-3 rounded-[4px]">
@@ -343,12 +343,13 @@ const PromoProducts: React.FC = () => {
 
                     {/* Product Image */}
                     <div className="md:w-2/5 h-64 md:h-auto relative flex-shrink-0">
-                      <img
-                        src={product.images?.[0] || '/placeholder-image.jpg'}
-                        alt={product.product_name}
-                        className="w-full h-full object-cover"
-                      />
-
+                      <div className="w-full h-full rounded transition-colors duration-300 bg-transparent hover:bg-yellow-600 flex items-center justify-center">
+                        <img
+                          src={product.images?.[0] || '/placeholder-image.jpg'}
+                          alt={product.product_name}
+                          className="w-full h-full object-cover rounded"
+                        />
+                      </div>
                       {/* Wishlist Button */}
                       <button
                         className={`absolute top-2 right-2 z-10 p-1.5 rounded-full transition-all duration-300 ${isInWishlist(product.product_id)

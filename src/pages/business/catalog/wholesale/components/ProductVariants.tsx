@@ -475,7 +475,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
       setError(null);
 
       // Debug: Log input data
-      console.log('Variant Data Input:', variantData);
+      // console.log('Variant Data Input:', variantData);
 
       // Ensure we have the required fields
       if (!variantData.sku || !variantData.attributes[0]?.name) {
@@ -489,11 +489,11 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
       };
 
       // Debug: Log request payload
-      console.log('Request Payload:', newVariant);
+      // console.log('Request Payload:', newVariant);
 
       // Fix double slash in URL
       const url = `${API_BASE_URL}/api/merchant-dashboard/products/${productId}/variants`.replace(/([^:]\/)\/+/g, "$1");
-      console.log('Request URL:', url);
+      // console.log('Request URL:', url);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -505,7 +505,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
       });
 
       // Debug: Log response status
-      console.log('Response Status:', response.status);
+      // console.log('Response Status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -516,7 +516,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
 
       const createdVariant = await response.json();
       // Debug: Log successful response
-      console.log('Created Variant:', createdVariant);
+      // console.log('Created Variant:', createdVariant);
       
       const formattedVariant = {
         variant_id: createdVariant.variant_id,

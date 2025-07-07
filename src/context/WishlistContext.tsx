@@ -36,20 +36,20 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
   // Fetch wishlist from backend
   const fetchWishlist = async () => {
     if (!accessToken || user?.role !== 'customer') {
-      console.log('Auth check failed in fetchWishlist:', { 
-        hasAccessToken: !!accessToken, 
-        userRole: user?.role 
-      });
+      // console.log('Auth check failed in fetchWishlist:', { 
+      //   hasAccessToken: !!accessToken, 
+      //   userRole: user?.role 
+      // });
       setWishlistItems([]);
       setLoading(false);
       return;
     }
     
     try {
-      console.log('=== Fetch Wishlist Debug ===');
-      console.log('API Base URL:', API_BASE_URL);
-      console.log('Full URL:', `${API_BASE_URL}/api/wishlist`);
-      console.log('Access Token:', accessToken ? 'Present' : 'Missing');
+      // console.log('=== Fetch Wishlist Debug ===');
+      // console.log('API Base URL:', API_BASE_URL);
+      // console.log('Full URL:', `${API_BASE_URL}/api/wishlist`);
+      // console.log('Access Token:', accessToken ? 'Present' : 'Missing');
       
       const response = await fetch(`${API_BASE_URL}/api/wishlist`, {
         headers: {
@@ -58,9 +58,9 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
       });
 
-      console.log('Response Status:', response.status);
-      console.log('Response Status Text:', response.statusText);
-      console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
+      // console.log('Response Status:', response.status);
+      // console.log('Response Status Text:', response.statusText);
+      // console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -69,7 +69,7 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
       }
 
       const data = await response.json();
-      console.log('Success Response Data:', data);
+      // console.log('Success Response Data:', data);
 
       if (data.status === 'success') {
         setWishlistItems(data.data);
@@ -99,31 +99,31 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const addToWishlist = async (productId: number) => {
     if (!accessToken || user?.role !== 'customer') {
-      console.log('Auth check failed:', { 
-        hasAccessToken: !!accessToken, 
-        userRole: user?.role 
-      });
+      // console.log('Auth check failed:', { 
+      //   hasAccessToken: !!accessToken, 
+      //   userRole: user?.role 
+      // });
       toast.error('Only customers can add items to wishlist');
       return;
     }
 
     try {
-      console.log('=== Wishlist API Request Debug ===');
-      console.log('API Base URL:', API_BASE_URL);
-      console.log('Full URL:', `${API_BASE_URL}/api/wishlist`);
-      console.log('Request Method:', 'POST');
-      console.log('Product ID:', productId);
-      console.log('Access Token:', accessToken ? 'Present' : 'Missing');
+      // console.log('=== Wishlist API Request Debug ===');
+      // console.log('API Base URL:', API_BASE_URL);
+      // console.log('Full URL:', `${API_BASE_URL}/api/wishlist`);
+      // console.log('Request Method:', 'POST');
+      // console.log('Product ID:', productId);
+      // console.log('Access Token:', accessToken ? 'Present' : 'Missing');
       
       const payload = {
         product_id: productId
       };
       
-      console.log('Request Payload:', payload);
-      console.log('Request Headers:', {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      });
+      // console.log('Request Payload:', payload);
+      // console.log('Request Headers:', {
+      //   'Authorization': `Bearer ${accessToken}`,
+      //   'Content-Type': 'application/json'
+      // });
 
       const response = await fetch(`${API_BASE_URL}/api/wishlist`, {
         method: 'POST',
@@ -134,10 +134,10 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
         body: JSON.stringify(payload)
       });
 
-      console.log('=== Wishlist API Response Debug ===');
-      console.log('Response Status:', response.status);
-      console.log('Response Status Text:', response.statusText);
-      console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
+      // console.log('=== Wishlist API Response Debug ===');
+      // console.log('Response Status:', response.status);
+      // console.log('Response Status Text:', response.statusText);
+      // console.log('Response Headers:', Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -146,7 +146,7 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
       }
 
       const data = await response.json();
-      console.log('Success Response Data:', data);
+      // console.log('Success Response Data:', data);
       
       if (data.status === 'success') {
         await fetchWishlist();

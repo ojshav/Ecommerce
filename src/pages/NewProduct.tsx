@@ -119,9 +119,9 @@ const NewProduct: React.FC = () => {
       });
 
       const apiUrl = `${API_BASE_URL}/api/products/new?${params}`;
-      console.log('Fetching new products with URL:', apiUrl);
+      // console.log('Fetching new products with URL:', apiUrl);
 
-      const response = await fetch(apiUrl, {
+      const response = await fetch(apiUrl, {  
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -133,7 +133,7 @@ const NewProduct: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('New products response:', data);
+      // console.log('New products response:', data);
       
       // Transform the API response to match the Product type
       const transformedProducts = data.products.map((product: any) => {
@@ -276,7 +276,7 @@ const NewProduct: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 xl:px-14 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 sm:gap-0">
           <div className="flex flex-col">
             <h1 className="text-2xl font-bold text-gray-900">New Products</h1>

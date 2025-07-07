@@ -4,8 +4,8 @@ import { Mail, Phone, MapPin, Twitter, Facebook, Github, Instagram } from 'lucid
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#FFE7DB] text-black w-full">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+    <footer className="bg-[#FFE7DB] text-black w-full ">
+      <div className="container mx-auto px-16 xs:px-2 sm:px-2 md:px-2 lg:px-12 xl:px-16 2xl:pl-16 py-8 sm:py-12  lg:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-6 xl:gap-8">
 
           {/* Column 1 - Logo & Contact */}
@@ -108,7 +108,7 @@ const Footer: React.FC = () => {
 
       {/* Bottom White Bar */}
       <div className="bg-white py-3 lg:py-4">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4 sm:px-2 md:px-3 nav:px-6 lg:px-6">
           <p className="text-center sm:text-left text-[11px] sm:text-[13px] text-gray-400">
             © 2000–2021, All Rights Reserved
           </p>

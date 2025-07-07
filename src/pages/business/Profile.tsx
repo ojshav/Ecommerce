@@ -44,7 +44,7 @@ const Profile = () => {
   const handleSave = () => {
     setIsEditing(false);
     // Handle save logic here
-    console.log('Saving profile:', profileData);
+    // console.log('Saving profile:', profileData);
   };
 
   return (

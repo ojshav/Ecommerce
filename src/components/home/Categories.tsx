@@ -88,7 +88,7 @@ const Categories: React.FC = () => {
   }
 
   return (
-    <section className="pt-8">
+    <section className="pt-8 py-4">
       <div className="container mx-auto px-4 xl:px-14">
         {/* Categories header with navigation */}
         <div className="flex justify-between items-center mb-6">

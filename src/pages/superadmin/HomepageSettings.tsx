@@ -201,7 +201,7 @@ const HomepageSettings: React.FC = () => {
             }
 
             const data = await response.json();
-            console.log('API /products response:', data);
+            // console.log('API /products response:', data);
             setProducts(data);
         } catch (error) {
             console.error('Error fetching products:', error);

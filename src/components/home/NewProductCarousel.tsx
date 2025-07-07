@@ -37,7 +37,7 @@ const NewProductCarousel: React.FC = () => {
   }, [current]);
 
   return (
-    <div className="w-full relative mb-8 sm:mb-12 md:mb-16 lg:mb-20">
+    <div className="w-full relative py-2 pb-3">
       <div 
         ref={containerRef}
         className="relative w-full h-auto aspect-[16/6] sm:aspect-[16/5] md:aspect-[16/4.5] lg:aspect-[16/4]"

@@ -66,9 +66,6 @@ interface Product {
   brand_id: number;
   cost_price: number;
   selling_price: number;
-  special_price: number | null;
-  special_start: string | null;
-  special_end: string | null;
   active_flag: boolean;
   category?: {
     category_id: number;
@@ -121,9 +118,6 @@ const EditProduct: React.FC = () => {
     brand_id: '',
     cost_price: '',
     selling_price: '',
-    special_price: '',
-    special_start: '',
-    special_end: '',
     active_flag: true,
     weight: '',
     weightUnit: 'kg',
@@ -230,7 +224,7 @@ const EditProduct: React.FC = () => {
       }
 
       const mediaData = await mediaResponse.json();
-      console.log('Media data from API:', mediaData);
+      // console.log('Media data from API:', mediaData);
 
       // Combine product and media data
       const combinedData = {
@@ -238,8 +232,8 @@ const EditProduct: React.FC = () => {
         media: mediaData
       };
 
-      console.log('Combined data:', combinedData);
-      console.log('Media type check:', mediaData.map((m: Media) => ({ id: m.media_id, type: m.type, url: m.url })));
+      // console.log('Combined data:', combinedData);
+      // console.log('Media type check:', mediaData.map((m: Media) => ({ id: m.media_id, type: m.type, url: m.url })));
       setProduct(combinedData);
       setFormData({
         product_name: productData.product_name,
@@ -248,16 +242,13 @@ const EditProduct: React.FC = () => {
         brand_id: productData.brand_id.toString(),
         cost_price: productData.cost_price.toString(),
         selling_price: productData.selling_price.toString(),
-        special_price: productData.special_price?.toString() || '',
-        special_start: productData.special_start || '',
-        special_end: productData.special_end || '',
         active_flag: productData.active_flag,
         weight: productData.shipping?.weight?.toString() || '',
         length: productData.shipping?.dimensions?.length?.toString() || '',
         width: productData.shipping?.dimensions?.width?.toString() || '',
         height: productData.shipping?.dimensions?.height?.toString() || '',
         weightUnit: 'kg',
-        dimensionUnit: 'cm',
+        dimensionUnit: 'cm'
       });
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -281,7 +272,6 @@ const EditProduct: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Media stats received:', data);
       setMediaStats(data);
     } catch (error) {
       console.error('Error fetching media stats:', error);
@@ -303,7 +293,7 @@ const EditProduct: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Raw shipping data from API:', data);
+      // console.log('Raw shipping data from API:', data);
 
       // Store the raw data
       setShippingData({
@@ -381,11 +371,10 @@ const EditProduct: React.FC = () => {
         throw new Error(errorData.message || 'Failed to upload media');
       }
 
-      // Wait for both operations to complete
-      await Promise.all([
-        fetchProduct(),
-        fetchMediaStats()
-      ]);
+      // First fetch the updated media stats
+      await fetchMediaStats();
+      // Then fetch the updated product data
+      await fetchProduct();
 
       // Clear the file input
       e.target.value = '';
@@ -413,9 +402,10 @@ const EditProduct: React.FC = () => {
         throw new Error('Failed to delete media');
       }
 
-      // Refresh product data and media stats
-      fetchProduct();
-      fetchMediaStats();
+      // First fetch the updated media stats
+      await fetchMediaStats();
+      // Then fetch the updated product data
+      await fetchProduct();
     } catch (error) {
       console.error('Error deleting media:', error);
       setError('Failed to delete media. Please try again.');
@@ -425,16 +415,12 @@ const EditProduct: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Convert empty strings to null for date fields
       const submitData = {
         ...formData,
         category_id: parseInt(formData.category_id),
         brand_id: parseInt(formData.brand_id),
         cost_price: parseFloat(formData.cost_price),
         selling_price: parseFloat(formData.selling_price),
-        special_price: formData.special_price ? parseFloat(formData.special_price) : null,
-        special_start: formData.special_start || null,
-        special_end: formData.special_end || null,
         weight: parseFloat(formData.weight),
         length: parseFloat(formData.length),
         width: parseFloat(formData.width),
@@ -482,7 +468,7 @@ const EditProduct: React.FC = () => {
         }
       };
 
-      console.log('Sending shipping data:', shippingData);
+      // console.log('Sending shipping data:', shippingData);
 
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${id}/shipping`, {
         method: 'POST',
@@ -730,50 +716,6 @@ const EditProduct: React.FC = () => {
               />
             </div>
 
-            <div>
-              <label htmlFor="special_price" className="block text-sm font-medium text-gray-700">
-                Special Price
-              </label>
-              <input
-                type="number"
-                id="special_price"
-                name="special_price"
-                value={formData.special_price}
-                onChange={handleChange}
-                step="0.01"
-                min="0"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="special_start" className="block text-sm font-medium text-gray-700">
-                Special Price Start Date
-              </label>
-              <input
-                type="date"
-                id="special_start"
-                name="special_start"
-                value={formData.special_start}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="special_end" className="block text-sm font-medium text-gray-700">
-                Special Price End Date
-              </label>
-              <input
-                type="date"
-                id="special_end"
-                name="special_end"
-                value={formData.special_end}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-              />
-            </div>
-
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -795,14 +737,15 @@ const EditProduct: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <div>
               <h3 className="text-lg font-medium text-gray-900">Product Media</h3>
-              {mediaStats && (
+              {product?.media && (
                 <p className="text-sm text-gray-500 mt-1">
-                  {mediaStats.image_count} {mediaStats.image_count === 1 ? 'image' : 'images'}, {mediaStats.video_count} {mediaStats.video_count === 1 ? 'video' : 'videos'}
-                  {mediaStats.remaining_slots > 0 && ` (${mediaStats.remaining_slots} ${mediaStats.remaining_slots === 1 ? 'slot' : 'slots'} remaining)`}
+                  {product.media.filter(m => m.type.toLowerCase() === 'image').length} {product.media.filter(m => m.type.toLowerCase() === 'image').length === 1 ? 'image' : 'images'}, 
+                  {' '}{product.media.filter(m => m.type.toLowerCase() === 'video').length} {product.media.filter(m => m.type.toLowerCase() === 'video').length === 1 ? 'video' : 'videos'}
+                  {' '}({Math.max(0, 5 - product.media.length)} {Math.max(0, 5 - product.media.length) === 1 ? 'slot' : 'slots'} remaining)
                 </p>
               )}
             </div>
-            {mediaStats && mediaStats.remaining_slots > 0 && (
+            {product?.media && product.media.length < 5 && (
               <div className="flex items-center space-x-2">
                 <label
                   htmlFor="media-upload"
@@ -823,8 +766,6 @@ const EditProduct: React.FC = () => {
           </div>
 
           {(() => {
-            console.log('Current product state:', product);
-            console.log('Media array:', product?.media);
             return null;
           })()}
           {product?.media && product.media.length > 0 ? (
@@ -876,7 +817,7 @@ const EditProduct: React.FC = () => {
                 </svg>
               </div>
               <p className="text-gray-500">No media uploaded yet</p>
-              {mediaStats && mediaStats.remaining_slots > 0 && (
+              {product?.media && product.media.length < 5 && (
                 <p className="text-sm text-gray-400 mt-1">
                   Click "Add Media" to upload images or videos
                 </p>

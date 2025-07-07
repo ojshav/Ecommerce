@@ -146,13 +146,14 @@ const Dashboard: React.FC = () => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     }).format(amount);
   };
 
   const formatPercentage = (value: number) => {
     const sign = value >= 0 ? '+' : '';
-    return `${sign}${value.toFixed(1)}%`;
+    return `${sign}${value.toFixed(2)}%`;
   };
 
   const fetchData = async () => {
@@ -172,7 +173,7 @@ const Dashboard: React.FC = () => {
       }
 
       const trendData: TrendResponse = await trendResponse.json();
-      console.log('Revenue Orders Trend Response:', trendData);
+      // console.log('Revenue Orders Trend Response:', trendData);
       if (trendData.status === 'success') {
         setTrendData(trendData.data);
       }
@@ -189,7 +190,7 @@ const Dashboard: React.FC = () => {
       }
 
       const statsData: OrderStatsResponse = await statsResponse.json();
-      console.log('Order Stats Response:', statsData);
+      // console.log('Order Stats Response:', statsData);
       if (statsData.status === 'success') {
         setOrderStats(statsData.data);
       }
@@ -206,7 +207,7 @@ const Dashboard: React.FC = () => {
       }
 
       const ordersData: RecentOrdersResponse = await ordersResponse.json();
-      console.log('Recent Orders Response:', ordersData);
+      // console.log('Recent Orders Response:', ordersData);
       if (ordersData.status === 'success') {
         setRecentOrders(ordersData.data);
       }
@@ -223,7 +224,7 @@ const Dashboard: React.FC = () => {
       }
 
       const productsData: TopProductsResponse = await productsResponse.json();
-      console.log('Top Products Response:', productsData);
+      // console.log('Top Products Response:', productsData);
       if (productsData.status === 'success') {
         setTopProducts(productsData.data);
       }

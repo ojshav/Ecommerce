@@ -6,7 +6,7 @@ const NewsletterSignup: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission - would connect to backend in real implementation
-    console.log('Email submitted:', email);
+    // console.log('Email submitted:', email);
     
     // Reset the form
     setEmail('');
