@@ -140,7 +140,7 @@ const TrendingDeals: React.FC = () => {
             
             {/* Navigation */}
             <div className="flex items-center w-full md:w-auto space-x-4">
-              <Link to="/trending" className="text-orange-500 text-sm font-medium mr-10">
+              <Link to="/trendy-deals" className="text-orange-500 text-sm font-medium mr-10">
                 See All
               </Link>
               <div className="flex items-center space-x-3">
