@@ -202,7 +202,7 @@ const AdminLayout: React.FC = () => {
               <Bars3Icon className="h-6 w-6" />
             </button>
             <img 
-              src="/assets/images/logo.svg" 
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687784/public_assets_images/public_assets_images_logo.svg" 
               alt="ShopEasy Logo" 
               className="h-8 w-auto"
             />

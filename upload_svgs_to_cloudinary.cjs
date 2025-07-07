@@ -10,7 +10,21 @@ cloudinary.config({
 });
 
 
-const svgDir = path.join(__dirname, 'src', 'assets');
+const svgDir = path.join(__dirname, 'public', 'assets' ,'icon');
+
+// Function to validate SVG file
+function isValidSvgFile(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8').trim();
+    if (!content) {
+      return false;
+    }
+    // Basic SVG validation - check if it starts with <svg
+    return content.startsWith('<svg') || content.includes('<svg');
+  } catch (error) {
+    return false;
+  }
+}
 
 // Recursively find all .svg files in a directory
 function getAllSvgFiles(dir, fileList = []) {
@@ -33,20 +47,29 @@ async function uploadAllSvgs() {
     console.log('No SVG files found in', svgDir);
     return;
   }
+  
+  console.log(`Found ${svgFiles.length} SVG files. Starting validation and upload...`);
+  
   for (const file of svgFiles) {
     try {
+      // Validate SVG file before upload
+      if (!isValidSvgFile(file)) {
+        console.warn(`⚠️  Skipping invalid/empty SVG file: ${file}`);
+        continue;
+      }
+      
       const relativePath = path.relative(__dirname, file).replace(/\\/g, '/'); // for Windows compatibility
       const publicId = relativePath.replace(/\//g, '_').replace(/src_assets_/, ''); // flatten but unique
 
       const result = await cloudinary.uploader.upload(file, {
         resource_type: 'image',
-        folder: 'svg_assets',
+        folder: 'public_assets_icon',
         public_id: publicId.replace(/\.svg$/, ''), // remove .svg extension for Cloudinary
         overwrite: false,
       });
-      console.log(`Uploaded: ${file} -> ${result.secure_url}`);
+      console.log(`✅ Uploaded: ${file} -> ${result.secure_url}`);
     } catch (err) {
-      console.error(`Failed to upload ${file}:`, err.message);
+      console.error(`❌ Failed to upload ${file}:`, err.message);
     }
   }
 }

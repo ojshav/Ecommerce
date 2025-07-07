@@ -271,7 +271,7 @@ const Navbar: React.FC = () => {
               {/* Logo - Left below icons */}
               <div className="mt-0 flex-shrink-0 mr-2 md:mr-6 mid:mr-8">
                 <Link to="/" className="inline-block">
-                  <img src="/assets/images/logo.svg" alt="AUIN Logo" width="100" height="35" className="w-[90px] h-[30px] sm:w-[100px] sm:h-[35px] mid:w-[120px] mid:h-[42px]" />
+                  <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687784/public_assets_images/public_assets_images_logo.svg" alt="AUIN Logo" width="100" height="35" className="w-[90px] h-[30px] sm:w-[100px] sm:h-[35px] mid:w-[120px] mid:h-[42px]" />
                 </Link>
               </div>
 
@@ -412,7 +412,7 @@ const Navbar: React.FC = () => {
 
             <div className="flex items-center space-x-2">
               <Link to="/track-order" className="hidden nav:flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
-                <img src="/assets/images/track-order.png" alt="Track Order" className="w-4 h-4 mr-1" />
+                <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687786/public_assets_images/public_assets_images_track-order.svg" alt="Track Order" className="w-4 h-4 mr-1" />
                 <span>Track Your Order</span>
               </Link>
               {isAuthenticated ? (
@@ -443,7 +443,7 @@ const Navbar: React.FC = () => {
           {lowerMobileMenuOpen && (
             <div className="nav:hidden border-t border-gray-200 pt-2 pb-1 bg-white" ref={lowerMobileMenuRef}>
               <Link to="/track-order" className="flex items-center py-1.5 px-2 text-sm hover:text-[#F2631F] mb-2" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
-                <img src="/assets/images/track-order.png" alt="Track Order" className="w-4 h-4 mr-2" />
+                <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687786/public_assets_images/public_assets_images_track-order.svg" alt="Track Order" className="w-4 h-4 mr-2" />
                 <span>Track Your Order</span>
               </Link>
 
@@ -490,7 +490,7 @@ const Navbar: React.FC = () => {
             {/* Categories Dropdown Button */}
             <div onClick={toggleCategoryDropdown} className="relative flex items-center group">
               <span className="mr-1 w-6 h-6 py-[5px] px-[3px] flex items-center">
-                <img src="/assets/images/category.png" alt="Category" className="w-full h-full" />
+                <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687779/public_assets_images/public_assets_images_category.svg" alt="Category" className="w-full h-full" />
               </span>
               <button
                 className="flex items-center py-1.5 px-3 md:px-4 text-black group-hover:text-gray-700 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
@@ -522,7 +522,7 @@ const Navbar: React.FC = () => {
             {/* Right side links */}
             <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-6">
               <Link to="/orders" className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
-                <img src="/assets/images/track-order.png" alt="Track Order" className="w-5 h-5 mr-1" />
+                <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687786/public_assets_images/public_assets_images_track-order.svg" alt="Track Order" className="w-5 h-5 mr-1" />
                 <span>Track Your Order</span>
               </Link>
 

@@ -52,7 +52,7 @@ const Hero = () => {
             {/* 🔥 First Slide = Video */}
             <div className="relative flex-shrink-0 w-full">
               <video
-                src="/assets/videos/hero.mp4"
+                src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691070/public_assets_videos/hero.mp4"
                 className="w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[650px] object-cover rounded-md"
                 autoPlay
                 loop

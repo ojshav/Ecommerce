@@ -94,7 +94,7 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
             
             {/* Video or Image */}
             <img 
-              src="/assets/liveshop/fashion_model.jpg"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751688852/public_assets_liveshop/public_assets_liveshop_fashion_model.svg"
               alt="Fashion Live Stream"
               className="w-full h-full object-cover"
             />
@@ -156,7 +156,7 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
                 <div className="flex items-center flex-1">
                   <div className="w-10 h-10 rounded-full overflow-hidden">
                     <img 
-                      src="/assets/liveshop/fashion_icon.jpg"
+                      src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751688849/public_assets_liveshop/public_assets_liveshop_fashion_icon.svg"
                       alt="Host"
                       className="w-full h-full object-cover"
                     />
@@ -177,7 +177,7 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
               <div className="bg-gray-50 rounded-lg p-6 mb-8">
                 <div className="w-40 h-40 mx-auto mb-4">
                   <img 
-                    src="/assets/liveshop/floral_dress.jpg"
+                    src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751688855/public_assets_liveshop/public_assets_liveshop_floral_dress.svg"
                     alt="Floral Print Midi Dress"
                     className="w-full h-full object-cover rounded-lg"
                   />
