@@ -394,7 +394,7 @@ const Navbar: React.FC = () => {
       )}
 
       {/* Main navigation - white bar */}
-      <div className="bg-white border-b shadow-sm py-1.5">
+      <div className="bg-white border-b shadow-sm py-1.5 ">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 2xl:px-6 3xl:px-8 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px] 2xl:max-w-[1440px] 3xl:max-w-[1680px] 4xl:max-w-[1920px]">
           {/* Mobile lower navigation toggle - use custom breakpoint at 968px */}
           <div className="nav:hidden flex items-center justify-between">

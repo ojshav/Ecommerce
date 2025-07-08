@@ -50,14 +50,14 @@ const ComingSoon: React.FC<ComingSoonProps> = ({ layout = 'row' }) => {
       id: '4',
       title: 'Makeup Masterclass',
       host: 'Sophie',
-      thumbnail: 'https://images.unsplash.com/photo-1583241749708-a482a09f59ff?w=500&h=500&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=500&h=500&fit=crop',
       type: 'Beauty'
     },
     {
       id: '5',
       title: 'Makeup Masterclass',
       host: 'Sophie',
-      thumbnail: 'https://images.unsplash.com/photo-1599848880232-057d8e17d91d?w=500&h=500&fit=crop',
+      thumbnail: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&h=500&fit=crop',
       type: 'Beauty'
     }
   ];

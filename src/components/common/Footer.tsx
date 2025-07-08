@@ -82,7 +82,7 @@ const Footer: React.FC = () => {
             </div>
 
             {/* Email Subscription */}
-            <form className="flex items-center bg-white rounded-xl overflow-hidden shadow-sm max-w-full lg:max-w-[330px]">
+            <form className="flex items-center bg-white rounded-xl overflow-hidden shadow-sm max-w-full  lg:max-w-[330px]">
               <div className="flex items-center px-2 text-black">
                 <Mail size={14} className="sm:w-4 sm:h-4" />
               </div>
@@ -93,7 +93,7 @@ const Footer: React.FC = () => {
               />
               <button
                 type="submit"
-                className="bg-[#F2631F] hover:bg-[#d44f12] text-white px-4 py-2 lg:-ml-6 text-xs font-medium transition-colors"
+                className="bg-[#F2631F] hover:bg-[#d44f12] text-white px-4 py-2 sm:-ml-10 -ml-16 xl:-ml-6 lg:-ml-6 text-xs  font-medium transition-colors"
               >
                 Submit
               </button>
