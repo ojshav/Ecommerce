@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
           {/* Column 1 - Logo & Contact */}
           <div className="lg:col-span-1">
             <Link to="/" className="inline-block mb-6 lg:mb-8">
-              <img src="/assets/images/logo.svg" alt="AUIN" className="h-8 sm:h-10" />
+              <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687784/public_assets_images/public_assets_images_logo.svg" alt="AUIN" className="h-8 sm:h-10" />
             </Link>
 
             <div className="space-y-3 lg:space-y-4 text-[13px] sm:text-[14px] font-light text-[#161616]">
@@ -82,7 +82,7 @@ const Footer: React.FC = () => {
             </div>
 
             {/* Email Subscription */}
-            <form className="flex items-center bg-white rounded-xl overflow-hidden shadow-sm max-w-full lg:max-w-[330px]">
+            <form className="flex items-center bg-white rounded-xl overflow-hidden shadow-sm max-w-full  lg:max-w-[330px]">
               <div className="flex items-center px-2 text-black">
                 <Mail size={14} className="sm:w-4 sm:h-4" />
               </div>
@@ -93,7 +93,7 @@ const Footer: React.FC = () => {
               />
               <button
                 type="submit"
-                className="bg-[#F2631F] hover:bg-[#d44f12] text-white px-4 py-2 lg:-ml-6 text-xs font-medium transition-colors"
+                className="bg-[#F2631F] hover:bg-[#d44f12] text-white px-4 py-2 sm:-ml-10 -ml-16 xl:-ml-6 lg:-ml-6 text-xs  font-medium transition-colors"
               >
                 Submit
               </button>
@@ -107,10 +107,12 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom White Bar */}
-      <div className="bg-white py-3 lg:py-4">
-        <div className="container mx-auto px-4 sm:px-2 md:px-3 nav:px-6 lg:px-6">
+      <div className="bg-white py-3 lg:py-4  xl:pl-28 sm:pl-16">
+        <div className="container mx-auto ">
           <p className="text-center sm:text-left text-[11px] sm:text-[13px] text-gray-400">
+
             © {new Date().getFullYear()}, All Rights Reserved
+
           </p>
         </div>
       </div>

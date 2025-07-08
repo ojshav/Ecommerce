@@ -1897,7 +1897,7 @@ const UserProfile: React.FC = () => {
           ) : (
             <div className="bg-white border rounded-md p-6 mt-8 text-center">
               <img
-                src="/assets/images/google_logo.png"
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687781/public_assets_images/public_assets_images_google_logo.svg"
                 alt="Google Logo"
                 className="w-10 h-10 mx-auto mb-3"
               />

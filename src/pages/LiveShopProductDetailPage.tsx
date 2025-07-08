@@ -78,8 +78,8 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-[1440px] mx-auto">
+    <div className="min-h-screen mt-5 bg-gray-50">
+      <div className="max-w-[1600px] mx-auto px-4 2xl:px-4 xl:px-2 lg:px-4 xs:px-4 ">
         {/* Header */}
         <div className="px-4 sm:px-6 py-3">
           <h1 className="text-[#FF4D00] text-lg font-medium">Fashion Live</h1>
@@ -90,31 +90,32 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
           {/* Left Section - Live Stream/Image */}
           <div className="w-full lg:w-1/2 h-[400px] lg:h-[600px] relative bg-[#FF4D00]">
             {/* Black overlay for video */}
-            <div className="absolute inset-0 bg-black/20"></div>
+            <div className="absolute inset-0 "></div>
             
             {/* Video or Image */}
             <img 
-              src="/assets/liveshop/fashion_model.jpg"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751688852/public_assets_liveshop/public_assets_liveshop_fashion_model.svg"
               alt="Fashion Live Stream"
               className="w-full h-full object-cover"
             />
             
-            {/* Play Button Overlay */}
+            {/* Play Button Overlay 
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform cursor-pointer">
                 <svg className="w-10 h-10 text-gray-900" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
-            </div>
+            </div> */}
 
-            {/* Live Indicator */}
+            {/* Live Indicator 
             <div className="absolute top-4 left-4 flex items-center space-x-2 bg-black/30 px-3 py-1.5 rounded-full">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
               <span className="text-sm font-medium text-white">423</span>
             </div>
+            */}
 
-            {/* Close Button */}
+            {/* Close Button 
             <button 
               onClick={() => navigate(-1)}
               className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-white hover:bg-black/40 transition-colors"
@@ -123,8 +124,9 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
+            */}
 
-            {/* AOIN Live Card */}
+            {/* AOIN Live Card 
             <div className="absolute left-4 bottom-4 w-[300px]">
               <div className="bg-[#FFE4E1] rounded-xl p-4">
                 <div className="flex items-center">
@@ -143,20 +145,20 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Right Section - Product Details */}
-          <div className="w-full lg:w-1/2 p-4 sm:p-6 bg-white">
+          <div className="w-full lg:w-[48%] p-4 sm:p-6 ">
             <div className="max-w-lg mx-auto">
-              <h2 className="text-lg font-medium mb-4">About Product</h2>
+              <h2 className="text-lg font-bold mb-4">About Product</h2>
 
               {/* Host Info */}
-              <div className="flex items-center bg-white rounded-lg border border-gray-100 p-3 mb-6">
+              <div className="flex items-center  rounded-lg border border-[#C4C4C4] p-3 mb-6">
                 <div className="flex items-center flex-1">
                   <div className="w-10 h-10 rounded-full overflow-hidden">
                     <img 
-                      src="/assets/liveshop/fashion_icon.jpg"
+                      src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751688849/public_assets_liveshop/public_assets_liveshop_fashion_icon.svg"
                       alt="Host"
                       className="w-full h-full object-cover"
                     />
@@ -177,7 +179,7 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
               <div className="bg-gray-50 rounded-lg p-6 mb-8">
                 <div className="w-40 h-40 mx-auto mb-4">
                   <img 
-                    src="/assets/liveshop/floral_dress.jpg"
+                    src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751688855/public_assets_liveshop/public_assets_liveshop_floral_dress.svg"
                     alt="Floral Print Midi Dress"
                     className="w-full h-full object-cover rounded-lg"
                   />

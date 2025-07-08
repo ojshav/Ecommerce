@@ -19,7 +19,7 @@ const AoinTrendsSection = () => {
           Discover the trends that resonate with you. Dive into Aoin today.
         </h1>
         <video
-          src="/assets/videos/Aoin3.mp4"
+          src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691055/public_assets_videos/Aoin3.mp4"
           className="w-full max-w-xs h-40 object-cover rounded-lg"
           autoPlay
           loop
@@ -88,7 +88,7 @@ const AoinTrendsSection = () => {
           </button>
 
           <video
-            src="/assets/videos/Aoin3.mp4"
+            src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691055/public_assets_videos/Aoin3.mp4"
             className="w-[356px] h-[320px] object-cover"
             autoPlay
             loop

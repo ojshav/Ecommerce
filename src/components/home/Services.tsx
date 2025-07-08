@@ -52,7 +52,7 @@ const Services: React.FC = () => {
           className="rounded-lg shadow-lg w-full h-auto"
           style={{ height: '422px', objectFit: 'cover' }}
         >
-          <source src="/assets/videos/lp1.mp4" type="video/mp4" />
+          <source src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691073/public_assets_videos/lp1.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
       </div>

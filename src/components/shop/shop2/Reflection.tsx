@@ -25,7 +25,7 @@ const Reflection = () => {
         {/* Center Circular Video */}
         <div className="absolute top-[27%] left-1/2 -translate-x-1/2 w-[60vw] max-w-[469px] aspect-[469/520] rounded-full overflow-hidden z-10">
           <video
-            src="/assets/videos/Panther.mp4"
+            src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691057/public_assets_videos/Panther.mp4"
             autoPlay
             loop
             muted

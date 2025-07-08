@@ -133,13 +133,19 @@ const TrendingDeals: React.FC = () => {
   return (
     <section className="py-4">
       <div className="container mx-auto px-4 xl:px-14">
-        <div className="flex justify-between items-center mb-6">
-          <h6 className="text-xl font-medium font-worksans">Trending Deals</h6>
-          <div className="flex items-center">
-            <Link to="/trending" className="text-orange-500 text-sm font-medium mr-10">
-              See All
-            </Link>
-            <div className="flex items-center space-x-3">
+
+        <div className="flex flex-col space-y-6">
+          {/* Header with navigation */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+            <h6 className="text-xl font-medium font-worksans">Trending Deals</h6>
+            
+            {/* Navigation */}
+            <div className="flex items-center w-full md:w-auto space-x-4">
+              <Link to="/trendy-deals" className="text-orange-500 text-sm font-medium mr-10">
+                See All
+              </Link>
+              <div className="flex items-center space-x-3">
+
               <button
                 onClick={() => scroll('left')}
                 className="focus:outline-none"
