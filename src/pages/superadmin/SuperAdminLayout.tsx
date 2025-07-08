@@ -149,6 +149,11 @@ export const dashboardSections: MenuSection[] = [
         icon: FileBarChart2, // Using an appropriate icon
         description: "Manage Goods and Services Tax rules and applicability",
       },
+      {
+        title: "Merchant Subscriptions",
+        icon: ShieldCheck,
+        description: "Manage merchant subscriptions",
+      },
     ],
   },
   /*

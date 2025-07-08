@@ -115,6 +115,7 @@ import RaiseTicket from './pages/RaiseTicket';
 import { useVisitTracking } from './hooks/useVisitTracking';
 import SearchResultsPage from './pages/SearchResultsPage';
 import MerchantPaymentReport from './pages/superadmin/reports/MerchantPaymentReport';
+import MerchantSubscription from './pages/MerchantSubscription';
 
 import Aoinlive from './pages/business/Aoinlive';
 
@@ -465,6 +466,7 @@ const App: React.FC = () => {
                     <Route path="promotions" element={<Promotions />} />
                     <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
+<Route path="merchant-subscriptions" element={<MerchantSubscription />} />
                   </Route>
 
                     {/* Public Routes with header/footer */}
