@@ -331,93 +331,102 @@ const PromoProducts: React.FC = () => {
                   className="flex-none"
                   style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 24 / itemsPerView}px)` }}
                 >
-                  <div className="bg-white rounded-lg overflow-hidden border border-orange-100 shadow-sm transition-all duration-300 flex flex-col md:flex-row relative h-full">
-                    {/* Discount Badge */}
-                    <div className="absolute top-2 left-2 z-10">
-                      <span className="bg-[#F2631F] text-white text-xs py-[3px] px-3 rounded-[4px]">
-                        - {discount}%
-                      </span>
-                    </div>
+                  <Link 
+                    to={`/product/${product.product_id}`}
+                    className="block h-full"
+                    onClick={(e) => {
+                      if (isDragging) {
+                        e.preventDefault();
+                      }
+                    }}
+                  >
+                    <div className="bg-white rounded-lg overflow-hidden border border-orange-100 shadow-sm transition-all duration-300 flex flex-col md:flex-row relative h-full">
+                      {/* Discount Badge */}
+                      <div className="absolute top-2 left-2 z-10">
+                        <span className="bg-[#F2631F] text-white text-xs py-[3px] px-3 rounded-[4px]">
+                          - {discount}%
+                        </span>
 
-
-
-                    {/* Product Image */}
-                    <div className="md:w-2/5 h-64 md:h-auto relative flex-shrink-0">
-                      <div className="w-full h-full rounded transition duration-300 hover:shadow-[0_0_30px_rgba(253,224,71,0.5)] bg-transparent hover:bg-yellow-600 flex items-center justify-center">
-                        <img
-                          src={product.images?.[0] || '/placeholder-image.jpg'}
-                          alt={product.product_name}
-                          className="w-full h-full object-cover rounded"
-                        />
                       </div>
-                      {/* Wishlist Button */}
-                      <button
-                        className={`absolute top-2 right-2 z-10 p-1.5 rounded-full transition-all duration-300 ${isInWishlist(product.product_id)
-                          ? 'text-[#F2631F] bg-white shadow-md'
-                          : 'text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md'
-                          }`}
-                        onClick={(e) => handleWishlist(e, product)}
-                        disabled={wishlistLoading}
-                      >
-                        <Heart className={`w-4 h-4 ${isInWishlist(product.product_id) ? 'fill-current' : ''}`} />
-                      </button>
-                    </div>
 
-                    {/* Product Details */}
-                    <div className="md:w-3/5 p-6 flex flex-col justify-between flex-grow">
-                      <div>
-                        <p className="font-normal text-sm font-worksans mb-2">{product.product_name}</p>
-                        <div className="flex items-baseline mb-4">
-                          <span className="text-xl font-bold">₹{product.price.toFixed(2)}</span>
-                          {product.originalPrice && product.originalPrice !== product.price && (
-                            <span className="text-sm text-gray-500 line-through ml-3">
-                              ₹{product.originalPrice.toFixed(2)}
-                            </span>
+                      {/* Product Image */}
+                      <div className="md:w-2/5 h-64 md:h-auto relative flex-shrink-0">
+                        <div className="w-full h-full rounded transition-colors duration-300 bg-transparent hover:bg-yellow-600 flex items-center justify-center">
+                          <img
+                            src={product.images?.[0] || '/placeholder-image.jpg'}
+                            alt={product.product_name}
+                            className="w-full h-full object-cover rounded"
+                          />
+                        </div>
+                        {/* Wishlist Button */}
+                        <button
+                          className={`absolute top-2 right-2 z-10 p-1.5 rounded-full transition-all duration-300 ${isInWishlist(product.product_id)
+                            ? 'text-[#F2631F] bg-white shadow-md'
+                            : 'text-gray-400 hover:text-[#F2631F] hover:bg-white hover:shadow-md'
+                            }`}
+                          onClick={(e) => handleWishlist(e, product)}
+                          disabled={wishlistLoading}
+                        >
+                          <Heart className={`w-4 h-4 ${isInWishlist(product.product_id) ? 'fill-current' : ''}`} />
+                        </button>
+                      </div>
+
+                      {/* Product Details */}
+                      <div className="md:w-3/5 p-6 flex flex-col justify-between flex-grow">
+                        <div>
+                          <p className="font-normal text-sm font-worksans mb-2">{product.product_name}</p>
+                          <div className="flex items-baseline mb-4">
+                            <span className="text-xl font-bold">₹{product.price.toFixed(2)}</span>
+                            {product.originalPrice && product.originalPrice !== product.price && (
+                              <span className="text-sm text-gray-500 line-through ml-3">
+                                ₹{product.originalPrice.toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Countdown Timer */}
+                          {countdown && (
+                            <div className="grid grid-cols-4 gap-2 mb-6 w-[203px] h-[62px]">
+                              <div className="text-center">
+                                <div className="bg-gray-100 p-2 rounded">
+                                  <span className="text-base font-medium">{countdown.days}</span>
+                                </div>
+                                <span className="text-xs text-gray-500">Day</span>
+                              </div>
+                              <div className="text-center">
+                                <div className="bg-gray-100 p-2 rounded">
+                                  <span className="text-base font-medium">{countdown.hours}</span>
+                                </div>
+                                <span className="text-xs text-gray-500">Hour</span>
+                              </div>
+                              <div className="text-center">
+                                <div className="bg-gray-100 p-2 rounded">
+                                  <span className="text-base font-medium">{countdown.minutes.toString().padStart(2, '0')}</span>
+                                </div>
+                                <span className="text-xs text-gray-500">Min</span>
+                              </div>
+                              <div className="text-center">
+                                <div className="bg-gray-100 p-2 rounded">
+                                  <span className="text-base font-medium">{countdown.seconds.toString().padStart(2, '0')}</span>
+                                </div>
+                                <span className="text-xs text-gray-500">Sec</span>
+                              </div>
+                            </div>
                           )}
                         </div>
 
-                        {/* Countdown Timer */}
-                        {countdown && (
-                          <div className="grid grid-cols-4 gap-2 mb-6 w-[203px] h-[62px]">
-                            <div className="text-center">
-                              <div className="bg-gray-100 p-2 rounded">
-                                <span className="text-base font-medium">{countdown.days}</span>
-                              </div>
-                              <span className="text-xs text-gray-500">Day</span>
-                            </div>
-                            <div className="text-center">
-                              <div className="bg-gray-100 p-2 rounded">
-                                <span className="text-base font-medium">{countdown.hours}</span>
-                              </div>
-                              <span className="text-xs text-gray-500">Hour</span>
-                            </div>
-                            <div className="text-center">
-                              <div className="bg-gray-100 p-2 rounded">
-                                <span className="text-base font-medium">{countdown.minutes.toString().padStart(2, '0')}</span>
-                              </div>
-                              <span className="text-xs text-gray-500">Min</span>
-                            </div>
-                            <div className="text-center">
-                              <div className="bg-gray-100 p-2 rounded">
-                                <span className="text-base font-medium">{countdown.seconds.toString().padStart(2, '0')}</span>
-                              </div>
-                              <span className="text-xs text-gray-500">Sec</span>
-                            </div>
-                          </div>
-                        )}
+                        {/* Add to Cart Button */}
+                        <button
+                          className="w-full font-worksans hover:bg-black duration-300 font-medium text-sm bg-[#F2631F] text-white py-2 px-[94.5px] rounded-lg transition flex items-center justify-center gap-1.5"
+                          onClick={(e) => handleAddToCart(e, product)}
+                          disabled={product.stock?.stock_qty === 0 || user?.role === 'merchant' || user?.role === 'admin'}
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                          {product.stock?.stock_qty === 0 ? 'Sold Out' : 'Add to Cart'}
+                        </button>
                       </div>
-
-                      {/* Add to Cart Button */}
-                      <button
-                        className="w-full font-worksans hover:bg-black duration-300 font-medium text-sm bg-[#F2631F] text-white py-2 px-[94.5px] rounded-lg transition flex items-center justify-center gap-1.5"
-                        onClick={(e) => handleAddToCart(e, product)}
-                        disabled={product.stock?.stock_qty === 0 || user?.role === 'merchant' || user?.role === 'admin'}
-                      >
-                        <ShoppingCart className="w-4 h-4" />
-                        {product.stock?.stock_qty === 0 ? 'Sold Out' : 'Add to Cart'}
-                      </button>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               );
             })}
