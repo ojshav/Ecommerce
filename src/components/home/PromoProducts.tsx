@@ -346,6 +346,7 @@ const PromoProducts: React.FC = () => {
                         <span className="bg-[#F2631F] text-white text-xs py-[3px] px-3 rounded-[4px]">
                           - {discount}%
                         </span>
+
                       </div>
 
                       {/* Product Image */}
