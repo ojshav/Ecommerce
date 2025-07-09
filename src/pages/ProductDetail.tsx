@@ -757,12 +757,12 @@ const ProductDetail: React.FC = () => {
         );
       case "information":
         return (
-          <div className="py-6">
-            <h3 className="text-xl font-medium mb-6 text-gray-900">
+          <div className="py-4 sm:py-6">
+            <h3 className="text-base sm:text-xl font-medium mb-4 sm:mb-6 text-gray-900">
               Specifications
             </h3>
-            <div className="border-t border-gray-200">
-              <table className="min-w-full">
+            <div className="border-t border-gray-200 overflow-x-auto">
+              <table className="min-w-[340px] sm:min-w-full">
                 <tbody>
                   <tr className="border-b border-gray-200">
                     <td className="py-3 pr-4 font-medium text-gray-700 w-1/3">
@@ -922,15 +922,15 @@ const ProductDetail: React.FC = () => {
     });
 
     return (
-      <div className="mt-8">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+      <div className="mt-6 sm:mt-8">
+        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
           {product.is_variant ? "Related Products" : "Available Variants"}
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-row space-x-3 overflow-x-auto scrollbar-hide sm:grid sm:grid-cols-1 sm:space-x-0 sm:gap-4 lg:grid-cols-3">
           {sortedVariants.map((variant) => (
             <div
               key={variant.id}
-              className={`border rounded-lg p-4 cursor-pointer transition-all ${
+              className={`min-w-[220px] max-w-xs sm:min-w-0 sm:max-w-none border rounded-lg p-3 sm:p-4 cursor-pointer transition-all ${
                 variant.id === product.product_id.toString()
                   ? "border-blue-500 bg-blue-50"
                   : "hover:border-gray-400"
@@ -1048,11 +1048,11 @@ const ProductDetail: React.FC = () => {
 
       return (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 px-2 sm:px-0"
           onClick={onClose}
         >
           <div
-            className="relative max-w-4xl w-full  bg-white rounded-lg overflow-hidden"
+            className="relative w-full max-w-md sm:max-w-4xl bg-white rounded-lg overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -1145,7 +1145,7 @@ const ProductDetail: React.FC = () => {
     if (!images || images.length === 0) return null;
 
     return (
-      <div className="mt-3 grid grid-cols-4 gap-2">
+      <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
         {images.map((image, index) => (
           <div
             key={image.image_id}
@@ -1171,9 +1171,9 @@ const ProductDetail: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 xs:px-2 sm:px-4 md:px-10 xl:px-14 py-8">
+      <div className="container mx-auto px-1 xs:px-2 sm:px-4 md:px-10 xl:px-14 py-4 sm:py-8">
         {/* Breadcrumbs */}
-        <nav className="flex items-center text-xs mb-3">
+        <nav className="flex flex-wrap items-center text-xs mb-3 overflow-x-auto whitespace-nowrap">
           <Link
             to="/"
             className="text-gray-500 hover:text-primary-600 transition-colors"
@@ -1202,102 +1202,102 @@ const ProductDetail: React.FC = () => {
 
         {/* Product Overview Section */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-2 sm:p-4">
             {/* Product Images */}
             <div className="space-y-2">
               <div className="flex flex-col items-center">
                 {/* Main Product Image with Navigation */}
-                <div className="mb-6 w-full max-w-lg flex justify-center relative">
+                <div className="mb-3 sm:mb-6 w-full max-w-xs xs:max-w-sm sm:max-w-lg flex justify-center relative mx-auto">
                   {/* Check if current selected image is a video */}
                   {product.media.find(media => media.url === selectedImage)?.type?.toLowerCase() === 'video' ? (
                     <video
-                      src={selectedImage}
-                      controls
-                      className="rounded-lg shadow-md object-contain max-h-96 w-full"
-                    />
-                  ) : (
-                    <img
-                      src={selectedImage}
-                      alt={product.product_name}
-                      className="rounded-lg shadow-md object-contain max-h-96 w-full"
-                    />
-                  )}
-                  {/* Left Arrow Button */}
-                  <button
-                    onClick={() => {
-                      const currentIndex = product.media.findIndex(
-                        (media) => media.url === selectedImage
-                      );
-                      const previousIndex =
-                        (currentIndex - 1 + product.media.length) %
-                        product.media.length;
-                      setSelectedImage(product.media[previousIndex].url);
-                    }}
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 p-3 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-100 transition-colors z-10"
-                    aria-label="Previous image"
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
-
-                  {/* Right Arrow Button */}
-                  <button
-                    onClick={() => {
-                      const currentIndex = product.media.findIndex(
-                        (media) => media.url === selectedImage
-                      );
-                      const nextIndex =
-                        (currentIndex + 1) % product.media.length;
-                      setSelectedImage(product.media[nextIndex].url);
-                    }}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-100 transition-colors z-10"
-                    aria-label="Next image"
-                  >
-                    <ChevronRight size={24} />
-                  </button>
-                </div>
-
-                {/* Thumbnail Images */}
-                <div className="flex space-x-3 overflow-x-auto scrollbar-hide">
-                  {product.media.map((media) => (
-                    <div
-                      key={media.media_id}
-                      className={`relative w-20 h-20 cursor-pointer border-2 rounded-md overflow-hidden ${selectedImage === media.url
-                          ? "border-orange-500"
-                          : "border-transparent"
-                        }`}
-                      onClick={() => setSelectedImage(media.url)}
+                        src={selectedImage}
+                        controls
+                        className="rounded-lg shadow-md object-contain w-full max-h-60 xs:max-h-80 sm:max-h-96"
+                      />
+                    ) : (
+                      <img
+                        src={selectedImage}
+                        alt={product.product_name}
+                        className="rounded-lg shadow-md object-contain w-full max-h-60 xs:max-h-80 sm:max-h-96"
+                      />
+                    )}
+                    {/* Left Arrow Button */}
+                    <button
+                      onClick={() => {
+                        const currentIndex = product.media.findIndex(
+                          (media) => media.url === selectedImage
+                        );
+                        const previousIndex =
+                          (currentIndex - 1 + product.media.length) %
+                          product.media.length;
+                        setSelectedImage(product.media[previousIndex].url);
+                      }}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 p-3 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-100 transition-colors z-10"
+                      aria-label="Previous image"
                     >
-                      {media.type?.toLowerCase() === 'video' ? (
-                        <div className="relative w-full h-full">
-                          <video
-                            src={media.url}
-                            className="w-full h-full object-cover"
-                            muted
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
-                            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                              <svg className="w-3 h-3 text-gray-800 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
-                              </svg>
+                      <ChevronLeft size={24} />
+                    </button>
+
+                    {/* Right Arrow Button */}
+                    <button
+                      onClick={() => {
+                        const currentIndex = product.media.findIndex(
+                          (media) => media.url === selectedImage
+                        );
+                        const nextIndex =
+                          (currentIndex + 1) % product.media.length;
+                        setSelectedImage(product.media[nextIndex].url);
+                      }}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-100 transition-colors z-10"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  </div>
+
+                  {/* Thumbnail Images */}
+                  <div className="flex flex-nowrap space-x-2 sm:space-x-3 overflow-x-auto scrollbar-hide pb-2 sm:pb-0 justify-center w-full max-w-sm xs:max-w-sm  sm:max-w-lg mx-auto">
+                    {product.media.map((media) => (
+                      <div
+                        key={media.media_id}
+                        className={`relative min-w-[60px] min-h-[60px] w-16 h-16 xs:w-20 xs:h-20 cursor-pointer border-2 rounded-md overflow-hidden ${selectedImage === media.url
+                            ? "border-orange-500"
+                            : "border-transparent"
+                          }`}
+                        onClick={() => setSelectedImage(media.url)}
+                      >
+                        {media.type?.toLowerCase() === 'video' ? (
+                          <div className="relative w-full h-full">
+                            <video
+                              src={media.url}
+                              className="w-full h-full object-cover rounded-md"
+                              muted
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                              <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                                <svg className="w-3 h-3 text-gray-800 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                                </svg>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : (
-                        <img
-                          src={media.url}
-                          alt={`${product.product_name} thumbnail`}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                    </div>
-                  ))}
+                        ) : (
+                          <img
+                            src={media.url}
+                            alt={`${product.product_name} thumbnail`}
+                            className="w-full h-full object-cover rounded-md"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
             </div>
 
             {/* Product Info */}
-            <div className="flex flex-col">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+            <div className="flex flex-col mt-2 md:mt-0">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-1">
                 {product.product_name}
               </h1>
 
@@ -1422,7 +1422,139 @@ const ProductDetail: React.FC = () => {
               {/* Quantity Selector and Add to Cart Row */}
               <div className="mb-3">
                 <div className="text-sm font-medium mb-1">Quantity:</div>
-                <div className="flex items-center gap-3">
+                {/* Mobile layout: Quantity, Share, Wishlist in a row; action buttons below */}
+                <div className="flex flex-col gap-2 nav:hidden">
+                  <div className="flex flex-row items-center gap-2 w-full">
+                    {/* Quantity Changer */}
+                    <div className="flex items-center border border-gray-300 rounded-md overflow-hidden w-[90px] h-9">
+                      <button
+                        className="w-8 h-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-lg disabled:opacity-30"
+                        onClick={() => handleQuantityChange(-1)}
+                        disabled={quantity <= 1}
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center text-sm select-none">
+                        {quantity}
+                      </span>
+                      <button
+                        className="w-8 h-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors text-lg"
+                        onClick={() => handleQuantityChange(1)}
+                      >
+                        +
+                      </button>
+                    </div>
+                    {/* Share Button */}
+                    <div className="relative">
+                      <button
+                        className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px] text-gray-600 flex items-center justify-center`}
+                        onClick={() => setShowShareOptions(!showShareOptions)}
+                        aria-label="Share this product"
+                      >
+                        <Share2 size={18} />
+                      </button>
+                      {/* Share Options Dropdown */}
+                      {showShareOptions && (
+                        <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                          <div className="p-3 border-b border-gray-100">
+                            <h3 className="text-sm font-medium text-gray-700">
+                              Share this product
+                            </h3>
+                          </div>
+                          <div className="p-2">
+                            <button
+                              onClick={copyToClipboard}
+                              className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                            >
+                              {copiedToClipboard ? (
+                                <>
+                                  <Check
+                                    size={16}
+                                    className="text-green-500 mr-2"
+                                  />{" "}
+                                  Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <Copy size={16} className="mr-2" /> Copy link
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => shareViaPlatform("facebook")}
+                              className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                            >
+                              <Facebook
+                                size={16}
+                                className="text-[#1877F2] mr-2"
+                              />{" "}
+                              Facebook
+                            </button>
+                            <button
+                              onClick={() => shareViaPlatform("twitter")}
+                              className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                            >
+                              <Twitter
+                                size={16}
+                                className="text-[#1DA1F2] mr-2"
+                              />{" "}
+                              Twitter
+                            </button>
+                            <button
+                              onClick={() => shareViaPlatform("email")}
+                              className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                            >
+                              <Mail size={16} className="text-gray-600 mr-2" />{" "}
+                              Email
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {/* Favourites Button */}
+                    <button
+                      className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px] ${isInWishlist(Number(product?.product_id))
+                        ? "text-[#F2631F]"
+                        : "text-gray-600 flex items-center justify-center"
+                      }`}
+                      onClick={handleWishlist}
+                      disabled={wishlistLoading}
+                      aria-label="Add to Wishlist"
+                    >
+                      {wishlistLoading ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#F2631F] mx-auto"></div>
+                      ) : (
+                        <Heart
+                          size={18}
+                          className={
+                            isInWishlist(Number(product?.product_id))
+                              ? "fill-current"
+                              : ""
+                          }
+                        />
+                      )}
+                    </button>
+                  </div>
+                  {/* Action Buttons (always below on mobile) */}
+                  <div className="flex gap-2 w-full mt-2">
+                    {/* Buy Now Button */}
+                    <button
+                      onClick={handleBuyNow}
+                      className="bg-orange-500 text-white px-5 py-2 rounded-md hover:bg-orange-600 duration-300 transition-colors font-medium text-sm min-w-[120px] w-full"
+                    >
+                      Buy Now
+                    </button>
+                    {/* Add to Cart Button */}
+                    <button
+                      onClick={handleAddToCart}
+                      className="bg-orange-500 text-white px-5 py-2 rounded-md hover:bg-orange-600 duration-300 transition-colors font-medium text-sm min-w-[120px] w-full"
+                    >
+                      Add To Cart
+                    </button>
+                  </div>
+                </div>
+                {/* Desktop layout: original order (sm+) */}
+                <div className="hidden nav:flex nav:flex-row nav:items-center nav:gap-3">
                   {/* Quantity Changer */}
                   <div className="flex items-center border border-gray-300 rounded-md overflow-hidden w-[90px] h-9">
                     <button
@@ -1442,9 +1574,8 @@ const ProductDetail: React.FC = () => {
                       +
                     </button>
                   </div>
-
                   {/* Action Buttons */}
-                  <div className="flex gap-3">
+                  <div className="flex gap-2 nav:gap-3">
                     {/* Buy Now Button */}
                     <button
                       onClick={handleBuyNow}
@@ -1452,7 +1583,6 @@ const ProductDetail: React.FC = () => {
                     >
                       Buy Now
                     </button>
-
                     {/* Add to Cart Button */}
                     <button
                       onClick={handleAddToCart}
@@ -1461,7 +1591,6 @@ const ProductDetail: React.FC = () => {
                       Add To Cart
                     </button>
                   </div>
-
                   {/* Share Button */}
                   <div className="relative">
                     <button
@@ -1471,7 +1600,6 @@ const ProductDetail: React.FC = () => {
                     >
                       <Share2 size={18} />
                     </button>
-
                     {/* Share Options Dropdown */}
                     {showShareOptions && (
                       <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-10">
@@ -1480,7 +1608,6 @@ const ProductDetail: React.FC = () => {
                             Share this product
                           </h3>
                         </div>
-
                         <div className="p-2">
                           <button
                             onClick={copyToClipboard}
@@ -1500,7 +1627,6 @@ const ProductDetail: React.FC = () => {
                               </>
                             )}
                           </button>
-
                           <button
                             onClick={() => shareViaPlatform("facebook")}
                             className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
@@ -1511,7 +1637,6 @@ const ProductDetail: React.FC = () => {
                             />{" "}
                             Facebook
                           </button>
-
                           <button
                             onClick={() => shareViaPlatform("twitter")}
                             className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
@@ -1522,7 +1647,6 @@ const ProductDetail: React.FC = () => {
                             />{" "}
                             Twitter
                           </button>
-
                           <button
                             onClick={() => shareViaPlatform("email")}
                             className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
@@ -1534,13 +1658,12 @@ const ProductDetail: React.FC = () => {
                       </div>
                     )}
                   </div>
-
                   {/* Favourites Button */}
                   <button
                     className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px] ${isInWishlist(Number(product?.product_id))
-                        ? "text-[#F2631F]"
-                        : "text-gray-600 flex items-center justify-center"
-                      }`}
+                      ? "text-[#F2631F]"
+                      : "text-gray-600 flex items-center justify-center"
+                    }`}
                     onClick={handleWishlist}
                     disabled={wishlistLoading}
                     aria-label="Add to Wishlist"
@@ -1569,8 +1692,8 @@ const ProductDetail: React.FC = () => {
 
         {/* Tabs Section */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="border-b border-gray-200">
-            <nav className="flex">
+          <div className="border-b border-gray-200 overflow-x-auto">
+            <nav className="flex min-w-[320px]">
               <button
                 onClick={() => setActiveTab("product-details")}
                 className={`py-2 px-4 font-medium border-b-2 ${activeTab === "product-details"
@@ -1601,7 +1724,7 @@ const ProductDetail: React.FC = () => {
             </nav>
           </div>
 
-          <div className="p-4">{renderTabContent()}</div>
+          <div className="p-2 sm:p-4">{renderTabContent()}</div>
         </div>
       </div>
     </div>

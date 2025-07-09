@@ -343,7 +343,7 @@ const PromoProducts: React.FC = () => {
 
                     {/* Product Image */}
                     <div className="md:w-2/5 h-64 md:h-auto relative flex-shrink-0">
-                      <div className="w-full h-full rounded transition-colors duration-300 bg-transparent hover:bg-yellow-600 flex items-center justify-center">
+                      <div className="w-full h-full rounded transition duration-300 hover:shadow-[0_0_30px_rgba(253,224,71,0.5)] bg-transparent hover:bg-yellow-600 flex items-center justify-center">
                         <img
                           src={product.images?.[0] || '/placeholder-image.jpg'}
                           alt={product.product_name}
