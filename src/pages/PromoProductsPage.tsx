@@ -803,7 +803,7 @@ const PromoProductsPage: React.FC = () => {
             
             {/* Pagination */}
             {totalPages > 0 && (
-              <div className="flex justify-end items-center gap-1 my-6">
+              <div className="flex md:justify-end justify-center items-center gap-1 my-6">
                 <button 
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
