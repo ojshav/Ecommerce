@@ -997,12 +997,12 @@ const Products: React.FC = () => {
 
         {/* Recently Viewed */}
         {recentlyViewed.length > 0 && (
-          <div className="mt-12 mb-8">
+          <div className="md:mt-12 mb-8 xs:mt-40 sm:mt-20">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-semibold">Recently Viewed</h2>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
               {recentlyViewed.map((product) => (
                 <div 
                   key={product.id}
