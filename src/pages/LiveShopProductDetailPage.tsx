@@ -238,36 +238,41 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
         </div>
 
         {/* Fashion Factory Section */}
-        <div className="px-4 sm:px-6 py-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-medium text-gray-900">Fashion Factory</h2>
-            <a href="/live-shop/fashion-factory" className="text-sm text-gray-600 hover:text-gray-900">
-              See All
-            </a>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {fashionFactoryContent.map((item) => (
-              <LiveCard key={item.id} {...item} />
-            ))}
-          </div>
+      <div className="px-4 sm:px-6 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-medium text-gray-900">Fashion Factory</h2>
+          <a href="/live-shop/fashion-factory" className="text-sm text-gray-600 hover:text-gray-900">
+            See All
+          </a>
         </div>
 
-        {/* Sunday Funday Section */}
-        <div className="px-4 sm:px-6 pb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-medium text-gray-900">Sunday Funday</h2>
-            <a href="/live-shop/sunday-funday" className="text-sm text-gray-600 hover:text-gray-900">
-              See All
-            </a>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {fashionFactoryContent.map((item) => (
-              <LiveCard key={item.id} {...item} />
-            ))}
-          </div>
+        <div className="flex space-x-4 overflow-x-auto sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 sm:space-x-0 gap-4">
+          {fashionFactoryContent.map((item) => (
+            <div key={item.id} className="min-w-[200px] flex-shrink-0 sm:min-w-0">
+              <LiveCard {...item} />
+            </div>
+          ))}
         </div>
+      </div>
+
+      {/* Sunday Funday Section */}
+      <div className="px-4 sm:px-6 pb-8">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-medium text-gray-900">Sunday Funday</h2>
+          <a href="/live-shop/sunday-funday" className="text-sm text-gray-600 hover:text-gray-900">
+            See All
+          </a>
+        </div>
+
+        <div className="flex space-x-4 overflow-x-auto sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 sm:space-x-0 gap-4">
+          {fashionFactoryContent.map((item) => (
+            <div key={item.id} className="min-w-[200px] flex-shrink-0 sm:min-w-0">
+              <LiveCard {...item} />
+            </div>
+          ))}
+        </div>
+      </div>
+
       </div>
     </div>
   );
