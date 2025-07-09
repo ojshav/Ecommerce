@@ -8,10 +8,10 @@ const Vault = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689866/pub
 const LuxeHub = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689843/public_assets_shop/public_assets_shop_Luxe%20Hub.svg';
 
 // Import inner banner SVG files
-const PrimeInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689860/public_assets_shop/public_assets_shop_primeinner.svg';
-const ExclusiveInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689849/public_assets_shop/public_assets_shop_exclusiveinner.svg';
-const VaultInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689869/public_assets_shop/public_assets_shop_vaultinner.svg';
-const LuxeHubInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689853/public_assets_shop/public_assets_shop_luxehubinner.svg';
+const PrimeInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058616/public_assets_banner/public_assets_Banner_Shop1_banner.svg';
+const ExclusiveInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058616/public_assets_banner/public_assets_Banner_Shop2_banner.svg';
+const VaultInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058616/public_assets_banner/public_assets_Banner_Shop3_banner.svg';
+const LuxeHubInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058616/public_assets_banner/public_assets_Banner_Shop4_banner.svg';
 
 interface ShopBanner {
   id: number;

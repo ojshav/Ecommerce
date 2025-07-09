@@ -11,61 +11,70 @@ cloudinary.config({
 });
 
 
-const svgDir = path.join(__dirname, 'public', 'assets' ,'icon');
+const svgDir = path.join(__dirname, 'public', 'assets' ,'shop2');
 
-// Function to validate SVG file
-function isValidSvgFile(filePath) {
+// Function to validate image file (SVG or PNG)
+function isValidImageFile(filePath) {
   try {
-    const content = fs.readFileSync(filePath, 'utf8').trim();
-    if (!content) {
+    const ext = path.extname(filePath).toLowerCase();
+    const content = fs.readFileSync(filePath);
+    if (!content || content.length === 0) {
       return false;
     }
-    // Basic SVG validation - check if it starts with <svg
-    return content.startsWith('<svg') || content.includes('<svg');
+    if (ext === '.svg') {
+      const strContent = content.toString('utf8').trim();
+      // Basic SVG validation - check if it starts with <svg
+      return strContent.startsWith('<svg') || strContent.includes('<svg');
+    } else if (ext === '.png') {
+      // For PNG, just check file is not empty (could add more checks if needed)
+      return true;
+    }
+    return false;
   } catch (error) {
     return false;
   }
 }
 
-// Recursively find all .svg files in a directory
-function getAllSvgFiles(dir, fileList = []) {
+// Recursively find all .svg and .png files in a directory
+function getAllImageFiles(dir, fileList = []) {
   const files = fs.readdirSync(dir);
   files.forEach(file => {
     const filePath = path.join(dir, file);
     const stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
-      getAllSvgFiles(filePath, fileList);
-    } else if (filePath.endsWith('.svg')) {
+      getAllImageFiles(filePath, fileList);
+    } else if (filePath.endsWith('.svg') || filePath.endsWith('.png')) {
       fileList.push(filePath);
     }
   });
   return fileList;
 }
 
-async function uploadAllSvgs() {
-  const svgFiles = getAllSvgFiles(svgDir);
-  if (svgFiles.length === 0) {
-    console.log('No SVG files found in', svgDir);
+async function uploadAllImages() {
+  const imageFiles = getAllImageFiles(svgDir);
+  if (imageFiles.length === 0) {
+    console.log('No SVG or PNG files found in', svgDir);
     return;
   }
   
-  console.log(`Found ${svgFiles.length} SVG files. Starting validation and upload...`);
+  console.log(`Found ${imageFiles.length} SVG/PNG files. Starting validation and upload...`);
   
-  for (const file of svgFiles) {
+  for (const file of imageFiles) {
     try {
-      // Validate SVG file before upload
-      if (!isValidSvgFile(file)) {
-        console.warn(`⚠️  Skipping invalid/empty SVG file: ${file}`);
+      // Validate image file before upload
+      if (!isValidImageFile(file)) {
+        console.warn(`⚠️  Skipping invalid/empty image file: ${file}`);
         continue;
       }
       
       const relativePath = path.relative(__dirname, file).replace(/\\/g, '/'); // for Windows compatibility
-      const publicId = relativePath.replace(/\//g, '_').replace(/src_assets_/, ''); // flatten but unique
+      const publicId = relativePath.replace(/\//g, '_').replace(/src_assets_/, '').replace(/\.(svg|png)$/, ''); // flatten but unique
+      const ext = path.extname(file).toLowerCase();
 
       const result = await cloudinary.uploader.upload(file, {
         resource_type: 'image',
-        folder: 'public_assets_icon',
-        public_id: publicId.replace(/\.svg$/, ''), // remove .svg extension for Cloudinary
+        folder: 'public_assets_shop2',
+        public_id: publicId, // already removed extension
         overwrite: false,
       });
       console.log(`✅ Uploaded: ${file} -> ${result.secure_url}`);
@@ -75,4 +84,4 @@ async function uploadAllSvgs() {
   }
 }
 
-uploadAllSvgs(); 
+uploadAllImages(); 

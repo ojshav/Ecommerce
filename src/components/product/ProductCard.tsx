@@ -207,7 +207,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               "/placeholder-image.png"
             }
             alt={product.name}
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full  h-full object-contain rounded-lg"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src = "/placeholder-image.png";
