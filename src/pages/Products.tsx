@@ -1002,12 +1002,12 @@ const Products: React.FC = () => {
               <h2 className="text-lg font-semibold">Recently Viewed</h2>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+            <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-2 hide-scrollbar">
               {recentlyViewed.map((product) => (
-                <div 
+                <div
                   key={product.id}
                   onClick={() => handleProductClick(String(product.id))}
-                  className="cursor-pointer transform transition-transform hover:scale-[1.02]"
+                  className="min-w-[220px] max-w-[220px] flex-shrink-0 cursor-pointer transform transition-transform hover:scale-[1.02]"
                 >
                   <ProductCard
                     product={product}
