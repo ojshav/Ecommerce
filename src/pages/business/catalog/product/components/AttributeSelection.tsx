@@ -45,6 +45,8 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
     }
   }, [categoryId]);
 
+
+
   const fetchAttributes = async (categoryId: number) => {
     try {
       setIsLoading(true);
@@ -64,7 +66,7 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
       // Fetch attribute values for each attribute
       const attributesWithValues = await Promise.all(
         data.map(async (attr: Attribute) => {
-          if (attr.type === 'select' || attr.type === 'multiselect') {
+          if (attr.type === 'select' || attr.type === 'multiselect' || attr.type === 'boolean') {
             const valuesResponse = await fetch(
               `${API_BASE_URL}/api/merchant-dashboard/attributes/${attr.attribute_id}/values`,
               {
@@ -115,34 +117,56 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
     }
 
     try {
-      // Find the attribute value object for the selected value
-      const attributeValue = attribute.values?.find(v => v.value_label === value);
+      // For boolean attributes, value is already the value_code (true/false)
+      // For select/multiselect, value might be value_label, so we need to find the value_code
+      let valueToSend = value;
+      let valueToStore = value;
       
-      if (!attributeValue && attribute.type !== 'text' && attribute.type !== 'number') {
-        console.error('Selected value not found in attribute values');
-        return;
+      if (attribute.type === 'select' || attribute.type === 'multiselect' || attribute.type === 'boolean') {
+        const attributeValue = attribute.values?.find(v => 
+          attribute.type === 'boolean' ? v.value_code === value : v.value_label === value
+        );
+        
+        if (!attributeValue) {
+          console.error('Selected value not found in attribute values');
+          return;
+        }
+        
+        valueToSend = attributeValue.value_code;
+        valueToStore = attribute.type === 'boolean' ? attributeValue.value_code : value;
       }
 
       // Update local state first
       if (attribute.type === 'multiselect') {
         const currentValues = (selectedAttributes[attribute.attribute_id] as string[]) || [];
-        const newValues = currentValues.includes(value)
-          ? currentValues.filter(v => v !== value)
-          : [...currentValues, value];
+        const newValues = currentValues.includes(valueToStore)
+          ? currentValues.filter(v => v !== valueToStore)
+          : [...currentValues, valueToStore];
         onAttributeSelect(attribute.attribute_id, newValues);
       } else {
-        onAttributeSelect(attribute.attribute_id, value);
+        onAttributeSelect(attribute.attribute_id, valueToStore);
       }
 
       // Prepare the data for the backend
-      // For select/multiselect, we need to send the value_code
-      const data = {
-        [attribute.attribute_id]: attribute.type === 'multiselect'
-          ? (selectedAttributes[attribute.attribute_id] as string[] || []).includes(value)
-            ? (selectedAttributes[attribute.attribute_id] as string[]).filter(v => v !== value)
-            : [...(selectedAttributes[attribute.attribute_id] as string[] || []), value]
-          : attributeValue?.value_code || value // Use value_code for select/multiselect, value for text/number
-      };
+      let dataToSend;
+      if (attribute.type === 'multiselect') {
+        const currentCodes = [];
+        const currentStoredValues = (selectedAttributes[attribute.attribute_id] as string[]) || [];
+        
+        // Convert stored values to codes for backend
+        for (const storedValue of currentStoredValues) {
+          const av = attribute.values?.find(v => v.value_label === storedValue);
+          if (av) currentCodes.push(av.value_code);
+        }
+        
+        const newCodes = currentCodes.includes(valueToSend)
+          ? currentCodes.filter(c => c !== valueToSend)
+          : [...currentCodes, valueToSend];
+          
+        dataToSend = { [attribute.attribute_id]: newCodes };
+      } else {
+        dataToSend = { [attribute.attribute_id]: valueToSend };
+      }
 
       // Send to backend
       fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/attributes/values`, {
@@ -151,7 +175,7 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(dataToSend),
       })
       .then(async response => {
         const data = await response.json();
@@ -183,16 +207,16 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
       case 'multiselect':
         return (
           <div className="mt-2 space-y-2">
-            {attribute.options?.map((option, index) => {
+            {attribute.values?.map((attributeValue, index) => {
               const selectedValues = (selectedAttributes[attribute.attribute_id] as string[]) || [];
-              const isSelected = selectedValues.includes(option);
+              const isSelected = selectedValues.includes(attributeValue.value_label);
               return (
                 <div
                   key={index}
                   className={`px-3 py-2 rounded-md cursor-pointer flex items-center ${
                     isSelected ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50'
                   }`}
-                  onClick={() => handleValueSelect(attribute, option)}
+                  onClick={() => handleValueSelect(attribute, attributeValue.value_label)}
                 >
                   <input
                     type="checkbox"
@@ -200,7 +224,7 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
                     onChange={() => {}}
                     className="mr-2 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   />
-                  {option}
+                  {attributeValue.value_label}
                 </div>
               );
             })}
@@ -210,17 +234,17 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
       case 'select':
         return (
           <div className="mt-2 space-y-2">
-            {attribute.options?.map((option, index) => (
+            {attribute.values?.map((attributeValue, index) => (
               <div
                 key={index}
                 className={`px-3 py-2 rounded-md cursor-pointer ${
-                  selectedAttributes[attribute.attribute_id] === option
+                  selectedAttributes[attribute.attribute_id] === attributeValue.value_label
                     ? 'bg-primary-50 text-primary-700'
                     : 'hover:bg-gray-50'
                 }`}
-                onClick={() => handleValueSelect(attribute, option)}
+                onClick={() => handleValueSelect(attribute, attributeValue.value_label)}
               >
-                {option}
+                {attributeValue.value_label}
               </div>
             ))}
           </div>
@@ -241,16 +265,21 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
 
       case 'boolean':
         return (
-          <div className="mt-2">
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={selectedAttributes[attribute.attribute_id] === 'true'}
-                onChange={(e) => handleValueSelect(attribute, e.target.checked.toString())}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <span className="ml-2 text-gray-700">Yes</span>
-            </label>
+          <div className="mt-2 space-y-2">
+            {attribute.values?.map((attributeValue, index) => {
+              const isSelected = selectedAttributes[attribute.attribute_id] === attributeValue.value_code;
+              return (
+                <div
+                  key={index}
+                  className={`px-3 py-2 rounded-md cursor-pointer ${
+                    isSelected ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50'
+                  }`}
+                  onClick={() => handleValueSelect(attribute, attributeValue.value_code)}
+                >
+                  {attributeValue.value_label}
+                </div>
+              );
+            })}
           </div>
         );
 
@@ -302,16 +331,18 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
   return (
     <div className="space-y-4">
       {attributes.map((attribute) => (
-        <div key={attribute.attribute_id} className="border rounded-lg overflow-hidden">
+        <div key={attribute.attribute_id} className="border border-gray-200 rounded-lg overflow-hidden">
           <div
             className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50"
             onClick={() => toggleAttribute(attribute.attribute_id)}
           >
             <div>
-              <h3 className="text-sm font-medium text-gray-900">{attribute.name}</h3>
-              {attribute.required && (
-                <span className="text-xs text-red-600">Required</span>
-              )}
+              <div className="flex items-center">
+                <h3 className="text-sm font-medium text-gray-900">{attribute.name}</h3>
+                {attribute.required && (
+                  <span className="ml-2 text-xs text-red-600">*</span>
+                )}
+              </div>
               {attribute.help_text && (
                 <p className="text-xs text-gray-500 mt-1">{attribute.help_text}</p>
               )}
@@ -325,7 +356,7 @@ const AttributeSelection: React.FC<AttributeSelectionProps> = ({
             </button>
           </div>
           {expandedAttributes.has(attribute.attribute_id) && (
-            <div className="px-4 pb-4">
+            <div className="px-4 pb-4 border-t border-gray-100">
               {renderAttributeValue(attribute)}
             </div>
           )}

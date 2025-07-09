@@ -23,10 +23,14 @@ interface ProductPlacement {
   product_details: {
     product_id: number;
     product_name: string;
-    original_price?: number;
-    promotional_price?: number;
+    selling_price?: number;
+    special_price?: number;
     special_start?: string;
     special_end?: string;
+    is_on_special_offer?: boolean;
+    // Legacy fields for backward compatibility
+    original_price?: number;
+    promotional_price?: number;
   };
 }
 
@@ -69,6 +73,12 @@ const ProductPlacements: React.FC = () => {
   const [selectedPlacementTypeToAdd, setSelectedPlacementTypeToAdd] = useState<'FEATURED' | 'PROMOTED'>('FEATURED');
   const [selectedProductIdToAdd, setSelectedProductIdToAdd] = useState<string>('');
   const [sortOrderToAdd, setSortOrderToAdd] = useState<number>(0);
+  
+  // Search states
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState<boolean>(false);
+  const [selectedProduct, setSelectedProduct] = useState<MerchantProduct | null>(null);
+  const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
 
   // Edit placement states
   const [editingPlacement, setEditingPlacement] = useState<ProductPlacement | null>(null);
@@ -174,7 +184,7 @@ const ProductPlacements: React.FC = () => {
 
   const handleAddPlacement = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProductIdToAdd) {
+    if (!selectedProduct || !selectedProductIdToAdd) {
       toast.error('Please select a product.');
       return;
     }
@@ -251,6 +261,9 @@ const ProductPlacements: React.FC = () => {
 
       toast.success('Product placement added successfully!');
       setSelectedProductIdToAdd('');
+      setSelectedProduct(null);
+      setSearchQuery('');
+      setIsSearchDropdownOpen(false);
       setSortOrderToAdd(0);
       setPromotionalPrice('');
       setSpecialStartDate('');
@@ -311,7 +324,9 @@ const ProductPlacements: React.FC = () => {
   const handleEditPlacement = (placement: ProductPlacement) => {
     if (placement.placement_type === 'promoted') {
       setEditingPlacement(placement);
-      setPromotionalPrice(placement.product_details?.promotional_price?.toString() || '');
+      // Use special_price if available, fallback to promotional_price for backward compatibility
+      const currentPrice = placement.product_details?.special_price ?? placement.product_details?.promotional_price;
+      setPromotionalPrice(currentPrice?.toString() || '');
       setSpecialStartDate(placement.product_details?.special_start || '');
       setSpecialEndDate(placement.product_details?.special_end || '');
       setEditModalOpen(true);
@@ -429,6 +444,129 @@ const ProductPlacements: React.FC = () => {
   const promotedSlots = getSlotInfo('promoted');
   
   const currentSlotsInfo = selectedPlacementTypeToAdd === 'FEATURED' ? featuredSlots : promotedSlots;
+
+  // Simple similarity function for fuzzy matching
+  const similarity = useCallback((str1: string, str2: string): number => {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) return 1.0;
+    
+    const distance = levenshteinDistance(longer, shorter);
+    return (longer.length - distance) / longer.length;
+  }, []);
+
+  // Levenshtein distance for string similarity
+  const levenshteinDistance = useCallback((str1: string, str2: string): number => {
+    const matrix: number[][] = [];
+    
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i];
+    }
+    
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j;
+    }
+    
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+    
+    return matrix[str2.length][str1.length];
+  }, []);
+
+  // Search and filter products
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) return merchantProducts;
+    
+    const query = searchQuery.toLowerCase().trim();
+    return merchantProducts.filter(product => {
+      const name = product.name.toLowerCase();
+      
+      // Exact match
+      if (name.includes(query)) return true;
+      
+      // Word-based fuzzy search
+      const queryWords = query.split(' ').filter(word => word.length > 0);
+      const nameWords = name.split(' ');
+      
+      return queryWords.every(queryWord => 
+        nameWords.some(nameWord => 
+          nameWord.includes(queryWord) || 
+          queryWord.includes(nameWord) ||
+          // Simple character similarity for typos
+          similarity(queryWord, nameWord) > 0.6
+        )
+      );
+    }).slice(0, 10); // Limit to 10 results for performance
+  }, [merchantProducts, searchQuery, similarity]);
+
+  const handleProductSelect = (product: MerchantProduct) => {
+    setSelectedProduct(product);
+    setSelectedProductIdToAdd(product.product_id.toString());
+    setSearchQuery(product.name);
+    setIsSearchDropdownOpen(false);
+    setHighlightedIndex(-1);
+  };
+
+  const handleSearchInputChange = (value: string) => {
+    setSearchQuery(value);
+    setIsSearchDropdownOpen(true);
+    setHighlightedIndex(-1);
+    
+    // Clear selected product if user is typing a new search
+    if (selectedProduct && value !== selectedProduct.name) {
+      setSelectedProduct(null);
+      setSelectedProductIdToAdd('');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isSearchDropdownOpen || filteredProducts.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex(prev => 
+          prev < filteredProducts.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex(prev => 
+          prev > 0 ? prev - 1 : filteredProducts.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (highlightedIndex >= 0 && highlightedIndex < filteredProducts.length) {
+          handleProductSelect(filteredProducts[highlightedIndex]);
+        }
+        break;
+      case 'Escape':
+        setIsSearchDropdownOpen(false);
+        setHighlightedIndex(-1);
+        break;
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSelectedProduct(null);
+    setSelectedProductIdToAdd('');
+    setIsSearchDropdownOpen(false);
+    setHighlightedIndex(-1);
+  };
 
   const getMaxPromotionEndDate = useCallback(() => {
     const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -551,7 +689,7 @@ const ProductPlacements: React.FC = () => {
                   Promotional Price
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
                   <input
                     type="number"
                     id="editPromotionalPrice"
@@ -702,26 +840,131 @@ const ProductPlacements: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="productSelectToAdd" className="block text-sm font-medium text-gray-700 mb-1">Product</label>
+            <label htmlFor="productSearch" className="block text-sm font-medium text-gray-700 mb-1">Product</label>
             <div className="relative">
-                <select
-                id="productSelectToAdd"
-                value={selectedProductIdToAdd}
-                onChange={(e) => setSelectedProductIdToAdd(e.target.value)}
-                className="w-full p-2 pr-8 border border-gray-300 rounded-md shadow-sm focus:ring-accent-500 focus:border-accent-500 appearance-none truncate"
-                disabled={!canPlacePremium || isSubmitting || currentSlotsInfo.limitReached}
-                >
-                <option value="">-- Select a Product --</option>
-                {merchantProducts.map(product => (
-                    <option key={product.product_id} value={product.product_id} title={product.name}>
-                    {product.name}
-                    </option>
-                ))}
-                </select>
-                <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+              <div className="relative">
+                <input
+                  type="text"
+                  id="productSearch"
+                  value={searchQuery}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => setIsSearchDropdownOpen(true)}
+                  placeholder="Search for a product..."
+                  className="w-full p-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-accent-500 focus:border-accent-500"
+                  disabled={!canPlacePremium || isSubmitting || currentSlotsInfo.limitReached}
+                  autoComplete="off"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600"
+                    aria-label="Clear search"
+                  >
+                    <XMarkIcon className="h-4 w-4" />
+                  </button>
+                )}
+                {!searchQuery && (
+                  <svg
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                )}
+              </div>
+              
+              {/* Search Dropdown */}
+              {isSearchDropdownOpen && filteredProducts.length > 0 && (
+                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  {filteredProducts.map((product, index) => (
+                    <div
+                      key={product.product_id}
+                      className={`px-3 py-2 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors ${
+                        index === highlightedIndex 
+                          ? 'bg-accent-100 text-accent-800' 
+                          : selectedProduct?.product_id === product.product_id 
+                            ? 'bg-accent-50 border-accent-200' 
+                            : 'hover:bg-gray-50'
+                      }`}
+                      onClick={() => handleProductSelect(product)}
+                      onMouseEnter={() => setHighlightedIndex(index)}
+                    >
+                      <div className="text-sm font-medium text-gray-900 truncate" title={product.name}>
+                        {/* Highlight matching text */}
+                        {searchQuery ? (
+                          <span dangerouslySetInnerHTML={{
+                            __html: product.name.replace(
+                              new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+                              '<mark class="bg-yellow-200 px-1 rounded">$1</mark>'
+                            )
+                          }} />
+                        ) : (
+                          product.name
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        ID: {product.product_id}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* No Results Message */}
+              {isSearchDropdownOpen && searchQuery && filteredProducts.length === 0 && (
+                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-4">
+                  <div className="text-sm text-gray-500 text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                    </div>
+                    <p className="font-medium">No products found</p>
+                    <p className="text-xs mt-1 text-gray-400">
+                      No matches for "<span className="font-medium">{searchQuery}</span>". Try different keywords or check spelling.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Click outside to close dropdown */}
+              {isSearchDropdownOpen && (
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setIsSearchDropdownOpen(false)}
+                />
+              )}
             </div>
-             {merchantProducts.length === 0 && !isLoadingData && (
-                <p className="text-xs text-gray-500 mt-1">You have no products to add.</p>
+            
+            {/* Helper text */}
+            <p className="text-xs text-gray-500 mt-1">
+              Search by product name. Use arrow keys to navigate, Enter to select, Esc to close.
+            </p>
+            
+            {/* Selected Product Indicator */}
+            {selectedProduct && (
+              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                <div className="flex items-center text-sm">
+                  <svg className="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-green-700 font-medium">Selected: {selectedProduct.name}</span>
+                </div>
+              </div>
+            )}
+            
+            {merchantProducts.length === 0 && !isLoadingData && (
+              <p className="text-xs text-gray-500 mt-1">You have no products to add.</p>
             )}
           </div>
 
@@ -732,7 +975,7 @@ const ProductPlacements: React.FC = () => {
                   Promotional Price
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
                   <input
                     type="number"
                     id="promotionalPrice"
@@ -810,7 +1053,7 @@ const ProductPlacements: React.FC = () => {
           <button
             type="submit"
             className="w-full bg-accent-500 hover:bg-accent-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
-            disabled={!canPlacePremium || isSubmitting || !selectedProductIdToAdd || currentSlotsInfo.limitReached}
+            disabled={!canPlacePremium || isSubmitting || !selectedProduct || currentSlotsInfo.limitReached}
           >
             {isSubmitting ? (
               <>
@@ -896,16 +1139,23 @@ const ProductPlacements: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      {/* Display price: special promotional price for promoted, selling price for featured */}
-                      {placement.placement_type === 'promoted' && placement.product_details?.promotional_price != null ? (
+                      {/* 
+                        Price Display Logic:
+                        - For promoted products with active special offers: show special_price with strikethrough selling_price
+                        - For all other cases (featured products or promoted without special offers): show selling_price
+                      */}
+                      {placement.placement_type === 'promoted' && 
+                       placement.product_details?.special_price != null && 
+                       placement.product_details?.is_on_special_offer ? (
                         <div className="text-sm">
-                          {placement.product_details.original_price != null && (
-                            <span className="text-gray-500 line-through">${placement.product_details.original_price.toFixed(2)}</span>
+                          {placement.product_details.selling_price != null && (
+                            <span className="text-gray-500 line-through">₹{placement.product_details.selling_price.toFixed(2)}</span>
                           )}
-                          <span className="ml-2 text-red-600 font-semibold">${placement.product_details.promotional_price.toFixed(2)}</span>
+                          <span className="ml-2 text-red-600 font-semibold">₹{placement.product_details.special_price.toFixed(2)}</span>
+                          <div className="text-xs text-green-600 mt-1">Special Offer Active</div>
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-500">${placement.product_details.original_price?.toFixed(2) || 'N/A'}</span>
+                        <span className="text-sm text-gray-500">₹{placement.product_details?.selling_price?.toFixed(2) || 'N/A'}</span>
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{placement.sort_order}</td>

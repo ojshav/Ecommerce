@@ -110,7 +110,9 @@ const Footer: React.FC = () => {
       <div className="bg-white py-3 lg:py-4  xl:pl-28 sm:pl-16">
         <div className="container mx-auto ">
           <p className="text-center sm:text-left text-[11px] sm:text-[13px] text-gray-400">
-            © 2025, All Rights Reserved
+
+            © {new Date().getFullYear()}, All Rights Reserved
+
           </p>
         </div>
       </div>
