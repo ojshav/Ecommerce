@@ -179,27 +179,22 @@ const Navbar: React.FC = () => {
   const mobileSearchBar = (
     <div ref={mobileSearchRef} className="relative mb-4 px-2">
       <form onSubmit={handleSearchSubmit} className="relative">
-        <div className="flex flex-col rounded-md overflow-hidden bg-white shadow-sm">
+        <div className="flex items-center rounded-md overflow-hidden bg-white shadow-sm border border-gray-200">
           <input
             type="text"
             placeholder="What are you looking for?"
-            className="w-full border-0 py-2.5 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+            className="flex-1 border-0 py-2.5 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] bg-transparent"
             value={searchQuery}
             onChange={handleSearchInputChange}
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
-          <div className="relative flex items-center border-t border-gray-200 bg-[#FBF4CE]">
-            <select
-              className="w-full h-full appearance-none bg-transparent py-2.5 pl-4 pr-8 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
-              value={searchType}
-              onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
-            >
-              <option value="all">All</option>
-              <option value="products">Products</option>
-              <option value="categories">Categories</option>
-            </select>
-            <ChevronDown size={20} className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
-          </div>
+          <button
+            type="submit"
+            className="h-full px-4 py-2 bg-[#F2631F] text-white font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] rounded-none focus:outline-none"
+            style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+          >
+            Search
+          </button>
         </div>
         <SearchResults
           isVisible={showSearchResults}
@@ -211,12 +206,6 @@ const Navbar: React.FC = () => {
             setSearchQuery('');
           }}
         />
-        <button
-          type="submit"
-          className="w-full bg-[#F2631F] text-white py-2 rounded-md mt-2 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
-        >
-          Search
-        </button>
       </form>
     </div>
   );
@@ -255,6 +244,8 @@ const Navbar: React.FC = () => {
       <div className="bg-[#FFE7DB] text-white  pb-2 md:pb-3 lg:pb-4">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 2xl:px-6 3xl:px-8 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px] 2xl:max-w-[1440px] 3xl:max-w-[1680px] 4xl:max-w-[1920px]">
           <div className="flex flex-col sm:pl-1 md:pl-0">
+            {/* Social Media Icons - Top left for mobile only */}
+           
             <div className="flex flex-start py-2 sm:py-3">
               {/* Social Media Icons - Left top - Hidden on mobile */}
               <div className="hidden sm:flex items-center space-x-4">
@@ -367,27 +358,14 @@ const Navbar: React.FC = () => {
 
           <Link
             to="/business/login"
-            className="w-full block text-center bg-[#F2631F] text-white rounded-md px-4 py-1.5 hover:bg-orange-600 mb-3 text-sm"
+            className="w-1/2 block text-center justify-center bg-[#F2631F] text-white rounded-md px-1 py-3 hover:bg-orange-600 mb-3 text-sm mx-auto"
             onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}
           >
             Become a Merchant
           </Link>
 
           {/* Social icons in mobile menu */}
-          <div className="flex justify-center space-x-6 mb-2">
-            <Link to="#" className="text-[#F2631F] hover:text-orange-400">
-              <Facebook size={16} />
-            </Link>
-            <Link to="#" className="text-[#F2631F] hover:text-orange-400">
-              <Instagram size={16} />
-            </Link>
-            <Link to="#" className="text-[#F2631F] hover:text-orange-400">
-              <Twitter size={16} />
-            </Link>
-            <Link to="#" className="text-[#F2631F] hover:text-orange-400">
-              <Mail size={16} />
-            </Link>
-          </div>
+          
         </div>
       )}
 
@@ -527,7 +505,7 @@ const Navbar: React.FC = () => {
               {isAuthenticated ? (
                 <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
                   <span className="font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] text-gray-600">
-                     {user?.name || 'User'}
+                    {user?.name ? user.name.split(' ')[0] + '...' : 'User'}
                   </span>
                   <button
                     onClick={handleLogoutClick}
@@ -566,7 +544,7 @@ const Navbar: React.FC = () => {
 
       {/* Promotional Bar */}
       {showPromoBar && (
-        <div className="relative z-50 animate-slideDown w-full">
+        <div className="relative z-10 animate-slideDown w-full">
           <div className="backdrop-blur bg-gradient-to-r from-white/80 via-orange-50 to-orange-100/80 border border-orange-200/60 rounded-b-md mx-auto px-2 py-0.5 flex items-center justify-center gap-1 max-w-full mt-0 mb-0 min-h-0">
             <span className="flex items-center gap-1 text-orange-600 font-bold text-xs md:text-sm">
               <Gift className="w-4 h-4 animate-bounce-slow text-yellow-400 mr-0.5" />

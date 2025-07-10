@@ -100,7 +100,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
   if (loading) {
     return (
-      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
+      <div className="absolute z-40 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
         <div className="flex items-center justify-center">
           <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#F2631F]"></div>
         </div>
@@ -110,7 +110,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
   if (error) {
     return (
-      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
+      <div className="absolute z-40 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
         <p className="text-red-500 text-sm">{error}</p>
       </div>
     );
@@ -130,7 +130,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   }
 
   return (
-    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
+    <div className="absolute z-40 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
       {(searchType === 'all' || searchType === 'products') && results.products.length > 0 && (
         <div className="p-2">
           <h3 className="text-sm font-semibold text-gray-500 mb-2">Products</h3>
