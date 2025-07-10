@@ -88,7 +88,7 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
         {/* Main Content */}
         <div className="flex flex-col lg:flex-row">
           {/* Left Section - Live Stream/Image */}
-          <div className="w-full lg:w-1/2 h-[400px] lg:h-[600px] relative bg-[#FF4D00]">
+          <div className="w-full lg:w-1/2 h-[400px] lg:h-[600px] relative ">
             {/* Black overlay for video */}
             <div className="absolute inset-0 "></div>
             
@@ -96,7 +96,7 @@ const LiveShopProductDetailPage: React.FC<LiveShopProductDetailPageProps> = () =
             <img 
               src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751688852/public_assets_liveshop/public_assets_liveshop_fashion_model.svg"
               alt="Fashion Live Stream"
-              className="w-full h-full object-cover"
+              className="w-full h-full xl:object-cover object-contain"
             />
             
             {/* Play Button Overlay 
