@@ -115,7 +115,7 @@ const TopSellingCarousel: React.FC = () => {
                 href={item.shareable_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-medium px-6 py-2 rounded-md transition-colors shadow-lg mb-4"
+                className="inline-block bg-[#F2631F] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#E25818] transition-colors shadow-md mb-3"
               >
                 {item.type === 'promo' ? 'View Promo Products' :
                  item.type === 'new' ? 'View New Products' :
@@ -126,8 +126,8 @@ const TopSellingCarousel: React.FC = () => {
                 {carouselItems.map((_, dotIdx) => (
                   <div
                     key={dotIdx}
-                    className={`w-2 h-2 mx-0.5 rounded-full transition-all duration-300 ${
-                      current === dotIdx ? 'bg-white' : 'bg-white/40 hover:bg-white/60'
+                    className={`w-1.5 h-1.5 mx-0.5 rounded-full transition-all duration-300 ${
+                      current === dotIdx ? 'bg-[#F2631F]' : 'bg-[#F2631F]/40 hover:bg-[#F2631F]/60'
                     }`}
                     onClick={() => !sliding && setCurrent(dotIdx)}
                     role="button"

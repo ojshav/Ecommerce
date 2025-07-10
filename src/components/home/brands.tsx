@@ -18,6 +18,26 @@ const Brands = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [direction, setDirection] = useState(1); // 1 for right, -1 for left
   const [position, setPosition] = useState(0);
+  const [isTouching, setIsTouching] = useState(false);
+
+  // Add click event listener to resume animation
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement;
+      // Resume only if we're not clicking/touching the carousel itself
+      if (scrollRef.current && !scrollRef.current.contains(target) && !isTouching) {
+        setIsPaused(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('touchend', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('touchend', handleClickOutside);
+    };
+  }, [isTouching]);
 
   const scrollLeft = () => {
     scrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
@@ -25,6 +45,17 @@ const Brands = () => {
 
   const scrollRight = () => {
     scrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
+  };
+
+  // Touch event handlers
+  const handleTouchStart = () => {
+    setIsPaused(true);
+    setIsTouching(true);
+  };
+
+  const handleTouchEnd = () => {
+    setIsTouching(false);
+    // Don't resume immediately to allow for click/tap events to process
   };
 
   // Pendulum animation effect
@@ -69,8 +100,17 @@ const Brands = () => {
     };
   }, [isPaused, brands, direction, position]);
 
-  const pauseMarquee = () => setIsPaused(true);
-  const resumeMarquee = () => setIsPaused(false);
+  // Mouse event handlers
+  const pauseMarquee = () => {
+    setIsPaused(true);
+    setIsTouching(false);
+  };
+
+  const resumeMarquee = () => {
+    if (!isTouching) {
+      setIsPaused(false);
+    }
+  };
 
   useEffect(() => {
     fetchBrands();
@@ -167,6 +207,8 @@ const Brands = () => {
             className="flex space-x-4 overflow-x-hidden"
             onMouseEnter={pauseMarquee}
             onMouseLeave={resumeMarquee}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
             style={{ 
               scrollBehavior: 'auto',
               transition: isPaused ? 'none' : 'scroll-left 0.1s ease-out'
