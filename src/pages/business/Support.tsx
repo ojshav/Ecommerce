@@ -4,11 +4,11 @@ import { toast } from 'react-hot-toast';
 import {
   MessageSquare,
   Send,
-  Clock,
   Plus,
   Search,
   Paperclip,
   XCircle,
+  ArrowLeft,
 } from 'lucide-react';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -307,13 +307,13 @@ const Support: React.FC = () => {
 
   const getStatusColor = (status: BackendTicket['status']) => {
     switch (status) {
-      case 'open': return 'bg-green-100 text-green-800';
-      case 'in_progress': return 'bg-blue-100 text-blue-800';
-      case 'awaiting_customer_reply':
-      case 'awaiting_merchant_reply': return 'bg-yellow-100 text-yellow-800';
-      case 'resolved': return 'bg-indigo-100 text-indigo-800';
-      case 'closed': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'open': return 'bg-blue-100 text-blue-700';
+      case 'in_progress': return 'bg-purple-100 text-purple-700';
+      case 'awaiting_customer_reply': return 'bg-orange-100 text-orange-700';
+      case 'awaiting_merchant_reply': return 'bg-yellow-100 text-yellow-700';
+      case 'resolved': return 'bg-green-100 text-green-700';
+      case 'closed': return 'bg-gray-100 text-gray-600';
+      default: return 'bg-gray-100 text-gray-600';
     }
   };
 
@@ -336,170 +336,260 @@ const Support: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 p-4 md:p-0">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Support Center</h1>
-          <p className="mt-1 text-sm text-gray-500">Manage your support tickets and get help.</p>
+    <div className="h-screen bg-gray-100 flex flex-col">
+      {/* Top Header */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3">
+          <MessageSquare className="h-6 w-6 text-orange-500" />
+          <div>
+            <h1 className="text-lg font-semibold text-gray-900">Support Center</h1>
+            <p className="text-xs text-gray-500">Chat with our support team</p>
+          </div>
         </div>
         <button
           onClick={() => {
             setShowNewTicketForm(true);
-            setSelectedTicket(null); // Deselect any ticket when opening new form
+            setSelectedTicket(null);
           }}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent-500 hover:bg-accent-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500"
+          className="inline-flex items-center px-3 py-1.5 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors shadow-sm"
         >
-          <Plus className="h-5 w-5 mr-2" />
-          Create New Ticket
+          <Plus className="h-4 w-4 mr-1.5" />
+          New Ticket
         </button>
       </div>
 
-      {/* Search and Filter */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
+      {/* Search Bar */}
+      <div className="bg-white border-b border-gray-200 px-4 py-2">
+        <div className="relative">
+          <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search by title or description..."
+            placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-accent-500 focus:border-accent-500 sm:text-sm"
+            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           />
-        </div>
-        <div className="relative w-full md:w-auto">
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
-            className="block w-full md:w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-accent-500 focus:border-accent-500 sm:text-sm rounded-md appearance-none"
-          >
-            <option value="all">All Status</option>
-            <option value="open">Open</option>
-            <option value="in_progress">In Progress</option>
-            <option value="awaiting_merchant_reply">Awaiting Your Reply</option>
-            <option value="awaiting_customer_reply">Awaiting Support Reply</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </select>
-          {/* <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" /> */}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-220px)] md:h-[calc(100vh-180px)]">
-        {/* Ticket List */}
-        <div className="lg:col-span-1 bg-white rounded-lg border border-gray-200 flex flex-col overflow-hidden">
-          <div className="p-4 border-b border-gray-200 bg-orange-50">
-            <h2 className="text-lg font-medium text-orange-700">Your Tickets ({filteredTickets.length})</h2>
+      {/* Main Chat Interface */}
+      <div className="flex-1 flex min-h-0">
+        {/* Conversations List */}
+        <div className={`${selectedTicket ? 'hidden md:block' : 'block'} w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex flex-col`}>
+          {/* Filter Tabs */}
+          <div className="p-3 border-b border-gray-100">
+            <div className="flex gap-1">
+              {[
+                { key: 'all', label: 'All' },
+                { key: 'open', label: 'Active' },
+                { key: 'resolved', label: 'Resolved' },
+                { key: 'closed', label: 'Closed' }
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setFilterStatus(tab.key as typeof filterStatus)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                    filterStatus === tab.key
+                      ? 'bg-orange-100 text-orange-700'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
-          {filteredTickets.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center text-gray-500 p-4">No tickets found.</div>
-          ) : (
-            <div className="flex-1 overflow-y-auto divide-y divide-gray-200">
-              {filteredTickets.map(ticket => (
+
+          {/* Ticket List */}
+          <div className="flex-1 overflow-y-auto">
+            {filteredTickets.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-32 text-gray-500 px-4">
+                <MessageSquare className="h-8 w-8 mb-2 text-gray-300" />
+                <p className="text-sm text-center">No tickets found</p>
+              </div>
+            ) : (
+              filteredTickets.map(ticket => (
                 <div
                   key={ticket.ticket_uid}
                   onClick={() => setSelectedTicket(ticket)}
-                  className={`p-4 cursor-pointer hover:bg-orange-50/50 transition-colors ${selectedTicket?.ticket_uid === ticket.ticket_uid ? 'bg-orange-100 border-l-4 border-accent-500' : ''
-                    }`}
+                  className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
+                    selectedTicket?.ticket_uid === ticket.ticket_uid ? 'bg-orange-50 border-r-2 border-orange-500' : ''
+                  }`}
                 >
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-sm font-medium text-gray-800 truncate" title={ticket.title}>{ticket.title}</h3>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getStatusColor(ticket.status)}`}>
-                      {ticket.status.replace(/_/g, ' ')}
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-medium text-gray-900 text-sm truncate pr-2" title={ticket.title}>
+                      {ticket.title}
+                    </h3>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${getStatusColor(ticket.status)}`}>
+                      {ticket.status === 'awaiting_merchant_reply' ? 'Your turn' : 
+                       ticket.status === 'awaiting_customer_reply' ? 'Waiting' :
+                       ticket.status.replace(/_/g, ' ')}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-1">{ticket.description}</p>
-                  <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
-                    <span>#{ticket.ticket_uid}</span>
-                    <div className="flex items-center">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {new Date(ticket.updated_at).toLocaleDateString()}
+                  <p className="text-xs text-gray-500 line-clamp-2 mb-2">{ticket.description}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${getPriorityColor(ticket.priority).includes('red') ? 'bg-red-400' : getPriorityColor(ticket.priority).includes('yellow') ? 'bg-yellow-400' : 'bg-green-400'}`}></span>
+                      <span className="text-xs text-gray-400">#{ticket.ticket_uid}</span>
                     </div>
+                    <span className="text-xs text-gray-400">
+                      {new Date(ticket.updated_at).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </div>
 
-        {/* Chat Interface */}
-        <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 flex flex-col overflow-hidden">
+        {/* Chat Area */}
+        <div className={`${selectedTicket ? 'flex' : 'hidden md:flex'} flex-1 flex flex-col bg-gray-50`}>
           {selectedTicket ? (
             <>
-              <div className="px-3 py-2 border-b border-gray-200 bg-orange-50 flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-sm font-medium text-orange-700 truncate" title={selectedTicket.title}>{selectedTicket.title}</h2>
-                </div>
-                <div className="flex items-center gap-2 ml-2">
-                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(selectedTicket.priority)}`}>
-                    {selectedTicket.priority}
-                  </span>
-                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedTicket.status)}`}>
-                    {selectedTicket.status.replace(/_/g, ' ')}
-                  </span>
+              {/* Chat Header */}
+              <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => setSelectedTicket(null)}
+                    className="md:hidden p-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </button>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                      <MessageSquare className="h-4 w-4 text-orange-600" />
+                    </div>
+                    <div>
+                      <h2 className="font-medium text-gray-900 text-sm" title={selectedTicket.title}>
+                        {selectedTicket.title}
+                      </h2>
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedTicket.status)}`}>
+                          {selectedTicket.status === 'awaiting_merchant_reply' ? 'Your turn' : 
+                           selectedTicket.status === 'awaiting_customer_reply' ? 'Waiting for support' :
+                           selectedTicket.status.replace(/_/g, ' ')}
+                        </span>
+                        <span className="text-xs text-gray-500">•</span>
+                        <span className="text-xs text-gray-500 capitalize">{selectedTicket.priority} priority</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex-1 px-4 py-2 space-y-3 overflow-y-auto bg-gray-50"
-                style={{ height: 'calc(100vh - 320px)' }}
-              >
+              {/* Messages Area */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ background: 'linear-gradient(to bottom, #f9fafb, #f3f4f6)' }}>
                 {isLoadingMessages ? (
-                  <div className="flex justify-center items-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent-500"></div></div>
+                  <div className="flex justify-center items-center h-32">
+                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-orange-500 border-t-transparent"></div>
+                  </div>
                 ) : selectedTicketMessages.length === 0 ? (
-                  <div className="text-center text-gray-500 py-8">No messages yet. Start the conversation!</div>
-                ) : (
-                  selectedTicketMessages.map(message => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.sender_user_id === Number(user?.id) ? 'justify-end' : 'justify-start'} mb-3`}
-                    >
-                      <div className={`relative max-w-[80%] rounded-2xl px-4 py-3 shadow-sm ${message.sender_user_id === Number(user?.id)
-                        ? 'bg-orange-500 text-white rounded-br-md'
-                        : 'bg-white text-gray-800 rounded-bl-md border border-gray-200'
-                        }`}>
-                        <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{message.message_text}</p>
-                        {message.attachment_url && (
-                          <a href={message.attachment_url} target="_blank" rel="noopener noreferrer" className={`mt-2 text-xs underline flex items-center gap-1 ${message.sender_user_id === Number(user?.id) ? 'text-orange-100 hover:text-white' : 'text-orange-600 hover:text-orange-700'}`}>
-                            <Paperclip size={12} /> View Attachment
-                          </a>
-                        )}
-                        <div className={`flex items-center justify-between mt-2 text-xs ${message.sender_user_id === Number(user?.id) ? 'text-orange-100' : 'text-gray-500'}`}>
-                          <span className="font-medium">{message.sender_name}</span>
-                          <span className="ml-3">{new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        </div>
-                        {/* WhatsApp-style tail */}
-                        <div className={`absolute bottom-0 w-3 h-3 ${message.sender_user_id === Number(user?.id)
-                          ? 'right-0 transform translate-x-1 bg-orange-500'
-                          : 'left-0 transform -translate-x-1 bg-white border-l border-b border-gray-200'
-                          } rotate-45`}></div>
-                      </div>
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <MessageSquare className="h-8 w-8 text-orange-500" />
                     </div>
-                  ))
+                    <p className="text-gray-600 font-medium">Start the conversation</p>
+                    <p className="text-sm text-gray-500 mt-1">Send a message to begin getting help with your issue.</p>
+                  </div>
+                ) : (
+                  selectedTicketMessages.map((message, index) => {
+                    const isOwn = message.sender_user_id === Number(user?.id);
+                    const showAvatar = index === 0 || selectedTicketMessages[index - 1]?.sender_user_id !== message.sender_user_id;
+                    
+                    return (
+                      <div key={message.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'} items-end gap-2`}>
+                        {!isOwn && (
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${showAvatar ? 'visible' : 'invisible'}`}>
+                            <div className="w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-white">
+                              {message.sender_name.charAt(0).toUpperCase()}
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className={`max-w-xs lg:max-w-md ${isOwn ? 'order-1' : ''}`}>
+                          {showAvatar && !isOwn && (
+                            <p className="text-xs text-gray-500 mb-1 ml-1">{message.sender_name}</p>
+                          )}
+                          
+                          <div className={`rounded-2xl px-4 py-2.5 shadow-sm ${
+                            isOwn 
+                              ? 'bg-orange-500 text-white rounded-br-md' 
+                              : 'bg-white text-gray-800 border border-gray-200 rounded-bl-md'
+                          }`}>
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                              {message.message_text}
+                            </p>
+                            
+                            {message.attachment_url && (
+                              <a 
+                                href={message.attachment_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className={`mt-2 inline-flex items-center gap-1 text-xs underline ${
+                                  isOwn ? 'text-orange-100 hover:text-white' : 'text-orange-600 hover:text-orange-700'
+                                }`}
+                              >
+                                <Paperclip className="h-3 w-3" />
+                                View attachment
+                              </a>
+                            )}
+                          </div>
+                          
+                          <p className={`text-xs text-gray-500 mt-1 ${isOwn ? 'text-right' : 'text-left'} ml-1`}>
+                            {new Date(message.created_at).toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit',
+                              hour12: true 
+                            })}
+                          </p>
+                        </div>
+                        
+                        {isOwn && (
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${showAvatar ? 'visible' : 'invisible'}`}>
+                            <div className="w-full h-full bg-orange-500 rounded-full flex items-center justify-center text-white">
+                              {message.sender_name.charAt(0).toUpperCase()}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
                 )}
               </div>
 
-              {selectedTicket.status !== 'closed' && selectedTicket.status !== 'resolved' && (
-                <div className="px-3 py-1.5 border-t border-gray-200 bg-white">
-                  <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                    <div className="flex-1">
+              {/* Message Input */}
+              {selectedTicket.status !== 'closed' && selectedTicket.status !== 'resolved' ? (
+                <div className="bg-white border-t border-gray-200 p-4">
+                  {newMessageAttachment && (
+                    <div className="mb-3 flex items-center gap-2 text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
+                      <Paperclip className="h-4 w-4" />
+                      <span className="flex-1 truncate">{newMessageAttachment.name}</span>
+                      <button 
+                        onClick={() => setNewMessageAttachment(null)}
+                        className="text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                  
+                  <form onSubmit={handleSendMessage} className="flex items-end gap-3">
+                    <div className="flex-1 relative">
                       <textarea
                         value={newMessage}
                         onChange={(e) => {
                           setNewMessage(e.target.value);
-                          // Auto resize
                           const target = e.target as HTMLTextAreaElement;
                           target.style.height = 'auto';
-                          target.style.height = Math.min(target.scrollHeight, 56) + 'px';
+                          target.style.height = Math.min(target.scrollHeight, 120) + 'px';
                         }}
-                        placeholder="Type your message..."
+                        placeholder="Type a message..."
                         rows={1}
-                        className="w-full px-3 py-1.5 border border-gray-300 rounded-full shadow-sm focus:ring-orange-500 focus:border-orange-500 text-sm resize-none overflow-hidden bg-gray-50 focus:bg-white transition-colors"
+                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-2xl resize-none overflow-hidden bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-colors"
                         disabled={isSendingMessage}
-                        style={{
-                          height: '1rem',
-                          minHeight: '1rem',
-                          maxHeight: '3.5rem'
+                        style={{ 
+                          minHeight: '2.75rem',
+                          maxHeight: '7.5rem'
                         }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && !e.shiftKey) {
@@ -510,65 +600,65 @@ const Support: React.FC = () => {
                           }
                         }}
                       />
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <label htmlFor="message-attachment-input" className="cursor-pointer text-gray-500 hover:text-orange-600 p-1.5 rounded-full hover:bg-orange-50 flex-shrink-0 transition-colors">
-                        <Paperclip className="h-4 w-4" />
-                        <input id="message-attachment-input" type="file" className="hidden" onChange={handleMessageAttachmentChange} disabled={isSendingMessage} />
+                      
+                      <label 
+                        htmlFor="message-attachment-input" 
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400 hover:text-orange-500 transition-colors"
+                      >
+                        <Paperclip className="h-5 w-5" />
+                        <input 
+                          id="message-attachment-input" 
+                          type="file" 
+                          className="hidden" 
+                          onChange={handleMessageAttachmentChange} 
+                          disabled={isSendingMessage} 
+                        />
                       </label>
-                      <button
-                        type="submit"
-                        disabled={(!newMessage.trim() && !newMessageAttachment) || isSendingMessage}
-                        className="inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 flex-shrink-0 transition-colors shadow-sm text-xs font-medium"
-                      >
-                        {isSendingMessage ? (
-                          <div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-white"></div>
-                        ) : (
-                          <>
-                            <Send className="h-3 w-3" />
-                            <span>Send</span>
-                          </>
-                        )}
-                      </button>
                     </div>
+                    
+                    <button
+                      type="submit"
+                      disabled={(!newMessage.trim() && !newMessageAttachment) || isSendingMessage}
+                      className="w-11 h-11 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
+                    >
+                      {isSendingMessage ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                      ) : (
+                        <Send className="h-5 w-5" />
+                      )}
+                    </button>
                   </form>
-                  {newMessageAttachment && (
-                    <div className="mt-2 flex items-center gap-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-2">
-                      <Paperclip className="h-3 w-3" />
-                      <span className="truncate max-w-xs">{newMessageAttachment.name}</span>
-                      <button
-                        onClick={() => setNewMessageAttachment(null)}
-                        className="text-red-500 hover:text-red-700 ml-auto"
-                      >
-                        <XCircle className="h-3 w-3" />
-                      </button>
-                    </div>
-                  )}
                 </div>
-              )}
-              {selectedTicket.status === 'resolved' && (
-                <div className="px-3 py-2 border-t border-gray-200 bg-white text-center">
-                  <p className="text-xs text-gray-700 mb-2">This ticket has been marked as resolved by our support team.</p>
-                  <button
-                    onClick={handleCloseTicket}
-                    disabled={isSendingMessage}
-                    className="px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-xs"
-                  >
-                    Mark as Closed
-                  </button>
-                </div>
-              )}
-              {selectedTicket.status === 'closed' && (
-                <div className="px-3 py-2 border-t border-gray-200 bg-gray-100 text-center">
-                  <p className="text-xs text-gray-600 font-medium">This ticket is closed.</p>
+              ) : (
+                <div className="bg-white border-t border-gray-200 p-4 text-center">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    {selectedTicket.status === 'resolved' ? (
+                      <>
+                        <p className="text-sm text-gray-600 mb-3">This ticket has been resolved by our support team.</p>
+                        <button
+                          onClick={handleCloseTicket}
+                          disabled={isSendingMessage}
+                          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium disabled:opacity-50"
+                        >
+                          Mark as Closed
+                        </button>
+                      </>
+                    ) : (
+                      <p className="text-sm text-gray-600 font-medium">This conversation is closed.</p>
+                    )}
+                  </div>
                 </div>
               )}
             </>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center text-gray-500 p-10">
-              <MessageSquare className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-              <p className="text-lg">Select a ticket to view details</p>
-              <p className="text-sm mt-1">or create a new one if you need assistance.</p>
+            <div className="flex-1 flex items-center justify-center p-8">
+              <div className="text-center max-w-md">
+                <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="h-10 w-10 text-orange-500" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Welcome to Support Center</h3>
+                <p className="text-gray-500">Select a conversation from the left to view your support tickets and chat with our team.</p>
+              </div>
             </div>
           )}
         </div>
