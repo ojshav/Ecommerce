@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/globals.css';
 import Reflection from '../components/shop/shop2/Reflection';
-import TShirt from '../components/shop/shop2/Tshirt';
+import TShirt from '../components/shop/shop2/tshirt';
 import SweatShirts from '../components/shop/shop2/SweatShirts';
 import Bottom from '../components/shop/shop2/Bottoms';
 import Collaboration from '../components/shop/shop2/Collaboration';
