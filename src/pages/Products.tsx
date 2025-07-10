@@ -49,7 +49,6 @@ const Products: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
-  const [originalProducts, setOriginalProducts] = useState<Product[]>([]);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
@@ -274,24 +273,16 @@ const Products: React.FC = () => {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         per_page: perPage.toString(),
-        sort_by: 'created_at',
-        order: 'desc'
+        sort_by: sortOptions.find(opt => opt.value === selectedSort)?.sort_by || 'created_at',
+        order: sortOptions.find(opt => opt.value === selectedSort)?.order || 'desc'
       });
 
-      // Get URL parameters
-      const urlParams = new URLSearchParams(location.search);
-      const categoryId = urlParams.get('category');
-      const brandId = urlParams.get('brand');
-
       // Add filters if they exist
-      if (categoryId) {
-        params.append('category_id', categoryId);
+      if (selectedCategory) {
+        params.append('category_id', selectedCategory);
       }
-      if (brandId) {
-        params.append('brand_id', brandId);
-        setSelectedBrands([brandId]);
-      } else if (selectedBrands.length > 0) {
-        params.append('brand_id', selectedBrands[0]);
+      if (selectedBrands.length > 0) {
+        params.append('brand_id', selectedBrands.join(','));
       }
       if (priceRange[0] > 0) {
         params.append('min_price', priceRange[0].toString());
@@ -301,6 +292,14 @@ const Products: React.FC = () => {
       }
       if (searchQuery) {
         params.append('search', searchQuery);
+      }
+      if (selectedDiscounts && selectedDiscounts.length > 0) {
+        const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
+        params.append('min_discount', minDiscount.toString());
+      }
+      if (selectedRatings && selectedRatings.length > 0) {
+        const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
+        params.append('min_rating', minRating.toString());
       }
 
       const response = await fetch(`${API_BASE_URL}/api/products?${params}`, {
@@ -318,39 +317,11 @@ const Products: React.FC = () => {
 
       const data = await response.json();
       
-      // Store original products and apply initial filtering
-      setOriginalProducts(data.products);
-      
-      // Apply client-side filters for discount and rating
-      let filteredProducts = data.products;
-      
-      // Apply discount filter
-      if (selectedDiscounts && selectedDiscounts.length > 0) {
-        const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
-        filteredProducts = filteredProducts.filter((product: Product) => {
-          if (product.original_price && product.price && product.original_price > product.price) {
-            const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
-            return discountPercentage >= minDiscount;
-          }
-          return false;
-        });
-      }
-      
-      // Apply rating filter
-      if (selectedRatings && selectedRatings.length > 0) {
-        const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
-        filteredProducts = filteredProducts.filter((product: Product) => {
-          return (product.rating || 0) >= minRating;
-        });
-      }
-      
-      setProducts(filteredProducts);
-      setTotalPages(Math.ceil(filteredProducts.length / perPage));
-      setTotalProducts(filteredProducts.length);
+      // Update state with backend-filtered data
+      setProducts(data.products);
+      setTotalPages(data.pagination.pages);
+      setTotalProducts(data.pagination.total);
 
-      if (categoryId && !selectedCategory) {
-        setSelectedCategory(categoryId);
-      }
     } catch (err) {
       console.error('Error fetching products:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
@@ -416,52 +387,23 @@ const Products: React.FC = () => {
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [location.search, currentPage]);
-
-  // Apply client-side filters when discount or rating changes
-  useEffect(() => {
-    if (originalProducts.length > 0) {
-      let filteredProducts = originalProducts;
-      
-      // Apply discount filter
-      if (selectedDiscounts && selectedDiscounts.length > 0) {
-        const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
-        filteredProducts = filteredProducts.filter((product: Product) => {
-          if (product.original_price && product.price && product.original_price > product.price) {
-            const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
-            return discountPercentage >= minDiscount;
-          }
-          return false;
-        });
-      }
-      
-      // Apply rating filter
-      if (selectedRatings && selectedRatings.length > 0) {
-        const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
-        filteredProducts = filteredProducts.filter((product: Product) => {
-          return (product.rating || 0) >= minRating;
-        });
-      }
-      
-      setProducts(filteredProducts);
-      setTotalPages(Math.ceil(filteredProducts.length / perPage));
-      setTotalProducts(filteredProducts.length);
-    }
-  }, [selectedDiscounts, selectedRatings, originalProducts]);
+  }, [
+    location.search,
+    currentPage,
+    selectedCategory,
+    selectedBrands,
+    priceRange,
+    searchQuery,
+    selectedDiscounts,
+    selectedRatings,
+    selectedSort
+  ]);
 
   // Toggle brand selection
   const toggleBrand = (brand: string) => {
     const newBrands = selectedBrands.includes(brand) ? [] : [brand];
     setSelectedBrands(newBrands);
-    
-    // Update URL without triggering additional fetches
-    const params = new URLSearchParams(location.search);
-    if (newBrands.length > 0) {
-      params.set('brand', newBrands[0]);
-    } else {
-      params.delete('brand');
-    }
-    navigate(`?${params.toString()}`, { replace: true });
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   // Toggle color selection
@@ -480,6 +422,7 @@ const Products: React.FC = () => {
         ? prev.filter(d => d !== discount)
         : [...prev, discount]
     );
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   // Toggle rating selection
@@ -490,6 +433,7 @@ const Products: React.FC = () => {
       }
       return [rating]; // Select/change the rating
     });
+    setCurrentPage(1); // Reset to first page when filter changes
   };
   
   // Reset all filters
@@ -502,18 +446,10 @@ const Products: React.FC = () => {
     setSelectedDiscounts([]);
     setSelectedRatings([]);
     setCurrentPage(1);
-    
-    // Reset products to original state
-    setProducts(originalProducts);
-    setTotalPages(Math.ceil(originalProducts.length / perPage));
-    setTotalProducts(originalProducts.length);
+    setSelectedSort('newest');
     
     // Clear URL parameters
-    const params = new URLSearchParams(location.search);
-    params.delete('category');
-    params.delete('brand');
-    params.delete('search');
-    navigate(`?${params.toString()}`);
+    navigate('?');
   };
 
   // Sort products based on selected sort option
@@ -541,8 +477,7 @@ const Products: React.FC = () => {
   const handleSort = (value: string) => {
     setSelectedSort(value);
     setIsMobileSortOpen(false);
-    // Sort existing products without making a new API call
-    setProducts(prevProducts => sortProducts(prevProducts, value));
+    setCurrentPage(1); // Reset to first page when sort changes
   };
 
   // Close dropdowns when clicking outside
