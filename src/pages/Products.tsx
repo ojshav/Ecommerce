@@ -15,6 +15,36 @@ interface Category {
   children?: Category[];
 }
 
+const buildCategoryTree = (categories: Category[]): Category[] => {
+  const categoryMap = new Map<number, Category>();
+  const rootCategories: Category[] = [];
+
+  // First pass: Create a map of all categories
+  categories.forEach(category => {
+    categoryMap.set(category.category_id, { ...category, children: [] });
+  });
+
+  // Second pass: Build the tree structure
+  categories.forEach(category => {
+    const currentCategory = categoryMap.get(category.category_id);
+    if (currentCategory) {
+      if (category.parent_id === null) {
+        rootCategories.push(currentCategory);
+      } else {
+        const parentCategory = categoryMap.get(category.parent_id);
+        if (parentCategory) {
+          if (!parentCategory.children) {
+            parentCategory.children = [];
+          }
+          parentCategory.children.push(currentCategory);
+        }
+      }
+    }
+  });
+
+  return rootCategories;
+};
+
 const Products: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -111,24 +141,88 @@ const Products: React.FC = () => {
     }
   };
 
+  // Toggle category expansion
+  const toggleCategoryExpand = (categoryId: number) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId]
+    }));
+  };
+
+  // Render category tree recursively
+  const renderCategoryTree = (category: Category, level: number = 0) => {
+    const isExpanded = expandedCategories[category.category_id] || false;
+    const hasSubcategories = category.children && category.children.length > 0;
+    const isSelected = selectedCategory === String(category.category_id);
+
+    let btnClass = 'w-full flex items-center justify-between py-2 px-2 transition-colors border-none text-left font-normal';
+    let spanClass = 'text-sm font-normal';
+    
+    if (level === 0) {
+      btnClass += ' bg-transparent text-black hover:bg-orange-50 rounded-none font-medium';
+    } else if (hasSubcategories) {
+      if (isSelected) {
+        btnClass += ' bg-white border border-[#F2631F] text-black rounded-md shadow-sm';
+      } else {
+        btnClass += ' bg-transparent text-black hover:bg-orange-50 rounded-md';
+      }
+    } else {
+      if (isSelected) {
+        btnClass += ' bg-[#F2631F] text-white rounded-md shadow';
+      } else {
+        btnClass += ' bg-transparent text-black hover:bg-orange-50 rounded-md';
+      }
+    }
+
+    return (
+      <div key={category.category_id} className={`${level > 0 ? 'ml-4' : ''}`}>
+        <button
+          onClick={() => {
+            if (hasSubcategories) {
+              toggleCategoryExpand(category.category_id);
+            } else {
+              setSelectedCategory(String(category.category_id));
+              const params = new URLSearchParams(location.search);
+              params.set('category', String(category.category_id));
+              navigate(`?${params.toString()}`);
+            }
+          }}
+          className={btnClass}
+          style={{ paddingLeft: level > 0 ? `${level * 0.5}rem` : '0.5rem' }}
+        >
+          <span className={spanClass}>{category.name}</span>
+          {hasSubcategories && (
+            <span className="flex items-center ml-auto">
+              {isExpanded ? (
+                <ChevronUp size={16} className="text-[#F2631F]" />
+              ) : (
+                <ChevronDown size={16} className="text-[#F2631F]" />
+              )}
+            </span>
+          )}
+        </button>
+        {isExpanded && category.children && category.children.length > 0 && (
+          <div className="mt-1">
+            {category.children.map(subcategory => renderCategoryTree(subcategory, level + 1))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Update selected category when URL changes
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const categoryId = params.get('category');
-    const pathCategoryId = location.pathname.split('/').pop(); // Get category ID from path
     const brandId = params.get('brand');
     const search = params.get('search');
     const minPrice = params.get('min_price');
     const maxPrice = params.get('max_price');
 
-    // Handle both query parameter and path-based category IDs
-    const finalCategoryId = categoryId || pathCategoryId;
-    
     // Update category
-    if (finalCategoryId && finalCategoryId !== 'products') {
-      setSelectedCategory(finalCategoryId);
-      // Expand the parent category if it exists
-      const category = categories.find(cat => cat.category_id === Number(finalCategoryId));
+    if (categoryId) {
+      setSelectedCategory(categoryId);
+      const category = categories.find(cat => cat.category_id === Number(categoryId));
       if (category?.parent_id !== null && category?.parent_id !== undefined) {
         setExpandedCategories(prev => ({
           ...prev,
@@ -162,15 +256,7 @@ const Products: React.FC = () => {
     } else {
       setPriceRange([0, 1000000]);
     }
-  }, [location.search, location.pathname, categories]);
-
-  // Toggle category expansion
-  const toggleCategoryExpand = (categoryId: number) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [categoryId]: !prev[categoryId]
-    }));
-  };
+  }, [location.search, categories]);
 
   // Helper: find category depth and if leaf
   const getCategoryDepth = (cat: Category, parentDepth = 0): number => {
@@ -178,68 +264,6 @@ const Products: React.FC = () => {
     return Math.max(...cat.children.map(child => getCategoryDepth(child, parentDepth + 1)));
   };
   const isLeaf = (cat: Category) => !cat.children || cat.children.length === 0;
-
-  // Render category tree recursively (Figma style)
-  const renderCategoryTree = (category: Category, level: number = 0) => {
-    const isExpanded = expandedCategories[category.category_id] || false;
-    const hasSubcategories = category.children && category.children.length > 0;
-    const isSelected = selectedCategory === String(category.category_id);
-    const isLeafCategory = !category.children || category.children.length === 0;
-
-    // Style logic
-    let btnClass = 'w-full flex items-center justify-between py-2 px-2 transition-colors border-none text-left font-normal';
-    let spanClass = 'text-sm font-normal';
-    if (level === 0) {
-      btnClass += ' bg-transparent text-black hover:bg-orange-50 rounded-none';
-    } else if (hasSubcategories) {
-      if (isSelected) {
-        btnClass += ' bg-white border border-[#F2631F] text-black rounded-md shadow-sm';
-      } else {
-        btnClass += ' bg-transparent text-black hover:bg-orange-50 rounded-md';
-      }
-    } else {
-      if (isSelected) {
-        btnClass += ' bg-[#F2631F] text-white rounded-md shadow';
-      } else {
-        btnClass += ' bg-transparent text-black hover:bg-orange-50 rounded-md';
-      }
-    }
-
-    return (
-      <div key={category.category_id}>
-        <button
-          onClick={() => {
-            if (hasSubcategories) {
-              toggleCategoryExpand(category.category_id);
-            } else {
-              setSelectedCategory(String(category.category_id));
-              const params = new URLSearchParams(location.search);
-              params.set('category', String(category.category_id));
-              navigate(`?${params.toString()}`);
-            }
-          }}
-          className={btnClass}
-          style={{ paddingLeft: `${level * 1.25}rem` }}
-        >
-          <span className={spanClass}>{category.name}</span>
-          {hasSubcategories && (
-            <span className="flex items-center ml-auto">
-              {isExpanded ? (
-                <ChevronUp size={16} className="text-[#F2631F]" />
-              ) : (
-                <ChevronDown size={16} className="text-[#F2631F]" />
-              )}
-            </span>
-          )}
-        </button>
-        {isExpanded && category.children && (
-          <div className="ml-0">
-            {category.children.map(subcategory => renderCategoryTree(subcategory, level + 1))}
-          </div>
-        )}
-      </div>
-    );
-  };
 
   // Fetch products with filters
   const fetchProducts = async () => {
@@ -256,17 +280,18 @@ const Products: React.FC = () => {
 
       // Get URL parameters
       const urlParams = new URLSearchParams(location.search);
-      const categoryId = urlParams.get('category') || location.pathname.split('/').pop();
+      const categoryId = urlParams.get('category');
       const brandId = urlParams.get('brand');
 
       // Add filters if they exist
-      if (categoryId && categoryId !== 'products') {
+      if (categoryId) {
         params.append('category_id', categoryId);
       }
       if (brandId) {
         params.append('brand_id', brandId);
+        setSelectedBrands([brandId]);
       } else if (selectedBrands.length > 0) {
-        params.append('brand_id', selectedBrands.join(','));
+        params.append('brand_id', selectedBrands[0]);
       }
       if (priceRange[0] > 0) {
         params.append('min_price', priceRange[0].toString());
@@ -278,14 +303,13 @@ const Products: React.FC = () => {
         params.append('search', searchQuery);
       }
 
-      // Always use the main products endpoint with filters
-      const apiUrl = `${API_BASE_URL}/api/products?${params}`;
-
-      const response = await fetch(apiUrl, {
+      const response = await fetch(`${API_BASE_URL}/api/products?${params}`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
 
       if (!response.ok) {
@@ -294,70 +318,29 @@ const Products: React.FC = () => {
 
       const data = await response.json();
       
-      // Transform the API response to match the Product type
-      const transformedProducts = data.products.map((product: any) => {
-        // Calculate original price from discount percentage if available
-        let originalPrice = product.originalPrice;
-        if (!originalPrice && product.discount_pct && product.discount_pct > 0 && product.selling_price) {
-          // If there's a discount percentage, calculate the original price
-          originalPrice = product.selling_price / (1 - (product.discount_pct / 100));
-        } else if (!originalPrice) {
-          // If no special offer and no discount percentage, use selling_price as original
-          originalPrice = product.selling_price;
-        }
-
-        return {
-          id: String(product.product_id || product.id),
-          name: product.product_name || product.name,
-          description: product.product_description || product.description,
-          price: product.price || product.selling_price,
-          original_price: originalPrice,
-          currency: 'INR',
-          image: product.primary_image || product.image || '',
-          images: product.images || [],
-          category: product.category_name || product.category || '',
-          featured: product.featured || false,
-          isNew: product.isNew || false,
-          isBuiltIn: product.isBuiltIn || false,
-          rating: product.rating || 0,
-          reviews: product.reviews || 0,
-          stock: product.stock || 0,
-          tags: product.tags || [],
-          primary_image: product.primary_image || product.image || '',
-          brand: product.brand_name || product.brand || '',
-          sku: product.sku || '',
-          category_id: product.category_id,
-          brand_id: product.brand_id,
-          created_at: product.created_at
-        };
-      });
-      
       // Store original products and apply initial filtering
-      setOriginalProducts(transformedProducts);
+      setOriginalProducts(data.products);
       
       // Apply client-side filters for discount and rating
-      let filteredProducts = transformedProducts;
+      let filteredProducts = data.products;
       
       // Apply discount filter
-      if (selectedDiscounts.length > 0) {
+      if (selectedDiscounts && selectedDiscounts.length > 0) {
         const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
         filteredProducts = filteredProducts.filter((product: Product) => {
           if (product.original_price && product.price && product.original_price > product.price) {
             const discountPercentage = ((product.original_price - product.price) / product.original_price) * 100;
-            const hasDiscount = discountPercentage >= minDiscount;
-            return hasDiscount;
+            return discountPercentage >= minDiscount;
           }
           return false;
         });
       }
       
       // Apply rating filter
-      if (selectedRatings.length > 0) {
+      if (selectedRatings && selectedRatings.length > 0) {
         const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
         filteredProducts = filteredProducts.filter((product: Product) => {
-          const productRating = product.rating || 0;
-          const meetsRating = productRating >= minRating;
-          return meetsRating;
+          return (product.rating || 0) >= minRating;
         });
       }
       
@@ -365,7 +348,6 @@ const Products: React.FC = () => {
       setTotalPages(Math.ceil(filteredProducts.length / perPage));
       setTotalProducts(filteredProducts.length);
 
-      // Update selected category if coming from navigation
       if (categoryId && !selectedCategory) {
         setSelectedCategory(categoryId);
       }
@@ -377,16 +359,24 @@ const Products: React.FC = () => {
     }
   };
 
-  // Update fetchCategories to use the new categories endpoint
+  // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/categories/all`);
+      const response = await fetch(`${API_BASE_URL}/api/products/categories`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'include'
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }
       const data = await response.json();
-      // No need to organize categories as they come pre-organized from the backend
-      setCategories(data);
+      // Transform flat category list into hierarchical structure
+      const categoryTree = buildCategoryTree(data);
+      setCategories(categoryTree);
     } catch (err) {
       console.error('Error fetching categories:', err);
     }
@@ -395,7 +385,14 @@ const Products: React.FC = () => {
   // Fetch brands
   const fetchBrands = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/brands/`);
+      const response = await fetch(`${API_BASE_URL}/api/products/brands`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'include'
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch brands');
       }
@@ -408,8 +405,6 @@ const Products: React.FC = () => {
 
   // Initial data fetch
   useEffect(() => {
-    fetchProducts();
-    fetchRecentlyViewed();
     fetchCategories();
     fetchBrands();
   }, []);
@@ -422,12 +417,13 @@ const Products: React.FC = () => {
 
     return () => clearTimeout(timeoutId);
   }, [location.search, currentPage]);
-  
+
   // Apply client-side filters when discount or rating changes
   useEffect(() => {
     if (originalProducts.length > 0) {
-      // Apply discount filter
       let filteredProducts = originalProducts;
+      
+      // Apply discount filter
       if (selectedDiscounts && selectedDiscounts.length > 0) {
         const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
         filteredProducts = filteredProducts.filter((product: Product) => {
@@ -452,62 +448,21 @@ const Products: React.FC = () => {
       setTotalProducts(filteredProducts.length);
     }
   }, [selectedDiscounts, selectedRatings, originalProducts]);
-  
+
   // Toggle brand selection
   const toggleBrand = (brand: string) => {
-    setSelectedBrands(prev => {
-      const newBrands = prev.includes(brand) ? [] : [brand];
-      const params = new URLSearchParams(location.search);
-      if (newBrands.length > 0) {
-        params.set('brand', newBrands[0]);
-      } else {
-        params.delete('brand');
-      }
-      navigate(`?${params.toString()}`);
-      return newBrands;
-    });
-  };
-
-  // Update URL when filters change
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
+    const newBrands = selectedBrands.includes(brand) ? [] : [brand];
+    setSelectedBrands(newBrands);
     
-    if (selectedCategory) {
-      params.set('category', selectedCategory);
-    } else {
-      params.delete('category');
-    }
-
-    if (selectedBrands.length > 0) {
-      params.set('brand', selectedBrands[0]);
+    // Update URL without triggering additional fetches
+    const params = new URLSearchParams(location.search);
+    if (newBrands.length > 0) {
+      params.set('brand', newBrands[0]);
     } else {
       params.delete('brand');
     }
-
-    if (searchQuery) {
-      params.set('search', searchQuery);
-    } else {
-      params.delete('search');
-    }
-
-    if (priceRange[0] > 0) {
-      params.set('min_price', priceRange[0].toString());
-    } else {
-      params.delete('min_price');
-    }
-
-    if (priceRange[1] < 1000000) {
-      params.set('max_price', priceRange[1].toString());
-    } else {
-      params.delete('max_price');
-    }
-
-    // Only update URL if there are actual changes
-    const newUrl = `?${params.toString()}`;
-    if (newUrl !== `?${location.search}`) {
-      navigate(newUrl);
-    }
-  }, [selectedCategory, selectedBrands, searchQuery, priceRange]);
+    navigate(`?${params.toString()}`, { replace: true });
+  };
 
   // Toggle color selection
   const toggleColor = (color: string) => {
@@ -629,7 +584,7 @@ const Products: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 xl:px-16 py-4 sm:py-6 md:py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
         {/* Breadcrumb */}
         <div className="text-xs text-gray-500 mb-4 sm:mb-6">
           <span>Home</span> / <span>Products</span>
@@ -663,7 +618,7 @@ const Products: React.FC = () => {
                   {categories.map(category => renderCategoryTree(category))}
                 </div>
               </div>
-              
+            
               {/* Brand Filter */}
               <div className="mb-8">
                 <h3 className="font-semibold text-base mb-4 text-black">Brand</h3>
@@ -686,7 +641,7 @@ const Products: React.FC = () => {
                   })}
                 </div>
               </div>
-              
+            
               {/* Price Range */}
               <div className="mb-8">
                 <h3 className="font-semibold text-base mb-4 text-black">Price</h3>
@@ -724,7 +679,6 @@ const Products: React.FC = () => {
                       />
                     </div>
                   </div>
-                  
                   {/* Slider */}
                   <div className="flex justify-between text-xs text-gray-700 mb-2 font-normal">
                     <span>₹{priceRange[0].toLocaleString()}</span>
@@ -761,17 +715,11 @@ const Products: React.FC = () => {
                     { label: '40% or more', value: '40' },
                     { label: '50% or more', value: '50' }
                   ].map((discount) => {
-                    const isSelected = selectedDiscounts && selectedDiscounts.includes(discount.value);
+                    const isSelected = selectedDiscounts.includes(discount.value);
                     return (
                       <button
                         key={discount.value}
-                        onClick={() => {
-                          setSelectedDiscounts(prev => 
-                            prev && prev.includes(discount.value) 
-                              ? prev.filter(d => d !== discount.value)
-                              : [...(prev || []), discount.value]
-                          );
-                        }}
+                        onClick={() => toggleDiscount(discount.value)}
                         className={`px-3 py-1.5 rounded-full border text-xs font-normal transition-colors focus:outline-none ${
                           isSelected
                             ? 'bg-[#F2631F] text-white border-[#F2631F] shadow'
@@ -789,20 +737,19 @@ const Products: React.FC = () => {
               <div className="mb-8">
                 <h3 className="font-semibold text-base mb-4 text-black">Ratings</h3>
                 {(() => {
-                  const selectedRatingValue = selectedRatings && selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
+                  const selectedRatingValue = selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
                   return (
                     <div className="flex items-center">
                       <div className="flex">
                         {[1, 2, 3, 4, 5].map(star => {
                           const isFull = selectedRatingValue >= star;
                           const isHalf = selectedRatingValue >= star - 0.5 && selectedRatingValue < star;
-
                           return (
                             <div key={star} className="relative cursor-pointer" style={{ width: 28, height: 28 }} onClick={(e) => {
                               const rect = e.currentTarget.getBoundingClientRect();
                               const clickX = e.clientX - rect.left;
                               const rating = clickX < rect.width / 2 ? star - 0.5 : star;
-                              setSelectedRatings([rating.toString()]);
+                              toggleRating(rating.toString());
                             }}>
                               <Star className="text-gray-300" fill="currentColor" size={28}/>
                               {isFull ? (
@@ -826,7 +773,7 @@ const Products: React.FC = () => {
                 })()}
               </div>
 
-              {/* Reset Filters */}
+              {/* Reset Filters Button */}
               <button
                 onClick={resetFilters}
                 className="w-full px-4 py-2 text-sm font-normal text-[#F2631F] border border-[#F2631F] rounded hover:bg-orange-50 transition-colors"
@@ -997,17 +944,17 @@ const Products: React.FC = () => {
 
         {/* Recently Viewed */}
         {recentlyViewed.length > 0 && (
-          <div className="md:mt-12 mb-8 xs:mt-40 sm:mt-20">
+          <div className="mt-12 mb-8">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-semibold">Recently Viewed</h2>
             </div>
             
-            <div className="flex overflow-x-auto gap-4 sm:gap-6 pb-2 hide-scrollbar">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
               {recentlyViewed.map((product) => (
-                <div
+                <div 
                   key={product.id}
                   onClick={() => handleProductClick(String(product.id))}
-                  className="min-w-[220px] max-w-[220px] flex-shrink-0 cursor-pointer transform transition-transform hover:scale-[1.02]"
+                  className="cursor-pointer transform transition-transform hover:scale-[1.02]"
                 >
                   <ProductCard
                     product={product}
@@ -1025,7 +972,7 @@ const Products: React.FC = () => {
       {isFilterOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden">
           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] flex flex-col">
-            <div className="p-4 border-b">
+            <div className="p-4 border-b mt-6 sm:mt-10 nav:mt-20">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Filters</h3>
                 <button onClick={() => setIsFilterOpen(false)} className="p-2">
@@ -1140,17 +1087,11 @@ const Products: React.FC = () => {
                     { label: '40% or more', value: '40' },
                     { label: '50% or more', value: '50' }
                   ].map((discount) => {
-                    const isSelected = selectedDiscounts && selectedDiscounts.includes(discount.value);
+                    const isSelected = selectedDiscounts.includes(discount.value);
                     return (
                       <button
                         key={discount.value}
-                        onClick={() => {
-                          setSelectedDiscounts(prev => 
-                            prev && prev.includes(discount.value) 
-                              ? prev.filter(d => d !== discount.value)
-                              : [...(prev || []), discount.value]
-                          );
-                        }}
+                        onClick={() => toggleDiscount(discount.value)}
                         className={`px-3 py-1.5 rounded-full border text-xs font-normal transition-colors focus:outline-none ${
                           isSelected
                             ? 'bg-[#F2631F] text-white border-[#F2631F] shadow'
@@ -1168,7 +1109,7 @@ const Products: React.FC = () => {
               <div className="mb-8">
                 <h4 className="font-medium mb-3">Ratings</h4>
                 {(() => {
-                  const selectedRatingValue = selectedRatings && selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
+                  const selectedRatingValue = selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
                   return (
                     <div className="flex items-center">
                       <div className="flex">
@@ -1181,7 +1122,7 @@ const Products: React.FC = () => {
                               const rect = e.currentTarget.getBoundingClientRect();
                               const clickX = e.clientX - rect.left;
                               const rating = clickX < rect.width / 2 ? star - 0.5 : star;
-                              setSelectedRatings([rating.toString()]);
+                              toggleRating(rating.toString());
                             }}>
                               <Star className="text-gray-300" fill="currentColor" size={28}/>
                               {isFull ? (
