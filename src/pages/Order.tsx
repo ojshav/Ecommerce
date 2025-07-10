@@ -244,17 +244,17 @@ const Order: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Your Orders</h1>
-        <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold">Your Orders</h1>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
           <button 
-            className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors"
+            className="px-3 sm:px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors text-sm sm:text-base"
             onClick={() => navigate('/return-refund')}
           >
             Returns Policy
           </button>
           <button 
-            className="px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors"
+            className="px-3 sm:px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors text-sm sm:text-base"
             onClick={() => navigate('/track-order')}
           >
             Track Package
@@ -263,19 +263,19 @@ const Order: React.FC = () => {
       </div>
       
       {/* Search and Filter */}
-      <div className="flex gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="flex-1 relative">
           <input
             type="text"
             placeholder="Search orders by product name or order ID"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF4D00]"
+            className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF4D00] text-sm sm:text-base"
           />
         </div>
         <div className="relative">
           <button 
-            className="px-4 py-2 border rounded-lg flex items-center gap-2 hover:border-[#FF4D00] transition-colors"
+            className="w-full sm:w-auto px-4 py-2 border rounded-lg flex items-center justify-center sm:justify-start gap-2 hover:border-[#FF4D00] transition-colors text-sm sm:text-base"
             onClick={() => setFilterOpen(!filterOpen)}
           >
             <Filter size={20} />
@@ -283,12 +283,12 @@ const Order: React.FC = () => {
             <ChevronDown size={16} />
           </button>
           {filterOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
+            <div className="absolute right-0 mt-2 w-full sm:w-48 bg-white border rounded-lg shadow-lg z-10">
               <div className="p-2">
                 {['all', 'delivered', 'in_transit', 'processing', 'cancelled'].map((filter) => (
                   <button 
                     key={filter}
-                    className={`w-full text-left px-3 py-2 rounded capitalize ${
+                    className={`w-full text-left px-3 py-2 rounded capitalize text-sm sm:text-base ${
                       selectedFilter === filter ? 'bg-[#FF4D00] text-white' : 'hover:bg-gray-100'
                     }`}
                     onClick={() => {
@@ -306,7 +306,7 @@ const Order: React.FC = () => {
       </div>
 
       {/* Orders List */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {filteredOrders.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500">No orders found</p>
@@ -318,57 +318,57 @@ const Order: React.FC = () => {
               <div
                 key={order.order_id}
                 onClick={() => handleOrderClick(order)}
-                className="border rounded-lg p-6 space-y-4 cursor-pointer hover:border-[#FF4D00] transition-colors bg-white shadow-sm"
+                className="border rounded-lg p-4 sm:p-6 space-y-4 cursor-pointer hover:border-[#FF4D00] transition-colors bg-white shadow-sm"
               >
                 {order.items.map((item) => (
-                  <div key={item.order_item_id} className="flex justify-between items-start">
-                    <div className="flex gap-6">
+                  <div key={item.order_item_id} className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                    <div className="flex gap-4 sm:gap-6">
                       <img
                         src={item.product_image || '/placeholder-image.jpg'}
                         alt={item.product_name_at_purchase}
-                        className="w-24 h-24 object-cover rounded-lg"
+                        className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg flex-shrink-0"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = '/placeholder-image.jpg';
                         }}
                       />
-                      <div>
-                        <h3 className="font-medium text-lg mb-1">{item.product_name_at_purchase}</h3>
-                        <p className="text-gray-600 text-sm mb-1">Order #{order.order_id}</p>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-base sm:text-lg mb-1 truncate sm:whitespace-normal sm:truncate-none sm:max-w-[350px] md:max-w-[500px] lg:max-w-[600px]">{item.product_name_at_purchase}</h3>
+                        <p className="text-gray-600 text-xs sm:text-sm mb-1">Order #{order.order_id}</p>
                         <div className="flex items-center gap-2">
                           <span className={`w-2 h-2 rounded-full ${getStatusColor(order.order_status)}`}></span>
-                          <span className="font-medium">{order.order_status.replace('_', ' ')}</span>
+                          <span className="font-medium text-sm sm:text-base">{order.order_status.replace('_', ' ')}</span>
                         </div>
-                        <p className="text-gray-600 text-sm mt-1">
+                        <p className="text-gray-600 text-xs sm:text-sm mt-1">
                           {order.status_history && order.status_history.length > 0 
                             ? order.status_history[0].notes 
                             : 'Order placed'}
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-lg">
+                    <div className="text-left sm:text-right">
+                      <p className="font-semibold text-base sm:text-lg">
                         {getCurrencySymbol(order.currency)} {item.final_price_for_item}
                       </p>
-                      <p className="text-gray-600 text-sm">Ordered on {formatDate(order.order_date)}</p>
+                      <p className="text-gray-600 text-xs sm:text-sm">Ordered on {formatDate(order.order_date)}</p>
                     </div>
                   </div>
                 ))}
 
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t gap-4">
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     {order.order_status === 'delivered' && (
                       <>
                         <button
                           onClick={(e) => handleAction(e, 'return', order)}
-                          className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2"
+                          className="px-3 sm:px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2 text-sm"
                         >
                           <RotateCcw size={16} />
                           Return
                         </button>
                         <button
                           onClick={(e) => handleAction(e, 'review', order)}
-                          className="px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2"
+                          className="px-3 sm:px-4 py-2 text-[#FF4D00] border border-[#FF4D00] rounded-lg hover:bg-[#FF4D00] hover:text-white transition-colors flex items-center gap-2 text-sm"
                         >
                           <Star size={16} />
                           Review
@@ -376,10 +376,10 @@ const Order: React.FC = () => {
                       </>
                     )}
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     <button
                       onClick={(e) => handleAction(e, 'track', order)}
-                      className="px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors flex items-center gap-2"
+                      className="px-3 sm:px-4 py-2 bg-[#FF4D00] text-white rounded-lg hover:bg-[#FF4D00]/90 transition-colors flex items-center gap-2 text-sm"
                     >
                       Track Order
                     </button>
@@ -388,7 +388,7 @@ const Order: React.FC = () => {
                         e.stopPropagation();
                         // Handle invoice download
                       }}
-                      className="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                      className="px-3 sm:px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm"
                     >
                       <FileText size={16} />
                       Invoice
@@ -403,11 +403,11 @@ const Order: React.FC = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-1 my-6">
+        <div className="flex justify-center items-center gap-1 my-6 overflow-x-auto">
           <button 
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="w-8 h-8 flex items-center justify-center border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:border-[#FF4D00]"
+            className="w-8 h-8 flex items-center justify-center border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:border-[#FF4D00] flex-shrink-0"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -416,7 +416,7 @@ const Order: React.FC = () => {
             <button
               key={i + 1}
               onClick={() => setCurrentPage(i + 1)}
-              className={`w-8 h-8 flex items-center justify-center border rounded-lg ${
+              className={`w-8 h-8 flex items-center justify-center border rounded-lg flex-shrink-0 text-sm ${
                 currentPage === i + 1
                   ? 'bg-[#FF4D00] text-white'
                   : 'hover:border-[#FF4D00]'
@@ -429,7 +429,7 @@ const Order: React.FC = () => {
           <button 
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="w-8 h-8 flex items-center justify-center border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:border-[#FF4D00]"
+            className="w-8 h-8 flex items-center justify-center border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:border-[#FF4D00] flex-shrink-0"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
