@@ -115,7 +115,7 @@ const TopSellingCarousel: React.FC = () => {
                 href={item.shareable_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-[#F2631F] hover:bg-[#E25818] text-white text-sm font-medium px-4 py-1.5 rounded-md transition-colors shadow-lg mb-3"
+                className="inline-block bg-[#F2631F] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#E25818] transition-colors shadow-md mb-3"
               >
                 {item.type === 'promo' ? 'View Promo Products' :
                  item.type === 'new' ? 'View New Products' :
