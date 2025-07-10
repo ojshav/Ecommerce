@@ -1,8 +1,121 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { X, Send } from 'lucide-react';
+import { CHAT_API_URL } from '../config';
+
+interface Message {
+  id: string;
+  text: string;
+  sender: 'user' | 'bot';
+  timestamp: Date;
+}
+
+interface UserInfo {
+  name: string;
+  phone: string;
+  email: string;
+}
 
 const MessengerPopup: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showUserForm, setShowUserForm] = useState(true);
+  const [userInfo, setUserInfo] = useState<UserInfo>({
+    name: '',
+    phone: '',
+    email: ''
+  });
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleUserInfoSubmit = () => {
+    if (!userInfo.name || !userInfo.email) {
+      alert('Please provide your name and email');
+      return;
+    }
+    setShowUserForm(false);
+    setMessages([
+      {
+        id: Date.now().toString(),
+        text: `Hi ${userInfo.name}! How can I help you today?`,
+        sender: 'bot',
+        timestamp: new Date()
+      }
+    ]);
+  };
+
+  const sendMessage = async (text: string) => {
+    if (!text.trim()) return;
+
+    const newUserMessage: Message = {
+      id: Date.now().toString(),
+      text: text,
+      sender: 'user',
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, newUserMessage]);
+    setInputMessage('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${CHAT_API_URL}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          query: text,
+          user_id: userInfo.email
+        })
+      });
+
+      const data = await response.json();
+      console.log('Chatbot response:', data); // Debug log
+      
+      if (response.ok && data.answer) {
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: data.answer,
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, botMessage]);
+      } else {
+        console.error('Invalid response format:', data);
+        throw new Error('Invalid response from chatbot');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: 'Sorry, I encountered an error. Please try again later.',
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(inputMessage);
+    }
+  };
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
@@ -18,10 +131,10 @@ const MessengerPopup: React.FC = () => {
 
       {/* Popup Dialog */}
       {isOpen && (
-        <div className="absolute bottom-16 right-0 w-80 bg-white rounded-lg shadow-xl">
+        <div className="absolute bottom-16 right-0 w-96 bg-white rounded-lg shadow-xl max-h-[600px] flex flex-col">
           <div className="bg-orange-500 p-4 rounded-t-lg">
             <div className="flex justify-between items-center">
-              <h3 className="text-white text-lg font-semibold">Lets start's the Chats</h3>
+              <h3 className="text-white text-lg font-semibold">AOIN Chat Assistant</h3>
               <button
                 onClick={() => setIsOpen(false)}
                 className="text-white hover:text-gray-200"
@@ -31,55 +144,102 @@ const MessengerPopup: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-4">
-            {/* AOIN Messages */}
-            <div className="space-y-4 mb-4">
-              <div className="bg-gray-100 p-3 rounded-lg">
-                <p className="font-semibold">AOIN</p>
-                <p className="text-sm text-gray-600">
-                  Welcome to AOIN! 🚗 Your premium automotive parts destination. Need help? Chat with us for immediate assistance
-                </p>
+          <div className="flex-1 overflow-hidden flex flex-col">
+            {showUserForm ? (
+              // User Information Form
+              <div className="p-4 space-y-4">
+                <div className="bg-gray-100 p-3 rounded-lg mb-4">
+                  <p className="font-semibold">AOIN</p>
+                  <p className="text-sm text-gray-600">
+                    Welcome to AOIN! Please provide your information to start chatting.
+                  </p>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Name *"
+                  value={userInfo.name}
+                  onChange={(e) => setUserInfo(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full p-2 border-b border-gray-300 focus:outline-none focus:border-orange-500"
+                />
+                <input
+                  type="tel"
+                  placeholder="Phone number"
+                  value={userInfo.phone}
+                  onChange={(e) => setUserInfo(prev => ({ ...prev, phone: e.target.value }))}
+                  className="w-full p-2 border-b border-gray-300 focus:outline-none focus:border-orange-500"
+                />
+                <input
+                  type="email"
+                  placeholder="Email *"
+                  value={userInfo.email}
+                  onChange={(e) => setUserInfo(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full p-2 border-b border-gray-300 focus:outline-none focus:border-orange-500"
+                />
+                <button
+                  onClick={handleUserInfoSubmit}
+                  className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                >
+                  Start Chat
+                </button>
               </div>
-              <div className="bg-gray-100 p-3 rounded-lg">
-                <p className="font-semibold">AOIN</p>
-                <p className="text-sm text-gray-600">
-                  Welcome to AOIN! Your premium automotive parts destination. Need help? Chat with us for immediate assistance
-                </p>
-              </div>
-            </div>
+            ) : (
+              // Chat Interface
+              <>
+                <div 
+                  ref={chatContainerRef}
+                  className="flex-1 overflow-y-auto p-4 space-y-4"
+                >
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[80%] p-3 rounded-lg ${
+                          message.sender === 'user'
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        <p className="text-sm">{message.text}</p>
+                        <p className="text-xs mt-1 opacity-70">
+                          {message.timestamp.toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-gray-100 p-3 rounded-lg">
+                        <p className="text-sm">Typing...</p>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
 
-            {/* Contact Form */}
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Name"
-                className="w-full p-2 border-b border-gray-300 focus:outline-none focus:border-orange-500"
-              />
-              <input
-                type="tel"
-                placeholder="Phone number"
-                className="w-full p-2 border-b border-gray-300 focus:outline-none focus:border-orange-500"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full p-2 border-b border-gray-300 focus:outline-none focus:border-orange-500"
-              />
-            </div>
-
-            {/* Chat Buttons */}
-            <div className="flex gap-4 mt-4 bg-[#F15A24] p-4 rounded-b-lg">
-              <button className="flex-1 py-4 bg-[#F2F2F2] rounded-2xl hover:bg-[#E6E6E6] transition-colors">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
-                  <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z" fill="#333333"/>
-                </svg>
-              </button>
-              <button className="flex-1 py-4 bg-[#F2F2F2] rounded-2xl hover:bg-[#E6E6E6] transition-colors">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
-                  <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H5.17L4 17.17V4H20V16ZM7 9H9V11H7V9ZM15 9H17V11H15V9ZM11 9H13V11H11V9Z" fill="#333333"/>
-                </svg>
-              </button>
-            </div>
+                {/* Message Input */}
+                <div className="p-4 border-t">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Type your message..."
+                      className="flex-1 p-2 border rounded-lg focus:outline-none focus:border-orange-500"
+                    />
+                    <button
+                      onClick={() => sendMessage(inputMessage)}
+                      disabled={isLoading || !inputMessage.trim()}
+                      className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Send className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
