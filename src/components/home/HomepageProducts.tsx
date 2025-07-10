@@ -276,10 +276,10 @@ const HomepageProducts: React.FC = () => {
               {/* Header with navigation */}
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                 {/* Category name and arrows for mobile */}
-                <div className="flex items-center w-full md:w-auto">
-                  <h6 className="text-xl font-medium font-worksans mr-2">{categoryData.category.name}</h6>
+                <div className="flex items-center justify-between w-full md:w-auto">
+                  <h6 className="text-xl font-medium font-worksans">{categoryData.category.name}</h6>
                   {/* Arrows: visible only on mobile (md:hidden) */}
-                  <div className="flex items-center space-x-3 md:hidden">
+                  <div className="flex items-center space-x-3 md:hidden ml-auto">
                     <button 
                       className={
                         categoryStates[categoryData.category.category_id]?.currentPage === 1 

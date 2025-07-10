@@ -84,7 +84,7 @@ const Hero: React.FC = () => {
                 />
                 <button
                   onClick={() => handleOrderNowClick(current.shareable_link)}
-                  className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 sm:px-6 py-2 rounded font-medium hover:bg-gray-100 transition-colors text-sm sm:text-base shadow-lg"
+                  className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-[#F2631F] text-white px-4 sm:px-6 py-2 rounded font-medium hover:bg-[#E25818] transition-colors text-sm sm:text-base shadow-lg"
                 >
                   Order Now
                 </button>
@@ -97,7 +97,7 @@ const Hero: React.FC = () => {
                   key={idx}
                   onClick={() => goToSlide(idx)}
                   className={`h-1.5 sm:h-2 w-6 sm:w-8 rounded-full transition-all ${
-                    currentSlide === idx ? 'bg-white' : 'bg-white/50'
+                    currentSlide === idx ? 'bg-[#F2631F]' : 'bg-[#F2631F]/50'
                   }`}
                 />
               ))}
@@ -148,7 +148,7 @@ const Hero: React.FC = () => {
                 />
                 <button
                   onClick={() => handleOrderNowClick(current.shareable_link)}
-                  className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 sm:px-6 py-2 rounded font-medium hover:bg-gray-100 transition-colors text-sm sm:text-base shadow-lg"
+                  className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-[#F2631F] text-white px-4 sm:px-6 py-2 rounded font-medium hover:bg-[#E25818] transition-colors text-sm sm:text-base shadow-lg"
                 >
                   Order Now
                 </button>
@@ -161,7 +161,7 @@ const Hero: React.FC = () => {
                   key={idx}
                   onClick={() => goToSlide(idx)}
                   className={`h-1.5 sm:h-2 w-6 sm:w-8 rounded-full transition-all ${
-                    currentSlide === idx ? 'bg-white' : 'bg-white/50'
+                    currentSlide === idx ? 'bg-[#F2631F]' : 'bg-[#F2631F]/50'
                   }`}
                 />
               ))}
