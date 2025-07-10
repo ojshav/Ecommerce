@@ -383,7 +383,7 @@ const Support: React.FC = () => {
             <option value="resolved">Resolved</option>
             <option value="closed">Closed</option>
           </select>
-          <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+          {/* <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" /> */}
         </div>
       </div>
 

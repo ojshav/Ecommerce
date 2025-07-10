@@ -689,7 +689,7 @@ const ProductPlacements: React.FC = () => {
                   Promotional Price
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                  <span className="absolute ml-2 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
                   <input
                     type="number"
                     id="editPromotionalPrice"
@@ -835,7 +835,7 @@ const ProductPlacements: React.FC = () => {
                 <option value="FEATURED">Featured</option>
                 <option value="PROMOTED">Promoted</option>
                 </select>
-                <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+                {/* <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" /> */}
             </div>
           </div>
 
@@ -975,7 +975,7 @@ const ProductPlacements: React.FC = () => {
                   Promotional Price
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                  <span className="absolute  top-1/2 transform -translate-y-1/2 text-gray-500 ml-2 ">₹</span>
                   <input
                     type="number"
                     id="promotionalPrice"
@@ -1091,7 +1091,7 @@ const ProductPlacements: React.FC = () => {
               <option value="FEATURED">Featured Only</option>
               <option value="PROMOTED">Promoted Only</option>
             </select>
-            <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+            {/* <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" /> */}
           </div>
         </div>
 
@@ -1149,13 +1149,13 @@ const ProductPlacements: React.FC = () => {
                        placement.product_details?.is_on_special_offer ? (
                         <div className="text-sm">
                           {placement.product_details.selling_price != null && (
-                            <span className="text-gray-500 line-through">₹{placement.product_details.selling_price.toFixed(2)}</span>
+                            <span className="text-gray-500 line-through ml-2 ">₹{placement.product_details.selling_price.toFixed(2)}</span>
                           )}
                           <span className="ml-2 text-red-600 font-semibold">₹{placement.product_details.special_price.toFixed(2)}</span>
                           <div className="text-xs text-green-600 mt-1">Special Offer Active</div>
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-500">₹{placement.product_details?.selling_price?.toFixed(2) || 'N/A'}</span>
+                        <span className="text-sm text-gray-500 ml-2">₹{placement.product_details?.selling_price?.toFixed(2) || 'N/A'}</span>
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{placement.sort_order}</td>
