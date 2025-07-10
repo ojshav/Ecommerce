@@ -136,12 +136,11 @@ const TrendingDeals: React.FC = () => {
 
         <div className="flex flex-col space-y-6">
           {/* Header with navigation */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+          <div className="flex flex-row justify-between items-center w-full space-y-0 mb-4 md:mb-0">
             <h6 className="text-xl font-medium font-worksans">Trending Deals</h6>
-            
             {/* Navigation */}
-            <div className="flex items-center w-full md:w-auto space-x-4">
-              <Link to="/trendy-deals" className="text-orange-500 text-sm font-medium mr-10">
+            <div className="flex items-center space-x-4">
+              <Link to="/trendy-deals" className="text-orange-500 text-sm font-medium">
                 See All
               </Link>
               <div className="flex items-center space-x-3">
