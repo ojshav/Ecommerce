@@ -567,12 +567,10 @@ const ProductDetail: React.FC = () => {
         );
         if (wishlistItem) {
           await removeFromWishlist(wishlistItem.wishlist_item_id);
-          toast.success("Product removed from wishlist");
         }
       } else {
         // console.log("Attempting to add to wishlist, product ID:", productId);
         await addToWishlist(productId);
-        toast.success("Product added to wishlist");
       }
     } catch (error) {
       console.error("Wishlist error details:", error);
@@ -1201,7 +1199,7 @@ const ProductDetail: React.FC = () => {
         </nav>
 
         {/* Product Overview Section */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-4">
+        <div className="bg-white rounded-lg shadow-sm overflow-visible mb-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-2 sm:p-4">
             {/* Product Images */}
             <div className="space-y-2">
@@ -1455,7 +1453,7 @@ const ProductDetail: React.FC = () => {
                       </button>
                       {/* Share Options Dropdown */}
                       {showShareOptions && (
-                        <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-10">
                           <div className="p-3 border-b border-gray-100">
                             <h3 className="text-sm font-medium text-gray-700">
                               Share this product
@@ -1592,7 +1590,7 @@ const ProductDetail: React.FC = () => {
                     </button>
                   </div>
                   {/* Share Button */}
-                  <div className="relative">
+                  <div className="relative z-10">
                     <button
                       className={`p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors min-w-[40px] text-gray-600 flex items-center justify-center`}
                       onClick={() => setShowShareOptions(!showShareOptions)}
@@ -1602,7 +1600,7 @@ const ProductDetail: React.FC = () => {
                     </button>
                     {/* Share Options Dropdown */}
                     {showShareOptions && (
-                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                         <div className="p-3 border-b border-gray-100">
                           <h3 className="text-sm font-medium text-gray-700">
                             Share this product
@@ -1691,7 +1689,7 @@ const ProductDetail: React.FC = () => {
         </div>
 
         {/* Tabs Section */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm overflow-visible">
           <div className="border-b border-gray-200 overflow-x-auto">
             <nav className="flex min-w-[320px]">
               <button

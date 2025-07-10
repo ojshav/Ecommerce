@@ -184,7 +184,7 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
       const data = await response.json();
       if (data.status === 'success') {
         await fetchWishlist();
-        toast.success('Item removed from wishlist');
+        toast.success('Product removed from wishlist');
       }
     } catch (error) {
       console.error('Error removing from wishlist:', error);

@@ -49,6 +49,8 @@ const Services: React.FC = () => {
           autoPlay
           loop
           muted
+          playsInline
+            webkit-playsinline="true"
           className="rounded-lg shadow-lg w-full h-auto"
           style={{ height: '422px', objectFit: 'cover' }}
         >
