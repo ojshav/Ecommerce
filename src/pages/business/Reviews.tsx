@@ -130,17 +130,20 @@ const Reviews: React.FC = () => {
         </div>
         <div className="space-y-2">
           {Object.entries(stats.rating_distribution).reverse().map(([rating, count]) => (
-            <div key={rating} className="flex items-center gap-2">
-              <span className="text-sm w-8">{rating} stars</span>
+            <div key={rating} className="flex items-center gap-3">
+              <div className="flex items-center gap-1 w-20">
+                <span className="text-sm font-medium">{rating}</span>
+                <Star className="w-3 h-3 fill-[#FF4D00] text-[#FF4D00]" />
+              </div>
               <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#FF4D00]"
+                  className="h-full bg-[#FF4D00] transition-all duration-300"
                   style={{
-                    width: `${(count / stats.total_reviews) * 100}%`,
+                    width: `${stats.total_reviews > 0 ? (count / stats.total_reviews) * 100 : 0}%`,
                   }}
                 />
               </div>
-              <span className="text-sm text-gray-500 w-12">{count}</span>
+              <span className="text-sm text-gray-500 w-8 text-right">{count}</span>
             </div>
           ))}
         </div>
