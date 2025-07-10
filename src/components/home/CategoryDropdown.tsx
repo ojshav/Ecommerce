@@ -109,7 +109,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
             onClick={() => {
               if (closeDropdown) closeDropdown();
               setSelectedCategory('');
-              navigate('/products');
+              navigate('/all-products');
             }}
             className={`flex items-center justify-between w-full px-4 py-3 text-sm border-b transition-colors duration-200 ${
               selectedCategory === '' ? 'bg-[#F2631F] text-white' : 'text-gray-700 hover:bg-gray-50'
@@ -178,7 +178,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
               onClick={() => {
                 if (closeDropdown) closeDropdown();
                 setSelectedCategory('');
-                navigate('/products');
+                navigate('/all-products');
               }}
               className={`flex items-center justify-between px-3 md:px-5 py-2 md:py-3 hover:bg-[#f6eadd] text-gray-800 text-sm md:text-base w-full text-left ${
                 selectedCategory === '' ? 'bg-[#f47521] text-white' : ''
@@ -261,7 +261,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
                         onClick={() => {
                           if (closeDropdown) closeDropdown();
                           setSelectedCategory('');
-                          navigate('/products');
+                          navigate('/all-products');
                         }}
                         className="bg-[#f47521] text-white py-2 md:py-3 px-3 md:px-4 inline-block w-full text-center text-sm md:text-base rounded-md hover:bg-[#e06a1d] transition-colors"
                       >

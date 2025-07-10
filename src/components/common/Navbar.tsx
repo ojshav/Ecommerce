@@ -135,16 +135,16 @@ const Navbar: React.FC = () => {
   const searchBarContent = (
     <div ref={desktopSearchRef} className="relative">
       <form onSubmit={handleSearchSubmit} className="relative">
-        <div className="w-full xl:w-[580px] h-10  flex justify-between items-center rounded-lg  bg-white overflow-hidden">
+        <div className="w-full xl:w-[680px] h-14  flex justify-between items-center rounded-lg  overflow-hidden">
           <input
             type="text"
             placeholder="What are you looking for?"
-            className="w-full h-full md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-3 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-normal text-sm leading-6 tracking-[0%] outline-none"
+            className="w-full h-8 md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-3 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-normal text-sm leading-6 tracking-[0%] outline-none"
             value={searchQuery}
             onChange={handleSearchInputChange}
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
-          <div className="relative w-[196px] flex items-center  bg-[#FBF4CE]">
+          <div className="relative w-[200px] flex items-center  bg-[#FBF4CE]">
             <select
               className="w-full h-full appearance-none bg-transparent py-3 pl-4 pr-[120px] text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-normal text-[14px] leading-6 tracking-[0%]"
               value={searchType}
@@ -155,6 +155,12 @@ const Navbar: React.FC = () => {
               <option value="categories">Categories</option>
             </select>
           </div>
+          <button
+                    className="w-24 h-11 ml-8 hover:bg-[#F2631F] hover:border-[#F2631F] hover:text-white xl:mr-12 text-[#692C2C] py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-[#692C2C] whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] transition-colors"
+                    
+                  >
+                    Search
+                  </button>
         </div>
       </form>
       <SearchResults
@@ -292,15 +298,7 @@ const Navbar: React.FC = () => {
                     {desktopSearchBar}
                   </div>
 
-                  <button
-                    className="w-24 h-11 hover:bg-[#F2631F] hover:border-[#F2631F] hover:text-white xl:mr-12 text-[#692C2C] py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-[#692C2C] whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] transition-colors"
-                    onClick={() => {
-                      setShowSearchResults(false);
-                      setSearchQuery('');
-                    }}
-                  >
-                    Search
-                  </button>
+                  
 
                   {/* Icons */}
                   <div className="flex items-center gap-2 nav:gap-3 mid:gap-4 xl:gap-8 xl:mr-6 mid:mr-4">
