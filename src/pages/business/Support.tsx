@@ -9,7 +9,6 @@ import {
   Search,
   Paperclip,
   XCircle,
-  ChevronDownIcon
 } from 'lucide-react';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -387,7 +386,7 @@ const Support: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-250px)] md:h-[calc(100vh-200px)]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-220px)] md:h-[calc(100vh-180px)]">
         {/* Ticket List */}
         <div className="lg:col-span-1 bg-white rounded-lg border border-gray-200 flex flex-col overflow-hidden">
           <div className="p-4 border-b border-gray-200 bg-orange-50">
@@ -428,19 +427,23 @@ const Support: React.FC = () => {
         <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 flex flex-col overflow-hidden">
           {selectedTicket ? (
             <>
-              <div className="p-4 border-b border-gray-200 bg-orange-50">
-                <h2 className="text-lg font-medium text-orange-700 truncate" title={selectedTicket.title}>{selectedTicket.title}</h2>
-                <div className="mt-1 flex items-center justify-between text-xs">
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-medium ${getPriorityColor(selectedTicket.priority)}`}>
-                    {selectedTicket.priority} priority
+              <div className="px-3 py-2 border-b border-gray-200 bg-orange-50 flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-sm font-medium text-orange-700 truncate" title={selectedTicket.title}>{selectedTicket.title}</h2>
+                </div>
+                <div className="flex items-center gap-2 ml-2">
+                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(selectedTicket.priority)}`}>
+                    {selectedTicket.priority}
                   </span>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-medium ${getStatusColor(selectedTicket.status)}`}>
+                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedTicket.status)}`}>
                     {selectedTicket.status.replace(/_/g, ' ')}
                   </span>
                 </div>
               </div>
 
-              <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-gray-50">
+              <div className="flex-1 px-4 py-2 space-y-3 overflow-y-auto bg-gray-50"
+                style={{ height: 'calc(100vh - 320px)' }}
+              >
                 {isLoadingMessages ? (
                   <div className="flex justify-center items-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent-500"></div></div>
                 ) : selectedTicketMessages.length === 0 ? (
@@ -449,21 +452,27 @@ const Support: React.FC = () => {
                   selectedTicketMessages.map(message => (
                     <div
                       key={message.id}
-                      className={`flex ${Number(message.sender_user_id) === user?.id ? 'justify-end' : 'justify-start'}`}
+                      className={`flex ${message.sender_user_id === Number(user?.id) ? 'justify-end' : 'justify-start'} mb-3`}
                     >
-                      <div className={`rounded-lg px-4 py-2 max-w-[80%] shadow-sm ${Number(message.sender_user_id) === user?.id
-                          ? 'bg-orange-600 text-white'
-                          : 'bg-gray-100 text-gray-800'
+                      <div className={`relative max-w-[80%] rounded-2xl px-4 py-3 shadow-sm ${message.sender_user_id === Number(user?.id)
+                        ? 'bg-orange-500 text-white rounded-br-md'
+                        : 'bg-white text-gray-800 rounded-bl-md border border-gray-200'
                         }`}>
-                        <p className="text-sm whitespace-pre-wrap">{message.message_text}</p>
+                        <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{message.message_text}</p>
                         {message.attachment_url && (
-                          <a href={message.attachment_url} target="_blank" rel="noopener noreferrer" className={`mt-1 text-xs underline flex items-center gap-1 ${Number(message.sender_user_id) === user?.id ? 'text-orange-100 hover:text-white' : 'text-accent-600 hover:text-accent-700'}`}>
+                          <a href={message.attachment_url} target="_blank" rel="noopener noreferrer" className={`mt-2 text-xs underline flex items-center gap-1 ${message.sender_user_id === Number(user?.id) ? 'text-orange-100 hover:text-white' : 'text-orange-600 hover:text-orange-700'}`}>
                             <Paperclip size={12} /> View Attachment
                           </a>
                         )}
-                        <p className={`text-xs mt-1 ${Number(message.sender_user_id) === user?.id ? 'text-orange-200' : 'text-gray-500'} text-right`}>
-                          {message.sender_name} - {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </p>
+                        <div className={`flex items-center justify-between mt-2 text-xs ${message.sender_user_id === Number(user?.id) ? 'text-orange-100' : 'text-gray-500'}`}>
+                          <span className="font-medium">{message.sender_name}</span>
+                          <span className="ml-3">{new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                        {/* WhatsApp-style tail */}
+                        <div className={`absolute bottom-0 w-3 h-3 ${message.sender_user_id === Number(user?.id)
+                          ? 'right-0 transform translate-x-1 bg-orange-500'
+                          : 'left-0 transform -translate-x-1 bg-white border-l border-b border-gray-200'
+                          } rotate-45`}></div>
                       </div>
                     </div>
                   ))
@@ -471,48 +480,87 @@ const Support: React.FC = () => {
               </div>
 
               {selectedTicket.status !== 'closed' && selectedTicket.status !== 'resolved' && (
-                <div className="p-4 border-t border-gray-200 bg-white">
-                  <form onSubmit={handleSendMessage} className="space-y-3">
-                    <textarea
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Type your message..."
-                      rows={3}
-                      className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-accent-500 focus:border-accent-500 sm:text-sm"
-                      disabled={isSendingMessage}
-                    />
-                    <div className="flex justify-between items-center">
-                      <label htmlFor="message-attachment-input" className="cursor-pointer text-accent-600 hover:text-accent-700 p-2 rounded-full hover:bg-orange-100">
-                        <Paperclip className="h-5 w-5" />
+                <div className="px-3 py-1.5 border-t border-gray-200 bg-white">
+                  <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <textarea
+                        value={newMessage}
+                        onChange={(e) => {
+                          setNewMessage(e.target.value);
+                          // Auto resize
+                          const target = e.target as HTMLTextAreaElement;
+                          target.style.height = 'auto';
+                          target.style.height = Math.min(target.scrollHeight, 56) + 'px';
+                        }}
+                        placeholder="Type your message..."
+                        rows={1}
+                        className="w-full px-3 py-1.5 border border-gray-300 rounded-full shadow-sm focus:ring-orange-500 focus:border-orange-500 text-sm resize-none overflow-hidden bg-gray-50 focus:bg-white transition-colors"
+                        disabled={isSendingMessage}
+                        style={{
+                          height: '1rem',
+                          minHeight: '1rem',
+                          maxHeight: '3.5rem'
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            if (newMessage.trim() || newMessageAttachment) {
+                              handleSendMessage(e as any);
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <label htmlFor="message-attachment-input" className="cursor-pointer text-gray-500 hover:text-orange-600 p-1.5 rounded-full hover:bg-orange-50 flex-shrink-0 transition-colors">
+                        <Paperclip className="h-4 w-4" />
                         <input id="message-attachment-input" type="file" className="hidden" onChange={handleMessageAttachmentChange} disabled={isSendingMessage} />
                       </label>
-                      {newMessageAttachment && <span className="text-xs text-gray-500 truncate max-w-xs">{newMessageAttachment.name}</span>}
                       <button
                         type="submit"
                         disabled={(!newMessage.trim() && !newMessageAttachment) || isSendingMessage}
-                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent-500 hover:bg-accent-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500 disabled:opacity-50"
+                        className="inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 flex-shrink-0 transition-colors shadow-sm text-xs font-medium"
                       >
-                        {isSendingMessage ? 'Sending...' : <><Send className="h-5 w-5 mr-2" /> Send</>}
+                        {isSendingMessage ? (
+                          <div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-white"></div>
+                        ) : (
+                          <>
+                            <Send className="h-3 w-3" />
+                            <span>Send</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   </form>
+                  {newMessageAttachment && (
+                    <div className="mt-2 flex items-center gap-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-2">
+                      <Paperclip className="h-3 w-3" />
+                      <span className="truncate max-w-xs">{newMessageAttachment.name}</span>
+                      <button
+                        onClick={() => setNewMessageAttachment(null)}
+                        className="text-red-500 hover:text-red-700 ml-auto"
+                      >
+                        <XCircle className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
               {selectedTicket.status === 'resolved' && (
-                <div className="p-4 border-t border-gray-200 bg-white text-center">
-                  <p className="text-sm text-gray-700 mb-2">This ticket has been marked as resolved by our support team.</p>
+                <div className="px-3 py-2 border-t border-gray-200 bg-white text-center">
+                  <p className="text-xs text-gray-700 mb-2">This ticket has been marked as resolved by our support team.</p>
                   <button
                     onClick={handleCloseTicket}
                     disabled={isSendingMessage}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-sm"
+                    className="px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-xs"
                   >
                     Mark as Closed
                   </button>
                 </div>
               )}
               {selectedTicket.status === 'closed' && (
-                <div className="p-4 border-t border-gray-200 bg-gray-100 text-center">
-                  <p className="text-sm text-gray-600 font-medium">This ticket is closed.</p>
+                <div className="px-3 py-2 border-t border-gray-200 bg-gray-100 text-center">
+                  <p className="text-xs text-gray-600 font-medium">This ticket is closed.</p>
                 </div>
               )}
             </>
@@ -528,107 +576,139 @@ const Support: React.FC = () => {
 
       {/* New Ticket Modal */}
       {showNewTicketForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6 shadow-xl transform transition-all">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Create New Support Ticket</h2>
-              <button onClick={() => setShowNewTicketForm(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100">
-                <XCircle size={24} />
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-start sm:items-center justify-center p-1 sm:p-3 z-50 overflow-y-auto">
+          <div className="bg-white rounded-lg w-full max-w-[96vw] sm:max-w-[85vw] md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto shadow-xl transform transition-all my-1 sm:my-4 flex flex-col max-h-[98vh] sm:max-h-[90vh] md:max-h-[80vh]">
+
+            {/* Header - Compact */}
+            <div className="flex justify-between items-center p-2 sm:p-3 md:p-4 border-b border-gray-200 flex-shrink-0">
+              <h2 className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 truncate pr-2">Create Support Ticket</h2>
+              <button onClick={() => setShowNewTicketForm(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 flex-shrink-0">
+                <XCircle size={16} className="sm:w-4 sm:h-4 md:w-5 md:h-5" />
               </button>
             </div>
-            <form onSubmit={handleCreateTicket} className="space-y-4">
-              <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
-                <input
-                  type="text" id="title" name="title"
-                  value={newTicketData.title}
-                  onChange={handleNewTicketInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-accent-500 focus:border-accent-500 sm:text-sm"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea
-                  id="description" name="description"
-                  value={newTicketData.description}
-                  onChange={handleNewTicketInputChange}
-                  rows={4}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-accent-500 focus:border-accent-500 sm:text-sm"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4 min-h-0">
+              <form onSubmit={handleCreateTicket} className="space-y-2 sm:space-y-3">
+
+                {/* Title */}
                 <div>
-                  <label htmlFor="priority" className="block text-sm font-medium text-gray-700">Priority</label>
-                  <select
-                    id="priority" name="priority"
-                    value={newTicketData.priority}
-                    onChange={handleNewTicketInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-accent-500 focus:border-accent-500 sm:text-sm"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="related_order_id" className="block text-sm font-medium text-gray-700">Order ID (Optional)</label>
+                  <label htmlFor="title" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Title</label>
                   <input
-                    type="text" id="related_order_id" name="related_order_id"
-                    value={newTicketData.related_order_id || ''}
+                    type="text" id="title" name="title"
+                    value={newTicketData.title}
                     onChange={handleNewTicketInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-accent-500 focus:border-accent-500 sm:text-sm"
-                    placeholder="e.g., ORD12345"
+                    className="block w-full border border-gray-300 rounded-md shadow-sm py-1 sm:py-1.5 px-2 sm:px-3 focus:ring-accent-500 focus:border-accent-500 text-xs sm:text-sm"
+                    required
                   />
                 </div>
-              </div>
-              <div>
-                <label htmlFor="related_product_id" className="block text-sm font-medium text-gray-700">Product ID (Optional)</label>
-                <input
-                  type="text" id="related_product_id" name="related_product_id"
-                  value={newTicketData.related_product_id || ''}
-                  onChange={handleNewTicketInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-accent-500 focus:border-accent-500 sm:text-sm"
-                  placeholder="e.g., PROD67890"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Attach Image (Optional)</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleNewTicketImageChange}
-                  className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-accent-700 hover:file:bg-orange-100"
-                />
-                {newTicketImagePreview && (
-                  <div className="mt-2 relative w-24 h-24 border rounded">
-                    <img src={newTicketImagePreview} alt="Preview" className="w-full h-full object-cover rounded" />
-                    <button type="button" onClick={() => { setNewTicketImage(null); setNewTicketImagePreview(null); }}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 shadow-md">
-                      <XCircle size={16} />
-                    </button>
-                  </div>
-                )}
-              </div>
 
-              <div className="flex justify-end space-x-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowNewTicketForm(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isCreatingTicket}
-                  className="px-4 py-2 bg-accent-500 text-white rounded-md text-sm font-medium hover:bg-accent-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500 disabled:opacity-50"
-                >
-                  {isCreatingTicket ? 'Creating...' : 'Create Ticket'}
-                </button>
-              </div>
-            </form>
+                {/* Description */}
+                <div>
+                  <label htmlFor="description" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <textarea
+                    id="description" name="description"
+                    value={newTicketData.description}
+                    onChange={handleNewTicketInputChange}
+                    rows={2}
+                    className="block w-full border border-gray-300 rounded-md shadow-sm py-1 sm:py-1.5 px-2 sm:px-3 focus:ring-accent-500 focus:border-accent-500 text-xs sm:text-sm resize-none"
+                    required
+                  />
+                </div>
+
+                {/* Priority and Order ID Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  <div className="relative">
+                    <label htmlFor="priority" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Priority</label>
+                    <div className="relative">
+                      <select
+                        id="priority" name="priority"
+                        value={newTicketData.priority}
+                        onChange={handleNewTicketInputChange}
+                        className="block w-full border border-gray-300 rounded-md shadow-sm py-1 sm:py-1.5 pl-2 sm:pl-3 pr-6 sm:pr-8 focus:ring-accent-500 focus:border-accent-500 text-xs sm:text-sm appearance-none bg-white"
+                        style={{
+                          backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                          backgroundPosition: 'right 0.3rem center',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundSize: '1rem 1rem'
+                        }}
+                      >
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="related_order_id" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                      Order ID <span className="text-gray-400 text-xs">(Optional)</span>
+                    </label>
+                    <input
+                      type="text" id="related_order_id" name="related_order_id"
+                      value={newTicketData.related_order_id || ''}
+                      onChange={handleNewTicketInputChange}
+                      className="block w-full border border-gray-300 rounded-md shadow-sm py-1 sm:py-1.5 px-2 sm:px-3 focus:ring-accent-500 focus:border-accent-500 text-xs sm:text-sm"
+                      placeholder="ORD12345"
+                    />
+                  </div>
+                </div>
+
+                {/* Product ID */}
+                <div>
+                  <label htmlFor="related_product_id" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Product ID <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  <input
+                    type="text" id="related_product_id" name="related_product_id"
+                    value={newTicketData.related_product_id || ''}
+                    onChange={handleNewTicketInputChange}
+                    className="block w-full border border-gray-300 rounded-md shadow-sm py-1 sm:py-1.5 px-2 sm:px-3 focus:ring-accent-500 focus:border-accent-500 text-xs sm:text-sm"
+                    placeholder="PROD67890"
+                  />
+                </div>
+
+                {/* Image Upload */}
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Attach Image <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleNewTicketImageChange}
+                    className="block w-full text-xs sm:text-sm text-gray-500 file:mr-1 sm:file:mr-2 file:py-0.5 sm:file:py-1 file:px-1 sm:file:px-2 file:rounded file:border file:border-gray-300 file:text-xs file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
+                  />
+                  {newTicketImagePreview && (
+                    <div className="mt-2 relative w-10 h-10 sm:w-12 sm:h-12 border rounded">
+                      <img src={newTicketImagePreview} alt="Preview" className="w-full h-full object-cover rounded" />
+                      <button type="button" onClick={() => { setNewTicketImage(null); setNewTicketImagePreview(null); }}
+                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 shadow-md hover:bg-red-600">
+                        <XCircle size={8} className="sm:w-2.5 sm:h-2.5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* Footer - Compact */}
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-1 sm:gap-2 p-2 sm:p-3 md:p-4 border-t border-gray-200 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowNewTicketForm(false)}
+                className="w-full sm:w-auto px-2 sm:px-3 py-1 sm:py-1.5 border border-gray-300 rounded-md text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                onClick={handleCreateTicket}
+                disabled={isCreatingTicket}
+                className="w-full sm:w-auto px-2 sm:px-3 py-1 sm:py-1.5 bg-accent-500 text-white rounded-md text-xs sm:text-sm font-medium hover:bg-accent-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500 disabled:opacity-50"
+              >
+                {isCreatingTicket ? 'Creating...' : 'Create Ticket'}
+              </button>
+            </div>
           </div>
         </div>
       )}
