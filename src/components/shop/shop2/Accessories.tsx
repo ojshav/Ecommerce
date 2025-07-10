@@ -38,7 +38,7 @@ const Accessories: React.FC = () => {
           {/* Right Model */}
           <div className="absolute left-[60%] sm:left-[65%] md:left-[70%] lg:left-[75%] xl:left-[680px] bottom-[4vh] sm:bottom-[8vh] md:bottom-[10vh] lg:bottom-[50px] -translate-x-1/2">
             <img
-              src="/assets/shop2/accessories3.png"
+              src="/assets/shop2/accessories3.svg"
               alt="Right Model"
               className="w-[30vw] sm:w-[32vw] md:w-[22vw] lg:w-[18vw] xl:w-[364px] max-w-[364px] h-[490px] object-contain"
             />

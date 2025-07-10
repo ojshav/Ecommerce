@@ -16,7 +16,7 @@ const EthnicWear = () => {
           {/* Left Video Panel */}
           <div className="relative w-full lg:w-[596px] aspect-[3/3.2] lg:aspect-[596/634.26] overflow-hidden">
             <video
-              src="/assets/videos/ethnic1.mp4"
+              src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691061/public_assets_videos/ethnic1.mp4"
               className="w-full h-full object-cover"
               autoPlay
               loop

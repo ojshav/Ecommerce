@@ -160,8 +160,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col w-62 h-[350px] border border-gray-100">
-      <div className="relative h-44 w-full bg-white">
+    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer  flex flex-col w-full h-[450px] border border-gray-100">
+      <div className="relative h-72 w-full bg-white">
         {/* Product badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
           {isNew && (
@@ -207,7 +207,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               "/placeholder-image.png"
             }
             alt={product.name}
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full  h-full object-contain rounded-lg"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src = "/placeholder-image.png";

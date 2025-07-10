@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Import your SVG files
-const Prime = '/assets/shop/Prime.svg';
-const Exclusive = '/assets/shop/Exclusive.svg';
-const Vault = '/assets/shop/vault.svg';
-const LuxeHub = '/assets/shop/Luxe Hub.svg';
+const Prime = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689846/public_assets_shop/public_assets_shop_Prime.svg';
+const Exclusive = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689840/public_assets_shop/public_assets_shop_Exclusive.svg';
+const Vault = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689866/public_assets_shop/public_assets_shop_vault.svg';
+const LuxeHub = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689843/public_assets_shop/public_assets_shop_Luxe%20Hub.svg';
 
 // Import inner banner SVG files
-const PrimeInner = '/assets/shop/primeinner.svg';
-const ExclusiveInner = '/assets/shop/exclusiveinner.svg';
-const VaultInner = '/assets/shop/vaultinner.svg';
-const LuxeHubInner = '/assets/shop/luxehubinner.svg';
+const PrimeInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058616/public_assets_banner/public_assets_Banner_Shop1_banner.svg';
+const ExclusiveInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058616/public_assets_banner/public_assets_Banner_Shop2_banner.svg';
+const VaultInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058616/public_assets_banner/public_assets_Banner_Shop3_banner.svg';
+const LuxeHubInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058616/public_assets_banner/public_assets_Banner_Shop4_banner.svg';
 
 interface ShopBanner {
   id: number;
@@ -596,7 +596,7 @@ const Shop = () => {
             <div 
               className="absolute inset-0 z-30 flex items-center justify-center"
               style={{
-                background: `url('/assets/shop/shutter.svg')`,
+                background: `url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689863/public_assets_shop/public_assets_shop_shutter.svg')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 boxShadow: 'inset 0 0 30px rgba(0,0,0,0.5)'

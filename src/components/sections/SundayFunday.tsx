@@ -116,7 +116,7 @@ const SundayFunday: React.FC<SundayFundayProps> = ({ layout = 'row' }) => {
   // Grid layout (for standalone page)
   return (
     <div className="bg-white min-h-screen">
-      <div className="max-w-[1440px] mx-auto px-16 py-8">
+      <div className="max-w-[1440px] mx-auto px-16  py-8 ">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-[36px] font-medium text-[#FF4D00]">Sunday Funday</h1>
         </div>

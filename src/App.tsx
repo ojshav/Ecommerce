@@ -15,6 +15,7 @@ import Shop1LandingPage from './pages/Shop1LandingPage';
 import Shop2LandingPage from './pages/Shop2LandingPage';
 import Shop3LandingPage from './pages/Shop3LandingPage';
 import VerificationPending from './pages/auth/VerificationPending';
+import TrendyDealsPage from './pages/TrendyDealsPage';
 
 import PasswordReset from './pages/auth/PasswordReset';
 import VerifyEmail from './pages/auth/VerifyEmail';
@@ -481,6 +482,7 @@ const App: React.FC = () => {
                               <Route path="/all-products" element={<Products />} />
                               <Route path="/featured-products" element={<FeaturedProductsPage />} />
                               <Route path="/promo-products" element={<PromoProductsPage />} />
+                              <Route path="/trendy-deals" element={<TrendyDealsPage />} />
                               <Route path="/shop/:shopId" element={<ShopProducts />} />
                               <Route path="/products/:categoryId" element={<Products />} />
                               <Route path="/product/:productId" element={<ProductDetail />} />

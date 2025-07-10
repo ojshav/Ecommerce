@@ -175,7 +175,7 @@ const Sales = () => {
 
       // Get filename from Content-Disposition header or create default
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = `sales_report_${new Date().toISOString().split('T')[0]}.${format}`;
+      let filename = `sales_report_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
       
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
