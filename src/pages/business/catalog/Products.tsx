@@ -201,7 +201,10 @@ const Products: React.FC = () => {
   }, [filteredProducts, sortConfig]);
 
   // --- HANDLERS & HELPERS (No changes from your original code) ---
-  const handleDeleteClick = (productId: number, productName: string) => setShowDeleteModal({ visible: true, productId, productName, isBulk: false });
+  const handleDeleteClick = (productId: number, productName: string) => {
+    console.log('Delete clicked', productId, productName);
+    setShowDeleteModal({ visible: true, productId, productName, isBulk: false });
+  };
   const handleBulkDeleteClick = () => setShowDeleteModal({ visible: true, productId: null, productName: `${selectedItems.length} products`, isBulk: true });
   const handleConfirmDelete = async () => {
     if (!showDeleteModal) return;
@@ -379,6 +382,32 @@ const Products: React.FC = () => {
           </table>
         </div>
       </div>
+      {showDeleteModal?.visible && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+    <div className="bg-white p-6 rounded-xl shadow">
+      <p>
+        Are you sure you want to delete <b>{showDeleteModal.productName}</b>?
+      </p>
+
+      {/* Add spacing between text and buttons */}
+      <div className="mt-4 flex justify-end">
+        <button
+          onClick={handleConfirmDelete}
+          className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-xl mr-2"
+        >
+          Delete
+        </button>
+        <button
+          onClick={cancelDelete}
+          className="bg-gray-300 px-4 py-2 rounded-xl"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
