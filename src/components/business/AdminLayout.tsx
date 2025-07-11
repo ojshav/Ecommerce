@@ -18,7 +18,7 @@ import {
   DocumentChartBarIcon,
   StarIcon
 } from '@heroicons/react/24/outline';
-
+import { Package } from 'lucide-react'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Modified navigation items - updated Reports section
@@ -34,7 +34,7 @@ const navigationItems = [
     ]
   },
   { name: 'Orders', path: '/business/orders', icon: ShoppingBagIcon },
-  { name: 'Inventory', path: '/business/inventory', icon: TagIcon },
+  { name: 'Inventory', path: '/business/inventory', icon: Package },
   // { name: 'Customers', path: '/business/customers', icon: UserGroupIcon },
   { name: 'Promotions', path: '/business/product-placements', icon: TagIcon },
   { name: 'Reviews', path: '/business/reviews', icon: StarIcon },

@@ -251,6 +251,42 @@ const Sales = () => {
     fill: pieColors[idx % pieColors.length],
   }));
 
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const item = payload[0].payload;
+      return (
+        <div className="bg-white p-2 rounded shadow text-sm max-w-[250px]">
+          <p className="font-semibold break-words whitespace-normal">
+            {item.name}
+          </p>
+          <p className="text-orange-600">revenue : {item.revenue.toFixed(2)}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom Tooltip for Product Performance BarChart
+  const ProductPerformanceTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const item = payload[0].payload;
+      return (
+        <div className="bg-white p-2 rounded shadow text-sm max-w-[250px]">
+          <p
+            className="font-semibold break-words whitespace-normal"
+            style={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}
+          >
+            {item.name}
+          </p>
+          <p className="text-orange-600">
+            Revenue: {item.revenue?.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -300,7 +336,7 @@ const Sales = () => {
               <XAxis dataKey="month" />
               <YAxis yAxisId="left" />
               <YAxis yAxisId="right" orientation="right" />
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} />
               <Legend />
               <Line
                 yAxisId="left"
@@ -370,7 +406,7 @@ const Sales = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="name" tickFormatter={name => name.length > 18 ? name.slice(0, 15) + '...' : name} />
                 <YAxis />
-                <Tooltip />
+                <Tooltip content={<ProductPerformanceTooltip />} />
                 <Bar dataKey="revenue" fill="#FF4D00" />
               </BarChart>
             </ResponsiveContainer>
@@ -390,7 +426,7 @@ const Sales = () => {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  label={({ name, value }) => `${name} ${value.toFixed(1)}%`}
+                  label={({ value }) => `${value.toFixed(1)}%`}
                 >
                   {pieChartData.map((entry, index) => (
                     <Cell key={index} fill={entry.fill} />
