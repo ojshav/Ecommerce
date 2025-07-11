@@ -130,17 +130,20 @@ const Reviews: React.FC = () => {
         </div>
         <div className="space-y-2">
           {Object.entries(stats.rating_distribution).reverse().map(([rating, count]) => (
-            <div key={rating} className="flex items-center gap-2">
-              <span className="text-sm w-8">{rating} stars</span>
+            <div key={rating} className="flex items-center gap-3">
+              <div className="flex items-center gap-1 w-20">
+                <span className="text-sm font-medium">{rating}</span>
+                <Star className="w-3 h-3 fill-[#FF4D00] text-[#FF4D00]" />
+              </div>
               <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#FF4D00]"
+                  className="h-full bg-[#FF4D00] transition-all duration-300"
                   style={{
-                    width: `${(count / stats.total_reviews) * 100}%`,
+                    width: `${stats.total_reviews > 0 ? (count / stats.total_reviews) * 100 : 0}%`,
                   }}
                 />
               </div>
-              <span className="text-sm text-gray-500 w-12">{count}</span>
+              <span className="text-sm text-gray-500 w-8 text-right">{count}</span>
             </div>
           ))}
         </div>
@@ -162,22 +165,23 @@ const Reviews: React.FC = () => {
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h1 className="text-2xl font-semibold text-black">Product Reviews</h1>
         <div className="flex gap-4">
-          <div className="relative">
-            <select
-              className="appearance-none bg-white border border-gray-200 rounded-lg py-2 px-4 pr-8 leading-tight focus:outline-none focus:border-[#FF4D00] text-sm"
-              value={filters.rating}
-              onChange={(e) => setFilters({ ...filters, rating: e.target.value })}
-            >
-              <option value="">All Ratings</option>
-              {[5, 4, 3, 2, 1].map((rating) => (
-                <option key={rating} value={rating}>
-                  {rating} Stars
-                </option>
-              ))}
-            </select>
-            <Filter className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#FF4D00] pointer-events-none" />
-          </div>
-        </div>
+  <div className="relative inline-block">
+    <select
+      className="appearance-none bg-white border border-gray-200 rounded-lg py-2 px-4 pr-6 leading-tight focus:outline-none focus:border-[#FF4D00] text-sm"
+      value={filters.rating}
+      onChange={(e) => setFilters({ ...filters, rating: e.target.value })}
+    >
+      <option value="">All Ratings</option>
+      {[5, 4, 3, 2, 1].map((rating) => (
+        <option key={rating} value={rating}>
+          {rating} Stars
+        </option>
+      ))}
+    </select>
+    {/* <Filter className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FF4D00] pointer-events-none" /> */}
+  </div>
+</div>
+
       </div>
 
       {renderRatingDistribution()}
