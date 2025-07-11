@@ -12,6 +12,7 @@ import {
 import { useAuth } from "../context/AuthContext"; 
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import ConfirmationModal from "../components/common/ConfirmationModal";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(
   /\/+$/,
@@ -208,6 +209,9 @@ const UserProfile: React.FC = () => {
     is_default: false,
     billing_address_id: null as number | null,
   });
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState<Address | null>(null);
 
   // --- Data Fetching and Side Effects ---
   const fetchUserProfile = async () => {
@@ -1227,7 +1231,10 @@ const UserProfile: React.FC = () => {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteAddress(address.address_id)}
+                        onClick={() => {
+                          setAddressToDelete(address);
+                          setDeleteModalOpen(true);
+                        }}
                         className="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-medium"
                       >
                         Delete
@@ -2213,6 +2220,29 @@ const UserProfile: React.FC = () => {
           </div>
         </div>
       )}
+      <ConfirmationModal
+        isOpen={deleteModalOpen}
+        title="Delete Address"
+        message={`Are you sure you want to delete the address for '${addressToDelete?.contact_name || "this address"}'? This action cannot be undone.\n\nThis address will be permanently removed from your saved addresses.`}
+        onConfirm={async () => {
+          if (addressToDelete) {
+            await handleDeleteAddress(addressToDelete.address_id);
+          }
+          setDeleteModalOpen(false);
+          setAddressToDelete(null);
+        }}
+        onCancel={() => {
+          setDeleteModalOpen(false);
+          setAddressToDelete(null);
+        }}
+        confirmText="Delete"
+        cancelText="Cancel"
+        icon={
+          <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-orange-100 mb-2">
+            <Trash2 className="w-8 h-8 text-orange-500" />
+          </span>
+        }
+      />
     </div>
   );
 };
