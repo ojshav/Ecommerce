@@ -143,7 +143,7 @@ const TrendingDeals: React.FC = () => {
               <Link to="/trendy-deals" className="text-orange-500 text-sm font-medium">
                 See All
               </Link>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <button
                   onClick={() => scroll('left')}
                   className="focus:outline-none"

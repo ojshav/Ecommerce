@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { ShoppingCart } from 'lucide-react';
 import { CartItem as CartItemType } from '../types';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 
 
 const Cart: React.FC = () => {
@@ -34,6 +35,8 @@ const Cart: React.FC = () => {
   const [itemDiscounts, setItemDiscounts] = useState<{
     [productId: number]: number;
   }>({});
+
+  const [clearCartModalOpen, setClearCartModalOpen] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -114,14 +117,7 @@ const Cart: React.FC = () => {
   };
 
   const handleClearCart = async () => {
-    if (window.confirm("Are you sure you want to clear your entire cart?")) {
-      try {
-        await clearCart();
-        toast.success("Cart cleared successfully");
-      } catch (error) {
-        toast.error("Failed to clear cart");
-      }
-    }
+    setClearCartModalOpen(true);
   };
 
   if (loading) {
@@ -193,7 +189,7 @@ const Cart: React.FC = () => {
                 <button
                   onClick={handleClearCart}
                   disabled={loading}
-                  className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-colors w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Clearing..." : "Clear Cart"}
                 </button>
@@ -219,6 +215,28 @@ const Cart: React.FC = () => {
           </div>
         </div>
       )}
+      <ConfirmationModal
+        isOpen={clearCartModalOpen}
+        title="Clear Cart"
+        message="Are you sure you want to clear your entire cart? This action cannot be undone."
+        onConfirm={async () => {
+          try {
+            await clearCart();
+            toast.success("Cart cleared successfully");
+          } catch (error) {
+            toast.error("Failed to clear cart");
+          }
+          setClearCartModalOpen(false);
+        }}
+        onCancel={() => setClearCartModalOpen(false)}
+        confirmText="Clear Cart"
+        cancelText="Cancel"
+        icon={
+          <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-orange-100 mb-2">
+            <ShoppingCart className="w-8 h-8 text-orange-500" />
+          </span>
+        }
+      />
     </div>
   );
 };

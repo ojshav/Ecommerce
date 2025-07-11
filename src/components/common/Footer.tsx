@@ -82,18 +82,20 @@ const Footer: React.FC = () => {
             </div>
 
             {/* Email Subscription */}
-            <form className="flex items-center bg-white rounded-xl overflow-hidden shadow-sm max-w-full  lg:max-w-[330px]">
+            <form className="flex items-center bg-white rounded-xl overflow-visible shadow-sm max-w-full  lg:max-w-[330px]">
               <div className="flex items-center px-2 font-worksans text-black">
                 <Mail size={14} className="sm:w-4 sm:h-4" />
               </div>
+              <div className='w-[900px] xs:w-full'> 
               <input
                 type="email"
                 placeholder="Enter your email"
                 className="flex-1 text-xs sm:text-sm text-gray-700 placeholder-black font-worksans bg-white border-none outline-none py-2 px-2 text-left"
               />
+              </div>
               <button
                 type="submit"
-                className="bg-[#F2631F] hover:bg-[#d44f12] font-worksans text-white px-4 py-2 sm:-ml-10 -ml-16 xl:-ml-6 lg:-ml-6 text-xs  font-medium transition-colors"
+                className="bg-[#F2631F] hover:bg-[#d44f12] font-worksans overflow-visible text-white px-4 py-2 sm:-ml-10 -ml-16 xl:-ml-6 lg:-ml-6 text-xs  font-medium transition-colors"
               >
                 Submit
               </button>

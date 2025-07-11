@@ -177,10 +177,10 @@ const FeaturedProducts: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <h6 className="text-xl font-medium font-worksans">Featured Products</h6>
           <div className="flex items-center">
-            <Link to="/featured-products" className="text-orange-500 text-sm font-medium mr-10">
+            <Link to="/featured-products" className="text-orange-500 text-sm font-medium mr-3 sm:mr-10">
               See All
             </Link>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1 sm:space-x-3">
               <button
                 onClick={() => scroll('left')}
                 className="focus:outline-none"

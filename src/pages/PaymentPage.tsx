@@ -16,6 +16,7 @@ import {
 import { useCart } from "../context/CartContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { CartItem, DirectPurchaseItem } from "../types";
+import ConfirmationModal from "../components/common/ConfirmationModal";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -93,7 +94,7 @@ const PaymentPage: React.FC = () => {
     null
   );
   const [showCountryCodes, setShowCountryCodes] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
+  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES.find(c => c.code === "IN") || COUNTRY_CODES[0]);
   const [postalCodeError, setPostalCodeError] = useState<string>("");
   const [formData, setFormData] = useState({
     contact_name: "",
@@ -135,6 +136,9 @@ const PaymentPage: React.FC = () => {
     billing_address_id: null as number | null,
     is_default: false,
   });
+  // Add state for delete confirmation modal
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState<Address | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -810,7 +814,7 @@ const PaymentPage: React.FC = () => {
           is_default_shipping: true,
           is_default_billing: false,
         });
-        setSelectedCountry(COUNTRY_CODES[0]);
+        setSelectedCountry(COUNTRY_CODES.find(c => c.code === "IN") || COUNTRY_CODES[0]);
       }
     } catch (error) {
       console.error("Error in handleSubmit:", error);
@@ -1171,7 +1175,7 @@ const PaymentPage: React.FC = () => {
           city: "",
           state_province: "",
           postal_code: "",
-          country_code: "US",
+          country_code: "IN",
           address_type: "shipping",
           is_default_shipping: true,
           is_default_billing: false,
@@ -1681,7 +1685,7 @@ const PaymentPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+    <div className="font-worksans max-w-7xl  mx-auto  px-4 py-8 flex flex-col lg:flex-row gap-6">
       {/* Payment Information */}
       <div className="flex-1 bg-white rounded-lg p-8">
         <h2 className="text-lg font-semibold mb-6">Payment Information</h2>
@@ -1746,13 +1750,8 @@ const PaymentPage: React.FC = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (
-                            window.confirm(
-                              "Are you sure you want to delete this address?"
-                            )
-                          ) {
-                            handleDeleteAddress(address.address_id);
-                          }
+                          setAddressToDelete(address);
+                          setDeleteModalOpen(true);
                         }}
                         className="p-1 text-gray-500 hover:text-red-500"
                         title="Delete address"
@@ -1975,10 +1974,10 @@ const PaymentPage: React.FC = () => {
       </div>
 
       {/* Order Summary */}
-      <div className="w-full lg:w-[400px] bg-white rounded-lg p-8 h-fit">
+      <div className="w-full lg:w-[400px] bg-white rounded-lg p-1 h-fit">
         <h2 className="text-lg font-semibold mb-6">Your Order</h2>
         <OrderSummary
-          className="sticky top-8"
+          className="sticky top-8 mr-20"
           selectedCountry={selectedCountry}
           discount={discount}
           promoCode={appliedPromo?.code}
@@ -1993,19 +1992,19 @@ const PaymentPage: React.FC = () => {
           onRemovePromo={removePromo}
           promoLoading={promoLoading}
         />
-        <div className="mb-6">
-          <div className="font-medium mb-2">Payment Method</div>
+        <div className="mb-6 ">
+          <div className="font-medium mb-3">Payment Method</div>
           <div className="flex flex-col gap-2">
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex items-center  gap-2 cursor-pointer">
               <input
                 type="radio"
                 name="paymentMethod"
                 value="credit_card"
                 checked={paymentMethod === "credit_card"}
                 onChange={() => setPaymentMethod("credit_card")}
-                className="accent-orange-500"
+                className="accent-orange-500 bg-transparent shadow-none align-middle"
               />
-              Credit Card
+              <span className="text-black font-worksans ml-1  font-normal text-[14px]">Credit Card</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -2014,20 +2013,20 @@ const PaymentPage: React.FC = () => {
                 value="debit_card"
                 checked={paymentMethod === "debit_card"}
                 onChange={() => setPaymentMethod("debit_card")}
-                className="accent-orange-500"
+                className="accent-orange-500 bg-transparent shadow-none align-middle"
               />
-              Debit Card
+              <span className="text-black font-worksans ml-1 font-normal text-[14px]">Debit Card</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
+            <label className="flex items-center  cursor-pointer">
               <input
                 type="radio"
                 name="paymentMethod"
                 value="cash_on_delivery"
                 checked={paymentMethod === "cash_on_delivery"}
                 onChange={() => setPaymentMethod("cash_on_delivery")}
-                className="accent-orange-500"
+                className="accent-orange-500 bg-transparent shadow-none align-middle"
               />
-              Cash on Delivery
+              <span className="text-black font-worksans ml-1 font-normal text-[14px]">Cash on Delivery</span>
             </label>
           </div>
         </div>
@@ -2042,6 +2041,27 @@ const PaymentPage: React.FC = () => {
           {processingPayment ? "Processing Payment..." : "Place Order"}
         </button>
       </div>
+
+      {/* Confirmation Modal for address deletion */}
+      <ConfirmationModal
+        isOpen={deleteModalOpen}
+        title="Delete Address"
+        message={`Are you sure you want to delete the address for '${addressToDelete?.contact_name || "this address"}'? This action cannot be undone.`}
+        onConfirm={async () => {
+          if (addressToDelete) {
+            await handleDeleteAddress(addressToDelete.address_id);
+          }
+          setDeleteModalOpen(false);
+          setAddressToDelete(null);
+        }}
+        onCancel={() => {
+          setDeleteModalOpen(false);
+          setAddressToDelete(null);
+        }}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive
+      />
     </div>
   );
 };

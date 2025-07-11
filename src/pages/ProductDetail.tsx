@@ -481,7 +481,6 @@ const ProductDetail: React.FC = () => {
     };
 
     addToCart(cartProduct, quantity, selectedAttributes);
-    toast.success(`${product.product_name} added to cart`);
   };
 
   const handleBuyNow = () => {

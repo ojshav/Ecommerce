@@ -177,13 +177,13 @@ const Navbar: React.FC = () => {
   );
 
   const mobileSearchBar = (
-    <div ref={mobileSearchRef} className="relative mb-4 px-2">
+    <div ref={mobileSearchRef} className="relative mb-4">
       <form onSubmit={handleSearchSubmit} className="relative">
-        <div className="flex items-center rounded-md overflow-hidden bg-white shadow-sm border border-gray-200">
+        <div className="flex items-center rounded-md overflow-hidden bg-white shadow-sm border border-gray-200 w-full">
           <input
             type="text"
             placeholder="What are you looking for?"
-            className="flex-1 border-0 py-2.5 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] bg-transparent"
+            className="flex-1 min-w-0 border-0 py-2.5 px-3 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] bg-transparent"
             value={searchQuery}
             onChange={handleSearchInputChange}
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
