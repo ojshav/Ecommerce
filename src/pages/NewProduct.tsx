@@ -248,7 +248,7 @@ const NewProduct: React.FC = () => {
   // Loading state
   if (loading && products.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center font-worksans">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
       </div>
     );
@@ -258,7 +258,7 @@ const NewProduct: React.FC = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500 text-center">
+        <div className="text-red-500 text-center font-worksans">
           <p className="text-xl font-semibold mb-2">Error Loading Products</p>
           <p>{error}</p>
           <button 
@@ -279,7 +279,7 @@ const NewProduct: React.FC = () => {
       <div className="container mx-auto px-4 xl:px-14 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 sm:gap-0">
           <div className="flex flex-col">
-            <h1 className="text-2xl font-bold text-gray-900">New Products</h1>
+            <h1 className="text-2xl font-bold text-gray-900 font-worksans">New Products</h1>
             {(priceFilter !== 'all' || activeFilter) && (
               <div className="flex flex-wrap gap-2 mt-2">
                 {priceFilter !== 'all' && (
@@ -369,7 +369,7 @@ const NewProduct: React.FC = () => {
 
         {displayProducts.length === 0 ? (
           <div className="flex justify-center items-center py-16">
-            <p className="text-gray-500">No products found matching your criteria.</p>
+            <p className="text-gray-500 font-worksans">No products found matching your criteria.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
@@ -467,7 +467,7 @@ const NewProduct: React.FC = () => {
           <div ref={mobileFilterRef} className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] flex flex-col">
             <div className="p-4 border-b">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Filters</h3>
+                <h3 className="text-lg font-semibold font-worksans">Filters</h3>
                 <button onClick={() => setIsFilterOpen(false)} className="p-2">
                   <X size={24} />
                 </button>
@@ -477,7 +477,7 @@ const NewProduct: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-4">
               {/* Price Filter Section */}
               <div className="mb-6">
-                <h4 className="font-medium mb-3">Price Range</h4>
+                <h4 className="font-medium mb-3 font-worksans">Price Range</h4>
                 <div className="space-y-2">
                   {priceFilterOptions.map((option) => (
                     <label key={option.value} className="flex items-center">
@@ -529,13 +529,13 @@ const NewProduct: React.FC = () => {
               <div className="flex gap-2">
                 <button
                   onClick={resetFilters}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-worksans"
                 >
                   Reset
                 </button>
                 <button
                   onClick={applyFilters}
-                  className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg"
+                  className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg font-worksans"
                 >
                   Apply Filters
                 </button>
@@ -551,7 +551,7 @@ const NewProduct: React.FC = () => {
           <div ref={mobileSortRef} className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl">
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Sort By</h3>
+                <h3 className="text-lg font-semibold font-worksans">Sort By</h3>
                 <button onClick={() => setIsMobileSortOpen(false)} className="p-2">
                   <X size={24} />
                 </button>

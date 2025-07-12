@@ -248,9 +248,9 @@ const PromoProducts: React.FC = () => {
       <section className="py-8">
         <div className="container mx-auto px-4 xl:px-14">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Promo Products</h2>
+            <h2 className="text-2xl font-bold font-worksans">Promo Products</h2>
           </div>
-          <div className="flex justify-center items-center h-64">
+          <div className="flex justify-center items-center h-64 font-worksans">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
           </div>
         </div>
@@ -262,7 +262,7 @@ const PromoProducts: React.FC = () => {
     return (
       <section className="py-8">
         <div className="container mx-auto px-4 xl:px-14">
-          <div className="flex flex-col items-center justify-center h-64">
+          <div className="flex flex-col items-center justify-center h-64 font-worksans">
             <p className="text-red-500 mb-4">Error loading promo products: {error}</p>
             <button
               onClick={fetchPromoProducts}
@@ -283,7 +283,7 @@ const PromoProducts: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-medium font-worksans">Promo Products</h2>
           <div className="flex items-center">
-            <Link to="/promo-products" className="text-orange-500 text-sm font-medium mr-3 sm:mr-10">
+            <Link to="/promo-products" className="text-orange-500 text-sm font-medium mr-3 sm:mr-10 font-worksans">
               See All
             </Link>
             <div className="flex items-center space-x-1 sm:space-x-3">

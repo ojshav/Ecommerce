@@ -144,7 +144,7 @@ const FeaturedProducts: React.FC = () => {
     return (
       <section className="pb-12">
         <div className="container mx-auto px-4 xl:px-14">
-          <div className="flex justify-center items-center h-64">
+          <div className="flex justify-center items-center h-64 font-worksans">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
           </div>
         </div>
@@ -156,7 +156,7 @@ const FeaturedProducts: React.FC = () => {
     return (
       <section className="pb-12">
         <div className="container mx-auto px-4 xl:px-14">
-          <div className="flex flex-col items-center justify-center h-64">
+          <div className="flex flex-col items-center justify-center h-64 font-worksans">
             <p className="text-red-500 mb-4">Error loading featured products: {error}</p>
             <button 
               onClick={fetchFeaturedProducts}
@@ -177,7 +177,7 @@ const FeaturedProducts: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <h6 className="text-xl font-medium font-worksans">Featured Products</h6>
           <div className="flex items-center">
-            <Link to="/featured-products" className="text-orange-500 text-sm font-medium mr-3 sm:mr-10">
+            <Link to="/featured-products" className="text-orange-500 text-sm font-medium mr-3 sm:mr-10 font-worksans">
               See All
             </Link>
             <div className="flex items-center space-x-1 sm:space-x-3">

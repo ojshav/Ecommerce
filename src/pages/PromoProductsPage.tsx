@@ -506,7 +506,7 @@ const PromoProductsPage: React.FC = () => {
 
   if (loading && products.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center font-worksans">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
       </div>
     );
@@ -515,7 +515,7 @@ const PromoProductsPage: React.FC = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500 text-center">
+        <div className="text-red-500 text-center font-worksans">
           <p className="text-xl font-semibold mb-2">Error Loading Promo Products</p>
           <p>{error}</p>
           <button 
@@ -533,7 +533,7 @@ const PromoProductsPage: React.FC = () => {
     <div className="min-h-screen">
       <div className="container mx-auto px-2 xl:px-16 py-4">
         {/* Breadcrumb */}
-        <div className="text-xs text-gray-500 mb-4">
+        <div className="text-xs text-gray-500 mb-4 font-worksans">
           <Link to="/">Home</Link> / <span>Promo Products</span>
         </div>
         
@@ -559,7 +559,7 @@ const PromoProductsPage: React.FC = () => {
           {/* Category Sidebar */}
           <aside className="hidden lg:block w-72 pr-6 border-r border-gray-100">
             <div className="mb-8">
-              <h3 className="font-semibold text-base mb-4 text-black">Category</h3>
+              <h3 className="font-semibold text-base mb-4 text-black font-worksans">Category</h3>
               <div className="space-y-1">
                 {categories.map(category => renderCategoryTree(category))}
               </div>
@@ -567,7 +567,7 @@ const PromoProductsPage: React.FC = () => {
             
             {/* Brand Filter */}
             <div className="mb-8">
-              <h3 className="font-semibold text-base mb-4 text-black">Brand</h3>
+              <h3 className="font-semibold text-base mb-4 text-black font-worksans">Brand</h3>
               <div className="flex flex-wrap gap-2">
                 {brands && brands.map((brand) => {
                   const isSelected = selectedBrands.includes(String(brand.brand_id || brand.id));
@@ -590,7 +590,7 @@ const PromoProductsPage: React.FC = () => {
             
             {/* Price Range */}
             <div className="mb-8">
-              <h3 className="font-semibold text-base mb-4 text-black">Price</h3>
+              <h3 className="font-semibold text-base mb-4 text-black font-worksans">Price</h3>
               <div className="px-2">
                 {/* Manual Input Fields */}
                 <div className="flex gap-2 mb-3">
@@ -652,7 +652,7 @@ const PromoProductsPage: React.FC = () => {
 
             {/* Discount Filter */}
             <div className="mb-8">
-              <h3 className="font-semibold text-base mb-4 text-black">Discount</h3>
+              <h3 className="font-semibold text-base mb-4 text-black font-worksans">Discount</h3>
               <div className="flex flex-wrap gap-2">
                 {[
                   { label: '10% or more', value: '10' },
@@ -687,7 +687,7 @@ const PromoProductsPage: React.FC = () => {
 
             {/* Ratings Filter */}
             <div className="mb-8">
-              <h3 className="font-semibold text-base mb-4 text-black">Ratings</h3>
+              <h3 className="font-semibold text-base mb-4 text-black font-worksans">Ratings</h3>
               {(() => {
                 const selectedRatingValue = selectedRatings && selectedRatings.length > 0 ? parseFloat(selectedRatings[0]) : 0;
                 return (
@@ -728,7 +728,7 @@ const PromoProductsPage: React.FC = () => {
             {/* Reset Filters Button */}
             <button
               onClick={resetFilters}
-              className="w-full px-4 py-2 text-sm font-normal text-[#F2631F] border border-[#F2631F] rounded hover:bg-orange-50 transition-colors"
+              className="w-full px-4 py-2 text-sm font-normal text-[#F2631F] border border-[#F2631F] rounded hover:bg-orange-50 transition-colors font-worksans"
             >
               Reset Filters
             </button>
@@ -743,7 +743,7 @@ const PromoProductsPage: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search promo products..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 font-worksans"
               />
             </div>
 
@@ -781,7 +781,7 @@ const PromoProductsPage: React.FC = () => {
 
             {!loading && products.length === 0 ? (
               <div className="flex justify-center items-center py-16">
-                <p className="text-gray-500">No products found matching your criteria.</p>
+                <p className="text-gray-500 font-worksans">No products found matching your criteria.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
