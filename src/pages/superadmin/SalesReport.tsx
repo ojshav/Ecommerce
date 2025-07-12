@@ -314,7 +314,7 @@ export default function SalesReport() {
         {/* Category Distribution */}
         <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
             <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Revenue by Category</h2>
-            <div className="h-64">
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
