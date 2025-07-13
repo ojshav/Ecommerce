@@ -6,10 +6,12 @@ import {
   PrinterIcon,
   DocumentTextIcon,
   ExclamationCircleIcon,
-  CurrencyDollarIcon
+  CurrencyDollarIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import ExportModal from '../../components/business/reports/ExportModal';
+import { Link } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -657,9 +659,11 @@ const Inventory: React.FC = () => {
     <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 items-start sm:items-center sm:justify-between">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Inventory Management</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
+          Inventory Management
+        </h1>
         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-          <button 
+          <button
             onClick={handleExportClick}
             className="flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
           >
@@ -667,11 +671,13 @@ const Inventory: React.FC = () => {
             <span className="hidden sm:inline">Export</span>
             <span className="sm:hidden">Export</span>
           </button>
-          <button className="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-            <DocumentTextIcon className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Add Product</span>
-            <span className="sm:hidden">Add</span>
-          </button>
+          <Link to="/business/catalog/product/new">
+            <button className="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+              <PlusIcon className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Add Product</span>
+              <span className="sm:hidden">Add</span>
+            </button>
+          </Link>
         </div>
       </div>
 
@@ -683,41 +689,51 @@ const Inventory: React.FC = () => {
           </div>
           <div>
             <p className="text-xs sm:text-sm text-gray-500">Total Products</p>
-            <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.total_products}</p>
+            <p className="text-lg sm:text-2xl font-bold text-gray-900">
+              {stats.total_products}
+            </p>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow p-4 sm:p-5 flex items-center hover:border-orange-300 transition-colors">
           <div className="rounded-full bg-orange-100 p-2 sm:p-3 mr-3 sm:mr-4">
             <ExclamationCircleIcon className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
           </div>
           <div>
             <p className="text-xs sm:text-sm text-gray-500">Low Stock Alerts</p>
-            <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.low_stock_count}</p>
+            <p className="text-lg sm:text-2xl font-bold text-gray-900">
+              {stats.low_stock_count}
+            </p>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow p-4 sm:p-5 flex items-center hover:border-orange-300 transition-colors">
           <div className="rounded-full bg-orange-100 p-2 sm:p-3 mr-3 sm:mr-4">
             <DocumentTextIcon className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
           </div>
           <div>
-            <p className="text-xs sm:text-sm text-gray-500">Out of Stock Items</p>
-            <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.out_of_stock_count}</p>
+            <p className="text-xs sm:text-sm text-gray-500">
+              Out of Stock Items
+            </p>
+            <p className="text-lg sm:text-2xl font-bold text-gray-900">
+              {stats.out_of_stock_count}
+            </p>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow p-4 sm:p-5 flex items-center hover:border-orange-300 transition-colors">
           <div className="rounded-full bg-orange-100 p-2 sm:p-3 mr-3 sm:mr-4">
             <CurrencyDollarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
           </div>
           <div>
             <p className="text-xs sm:text-sm text-gray-500">Total Stock</p>
-            <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.total_stock}</p>
+            <p className="text-lg sm:text-2xl font-bold text-gray-900">
+              {stats.total_stock}
+            </p>
           </div>
         </div>
       </div>
-      
+
       {/* Filters */}
       <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-200">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -729,19 +745,29 @@ const Inventory: React.FC = () => {
               placeholder="Search by product name or SKU..."
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm pl-10"
             />
-            
+
             {searchTerm && (
               <button
-                onClick={() => setSearchTerm('')}
+                onClick={() => setSearchTerm("")}
                 className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
               >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             )}
           </div>
-          
+
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -776,13 +802,16 @@ const Inventory: React.FC = () => {
             <option value="All">All Stock Status</option>
             {STOCK_STATUS_OPTIONS.map((status) => (
               <option key={status} value={status}>
-                {status.split('_').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
+                {status
+                  .split("_")
+                  .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+                  .join(" ")}
               </option>
             ))}
           </select>
         </div>
       </div>
-        
+
       {/* Products Display */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {/* Mobile View - Cards */}
@@ -795,9 +824,9 @@ const Inventory: React.FC = () => {
             ) : (
               <div className="space-y-4">
                 {sortedProducts.map((product) => (
-                  <MobileProductCard 
-                    key={product.id} 
-                    product={product} 
+                  <MobileProductCard
+                    key={product.id}
+                    product={product}
                     onEditClick={handleEditClick}
                   />
                 ))}
@@ -812,15 +841,29 @@ const Inventory: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  {['Image', 'Product Name', 'SKU', 'Category', 'Brand', 'Stock Qty', 'Available', 'Status', 'Actions'].map((header) => (
+                  {[
+                    "Image",
+                    "Product Name",
+                    "SKU",
+                    "Category",
+                    "Brand",
+                    "Stock Qty",
+                    "Available",
+                    "Status",
+                    "Actions",
+                  ].map((header) => (
                     <th
                       key={header}
                       className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-orange-600"
-                      onClick={() => requestSort(header.toLowerCase().replace(' ', '_'))}
+                      onClick={() =>
+                        requestSort(header.toLowerCase().replace(" ", "_"))
+                      }
                     >
                       <div className="flex items-center space-x-1">
                         <span>{header}</span>
-                        {getSortIndicator(header.toLowerCase().replace(' ', '_'))}
+                        {getSortIndicator(
+                          header.toLowerCase().replace(" ", "_")
+                        )}
                       </div>
                     </th>
                   ))}
@@ -831,9 +874,9 @@ const Inventory: React.FC = () => {
                   <tr key={product.id} className="hover:bg-orange-50">
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="w-8 h-8 rounded-md bg-gray-200 flex items-center justify-center">
-                        <img 
-                          src={product.image_url || '/api/placeholder/50/50'} 
-                          alt={product.name} 
+                        <img
+                          src={product.image_url || "/api/placeholder/50/50"}
+                          alt={product.name}
                           className="h-8 w-8 rounded-md object-cover"
                         />
                       </div>
@@ -845,10 +888,10 @@ const Inventory: React.FC = () => {
                       {product.sku}
                     </td>
                     <td className="px-4 py-4 whitespace-normal max-w-32 text-gray-500">
-                      {product.category?.name || 'N/A'}
+                      {product.category?.name || "N/A"}
                     </td>
                     <td className="px-4 py-4 whitespace-normal max-w-32 text-gray-500">
-                      {product.brand?.name || 'N/A'}
+                      {product.brand?.name || "N/A"}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-gray-500">
                       {product.stock_qty}
@@ -857,15 +900,19 @@ const Inventory: React.FC = () => {
                       {product.available}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
-                      <StockStatusBadge 
-                        status={product.stock_qty === 0 ? 'out_of_stock' : 
-                               product.stock_qty <= product.low_stock_threshold ? 'low_stock' : 
-                               'in_stock'} 
+                      <StockStatusBadge
+                        status={
+                          product.stock_qty === 0
+                            ? "out_of_stock"
+                            : product.stock_qty <= product.low_stock_threshold
+                            ? "low_stock"
+                            : "in_stock"
+                        }
                       />
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-gray-500">
                       <div className="flex space-x-2">
-                        <button 
+                        <button
                           className="text-orange-600 hover:text-orange-900"
                           onClick={() => handleEditClick(product)}
                         >
@@ -885,14 +932,18 @@ const Inventory: React.FC = () => {
           <div className="bg-white px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
-                onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                onClick={() =>
+                  setPagination((prev) => ({ ...prev, page: prev.page - 1 }))
+                }
                 disabled={!pagination.has_prev}
                 className="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
               <button
-                onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                onClick={() =>
+                  setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
+                }
                 disabled={!pagination.has_next}
                 className="ml-3 relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -902,24 +953,45 @@ const Inventory: React.FC = () => {
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-gray-700">
-                  Showing <span className="font-medium">{((pagination.page - 1) * pagination.per_page) + 1}</span> to{' '}
+                  Showing{" "}
                   <span className="font-medium">
-                    {Math.min(pagination.page * pagination.per_page, pagination.total)}
-                  </span>{' '}
-                  of <span className="font-medium">{pagination.total}</span> results
+                    {(pagination.page - 1) * pagination.per_page + 1}
+                  </span>{" "}
+                  to{" "}
+                  <span className="font-medium">
+                    {Math.min(
+                      pagination.page * pagination.per_page,
+                      pagination.total
+                    )}
+                  </span>{" "}
+                  of <span className="font-medium">{pagination.total}</span>{" "}
+                  results
                 </p>
               </div>
               <div>
-                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <nav
+                  className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                  aria-label="Pagination"
+                >
                   <button
-                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                    onClick={() =>
+                      setPagination((prev) => ({
+                        ...prev,
+                        page: prev.page - 1,
+                      }))
+                    }
                     disabled={!pagination.has_prev}
                     className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Previous
                   </button>
                   <button
-                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                    onClick={() =>
+                      setPagination((prev) => ({
+                        ...prev,
+                        page: prev.page + 1,
+                      }))
+                    }
                     disabled={!pagination.has_next}
                     className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
