@@ -119,6 +119,7 @@ import MerchantPaymentReport from './pages/superadmin/reports/MerchantPaymentRep
 import MerchantSubscription from './pages/MerchantSubscription';
 
 import Aoinlive from './pages/business/Aoinlive';
+import NewsletterSubscribers from './pages/superadmin/NewsletterSubscribers';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -468,6 +469,7 @@ const App: React.FC = () => {
                     <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
 <Route path="merchant-subscriptions" element={<MerchantSubscription />} />
+                      <Route path="newsletter-subscribers" element={<NewsletterSubscribers />} />
                   </Route>
 
                     {/* Public Routes with header/footer */}
