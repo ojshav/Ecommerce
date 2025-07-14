@@ -145,7 +145,7 @@ const TrafficAnalytics: React.FC = () => {
 
       const analyticsData: HourlyAnalyticsResponse = await analyticsResponse.json();
       const conversionData: { status: string; data: ConversionRateData } = await conversionResponse.json();
-      
+
       if (analyticsData.status === 'success' && conversionData.status === 'success') {
         setHourlyData(analyticsData.data.hourly_breakdown);
         setSummary(analyticsData.data.summary);
@@ -173,6 +173,23 @@ const TrafficAnalytics: React.FC = () => {
   const handleRefresh = () => {
     setRefreshCount(prev => prev + 1);
   };
+
+  const renderCustomTick = (props: any) => {
+    const { x, y, payload } = props;
+    return (
+      <text
+        x={x}
+        y={y + 10}
+        textAnchor="end"
+        fontSize={12}
+        transform={`rotate(-45, ${x}, ${y})`}
+        fill="#666"
+      >
+        {payload.value}
+      </text>
+    );
+  };
+
 
   if (loading) {
     return (
@@ -209,7 +226,7 @@ const TrafficAnalytics: React.FC = () => {
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Traffic Analytics</h2>
         </div>
-        <button 
+        <button
           onClick={handleRefresh}
           className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 flex items-center gap-2"
         >
@@ -287,52 +304,52 @@ const TrafficAnalytics: React.FC = () => {
           </div>
         </div>
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={hourlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <LineChart data={hourlyData} margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis 
-              dataKey="hour_display" 
-              tick={{ fontSize: 12 }}
+            <XAxis
+              dataKey="hour_display"
+              tick={renderCustomTick}
               interval={0}
             />
             <YAxis yAxisId="left" />
             <YAxis yAxisId="right" orientation="right" />
             <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Line 
+            <Legend verticalAlign="top" height={50} />
+            <Line
               yAxisId="left"
-              type="monotone" 
-              dataKey="total_visits" 
-              stroke={CHART_COLORS.primary} 
+              type="monotone"
+              dataKey="total_visits"
+              stroke={CHART_COLORS.primary}
               name="Total Visits"
               strokeWidth={2}
               dot={{ stroke: CHART_COLORS.primary, strokeWidth: 2, r: 4, fill: 'white' }}
               activeDot={{ r: 6, stroke: CHART_COLORS.primary, strokeWidth: 2, fill: CHART_COLORS.primary }}
             />
-            <Line 
+            <Line
               yAxisId="left"
-              type="monotone" 
-              dataKey="unique_visitors" 
-              stroke={CHART_COLORS.secondary} 
+              type="monotone"
+              dataKey="unique_visitors"
+              stroke={CHART_COLORS.secondary}
               name="Unique Visitors"
               strokeWidth={2}
               dot={{ stroke: CHART_COLORS.secondary, strokeWidth: 2, r: 4, fill: 'white' }}
               activeDot={{ r: 6, stroke: CHART_COLORS.secondary, strokeWidth: 2, fill: CHART_COLORS.secondary }}
             />
-            <Line 
+            <Line
               yAxisId="right"
-              type="monotone" 
-              dataKey="bounce_rate" 
-              stroke={CHART_COLORS.tertiary} 
+              type="monotone"
+              dataKey="bounce_rate"
+              stroke={CHART_COLORS.tertiary}
               name="Bounce Rate (%)"
               strokeWidth={2}
               dot={{ stroke: CHART_COLORS.tertiary, strokeWidth: 2, r: 4, fill: 'white' }}
               activeDot={{ r: 6, stroke: CHART_COLORS.tertiary, strokeWidth: 2, fill: CHART_COLORS.tertiary }}
             />
-            <Line 
+            <Line
               yAxisId="right"
-              type="monotone" 
-              dataKey="conversion_rate" 
-              stroke={CHART_COLORS.quaternary} 
+              type="monotone"
+              dataKey="conversion_rate"
+              stroke={CHART_COLORS.quaternary}
               name="Conversion Rate (%)"
               strokeWidth={2}
               dot={{ stroke: CHART_COLORS.quaternary, strokeWidth: 2, r: 4, fill: 'white' }}

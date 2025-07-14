@@ -152,14 +152,28 @@ const Settings: React.FC = () => {
         payload.password = form.password;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/superadmin/superadmins`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      let response;
+      if (isEdit && editId) {
+        // PATCH request for editing
+        response = await fetch(`${API_BASE_URL}/api/superadmin/superadmins/${editId}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        // POST request for creating
+        response = await fetch(`${API_BASE_URL}/api/superadmin/superadmins`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+      }
 
       if (response.status === 401) {
         toast.error('Session expired. Please login again.');
@@ -169,11 +183,11 @@ const Settings: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create superadmin');
+        throw new Error(errorData.message || (isEdit ? 'Failed to update superadmin' : 'Failed to create superadmin'));
       }
 
       const data = await response.json();
-      const successMessage = typeof data.message === 'string' ? data.message : 'Superadmin created successfully';
+      const successMessage = typeof data.message === 'string' ? data.message : (isEdit ? 'Superadmin updated successfully' : 'Superadmin created successfully');
       toast.success(successMessage);
       
       // Refresh the list
@@ -188,9 +202,11 @@ const Settings: React.FC = () => {
         confirmPassword: '',
         phone: '',
       });
+      setIsEdit(false);
+      setEditId(null);
     } catch (error) {
-      console.error('Error creating superadmin:', error);
-      setError(error instanceof Error ? error.message : 'Failed to create superadmin');
+      console.error(isEdit ? 'Error updating superadmin:' : 'Error creating superadmin:', error);
+      setError(error instanceof Error ? error.message : (isEdit ? 'Failed to update superadmin' : 'Failed to create superadmin'));
     } finally {
       setLoading(false);
     }
@@ -527,7 +543,7 @@ const Settings: React.FC = () => {
                 </button>
                 <button 
                   type="submit" 
-                  className="bg-gradient-to-r from-orange-400 to-orange-500 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50"
+                  className="flex items-center justify-center bg-gradient-to-r from-orange-400 to-orange-500 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50"
                   disabled={loading}
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}

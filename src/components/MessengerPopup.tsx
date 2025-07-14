@@ -131,7 +131,7 @@ const MessengerPopup: React.FC = () => {
 
       {/* Popup Dialog */}
       {isOpen && (
-        <div className="absolute bottom-16 right-0 w-96 bg-white rounded-lg shadow-xl max-h-[600px] flex flex-col">
+        <div className="absolute bottom-16 right-0 w-96 bg-white rounded-lg shadow-xl max-h-[500px] flex flex-col">
           <div className="bg-orange-500 p-4 rounded-t-lg">
             <div className="flex justify-between items-center">
               <h3 className="text-white text-lg font-semibold">AOIN Chat Assistant</h3>

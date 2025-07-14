@@ -5,6 +5,7 @@ import AnalyticsCards from '../../../components/superadmin/reports/merchant-paym
 import MerchantSearch from '../../../components/superadmin/reports/merchant-payment/MerchantSearch';
 import PaymentSummaryTable from '../../../components/superadmin/reports/merchant-payment/PaymentSummaryTable';
 import BulkPaymentModal from '../../../components/superadmin/reports/merchant-payment/BulkPaymentModal';
+import OrderDetailsModal from '../../../components/superadmin/reports/merchant-payment/OrderDetailsModal';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -117,6 +118,8 @@ const MerchantPaymentReport: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<TransactionSummary | null>(null);
   const [statistics, setStatistics] = useState<TransactionStatistics | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
   // Fetch transactions from API
   const fetchTransactions = useCallback(async () => {
@@ -304,8 +307,8 @@ const MerchantPaymentReport: React.FC = () => {
   }, []);
 
   const handleViewOrder = useCallback((orderId: string) => {
-    // Implement order view logic here
-    // console.log("Viewing order:", orderId);
+    setSelectedOrderId(orderId);
+    setIsOrderModalOpen(true);
   }, []);
 
   const handleBulkPayment = useCallback(async (selectedTransactionIds: number[]) => {
@@ -470,6 +473,11 @@ const MerchantPaymentReport: React.FC = () => {
         merchants={transformTransactionsToMerchants()}
         totalAmount={eligiblePayments.totalAmount}
         merchantCount={eligiblePayments.merchantCount}
+      />
+      <OrderDetailsModal
+        orderId={selectedOrderId}
+        open={isOrderModalOpen}
+        onClose={() => setIsOrderModalOpen(false)}
       />
     </div>
   );
