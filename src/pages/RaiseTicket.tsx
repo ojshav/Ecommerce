@@ -103,7 +103,7 @@ const UserSupportPage: React.FC = () => {
   const fetchTickets = useCallback(async (page = 1) => {
     if (!accessToken || !isAuthenticated) {
       setIsLoading(false);
-      if (!isAuthenticated && page === 1) toast.error("Please login to view your support tickets.");
+ 
       return;
     }
     setIsLoading(true);
@@ -351,38 +351,37 @@ const UserSupportPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col p-4 md:p-6 lg:p-8 bg-gradient-to-br from-gray-50 via-gray-50 to-gray-100">
+    <div className="min-h-screen flex flex-col p-2 sm:p-4 md:p-6 lg:p-8 bg-gradient-to-br from-gray-50 via-gray-50 to-gray-100">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-8 gap-2 md:gap-0">
         <div className="text-center md:text-left">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Support Center</h1>
-          <p className="text-sm text-gray-600 mt-1">Get help with your orders and account</p>
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Support Center</h1>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">Get help with your orders and account</p>
         </div>
         <button
           onClick={() => { setShowNewTicketForm(true); setSelectedTicket(null); }}
-          className="mt-4 md:mt-0 inline-flex items-center px-6 py-3 bg-gradient-to-r from-accent-500 to-accent-600 text-white rounded-lg shadow-lg hover:from-accent-600 hover:to-accent-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500 transition-all duration-200"
+          className="mt-3 md:mt-0 inline-flex items-center px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-accent-500 to-accent-600 text-white rounded-lg shadow-lg hover:from-accent-600 hover:to-accent-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500 transition-all duration-200 text-sm sm:text-base"
         >
           <Plus className="h-5 w-5 mr-2" /> New Ticket
         </button>
       </div>
 
       {/* Search & Filter */}
-      <div className="flex flex-col lg:flex-row gap-4 mb-8">
+      <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 mb-6 md:mb-8">
         <div className="flex-1 relative">
-          
           <input
             type="text"
             placeholder="Search tickets by ID, title, or description..."
             value={searchQuery}
             onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 bg-white"
+            className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 bg-white text-sm sm:text-base"
           />
         </div>
-        <div className="relative w-full lg:w-64">
+        <div className="relative w-full sm:w-64 lg:w-64">
           <select
             value={filterStatus}
             onChange={e => { setFilterStatus(e.target.value as typeof filterStatus); setCurrentPage(1); }}
-            className="w-full py-3 pl-3 pr-10 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 appearance-none bg-white"
+            className="w-full py-2.5 sm:py-3 pl-3 pr-10 border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 appearance-none bg-white text-sm sm:text-base"
           >
             <option value="all">All Status</option>
             <option value="open">Open</option>
@@ -391,18 +390,17 @@ const UserSupportPage: React.FC = () => {
             <option value="resolved">Resolved</option>
             <option value="closed">Closed</option>
           </select>
-          
         </div>
       </div>
 
       {/* Main: List & Chat */}
-      <div className="flex flex-1 overflow-hidden gap-8">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden gap-4 sm:gap-8">
         {/* Ticket List */}
-        <div className="w-full lg:w-1/3 bg-white rounded-xl shadow-xl flex flex-col overflow-hidden border border-gray-100">
-          <div className="p-4 bg-gradient-to-r from-orange-100 via-orange-200 to-orange-200 border-b border-orange-200 sticky top-0 z-10">
-            <h2 className="text-lg font-semibold text-orange-900">Your Tickets ({filteredAndSortedTickets.length})</h2>
+        <div className="w-full lg:w-1/3 bg-white rounded-xl shadow-xl flex flex-col overflow-hidden border border-gray-100 min-h-[320px] mb-4 lg:mb-0">
+          <div className="p-3 sm:p-4 bg-gradient-to-r from-orange-100 via-orange-200 to-orange-200 border-b border-orange-200 sticky top-0 z-10">
+            <h2 className="text-base sm:text-lg font-semibold text-orange-900">Your Tickets ({filteredAndSortedTickets.length})</h2>
           </div>
-          <div className="flex-1 overflow-y-auto divide-y divide-orange-400">
+          <div className="flex-1 overflow-y-auto divide-y divide-orange-400 min-h-[120px]">
             {filteredAndSortedTickets.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-gray-500">
                 <MessageSquare size={48} className="mb-3 text-orange-400" />
@@ -458,7 +456,7 @@ const UserSupportPage: React.FC = () => {
         </div>
 
         {/* Chat Panel */}
-        <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-xl flex flex-col overflow-hidden border border-gray-100">
+        <div className="w-full lg:w-2/3 bg-white rounded-xl shadow-xl flex flex-col overflow-hidden border border-gray-100 min-h-[320px]">
           {selectedTicket ? (
             <>
               <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 sticky top-0 z-10">
@@ -633,16 +631,16 @@ const UserSupportPage: React.FC = () => {
 
       {/* New Ticket Modal */}
       {showNewTicketForm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100] overflow-y-auto">
-          <div className="bg-white rounded-xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-gray-100">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Create New Support Ticket</h2>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-[100] overflow-y-auto">
+          <div className="bg-white rounded-xl w-full max-w-full sm:max-w-lg p-3 sm:p-6 md:p-8 shadow-2xl border border-gray-100 mx-2">
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-2">
+              <h2 className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Create New Support Ticket</h2>
               <button onClick={() => setShowNewTicketForm(false)} 
                       className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
                 <XCircle size={28} />
               </button>
             </div>
-            <form onSubmit={handleCreateTicket} className="space-y-6">
+            <form onSubmit={handleCreateTicket} className="space-y-4 sm:space-y-6">
               <div>
                 <label htmlFor="new-title" className="block text-sm font-medium text-gray-700 mb-1.5">
                   Title <span className="text-red-500">*</span>
@@ -671,7 +669,7 @@ const UserSupportPage: React.FC = () => {
                   required
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label htmlFor="new-priority" className="block text-sm font-medium text-gray-700 mb-1.5">Priority</label>
                   <div className="relative">
@@ -741,7 +739,7 @@ const UserSupportPage: React.FC = () => {
                 )}
                 <p className="mt-1.5 text-xs text-gray-500">Max 5MB. JPG, PNG, GIF, WEBP.</p>
               </div>
-              <div className="flex justify-end space-x-4 pt-4">
+              <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 pt-2 sm:pt-4">
                 <button
                   type="button"
                   onClick={() => setShowNewTicketForm(false)}
