@@ -133,12 +133,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
         );
         if (wishlistItem) {
           await removeFromWishlist(wishlistItem.wishlist_item_id);
-          toast.success("Product removed from wishlist");
         }
       } else {
         // console.log("Attempting to add to wishlist, product ID:", productId);
         await addToWishlist(productId);
-        toast.success("Product added to wishlist");
       }
     } catch (error) {
       console.error("Wishlist error details:", error);
