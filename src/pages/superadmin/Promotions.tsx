@@ -542,6 +542,7 @@ const Promotions: React.FC = () => {
           <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full p-3 border border-gray-300 rounded-md" placeholder="Search by code, description, or target..."/>
           <select value={filterTargetType} onChange={(e) => setFilterTargetType(e.target.value)} className="w-full p-3 border border-gray-300 rounded-md">
             <option value="">Filter by Target Type</option>
+            <option value="game">Game</option>
             <option value="sitewide">Sitewide</option>
             <option value="category">Category</option>
             <option value="brand">Brand</option>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-    AlertCircle, 
+import {
+    AlertCircle,
     CheckCircle,
     XCircle,
     Eye,
@@ -67,10 +67,10 @@ interface ProductViewerProps {
     getStatusBadgeClass: (status: string) => string;
 }
 
-const ProductViewer: React.FC<ProductViewerProps> = ({ 
-    product, 
-    onClose, 
-    onApprove, 
+const ProductViewer: React.FC<ProductViewerProps> = ({
+    product,
+    onClose,
+    onApprove,
     onReject,
     isActionLoading,
     getStatusBadgeClass
@@ -165,9 +165,8 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                                         <button
                                             key={media.media_id}
                                             onClick={() => setCurrentImageIndex(index)}
-                                            className={`relative aspect-w-1 aspect-h-1 rounded-lg overflow-hidden ${
-                                                currentImageIndex === index ? 'ring-2 ring-blue-500' : ''
-                                            }`}
+                                            className={`relative aspect-w-1 aspect-h-1 rounded-lg overflow-hidden ${currentImageIndex === index ? 'ring-2 ring-blue-500' : ''
+                                                }`}
                                         >
                                             <img
                                                 src={media.url}
@@ -184,7 +183,7 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                         <div className="space-y-6">
                             <div>
                                 <h4 className="text-sm font-medium text-gray-500">Description</h4>
-                                <div 
+                                <div
                                     className="mt-1 text-gray-900 prose prose-sm max-w-none"
                                     dangerouslySetInnerHTML={{ __html: product.meta?.short_desc || '' }}
                                 />
@@ -221,21 +220,21 @@ const ProductViewer: React.FC<ProductViewerProps> = ({
                                 <div className="space-y-4">
                                     <div>
                                         <h4 className="text-sm font-medium text-gray-500">Full Description</h4>
-                                        <div 
+                                        <div
                                             className="mt-1 text-gray-900 prose prose-sm max-w-none"
                                             dangerouslySetInnerHTML={{ __html: product.meta.full_desc || '' }}
                                         />
                                     </div>
                                     <div>
                                         <h4 className="text-sm font-medium text-gray-500">Meta Title</h4>
-                                        <div 
+                                        <div
                                             className="mt-1 text-gray-900 prose prose-sm max-w-none"
                                             dangerouslySetInnerHTML={{ __html: product.meta.meta_title || '' }}
                                         />
                                     </div>
                                     <div>
                                         <h4 className="text-sm font-medium text-gray-500">Meta Description</h4>
-                                        <div 
+                                        <div
                                             className="mt-1 text-gray-900 prose prose-sm max-w-none"
                                             dangerouslySetInnerHTML={{ __html: product.meta.meta_desc || '' }}
                                         />
@@ -641,7 +640,13 @@ const ProductMonitoring: React.FC = () => {
                                 <div className="mt-4 space-y-2 w-full">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Category:</span>
-                                        <span className="text-gray-900">{product.category?.name || 'N/A'}</span>
+                                        <span className="text-gray-900">
+                                            {product.category?.name
+                                                ? product.category.name.length > 10
+                                                    ? `${product.category.name.slice(0, 10)}...`
+                                                    : product.category.name
+                                                : 'N/A'}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-gray-500">Brand:</span>
@@ -657,10 +662,10 @@ const ProductMonitoring: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="mt-4">
+                                <div className="mt-4 h-full flex items-end w-full">
                                     <button
                                         onClick={() => handleViewDetails(product)}
-                                        className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-fit flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     >
                                         <Eye size={16} className="mr-2" />
                                         View Details
