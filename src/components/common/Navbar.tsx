@@ -469,7 +469,7 @@ const Navbar: React.FC = () => {
                 <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687779/public_assets_images/public_assets_images_category.svg" alt="Category" className="w-full h-full" />
               </span>
               <button
-                className="flex items-center py-1.5 px-3 md:px-4 text-black group-hover:text-gray-700 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+                className="flex items-center py-1.5 px-3 md:px-4 text-black group-hover:text-gray-700 font-['Work_Sans'] font-medium text-[14px] nav:text-[12px] nav2:text-[14px] leading-6 tracking-[0%]"
                 onClick={toggleCategoryDropdown}
                 aria-expanded={isCategoryDropdownOpen}
                 ref={desktopCategoryButtonRef}
@@ -480,24 +480,24 @@ const Navbar: React.FC = () => {
             </div>
 
             {/* Main Nav Links */}
-            <nav className="flex items-center gap-4 2xl:gap-12">
-              <Link to="/" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
+            <nav className="flex items-center gap-4 nav:gap-1 nav2:gap-4 2xl:gap-12"> 
+              <Link to="/" className="py-1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[12.5px] nav2:text-[14px]">
                 Home
               </Link>
-              <Link to="/all-products" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
+              <Link to="/all-products" className="py-1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[12.5px] nav2:text-[14px]">
                 All Products
               </Link>
-              <Link to="/new-product" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
+              <Link to="/new-product" className="py-1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[12.5px] nav2:text-[14px]">
                 New Product
               </Link>
-              <Link to="/promo-products" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] flex items-center">
+              <Link to="/promo-products" className="py-F1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] flex items-center nav:text-[12.5px] nav2:text-[14px]">
                 Promotion <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded-full ml-1">HOT</span>
               </Link>
             </nav>
 
             {/* Right side links */}
             <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-6">
-              <Link to="/orders" className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
+              <Link to="/orders" className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[11px] nav2:text-[14px]">
                 <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687786/public_assets_images/public_assets_images_track-order.svg" alt="Track Order" className="w-5 h-5 mr-1" />
                 <span>Track Your Order</span>
               </Link>
@@ -517,14 +517,14 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/live-shop"
                     style={aoinLiveButtonStyle}
-                    className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2"
+                    className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2 nav:text-[13px] nav2:text-[14px]"
                   >
                     Aoin Live
                   </Link>
                 </div>
               ) : (
                 <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
-                  <Link to="/sign-in" className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
+                  <Link to="/sign-in" className="flex items-center py-1.5 font-['Work_Sans'] font-medium nav:text-[12px] nav2:text-[14px] text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                     <User className="w-4 h-4 mr-1" />
                     <span>Sign In/Register</span>
                   </Link>

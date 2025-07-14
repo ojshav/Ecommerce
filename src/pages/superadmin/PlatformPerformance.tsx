@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, Cell
 } from 'recharts';
-import { AlertCircle, CheckCircle, Clock, Activity, Server, RefreshCw } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Activity, Server, RefreshCw, X } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -169,6 +171,31 @@ export default function PlatformPerformance() {
     uptime: 0
   });
   const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [isInvestigateModalOpen, setIsInvestigateModalOpen] = useState(false);
+  const [investigatingService, setInvestigatingService] = useState<{
+    name: string;
+    details: {
+      metrics: {
+        response_time: {
+          average: number;
+          minimum: number;
+          maximum: number;
+        };
+        requests: {
+          total: number;
+          error_count: number;
+          error_rate: number;
+          success_rate: number;
+        };
+        resources: {
+          cpu_usage: number;
+          memory_usage: number;
+        };
+        uptime: number;
+        performance_score: number;
+      };
+    };
+  } | null>(null);
 
   // Fetch data from API endpoints
   const fetchData = async () => {
@@ -618,12 +645,7 @@ export default function PlatformPerformance() {
                       style={{ color: '#FF5733' }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        // console.log(`Investigating service: ${service.name}`, {
-                        //   service,
-                        //   metrics,
-                        //   analytics: serviceAnalytics
-                        // });
-                        alert(`Investigating ${service.name} status...`);
+                        fetchServiceDetails(service.name);
                       }}
                     >
                       Investigate
@@ -637,6 +659,158 @@ export default function PlatformPerformance() {
       </div>
     </div>
   );
+
+  const fetchServiceDetails = async (serviceName: string) => {
+    if (!isAuthenticated || !accessToken) {
+      console.error('Not authenticated');
+      return;
+    }
+
+    try {
+      const headers = {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/superadmin/monitoring/system/service/${serviceName}?hours=${selectedTimeframe === '24h' ? 24 : selectedTimeframe === '7d' ? 168 : 720}`,
+        {
+          method: 'GET',
+          headers,
+          credentials: 'include'
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        setInvestigatingService({
+          name: serviceName,
+          details: data.data
+        });
+        setIsInvestigateModalOpen(true);
+      } else {
+        toast.error('Failed to fetch service details');
+      }
+    } catch (error) {
+      console.error(`Error fetching service details for ${serviceName}:`, error);
+      toast.error('Failed to fetch service details');
+    }
+  };
+
+  // Add new component for the investigation modal
+  const InvestigateModal = () => {
+    if (!investigatingService) return null;
+
+    const {
+      name,
+      details: {
+        metrics: {
+          response_time,
+          requests,
+          resources,
+          uptime,
+          performance_score
+        }
+      }
+    } = investigatingService;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Service Investigation: {name}</h2>
+            <button
+              onClick={() => setIsInvestigateModalOpen(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            {/* Performance Score */}
+            <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-4 text-white">
+              <h3 className="text-lg font-semibold mb-2">Performance Score</h3>
+              <div className="text-3xl font-bold">{performance_score.toFixed(2)}/100</div>
+            </div>
+
+            {/* Response Time Metrics */}
+            <div className="bg-white rounded-lg border p-4">
+              <h3 className="text-lg font-semibold mb-4">Response Time Metrics</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">Average</p>
+                  <p className="text-lg font-semibold">{response_time.average.toFixed(2)}ms</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Minimum</p>
+                  <p className="text-lg font-semibold">{response_time.minimum.toFixed(2)}ms</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Maximum</p>
+                  <p className="text-lg font-semibold">{response_time.maximum.toFixed(2)}ms</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Request Statistics */}
+            <div className="bg-white rounded-lg border p-4">
+              <h3 className="text-lg font-semibold mb-4">Request Statistics</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">Total Requests</p>
+                  <p className="text-lg font-semibold">{requests.total}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Error Count</p>
+                  <p className="text-lg font-semibold">{requests.error_count}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Success Rate</p>
+                  <p className="text-lg font-semibold">{requests.success_rate.toFixed(2)}%</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Error Rate</p>
+                  <p className="text-lg font-semibold">{requests.error_rate.toFixed(2)}%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Resource Usage */}
+            <div className="bg-white rounded-lg border p-4">
+              <h3 className="text-lg font-semibold mb-4">Resource Usage</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">CPU Usage</p>
+                  <p className="text-lg font-semibold">{resources.cpu_usage.toFixed(2)}%</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Memory Usage</p>
+                  <p className="text-lg font-semibold">{resources.memory_usage.toFixed(2)} MB</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Uptime */}
+            <div className="bg-white rounded-lg border p-4">
+              <h3 className="text-lg font-semibold mb-4">Service Uptime</h3>
+              <div className="flex items-center">
+                <div className="flex-1">
+                  <div className="h-2 bg-gray-200 rounded-full">
+                    <div
+                      className="h-2 bg-green-500 rounded-full"
+                      style={{ width: `${uptime}%` }}
+                    />
+                  </div>
+                </div>
+                <span className="ml-4 font-semibold">{uptime.toFixed(2)}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col space-y-6 bg-white p-6 rounded-xl">
@@ -840,6 +1014,7 @@ export default function PlatformPerformance() {
           </div>
         </div>
       </div>
+      {isInvestigateModalOpen && <InvestigateModal />}
     </div>
   );
 }

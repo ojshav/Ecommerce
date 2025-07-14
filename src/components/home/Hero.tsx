@@ -51,10 +51,6 @@ const Hero: React.FC = () => {
   const nextSlide = () => setCurrentSlide(prev => (prev === carouselItems.length - 1 ? 0 : prev + 1));
   const prevSlide = () => setCurrentSlide(prev => (prev === 0 ? carouselItems.length - 1 : prev - 1));
   const goToSlide = (idx: number) => setCurrentSlide(idx);
-  const handleOrderNowClick = (url: string) => {
-    if (url.startsWith('http')) window.open(url, '_blank', 'noopener,noreferrer');
-    else navigate(url);
-  };
 
   if (!carouselItems.length) {
     return (
@@ -83,7 +79,7 @@ const Hero: React.FC = () => {
                   style={{ objectPosition: 'center' }}
                 />
                 <button
-                  onClick={() => handleOrderNowClick(current.shareable_link)}
+                  onClick={() => navigate('/all-products')}
                   className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-[#F2631F] text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-[#E25818] transition-colors shadow-md"
                 >
                   Order Now
@@ -147,7 +143,7 @@ const Hero: React.FC = () => {
                   style={{ objectPosition: 'center' }}
                 />
                 <button
-                  onClick={() => handleOrderNowClick(current.shareable_link)}
+                  onClick={() => navigate('/all-products')}
                   className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-[#F2631F] text-white px-4 sm:px-6 py-2 rounded font-medium hover:bg-[#E25818] transition-colors text-sm sm:text-base shadow-lg"
                 >
                   Order Now
