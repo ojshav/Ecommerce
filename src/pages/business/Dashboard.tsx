@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   ArrowUpIcon,
   ArrowDownIcon,
@@ -6,8 +6,8 @@ import {
   CurrencyDollarIcon,
   UserGroupIcon,
   ClipboardDocumentCheckIcon,
-  ArrowPathIcon
-} from '@heroicons/react/24/outline';
+  ArrowPathIcon,
+} from "@heroicons/react/24/outline";
 import {
   ResponsiveContainer,
   LineChart,
@@ -18,11 +18,11 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend
-} from 'recharts';
-import { useAuth } from '../../context/AuthContext';
-import toast from 'react-hot-toast';
-import { Link } from 'react-router-dom';
+  Legend,
+} from "recharts";
+import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -86,37 +86,39 @@ interface TopProductsResponse {
 
 // Status badges for orders
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
-  let bgColor = '';
-  let textColor = '';
+  let bgColor = "";
+  let textColor = "";
 
   switch (status.toLowerCase()) {
-    case 'delivered':
-      bgColor = 'bg-green-100';
-      textColor = 'text-green-800';
+    case "delivered":
+      bgColor = "bg-green-100";
+      textColor = "text-green-800";
       break;
-    case 'shipped':
-      bgColor = 'bg-blue-100';
-      textColor = 'text-blue-800';
+    case "shipped":
+      bgColor = "bg-blue-100";
+      textColor = "text-blue-800";
       break;
-    case 'processing':
-      bgColor = 'bg-yellow-100';
-      textColor = 'text-yellow-800';
+    case "processing":
+      bgColor = "bg-yellow-100";
+      textColor = "text-yellow-800";
       break;
-    case 'pending':
-      bgColor = 'bg-orange-100';
-      textColor = 'text-orange-800';
+    case "pending":
+      bgColor = "bg-orange-100";
+      textColor = "text-orange-800";
       break;
-    case 'cancelled':
-      bgColor = 'bg-red-100';
-      textColor = 'text-red-800';
+    case "cancelled":
+      bgColor = "bg-red-100";
+      textColor = "text-red-800";
       break;
     default:
-      bgColor = 'bg-gray-100';
-      textColor = 'text-gray-800';
+      bgColor = "bg-gray-100";
+      textColor = "text-gray-800";
   }
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor}`}
+    >
       {status}
     </span>
   );
@@ -133,7 +135,7 @@ interface Stat {
 }
 
 const Dashboard: React.FC = () => {
-  const [timeframe, setTimeframe] = useState('weekly');
+  const [timeframe, setTimeframe] = useState("weekly");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [trendData, setTrendData] = useState<TrendData[]>([]);
@@ -143,16 +145,16 @@ const Dashboard: React.FC = () => {
   const { accessToken, user } = useAuth();
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     }).format(amount);
   };
 
   const formatPercentage = (value: number) => {
-    const sign = value >= 0 ? '+' : '';
+    const sign = value >= 0 ? "+" : "";
     return `${sign}${value.toFixed(2)}%`;
   };
 
@@ -162,85 +164,96 @@ const Dashboard: React.FC = () => {
       setError(null);
 
       // Fetch revenue and orders trend
-      const trendResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/analytics/revenue-orders-trend`, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
+      const trendResponse = await fetch(
+        `${API_BASE_URL}/api/merchant-dashboard/analytics/revenue-orders-trend`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         }
-      });
+      );
 
       if (!trendResponse.ok) {
-        throw new Error('Failed to fetch trend data');
+        throw new Error("Failed to fetch trend data");
       }
 
       const trendData: TrendResponse = await trendResponse.json();
       // console.log('Revenue Orders Trend Response:', trendData);
-      if (trendData.status === 'success') {
+      if (trendData.status === "success") {
         setTrendData(trendData.data);
       }
 
       // Fetch order stats
-      const statsResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/analytics/merchant-performance`, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
+      const statsResponse = await fetch(
+        `${API_BASE_URL}/api/merchant-dashboard/analytics/merchant-performance`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         }
-      });
+      );
 
       if (!statsResponse.ok) {
-        throw new Error('Failed to fetch order stats');
+        throw new Error("Failed to fetch order stats");
       }
 
       const statsData: OrderStatsResponse = await statsResponse.json();
       // console.log('Order Stats Response:', statsData);
-      if (statsData.status === 'success') {
+      if (statsData.status === "success") {
         setOrderStats(statsData.data);
       }
 
       // Fetch recent orders
-      const ordersResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/analytics/recent-orders`, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
+      const ordersResponse = await fetch(
+        `${API_BASE_URL}/api/merchant-dashboard/analytics/recent-orders`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         }
-      });
+      );
 
       if (!ordersResponse.ok) {
-        throw new Error('Failed to fetch recent orders');
+        throw new Error("Failed to fetch recent orders");
       }
 
       const ordersData: RecentOrdersResponse = await ordersResponse.json();
       // console.log('Recent Orders Response:', ordersData);
-      if (ordersData.status === 'success') {
+      if (ordersData.status === "success") {
         setRecentOrders(ordersData.data);
       }
 
       // Fetch top products
-      const productsResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/analytics/top-products`, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
+      const productsResponse = await fetch(
+        `${API_BASE_URL}/api/merchant-dashboard/analytics/top-products`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         }
-      });
+      );
 
       if (!productsResponse.ok) {
-        throw new Error('Failed to fetch top products');
+        throw new Error("Failed to fetch top products");
       }
 
       const productsData: TopProductsResponse = await productsResponse.json();
       // console.log('Top Products Response:', productsData);
-      if (productsData.status === 'success') {
+      if (productsData.status === "success") {
         setTopProducts(productsData.data);
       }
-
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      setError('Failed to load dashboard data. Please try again later.');
-      toast.error('Failed to load dashboard data');
+      console.error("Error fetching dashboard data:", error);
+      setError("Failed to load dashboard data. Please try again later.");
+      toast.error("Failed to load dashboard data");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!user || user.role !== 'merchant') {
-      toast.error('Access denied. Merchant role required.');
+    if (!user || user.role !== "merchant") {
+      toast.error("Access denied. Merchant role required.");
       return;
     }
     fetchData();
@@ -275,43 +288,69 @@ const Dashboard: React.FC = () => {
   // Stats summary for KPIs
   const stats: Stat[] = [
     {
-      name: 'Total Sales',
+      name: "Total Sales",
       value: formatCurrency(orderStats?.total_sales?.value ?? 0),
-      change: 'vs last period',
+      change: "vs last period",
       trend: orderStats?.total_sales?.change_percent ?? 0,
       icon: CurrencyDollarIcon,
-      iconBg: 'bg-orange-100',
-      iconColor: 'text-orange-700',
+      iconBg: "bg-orange-100",
+      iconColor: "text-orange-700",
     },
     {
-      name: 'Total Orders',
-      value: orderStats?.total_orders?.value?.toLocaleString() ?? '0',
-      change: 'vs last period',
+      name: "Total Orders",
+      value: orderStats?.total_orders?.value?.toLocaleString() ?? "0",
+      change: "vs last period",
       trend: orderStats?.total_orders?.change_percent ?? 0,
       icon: ShoppingBagIcon,
-      iconBg: 'bg-orange-100',
-      iconColor: 'text-orange-700',
+      iconBg: "bg-orange-100",
+      iconColor: "text-orange-700",
     },
     {
-      name: 'Average Order Value',
+      name: "Average Order Value",
       value: formatCurrency(orderStats?.average_order_value?.value ?? 0),
-      change: 'vs last period',
+      change: "vs last period",
       trend: orderStats?.average_order_value?.change_percent ?? 0,
       icon: ShoppingBagIcon,
-      iconBg: 'bg-orange-100',
-      iconColor: 'text-orange-700',
+      iconBg: "bg-orange-100",
+      iconColor: "text-orange-700",
     },
     {
-      name: 'Conversion Rate',
-      value: `${((orderStats?.total_orders?.value ?? 0) / (trendData[0]?.visitors ?? 1) * 100).toFixed(1)}%`,
-      change: 'vs last period',
+      name: "Conversion Rate",
+      value: `${(
+        ((orderStats?.total_orders?.value ?? 0) /
+          (trendData[0]?.visitors ?? 1)) *
+        100
+      ).toFixed(1)}%`,
+      change: "vs last period",
       trend: 0,
       icon: ClipboardDocumentCheckIcon,
-      iconBg: 'bg-orange-100',
-      iconColor: 'text-orange-700',
+      iconBg: "bg-orange-100",
+      iconColor: "text-orange-700",
     },
   ];
+  // Custom Tooltip for Viewing full product names on hover
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white border border-gray-300 rounded p-2 shadow text-xs max-w-[200px] whitespace-normal break-words">
+          {/* ✅ This <p> will wrap long product names */}
+          <p className="font-semibold break-words text-gray-900 mb-1">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} style={{ color: entry.color }}>
+              {entry.name}:{" "}
+              {entry.name === "Revenue"
+                ? formatCurrency(entry.value)
+                : entry.value}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+  
 
+  
   return (
     <div className="space-y-6">
       {/* Page Title */}
@@ -320,31 +359,34 @@ const Dashboard: React.FC = () => {
         <div className="inline-flex rounded-md shadow-sm">
           <button
             type="button"
-            onClick={() => setTimeframe('daily')}
-            className={`px-4 py-2 text-sm font-medium rounded-l-md ${timeframe === 'daily'
-              ? 'bg-orange-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-orange-50'
-              } border border-gray-300`}
+            onClick={() => setTimeframe("daily")}
+            className={`px-4 py-2 text-sm font-medium rounded-l-md ${
+              timeframe === "daily"
+                ? "bg-orange-600 text-white"
+                : "bg-white text-gray-700 hover:bg-orange-50"
+            } border border-gray-300`}
           >
             Daily
           </button>
           <button
             type="button"
-            onClick={() => setTimeframe('weekly')}
-            className={`px-4 py-2 text-sm font-medium ${timeframe === 'weekly'
-              ? 'bg-orange-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-orange-50'
-              } border-t border-b border-gray-300`}
+            onClick={() => setTimeframe("weekly")}
+            className={`px-4 py-2 text-sm font-medium ${
+              timeframe === "weekly"
+                ? "bg-orange-600 text-white"
+                : "bg-white text-gray-700 hover:bg-orange-50"
+            } border-t border-b border-gray-300`}
           >
             Weekly
           </button>
           <button
             type="button"
-            onClick={() => setTimeframe('monthly')}
-            className={`px-4 py-2 text-sm font-medium rounded-r-md ${timeframe === 'monthly'
-              ? 'bg-orange-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-orange-50'
-              } border border-gray-300`}
+            onClick={() => setTimeframe("monthly")}
+            className={`px-4 py-2 text-sm font-medium rounded-r-md ${
+              timeframe === "monthly"
+                ? "bg-orange-600 text-white"
+                : "bg-white text-gray-700 hover:bg-orange-50"
+            } border border-gray-300`}
           >
             Monthly
           </button>
@@ -361,7 +403,9 @@ const Dashboard: React.FC = () => {
             <div className="flex flex-col-reverse sm:flex-row md:flex-col-reverse xl:flex-row items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-gray-500">{stat.name}</p>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">{stat.value}</p>
+                <p className="mt-1 text-2xl font-semibold text-gray-900">
+                  {stat.value}
+                </p>
               </div>
               <div className={`p-3 rounded-full ${stat.iconBg}`}>
                 <stat.icon className={`h-6 w-6 ${stat.iconColor}`} />
@@ -373,8 +417,11 @@ const Dashboard: React.FC = () => {
               ) : (
                 <ArrowDownIcon className="h-4 w-4 text-red-500" />
               )}
-              <span className={`ml-2 text-sm font-medium ${stat.trend > 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
+              <span
+                className={`ml-2 text-sm font-medium ${
+                  stat.trend > 0 ? "text-green-600" : "text-red-600"
+                }`}
+              >
                 {formatPercentage(stat.trend)}
               </span>
             </div>
@@ -387,7 +434,9 @@ const Dashboard: React.FC = () => {
         {/* Sales & Orders Chart */}
         <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-gray-900">Sales & Orders</h2>
+            <h2 className="text-lg font-medium text-gray-900">
+              Sales & Orders
+            </h2>
           </div>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -403,8 +452,8 @@ const Dashboard: React.FC = () => {
                   formatter={(value, name, props) => {
                     const key = props.dataKey;
                     return [
-                      key === 'sales' ? formatCurrency(Number(value)) : value,
-                      key === 'sales' ? 'Sales' : 'Orders'
+                      key === "sales" ? formatCurrency(Number(value)) : value,
+                      key === "sales" ? "Sales" : "Orders",
                     ];
                   }}
                 />
@@ -443,16 +492,15 @@ const Dashboard: React.FC = () => {
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
-                <YAxis dataKey="name" type="category" width={150} />
-                <Tooltip
-                  formatter={(value, name, props) => {
-                    const key = props.dataKey;
-                    return [
-                      key === 'revenue' ? formatCurrency(Number(value)) : value,
-                      key === 'revenue' ? 'Revenue' : 'Units Sold'
-                    ];
-                  }}
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  width={150}
+                  tickFormatter={(name) =>
+                    name.length > 20 ? name.slice(0, 18) + "…" : name
+                  }
                 />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend />
                 <Bar dataKey="sold" name="Units Sold" fill="#4f46e5" />
                 <Bar dataKey="revenue" name="Revenue" fill="#06b6d4" />
@@ -477,17 +525,32 @@ const Dashboard: React.FC = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Order ID
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Customer
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Amount
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {(recentOrders || []).map((order) => (
-                <tr key={order.order_id} className="hover:bg-orange-50 transition-colors">
+                <tr
+                  key={order.order_id}
+                  className="hover:bg-orange-50 transition-colors"
+                >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-600 hover:text-orange-700">
                     {order.order_id}
                   </td>
@@ -510,15 +573,15 @@ const Dashboard: React.FC = () => {
                     >
                       View
                     </Link>
-                    <button className="text-orange-600 hover:text-orange-700">
-                      Print
-                    </button>
                   </td>
                 </tr>
               ))}
               {(!recentOrders || recentOrders.length === 0) && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-4 text-center text-sm text-gray-500"
+                  >
                     No recent orders found
                   </td>
                 </tr>
@@ -531,4 +594,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

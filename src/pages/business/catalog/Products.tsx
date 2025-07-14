@@ -327,8 +327,19 @@ const Products: React.FC = () => {
                       <input type="checkbox" className="rounded border-gray-300 text-orange-600 focus:ring-orange-500 h-3 w-3" checked={selectedItems.includes(product.product_id)} onChange={() => toggleSelectItem(product.product_id)} />
                     </td>
                     <td className="px-2 py-1 whitespace-normal max-w-xs">
-                      <div className="flex items-center"><div className="ml-2"><div className="font-medium text-gray-900 break-words">{product.product_name}</div><div className="text-gray-500 break-words">SKU - {product.sku}</div></div></div>
-                    </td>
+  <div className="flex items-center">
+    <div className="ml-2">
+      <div
+        className="font-medium text-gray-900 line-clamp-2 max-w-xs"
+        title={product.product_name}
+      >
+        {product.product_name}
+      </div>
+      <div className="text-gray-500 break-words">SKU - {product.sku}</div>
+    </div>
+  </div>
+</td>
+
                     <td className="px-2 py-1 whitespace-nowrap">
                       <div className="font-medium text-gray-900">
                         {formatINR(product.selling_price)}
