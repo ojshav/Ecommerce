@@ -48,6 +48,14 @@ const SignIn: React.FC = () => {
           businessName: '',
         };
 
+        // Prevent merchant login
+        if (data.user?.role === 'MERCHANT') {
+          setError('Merchants must sign in through the merchant dashboard.');
+          toast.error('Merchants must sign in through the merchant dashboard.');
+          setIsSubmitting(false);
+          return;
+        }
+
         const success = await setAuthState({
           accessToken: data.access_token,
           refreshToken: data.refresh_token,
@@ -108,6 +116,13 @@ const SignIn: React.FC = () => {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Google sign-in failed');
+
+      // Prevent merchant login
+      if (data.user?.role === 'MERCHANT') {
+        setError('Merchants must sign in through the merchant dashboard.');
+        toast.error('Merchants must sign in through the merchant dashboard.');
+        return;
+      }
 
       const userObj = {
         id: data.user?.id || 'unknown',
