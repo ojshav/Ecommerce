@@ -477,6 +477,7 @@ const Products: React.FC = () => {
   const handleSort = (value: string) => {
     setSelectedSort(value);
     setIsMobileSortOpen(false);
+    setIsDesktopSortOpen(false); // Close desktop sort dropdown
     setCurrentPage(1); // Reset to first page when sort changes
   };
 

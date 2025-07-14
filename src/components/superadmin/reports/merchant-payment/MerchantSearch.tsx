@@ -37,7 +37,7 @@ const MerchantSearch: React.FC<MerchantSearchProps> = ({ onSearch, onFilterChang
               className="w-full pl-12 pr-4 py-3 border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-orange-50/50"
               onChange={(e) => onSearch(e.target.value)}
             />
-            <FaSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-orange-400" />
+          
           </div>
         </div>
 
