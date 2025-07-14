@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Download } from 'lucide-react';
+import ExportModal from '../../components/business/reports/ExportModal';
 
 interface Subscriber {
   id: number;
@@ -16,6 +18,8 @@ const NewsletterSubscribers: React.FC = () => {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -25,9 +29,51 @@ const NewsletterSubscribers: React.FC = () => {
     }, 500);
   }, []);
 
+  const handleExport = async (format: string) => {
+    setIsExporting(true);
+    try {
+      if (format === 'csv') {
+        // CSV export
+        const headers = 'ID,Email,Subscribed At\n';
+        const rows = subscribers
+          .map((s) => `${s.id},"${s.email}","${new Date(s.subscribed_at).toLocaleString()}"`)
+          .join('\n');
+        const blob = new Blob([headers + rows], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'newsletter_subscribers.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } else if (format === 'excel') {
+        // Placeholder: Excel export (requires xlsx library)
+        alert('Excel export coming soon! Please install xlsx library.');
+      } else if (format === 'pdf') {
+        // Placeholder: PDF export (requires jsPDF & autotable)
+        alert('PDF export coming soon! Please install jsPDF and jspdf-autotable libraries.');
+      }
+      setIsExportModalOpen(false);
+    } catch (err) {
+      alert('Export failed.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="p-8 min-h-screen bg-gradient-to-br from-white to-orange-50">
-      <h1 className="text-3xl font-bold mb-8 text-orange-700 drop-shadow-sm">Newsletter Subscribers</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+        <h1 className="text-3xl font-bold text-orange-700 drop-shadow-sm">Newsletter Subscribers</h1>
+        <button
+          onClick={() => setIsExportModalOpen(true)}
+          className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-md shadow hover:bg-orange-600 transition"
+        >
+          <Download className="w-5 h-5" />
+          Export
+        </button>
+      </div>
       <div className="bg-white rounded-xl shadow-lg p-6 max-w-5xl mx-auto">
         {loading ? (
           <div className="text-orange-600 font-medium">Loading...</div>
@@ -66,6 +112,12 @@ const NewsletterSubscribers: React.FC = () => {
           </div>
         )}
       </div>
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={handleExport}
+        isExporting={isExporting}
+      />
     </div>
   );
 };
