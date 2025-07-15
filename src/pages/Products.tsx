@@ -605,10 +605,14 @@ const Products: React.FC = () => {
                         type="number"
                         min={priceRange[0]}
                         max="1000000"
-                        value={priceRange[1]}
+                        value={priceRange[1] === 0 ? '' : priceRange[1]}
                         onChange={(e) => {
-                          const value = parseInt(e.target.value) || 1000000;
-                          setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                          const value = e.target.value === '' ? '' : Number(e.target.value);
+                          if (value === '') {
+                            setPriceRange([priceRange[0], 0]);
+                          } else {
+                            setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                          }
                         }}
                         className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
                         placeholder="1000000"
@@ -976,10 +980,14 @@ const Products: React.FC = () => {
                         type="number"
                         min={priceRange[0]}
                         max="1000000"
-                        value={priceRange[1]}
+                        value={priceRange[1] === 0 ? '' : priceRange[1]}
                         onChange={(e) => {
-                          const value = parseInt(e.target.value) || 1000000;
-                          setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                          const value = e.target.value === '' ? '' : Number(e.target.value);
+                          if (value === '') {
+                            setPriceRange([priceRange[0], 0]);
+                          } else {
+                            setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                          }
                         }}
                         className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
                         placeholder="1000000"
