@@ -72,7 +72,6 @@ const PromoProducts: React.FC = () => {
     handleMouseMove,
     handleTouchStart,
     handleTouchMove,
-    handleWheel,
     scroll
   } = useHorizontalScroll();
 
@@ -199,7 +198,7 @@ const PromoProducts: React.FC = () => {
         is_deleted: false
       }, 1);
       toast.success(`${product.product_name} added to cart`);
-    } catch (error) {
+    } catch {
       toast.error('Failed to add item to cart');
     }
   };
@@ -309,14 +308,13 @@ const PromoProducts: React.FC = () => {
         <div className="relative">
           <div
             ref={containerRef}
-            className="flex overflow-x-auto gap-6 mb-10 scrollbar-hide"
+            className="flex overflow-x-auto gap-6 mb-10 scrollbar-hide scroll-smooth"
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
             onMouseMove={handleMouseMove}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
-            onWheel={handleWheel}
             style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
           >
             {promoProducts.map((product) => {
