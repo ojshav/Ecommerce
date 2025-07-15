@@ -5,7 +5,7 @@ const OrderConfirmationPage = () => {
   const navigate = useNavigate();
 
   const handleNavigateToProfile = () => {
-    navigate('/profile');
+    navigate('/');
   };
 
   const handleViewOrder = () => {
@@ -48,7 +48,7 @@ const OrderConfirmationPage = () => {
             onClick={handleNavigateToProfile}
             className="px-6 py-2.5 border border-black rounded-lg text-sm font-medium text-black bg-white hover:bg-gray-50 transition-colors"
           >
-            GO TO PROFILE
+            GO TO HOME
           </button>
           <button
             onClick={handleViewOrder}

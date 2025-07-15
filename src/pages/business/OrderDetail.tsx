@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   ArrowLeftIcon,
-  PencilIcon,
   PrinterIcon,
   UserIcon,
   ShoppingBagIcon,
@@ -63,7 +62,7 @@ interface Order {
   payment_gateway_transaction_id: string | null;
   shipping_method_name: string;
   customer_notes: string;
-  status_history: any[];
+  status_history: any[]; // TODO: Replace 'any' with a proper type
 }
 
 // Status badge component
@@ -81,12 +80,12 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
       textColor = "text-sky-800";
       break;
     case "PROCESSING":
-      bgColor = "bg-amber-100";
-      textColor = "text-amber-800";
+      bgColor = "bg-[#FF4D00]/10"; // Light orange background
+      textColor = "text-[#FF4D00]";
       break;
     case "PENDING_PAYMENT":
-      bgColor = "bg-orange-100";
-      textColor = "text-orange-800";
+      bgColor = "bg-[#FF4D00]/10";
+      textColor = "text-[#FF4D00]";
       break;
     case "CANCELLED":
       bgColor = "bg-rose-100";
@@ -849,11 +848,12 @@ const OrderDetail: React.FC = () => {
       {/* --- ON-SCREEN DASHBOARD VIEW --- */}
       {/* This whole block will be hidden during printing by the global CSS */}
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pb-4 border-b border-gray-200 mb-4">
           <div className="flex items-center space-x-4">
             <Link
               to="/business/orders"
-              className="inline-flex items-center text-orange-600 hover:text-orange-700"
+              className="inline-flex items-center text-[#FF4D00] hover:text-white hover:bg-[#FF4D00] transition-colors px-3 py-1.5 rounded-md font-medium shadow-sm"
+              style={{ fontWeight: 500 }}
             >
               <ArrowLeftIcon className="h-5 w-5 mr-2" /> Back to Orders
             </Link>
@@ -864,7 +864,8 @@ const OrderDetail: React.FC = () => {
           <div className="flex space-x-2">
             <button
               onClick={handlePrint}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              className="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium bg-[#FF4D00] text-white hover:bg-orange-600 transition-colors border border-[#FF4D00]"
+              style={{ fontWeight: 500 }}
             >
               <PrinterIcon className="h-4 w-4 mr-2" /> Print Invoice
             </button>

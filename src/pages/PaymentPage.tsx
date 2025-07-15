@@ -1112,7 +1112,7 @@ const PaymentPage: React.FC = () => {
         }
         toast.success("Order placed successfully");
         // Redirect to order confirmation page
-        navigate("/order-confirmation", { state: { orderId } });
+        navigate("/order-confirmation", { state: { orderId }, replace: true });
       } else {
         throw new Error(responseData.message || "Failed to place order");
       }
