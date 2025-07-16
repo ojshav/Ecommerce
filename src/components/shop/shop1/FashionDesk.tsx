@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const FashionDesk = () => {
   const articles = [
@@ -73,9 +74,11 @@ const FashionDesk = () => {
 
         {/* Button */}
         <div className="mt-12 sm:mt-16 flex justify-center">
-          <button className="bg-black text-white text-sm sm:text-base font-medium py-3 px-8 rounded hover:bg-gray-800 transition">
-            OPEN MORE
-          </button>
+          <Link to="/shop1-allproductpage">
+            <button className="bg-black text-white text-sm sm:text-base font-medium py-3 px-8 rounded hover:bg-gray-800 transition">
+              OPEN MORE
+            </button>
+          </Link>
         </div>
       </div>
     </section>
