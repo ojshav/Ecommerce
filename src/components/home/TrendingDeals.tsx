@@ -21,7 +21,6 @@ const TrendingDeals: React.FC = () => {
     handleMouseMove,
     handleTouchStart,
     handleTouchMove,
-    handleWheel,
     scroll
   } = useHorizontalScroll();
 
@@ -166,14 +165,13 @@ const TrendingDeals: React.FC = () => {
           <div className="relative">
             <div
               ref={containerRef}
-              className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
+              className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide scroll-smooth"
               onMouseDown={handleMouseDown}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
               onMouseMove={handleMouseMove}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
-              onWheel={handleWheel}
               style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
             >
               {products.map((product) => (

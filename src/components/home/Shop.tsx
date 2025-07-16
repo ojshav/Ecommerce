@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Import your SVG files
-const Prime = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689846/public_assets_shop/public_assets_shop_Prime.svg';
-const Exclusive = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689840/public_assets_shop/public_assets_shop_Exclusive.svg';
-const Vault = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689866/public_assets_shop/public_assets_shop_vault.svg';
-const LuxeHub = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1751689843/public_assets_shop/public_assets_shop_Luxe%20Hub.svg';
+const Prime = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058892/public_assets_banner/public_assets_Banner_Shutter.svg';
+const Exclusive = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058892/public_assets_banner/public_assets_Banner_Shutter.svg';
+const Vault = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058892/public_assets_banner/public_assets_Banner_Shutter.svg';
+const LuxeHub = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058892/public_assets_banner/public_assets_Banner_Shutter.svg';
 
 // Import inner banner SVG files
 const PrimeInner = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058616/public_assets_banner/public_assets_Banner_Shop1_banner.svg';

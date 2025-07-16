@@ -81,9 +81,7 @@ const HomepageProducts: React.FC = () => {
     handleMouseUp,
     handleMouseMove,
     handleTouchStart,
-    handleTouchMove,
-    handleWheel,
-    scroll
+    handleTouchMove
   } = useHorizontalScroll();
 
   // Update items per view based on screen size
@@ -365,14 +363,13 @@ const HomepageProducts: React.FC = () => {
               <div className="relative">
                 <div
                   ref={containerRef}
-                  className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
+                  className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide scroll-smooth"
                   onMouseDown={handleMouseDown}
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseUp}
                   onMouseMove={handleMouseMove}
                   onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
-                  onWheel={handleWheel}
                   style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
                 >
                   {getVisibleProducts(categoryData).map((product) => (

@@ -63,6 +63,8 @@ import BrandCreation from './pages/superadmin/BrandCreation';
 import HomepageSettings from './pages/superadmin/HomepageSettings';
 import Shop1Productpage from './pages/Shop1Productpage';
 import Shop2Productpage from './pages/Shop2Productpage';
+import Shop1AllProductpage from './pages/Shop1AllProductpage';
+import Shop2AllProductpage from './pages/Shop2AllProductpage';
 import FAQ from './pages/FAQ';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -209,6 +211,8 @@ const App: React.FC = () => {
                     <Route path="/shop3" element={<Shop3LandingPage />} />
                     <Route path="/shop1-productpage" element={<Shop1Productpage />} />
                     <Route path="/shop2-productpage" element={<Shop2Productpage />} />
+                    <Route path="/shop1-allproductpage" element={<Shop1AllProductpage />} />
+                    <Route path="/shop2-allproductpage" element={<Shop2AllProductpage />} />
                     <Route
                       path="/business/login"
                       element={<BusinessLogin />}

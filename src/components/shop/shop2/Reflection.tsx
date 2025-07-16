@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Reflection = () => {
   const colors = ['#D5FF4F', '#02E6FF', '#F9A7DB'];
@@ -48,9 +49,11 @@ const Reflection = () => {
         </div>
 
         {/* Button */}
-        <button className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 sm:px-8 sm:py-3 font-zen text-[4vw] sm:text-[20px] md:text-[24px] text-white border border-[#4D107F] font-bold tracking-wide transition z-10">
-          SEE ALL
-        </button>
+        <Link to="/shop2-allproductpage">
+          <button className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 sm:px-8 sm:py-3 font-zen text-[4vw] sm:text-[20px] md:text-[24px] text-white border border-[#4D107F] font-bold tracking-wide transition z-10">
+            SEE ALL
+          </button>
+        </Link>
       </div>
     </div>
   );
