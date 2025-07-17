@@ -17,7 +17,7 @@ const Footer = () => {
           <div className="mb-4 sm:mb-6 font-poppins text-base sm:text-[18px]">
             <p className="font-semibold">Email : <span className="font-normal">Aoin@gmail.com</span></p>
           </div>
-          <div className="flex gap-2 sm:gap-3 mt-4 sm:mt-6">
+          <div className="flex gap-3 sm:gap-3 mt-4 sm:mt-6">
             {/* Facebook */}
             <a href="#" className="bg-white rounded-full px-2 sm:px-3 py-3 sm:py-4 items-center shadow-md hover:bg-gray-200 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -38,7 +38,7 @@ const Footer = () => {
 
             </a>
             {/* Twitter */}
-            <a href="#" className="bg-white rounded-full px-2 sm:px-3 py-3 sm:py-4 shadow-md hover:bg-gray-200 transition-colors">
+            <a href="#" className="bg-white rounded-full px-2 sm:px-3 py-2 sm:py-4 shadow-md hover:bg-gray-200 transition-colors">
             <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M23.3958 6.24984C22.5937 6.61442 21.7291 6.854 20.8333 6.96859C21.75 6.4165 22.4583 5.5415 22.7916 4.48942C21.927 5.01025 20.9687 5.37484 19.9583 5.58317C19.1354 4.68734 17.9791 4.1665 16.6666 4.1665C14.2187 4.1665 12.2187 6.1665 12.2187 8.63525C12.2187 8.98942 12.2604 9.33317 12.3333 9.65609C8.62496 9.46859 5.32288 7.68734 3.12496 4.98942C2.73954 5.64567 2.52079 6.4165 2.52079 7.229C2.52079 8.78109 3.30204 10.1561 4.51038 10.9373C3.77079 10.9373 3.08329 10.729 2.47913 10.4165V10.4478C2.47913 12.6144 4.02079 14.4269 6.06246 14.8332C5.40708 15.0133 4.71875 15.0383 4.05204 14.9061C4.33497 15.7941 4.88906 16.5711 5.63643 17.1279C6.38381 17.6847 7.28688 17.9933 8.21871 18.0103C6.6392 19.2608 4.68122 19.9367 2.66663 19.9269C2.31246 19.9269 1.95829 19.9061 1.60413 19.8644C3.58329 21.1353 5.93746 21.8748 8.45829 21.8748C16.6666 21.8748 21.177 15.0623 21.177 9.15609C21.177 8.95817 21.177 8.77067 21.1666 8.57275C22.0416 7.94775 22.7916 7.15609 23.3958 6.24984Z" fill="#2D88FF"/>
 </svg>

@@ -89,20 +89,20 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
   if (!isVisible || !searchQuery.trim()) return null;
 
-  const handleItemClick = (item: any, type: string) => {
+  const handleItemClick = (item: Product | Category | Brand, type: string) => {
     setIsVisible(false);
     if (onItemClick) {
-      onItemClick(item); // notify parent
+      onItemClick(item);
     }
-
-    // Navigate
-    if (type === 'product') {
-      navigate(`/product/${item.id}`);
-    } else if (type === 'category') {
-      navigate(`/products/${item.category_id}`);
-    } else if (type === 'brand') {
-      navigate(`/brands/${item.brand_id}`);
-    }
+    setTimeout(() => {
+      if (type === 'product') {
+        navigate(`/product/${(item as Product).id}`);
+      } else if (type === 'category') {
+        navigate(`/products/${(item as Category).category_id}`);
+      } else if (type === 'brand') {
+        navigate(`/brands/${(item as Brand).brand_id}`);
+      }
+    }, 0);
   };
 
   if (loading) {
@@ -144,7 +144,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
           {results.products.map((product) => (
             <div
               key={product.id}
-              onClick={() => handleItemClick(product, 'product')}
+              onMouseDown={() => handleItemClick(product, 'product')}
+              onTouchStart={() => handleItemClick(product, 'product')}
               className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded"
             >
               {product.primary_image && (
@@ -169,7 +170,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
           {results.categories.map((category) => (
             <div
               key={category.category_id}
-              onClick={() => handleItemClick(category, 'category')}
+              onMouseDown={() => handleItemClick(category, 'category')}
+              onTouchStart={() => handleItemClick(category, 'category')}
               className="flex items-center text-black gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded"
             >
               {category.icon_url && (
@@ -191,7 +193,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
           {results.brands.map((brand) => (
             <div
               key={brand.brand_id}
-              onClick={() => handleItemClick(brand, 'brand')}
+              onMouseDown={() => handleItemClick(brand, 'brand')}
+              onTouchStart={() => handleItemClick(brand, 'brand')}
               className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded"
             >
               {brand.logo_url && (

@@ -101,12 +101,12 @@ const Header: React.FC = () => {
       <div className="w-full">
         {/* Top Bar */}
         <div className='w-full'>
-          <div className="flex flex-col sm:flex-row justify-between items-center text-sm max-w-[1440px] mx-auto px-4 sm:px-8 md:px-16 py-2 border-b bg-white gap-2 sm:gap-0">
-            <div className="flex items-center max-w-[1080px] gap-8 sm:gap-32">
+          <div className="flex flex-col sm:flex-row justify-between items-center text-sm max-w-[1440px] mx-auto px-4 sm:px-8 md:px-14 lg:px-16 py-2 border-b bg-white gap-2 sm:gap-0">
+            <div className="flex items-center max-w-[1080px] gap-2 md:gap-10 lg:gap-32">
               <a href="mailto:Aoin.@gmail.com" className="hover:underline"><MailIcon />Aoin.@gmail.com</a>
               <a href="tel:+6511188888" className="hover:underline"><PhoneIcon />+65 11.188.8888</a>
             </div>
-            <div className="flex items-center gap-4 sm:gap-16 sm:mr-40">
+            <div className="flex items-center gap-4 md:gap-8 lg:gap-16 sm:mr-20 md:mr-10 lg:mr-40">
               <div className="flex items-center gap-2 sm:gap-4 mr-0">
                 <a href="#" aria-label="Facebook" className="text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="21" viewBox="0 0 10 21" fill="none"><path d="M6.49636 20.1386V11.3597H9.45801L9.89824 7.92243H6.49636V5.73306C6.49636 4.7412 6.77271 4.06211 8.19623 4.06211H10V0.997625C9.12242 0.902826 8.24021 0.857411 7.35754 0.861593C4.73972 0.861593 2.94237 2.45971 2.94237 5.39351V7.91601H0V11.3532H2.9488V20.1386H6.49636Z" fill="#0066FF"/></svg></a>
                 <a href="#" aria-label="Instagram" className="text-pink-500"><svg width="22" height="23" viewBox="0 0 22 23" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -144,7 +144,7 @@ const Header: React.FC = () => {
         </div>
 
         {/* Main Header */}
-        <div className="flex flex-col md:flex-row max-w-[1440px] mx-auto items-center justify-between px-2 xs:px-4 sm:px-8 md:px-16 py-3 xs:py-4 md:py-10 bg-white gap-3 xs:gap-4 md:gap-0">
+        <div className="flex flex-col md:flex-row max-w-[1440px] mx-auto items-center justify-between px-2 xs:px-4 sm:px-8 md:px-14 lg:px-16 py-3 xs:py-4 md:py-10 bg-white gap-3 xs:gap-4 md:gap-0">
           {/* Logo */}
           <div className="text-[22px] xs:text-[28px] md:text-[36px] font-playfair font-bold tracking-wide">AOIN</div>
           {/* Mobile hamburger for nav */}
@@ -152,19 +152,19 @@ const Header: React.FC = () => {
             <MenuIcon />
           </button>
           {/* Search Bar */}
-          <div className="w-full md:flex-1 flex items-center md:ml-48 max-w-full md:max-w-xl nav:max-w-2xl order-2 md:order-none min-w-0">
-            <div className="flex w-full md:w-[300px] nav:w-[400px] lg:w-[600px] h-10 xs:h-12 md:h-[44px] nav:h-[48px] lg:h-[59px] rounded-2xl border border-gray-300 min-w-0">
+          <div className="w-full md:flex-1 flex items-center md:mx-10 lg:ml-20  nav2:ml-48 max-w-full md:max-w-2xl lg:max-w-2xl order-2 md:order-none min-w-0">
+            <div className="flex w-full md:w-[600px] nav2:w-[600px] h-10 xs:h-12 md:h-[44px] nav:h-[48px] lg:h-[59px] rounded-2xl border border-gray-300 min-w-0">
               <div className="relative" ref={catRef}>
                 <button
                   onClick={() => setCategoryOpen((v) => !v)}
-                  className="flex items-center justify-between px-2 md:px-4 py-2 md:py-4 text-[16px] md:text-[16px] min-w-[120px] md:min-w-[180px] focus:outline-none"
+                  className="flex items-center justify-between px-2 md:px-4 py-2 md:py-4 text-[16px] md:text-[14px] lg:text-[16px] min-w-[120px] md:min-w-[180px] focus:outline-none"
                   style={{ border: 'none' }}
                 >
                   <span>{category}</span>
                   <span className="ml-2"><ChevronDownIcon /></span>
                 </button>
                 {categoryOpen && (
-                  <div className="absolute left-0 w-40 md:w-48 bg-white border rounded shadow z-10">
+                  <div className="absolute left-0 w-40  lg:w-48 bg-white border rounded shadow z-10">
                     {categories.map((cat) => (
                       <button key={cat} onClick={() => { setCategory(cat); setCategoryOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-gray-100">
                         {cat}
@@ -206,12 +206,12 @@ const Header: React.FC = () => {
         </div>
 
         {/* Navigation Bar */}
-        <div className='w-full px-2 xs:px-4 sm:px-8 md:px-16 bg-[#E7E7E7] font-archivo'>
+        <div className='w-full px-2 xs:px-4 sm:px-8 md:px-10 nav2:px-16  bg-[#E7E7E7] font-archivo'>
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center bg-gray-100 max-w-[1440px] mx-auto" style={{ backgroundColor: '#FFB998' }}>
             <div className="relative" ref={deptRef}>
-              <button onClick={() => setDepartmentsOpen((v) => !v)} className="flex items-center gap-1 px-4 py-4 text-[17px] font-medium">
-                <MenuIcon className="mr-4" /> ALL DEPARTMENTS <ChevronDownIcon className="ml-24" />
+              <button onClick={() => setDepartmentsOpen((v) => !v)} className="flex items-center gap-1 px-4 py-4 md:text-[14px] lg: text-[17px] font-medium">
+                <MenuIcon className="md:mr-1 lg:mr-4" /> ALL DEPARTMENTS <ChevronDownIcon className="md:ml-4  lg:ml-24" />
               </button>
               {departmentsOpen && (
                 <div className="absolute left-0 mt-1 w-56 bg-white border rounded shadow z-10">
@@ -226,7 +226,7 @@ const Header: React.FC = () => {
                 <a
                   key={link.label}
                   href={link.href}
-                  className={`px-10 py-4 text-[17px] font-medium font-archivo transition-colors ${link.active ? 'bg-[#FFB998]' : 'hover:bg-[#FFB998] text-gray-700'}`}
+                  className={` md:px-4 nav2:px-10 py-4 md:text-[14px] lg:text-[17px] font-medium font-archivo transition-colors ${link.active ? 'bg-[#FFB998]' : 'hover:bg-[#FFB998] text-gray-700'}`}
                 >
                   {link.label}
                 </a>
