@@ -109,6 +109,7 @@ export default {
         bebas: ['Bebas Neue', 'sans-serif'],
         montserrat: ['Montserrat', 'sans-serif'],
         archivio: ['Archivio', 'sans-serif'],
+        archivo: ['Archivo', 'sans-serif'],
         bebas: ['Bebas Neue', 'sans-serif'],
         gilroy: ['Gilroy', 'sans-serif'],
         clash: ['Clash Display', 'sans-serif'],

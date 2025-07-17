@@ -360,13 +360,14 @@ const PromoProductsPage: React.FC = () => {
   // Apply client-side filters when discount or rating changes
   useEffect(() => {
     if (originalProducts.length > 0) {
-      // console.log('Applying client-side filters:', {
-      //   selectedDiscounts,
-      //   selectedRatings
-      // });
-      
+      // Apply price filter
+      let filteredProducts = originalProducts.filter((product: Product) => {
+        return (
+          (priceRange[0] === 0 || product.price >= priceRange[0]) &&
+          (priceRange[1] === 0 || product.price <= priceRange[1])
+        );
+      });
       // Apply discount filter
-      let filteredProducts = originalProducts;
       if (selectedDiscounts && selectedDiscounts.length > 0) {
         const minDiscount = Math.max(...selectedDiscounts.map(d => parseInt(d)));
         filteredProducts = filteredProducts.filter((product: Product) => {
@@ -377,7 +378,6 @@ const PromoProductsPage: React.FC = () => {
           return false;
         });
       }
-      
       // Apply rating filter
       if (selectedRatings && selectedRatings.length > 0) {
         const minRating = Math.max(...selectedRatings.map(r => parseFloat(r)));
@@ -385,12 +385,11 @@ const PromoProductsPage: React.FC = () => {
           return (product.rating || 0) >= minRating;
         });
       }
-      
       setProducts(filteredProducts);
       setTotalPages(Math.ceil(filteredProducts.length / perPage));
       setTotalProducts(filteredProducts.length);
     }
-  }, [selectedDiscounts, selectedRatings, originalProducts]);
+  }, [selectedDiscounts, selectedRatings, originalProducts, priceRange]);
 
   // Toggle brand selection
   const toggleBrand = (brand: string) => {
@@ -615,10 +614,14 @@ const PromoProductsPage: React.FC = () => {
                       type="number"
                       min={priceRange[0]}
                       max="1000000"
-                      value={priceRange[1]}
+                      value={priceRange[1] === 0 ? '' : priceRange[1]}
                       onChange={(e) => {
-                        const value = parseInt(e.target.value) || 1000000;
-                        setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                        const value = e.target.value === '' ? '' : Number(e.target.value);
+                        if (value === '') {
+                          setPriceRange([priceRange[0], 0]);
+                        } else {
+                          setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                        }
                       }}
                       className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
                       placeholder="1000000"
@@ -953,10 +956,14 @@ const PromoProductsPage: React.FC = () => {
                         type="number"
                         min={priceRange[0]}
                         max="1000000"
-                        value={priceRange[1]}
+                        value={priceRange[1] === 0 ? '' : priceRange[1]}
                         onChange={(e) => {
-                          const value = parseInt(e.target.value) || 1000000;
-                          setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                          const value = e.target.value === '' ? '' : Number(e.target.value);
+                          if (value === '') {
+                            setPriceRange([priceRange[0], 0]);
+                          } else {
+                            setPriceRange([priceRange[0], Math.max(priceRange[0], value)]);
+                          }
                         }}
                         className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#F2631F]"
                         placeholder="1000000"

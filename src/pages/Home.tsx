@@ -7,7 +7,7 @@ import Categories from '../components/home/Categories';
 import ConditionalPromoProducts from '../components/home/ConditionalPromoProducts';
 import TrendingDeals from '../components/home/TrendingDeals';
 import Brands from '../components/home/brands';
-//import Shop from '../components/home/Shop';
+import Shop from '../components/home/Shop';
 import Services from '../components/home/Services';
 import HomepageProducts from '../components/home/HomepageProducts';
 import SearchResults from '../components/common/SearchResults';
@@ -60,7 +60,7 @@ const Home = () => {
               <div className="flex flex-1 rounded-md overflow-hidden bg-white border border-gray-300 shadow-sm">
                 <input
                   type="text"
-                  placeholder="What are you looking for?"
+                  placeholder="What are you looking fo?"
                   className="w-full border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none"
                   value={searchQuery}
                   onChange={handleSearchInputChange}
@@ -144,7 +144,7 @@ const Home = () => {
           <Hero />
           <Categories />
           <Brands />
-          {/*<Shop />*/}
+          <Shop />
 
           <ConditionalFeaturedProducts />
           <ConditionalPromoProducts />

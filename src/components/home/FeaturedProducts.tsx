@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
@@ -35,23 +35,6 @@ export type FeaturedProduct = {
   };
 };
 
-// Type for ProductCard props
-type ProductCardProps = {
-  id: number;
-  name: string;
-  price: number;
-  rating: number;
-  reviews: number;
-  stock: number;
-  description: string;
-  image: string;
-  images: string[];
-  category: string;
-  currency: string;
-  tags: string[];
-  originalPrice: number;
-};
-
 const FeaturedProducts: React.FC = () => {
   const [itemsPerView, setItemsPerView] = useState(4);
   const [products, setProducts] = useState<FeaturedProduct[]>([]);
@@ -66,7 +49,6 @@ const FeaturedProducts: React.FC = () => {
     handleMouseMove,
     handleTouchStart,
     handleTouchMove,
-    handleWheel,
     scroll
   } = useHorizontalScroll();
 
@@ -130,15 +112,6 @@ const FeaturedProducts: React.FC = () => {
     window.addEventListener('resize', updateItemsPerView);
     return () => window.removeEventListener('resize', updateItemsPerView);
   }, []);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-
-  const scrollLeft = () => {
-    scrollRef.current?.scrollBy({ left: -200, behavior: 'smooth' });
-  };
-  
-  const scrollRight = () => {
-    scrollRef.current?.scrollBy({ left: 200, behavior: 'smooth' });
-  };
   
   if (loading) {
     return (
@@ -203,14 +176,13 @@ const FeaturedProducts: React.FC = () => {
         <div className="relative">
           <div
             ref={containerRef}
-            className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
+            className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide scroll-smooth"
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
             onMouseMove={handleMouseMove}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
-            onWheel={handleWheel}
             style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
           >
             {products.map((product) => (

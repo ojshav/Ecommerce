@@ -171,6 +171,7 @@ const Navbar: React.FC = () => {
         onItemClick={() => {
           setShowSearchResults(false);
           setSearchQuery('');
+          // Navigation is handled inside SearchResults
         }}
       />
     </div>
@@ -196,6 +197,7 @@ const Navbar: React.FC = () => {
             Search
           </button>
         </div>
+        </form>
         <SearchResults
           isVisible={showSearchResults}
           setIsVisible={setShowSearchResults}
@@ -204,9 +206,10 @@ const Navbar: React.FC = () => {
           onItemClick={() => {
             setShowSearchResults(false);
             setSearchQuery('');
+            // Navigation is handled inside SearchResults
           }}
         />
-      </form>
+      
     </div>
   );
 

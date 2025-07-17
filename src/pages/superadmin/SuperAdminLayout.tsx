@@ -339,9 +339,7 @@ const SuperAdminLayout = () => {
           ? [] // Close if already expanded
           : [category] // Open only this category
     );
-    if (window.innerWidth < 768) {
-      setIsSidebarOpen(false);
-    }
+    // Removed sidebar close on mobile here
   };
 
   // Check if a submenu item is active
@@ -394,6 +392,9 @@ const SuperAdminLayout = () => {
     const route = `/superadmin/${section.toLowerCase().replace(/\s+/g, "-")}`;
     navigate(route);
     setExpandedCategories([section]);
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
   };
 
   const handleCatalogItemClick = (item: string) => {
@@ -417,6 +418,13 @@ const SuperAdminLayout = () => {
       </div>
 
       <div className="flex pt-16">
+        {/* Overlay for mobile sidebar */}
+        {isSidebarOpen && typeof window !== 'undefined' && window.innerWidth < 768 && (
+          <div
+            className="fixed inset-0 z-10 bg-black bg-opacity-30"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
         {/* Fixed Sidebar */}
         <div
           className={`
