@@ -82,9 +82,16 @@ const HomepageProducts: React.FC = () => {
     handleMouseMove,
     handleTouchStart,
     handleTouchMove,
-    handleWheel,
-    scroll
-  } = useHorizontalScroll();
+    handleTouchEnd
+  } = useHorizontalScroll({
+    snapToItems: true,
+    itemWidth: window.innerWidth < 640 ? window.innerWidth - 32 : // 1 item on mobile (accounting for padding)
+               window.innerWidth < 768 ? (window.innerWidth - 32) / 2 - 6 : // 2 items on tablet
+               window.innerWidth < 1024 ? (window.innerWidth - 32) / 3 - 8 : // 3 items on laptop
+               window.innerWidth < 1280 ? (window.innerWidth - 32) / 4 - 9 : // 4 items on desktop
+               (window.innerWidth - 32) / 5 - 10, // 5 items on large desktop
+    gap: 12
+  });
 
   // Update items per view based on screen size
   useEffect(() => {
@@ -365,20 +372,20 @@ const HomepageProducts: React.FC = () => {
               <div className="relative">
                 <div
                   ref={containerRef}
-                  className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide"
+                  className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide scroll-smooth snap-x"
                   onMouseDown={handleMouseDown}
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseUp}
                   onMouseMove={handleMouseMove}
                   onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
-                  onWheel={handleWheel}
+                  onTouchEnd={handleTouchEnd}
                   style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
                 >
                   {getVisibleProducts(categoryData).map((product) => (
                     <div 
                       key={product.product_id} 
-                      className="flex-none"
+                      className="flex-none snap-start"
                       style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 12 / itemsPerView}px)` }}
                     >
                       {renderProductCard(product)}

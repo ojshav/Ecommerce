@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Search ,ChevronsDownUp} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, ChevronsDownUp } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -28,18 +28,18 @@ interface SearchResultsProps {
   isVisible: boolean;
   searchQuery: string;
   searchType: 'all' | 'products' | 'categories' | 'brands';
-  onItemClick?: () => void;
+  onItemClick?: (item: any) => void;
   setIsVisible: (visible: boolean) => void;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const SearchResults: React.FC<SearchResultsProps> = ({ 
-  isVisible, 
-  searchQuery, 
+const SearchResults: React.FC<SearchResultsProps> = ({
+  isVisible,
+  searchQuery,
   searchType,
   onItemClick,
-  setIsVisible 
+  setIsVisible,
 }) => {
   const [results, setResults] = useState<{
     products: Product[];
@@ -48,7 +48,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   }>({
     products: [],
     categories: [],
-    brands: []
+    brands: [],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,20 +87,27 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     return () => clearTimeout(debounceTimer);
   }, [searchQuery, isVisible]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}&type=all`);
-      setIsVisible(false);
+  if (!isVisible || !searchQuery.trim()) return null;
+
+  const handleItemClick = (item: any, type: string) => {
+    setIsVisible(false);
+    if (onItemClick) {
+      onItemClick(item); // notify parent
+    }
+
+    // Navigate
+    if (type === 'product') {
+      navigate(`/product/${item.id}`);
+    } else if (type === 'category') {
+      navigate(`/products/${item.category_id}`);
+    } else if (type === 'brand') {
+      navigate(`/brands/${item.brand_id}`);
     }
   };
 
-  if (!isVisible || !searchQuery.trim()) {
-    return null;
-  }
-
   if (loading) {
     return (
-      <div className="absolute z-40 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
+      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
         <div className="flex items-center justify-center">
           <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#F2631F]"></div>
         </div>
@@ -110,13 +117,13 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
   if (error) {
     return (
-      <div className="absolute z-40 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
+      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
         <p className="text-red-500 text-sm">{error}</p>
       </div>
     );
   }
 
-  const hasResults = 
+  const hasResults =
     (searchType === 'all' || searchType === 'products') && results.products.length > 0 ||
     (searchType === 'all' || searchType === 'categories') && results.categories.length > 0 ||
     (searchType === 'all' || searchType === 'brands') && results.brands.length > 0;
@@ -130,21 +137,20 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   }
 
   return (
-    <div className="absolute z-40 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
+    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-[70vh] overflow-y-auto">
       {(searchType === 'all' || searchType === 'products') && results.products.length > 0 && (
         <div className="p-2">
           <h3 className="text-sm font-semibold text-gray-500 mb-2">Products</h3>
-          {results.products.map(product => (
-            <Link
+          {results.products.map((product) => (
+            <div
               key={product.id}
-              to={`/product/${product.id}`}
-              onClick={onItemClick}
-              className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer rounded"
+              onClick={() => handleItemClick(product, 'product')}
+              className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded"
             >
               {product.primary_image && (
-                <img 
-                  src={product.primary_image} 
-                  alt={product.name} 
+                <img
+                  src={product.primary_image}
+                  alt={product.name}
                   className="w-10 h-10 object-cover rounded"
                 />
               )}
@@ -152,7 +158,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 <p className="text-sm font-medium text-gray-900">{product.name}</p>
                 <p className="text-xs text-gray-500">₹{product.price}</p>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}
@@ -160,22 +166,21 @@ const SearchResults: React.FC<SearchResultsProps> = ({
       {(searchType === 'all' || searchType === 'categories') && results.categories.length > 0 && (
         <div className="p-2 border-t">
           <h3 className="text-sm font-semibold text-gray-500 mb-2">Categories</h3>
-          {results.categories.map(category => (
-            <Link
+          {results.categories.map((category) => (
+            <div
               key={category.category_id}
-              to={`/products/${category.category_id}`}
-              onClick={onItemClick}
-              className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer rounded"
+              onClick={() => handleItemClick(category, 'category')}
+              className="flex items-center text-black gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded"
             >
               {category.icon_url && (
-                <img 
-                  src={category.icon_url} 
-                  alt={category.name} 
+                <img
+                  src={category.icon_url}
+                  alt={category.name}
                   className="w-6 h-6 object-contain"
                 />
               )}
               <p className="text-sm">{category.name}</p>
-            </Link>
+            </div>
           ))}
         </div>
       )}
@@ -183,22 +188,21 @@ const SearchResults: React.FC<SearchResultsProps> = ({
       {(searchType === 'all' || searchType === 'brands') && results.brands.length > 0 && (
         <div className="p-2 border-t">
           <h3 className="text-sm font-semibold text-gray-500 mb-2">Brands</h3>
-          {results.brands.map(brand => (
-            <Link
+          {results.brands.map((brand) => (
+            <div
               key={brand.brand_id}
-              to={`/brands/${brand.brand_id}`}
-              onClick={onItemClick}
-              className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer rounded"
+              onClick={() => handleItemClick(brand, 'brand')}
+              className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded"
             >
               {brand.logo_url && (
-                <img 
-                  src={brand.logo_url} 
-                  alt={brand.name} 
+                <img
+                  src={brand.logo_url}
+                  alt={brand.name}
                   className="w-6 h-6 object-contain"
                 />
               )}
               <p className="text-sm">{brand.name}</p>
-            </Link>
+            </div>
           ))}
         </div>
       )}
@@ -206,4 +210,4 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   );
 };
 
-export default SearchResults; 
+export default SearchResults;

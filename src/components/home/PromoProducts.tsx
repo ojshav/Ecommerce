@@ -72,9 +72,14 @@ const PromoProducts: React.FC = () => {
     handleMouseMove,
     handleTouchStart,
     handleTouchMove,
-    handleWheel,
+    handleTouchEnd,
     scroll
-  } = useHorizontalScroll();
+  } = useHorizontalScroll({
+    snapToItems: true,
+    itemWidth: window.innerWidth < 1024 ? window.innerWidth - 32 : // 1 item on mobile/tablet (accounting for padding)
+               (window.innerWidth - 32) / 2 - 6, // 2 items on desktop
+    gap: 12
+  });
 
   // Update items per view based on screen size
   useEffect(() => {
@@ -199,7 +204,7 @@ const PromoProducts: React.FC = () => {
         is_deleted: false
       }, 1);
       toast.success(`${product.product_name} added to cart`);
-    } catch (error) {
+    } catch {
       toast.error('Failed to add item to cart');
     }
   };
@@ -309,14 +314,14 @@ const PromoProducts: React.FC = () => {
         <div className="relative">
           <div
             ref={containerRef}
-            className="flex overflow-x-auto gap-6 mb-10 scrollbar-hide"
+            className="flex overflow-x-auto gap-6 mb-10 scrollbar-hide scroll-smooth snap-x"
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
             onMouseMove={handleMouseMove}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
-            onWheel={handleWheel}
+            onTouchEnd={handleTouchEnd}
             style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
           >
             {promoProducts.map((product) => {
@@ -328,7 +333,7 @@ const PromoProducts: React.FC = () => {
               return (
                 <div
                   key={product.product_id}
-                  className="flex-none"
+                  className="flex-none snap-start"
                   style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 24 / itemsPerView}px)` }}
                 >
                   <Link 
