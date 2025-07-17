@@ -135,16 +135,16 @@ const Navbar: React.FC = () => {
   const searchBarContent = (
     <div ref={desktopSearchRef} className="relative">
       <form onSubmit={handleSearchSubmit} className="relative">
-        <div className="w-full xl:w-[680px] h-14  flex justify-between items-center rounded-lg  overflow-hidden">
+        <div className="w-full xl:w-[580px] h-10  flex justify-between items-center rounded-lg  bg-white overflow-hidden">
           <input
             type="text"
             placeholder="What are you looking for?"
-            className="w-full h-8 md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-3 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-normal text-sm leading-6 tracking-[0%] outline-none"
+            className="w-full h-full md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-3 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-normal text-sm leading-6 tracking-[0%] outline-none"
             value={searchQuery}
             onChange={handleSearchInputChange}
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
-          <div className="relative w-[200px] flex items-center  bg-[#FBF4CE]">
+          <div className="relative w-[196px] flex items-center  bg-[#FBF4CE]">
             <select
               className="w-full h-full appearance-none bg-transparent py-3 pl-4 pr-[120px] text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-normal text-[14px] leading-6 tracking-[0%]"
               value={searchType}
@@ -155,12 +155,6 @@ const Navbar: React.FC = () => {
               <option value="categories">Categories</option>
             </select>
           </div>
-          <button
-                    className="w-24 h-11 ml-8 hover:bg-[#F2631F] hover:border-[#F2631F] hover:text-white xl:mr-12 text-[#692C2C] py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-[#692C2C] whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] transition-colors"
-                    
-                  >
-                    Search
-                  </button>
         </div>
       </form>
       <SearchResults
@@ -171,33 +165,36 @@ const Navbar: React.FC = () => {
         onItemClick={() => {
           setShowSearchResults(false);
           setSearchQuery('');
-          // Navigation is handled inside SearchResults
         }}
       />
     </div>
   );
 
   const mobileSearchBar = (
-    <div ref={mobileSearchRef} className="relative mb-4">
+    <div ref={mobileSearchRef} className="relative mb-4 px-2">
       <form onSubmit={handleSearchSubmit} className="relative">
-        <div className="flex items-center rounded-md overflow-hidden bg-white shadow-sm border border-gray-200 w-full">
+        <div className="flex flex-col rounded-md overflow-hidden bg-white shadow-sm">
           <input
             type="text"
             placeholder="What are you looking for?"
-            className="flex-1 min-w-0 border-0 py-2.5 px-3 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] bg-transparent"
+            className="w-full border-0 py-2.5 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
             value={searchQuery}
             onChange={handleSearchInputChange}
             onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
           />
-          <button
-            type="submit"
-            className="h-full px-4 py-2 bg-[#F2631F] text-white font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] rounded-none focus:outline-none"
-            style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-          >
-            Search
-          </button>
+          <div className="relative flex items-center border-t border-gray-200 bg-[#FBF4CE]">
+            <select
+              className="w-full h-full appearance-none bg-transparent py-2.5 pl-4 pr-8 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
+            >
+              <option value="all">All</option>
+              <option value="products">Products</option>
+              <option value="categories">Categories</option>
+            </select>
+            <ChevronDown size={20} className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" />
+          </div>
         </div>
-        </form>
         <SearchResults
           isVisible={showSearchResults}
           setIsVisible={setShowSearchResults}
@@ -206,10 +203,15 @@ const Navbar: React.FC = () => {
           onItemClick={() => {
             setShowSearchResults(false);
             setSearchQuery('');
-            // Navigation is handled inside SearchResults
           }}
         />
-      
+        <button
+          type="submit"
+          className="w-full bg-[#F2631F] text-white py-2 rounded-md mt-2 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
+        >
+          Search
+        </button>
+      </form>
     </div>
   );
 
@@ -247,8 +249,6 @@ const Navbar: React.FC = () => {
       <div className="bg-[#FFE7DB] text-white  pb-2 md:pb-3 lg:pb-4">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 lg:px-4 xl:px-4 2xl:px-6 3xl:px-8 max-w-full md:max-w-[98%] mid:max-w-[92%] xl:max-w-[1200px] 2xl:max-w-[1440px] 3xl:max-w-[1680px] 4xl:max-w-[1920px]">
           <div className="flex flex-col sm:pl-1 md:pl-0">
-            {/* Social Media Icons - Top left for mobile only */}
-           
             <div className="flex flex-start py-2 sm:py-3">
               {/* Social Media Icons - Left top - Hidden on mobile */}
               <div className="hidden sm:flex items-center space-x-4">
@@ -292,7 +292,15 @@ const Navbar: React.FC = () => {
                     {desktopSearchBar}
                   </div>
 
-                  
+                  <button
+                    className="w-24 h-11 hover:bg-[#F2631F] hover:border-[#F2631F] hover:text-white xl:mr-12 text-[#692C2C] py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-[#692C2C] whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] transition-colors"
+                    onClick={() => {
+                      setShowSearchResults(false);
+                      setSearchQuery('');
+                    }}
+                  >
+                    Search
+                  </button>
 
                   {/* Icons */}
                   <div className="flex items-center gap-2 nav:gap-3 mid:gap-4 xl:gap-8 xl:mr-6 mid:mr-4">
@@ -361,14 +369,27 @@ const Navbar: React.FC = () => {
 
           <Link
             to="/business/login"
-            className="w-1/2 block text-center justify-center bg-[#F2631F] text-white rounded-md px-1 py-3 hover:bg-orange-600 mb-3 text-sm mx-auto"
+            className="w-full block text-center bg-[#F2631F] text-white rounded-md px-4 py-1.5 hover:bg-orange-600 mb-3 text-sm"
             onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}
           >
             Become a Merchant
           </Link>
 
           {/* Social icons in mobile menu */}
-          
+          <div className="flex justify-center space-x-6 mb-2">
+            <Link to="#" className="text-[#F2631F] hover:text-orange-400">
+              <Facebook size={16} />
+            </Link>
+            <Link to="#" className="text-[#F2631F] hover:text-orange-400">
+              <Instagram size={16} />
+            </Link>
+            <Link to="#" className="text-[#F2631F] hover:text-orange-400">
+              <Twitter size={16} />
+            </Link>
+            <Link to="#" className="text-[#F2631F] hover:text-orange-400">
+              <Mail size={16} />
+            </Link>
+          </div>
         </div>
       )}
 
@@ -472,7 +493,7 @@ const Navbar: React.FC = () => {
                 <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687779/public_assets_images/public_assets_images_category.svg" alt="Category" className="w-full h-full" />
               </span>
               <button
-                className="flex items-center py-1.5 px-3 md:px-4 text-black group-hover:text-gray-700 font-['Work_Sans'] font-medium text-[14px] nav:text-[12px] nav2:text-[14px] leading-6 tracking-[0%]"
+                className="flex items-center py-1.5 px-3 md:px-4 text-black group-hover:text-gray-700 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]"
                 onClick={toggleCategoryDropdown}
                 aria-expanded={isCategoryDropdownOpen}
                 ref={desktopCategoryButtonRef}
@@ -483,24 +504,24 @@ const Navbar: React.FC = () => {
             </div>
 
             {/* Main Nav Links */}
-            <nav className="flex items-center gap-4 nav:gap-1 nav2:gap-4 2xl:gap-12"> 
-              <Link to="/" className="py-1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[12.5px] nav2:text-[14px]">
+            <nav className="flex items-center gap-4 2xl:gap-12">
+              <Link to="/" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                 Home
               </Link>
-              <Link to="/all-products" className="py-1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[12.5px] nav2:text-[14px]">
+              <Link to="/all-products" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                 All Products
               </Link>
-              <Link to="/new-product" className="py-1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[12.5px] nav2:text-[14px]">
+              <Link to="/new-product" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                 New Product
               </Link>
-              <Link to="/promo-products" className="py-F1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] flex items-center nav:text-[12.5px] nav2:text-[14px]">
+              <Link to="/promo-products" className="py-1.5 px-2 md:px-3 mid:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] flex items-center">
                 Promotion <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded-full ml-1">HOT</span>
               </Link>
             </nav>
 
             {/* Right side links */}
             <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-6">
-              <Link to="/orders" className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[11px] nav2:text-[14px]">
+              <Link to="/orders" className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                 <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687786/public_assets_images/public_assets_images_track-order.svg" alt="Track Order" className="w-5 h-5 mr-1" />
                 <span>Track Your Order</span>
               </Link>
@@ -508,7 +529,7 @@ const Navbar: React.FC = () => {
               {isAuthenticated ? (
                 <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
                   <span className="font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] text-gray-600">
-                    {user?.name ? user.name.split(' ')[0] + '...' : 'User'}
+                     {user?.name || 'User'}
                   </span>
                   <button
                     onClick={handleLogoutClick}
@@ -520,14 +541,14 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/live-shop"
                     style={aoinLiveButtonStyle}
-                    className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2 nav:text-[13px] nav2:text-[14px]"
+                    className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2"
                   >
                     Aoin Live
                   </Link>
                 </div>
               ) : (
                 <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
-                  <Link to="/sign-in" className="flex items-center py-1.5 font-['Work_Sans'] font-medium nav:text-[12px] nav2:text-[14px] text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
+                  <Link to="/sign-in" className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                     <User className="w-4 h-4 mr-1" />
                     <span>Sign In/Register</span>
                   </Link>
@@ -547,7 +568,7 @@ const Navbar: React.FC = () => {
 
       {/* Promotional Bar */}
       {showPromoBar && (
-        <div className="relative z-10 animate-slideDown w-full">
+        <div className="relative z-50 animate-slideDown w-full">
           <div className="backdrop-blur bg-gradient-to-r from-white/80 via-orange-50 to-orange-100/80 border border-orange-200/60 rounded-b-md mx-auto px-2 py-0.5 flex items-center justify-center gap-1 max-w-full mt-0 mb-0 min-h-0">
             <span className="flex items-center gap-1 text-orange-600 font-bold text-xs md:text-sm">
               <Gift className="w-4 h-4 animate-bounce-slow text-yellow-400 mr-0.5" />
