@@ -75,6 +75,7 @@ import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
 import MerchantDetails from './pages/superadmin/MerchantDetails';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
 import Profile from './pages/superadmin/Profile';
+import YouTubeManagement from './pages/superadmin/YouTubeManagement';
 import Brands from './components/home/brands';
 import Inventory from './pages/business/Inventory';
 import VerificationStatus from './pages/business/VerificationStatus';
@@ -119,7 +120,6 @@ import MerchantPaymentReport from './pages/superadmin/reports/MerchantPaymentRep
 import MerchantSubscription from './pages/MerchantSubscription';
 
 import Aoinlive from './pages/business/Aoinlive';
-import NewsletterSubscribers from './pages/superadmin/NewsletterSubscribers';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -468,8 +468,8 @@ const App: React.FC = () => {
                     <Route path="promotions" element={<Promotions />} />
                     <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
-<Route path="merchant-subscriptions" element={<MerchantSubscription />} />
-                      <Route path="newsletter-subscribers" element={<NewsletterSubscribers />} />
+                    <Route path="merchant-subscriptions" element={<MerchantSubscription />} />
+                    <Route path="youtube-integration" element={<YouTubeManagement />} />
                   </Route>
 
                     {/* Public Routes with header/footer */}
