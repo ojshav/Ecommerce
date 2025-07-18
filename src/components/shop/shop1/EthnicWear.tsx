@@ -44,9 +44,10 @@ const EthnicWear = () => {
           {/* Center Image */}
           <div className="w-full lg:w-[351px] aspect-[351/635] overflow-hidden">
             <img
-              src="/assets/images/ethnic2.jpg"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745147/public_assets_shop1_LP/public_assets_images_ethnic2.svg"
               alt="Center Ethnic Wear"
               className="w-full h-full object-cover"
+              loading="lazy"
             />
           </div>
 
@@ -54,16 +55,18 @@ const EthnicWear = () => {
           <div className="flex flex-col gap-4 w-full lg:w-[312px]">
             <div className="aspect-square overflow-hidden">
               <img
-                src="/assets/images/ethnic3.jpg"
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752751674/public_assets_shop1_LP/public_assets_images_ethnic4.svg"
                 alt="Top Right Ethnic"
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
             <div className="aspect-square overflow-hidden">
               <img
-                src="/assets/images/ethnic4.jpg"
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745150/public_assets_shop1_LP/public_assets_images_ethnic3.svg"
                 alt="Bottom Right Ethnic"
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
           </div>

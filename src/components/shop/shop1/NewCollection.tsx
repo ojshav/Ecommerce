@@ -9,7 +9,7 @@ const NewCollection = () => {
       <div className="w-full md:w-[45%] lg:w-[491px] flex-shrink-0">
         <div className="w-full h-[600px] sm:h-[600px] md:h-[720px] lg:h-[881px] overflow-hidden">
           <img
-            src="/assets/images/New1.png"
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745131/public_assets_shop1_LP/public_assets_images_New1.svg"
             alt="Main Model"
             className="w-full h-full object-cover"
           />
@@ -38,22 +38,22 @@ const NewCollection = () => {
         {/* Grid of Looks */}
         <div className="grid grid-cols-2 gap-4 sm:gap-4 mt-10 sm:mt-16">
           <img 
-            src="/assets/images/New2.png" 
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745134/public_assets_shop1_LP/public_assets_images_New2.svg" 
             alt="Look 1" 
             className="w-full max-w-[291px] aspect-square object-cover" 
           />
           <img 
-            src="/assets/images/New3.png" 
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745136/public_assets_shop1_LP/public_assets_images_New3.svg" 
             alt="Look 2" 
             className="w-full max-w-[199px] aspect-square object-cover self-end -ml-2 sm:-ml-2 md:-ml-16" 
           />
           <img 
-            src="/assets/images/New4.png" 
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745138/public_assets_shop1_LP/public_assets_images_New4.svg" 
             alt="Look 3" 
             className="w-full max-w-[291px] aspect-square object-cover" 
           />
           <img 
-            src="/assets/images/New5.png" 
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745141/public_assets_shop1_LP/public_assets_images_New5.svg" 
             alt="Look 4" 
             className="w-full max-w-[291px] aspect-square object-cover -ml-2 sm:-ml-2 md:-ml-16" 
           />
