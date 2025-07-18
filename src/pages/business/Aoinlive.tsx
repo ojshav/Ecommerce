@@ -97,7 +97,7 @@ const Aoinlive: React.FC = () => {
   // Fetch scheduled streams for the merchant
   const fetchScheduledStreams = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams`, {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams/scheduled`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
@@ -105,8 +105,7 @@ const Aoinlive: React.FC = () => {
       });
       if (!response.ok) throw new Error('Failed to fetch scheduled streams');
       const data = await response.json();
-      // Only show streams with status SCHEDULED
-      setScheduledStreams(Array.isArray(data) ? data.filter((s) => s.status === 'SCHEDULED') : []);
+      setScheduledStreams(Array.isArray(data) ? data : []);
     } catch (error) {
       setScheduledStreams([]);
     }
