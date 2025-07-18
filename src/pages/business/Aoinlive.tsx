@@ -38,6 +38,8 @@ interface LiveStream {
   viewers_count: number;
   likes_count: number;
   stream_key: string;
+  stream_url?: string; // Added to fix linter error
+  yt_livestream_id?: string;
   product: Product;
   merchant: {
     business_name: string;
@@ -142,7 +144,26 @@ const Aoinlive: React.FC = () => {
     }
   }, [accessToken]);
 
-  // Handler for Go Live button
+  // Fetch the latest status for a stream from the backend
+  const fetchStreamStatus = async (streamId: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams/${streamId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch stream status');
+      const data = await response.json();
+      console.log('Stream status API response:', data); // <-- Debug log
+      setCurrentStream(data);
+      setIsLive(data.status === 'live' || data.status === 'LIVE');
+    } catch (error) {
+      // Optionally handle error
+    }
+  };
+
+  // After scheduling, starting, or ending a stream, fetch the latest status
   const handleGoLive = async (stream: any) => {
     setCurrentStream(stream);
     setIsLive(false); // Not live yet, just prepping
@@ -155,12 +176,30 @@ const Aoinlive: React.FC = () => {
         },
       });
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'Failed to start stream');
+        // Check for redundantTransition error in response
+        let err;
+        try {
+          err = await response.json();
+        } catch (e) {
+          err = { error: 'Failed to start stream' };
+        }
+        // If error contains redundantTransition, treat as success
+        if (
+          typeof err.error === 'string' && err.error.includes('redundantTransition')
+        ) {
+          toast.success('Stream is already live!');
+          setIsLive(true);
+          fetchStreamStatus(stream.stream_id);
+          fetchScheduledStreams();
+          return;
+        }
+        toast.error(err.error || 'Failed to start stream');
+        return;
       }
       const data = await response.json();
       setCurrentStream(data.data);
-      setIsLive(true);
+      // Fetch latest status from backend (which now checks YouTube)
+      fetchStreamStatus(data.data.stream_id);
       toast.success('Live stream started!');
       fetchScheduledStreams();
     } catch (error: any) {
@@ -365,63 +404,30 @@ const Aoinlive: React.FC = () => {
     }
   };
 
-  const startLiveStream = async () => {
-    if (!hasCameraAccess || !hasMicAccess) {
-      toast.error('Please grant camera and microphone access first');
-      return;
-    }
-    if (!currentStream) {
-      toast.error('No stream scheduled to start');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/live-streams/${currentStream.stream_id}/start`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to start stream');
-      }
-
-      // Update stream status via fetch
-      const updatedStream = await response.json();
-      setCurrentStream(updatedStream.data);
-      setIsLive(true);
-      toast.success('Live stream started!');
-      // Refresh scheduled streams after starting
-      fetchScheduledStreams();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to start stream');
-    }
-  };
-
   const stopLiveStream = async () => {
     if (!currentStream) return;
-
     try {
-      const response = await fetch(`${API_BASE_URL}/api/live-streams/${currentStream.stream_id}/end`, {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams/${currentStream.stream_id}/end`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
-
       if (!response.ok) {
-        throw new Error('Failed to end stream');
+        let err;
+        try {
+          err = await response.json();
+        } catch (e) {
+          err = { error: 'Failed to end stream' };
+        }
+        toast.error(err.error || 'Failed to end stream');
+        return;
       }
-
-      // Update stream status via fetch
-      const updatedStream = await response.json();
-      setCurrentStream(updatedStream.data);
+      const data = await response.json();
+      setCurrentStream(data.data);
       setIsLive(false);
       toast.success('Live stream ended');
-      // Refresh scheduled streams after ending
       fetchScheduledStreams();
     } catch (error: any) {
       toast.error(error.message || 'Failed to end stream');
@@ -517,6 +523,13 @@ const Aoinlive: React.FC = () => {
       setDeletingStreamId(null);
     }
   };
+
+  // When a stream is scheduled, fetch its status
+  useEffect(() => {
+    if (currentStream && currentStream.stream_id) {
+      fetchStreamStatus(currentStream.stream_id);
+    }
+  }, [currentStream?.stream_id]);
 
   if (isLoading) {
     return (
@@ -833,28 +846,31 @@ const Aoinlive: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Video Stream */}
               <div className="lg:col-span-2">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full h-96 rounded-lg bg-gray-900"
-                />
-                <div className="flex justify-center space-x-4 mt-4">
-                  <button
-                    onClick={shareStream}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    <FaShare className="mr-2" />
-                    Share
-                  </button>
-                  <button
-                    onClick={stopLiveStream}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                  >
-                    <FaStop className="mr-2" />
-                    End Stream
-                  </button>
-                </div>
+                {/* Embed YouTube live stream if available and live */}
+                {isLive && currentStream?.stream_url && (
+                  <div className="mb-4">
+                    <iframe
+                      title="YouTube Live Stream"
+                      src={`https://www.youtube.com/embed/${currentStream.stream_url.split('v=')[1]}`}
+                      width="100%"
+                      height="400"
+                      allow="autoplay; encrypted-media"
+                      allowFullScreen
+                      className="w-full h-96 rounded-lg border"
+                    />
+                    {/* End Stream Button */}
+                    <div className="flex justify-center mt-4">
+                      <button
+                        onClick={stopLiveStream}
+                        className="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      >
+                        <FaStop className="mr-2" />
+                        End Stream
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {/* Removed <video> element and controls below the YouTube iframe */}
               </div>
 
               {/* Chat Section */}
