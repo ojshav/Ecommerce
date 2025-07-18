@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Star,
@@ -18,6 +18,7 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
 import { toast } from "react-hot-toast";
+import useClickOutside from "../hooks/useClickOutside";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -184,6 +185,10 @@ const ProductDetail: React.FC = () => {
   const [selectedAttributes, setSelectedAttributes] = useState<{
     [key: number]: string | string[];
   }>({});
+  const shareDropdownRef = useRef<HTMLDivElement>(null);
+  useClickOutside(shareDropdownRef, () => {
+    if (showShareOptions) setShowShareOptions(false);
+  });
 
   // copy product link to clipboard
   const copyToClipboard = () => {
@@ -1452,7 +1457,7 @@ const ProductDetail: React.FC = () => {
                       </button>
                       {/* Share Options Dropdown */}
                       {showShareOptions && (
-                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                        <div ref={shareDropdownRef} className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-10">
                           <div className="p-3 border-b border-gray-100">
                             <h3 className="text-sm font-medium text-gray-700">
                               Share this product
@@ -1599,7 +1604,7 @@ const ProductDetail: React.FC = () => {
                     </button>
                     {/* Share Options Dropdown */}
                     {showShareOptions && (
-                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                      <div ref={shareDropdownRef} className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                         <div className="p-3 border-b border-gray-100">
                           <h3 className="text-sm font-medium text-gray-700">
                             Share this product
