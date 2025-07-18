@@ -18,7 +18,7 @@ const Shackets: React.FC = () => {
           {/* Left Model */}
           <div className="absolute left-1 sm:left-4 md:left-8 lg:left-16 xl:left-1 bottom-[28vh] sm:bottom-[28vh] md:bottom-[25vh] lg:bottom-[350px]">
             <img
-              src="/assets/shop2/shackets1.png"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059260/public_assets_shop2/public_assets_shop2_shackets1.svg"
               alt="Left Model"
               className="w-[35vw] sm:w-[40vw] md:w-[25vw] lg:w-[20vw] xl:w-[472px] max-w-[472px] h-auto object-contain animate-shakeY"
             />
@@ -27,7 +27,7 @@ const Shackets: React.FC = () => {
           {/* Right Model */}
           <div className="absolute left-[40%] sm:left-[45%] md:left-[40%] lg:left-[40%] xl:left-[590px] bottom-[12vh] sm:bottom-[16vh] md:bottom-[10vh] lg:bottom-[200px] -translate-x-1/2">
             <img
-              src="/assets/shop2/shackets2.png"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059260/public_assets_shop2/public_assets_shop2_shackets2.svg"
               alt="Right Model"
               className="w-[24vw] sm:w-[22vw] md:w-[22vw] lg:w-[18vw] xl:w-[317px] max-w-[317px] h-auto object-contain animate-shakeXGrow"
             />

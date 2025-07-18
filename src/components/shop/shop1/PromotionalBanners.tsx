@@ -45,28 +45,11 @@ const PromotionalBanners = () => {
           <div className="relative w-full lg:w-[738px] h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden bg-white mt-6 lg:mt-0">
             <div className="relative h-full">
               <img
-                src="/assets/images/promo1.png"
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745165/public_assets_shop1_LP/public_assets_images_promo1.svg"
                 alt="Colorful silk scarves arranged artistically"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute top-4 md:top-6 lg:top-8 right-4 md:right-6 lg:right-8 text-gray-900 text-right">
-                <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif mb-1 md:mb-2">
-                  Elegant Scarf
-                </h3>
-                <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif mb-8 md:mb-12 lg:mb-16">
-                  Series
-                </h3>
-              </div>
-              <div className="absolute bottom-4 md:bottom-6 lg:bottom-8 right-4 md:right-6 lg:right-8 text-gray-900 text-right">
-                <div className="mb-1 md:mb-2">
-                  <span className="text-base md:text-lg tracking-widest">BUY ONE GET ONE</span>
-                </div>
-                <div className="flex items-baseline justify-end">
-                  <span className="text-4xl md:text-5xl lg:text-6xl font-bold text-red-500">50</span>
-                  <span className="text-2xl md:text-3xl text-red-500 ml-1">%</span>
-                  <span className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 ml-2">off!</span>
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>

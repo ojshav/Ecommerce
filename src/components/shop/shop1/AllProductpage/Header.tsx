@@ -157,7 +157,7 @@ const Header: React.FC = () => {
               <div className="relative" ref={catRef}>
                 <button
                   onClick={() => setCategoryOpen((v) => !v)}
-                  className="flex items-center justify-between px-2 md:px-4 py-2 md:py-4 text-[16px] md:text-[14px] lg:text-[16px] min-w-[120px] md:min-w-[180px] focus:outline-none"
+                  className="flex items-center justify-between font-poppins px-2 md:px-5 h-full text-[16px] md:text-[14px] lg:text-[16px] min-w-[120px] md:min-w-[160px] focus:outline-none"
                   style={{ border: 'none' }}
                 >
                   <span>{category}</span>
@@ -206,7 +206,7 @@ const Header: React.FC = () => {
         </div>
 
         {/* Navigation Bar */}
-        <div className='w-full px-2 xs:px-4 sm:px-8 md:px-10 nav2:px-16  bg-[#E7E7E7] font-archivo'>
+        <div className='w-full px-2 xs:px-4 sm:px-8 md:px-14 lg:px-16 nav2:px-16 2xl:px-28   bg-[#E7E7E7] font-archivo'>
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center bg-gray-100 max-w-[1440px] mx-auto" style={{ backgroundColor: '#FFB998' }}>
             <div className="relative" ref={deptRef}>

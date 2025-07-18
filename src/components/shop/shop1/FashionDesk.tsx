@@ -7,25 +7,25 @@ const FashionDesk = () => {
       category: "RETRO VIBES",
       title: "The Revival of Haldi ceremony",
       date: "August 1, 2024",
-      image: "/assets/images/desk1.jpg",
+      image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752814679/public_assets_shop1_LP/public_assets_images_desk1.svg",
     },
     {
       category: "GREEN CHOICES",
       title: "Mehendi moments We Love in 2024",
       date: "July 25, 2024",
-      image: "/assets/images/desk2.jpg",
+      image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752814679/public_assets_shop1_LP/public_assets_images_desk2.svg",
     },
     {
       category: "PARTY ESSENTIALS",
       title: "Decoding The Cocktail Dress Code",
       date: "July 15, 2024",
-      image: "/assets/images/desk3.jpg",
+      image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752814679/public_assets_shop1_LP/public_assets_images_desk3.svg",
     },
     {
       category: "STYLE TIPS",
       title: "Layering Like A Pro This Wedding",
       date: "July 8, 2024",
-      image: "/assets/images/desk4.jpg",
+      image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752814679/public_assets_shop1_LP/public_assets_images_desk4.svg",
     }
   ];
 
@@ -66,7 +66,7 @@ const FashionDesk = () => {
                   {article.date}
                 </p>
 
-                <div className="w-full h-px bg-gray-200 mt-4"></div>
+                <div className="w-full h-px bg-[#636363] mt-4"></div>
               </div>
             </article>
           ))}

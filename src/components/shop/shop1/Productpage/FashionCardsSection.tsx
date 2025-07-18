@@ -7,7 +7,7 @@ const FashionCardsSection: React.FC = () => {
         {/* Grid layout with responsive columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8">
           {/* Left Card - Wider Image (817px) */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-8 h-[300px] sm:h-[400px] md:h-[450px] lg:h-[471px] rounded-2xl sm:rounded-3xl overflow-hidden relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/assets/images/card-section1.jpg')" }}>
+          <div className="col-span-1 md:col-span-2 lg:col-span-8 h-[300px] sm:h-[400px] md:h-[450px] lg:h-[471px] rounded-2xl sm:rounded-3xl overflow-hidden relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/assets/images/Productcard/card-section1.jpg')" }}>
             {/* Overlay content */}
             <div className="absolute bottom-3 sm:bottom-4 md:bottom-6 left-3 sm:left-4 md:left-6 right-3 sm:right-4 md:right-6 p-3 sm:p-4 rounded-lg sm:rounded-xl">
               <div className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] text-[#CC9A6D] font-archivio font-semibold mb-1">90% Polyester</div>
@@ -18,10 +18,10 @@ const FashionCardsSection: React.FC = () => {
           </div>
 
           {/* Right Card - Narrower Image (391px) */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-4 h-[280px] sm:h-[350px] md:h-[400px] lg:h-[467px] rounded-2xl sm:rounded-3xl overflow-hidden relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/assets/images/card-section2.jpg')" }}>
+          <div className="col-span-1 md:col-span-2 lg:col-span-4 h-[280px] sm:h-[350px] md:h-[400px] lg:h-[467px] rounded-2xl sm:rounded-3xl overflow-hidden relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/assets/images/Productcard/card-section2.jpg')" }}>
             {/* Top overlay */}
             <div className="absolute top-2 left-2 p-2 sm:p-3 md:p-4 rounded-lg">
-              <h3 className="text-[28px] sm:text-[36px] md:text-[44px] lg:text-[52px] text-[#FFFFFF] font-bebas leading-none">
+              <h3 className="text-[28px] sm:text-[36px] md:text-[44px] lg:text-[52px] font-bebas text-[#FFFFFF] hover:text-[#DF272F] leading-none">
                 FLASH<br />DEALS
               </h3>
             </div>

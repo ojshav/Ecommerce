@@ -6,14 +6,16 @@ const AoinTrendsSection = () => {
       {/* Mobile Layout: Stacked, no frames */}
       <div className="flex flex-col md:hidden items-center gap-6">
         <img
-          src="/assets/images/Aoin1.jpg"
+          src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745100/public_assets_shop1_LP/public_assets_images_Aoin1.svg"
           alt="Headwrap"
           className="w-full max-w-xs rounded-lg object-contain"
+          loading="lazy"
         />
         <img
-          src="/assets/images/Aoin2.jpg"
+          src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745103/public_assets_shop1_LP/public_assets_images_Aoin2.svg"
           alt="Orange skirt"
           className="w-full max-w-xs rounded-lg object-contain"
+          loading="lazy"
         />
         <h1 className="text-center font-normal leading-9 text-2xl font-playfair text-gray-900">
           Discover the trends that resonate with you. Dive into Aoin today.
@@ -43,36 +45,38 @@ const AoinTrendsSection = () => {
 
         {/* Left Image with Frame */}
         <div className="absolute top-40 left-16 z-10">
-          <div className="relative w-[356px] h-[440px]">
+          <div className="relative w-[356px] h-[520px]">
             {/* Shifted Frame corners */}
             <div className="absolute inset-0 top-[36px] bottom-[36px]">
               <div className="absolute top-1 -left-1 w-24 h-[2.5px] bg-black" />
               <div className="absolute top-1 -left-1 h-24 w-[2.5px] bg-black" />
-              <div className="absolute bottom-2 right-0 w-24 h-[2.5px] bg-black" />
-              <div className="absolute bottom-2 right-0 h-24 w-[2.5px] bg-black" />
+              <div className="absolute bottom-1 right-0 w-24 h-[2.5px] bg-black" />
+              <div className="absolute bottom-1 right-0 h-24 w-[2.5px] bg-black" />
             </div>
             <img
-              src="/assets/images/Aoin1.jpg"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745100/public_assets_shop1_LP/public_assets_images_Aoin1.svg"
               alt="Headwrap"
               className="w-full h-full object-contain"
+              loading="lazy"
             />
           </div>
         </div>
 
         {/* Right Image with Frame */}
         <div className="absolute top-12 right-16 z-10">
-          <div className="relative w-[356px] h-[728px]">
+          <div className="relative w-[356px] h-[828px]">
             {/* Frame corners */}
             <div className="absolute inset-0 top-[56px] bottom-[36px]">
-              <div className="absolute -top-2 -left-1 w-24 h-[2.5px] bg-black" />
-              <div className="absolute -top-2 -left-1 h-24 w-[2.5px] bg-black" />
-              <div className="absolute bottom-2 -right-1 w-24 h-[2.5px] bg-black" />
-              <div className="absolute bottom-2 -right-1 h-24 w-[2.5px] bg-black" />
+              <div className="absolute -top-2 -left-0 w-24 h-[2.5px] bg-black" />
+              <div className="absolute -top-2 -left-0 h-24 w-[2.5px] bg-black" />
+              <div className="absolute bottom-3 -right-0 w-24 h-[2.5px] bg-black" />
+              <div className="absolute bottom-3 -right-0 h-24 w-[2.5px] bg-black" />
             </div>
             <img
-              src="/assets/images/Aoin2.jpg"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745103/public_assets_shop1_LP/public_assets_images_Aoin2.svg"
               alt="Orange skirt"
               className="w-full h-full object-contain"
+              loading="lazy"
             />
           </div>
         </div>

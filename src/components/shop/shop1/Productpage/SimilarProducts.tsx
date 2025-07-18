@@ -1,5 +1,4 @@
-import React from 'react';
-
+import React, { useState } from 'react';
 const products = [
   {
     title: 'NAUTICAL LOGO COAT',
@@ -22,6 +21,13 @@ const products = [
 ];
 
 const SimilarProducts: React.FC = () => {
+  const [leftHovered, setLeftHovered] = useState(false);
+  const [rightHovered, setRightHovered] = useState(false);
+
+  const leftArrow = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745143/public_assets_shop1_LP/public_assets_images_arrow-left.svg";
+  const leftArrowHover = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752822752/public_assets_shop1_LP/public_assets_images_arrow-left1.svg";
+  const rightArrow = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752822755/public_assets_shop1_LP/public_assets_images_arrow-right1.svg";
+  const rightArrowHover = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745145/public_assets_shop1_LP/public_assets_images_arrow-right.svg";
   return (
     <section className="relative w-full max-w-[1280px] mx-auto bg-white px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
       {/* Header */}
@@ -29,26 +35,30 @@ const SimilarProducts: React.FC = () => {
         <h2 className="text-2xl sm:text-3xl md:text-[42px] font-bold font-playfair text-black leading-tight">
           Similar <em className="italic font-light font-playfair">products</em>
         </h2>
-        <div className="flex space-x-2 sm:space-x-3 sm:mr-10 md:mr-20 mt-4 sm:mt-10">
-          <button 
-            className="group w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-300 flex items-center justify-center bg-white hover:bg-black transition-all shadow"
-          >
-            <img 
-              src="/assets/images/arrow-left.png" 
-              alt="Arrow Left" 
-              className="w-6 h-6 sm:w-8 sm:h-8 md:w-12 md:h-12 transition-all group-hover:invert group-hover:brightness-200"
-            />
-          </button>
-          <button 
-            className="group w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center hover:bg-black transition-all shadow"
-          >
-            <img 
-              src="/assets/images/arrow-right.png" 
-              alt="Arrow Right" 
-              className="w-6 h-6 sm:w-8 sm:h-8 md:w-12 md:h-12 transition-all group-hover:invert group-hover:brightness-200"
-            />
-          </button>
-        </div>
+        <div className="flex space-x-4 md:ml-8 md:mt-[38px] md:pb-3 self-end">
+            <button 
+              className="group rounded-full flex items-center justify-center w-14 h-14"
+              onMouseEnter={() => setLeftHovered(true)}
+              onMouseLeave={() => setLeftHovered(false)}
+            >
+              <img 
+                src={leftHovered ? leftArrowHover : leftArrow}
+                alt="Arrow Left"
+                className="w-12 h-12 object-contain  group-hover:w-24 group-hover:h-24"
+              />
+            </button>
+            <button 
+              className="group rounded-full flex items-center justify-center w-14 h-14"
+              onMouseEnter={() => setRightHovered(true)}
+              onMouseLeave={() => setRightHovered(false)}
+            >
+              <img 
+                src={rightHovered ? rightArrowHover : rightArrow}
+                alt="Arrow Right"
+                className="w-12 h-12 object-contain  group-hover:w-24 group-hover:h-24"
+              />
+            </button>
+          </div>
       </div>
 
       {/* Product Grid */}

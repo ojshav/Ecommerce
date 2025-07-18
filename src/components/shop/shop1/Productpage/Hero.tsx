@@ -36,7 +36,7 @@ const Hero: React.FC = () => {
         {/* Left big image */}
         <div className="w-full lg:w-[607px] h-[607px] bg-gray-100 rounded-3xl overflow-hidden">
           <img
-            src="/assets/images/hero1.jpg"
+            src="/assets/images/Productcard/hero1.jpg"
             alt="Main model"
             className="object-cover w-full h-full"
           />
@@ -47,14 +47,14 @@ const Hero: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="w-full sm:w-1/2 h-[291px] bg-gray-100 rounded-3xl overflow-hidden">
               <img
-                src="/assets/images/hero2.jpg"
+                src="/assets/images/Productcard/hero2.jpg"
                 alt="Detail"
                 className="object-cover w-full h-full"
               />
             </div>
             <div className="w-full sm:w-1/2 h-[291px] bg-gray-100 rounded-3xl overflow-hidden">
               <img
-                src="/assets/images/hero3.jpg"
+                src="/assets/images/Productcard/hero3.jpg"
                 alt="Back"
                 className="object-cover w-full h-full"
               />
@@ -62,7 +62,7 @@ const Hero: React.FC = () => {
           </div>
           <div className="w-full h-[303px] bg-gray-100 rounded-3xl overflow-hidden">
             <img
-              src="/assets/images/hero4.jpg"
+              src="/assets/images/Productcard/hero4.jpg"
               alt="Side view"
               className="object-cover w-full h-full"
             />

@@ -11,31 +11,28 @@ cloudinary.config({
 });
 
 
-const svgDir = path.join(__dirname, 'public', 'assets' ,'shop1');
+const svgDir = path.join(__dirname, 'public', 'assets' ,'images');
 
-// Function to validate image file (SVG or PNG)
+// Function to validate image file (SVG only)
 function isValidImageFile(filePath) {
   try {
     const ext = path.extname(filePath).toLowerCase();
+    if (ext !== '.svg') {
+      return false;
+    }
     const content = fs.readFileSync(filePath);
     if (!content || content.length === 0) {
       return false;
     }
-    if (ext === '.svg') {
-      const strContent = content.toString('utf8').trim();
-      // Basic SVG validation - check if it starts with <svg
-      return strContent.startsWith('<svg') || strContent.includes('<svg');
-    } else if (ext === '.png') {
-      // For PNG, just check file is not empty (could add more checks if needed)
-      return true;
-    }
-    return false;
+    const strContent = content.toString('utf8').trim();
+    // Basic SVG validation - check if it starts with <svg
+    return strContent.startsWith('<svg') || strContent.includes('<svg');
   } catch (error) {
     return false;
   }
 }
 
-// Recursively find all .svg and .png files in a directory
+// Recursively find all .svg files in a directory
 function getAllImageFiles(dir, fileList = []) {
   const files = fs.readdirSync(dir);
   files.forEach(file => {
@@ -43,7 +40,7 @@ function getAllImageFiles(dir, fileList = []) {
     const stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
       getAllImageFiles(filePath, fileList);
-    } else if (filePath.endsWith('.svg') || filePath.endsWith('.png')) {
+    } else if (filePath.endsWith('.svg')) {
       fileList.push(filePath);
     }
   });
@@ -73,7 +70,7 @@ async function uploadAllImages() {
 
       const result = await cloudinary.uploader.upload(file, {
         resource_type: 'image',
-        folder: 'public_assets_shop1',
+        folder: 'public_assets_shop1_LP',
         public_id: publicId, // already removed extension
         overwrite: false,
       });

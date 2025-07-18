@@ -1,18 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './Hero.module.css';
 
 const Hero = () => {
+  const [leftHovered, setLeftHovered] = useState(false);
+  const [rightHovered, setRightHovered] = useState(false);
+
+  const leftArrow = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745143/public_assets_shop1_LP/public_assets_images_arrow-left.svg";
+  const leftArrowHover = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752822752/public_assets_shop1_LP/public_assets_images_arrow-left1.svg";
+  const rightArrow = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752822755/public_assets_shop1_LP/public_assets_images_arrow-right1.svg";
+  const rightArrowHover = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745145/public_assets_shop1_LP/public_assets_images_arrow-right.svg";
+
   const images = [
-    "/assets/images/hero-image2.png",
-    "/assets/images/hero-image3.png"
+    "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752746041/public_assets_shop1_LP/public_assets_images_hero-image2.png",
+    "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745156/public_assets_shop1_LP/public_assets_images_hero-image3.svg"
   ];
 
   return (
     <section className="relative bg-white">
       <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8">
-        
         {/* Hero Text */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 sm:pt-12 md:pt-16 pb-4 sm:pb-6 space-y-4 md:space-y-0">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center pt-8 sm:pt-12 md:pt-14 pb-4 sm:pb-12 space-y-4 md:space-y-0">
           {/* Text */}
           <div className="w-full md:w-auto">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-display font-boska text-gray-900 tracking-tight leading-[1.2] md:leading-[90px]">
@@ -23,23 +30,27 @@ const Hero = () => {
           </div>
 
           {/* Arrows */}
-          <div className="flex space-x-3 md:ml-8 md:mt-[38px] md:pb-3 self-end">
+          <div className="flex space-x-4 md:ml-8 md:mt-[38px] md:pb-3 self-end">
             <button 
-              className="group w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-gray-300 flex items-center justify-center bg-white hover:bg-black transition-all shadow"
+              className="group rounded-full flex items-center justify-center w-14 h-14"
+              onMouseEnter={() => setLeftHovered(true)}
+              onMouseLeave={() => setLeftHovered(false)}
             >
               <img 
-                src="/assets/images/arrow-left.png" 
-                alt="Arrow Left" 
-                className="w-8 h-8 sm:w-10 sm:h-10 transition-all group-hover:invert group-hover:brightness-200"
+                src={leftHovered ? leftArrowHover : leftArrow}
+                alt="Arrow Left"
+                className="w-12 h-12 object-contain  group-hover:w-24 group-hover:h-24"
               />
             </button>
             <button 
-              className="group w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white flex items-center justify-center hover:bg-black transition-all shadow"
+              className="group rounded-full flex items-center justify-center w-14 h-14"
+              onMouseEnter={() => setRightHovered(true)}
+              onMouseLeave={() => setRightHovered(false)}
             >
               <img 
-                src="/assets/images/arrow-right.png" 
-                alt="Arrow Right" 
-                className="w-8 h-8 sm:w-10 sm:h-10 transition-all group-hover:invert group-hover:brightness-200"
+                src={rightHovered ? rightArrowHover : rightArrow}
+                alt="Arrow Right"
+                className="w-12 h-12 object-contain  group-hover:w-24 group-hover:h-24"
               />
             </button>
           </div>
@@ -48,7 +59,6 @@ const Hero = () => {
         {/* Image & Video Carousel */}
         <div className="overflow-hidden rounded-md shadow-md relative">
           <div className={styles.scrollContainer}>
-            
             {/* 🔥 First Slide = Video */}
             <div className="relative flex-shrink-0 w-full">
               <video
@@ -60,7 +70,6 @@ const Hero = () => {
                 playsInline
               />
             </div>
-
             {/* 🖼️ Remaining Image Slides */}
             {images.map((src, index) => (
               <div 
@@ -74,7 +83,6 @@ const Hero = () => {
                 />
               </div>
             ))}
-
           </div>
         </div>
       </div>
