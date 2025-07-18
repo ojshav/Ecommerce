@@ -2,14 +2,25 @@ import { useRef, useState, useEffect } from 'react';
 
 interface UseHorizontalScrollProps {
   scrollAmount?: number;
+  snapToItems?: boolean;
+  itemWidth?: number;
+  gap?: number;
 }
 
-export const useHorizontalScroll = ({ scrollAmount = 300 }: UseHorizontalScrollProps = {}) => {
+export const useHorizontalScroll = ({ 
+  scrollAmount = 300, 
+  snapToItems = true,
+  itemWidth = 0,
+  gap = 12
+}: UseHorizontalScrollProps = {}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTouching, setIsTouching] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchStartScrollLeft, setTouchStartScrollLeft] = useState(0);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -20,6 +31,29 @@ export const useHorizontalScroll = ({ scrollAmount = 300 }: UseHorizontalScrollP
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Calculate the snap position for a given scroll position
+  const getSnapPosition = (scrollPosition: number, containerWidth: number, itemWidth: number, gap: number) => {
+    if (!snapToItems || itemWidth === 0) return scrollPosition;
+    
+    const itemWidthWithGap = itemWidth + gap;
+    const snapIndex = Math.round(scrollPosition / itemWidthWithGap);
+    return snapIndex * itemWidthWithGap;
+  };
+
+  // Snap to the nearest item
+  const snapToNearestItem = () => {
+    if (!containerRef.current || !snapToItems || itemWidth === 0) return;
+    
+    const container = containerRef.current;
+    const { scrollLeft, clientWidth } = container;
+    const snapPosition = getSnapPosition(scrollLeft, clientWidth, itemWidth, gap);
+    
+    container.scrollTo({
+      left: snapPosition,
+      behavior: 'smooth'
+    });
+  };
+
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!containerRef.current) return;
     setIsDragging(true);
@@ -28,7 +62,13 @@ export const useHorizontalScroll = ({ scrollAmount = 300 }: UseHorizontalScrollP
   };
 
   const handleMouseUp = () => {
-    setIsDragging(false);
+    if (isDragging) {
+      setIsDragging(false);
+      if (snapToItems && isMobile) {
+        // Small delay to ensure scroll position is updated
+        setTimeout(snapToNearestItem, 50);
+      }
+    }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -41,15 +81,67 @@ export const useHorizontalScroll = ({ scrollAmount = 300 }: UseHorizontalScrollP
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!containerRef.current) return;
+    setIsTouching(true);
+    setTouchStartX(e.touches[0].pageX);
+    setTouchStartScrollLeft(containerRef.current.scrollLeft);
     setStartX(e.touches[0].pageX - containerRef.current.offsetLeft);
     setScrollLeft(containerRef.current.scrollLeft);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !isTouching) return;
+    e.preventDefault();
     const x = e.touches[0].pageX - containerRef.current.offsetLeft;
     const walk = (x - startX) * 2;
     containerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isTouching) return;
+    setIsTouching(false);
+    
+    if (!containerRef.current) return;
+    
+    const touchEndX = e.changedTouches[0].pageX;
+    const touchDistance = touchStartX - touchEndX;
+    const minSwipeDistance = 50; // Minimum distance for a swipe
+    
+    if (Math.abs(touchDistance) > minSwipeDistance) {
+      // User made a swipe gesture
+      if (snapToItems && itemWidth > 0) {
+        const container = containerRef.current;
+        const { scrollLeft, clientWidth } = container;
+        const itemWidthWithGap = itemWidth + gap;
+        
+        // Determine swipe direction and snap accordingly
+        if (touchDistance > 0) {
+          // Swipe left - go to next item
+          const currentIndex = Math.round(scrollLeft / itemWidthWithGap);
+          const nextIndex = Math.min(currentIndex + 1, Math.floor((container.scrollWidth - clientWidth) / itemWidthWithGap));
+          const snapPosition = nextIndex * itemWidthWithGap;
+          
+          container.scrollTo({
+            left: snapPosition,
+            behavior: 'smooth'
+          });
+        } else {
+          // Swipe right - go to previous item
+          const currentIndex = Math.round(scrollLeft / itemWidthWithGap);
+          const prevIndex = Math.max(currentIndex - 1, 0);
+          const snapPosition = prevIndex * itemWidthWithGap;
+          
+          container.scrollTo({
+            left: snapPosition,
+            behavior: 'smooth'
+          });
+        }
+      }
+    } else {
+      // Small touch - snap to nearest item
+      if (snapToItems) {
+        setTimeout(snapToNearestItem, 50);
+      }
+    }
   };
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -102,10 +194,31 @@ export const useHorizontalScroll = ({ scrollAmount = 300 }: UseHorizontalScrollP
 
   const scroll = (direction: 'left' | 'right') => {
     if (!containerRef.current) return;
-    containerRef.current.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth'
-    });
+    
+    if (snapToItems && itemWidth > 0) {
+      const container = containerRef.current;
+      const { scrollLeft, clientWidth } = container;
+      const itemWidthWithGap = itemWidth + gap;
+      const currentIndex = Math.round(scrollLeft / itemWidthWithGap);
+      
+      let targetIndex: number;
+      if (direction === 'left') {
+        targetIndex = Math.max(currentIndex - 1, 0);
+      } else {
+        targetIndex = Math.min(currentIndex + 1, Math.floor((container.scrollWidth - clientWidth) / itemWidthWithGap));
+      }
+      
+      const snapPosition = targetIndex * itemWidthWithGap;
+      container.scrollTo({
+        left: snapPosition,
+        behavior: 'smooth'
+      });
+    } else {
+      containerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
   };
 
   return {
@@ -117,6 +230,7 @@ export const useHorizontalScroll = ({ scrollAmount = 300 }: UseHorizontalScrollP
     handleMouseMove,
     handleTouchStart,
     handleTouchMove,
+    handleTouchEnd,
     handleWheel,
     scroll
   };

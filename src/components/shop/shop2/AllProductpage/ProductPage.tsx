@@ -1,0 +1,250 @@
+import React, { useState } from "react";
+
+const products = [
+  {
+    id: 1098,
+    name: "CAPE JEWELRY FOR WOMEN",
+    price: 120,
+    image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80",
+    discount: 10,
+    overlay: 1098,
+  },
+  {
+    id: 1259,
+    name: "CAPE JEWELRY FOR WOMEN",
+    price: 120,
+    image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=400&q=80",
+    overlay: 1259,
+  },
+  {
+    id: 142,
+    name: "CAPE JEWELRY FOR WOMEN",
+    price: 120,
+    image: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80",
+    discount: 10,
+    overlay: 142,
+  },
+  {
+    id: 1,
+    name: "CAPE JEWELRY FOR WOMEN",
+    price: 120,
+    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: 2,
+    name: "CAPE JEWELRY FOR WOMEN",
+    price: 120,
+    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: 3,
+    name: "CAPE JEWELRY FOR WOMEN",
+    price: 120,
+    image: "https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: 4,
+    name: "CAPE JEWELRY FOR WOMEN",
+    price: 120,
+    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: 5,
+    name: "CAPE JEWELRY FOR WOMEN",
+    price: 120,
+    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: 6,
+    name: "CAPE JEWELRY FOR WOMEN",
+    price: 120,
+    image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80",
+  },
+];
+
+const collections = [
+  { name: "Graphic Hoodies", disabled: false },
+  { name: "TrackSuits", disabled: false },
+  { name: "Denim Jackets", disabled: false },
+  { name: "Sunglasses", disabled: true },
+  { name: "Printed Co-Ord Sets", disabled: true },
+  { name: "Denim Jackets", disabled: false },
+];
+
+const ProductPage = () => {
+  // Price filter state
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(1000000);
+  const minLimit = 0;
+  const maxLimit = 1000000;
+  const priceGap = 0;
+
+  return (
+    <div className="min-h-screen w-full mx-auto flex justify-center py-8 px-2">
+      {/* Container */}
+      <div className="flex w-full gap-2 px-10">
+        {/* Sidebar */}
+        <aside className="w-[455px] h-[1746px] bg-[#DFD1C6] rounded-xl shadow p-6 mr-8 flex-shrink-0">
+          <div className="flex items-center px-2 justify-between mb-6 pt-2">
+            <span className="font-semibold text-[16px] font-bebas tracking-widest text-gray-700">51 RESULTS</span>
+            <button className="bg-black text-white font-bebas text-[20px] px-6 py-3 rounded-full font-semibold tracking-[0.2em] " style={{letterSpacing:'0.2em'}}>CLEAR FILTERS</button>
+          </div>
+          {/* Price Filter */}
+          <hr className="border-t mb-4" style={{ background: '#888181', height: '1px', border: 'none' }} />
+          <div className="mb-8">
+            <div className="font-bold text-2xl mb-6 tracking-tight">FILTER BY PRICE</div>
+            <div className="relative w-full flex items-center h-10 mb-2">
+              {/* Track */}
+              <div className="absolute left-0 right-0 h-1 bg-[#bfa16a] rounded-full" style={{top: '50%', transform: 'translateY(-50%)'}}></div>
+              {/* Selected Range */}
+              <div
+                className="absolute h-1 bg-[#8d6a2a] rounded-full"
+                style={{
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  left: `${((minPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                  right: `${100 - ((maxPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                }}
+              ></div>
+              {/* Min Handle */}
+              <input
+                type="range"
+                min={minLimit}
+                max={maxPrice - priceGap}
+                value={minPrice}
+                onChange={e => setMinPrice(Math.min(Number(e.target.value), maxPrice - priceGap))}
+                className="absolute w-full accent-[#bfa16a] pointer-events-auto z-10"
+                style={{ WebkitAppearance: 'none', background: 'transparent', height: '40px' }}
+              />
+              {/* Max Handle */}
+              <input
+                type="range"
+                min={minPrice + priceGap}
+                max={maxLimit}
+                value={maxPrice}
+                onChange={e => setMaxPrice(Math.max(Number(e.target.value), minPrice + priceGap))}
+                className="absolute w-full accent-[#bfa16a] pointer-events-auto z-10"
+                style={{ WebkitAppearance: 'none', background: 'transparent', height: '40px' }}
+              />
+              {/* Custom handles */}
+              <div
+                className="absolute"
+                style={{
+                  left: `${((minPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 20,
+                }}
+              >
+                <div className="w-10 h-10 bg-[#bfa16a] rounded-full border-4 border-white shadow" />
+              </div>
+              <div
+                className="absolute"
+                style={{
+                  left: `${((maxPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 20,
+                }}
+              >
+                <div className="w-10 h-10 bg-[#bfa16a] rounded-full border-4 border-white shadow" />
+              </div>
+            </div>
+            <div className="flex justify-start text-xl font-bold text-black mt-4 mb-8">
+              <span>Price: ₹{minPrice.toLocaleString()} — ₹{maxPrice.toLocaleString()}</span>
+            </div>
+            <button className="bg-black text-white text-xl px-4 py-2 rounded-full font-semibold w-1/2 tracking-[0.2em]" style={{letterSpacing:'0.2em'}}>FILTER</button>
+          </div>
+          {/* Product Type */}
+          <div className="mb-8">
+            <div className="font-bold text-2xl mb-6 tracking-tight">PRODUCT TYPE</div>
+            <div className="flex flex-col  gap-2 text-xl">
+              <label className="flex items-center gap-4 font-normal"><input type="checkbox" className="w-6 h-6" /> T-Shirts</label>
+              <hr className="border-t" style={{ background: '#888181', height: '1px', border: 'none' }} />
+              <label className="flex items-center gap-4 font-normal"><input type="checkbox" className="w-6 h-6" /> Shirts</label>
+              <hr className="border-t" style={{ background: '#888181', height: '1px', border: 'none' }} />
+              <label className="flex items-center gap-4 font-normal"><input type="checkbox" className="w-6 h-6" /> Bottoms</label>
+              <hr className="border-t" style={{ background: '#888181', height: '1px', border: 'none' }} />
+              <label className="flex items-center gap-4 font-normal"><input type="checkbox" className="w-6 h-6" /> Women Chain</label>
+              <hr className="border-t" style={{ background: '#888181', height: '1px', border: 'none' }} />
+              <label className="flex items-center gap-4 font-normal"><input type="checkbox" className="w-6 h-6" /> Shackets</label>
+              <hr className="border-t" style={{ background: '#888181', height: '1px', border: 'none' }} />
+              <label className="flex items-center gap-4 font-normal "><input type="checkbox" className="w-6 h-6"/> Accessories</label>
+            </div>
+          </div>
+          {/* Shop For */}
+          <div className="mb-8">
+            <div className="font-bold text-[25px] font-bebas mb-6 tracking-tight">SHOP FOR</div>
+            <div className="flex flex-wrap gap-2">
+              <span className="bg-white border-none rounded-full px-4 py-4 text-[14px] font-poppins font-bold tracking-[0.15em] text-black shadow-sm">TOPWEAR</span>
+              <span className="bg-white border-none rounded-full px-4 py-4 text-[14px] font-poppins font-bold tracking-[0.15em] text-black shadow-sm">BOTTOMWEAR</span>
+              <span className="bg-white border-none rounded-full px-4 py-4 text-[14px] font-poppins font-bold tracking-[0.15em] text-black shadow-sm">WINTERWEAR</span>
+              <span className="bg-white border-none rounded-full px-4 py-4 text-[14px] font-poppins font-bold tracking-[0.15em] text-black shadow-sm">TRADITIONAL</span>
+            </div>
+          </div>
+          {/* Collections */}
+          <div className="mb-8">
+            <div className="font-extrabold text-[25px] mb-6 uppercase font-bebas">COLLECTIONS</div>
+            <ul className="text-xl">
+              {collections.map((col, i) => (
+                <React.Fragment key={i}>
+                  <li className="flex items-center py-3">
+                    <span className="mr-4 text-2xl" style={{fontWeight: 'bold'}}>&bull;</span>
+                    <span>{col.name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace(/\s+/g, ' ').trim()}</span>
+                  </li>
+                  {i !== collections.length - 1 && (
+                    <hr className="border-t" style={{ background: '#e5e5e5', height: '1px', border: 'none' }} />
+                  )}
+                </React.Fragment>
+              ))}
+            </ul>
+          </div>
+          {/* Conditions */}
+          <div className="mb-2">
+            <div className="font-extrabold text-[25px] mb-6 uppercase font-bebas">CONDITIONS</div>
+            <span className="bg-white border-none rounded-full px-10 py-4 text-xl font-bold  text-black shadow" style={{letterSpacing:'0.1em', fontFamily: 'inherit'}}>NEW</span>
+          </div>
+        </aside>
+        {/* Main Content */}
+        <main className="flex-1">
+          {/* Top Bar */}
+          <div className="flex items-center justify-between mb-6">
+            <span className="font-bold text-lg tracking-widest">SHOWING 1-9 OF 15 RESULTS</span>
+            <button className="bg-black text-white text-xs px-4 py-2 rounded-full font-semibold">SORT BY LIST</button>
+          </div>
+          {/* Product Grid */}
+          <div className="grid grid-cols-2 gap-8">
+            {products.slice(0, 9).map((product, idx) => (
+              <div key={product.id} className="relative  rounded-xl overflow-hidden flex flex-col items-center pb-6">
+                {/* Discount Badge */}
+                {product.discount && (
+                  <span className="absolute left-3 top-3 bg-[#f7f6f4] text-[#bfa16a] text-xs font-bold px-3 py-1 rounded-full z-10">-10%</span>
+                )}
+                {/* Red Overlay Badge (for mockup) */}
+                
+                {/* Product Image */}
+                <img src={product.image} alt={product.name} style={{ width: '519px', height: '595px', objectFit: 'cover' }} />
+                {/* Product Info */}
+                <div className="mt-4 flex flex-col items-center w-full">
+                  <span className="font-bold text-sm text-center tracking-wider">{product.name}</span>
+                  <span className="font-semibold text-base mt-1">${product.price}</span>
+                </div>
+                {/* Add to Cart (only for middle card in row 2, as in image) */}
+                {idx === 3 && (
+                  <div className="mt-4 flex items-center gap-2 w-full justify-center">
+                    <button className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold">-</button>
+                    <span className="font-semibold">1</span>
+                    <button className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold">+</button>
+                    <button className="ml-4 bg-black text-white px-6 py-2 rounded-full font-semibold text-xs">ADD TO CART</button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default ProductPage;
