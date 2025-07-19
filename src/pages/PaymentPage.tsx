@@ -1688,7 +1688,15 @@ const PaymentPage: React.FC = () => {
     <div className="font-worksans max-w-7xl  mx-auto  px-4 py-8 flex flex-col lg:flex-row gap-6">
       {/* Payment Information */}
       <div className="flex-1 bg-white rounded-lg p-8">
-        <h2 className="text-lg font-semibold mb-6">Payment Information</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-semibold">Payment Information</h2>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-sm text-orange-500 hover:text-orange-600 font-medium"
+          >
+            &larr; Continue Shopping
+          </button>
+        </div>
 
         {/* Saved Addresses */}
         {addresses.length > 0 && (

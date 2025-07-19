@@ -30,10 +30,11 @@ const MerchantSearch: React.FC<MerchantSearchProps> = ({ onSearch, onFilterChang
       <div className="flex flex-col gap-4">
         {/* Search Input */}
         <div className="w-full">
-          <div className="relative">
+          <div className="relative flex items-center">
+            <FaSearch className="absolute right-4 text-orange-500" />
             <input
               type="text"
-              placeholder="Search merchants by name, ID, or store name..."
+              placeholder="Search by Order ID, Merchant ID, or Name"
               className="w-full pl-12 pr-4 py-3 border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-orange-50/50"
               onChange={(e) => onSearch(e.target.value)}
             />
