@@ -259,6 +259,7 @@ const MerchantPaymentReport: React.FC = () => {
       const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(transaction =>
         transaction.order_id.toLowerCase().includes(searchLower) ||
+        String(transaction.merchant_id).toLowerCase().includes(searchLower) ||
         (transaction.merchant?.business_name?.toLowerCase().includes(searchLower)) ||
         (transaction.merchant?.store_id?.toLowerCase().includes(searchLower))
       );
