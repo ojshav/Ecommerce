@@ -117,6 +117,38 @@ export const dashboardSections: MenuSection[] = [
     ],
   },
   {
+    category: "Shop Management",
+    color: "purple",
+    icon: FolderOpen,
+    items: [
+      {
+        title: "Shops",
+        icon: Home,
+        description: "Manage shops and store configurations",
+      },
+      {
+        title: "Shop Categories",
+        icon: FolderOpen,
+        description: "Manage categories for each shop",
+      },
+      {
+        title: "Shop Brands",
+        icon: ShoppingBag,
+        description: "Manage brands for shop categories",
+      },
+      {
+        title: "Shop Attributes",
+        icon: Settings,
+        description: "Manage product attributes for shop categories",
+      },
+      {
+        title: "Shop Products",
+        icon: ShoppingBag,
+        description: "Manage products for all shops",
+      },
+    ],
+  },
+  {
     category: "Operations",
     color: "amber",
     icon: ShieldCheck,
