@@ -21,12 +21,12 @@ const AoinShowcase = () => {
         {/* Image Slides */}
         <div className="flex gap-4 sm:gap-4 md:gap-6 overflow-x-auto no-scrollbar scroll-smooth w-full justify-center sm:px-12 md:px-16 lg:px-20 xl:px-2 ">
           <img
-            src="/assets/shop2/model1.jpg"
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059248/public_assets_shop2/public_assets_shop2_model1.svg"
             alt="Model 1"
             className="rounded-xl object-cover object-top w-[907px] h-[473px] max-w-[85vw] sm:max-w-[70vw] md:max-w-[60vw] lg:max-w-[50vw] xl:max-w-[907px] flex-shrink-0"
           />
           <img
-            src="/assets/shop2/model2.jpg"
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059251/public_assets_shop2/public_assets_shop2_model2.svg"
             alt="Model 2"
             className="rounded-xl object-cover w-[425px] h-[473px] max-w-[60vw] sm:max-w-[50vw] md:max-w-[40vw] lg:max-w-[35vw] xl:max-w-[425px] flex-shrink-0"
           />
@@ -44,16 +44,18 @@ const AoinShowcase = () => {
         {/* Left: Logo and Tagline */}
         <div className="flex flex-col items-center lg:items-start gap-6 sm:gap-8 text-center lg:text-left">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div
-              className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-[#E15E3D] rotate-45"
-              style={{
-                clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)'
-              }}
-            ></div>
+            <svg
+              className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20"
+              viewBox="0 0 80 80"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M40 0H80V40L40 80H0V40L40 0Z" fill="#E15E3D"/>
+            </svg>
             <h1 className="text-[32px] sm:text-[48px] md:text-[64px] lg:text-[73px] font-extrabold font-archivio tracking-tight">AOIN</h1>
           </div>
-          <p className="text-white text-base sm:text-lg md:text-xl lg:text-2xl font-archivio leading-snug font-light max-w-[500px]">
-            Elevate Your Style with Strite<br />
+          <p className="text-white text-base sm:text-lg md:text-xl lg:text-2xl font-archivo leading-snug font-light max-w-[500px]">
+            Elevate Your Style with Strite
             Where Fashion Meets Distinction
           </p>
         </div>

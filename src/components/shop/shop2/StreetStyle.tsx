@@ -41,7 +41,7 @@ const StreetStyle: React.FC = () => {
         {/* Right side - Image */}
         <div className="relative lg:absolute lg:left-[860px] lg:bottom-[-80px] flex justify-center lg:justify-start mt-8 lg:mt-0">
           <img
-            src="/assets/shop2/ss1.png"
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059271/public_assets_shop2/public_assets_shop2_ss1.svg"
             alt="Right Model"
             className="w-[280px] h-[420px] sm:w-[320px] sm:h-[480px] md:w-[360px] md:h-[540px] lg:w-[408px] lg:h-[612px] object-contain"
           />

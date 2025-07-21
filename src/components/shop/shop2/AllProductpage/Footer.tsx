@@ -2,20 +2,20 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#181818] h-[516px] text-white py-20 pb-4 px-4 md:px-16 lg:px-32">
+    <footer className="bg-[#181818] h-[470px] text-white py-20 pb-4 px-4 md:px-16 lg:px-10 2xl:px-28">
       <div className="max-w-full w-full mx-auto flex flex-col md:flex-row justify-between gap-12 md:gap-12">
         {/* Brand & Newsletter */}
-        <div className="flex-1 min-w-[220px] flex flex-col justify-between">
+        <div className="flex-1 min-w-[220px] flex flex-col mt-4">
           <div>
-            <h2 className="text-2xl font-bold mb-4">AOIN</h2>
-            <p className="text-gray-300 mb-6 text-sm max-w-xs">
-              Be The First To Hear About New Product Drops, Insider News, Exclusive Offers, And More.
+            <h2 className="text-[32px] font-bold font-bebas mb-2">AOIN</h2>
+            <p className="text-gray-300 mb-10 text-[16px] font-futura ">
+              Be The First To Hear About New Product Drops, <br /> Insider News, Exclusive Offers, And More.
             </p>
-            <button className="bg-[#C7A17A] text-white px-8 py-3 rounded-none font-semibold tracking-widest text-sm mb-8 md:mb-12">
+            <button className="bg-[#C7A17A] text-white px-10 leading-5 py-3 rounded-none font-futura font-semibold tracking-widest text-[12px]">
               SIGN UP NOW
             </button>
           </div>
-          <div className="flex space-x-6 mt-2">
+          <div className="flex space-x-6 mt-12">
             {/* Social Icons */}
             <a href="#" aria-label="Facebook">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6 text-white"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3V2z" /></svg>
@@ -29,9 +29,10 @@ const Footer = () => {
           </div>
         </div>
         {/* Order Assistance */}
-        <div className="flex-1 min-w-[180px]">
-          <h3 className="text-sm font-semibold tracking-[0.2em] mb-6 uppercase text-gray-200">Order Assistance</h3>
-          <ul className="space-y-3 text-gray-300 text-sm">
+        <div className="font-futura flex gap-28  " >
+        <div className="flex-1 min-w-[205px]">
+          <h3 className="text-[16px] font-[450] leading-[30px] tracking-[4px] mb-6 capitalize text-white font-futura">Order Assistance</h3>
+          <ul className="text-white font-futura text-[16px] font-normal  capitalize space-y-2">
             <li><a href="#">Book An Appointment</a></li>
             <li><a href="#">Shipping & Delivery</a></li>
             <li><a href="#">Returns & Refunds</a></li>
@@ -41,9 +42,10 @@ const Footer = () => {
           </ul>
         </div>
         {/* Company */}
-        <div className="flex-1 min-w-[180px]">
-          <h3 className="text-sm font-semibold tracking-[0.2em] mb-6 uppercase text-gray-200">Company</h3>
-          <ul className="space-y-3 text-gray-300 text-sm">
+        
+        <div className="flex-1 min-w-[165px]">
+          <h3 className="text-[16px] font-[450] leading-[30px] tracking-[4px] mb-6 capitalize text-white font-['Futura PT']">Company</h3>
+          <ul className="text-white font-futura text-[16px] font-normal  capitalize space-y-2">
             <li><a href="#">About Us</a></li>
             <li><a href="#">Made To Last</a></li>
             <li><a href="#">Our Mission</a></li>
@@ -54,9 +56,9 @@ const Footer = () => {
           </ul>
         </div>
         {/* Support */}
-        <div className="flex-1 min-w-[180px]">
-          <h3 className="text-sm font-semibold tracking-[0.2em] mb-6 uppercase text-gray-200">Support</h3>
-          <ul className="space-y-3 text-gray-300 text-sm">
+        <div className="flex-1 min-w-[155px]">
+          <h3 className="text-[16px] font-[450] leading-[30px] tracking-[4px] mb-6 capitalize text-white font-['Futura PT']">Support</h3>
+          <ul className="text-white font-futura text-[16px] font-normal  capitalize space-y-2">
             <li><a href="#">FAQ</a></li>
             <li><a href="#">Shipping And Returns</a></li>
             <li><a href="#">Tracking</a></li>
@@ -65,23 +67,25 @@ const Footer = () => {
           </ul>
         </div>
         {/* Contact Us */}
-        <div className="flex-1 min-w-[180px]">
-          <h3 className="text-sm font-semibold tracking-[0.2em] mb-6 uppercase text-gray-200">Contact Us</h3>
-          <ul className="space-y-3 text-gray-300 text-sm">
+        <div className="flex-1 min-w-[130px]">
+          <h3 className="text-[16px] font-[450] leading-[30px] tracking-[4px] mb-6 capitalize text-white font-['Futura PT']">Contact Us</h3>
+          <ul className="text-white font-futura text-[16px] font-normal  capitalize space-y-2">
             <li><a href="#">Shops</a></li>
             <li><a href="#">General Inquiries</a></li>
             <li><a href="#">Returns</a></li>
           </ul>
         </div>
       </div>
+      </div>
       {/* Bottom Bar */}
-      <div className="border-t border-gray-700 mt-12 pt-4 flex flex-col md:flex-row items-center justify-between text-gray-400 text-xs gap-2">
-        <div className="flex space-x-6 mb-2 md:mb-0">
+      <div className="border-t border-gray-700 mt-12 pt-4 flex flex-col md:flex-row items-center justify-between text-gray-400 gap-2">
+        <div className="flex space-x-10 text-[16px] text-white font-futura mb-2 md:mb-0 md:ml-auto">
           <a href="#">Cookies Settings</a>
           <a href="#">Terms & Privacy</a>
           <a href="#">Accessibility Statement</a>
         </div>
       </div>
+      
     </footer>
   );
 };
