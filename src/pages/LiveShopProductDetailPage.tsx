@@ -87,7 +87,7 @@ interface ProductDetails {
 
 const LiveShopProductDetailPage: React.FC = () => {
   const navigate = useNavigate();
-  const { stream_id } = useParams<{ stream_id: string }>();
+  const { productId } = useParams<{ productId: string }>();
   const [stream, setStream] = useState<LiveStream | null>(null);
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -109,62 +109,86 @@ const LiveShopProductDetailPage: React.FC = () => {
 
   useEffect(() => {
     const fetchStream = async () => {
+      console.log('Fetching stream with ID:', productId);
       setLoading(true);
       setError(null);
-      let url;
-      if (stream_id) {
-        url = `${API_BASE_URL}/api/live-streams/${stream_id}`;
-      } else {
-        url = `${API_BASE_URL}/api/live-streams`;
+
+      // Validate productId (which is actually the stream_id)
+      if (!productId) {
+        console.error('No stream ID provided');
+        setError('No stream ID provided');
+        setLoading(false);
+        return;
       }
+
+      const url = `${API_BASE_URL}/api/live-streams/${productId}`;
+      console.log('Fetching from URL:', url);
+
       try {
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error('Failed to fetch live stream');
         }
         const data = await response.json();
-        let streamData = data;
-        if (!stream_id) {
-          // If fetching all streams, pick the first one (or handle as needed)
-          if (Array.isArray(data) && data.length > 0) {
-            streamData = data[0];
-          } else {
-            setLoading(false);
-            setError('No live streams available');
-            return;
-          }
+        console.log('Stream API Response:', data);
+
+        // Validate stream data
+        if (!data) {
+          console.error('No stream data received');
+          setError('Stream not found');
+          setLoading(false);
+          return;
         }
-        setStream(streamData);
-        // Fetch full product details if product_id is available
-        if (streamData.product && streamData.product.product_id) {
-          fetchProductDetails(streamData.product.product_id);
+
+        console.log('Setting stream data:', data);
+        setStream(data);
+
+        // Validate and fetch product details
+        if (data.product && data.product.product_id) {
+          console.log('Found product ID in stream:', data.product.product_id);
+          await fetchProductDetails(data.product.product_id);
         } else {
+          console.log('No product found in stream data');
+          setError('No product associated with this stream');
           setLoading(false);
         }
       } catch (err) {
+        console.error('Error fetching stream:', err);
         setError('Failed to fetch live stream');
         setLoading(false);
       }
     };
+
     const fetchProductDetails = async (productId: number) => {
+      console.log('Fetching product details for ID:', productId);
       try {
         const response = await fetch(`${API_BASE_URL}/api/products/${productId}/details`);
         if (!response.ok) {
           throw new Error('Failed to fetch product details');
         }
         const data = await response.json();
+        console.log('Product API Response:', data);
+
+        // Validate product data
+        if (!data || !data.product_id) {
+          throw new Error('Invalid product data received');
+        }
+
         setProduct(data);
         if (data.media && data.media.length > 0) {
+          console.log('Setting initial product image:', data.media[0].url);
           setSelectedImage(data.media[0].url);
         }
       } catch (err) {
+        console.error('Error fetching product details:', err);
         setError('Failed to fetch product details');
       } finally {
         setLoading(false);
       }
     };
+
     fetchStream();
-  }, [stream_id]);
+  }, [productId]); // Make sure productId is in dependency array
 
   // Attribute selection logic (from ProductDetail)
   const handleAttributeSelect = (

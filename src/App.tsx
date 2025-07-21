@@ -122,6 +122,7 @@ import MerchantPaymentReport from './pages/superadmin/reports/MerchantPaymentRep
 import MerchantSubscription from './pages/MerchantSubscription';
 
 import Aoinlive from './pages/business/Aoinlive';
+import LiveStreamView from './pages/LiveStreamView';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -582,6 +583,7 @@ const App: React.FC = () => {
                               <Route path="/live-shop/sunday-funday" element={<SundayFundayPage />} />
                               <Route path="/live-shop/product/:productId" element={<LiveShopProductDetailPage />} />
                               <Route path="/shipping-methods" element={<ShippingMethods />} />
+                              <Route path="/live-shop/:streamId" element={<LiveStreamView />} />
                             </Routes>
                           </main>
                           <Footer />
