@@ -55,7 +55,7 @@ export interface ShopAttribute {
   slug: string;
   description?: string;
   type: 'text' | 'number' | 'boolean' | 'select' | 'multiselect' | 'color' | 'date';
-  attribute_type: 'TEXT' | 'NUMBER' | 'SELECT' | 'MULTISELECT' | 'BOOLEAN';
+  attribute_type: 'text' | 'number' | 'select' | 'multiselect' | 'boolean';
   is_required: boolean;
   is_filterable: boolean;
   sort_order: number;
@@ -106,6 +106,7 @@ export interface ShopProduct {
   attributes?: any[];
   variants?: any[];
   stock?: any;
+  primary_image?: string;
 }
 
 class ShopManagementService {

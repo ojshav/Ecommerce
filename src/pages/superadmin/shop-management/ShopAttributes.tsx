@@ -35,7 +35,7 @@ const ShopAttributes: React.FC = () => {
     name: '',
     slug: '',
     type: 'text' as 'text' | 'number' | 'boolean' | 'select' | 'multiselect' | 'color' | 'date',
-    attribute_type: 'TEXT' as 'TEXT' | 'NUMBER' | 'SELECT' | 'MULTISELECT' | 'BOOLEAN',
+    attribute_type: 'text' as 'text' | 'number' | 'select' | 'multiselect' | 'boolean',
     description: '',
     is_required: false,
     is_filterable: false,
@@ -149,21 +149,28 @@ const ShopAttributes: React.FC = () => {
       
       // Map frontend type to backend attribute_type
       const typeMapping = {
-        'text': 'TEXT',
-        'number': 'NUMBER',
-        'boolean': 'BOOLEAN',
-        'select': 'SELECT',
-        'multiselect': 'MULTISELECT',
-        'color': 'TEXT',
-        'date': 'TEXT'
+        'text': 'text',
+        'number': 'number',
+        'boolean': 'boolean',
+        'select': 'select',
+        'multiselect': 'multiselect',
+        'color': 'text',
+        'date': 'text'
       } as const;
+
+      // Ensure the type is valid before mapping
+      const frontendType = formData.type;
+      if (!typeMapping[frontendType]) {
+        setError('Invalid attribute type selected');
+        return;
+      }
 
       const attributeData = {
         name: formData.name,
         slug: formData.slug,
         description: formData.description,
-        type: formData.type,
-        attribute_type: typeMapping[formData.type] as 'TEXT' | 'NUMBER' | 'SELECT' | 'MULTISELECT' | 'BOOLEAN',
+        type: frontendType,
+        attribute_type: typeMapping[frontendType],
         is_required: formData.is_required,
         is_filterable: formData.is_filterable,
         sort_order: formData.sort_order,
@@ -171,6 +178,9 @@ const ShopAttributes: React.FC = () => {
         shop_id: selectedShop.shop_id,
         category_id: selectedCategory.category_id
       };
+
+      console.log('Sending attribute data:', attributeData); // Debug log
+      console.log('Frontend type:', frontendType, '-> Backend type:', typeMapping[frontendType]); // Debug log
 
       if (editingAttribute) {
         await shopManagementService.updateAttribute(editingAttribute.attribute_id, attributeData);
@@ -278,7 +288,7 @@ const ShopAttributes: React.FC = () => {
       name: '',
       slug: '',
       type: 'text',
-      attribute_type: 'TEXT',
+      attribute_type: 'text',
       description: '',
       is_required: false,
       is_filterable: false,
