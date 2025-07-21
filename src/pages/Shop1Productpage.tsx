@@ -7,7 +7,7 @@ import RatingsReviews from '../components/shop/shop1/Productpage/Rating';
 import SimilarProducts from '../components/shop/shop1/Productpage/SimilarProducts';
 import InstagramPromo from '../components/shop/shop1/Productpage/InstagramPromo';
 
-function Shop1LandingPage() {
+function Shop1ProductPage() {
   React.useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
     return () => {
@@ -28,4 +28,4 @@ function Shop1LandingPage() {
   );
 }
 
-export default Shop1LandingPage;
+export default Shop1ProductPage;
