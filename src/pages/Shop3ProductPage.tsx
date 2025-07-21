@@ -1,10 +1,9 @@
 import React from 'react';
 import '../styles/globals.css';
-import Header from '../components/shop/shop2/Productpage/Header';
-import Productpage from '../components/shop/shop2/AllProductpage/ProductPage';
-import Footer from '../components/shop/shop2/AllProductpage/Footer';
+import Header from '../components/shop/shop3/ProductPage/Header';
+import ProductPage from '../components/shop/shop3/ProductPage/ProductPage';
 
-function Shop1AllProductpage() {
+function Shop3Productpage() {
   React.useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
     return () => {
@@ -15,10 +14,9 @@ function Shop1AllProductpage() {
   return (
     <div className="min-h-screen bg-white scroll-smooth overflow-x-hidden">
       <Header />
-      <Productpage />
-            <Footer /> 
+     <ProductPage />
     </div>  
   );
 }
 
-export default Shop1AllProductpage;
+export default Shop3Productpage;

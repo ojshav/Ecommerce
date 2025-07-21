@@ -52,7 +52,7 @@ const StreetwearIntro = () => {
 
         {/* Model Image */}
         <img
-          src="/assets/shop2/Intro.png"
+          src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059209/public_assets_shop2/public_assets_shop2_Intro.svg"
           alt="Fashion Model"
           className="absolute bottom-0 left-[50%] -translate-x-1/2 w-[200px] sm:w-[250px] md:w-[300px] lg:w-[408px] h-[300px] sm:h-[375px] md:h-[450px] lg:h-[612px] object-contain z-30"
         />

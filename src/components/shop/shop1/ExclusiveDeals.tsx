@@ -6,40 +6,42 @@ const ExclusiveDeals = () => {
       
       {/* Header */}
       <div className="w-full flex flex-col items-center md:items-end z-10">
-        <h1 className="font-[Corinthia,cursive] font-bold mb-2 mt-2 text-center md:text-right leading-none">
+        <h1 className="font-[Corinthia,cursive] font-bold mb-2 mt-2 ml-10 text-center md:text-right leading-none">
           <img 
-            src="/assets/images/ExclusiveDeals.png" 
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745120/public_assets_shop1_LP/public_assets_images_ExclusiveDeals.svg" 
             alt="Exclusive Deals" 
-            className="w-[200px] sm:w-[300px] md:w-[350px] lg:w-[400px] h-auto"
+            className="w-[200px] sm:w-[300px] md:w-[350px] lg:w-[500px] h-auto"
           />
         </h1>
       </div>
 
       {/* Main Content */}
-      <div className="w-full flex flex-col md:flex-row justify-center md:justify-between items-center gap-y-6 md:gap-y-0 md:items-start mt-6 sm:mt-8 md:mt-10 lg:mt-12 z-10 relative">
+      <div className="w-full flex flex-col md:flex-row justify-center md:justify-between items-center gap-y-6 md:gap-y-0 md:items-start mt-10 sm:mt-8 md:mt-10 lg:mt-12 z-10 relative">
 
         {/* Floral Illustration */}
         <img
-          src="/assets/images/ExclusiveDeals2.png"
+          src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745125/public_assets_shop1_LP/public_assets_images_ExclusiveDeals2.svg"
           alt="Floral Illustration"
-          className="absolute left-1/2 md:left-[46%] top-[-15px] sm:top-[-40px] md:top-[-60px] lg:top-[-80px] w-16 sm:w-24 md:w-32 lg:w-[267px] transform -translate-x-1/2 pointer-events-none select-none z-40"
+          className="absolute left-1/2 md:left-[40%] top-[-15px] sm:top-[-40px] md:top-[-60px] lg:top-[-80px] w-16 sm:w-24 md:w-32 lg:w-[267px] transform -translate-x-1/2 pointer-events-none select-none z-40"
         />
 
         {/* Left Image */}
-        <div className="w-full sm:w-[80%] md:w-[55%] max-w-[524px] aspect-[524/729] overflow-hidden rounded-lg shadow-lg">
+        <div className="w-full sm:w-[80%] md:w-[55%] max-w-[524px] aspect-[524/729] overflow-hidden  shadow-lg">
           <img
-            src="/assets/images/ExclusiveDeals1.png"
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745122/public_assets_shop1_LP/public_assets_images_ExclusiveDeals1.svg"
             alt="Ethnic Glamour Collection"
-            className="w-full h-full object-cover"
+            className="w-[524px] h-[729px] object-cover"
           />
         </div>
 
         {/* Right Section */}
-        <div className="w-full md:w-[38%] flex flex-col items-center md:items-start mt-2 md:mt-0 space-y-4 px-2 sm:px-4 md:-ml-4 lg:-ml-6">
+        <div className="w-full md:w-[44%] flex flex-col items-center md:items-start mt-2 md:mt-5 space-y-4 px-2 sm:pr-20">
           
           {/* Text Section */}
           <div className="flex flex-col items-center md:items-start space-y-2 text-center md:text-left">
-            <p className="uppercase tracking-widest text-xs sm:text-sm md:text-base text-gray-700">
+            <p
+              className="text-right text-[#222] font-[Poppins] text-[20px] font-medium leading-[38px] tracking-[0.375em] not-italic"
+            >
               A Glamour Collection
             </p>
             <p
@@ -53,9 +55,9 @@ const ExclusiveDeals = () => {
           </div>
 
           {/* Right Image */}
-          <div className="w-full sm:w-[80%] md:w-[90%] max-w-[418px] aspect-[418/628] overflow-hidden rounded-lg shadow-lg relative top-6">
+          <div className="w-full sm:w-[80%] md:w-[90%] max-w-[418px] aspect-[418/628] overflow-hidden shadow-lg relative top-3">
             <img
-              src="/assets/images/ExclusiveDeals3.png"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745128/public_assets_shop1_LP/public_assets_images_ExclusiveDeals3.svg"
               alt="Modern Printed Outfit"
               className="w-full h-full object-cover"
             />

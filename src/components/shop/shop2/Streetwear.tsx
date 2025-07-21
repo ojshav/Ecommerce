@@ -18,7 +18,7 @@ const Streetwear: React.FC = () => {
 
               {/* Model image */}
               <img
-                src="/assets/shop2/street.png"
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059274/public_assets_shop2/public_assets_shop2_street.svg"
                 alt="Streetwear model"
                 className="absolute bottom-0 left-[-20px] sm:left-[-35px] w-[300px] sm:w-[400px] lg:w-[443px] h-[500px] sm:h-[600px] object-contain z-10 max-w-none"
               />
