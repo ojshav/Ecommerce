@@ -82,6 +82,7 @@ import Shops from './pages/superadmin/shop-management/Shops';
 import ShopCategories from './pages/superadmin/shop-management/ShopCategories';
 import ShopBrands from './pages/superadmin/shop-management/ShopBrands';
 import ShopAttributes from './pages/superadmin/shop-management/ShopAttributes';
+import AdminShopProducts from './pages/superadmin/shop-management/ShopProducts';
 import Brands from './components/home/brands';
 import Inventory from './pages/business/Inventory';
 import VerificationStatus from './pages/business/VerificationStatus';
@@ -483,6 +484,7 @@ const App: React.FC = () => {
                     <Route path="shop-categories" element={<ShopCategories />} />
                     <Route path="shop-brands" element={<ShopBrands />} />
                     <Route path="shop-attributes" element={<ShopAttributes />} />
+                    <Route path="shop-products" element={<AdminShopProducts />} />
 <Route path="merchant-subscriptions" element={<MerchantSubscription />} />
                       <Route path="newsletter-subscribers" element={<NewsletterSubscribers />} />
                   </Route>
