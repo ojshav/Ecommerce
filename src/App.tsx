@@ -36,6 +36,7 @@ import RegisterBusiness from './pages/auth/RegisterBusiness';
 
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AdminLayout from './components/business/AdminLayout';
 
@@ -201,10 +202,11 @@ const VisitTracker: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 // Main App component
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <WishlistProvider>
-          <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <ToastProvider>
+      <AuthProvider>
+        <CartProvider>
+          <WishlistProvider>
+            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <Router>
               <VisitTracker>
                 <ScrollToTop />
@@ -630,11 +632,11 @@ const App: React.FC = () => {
                 },
               }}
             />
-
           </GoogleOAuthProvider>
         </WishlistProvider>
       </CartProvider>
     </AuthProvider>
+    </ToastProvider>
   );
 };
 

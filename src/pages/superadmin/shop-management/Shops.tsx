@@ -11,7 +11,9 @@ import {
 } from 'lucide-react';
 import { shopManagementService, Shop } from '../../../services/shopManagementService';
 import ImageUpload from '../../../components/ui/ImageUpload';
-import { useToastHelpers } from '../../../context/ToastContext';const Shops: React.FC = () => {
+import { useToastHelpers } from '../../../context/ToastContext';
+
+const Shops: React.FC = () => {
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
