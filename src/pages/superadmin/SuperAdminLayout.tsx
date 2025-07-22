@@ -112,6 +112,38 @@ export const dashboardSections: MenuSection[] = [
     ],
   },
   {
+    category: "Shop Management",
+    color: "purple",
+    icon: FolderOpen,
+    items: [
+      {
+        title: "Shops",
+        icon: Home,
+        description: "Manage shops and store configurations",
+      },
+      {
+        title: "Shop Categories",
+        icon: FolderOpen,
+        description: "Manage categories for each shop",
+      },
+      {
+        title: "Shop Brands",
+        icon: ShoppingBag,
+        description: "Manage brands for shop categories",
+      },
+      {
+        title: "Shop Attributes",
+        icon: Settings,
+        description: "Manage product attributes for shop categories",
+      },
+      {
+        title: "Shop Products",
+        icon: ShoppingBag,
+        description: "Manage products for all shops",
+      },
+    ],
+  },
+  {
     category: "Operations",
     color: "amber",
     icon: ShieldCheck,
@@ -280,7 +312,7 @@ const SuperAdminLayout = () => {
       if (
         section.items.some((item) => {
           const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
-          return path.includes(itemPath);
+          return path === `/superadmin/${itemPath}` || path.endsWith(`/${itemPath}`);
         })
       ) {
         return section.category;
@@ -294,7 +326,7 @@ const SuperAdminLayout = () => {
     if (
       catalogSection?.items.some((item) => {
         const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
-        return path.includes(itemPath);
+        return path === `/superadmin/${itemPath}` || path.endsWith(`/${itemPath}`);
       })
     ) {
       return "Catalog Management";
@@ -346,7 +378,8 @@ const SuperAdminLayout = () => {
   const isSubmenuActive = (itemTitle: string) => {
     const path = location.pathname;
     const itemPath = itemTitle.toLowerCase().replace(/\s+/g, "-");
-    return path.includes(itemPath);
+    // Use exact path match or ensure it's a complete path segment
+    return path === `/superadmin/${itemPath}` || path.endsWith(`/${itemPath}`);
   };
 
   // Check if a category is active (including its submenus)
@@ -368,7 +401,7 @@ const SuperAdminLayout = () => {
     if (section) {
       return section.items.some((item) => {
         const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
-        return location.pathname.includes(itemPath);
+        return location.pathname === `/superadmin/${itemPath}` || location.pathname.endsWith(`/${itemPath}`);
       });
     }
 
@@ -380,7 +413,7 @@ const SuperAdminLayout = () => {
       return (
         catalogSection?.items.some((item) => {
           const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
-          return location.pathname.includes(itemPath);
+          return location.pathname === `/superadmin/${itemPath}` || location.pathname.endsWith(`/${itemPath}`);
         }) || false
       );
     }
