@@ -1,4 +1,10 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const getApiBaseUrl = (): string => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+  // Remove trailing slash if present
+  return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export interface Shop {
   shop_id: number;
@@ -105,7 +111,31 @@ export interface ShopProduct {
   originalPrice?: number;
   attributes?: any[];
   variants?: any[];
-  stock?: any;
+  stock?: {
+    stock_qty: number;
+    low_stock_threshold: number;
+  };
+  shipping?: {
+    length_cm: number;
+    width_cm: number;
+    height_cm: number;
+    weight_kg: number;
+    shipping_class: string;
+  };
+  meta?: {
+    short_desc: string;
+    full_desc: string;
+    meta_title: string;
+    meta_desc: string;
+    meta_keywords: string;
+  };
+  media?: Array<{
+    media_id: number;
+    type: string;
+    url: string;
+    is_primary: boolean;
+    sort_order: number;
+  }>;
   primary_image?: string;
 }
 
@@ -120,7 +150,7 @@ class ShopManagementService {
 
   // Attribute Value Methods
   async getAttributeValues(attributeId: number): Promise<ShopAttributeValue[]> {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/shop/attributes/${attributeId}/values`, {
+    const response = await fetch(`${API_BASE_URL}/api/shop/attributes/${attributeId}/values`, {
       headers: this.getAuthHeaders(),
     });
     
@@ -132,7 +162,7 @@ class ShopManagementService {
   }
 
   async createAttributeValue(valueData: Omit<ShopAttributeValue, 'value_id' | 'created_at' | 'updated_at'>): Promise<ShopAttributeValue> {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/shop/attribute-values`, {
+    const response = await fetch(`\${API_BASE_URL}/api/shop/attribute-values`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(valueData),
@@ -147,7 +177,7 @@ class ShopManagementService {
   }
 
   async updateAttributeValue(valueId: number, valueData: Partial<ShopAttributeValue>): Promise<ShopAttributeValue> {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/shop/attribute-values/${valueId}`, {
+    const response = await fetch(`\${API_BASE_URL}/api/shop/attribute-values/${valueId}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(valueData),
@@ -162,7 +192,7 @@ class ShopManagementService {
   }
 
   async deleteAttributeValue(valueId: number): Promise<void> {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/shop/attribute-values/${valueId}`, {
+    const response = await fetch(`\${API_BASE_URL}/api/shop/attribute-values/${valueId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders(),
     });
@@ -499,8 +529,25 @@ class ShopManagementService {
       headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch products');
+    const responseData = await response.json();
+    
+    // Normalize the response structure to match expected format
+    return {
+      data: responseData.products || responseData.data || [],
+      pagination: responseData.pagination
+    };
+  }
+
+  async getProductDetails(productId: number): Promise<ShopProduct> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/${productId}/details`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch product details');
+    }
     const data = await response.json();
-    return data;
+    return data.data;
   }
 
   async createProduct(productData: Omit<ShopProduct, 'product_id' | 'created_at' | 'updated_at'>): Promise<ShopProduct> {
@@ -540,6 +587,85 @@ class ShopManagementService {
       const error = await response.json();
       throw new Error(error.message || 'Failed to delete product');
     }
+  }
+
+  // Multi-step product creation methods
+  async createProductStep1(stepData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/step1`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(stepData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to save basic product information');
+    }
+    return await response.json();
+  }
+
+  async createProductStep2(stepData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/step2`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(stepData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to save product attributes');
+    }
+    return await response.json();
+  }
+
+  async createProductStep3(stepData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/step3`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(stepData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to save product media');
+    }
+    return await response.json();
+  }
+
+  async createProductStep4(stepData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/step4`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(stepData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to save shipping information');
+    }
+    return await response.json();
+  }
+
+  async createProductStep5(stepData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/step5`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(stepData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to save stock information');
+    }
+    return await response.json();
+  }
+
+  async createProductStep6(stepData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/step6`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(stepData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to save product meta information');
+    }
+    return await response.json();
   }
 }
 
