@@ -182,6 +182,14 @@ const Aoinlive: React.FC = () => {
           fetchAllStreams();
           return;
         }
+        // Show a user-friendly message for YouTube inactive stream error
+        if (
+          (typeof err.error === 'string' && err.error.includes('Stream is inactive')) ||
+          (typeof err.error === 'string' && err.error.includes('errorStreamInactive'))
+        ) {
+          toast.error('Please wait while the admin configures YouTube. Try again in a few moments.');
+          return;
+        }
         toast.error(err.error || 'Failed to start stream');
         return;
       }
@@ -204,46 +212,23 @@ const Aoinlive: React.FC = () => {
 
   useEffect(() => {
     const fetchSlots = async () => {
-      if (formData.productId && formData.scheduledDate) {
+      if (formData.scheduledDate) {
         try {
-          console.log('Fetching slots for:', { productId: formData.productId, date: formData.scheduledDate });
           const response = await fetch(
-            `${API_BASE_URL}/api/live-streams/available-slots?product_id=${formData.productId}&date=${formData.scheduledDate}`,
+            `${API_BASE_URL}/api/merchant-dashboard/live-streams/available-slots?date=${formData.scheduledDate}`,
             {
               headers: { Authorization: `Bearer ${accessToken}` }
             }
           );
-          console.log('Response status:', response.status);
           if (!response.ok) throw new Error('Failed to fetch slots');
-          
-          const responseText = await response.text();
-          console.log('Raw response text:', responseText);
-          
-          let data;
-          try {
-            data = JSON.parse(responseText);
-            console.log('Parsed JSON data:', data);
-          } catch (parseError) {
-            console.error('Failed to parse JSON:', parseError);
-            throw new Error('Invalid JSON response');
-          }
-          
-          console.log('Available slots response:', data);
-          console.log('Data type:', typeof data);
-          console.log('Data keys:', Object.keys(data));
-          
-          // Handle different response structures
+          const data = await response.json();
           let availableSlots = [];
-          if (data.data && data.data.available_slots) {
-            availableSlots = data.data.available_slots;
-          } else if (data.available_slots) {
+          if (data.available_slots) {
             availableSlots = data.available_slots;
           } else if (Array.isArray(data)) {
             availableSlots = data;
           }
-          
           setAvailableSlots(availableSlots);
-          console.log('Set available slots:', availableSlots);
         } catch (error) {
           console.error('Error fetching slots:', error);
           setAvailableSlots([]);
@@ -255,7 +240,7 @@ const Aoinlive: React.FC = () => {
       // setSelectedSlot(''); // This line was removed
     };
     fetchSlots();
-  }, [formData.productId, formData.scheduledDate, accessToken, API_BASE_URL]);
+  }, [formData.scheduledDate, accessToken, API_BASE_URL]);
 
   const fetchProducts = async () => {
     try {
@@ -508,9 +493,9 @@ const Aoinlive: React.FC = () => {
             <div className="font-medium text-lg flex items-center">
               {stream.title}
               <span className={`ml-2 px-2 py-1 text-xs font-semibold text-white rounded-full ${
-                stream.status === 'LIVE' 
+                stream.status && stream.status.toUpperCase() === 'LIVE' 
                   ? 'bg-red-500' 
-                  : stream.status === 'SCHEDULED' 
+                  : stream.status && stream.status.toUpperCase() === 'SCHEDULED' 
                     ? 'bg-yellow-500'
                     : 'bg-gray-500'
               }`}>
@@ -561,8 +546,10 @@ const Aoinlive: React.FC = () => {
                   </div>
                 </>
               )}
-              {stream.status === 'SCHEDULED' && (
-                <div>Scheduled for: {new Date(stream.scheduled_time).toLocaleString()}</div>
+              {stream.status && stream.status.toUpperCase() === 'SCHEDULED' && stream.scheduled_time && (
+                <div className="text-sm text-gray-600 mt-1">
+                  Scheduled for: {new Date(stream.scheduled_time).toLocaleString()}
+                </div>
               )}
               {stream.status === 'ENDED' && stream.end_time && (
                 <div>Ended: {new Date(stream.end_time).toLocaleString()}</div>
@@ -574,7 +561,7 @@ const Aoinlive: React.FC = () => {
 
       {/* Action Buttons */}
       <div className="mt-4 md:mt-0 flex gap-2">
-        {stream.status === 'SCHEDULED' && (
+        {stream.status && stream.status.toUpperCase() === 'SCHEDULED' && (
           <>
             <button
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -590,7 +577,7 @@ const Aoinlive: React.FC = () => {
             </button>
           </>
         )}
-        {stream.status === 'LIVE' && (
+        {stream.status && stream.status.toUpperCase() === 'LIVE' && (
           <button
             className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
             onClick={() => handleEndStream(stream)}
