@@ -130,6 +130,7 @@ import { useVisitTracking } from './hooks/useVisitTracking';
 import SearchResultsPage from './pages/SearchResultsPage';
 import MerchantPaymentReport from './pages/superadmin/reports/MerchantPaymentReport';
 import MerchantSubscription from './pages/MerchantSubscription';
+import NewsletterSubscribers from './pages/superadmin/NewsletterSubscribers';
 
 import Aoinlive from './pages/business/Aoinlive';
 import LiveStreamView from './pages/LiveStreamView';
