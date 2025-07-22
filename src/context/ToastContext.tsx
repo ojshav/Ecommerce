@@ -36,15 +36,18 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     <ToastContext.Provider value={{ showToast, removeToast }}>
       {children}
       
-      {/* Toast Container */}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
-        {toasts.map(toast => (
-          <ToastComponent
-            key={toast.id}
-            toast={toast}
-            onRemove={removeToast}
-          />
-        ))}
+      {/* Toast Container with improved positioning and styling */}
+      <div className="fixed top-4 right-4 z-[9999] space-y-3 pointer-events-none">
+        <div className="flex flex-col-reverse space-y-reverse space-y-3">
+          {toasts.map(toast => (
+            <div key={toast.id} className="pointer-events-auto">
+              <ToastComponent
+                toast={toast}
+                onRemove={removeToast}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </ToastContext.Provider>
   );

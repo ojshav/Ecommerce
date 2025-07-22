@@ -38,8 +38,21 @@
     }
   }
 
+  @keyframes shrink-width {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+
   .animate-slide-in-right {
     animation: slide-in-right 0.3s ease-out;
+  }
+
+  .animate-shrink-width {
+    animation: shrink-width 5s linear forwards;
   }
 
   /* Enhanced input sizes for all merchant/business pages */
