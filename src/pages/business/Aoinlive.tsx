@@ -1,20 +1,31 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaCamera, FaMicrophone, FaShare, FaPlay, FaStop, FaComments, FaHeart } from 'react-icons/fa';
+import { FaShare } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/useAuth';
 // Remove socket.io import
 // import io, { Socket } from 'socket.io-client';
 
+interface ProductMedia {
+  media_id: number;
+  url: string;
+  type: string;
+}
+
+interface ProductAttribute {
+  attribute_id: number;
+  attribute_name: string;
+  value_text: string | null;
+}
+
 interface Product {
   product_id: number;
-  product_name: string;
-  sku: string;
-  selling_price: number;
-  media?: Array<{
-    media_id: number;
-    url: string;
-    type: 'IMAGE' | 'VIDEO';
-  }>;
+  name: string;
+  media: ProductMedia[];
+  attributes: ProductAttribute[];
+  description: string | null;
+  product_name?: string; // For backward compatibility
+  sku?: string; // For backward compatibility
+  selling_price?: number; // For backward compatibility
 }
 
 interface LiveStreamForm {
@@ -30,20 +41,27 @@ interface LiveStream {
   stream_id: number;
   title: string;
   description: string;
+  thumbnail_url: string | null;
   scheduled_time: string;
   start_time?: string;
   end_time?: string;
   is_live: boolean;
-  status: string;
+  status: 'LIVE' | 'SCHEDULED' | 'ENDED';
   viewers_count: number;
   likes_count: number;
   stream_key: string;
+  stream_url?: string;
+  yt_livestream_id?: string;
   product: Product;
   merchant: {
+    id: number;
     business_name: string;
+    business_email: string;
     user: {
+      id: number;
       first_name: string;
       last_name: string;
+      email: string;
     };
   };
 }
@@ -76,77 +94,69 @@ const Aoinlive: React.FC = () => {
   const [selectedSlot, setSelectedSlot] = useState<string>('');
   const [customSlot, setCustomSlot] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [isLive, setIsLive] = useState(false);
-  const [hasCameraAccess, setHasCameraAccess] = useState(false);
-  const [hasMicAccess, setHasMicAccess] = useState(false);
-  const [currentStream, setCurrentStream] = useState<LiveStream | null>(null);
-  // Remove chatMessages, newMessage, chatContainerRef, and related UI if only socket-based
-  const [viewersCount, setViewersCount] = useState(0);
-  const [likesCount, setLikesCount] = useState(0);
-  // Remove socket.io import
-  // const [socket, setSocket] = useState<Socket | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [scheduledStreams, setScheduledStreams] = useState<LiveStream[]>([]);
-  const [youtubeScheduledStreams, setYoutubeScheduledStreams] = useState<any[]>([]);
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [streams, setStreams] = useState<{ scheduled: LiveStream[]; live: LiveStream[]; ended: LiveStream[] }>({ scheduled: [], live: [], ended: [] });
   const [deletingStreamId, setDeletingStreamId] = useState<number | null>(null);
   const [rtmpInfo, setRtmpInfo] = useState<any | null>(null);
   const [showRtmpModal, setShowRtmpModal] = useState(false);
   const [rtmpModalStream, setRtmpModalStream] = useState<any | null>(null);
+  const [currentLiveStream, setCurrentLiveStream] = useState<LiveStream | null>(null);
 
-  // Fetch scheduled streams for the merchant
-  const fetchScheduledStreams = async () => {
+  // Fetch all streams (grouped by status)
+  const fetchAllStreams = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams`, {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams/all`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
       });
-      if (!response.ok) throw new Error('Failed to fetch scheduled streams');
+      if (!response.ok) throw new Error('Failed to fetch streams');
       const data = await response.json();
-      // Only show streams with status SCHEDULED
-      setScheduledStreams(Array.isArray(data) ? data.filter((s) => s.status === 'SCHEDULED') : []);
-    } catch (error) {
-      setScheduledStreams([]);
-    }
-  };
-
-  // Fetch scheduled streams on mount and when a stream is scheduled/ended
-  useEffect(() => {
-    if (accessToken) {
-      fetchScheduledStreams();
-    }
-  }, [accessToken, isLive, currentStream]);
-
-  // Fetch YouTube scheduled streams for the merchant
-  const fetchYoutubeScheduledStreams = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams/youtube-scheduled`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
+      setStreams({
+        scheduled: data.scheduled || [],
+        live: data.live || [],
+        ended: data.ended || [],
       });
-      if (!response.ok) throw new Error('Failed to fetch YouTube scheduled streams');
-      const data = await response.json();
-      setYoutubeScheduledStreams(data.data || []);
+      if (data.live && data.live.length > 0) {
+        setCurrentLiveStream(data.live[0]); // or let merchant pick if multiple
+      } else {
+        setCurrentLiveStream(null);
+      }
     } catch (error) {
-      setYoutubeScheduledStreams([]);
+      setStreams({ scheduled: [], live: [], ended: [] });
+      toast.error('Failed to load streams');
     }
   };
 
-  // Fetch YouTube scheduled streams on mount
+  // Fetch all streams on mount and when a stream is scheduled/ended
   useEffect(() => {
     if (accessToken) {
-      fetchYoutubeScheduledStreams();
+      fetchAllStreams();
     }
   }, [accessToken]);
 
-  // Handler for Go Live button
+  // Fetch the latest status for a stream from the backend
+  const fetchStreamStatus = async (streamId: number) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams/${streamId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch stream status');
+      const data = await response.json();
+      console.log('Stream status API response:', data); // <-- Debug log
+      // setCurrentStream(data); // This line was removed
+    } catch (error) {
+      // Optionally handle error
+    }
+  };
+
+  // After scheduling, starting, or ending a stream, fetch the latest status
   const handleGoLive = async (stream: any) => {
-    setCurrentStream(stream);
-    setIsLive(false); // Not live yet, just prepping
+    // setCurrentStream(stream); // This line was removed
     try {
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams/${stream.stream_id}/start`, {
         method: 'POST',
@@ -156,14 +166,31 @@ const Aoinlive: React.FC = () => {
         },
       });
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'Failed to start stream');
+        // Check for redundantTransition error in response
+        let err;
+        try {
+          err = await response.json();
+        } catch (e) {
+          err = { error: 'Failed to start stream' };
+        }
+        // If error contains redundantTransition, treat as success
+        if (
+          typeof err.error === 'string' && err.error.includes('redundantTransition')
+        ) {
+          toast.success('Stream is already live!');
+          fetchStreamStatus(stream.stream_id);
+          fetchAllStreams();
+          return;
+        }
+        toast.error(err.error || 'Failed to start stream');
+        return;
       }
       const data = await response.json();
-      setCurrentStream(data.data);
-      setIsLive(true);
+      // setCurrentStream(data.data); // This line was removed
+      // Fetch latest status from backend (which now checks YouTube)
+      fetchStreamStatus(data.data.stream_id);
       toast.success('Live stream started!');
-      fetchScheduledStreams();
+      fetchAllStreams();
     } catch (error: any) {
       toast.error(error.message || 'Failed to start stream');
     }
@@ -225,7 +252,7 @@ const Aoinlive: React.FC = () => {
       } else {
         setAvailableSlots([]);
       }
-      setSelectedSlot('');
+      // setSelectedSlot(''); // This line was removed
     };
     fetchSlots();
   }, [formData.productId, formData.scheduledDate, accessToken, API_BASE_URL]);
@@ -259,9 +286,9 @@ const Aoinlive: React.FC = () => {
       ...prev,
       [name]: value,
     }));
-    if (name === 'productId' || name === 'scheduledDate') {
-      setSelectedSlot('');
-    }
+    // if (name === 'productId' || name === 'scheduledDate') { // This line was removed
+    //   setSelectedSlot(''); // This line was removed
+    // } // This line was removed
   };
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -287,9 +314,11 @@ const Aoinlive: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsScheduling(true); // <-- Start loading
     let slotToUse = selectedSlot === 'other' ? customSlot : selectedSlot;
     if (!slotToUse) {
       toast.error('Please select or enter a time slot');
+      setIsScheduling(false); // <-- Stop loading on error
       return;
     }
     const scheduled_time = `${formData.scheduledDate}T${slotToUse}:00`;
@@ -333,99 +362,15 @@ const Aoinlive: React.FC = () => {
       }
       const data = await response.json();
       console.log('Schedule Live Stream API response:', data); // <-- Debug log
-      setCurrentStream(data.data);
+      // setCurrentStream(data.data); // This line was removed
       setRtmpInfo(data.rtmp_info || null);
       toast.success('Live stream scheduled successfully!');
       // Refresh scheduled streams after scheduling
-      fetchScheduledStreams();
+      fetchAllStreams();
     } catch (error: any) {
       toast.error(error.message || 'Failed to schedule stream');
-    }
-  };
-
-  const requestCameraAccess = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      setHasCameraAccess(true);
-      toast.success('Camera access granted');
-    } catch (error) {
-      toast.error('Please allow camera access to go live');
-    }
-  };
-
-  const requestMicAccess = async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-      setHasMicAccess(true);
-      toast.success('Microphone access granted');
-    } catch (error) {
-      toast.error('Please allow microphone access to go live');
-    }
-  };
-
-  const startLiveStream = async () => {
-    if (!hasCameraAccess || !hasMicAccess) {
-      toast.error('Please grant camera and microphone access first');
-      return;
-    }
-    if (!currentStream) {
-      toast.error('No stream scheduled to start');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/live-streams/${currentStream.stream_id}/start`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to start stream');
-      }
-
-      // Update stream status via fetch
-      const updatedStream = await response.json();
-      setCurrentStream(updatedStream.data);
-      setIsLive(true);
-      toast.success('Live stream started!');
-      // Refresh scheduled streams after starting
-      fetchScheduledStreams();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to start stream');
-    }
-  };
-
-  const stopLiveStream = async () => {
-    if (!currentStream) return;
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/live-streams/${currentStream.stream_id}/end`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to end stream');
-      }
-
-      // Update stream status via fetch
-      const updatedStream = await response.json();
-      setCurrentStream(updatedStream.data);
-      setIsLive(false);
-      toast.success('Live stream ended');
-      // Refresh scheduled streams after ending
-      fetchScheduledStreams();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to end stream');
+    } finally {
+      setIsScheduling(false); // <-- Stop loading after response
     }
   };
 
@@ -451,11 +396,11 @@ const Aoinlive: React.FC = () => {
   // };
 
   const shareStream = () => {
-    if (!currentStream) return;
+    // if (!currentStream) return; // This line was removed
     
-    const shareUrl = `${window.location.origin}/live-stream/${currentStream.stream_id}`;
-    navigator.clipboard.writeText(shareUrl);
-    toast.success('Stream link copied to clipboard!');
+    // const shareUrl = `${window.location.origin}/live-stream/${currentStream.stream_id}`; // This line was removed
+    // navigator.clipboard.writeText(shareUrl); // This line was removed
+    // toast.success('Stream link copied to clipboard!'); // This line was removed
   };
 
   // Helper for copy to clipboard
@@ -494,8 +439,8 @@ const Aoinlive: React.FC = () => {
     }
   };
 
-  const deleteScheduledStream = async (streamId: number) => {
-    if (!window.confirm('Are you sure you want to delete this scheduled stream?')) return;
+  const deleteStream = async (streamId: number) => {
+    if (!window.confirm('Are you sure you want to delete this stream?')) return;
     setDeletingStreamId(streamId);
     try {
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams/${streamId}`, {
@@ -509,15 +454,160 @@ const Aoinlive: React.FC = () => {
         const err = await response.json();
         throw new Error(err.error || err.message || 'Failed to delete stream');
       }
-      toast.success('Scheduled stream deleted');
-      // Remove from local state
-      setScheduledStreams((prev) => prev.filter((s) => s.stream_id !== streamId));
+      toast.success('Stream deleted');
+      fetchAllStreams();
     } catch (error: any) {
       toast.error(error.message || 'Failed to delete stream');
     } finally {
       setDeletingStreamId(null);
     }
   };
+
+  const handleEndStream = async (stream: LiveStream) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams/${stream.stream_id}/end`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to end stream');
+      }
+      toast.success('Live stream ended');
+      fetchAllStreams();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to end stream');
+    }
+  };
+
+  // Move renderStreamCard inside the component
+  const renderStreamCard = (stream: LiveStream) => (
+    <div key={stream.stream_id} className="flex flex-col md:flex-row md:items-center md:justify-between border-b pb-4 last:border-b-0 last:pb-0">
+      <div className="flex-1">
+        <div className="flex items-start space-x-4">
+          {/* Thumbnail */}
+          <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden">
+            {stream.thumbnail_url ? (
+              <img 
+                src={stream.thumbnail_url} 
+                alt={stream.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.68v6.64a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              </div>
+            )}
+          </div>
+
+          {/* Stream Info */}
+          <div className="flex-1">
+            <div className="font-medium text-lg flex items-center">
+              {stream.title}
+              <span className={`ml-2 px-2 py-1 text-xs font-semibold text-white rounded-full ${
+                stream.status === 'LIVE' 
+                  ? 'bg-red-500' 
+                  : stream.status === 'SCHEDULED' 
+                    ? 'bg-yellow-500'
+                    : 'bg-gray-500'
+              }`}>
+                {stream.status}
+              </span>
+            </div>
+            
+            {/* Product Details */}
+            {stream.product && (
+              <div className="mt-2 space-y-1">
+                <div className="text-sm text-gray-600">
+                  Product: {stream.product.name || stream.product.product_name}
+                </div>
+                {stream.product.description && (
+                  <div className="text-sm text-gray-500 line-clamp-2">
+                    {stream.product.description}
+                  </div>
+                )}
+                {stream.product.media && stream.product.media.length > 0 && (
+                  <div className="flex gap-2 mt-1">
+                    {stream.product.media.slice(0, 3).map((media) => (
+                      <img 
+                        key={media.media_id}
+                        src={media.url}
+                        alt="Product"
+                        className="w-8 h-8 rounded object-cover"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Stream Details */}
+            <div className="mt-2 text-sm text-gray-600">
+              {stream.status === 'LIVE' && (
+                <>
+                  <div>Started: {new Date(stream.start_time!).toLocaleString()}</div>
+                  <div className="flex items-center gap-4 mt-1">
+                    <span className="flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.68v6.64a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                      {stream.viewers_count} watching
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4a3 3 0 003-3V4a2 2 0 00-2-2H6a2 2 0 00-2 2v3a3 3 0 003 3h4a2 2 0 012 2v7a2 2 0 002 2h2a2 2 0 002-2v-7a2 2 0 012-2z"></path></svg>
+                      {stream.likes_count} likes
+                    </span>
+                  </div>
+                </>
+              )}
+              {stream.status === 'SCHEDULED' && (
+                <div>Scheduled for: {new Date(stream.scheduled_time).toLocaleString()}</div>
+              )}
+              {stream.status === 'ENDED' && stream.end_time && (
+                <div>Ended: {new Date(stream.end_time).toLocaleString()}</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="mt-4 md:mt-0 flex gap-2">
+        {stream.status === 'SCHEDULED' && (
+          <>
+            <button
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              onClick={() => fetchRtmpInfoForStream(stream)}
+            >
+              Get RTMP Key
+            </button>
+            <button
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              onClick={() => handleGoLive(stream)}
+            >
+              Go Live
+            </button>
+          </>
+        )}
+        {stream.status === 'LIVE' && (
+          <button
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            onClick={() => handleEndStream(stream)}
+          >
+            End Stream
+          </button>
+        )}
+        <button
+          className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+          onClick={() => deleteStream(stream.stream_id)}
+          disabled={deletingStreamId === stream.stream_id}
+        >
+          {deletingStreamId === stream.stream_id ? 'Deleting...' : 'Delete'}
+        </button>
+      </div>
+    </div>
+  );
 
   if (isLoading) {
     return (
@@ -532,6 +622,12 @@ const Aoinlive: React.FC = () => {
       <div className="space-y-8">
         <h1 className="text-3xl font-bold text-center text-gray-900">Aoin Live Streaming</h1>
         
+        {isScheduling && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-600"></div>
+          </div>
+        )}
+
         {/* RTMP Modal for Go Live */}
         {showRtmpModal && rtmpInfo && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
@@ -609,72 +705,154 @@ const Aoinlive: React.FC = () => {
           </div>
         )}
 
-        {/* YouTube Scheduled Streams Section */}
-        {youtubeScheduledStreams.length > 0 && (
+        {/* Live Streams Section */}
+        {currentLiveStream && currentLiveStream.stream_url && (
           <div className="bg-white shadow rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">YouTube Scheduled Streams</h2>
-            <div className="space-y-4">
-              {youtubeScheduledStreams.map((stream) => (
-                <div key={stream.broadcast_id} className="flex flex-col md:flex-row md:items-center md:justify-between border-b pb-4 last:border-b-0 last:pb-0">
-                  <div>
-                    <div className="font-medium text-lg">{stream.title}</div>
-                    <div className="text-sm text-gray-600">Scheduled: {new Date(stream.scheduled_start_time).toLocaleString()}</div>
-                    {stream.stream_info && (
-                      <>
-                        <div className="text-sm text-gray-600 mt-2">RTMP URL: <span className="font-mono">{stream.stream_info.ingestionAddress}</span>
-                          <button onClick={() => handleCopy(stream.stream_info.ingestionAddress)} className="ml-2 text-blue-600 underline text-xs">Copy</button>
-                        </div>
-                        <div className="text-sm text-gray-600">Stream Key: <span className="font-mono">{stream.stream_info.streamName}</span>
-                          <button onClick={() => handleCopy(stream.stream_info.streamName)} className="ml-2 text-blue-600 underline text-xs">Copy</button>
-                        </div>
-                        {stream.stream_info.streamUrl && (
-                          <div className="text-sm text-gray-600">Full RTMP: <span className="font-mono">{stream.stream_info.streamUrl}</span>
-                            <button onClick={() => handleCopy(stream.stream_info.streamUrl)} className="ml-2 text-blue-600 underline text-xs">Copy</button>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                  <div className="mt-2 md:mt-0">
-                    {/* You can add a button to open in YouTube Studio or OBS, etc. */}
-                  </div>
-                </div>
-              ))}
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Live Stream</h2>
+            <div className="mb-4">
+              <iframe
+                title="YouTube Live Stream"
+                src={`https://www.youtube.com/embed/${currentLiveStream.stream_url.split('v=')[1]}`}
+                width="100%"
+                height="400"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                className="w-full h-96 rounded-lg border"
+              />
+            </div>
+            <div className="flex justify-center">
+              <button
+                onClick={() => handleEndStream(currentLiveStream)}
+                className="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                End Stream
+              </button>
             </div>
           </div>
         )}
 
-        {/* Scheduled Streams Section */}
-        {scheduledStreams.length > 0 && (
+        {/* Update the streams display section */}
+        {streams.live.length > 0 && (
           <div className="bg-white shadow rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Scheduled Streams</h2>
-            <div className="space-y-4">
-              {scheduledStreams.map((stream) => (
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Live Streams</h2>
+            <div className="space-y-6">
+              {streams.live.map((stream) => (
                 <div key={stream.stream_id} className="flex flex-col md:flex-row md:items-center md:justify-between border-b pb-4 last:border-b-0 last:pb-0">
-                  <div>
-                    <div className="font-medium text-lg">{stream.title}</div>
-                    <div className="text-sm text-gray-600">Product: {stream.product?.product_name}</div>
-                    <div className="text-sm text-gray-600">Scheduled: {new Date(stream.scheduled_time).toLocaleString()}</div>
+                  <div className="flex-1">
+                    <div className="flex items-start space-x-4">
+                      {/* Thumbnail */}
+                      <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden">
+                        {stream.thumbnail_url ? (
+                          <img 
+                            src={stream.thumbnail_url} 
+                            alt={stream.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.68v6.64a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Stream Info */}
+                      <div className="flex-1">
+                        <div className="font-medium text-lg flex items-center">
+                          {stream.title}
+                          <span className={`ml-2 px-2 py-1 text-xs font-semibold text-white rounded-full ${
+                            stream.status === 'LIVE' 
+                              ? 'bg-red-500' 
+                              : stream.status === 'SCHEDULED' 
+                                ? 'bg-yellow-500'
+                                : 'bg-gray-500'
+                          }`}>
+                            {stream.status}
+                          </span>
+                        </div>
+                        
+                        {/* Product Details */}
+                        {stream.product && (
+                          <div className="mt-2 space-y-1">
+                            <div className="text-sm text-gray-600">
+                              Product: {stream.product.name || stream.product.product_name}
+                            </div>
+                            {stream.product.description && (
+                              <div className="text-sm text-gray-500 line-clamp-2">
+                                {stream.product.description}
+                              </div>
+                            )}
+                            {stream.product.media && stream.product.media.length > 0 && (
+                              <div className="flex gap-2 mt-1">
+                                {stream.product.media.slice(0, 3).map((media) => (
+                                  <img 
+                                    key={media.media_id}
+                                    src={media.url}
+                                    alt="Product"
+                                    className="w-8 h-8 rounded object-cover"
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Stream Details */}
+                        <div className="mt-2 text-sm text-gray-600">
+                          {stream.status === 'LIVE' && (
+                            <>
+                              <div>Started: {new Date(stream.start_time!).toLocaleString()}</div>
+                              <div className="flex items-center gap-4 mt-1">
+                                <span className="flex items-center gap-1">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.68v6.64a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                  {stream.viewers_count} watching
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4a3 3 0 003-3V4a2 2 0 00-2-2H6a2 2 0 00-2 2v3a3 3 0 003 3h4a2 2 0 012 2v7a2 2 0 002 2h2a2 2 0 002-2v-7a2 2 0 012-2z"></path></svg>
+                                  {stream.likes_count} likes
+                                </span>
+                              </div>
+                            </>
+                          )}
+                          {stream.status === 'SCHEDULED' && (
+                            <div>Scheduled for: {new Date(stream.scheduled_time).toLocaleString()}</div>
+                          )}
+                          {stream.status === 'ENDED' && stream.end_time && (
+                            <div>Ended: {new Date(stream.end_time).toLocaleString()}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-2 md:mt-0 flex gap-2">
-                    {/* Get RTMP Key Button */}
+
+                  {/* Action Buttons */}
+                  <div className="mt-4 md:mt-0 flex gap-2">
+                    {stream.status === 'SCHEDULED' && (
+                      <>
+                        <button
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                          onClick={() => fetchRtmpInfoForStream(stream)}
+                        >
+                          Get RTMP Key
+                        </button>
+                        <button
+                          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                          onClick={() => handleGoLive(stream)}
+                        >
+                          Go Live
+                        </button>
+                      </>
+                    )}
+                    {stream.status === 'LIVE' && (
+                      <button
+                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                        onClick={() => handleEndStream(stream)}
+                      >
+                        End Stream
+                      </button>
+                    )}
                     <button
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                      onClick={() => fetchRtmpInfoForStream(stream)}
-                    >
-                      Get RTMP Key
-                    </button>
-                    {/* Go Live Button */}
-                    <button
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
-                      onClick={() => handleGoLive(stream)}
-                      disabled={!!(!rtmpInfo || (currentStream && currentStream.stream_id !== stream.stream_id))}
-                    >
-                      Go Live
-                    </button>
-                    <button
-                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
-                      onClick={() => deleteScheduledStream(stream.stream_id)}
+                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                      onClick={() => deleteStream(stream.stream_id)}
                       disabled={deletingStreamId === stream.stream_id}
                     >
                       {deletingStreamId === stream.stream_id ? 'Deleting...' : 'Delete'}
@@ -686,8 +864,28 @@ const Aoinlive: React.FC = () => {
           </div>
         )}
 
-        {!isLive ? (
-          <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6 space-y-6">
+        {/* Scheduled Streams Section */}
+        {streams.scheduled.length > 0 && (
+          <div className="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Scheduled Streams</h2>
+            <div className="space-y-6">
+              {streams.scheduled.map(renderStreamCard)}
+            </div>
+          </div>
+        )}
+
+        {/* Ended Streams Section */}
+        {streams.ended.length > 0 && (
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Past Streams</h2>
+            <div className="space-y-6">
+              {streams.ended.map(renderStreamCard)}
+            </div>
+          </div>
+        )}
+
+        {/* Schedule Live Stream Form */}
+        <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6 space-y-6">
             <div className="space-y-4">
               <div>
                 <label htmlFor="streamTitle" className="block text-sm font-medium text-gray-700">
@@ -720,7 +918,7 @@ const Aoinlive: React.FC = () => {
                   <option value="">Select a product</option>
                   {products.map((product) => (
                     <option key={product.product_id} value={product.product_id}>
-                      {product.product_name} - {product.sku}
+                      {product.name || product.product_name} - {product.sku}
                     </option>
                   ))}
                 </select>
@@ -810,129 +1008,22 @@ const Aoinlive: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+              disabled={isScheduling}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Schedule Live Stream
+              {isScheduling ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Scheduling...
+                </>
+              ) : (
+                'Schedule Live Stream'
+              )}
             </button>
           </form>
-        ) : (
-          <div className="bg-white shadow rounded-lg p-6 space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">{currentStream?.title}</h2>
-              <div className="flex items-center space-x-4">
-                <span className="flex items-center text-sm text-gray-600">
-                  <FaComments className="mr-1" />
-                  {viewersCount} viewers
-                </span>
-                <span className="flex items-center text-sm text-gray-600">
-                  <FaHeart className="mr-1" />
-                  {likesCount} likes
-                </span>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Video Stream */}
-              <div className="lg:col-span-2">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full h-96 rounded-lg bg-gray-900"
-                />
-                <div className="flex justify-center space-x-4 mt-4">
-                  <button
-                    onClick={shareStream}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    <FaShare className="mr-2" />
-                    Share
-                  </button>
-                  <button
-                    onClick={stopLiveStream}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                  >
-                    <FaStop className="mr-2" />
-                    End Stream
-                  </button>
-                </div>
-              </div>
-
-              {/* Chat Section */}
-              <div className="lg:col-span-1">
-                <div className="bg-gray-50 rounded-lg p-4 h-96 flex flex-col">
-                  <h3 className="text-lg font-semibold mb-4">Live Chat</h3>
-                  
-                  {/* Messages */}
-                  <div 
-                    ref={chatContainerRef}
-                    className="flex-1 overflow-y-auto space-y-2 mb-4"
-                  >
-                    {/* The chat messages will be fetched and displayed here via REST API */}
-                    {/* For now, we'll just show a placeholder or no messages */}
-                    <p className="text-sm text-gray-500">Chat messages will appear here...</p>
-                  </div>
-
-                  {/* Message Input */}
-                  <div className="flex space-x-2">
-                    {/* The message input and send button will be handled by REST API */}
-                    <input
-                      type="text"
-                      // value={newMessage} // This state is removed
-                      // onChange={(e) => setNewMessage(e.target.value)} // This state is removed
-                      placeholder="Type a message..."
-                      className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                    />
-                    <button
-                      // onClick={sendMessage} // This function is removed
-                      className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
-                    >
-                      Send
-                    </button>
-                  </div>
-                </div>
-
-                {/* Like Button */}
-                <div className="mt-4">
-                  {/* The like button will be handled by REST API */}
-                  <button
-                    // onClick={likeStream} // This function is removed
-                    className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                  >
-                    <FaHeart className="mr-2" />
-                    Like Stream
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!isLive && (
-          <div className="bg-white shadow rounded-lg p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">Go Live Now</h2>
-            <div className="flex flex-col sm:flex-row items-center justify-start gap-4">
-              <button
-                onClick={requestCameraAccess}
-                className={`w-full sm:w-fit inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                  hasCameraAccess ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'
-                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-              >
-                <FaCamera className="mr-2" />
-                {hasCameraAccess ? 'Camera Ready' : 'Enable Camera'}
-              </button>
-              <button
-                onClick={requestMicAccess}
-                className={`w-full sm:w-fit inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                  hasMicAccess ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'
-                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
-              >
-                <FaMicrophone className="mr-2" />
-                {hasMicAccess ? 'Mic Ready' : 'Enable Microphone'}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

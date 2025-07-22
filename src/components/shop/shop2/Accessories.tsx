@@ -20,7 +20,7 @@ const Accessories: React.FC = () => {
           {/* Left Model */}
           <div className="absolute left-1 sm:left-4 md:left-8 lg:left-16 xl:left-28 bottom-[28vh] sm:bottom-[32vh] md:bottom-[48vh] lg:bottom-[520px]">
             <img
-              src="/assets/shop2/accessories1.png"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059220/public_assets_shop2/public_assets_shop2_accessories1.svg"
               alt="Left Model"
               className="w-[35vw] sm:w-[40vw] md:w-[25vw] lg:w-[20vw] xl:w-[317px] max-w-[317px] h-auto object-contain animate-shakeXGrow"
             />
@@ -29,7 +29,7 @@ const Accessories: React.FC = () => {
           {/* Center Model */}
           <div className="absolute left-[24%] -translate-x-1/2 bottom-[8vh] sm:bottom-[12vh] md:bottom-[12vh] lg:bottom-[100px]">
             <img
-              src="/assets/shop2/accessories2.png"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059220/public_assets_shop2/public_assets_shop2_accessories2.svg"
               alt="Center Model"
               className="w-[25vw] sm:w-[27vw] md:w-[18vw] lg:w-[15vw] xl:w-[254px] max-w-[254px] h-auto object-contain animate-shakeY"
             />
@@ -38,7 +38,7 @@ const Accessories: React.FC = () => {
           {/* Right Model */}
           <div className="absolute left-[60%] sm:left-[65%] md:left-[70%] lg:left-[75%] xl:left-[680px] bottom-[4vh] sm:bottom-[8vh] md:bottom-[10vh] lg:bottom-[50px] -translate-x-1/2">
             <img
-              src="/assets/shop2/accessories3.svg"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059220/public_assets_shop2/public_assets_shop2_accessories3.svg"
               alt="Right Model"
               className="w-[30vw] sm:w-[32vw] md:w-[22vw] lg:w-[18vw] xl:w-[364px] max-w-[364px] h-[490px] object-contain"
             />

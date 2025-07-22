@@ -64,6 +64,7 @@ import BrandCreation from './pages/superadmin/BrandCreation';
 import HomepageSettings from './pages/superadmin/HomepageSettings';
 import Shop1Productpage from './pages/Shop1Productpage';
 import Shop2Productpage from './pages/Shop2Productpage';
+import Shop3ProductPage from './pages/Shop3ProductPage';
 import Shop1AllProductpage from './pages/Shop1AllProductpage';
 import Shop2AllProductpage from './pages/Shop2AllProductpage';
 import FAQ from './pages/FAQ';
@@ -78,6 +79,9 @@ import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
 import MerchantDetails from './pages/superadmin/MerchantDetails';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
 import Profile from './pages/superadmin/Profile';
+<<<<<<<<< Temporary merge branch 1
+import YouTubeManagement from './pages/superadmin/YouTubeManagement';
+=========
 import Shops from './pages/superadmin/shop-management/Shops';
 import ShopCategories from './pages/superadmin/shop-management/ShopCategories';
 import ShopBrands from './pages/superadmin/shop-management/ShopBrands';
@@ -128,6 +132,7 @@ import MerchantPaymentReport from './pages/superadmin/reports/MerchantPaymentRep
 import MerchantSubscription from './pages/MerchantSubscription';
 
 import Aoinlive from './pages/business/Aoinlive';
+import LiveStreamView from './pages/LiveStreamView';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -218,8 +223,10 @@ const App: React.FC = () => {
                     <Route path="/shop3" element={<Shop3LandingPage />} />
                     <Route path="/shop1-productpage" element={<Shop1Productpage />} />
                     <Route path="/shop2-productpage" element={<Shop2Productpage />} />
+                    <Route path="/shop3-productpage" element={<Shop3ProductPage />} />
                     <Route path="/shop1-allproductpage" element={<Shop1AllProductpage />} />
                     <Route path="/shop2-allproductpage" element={<Shop2AllProductpage />} />
+                    
                     <Route
                       path="/business/login"
                       element={<BusinessLogin />}
@@ -479,7 +486,8 @@ const App: React.FC = () => {
                     <Route path="promotions" element={<Promotions />} />
                     <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
-                                        {/* Shop Management Routes */}
+
+                    {/* Shop Management Routes */}
                     <Route path="shops" element={<Shops />} />
                     <Route path="shop-categories" element={<ShopCategories />} />
                     <Route path="shop-brands" element={<ShopBrands />} />
@@ -596,6 +604,7 @@ const App: React.FC = () => {
                               <Route path="/live-shop/sunday-funday" element={<SundayFundayPage />} />
                               <Route path="/live-shop/product/:productId" element={<LiveShopProductDetailPage />} />
                               <Route path="/shipping-methods" element={<ShippingMethods />} />
+                              <Route path="/live-shop/:streamId" element={<LiveStreamView />} />
                             </Routes>
                           </main>
                           <Footer />

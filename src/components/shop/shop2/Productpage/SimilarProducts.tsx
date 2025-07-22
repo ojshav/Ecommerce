@@ -41,7 +41,7 @@ const customerLikedProducts = [
     title: 'CASUAL DENIM JACKET',
     category: 'WOMAN FASHION',
     price: 129,
-    image: '/assets/images/liked1.jpg',
+    image: '/assets/images/similar1.jpg',
     liked: true,
   },
   {
@@ -49,7 +49,7 @@ const customerLikedProducts = [
     title: 'ELEGANT BLOUSE',
     category: 'WOMAN FASHION',
     price: 79,
-    image: '/assets/images/liked2.jpg',
+    image: '/assets/images/similar4.jpg',
     liked: false,
   },
   {
@@ -57,7 +57,7 @@ const customerLikedProducts = [
     title: 'SUMMER DRESS',
     category: 'WOMAN FASHION',
     price: 149,
-    image: '/assets/images/liked3.jpg',
+    image: '/assets/images/similar2.jpg',
     liked: false,
   },
   {
@@ -65,17 +65,17 @@ const customerLikedProducts = [
     title: 'STYLISH TOP',
     category: 'WOMAN FASHION',
     price: 69,
-    image: '/assets/images/liked4.jpg',
+    image: '/assets/images/similar3.jpg',
     liked: true,
   },
 ];
 
 const SimilarProducts = () => {
   return (
-    <section className="relative w-full max-w-[1428px] mx-auto lg:ml-12 xl:ml-20 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-16 text-black">
+    <section className="relative w-full max-w-[1428px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-16 lg:ml-20 2xl:pl-10 text-black">
       <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-[47px] font-normal font-bebas mb-4 sm:mb-6 lg:mb-12">SIMILAR PRODUCT</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 xl:gap-7">
+      <div className="grid grid-cols-1 sm:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 xl:gap-7">
         {products.map((product, idx) => (
           <div key={product.id} className="relative rounded-xl overflow-hidden">
             <div className="relative">

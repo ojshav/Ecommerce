@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const products = [
   {
@@ -35,13 +36,15 @@ const AoinCatalog: React.FC = () => {
             key={product.name}
             className="rounded-3xl flex flex-col justify-between shadow-lg overflow-hidden w-full md:w-[429px] max-w-[95vw] mx-auto md:h-[549px] "
           >
-            <img
-              src={product.image}
-              alt={product.name}
-              width={427}
-              height={500}
-              className="object-cover w-full h-[55vw] sm:h-[300px] md:h-[500px] max-h-[500px]"
-            />
+            <Link to="/shop3-productpage" className="block">
+              <img
+                src={product.image}
+                alt={product.name}
+                width={427}
+                height={500}
+                className="object-cover w-full h-[55vw] sm:h-[300px] md:h-[500px] max-h-[500px] hover:opacity-90 transition-opacity duration-200"
+              />
+            </Link>
             <div className="flex justify-between items-center py-3 sm:py-5 px-1 sm:px-1">
               <span className="text-white font-bold font-alexandria text-base sm:text-lg md:text-[19px] tracking-wide ">
                 {product.name}

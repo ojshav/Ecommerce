@@ -5,37 +5,37 @@ const Categories = () => {
   const categories = [
     {
       name: 'CASUAL',
-      image: '/assets/images/Category1.1.png',
+      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745105/public_assets_shop1_LP/public_assets_images_Category1.1.svg',
       bgColor: '#5E919C',
       shadowColor: '#4D767F',
     },
     {
       name: 'COOL',
-      image: '/assets/images/Category2.1.png',
+      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745108/public_assets_shop1_LP/public_assets_images_Category2.1.svg',
       bgColor: '#F0BBCD',
       shadowColor: '#A76D6A',
     },
     {
       name: 'SUPER DEALS',
-      image: '/assets/images/Category3.1.png',
+      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745110/public_assets_shop1_LP/public_assets_images_Category3.1.svg',
       bgColor: '#F5DB50',
       shadowColor: '#8C8353',
     },
     {
       name: 'SPECIAL',
-      image: '/assets/images/Category4.1.png',
+      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745113/public_assets_shop1_LP/public_assets_images_Category4.1.svg',
       bgColor: '#AB927B',
       shadowColor: '#706B50',
     },
     {
       name: 'INDIAN',
-      image: '/assets/images/Category5.1.png',
+      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745115/public_assets_shop1_LP/public_assets_images_Category5.1.svg',
       bgColor: '#FFB998',
       shadowColor: '#716D57',
     },
     {
       name: 'WESTERN',
-      image: '/assets/images/Category6.1.png',
+      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745118/public_assets_shop1_LP/public_assets_images_Category6.1.svg',
       bgColor: '#A3C6A4',
       shadowColor: '#4D4A3B',
     },

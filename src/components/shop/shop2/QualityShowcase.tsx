@@ -9,13 +9,13 @@ const QualityShowcase = () => {
         {/* Left Image Box */}
         <div className="lg:col-span-2 relative rounded-xl sm:rounded-2xl overflow-hidden h-[250px] sm:h-[350px] md:h-[400px] lg:h-[511px] bg-black/50">
           <img
-            src="/assets/shop2/quality1.jpg"
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059253/public_assets_shop2/public_assets_shop2_quality1.svg"
             alt="Guaranteed Quality"
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/30" />
           <div className="absolute z-10 p-4 sm:p-6 lg:p-10">
-            <h2 className="text-[28px] sm:text-[40px] md:text-[50px] lg:text-[60px] xl:text-[80px] mt-8 sm:mt-12 lg:mt-20 xl:mt-36 leading-[0.9] tracking-tighter font-inter font-extrabold text-[#D5FF4F] max-w-[95%] lg:max-w-[500px]">
+            <h2 className="text-[28px] sm:text-[40px] md:text-[50px] lg:text-[60px] xl:text-[80px] mt-8 sm:mt-12 lg:mt-20 xl:mt-36 leading-[0.9] tracking-tighter font-inter font-extrabold text-[#D5FF4F] max-w-[95%] lg:max-w-[590px]">
               WE DESIGN <br />
               WITH <br />
               GUARANTEED <br />
@@ -31,7 +31,7 @@ const QualityShowcase = () => {
 
           {/* Image */}
           <img
-            src="/assets/shop2/quality2.png"
+            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059253/public_assets_shop2/public_assets_shop2_quality2.svg"
             alt="New Look"
             className="absolute top-[-60px]  sm:top-[-50px] md:top-[-50px] lg:top-[-120px] xl:top-[-150px] w-full h-[350px] sm:h-[450px] md:h-[500px] lg:h-[600px] xl:h-[661px] object-cover rounded-xl sm:rounded-2xl z-10"
           />

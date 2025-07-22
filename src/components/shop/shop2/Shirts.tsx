@@ -18,7 +18,7 @@ const Shirts: React.FC = () => {
           {/* Left Model */}
           <div className="absolute left-1 sm:left-4 md:left-8 lg:left-16 xl:left-16 bottom-[16vh] sm:bottom-[28vh] md:bottom-[25vh] lg:bottom-[370px]">
             <img
-              src="/assets/shop2/shirt1.png"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059267/public_assets_shop2/public_assets_shop2_shirt1.svg"
               alt="Left Model"
               className="w-[35vw] sm:w-[40vw] md:w-[25vw] lg:w-[20vw] xl:w-[377px] max-w-[377px] h-auto object-contain"
             />
@@ -27,7 +27,7 @@ const Shirts: React.FC = () => {
           {/* Right Model */}
           <div className="absolute left-[50%] sm:left-[45%] md:left-[50%] lg:left-[55%] xl:left-[590px] bottom-[4vh] sm:bottom-[8vh] md:bottom-[10vh] lg:bottom-[100px] -translate-x-1/2">
             <img
-              src="/assets/shop2/shirt2.png"
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059267/public_assets_shop2/public_assets_shop2_shirt2.svg"
               alt="Right Model"
               className="w-[30vw] sm:w-[32vw] md:w-[22vw] lg:w-[18vw] xl:w-[339px] max-w-[339px] h-auto object-contain animate-shakeY"
             />

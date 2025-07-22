@@ -43,6 +43,7 @@ const AoinLive: React.FC<AoinLiveProps> = ({ layout = 'row' }) => {
       setLoading(true);
       setError(null);
       try {
+        console.log('Fetching streams from:', `${API_BASE_URL}/api/live-streams`);
         const response = await fetch(`${API_BASE_URL}/api/live-streams`, {
           method: 'GET',
           headers: {
@@ -54,8 +55,10 @@ const AoinLive: React.FC<AoinLiveProps> = ({ layout = 'row' }) => {
           throw new Error('Failed to fetch live streams');
         }
         const data = await response.json();
+        console.log('Received streams data:', data);
         setLiveContent(data);
       } catch (err) {
+        console.error('Error fetching streams:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch live streams');
       } finally {
         setLoading(false);
@@ -75,6 +78,12 @@ const AoinLive: React.FC<AoinLiveProps> = ({ layout = 'row' }) => {
       left: scrollLeft,
       behavior: 'smooth'
     });
+  };
+
+  const handleStreamClick = (streamId: number) => {
+    console.log('Selected stream:', streamId);
+    console.log('Stream details:', liveContent.find(stream => stream.stream_id === streamId));
+    navigate(`/live-shop/product/${streamId}`);
   };
 
   // Row layout (for LiveShop page)
@@ -108,8 +117,8 @@ const AoinLive: React.FC<AoinLiveProps> = ({ layout = 'row' }) => {
               ref={scrollContainerRef}
               className="flex gap-6 overflow-x-auto pb-4 no-scrollbar scroll-smooth"
             >
-              {liveContent.map((item) => (
-                <div key={item.stream_id} className="min-w-[220px] max-w-[220px]">
+              {liveContent.map((item, index) => (
+                <div key={`${item.stream_id}-${index}`} className="min-w-[220px] max-w-[220px]">
                   <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-2 flex flex-col h-full">
                     {item.thumbnail_url ? (
                       <img src={item.thumbnail_url} alt={item.title} className="w-full h-32 object-cover rounded mb-2" />
@@ -132,7 +141,7 @@ const AoinLive: React.FC<AoinLiveProps> = ({ layout = 'row' }) => {
                       </div>
                     </div>
                     <button
-                      onClick={() => navigate(`/live-shop/product/${item.stream_id}`)}
+                      onClick={() => handleStreamClick(item.stream_id)}
                       className="mt-2 inline-block px-3 py-1 bg-[#F2631F] text-white rounded hover:bg-[#e55a1a] text-center text-xs font-medium"
                     >
                       Watch
@@ -171,8 +180,8 @@ const AoinLive: React.FC<AoinLiveProps> = ({ layout = 'row' }) => {
           <div className="text-gray-500 text-center">No live streams found.</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8">
-            {liveContent.map((item) => (
-              <div key={item.stream_id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-2 flex flex-col h-full">
+            {liveContent.map((item, index) => (
+              <div key={`${item.stream_id}-${index}`} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-2 flex flex-col h-full">
                 {item.thumbnail_url ? (
                   <img src={item.thumbnail_url} alt={item.title} className="w-full h-40 object-cover rounded mb-2" />
                 ) : (
@@ -194,7 +203,7 @@ const AoinLive: React.FC<AoinLiveProps> = ({ layout = 'row' }) => {
                   </div>
                 </div>
                 <button
-                  onClick={() => navigate(`/live-shop/${item.stream_id}`)}
+                  onClick={() => handleStreamClick(item.stream_id)}
                   className="mt-2 inline-block px-3 py-1 bg-[#F2631F] text-white rounded hover:bg-[#e55a1a] text-center text-xs font-medium"
                 >
                   Watch
