@@ -83,6 +83,7 @@ import ShopCategories from './pages/superadmin/shop-management/ShopCategories';
 import ShopBrands from './pages/superadmin/shop-management/ShopBrands';
 import ShopAttributes from './pages/superadmin/shop-management/ShopAttributes';
 import AdminShopProducts from './pages/superadmin/shop-management/ShopProducts';
+import YouTubeManagement from './pages/superadmin/YouTubeManagement';
 import Brands from './components/home/brands';
 import Inventory from './pages/business/Inventory';
 import VerificationStatus from './pages/business/VerificationStatus';
@@ -127,7 +128,6 @@ import MerchantPaymentReport from './pages/superadmin/reports/MerchantPaymentRep
 import MerchantSubscription from './pages/MerchantSubscription';
 
 import Aoinlive from './pages/business/Aoinlive';
-import NewsletterSubscribers from './pages/superadmin/NewsletterSubscribers';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -479,14 +479,15 @@ const App: React.FC = () => {
                     <Route path="promotions" element={<Promotions />} />
                     <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
-                    {/* Shop Management Routes */}
+                                        {/* Shop Management Routes */}
                     <Route path="shops" element={<Shops />} />
                     <Route path="shop-categories" element={<ShopCategories />} />
                     <Route path="shop-brands" element={<ShopBrands />} />
                     <Route path="shop-attributes" element={<ShopAttributes />} />
                     <Route path="shop-products" element={<AdminShopProducts />} />
-<Route path="merchant-subscriptions" element={<MerchantSubscription />} />
-                      <Route path="newsletter-subscribers" element={<NewsletterSubscribers />} />
+                    <Route path="merchant-subscriptions" element={<MerchantSubscription />} />
+                    <Route path="youtube-integration" element={<YouTubeManagement />} />
+                    <Route path="newsletter-subscribers" element={<NewsletterSubscribers />} />
                   </Route>
 
                     {/* Public Routes with header/footer */}
