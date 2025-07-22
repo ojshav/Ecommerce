@@ -1,10 +1,10 @@
 import React from 'react';
 import '../styles/globals.css';
-import Header from '../components/shop/shop3/ProductPage/Header';
-import ProductPage from '../components/shop/shop3/ProductPage/ProductPage';
-import Finishing from '../components/shop/shop3/ProductPage/Finishing';
+//import Header from '../components/shop/shop3/ProductPage/Header';
+//import ProductPage from '../components/shop/shop3/AllProductpage/ProductPage';
+//import Footer from '../components/shop/shop3/AllProductpage/Footer';
 
-function Shop3Productpage() {
+function Shop3AllProductpage() {
   React.useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
     return () => {
@@ -14,11 +14,10 @@ function Shop3Productpage() {
 
   return (
     <div className="min-h-screen bg-white scroll-smooth overflow-x-hidden">
-      <Header />
-     <ProductPage />
-     <Finishing />
+      
+      
     </div>  
   );
 }
 
-export default Shop3Productpage;
+export default Shop3AllProductpage;

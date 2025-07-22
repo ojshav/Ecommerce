@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const IMAGE1_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component3_Image1.svg";
 const UNION_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Union.svg";
@@ -65,9 +66,11 @@ const AoinMasteriece: React.FC = () => {
               WITH OUR MASTERPIECE COLLECTION, WE HAVE CURATED A SERIES OF EXQUISITE AND EXTRAORDINARY EXCLUSIVE PIECES THAT SHOWCASE THE BEST OF CRAFTSMANSHIP AND DESIGN.<br /><br />
               EVERY ITEM IS CAREFULLY SELECTED TO CAPTIVATE AND INSPIRE, MAKING YOU FEEL LIKE A WALKING MASTERPIECE FASHION
             </p>
-            <button className="mt-2 px-5 py-2 border border-white rounded-full text-white font-normal text-[14px] font-clash hover:bg-[#3D5914] transition-colors duration-300">
-              EXPLORE COLLECTION
-            </button>
+            <Link to="/shop3-allproductpage">
+              <button className="mt-2 px-5 py-2 border border-white rounded-full text-white font-normal text-[14px] font-clash hover:bg-[#3D5914] transition-colors duration-300">
+                EXPLORE COLLECTION
+              </button>
+            </Link>
           </div>
         </div>
       </div>
