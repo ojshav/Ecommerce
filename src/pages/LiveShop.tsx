@@ -1,9 +1,6 @@
 import React from 'react';
 import AoinLive from '../components/sections/AoinLive';
 import ComingSoon from '../components/sections/ComingSoon';
-import Fashion from '../components/sections/Fashion';
-import FashionFactory from '../components/sections/FashionFactory';
-import SundayFunday from '../components/sections/SundayFunday';
 
 const LiveShop: React.FC = () => {
   return (
@@ -13,9 +10,7 @@ const LiveShop: React.FC = () => {
         <div className="space-y-16">
           <AoinLive layout="row" />
           <ComingSoon layout="row" />
-          <Fashion layout="row" />
-          <FashionFactory layout="row" />
-          <SundayFunday layout="row" />
+         
         </div>
       </div>
     </div>
