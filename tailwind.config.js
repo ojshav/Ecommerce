@@ -114,6 +114,8 @@ export default {
         gilroy: ['Gilroy', 'sans-serif'],
         clash: ['Clash Display', 'sans-serif'],
         alexandria: ['Alexandria', 'sans-serif'],
+        segoe: ['Segoe UI', 'sans-serif'],
+        futura: ["Futura Book BT V1", "Futura", "Trebuchet MS", "Arial", "sans-serif"],
       },
       fontSize: {
         display: ['96px', { lineHeight: '90px' }],

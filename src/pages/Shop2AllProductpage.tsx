@@ -1,8 +1,8 @@
 import React from 'react';
 import '../styles/globals.css';
-import Header from '../components/shop/shop1/AllProductpage/Header';
-import Productpage from '../components/shop/shop1/AllProductpage/ProductPage';
-//import Footer from '../components/shop/shop1/AllProductpage/Footer';
+import Header from '../components/shop/shop2/Productpage/Header';
+import Productpage from '../components/shop/shop2/AllProductpage/ProductPage';
+import Footer from '../components/shop/shop2/AllProductpage/Footer';
 
 function Shop1AllProductpage() {
   React.useEffect(() => {
@@ -16,7 +16,7 @@ function Shop1AllProductpage() {
     <div className="min-h-screen bg-white scroll-smooth overflow-x-hidden">
       <Header />
       <Productpage />
-            
+            <Footer /> 
     </div>  
   );
 }

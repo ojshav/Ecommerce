@@ -109,11 +109,6 @@ export const dashboardSections: MenuSection[] = [
         icon: Users,
         description: "Manage user accounts, permissions, and access controls",
       },
-      {
-        title: "Newsletter Subscribers",
-        icon: Users, // You can choose a more suitable icon if desired
-        description: "View newsletter subscriber emails",
-      },
     ],
   },
   {
@@ -190,6 +185,11 @@ export const dashboardSections: MenuSection[] = [
         title: "Merchant Subscriptions",
         icon: ShieldCheck,
         description: "Manage merchant subscriptions",
+      },
+      {
+        title: "YouTube Integration",
+        icon: ActivitySquare,
+        description: "Manage YouTube Live streaming integration and settings",
       },
     ],
   },
