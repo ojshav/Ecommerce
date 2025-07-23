@@ -423,8 +423,8 @@ const ShopCategories: React.FC = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-            <div className="flex justify-between items-center p-6 border-b">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-2 sm:mx-6 max-h-screen overflow-y-auto">
+            <div className="flex justify-between items-center px-8 py-1 border-b">
               <h2 className="text-xl font-semibold">
                 {editingCategory ? 'Edit Category' : 'Add New Category'}
               </h2>
@@ -436,10 +436,10 @@ const ShopCategories: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6">
-              <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="px-8 py-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Category Name *
                   </label>
                   <input
@@ -447,13 +447,13 @@ const ShopCategories: React.FC = () => {
                     required
                     value={formData.name}
                     onChange={(e) => handleNameChange(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     placeholder="Enter category name"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Slug *
                   </label>
                   <input
@@ -461,26 +461,26 @@ const ShopCategories: React.FC = () => {
                     required
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     placeholder="Enter category slug (URL-friendly)"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Description
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    rows={1}
+                    className="w-full px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     placeholder="Enter category description"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Category Icon
                   </label>
                   <ImageUpload
@@ -495,13 +495,13 @@ const ShopCategories: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Parent Category
                   </label>
                   <select
                     value={formData.parent_id || ''}
                     onChange={(e) => setFormData({ ...formData, parent_id: e.target.value ? parseInt(e.target.value) : null })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                   >
                     <option value="">None (Root Category)</option>
                     {categories
@@ -515,19 +515,19 @@ const ShopCategories: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Sort Order
                   </label>
                   <input
                     type="number"
                     value={formData.sort_order}
                     onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     placeholder="Enter sort order"
                   />
                 </div>
 
-                <div className="flex items-center">
+                <div className="flex items-center md:col-span-2 mt-0">
                   <input
                     type="checkbox"
                     id="is_active"
@@ -547,7 +547,7 @@ const ShopCategories: React.FC = () => {
                 </div>
               )}
 
-              <div className="flex justify-end space-x-4 mt-6">
+              <div className="flex justify-end space-x-4 mt-2">
                 <button
                   type="button"
                   onClick={closeModal}
