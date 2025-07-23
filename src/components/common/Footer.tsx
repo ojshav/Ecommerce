@@ -58,7 +58,7 @@ const Footer: React.FC = () => {
             <h4 className="text-[16px] sm:text-[18px] font-medium font-worksans text-[#161616] mb-3 lg:mb-4">Customer Support</h4>
             
             <ul className="space-y-2 lg:space-y-3 text-[13px] font-worksans font-normal sm:text-[14px] text-[#161616]">
-            <li><Link to="/RaiseTicket" className="hover:text-[#F2631F] transition-colors">User Support</Link></li>
+            {/* <li><Link to="/RaiseTicket" className="hover:text-[#F2631F] transition-colors">User Support</Link></li> */}
               <li>
                 <div>Call us at</div>
                 <a href="tel:2129299953" className="text-[#F2631F] hover:text-white transition-colors">212 929 9953</a>

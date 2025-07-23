@@ -107,7 +107,7 @@ const Contact: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#FFE7DB] py-10 px-2 font-worksans">
+    <div className="min-h-screen bg-[#FFF7F1] py-10 px-2 font-worksans">
       {/* Sign In Prompt */}
       {!isAuthenticated && (
         <div className="max-w-2xl mx-auto bg-white rounded-xl shadow p-4 flex items-center gap-4 mb-8 border border-gray-100">
