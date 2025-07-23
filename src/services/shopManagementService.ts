@@ -76,7 +76,6 @@ export interface ShopAttributeValue {
   value_id: number;
   attribute_id: number;
   value: string;
-  display_name?: string;
   sort_order: number;
   is_active: boolean;
   created_at: string;
@@ -150,19 +149,23 @@ class ShopManagementService {
 
   // Attribute Value Methods
   async getAttributeValues(attributeId: number): Promise<ShopAttributeValue[]> {
-    const response = await fetch(`${API_BASE_URL}/api/shop/attributes/${attributeId}/values`, {
+    // Get values through the attribute endpoint since there's no separate get values endpoint
+    const response = await fetch(`${API_BASE_URL}/api/shop/attributes/${attributeId}`, {
       headers: this.getAuthHeaders(),
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch attribute values');
+      throw new Error('Failed to fetch attribute with values');
     }
     
-    return response.json();
+    const attributeData = await response.json();
+    
+    // Return the values from the attribute data
+    return attributeData.data?.values || [];
   }
 
   async createAttributeValue(valueData: Omit<ShopAttributeValue, 'value_id' | 'created_at' | 'updated_at'>): Promise<ShopAttributeValue> {
-    const response = await fetch(`\${API_BASE_URL}/api/shop/attribute-values`, {
+    const response = await fetch(`${API_BASE_URL}/api/shop/attributes/values`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(valueData),
@@ -173,11 +176,12 @@ class ShopManagementService {
       throw new Error(error.message || 'Failed to create attribute value');
     }
     
-    return response.json();
+    const result = await response.json();
+    return result.data;
   }
 
   async updateAttributeValue(valueId: number, valueData: Partial<ShopAttributeValue>): Promise<ShopAttributeValue> {
-    const response = await fetch(`\${API_BASE_URL}/api/shop/attribute-values/${valueId}`, {
+    const response = await fetch(`${API_BASE_URL}/api/shop/attributes/values/${valueId}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(valueData),
@@ -188,11 +192,20 @@ class ShopManagementService {
       throw new Error(error.message || 'Failed to update attribute value');
     }
     
-    return response.json();
+    const result = await response.json();
+    return result.data;
   }
 
-  async deleteAttributeValue(valueId: number): Promise<void> {
-    const response = await fetch(`\${API_BASE_URL}/api/shop/attribute-values/${valueId}`, {
+  async deleteAttributeValue(attributeValueOrId: ShopAttributeValue | number): Promise<void> {
+    let valueId: number;
+
+    if (typeof attributeValueOrId === 'object') {
+      valueId = attributeValueOrId.value_id;
+    } else {
+      valueId = attributeValueOrId;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/shop/attributes/values/${valueId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders(),
     });
