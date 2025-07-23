@@ -132,7 +132,8 @@ import NewsletterSubscribers from './pages/superadmin/NewsletterSubscribers';
 
 import Aoinlive from './pages/business/Aoinlive';
 import LiveStreamView from './pages/LiveStreamView';
-import ShopAnalytics from './pages/superadmin/ShopAnalytics';
+import ShopAnalytics from './pages/superadmin/shop/ShopAnalytics';
+import ShopInventoryManagement from './pages/superadmin/shop/ShopInventoryManagement';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -497,6 +498,7 @@ const App: React.FC = () => {
                     <Route path="shop-brands" element={<ShopBrands />} />
                     <Route path="shop-attributes" element={<ShopAttributes />} />
                     <Route path="shop-products" element={<AdminShopProducts />} />
+                    <Route path="shop-inventory" element={<ShopInventoryManagement />} />
                     <Route path="merchant-subscriptions" element={<MerchantSubscription />} />
                     <Route path="youtube-integration" element={<YouTubeManagement />} />
                     
