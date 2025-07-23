@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const Bottom: React.FC = () => {
   return (
-    <section className="relative w-screen h-[60vh] md:h-[80vh] sm:h-[70vh] lg:h-[1024px] bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center flex items-center justify-center overflow-hidden">
+    <section className="relative w-screen h-[60vh] md:h-[80vh] sm:h-[70vh] lg:h-[1024px] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center flex items-center justify-center overflow-hidden">
       
       {/* Content Wrapper */}
       <div className="relative w-full h-full max-w-[1440px] mx-auto flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 lg:px-8">

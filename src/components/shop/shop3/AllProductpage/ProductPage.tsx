@@ -116,7 +116,7 @@ const dummyProducts = [
   {
     id: 11,
     name: "Electric Avenue Sneakers",
-    image: "/assets/images/Productcard/liked1.jpg",
+    image: "/assets/shop3/AllProduct/a.svg",
     price: 99,
     originalPrice: 120,
     badge: "-15%",
