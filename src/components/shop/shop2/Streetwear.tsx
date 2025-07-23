@@ -2,7 +2,7 @@ import React from 'react';
 
 const Streetwear: React.FC = () => {
   return (
-    <section className="relative w-screen sm:h-[140vh] md:h-[135vh] lg:h-[100vh] xl:h-[120vh] h-[100vh] bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center overflow-hidden flex items-center justify-center py-16 sm:py-0">
+    <section className="relative w-screen sm:h-[140vh] md:h-[135vh] lg:h-[100vh] xl:h-[120vh] h-[100vh] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center overflow-hidden flex items-center justify-center py-16 sm:py-0">
       {/* Wrapper to center the content */}
       <div className="w-full flex items-center justify-center px-4 sm:px-6">
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-14 sm:gap-32 items-center">

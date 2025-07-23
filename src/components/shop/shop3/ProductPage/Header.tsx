@@ -4,8 +4,8 @@ const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-black  text-white px-4 sm:px-8 py-4">
-      <div className="flex items-center justify-between max-w-[1920px] mx-auto">
+    <header className="bg-black w-full  text-white px-4 sm:px-8 2xl:px-6 py-4">
+      <div className="flex items-center justify-between max-w-[1860px] mx-auto">
         {/* Left side - Dots and Navigation */}
         <div className="flex items-center space-x-2 sm:space-x-6">
           {/* Colored dots - hidden on mobile */}
@@ -40,8 +40,8 @@ const Header: React.FC = () => {
         </div>
 
         {/* Center - Brand name */}
-        <div className="flex-1 flex justify-center">
-          <h1 className="text-lime-400 font-bold text-xl sm:text-2xl lg:text-3xl uppercase tracking-wider">
+        <div className="flex-1 flex mt-2 justify-center">
+          <h1 className="text-[#CF0] font-bebas font-normal text-[50.667px] leading-[0.9] tracking-[-0.02em] uppercase">
             AOIN
           </h1>
         </div>

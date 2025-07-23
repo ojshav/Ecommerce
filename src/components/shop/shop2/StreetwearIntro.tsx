@@ -2,7 +2,7 @@ import React from 'react';
 
 const StreetwearIntro = () => {
   return (
-    <section className="relative w-screen h-[1024px]  bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center overflow-hidden flex items-center justify-center">
+    <section className="relative w-screen h-[1024px]  bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center overflow-hidden flex items-center justify-center">
       {/* Left Content */}
       <div className="flex flex-col mb-24 gap-1  max-w-[600px] px-4 sm:px-6 md:px-8 lg:px-0">
         <h1 className="text-white text-[32px] sm:text-[40px] md:text-[50px] lg:text-[60px] leading-[1] font-archivio mb-6 sm:mb-8 lg:mb-24 font-black">
