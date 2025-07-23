@@ -55,7 +55,7 @@ const Collaboration = () => {
         {/* Card 1 */}
         <div className="text-center mt-2 xs:mt-3 md:mt-10">
           <img
-            src="/assets/shop2/collaboration1.jpg"
+            src="/assets/images/similar2.jpg"
             alt="Black Mamba Jacket"
             className="w-[180px] xs:w-[220px] sm:w-[274px] h-[220px] xs:h-[270px] sm:h-[344px] object-cover mx-auto"
           />
@@ -67,7 +67,7 @@ const Collaboration = () => {
         {/* Card 2 */}
         <div className="text-center -mt-6 xs:-mt-10 sm:-mt-14">
           <img
-            src="/assets/shop2/collaboration2.jpg"
+            src="/assets/images/similar3.jpg"
             alt="Dat-Stick Sweater"
             className="w-[190px] xs:w-[240px] sm:w-[293px] h-[240px] xs:h-[300px] sm:h-[369px] object-cover mx-auto"
           />
@@ -79,7 +79,7 @@ const Collaboration = () => {
         {/* Card 3 */}
         <div className="text-center -mt-2  xs:-mt-2 sm:-mt-24 lg:-mt-24">
           <img
-            src="/assets/shop2/collaboration3.jpg"
+            src="/assets/images/similar4.jpg"
             alt="100 Degree Sweater"
             className="w-[180px] xs:w-[220px] sm:w-[278px] h-[220px] xs:h-[270px] sm:h-[349px] object-cover mx-auto"
           />

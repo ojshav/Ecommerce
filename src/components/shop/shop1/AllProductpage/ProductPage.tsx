@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Shop1ProductCard from '../Shop1ProductCard';
 
 const categories = [
   'Jackets & Outerwear',
@@ -334,16 +335,13 @@ const ProductPage = () => {
         {/* Product Grid */}
         <div className="grid grid-cols-2 xm:grid-cols-2  md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-0">
           {products.map((product, idx) => (
-            <div key={idx} className="rounded-lg flex flex-col items-center p-2 md:p-4">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full max-w-[302px] h-[220px] sm:h-[260px] md:h-[321px] object-cover rounded-md mb-2"
-              />
-              <div className="text-[12px] md:text-[14px] text-gray-400 mb-1.5 mt-2 uppercase font-poppins tracking-widest">{product.category}</div>
-              <div className="font-semibold font-poppins text-center text-[16px] md:text-[18px]">{product.name}</div>
-              <div className="text-red-500 font-poppins font-semibold text-[18px] md:text-[20px]">${product.price.toFixed(2)}</div>
-            </div>
+            <Shop1ProductCard
+              key={idx}
+              image={product.image}
+              category={product.category}
+              name={product.name}
+              price={product.price}
+            />
           ))}
         </div>
         {/* Pagination */}

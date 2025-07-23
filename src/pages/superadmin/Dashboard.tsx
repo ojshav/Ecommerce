@@ -28,7 +28,8 @@ import {
   ArrowDownIcon,
   UserPlus,
   ShoppingCart,
-  Loader2
+  Loader2,
+  Info
 } from "lucide-react";
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -580,7 +581,11 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           {
-            title: "Total Revenue",
+            title: (
+              <span className="flex items-center">
+                Total Revenue
+              </span>
+            ),
             value: formatCurrency(metrics?.revenue?.current ?? 0),
             change: formatPercentage(metrics?.revenue?.change_percentage ?? 0),
             trend: (metrics?.revenue?.change_percentage ?? 0) >= 0 ? "up" : "down",
@@ -588,7 +593,11 @@ const Dashboard = () => {
             color: "green"
           },
           {
-            title: "Active Users",
+            title: (
+              <span className="flex items-center">
+                Active Users
+              </span>
+            ),
             value: metrics?.active_users?.current?.toLocaleString() ?? '0',
             change: formatPercentage(metrics?.active_users?.change_percentage ?? 0),
             trend: (metrics?.active_users?.change_percentage ?? 0) >= 0 ? "up" : "down",
@@ -596,7 +605,11 @@ const Dashboard = () => {
             color: "blue"
           },
           {
-            title: "Total Merchants",
+            title: (
+              <span className="flex items-center">
+                Total Merchants
+              </span>
+            ),
             value: metrics?.total_merchants?.current?.toLocaleString() ?? '0',
             change: formatPercentage(metrics?.total_merchants?.change_percentage ?? 0),
             trend: (metrics?.total_merchants?.change_percentage ?? 0) >= 0 ? "up" : "down",
@@ -604,7 +617,14 @@ const Dashboard = () => {
             color: "purple"
           },
           {
-            title: `Orders (${timeRange === '1month' ? 'This Month' : timeRange === '3months' ? 'Last 3 Months' : timeRange === '6months' ? 'Last 6 Months' : 'Last Year'})`,
+            title: (
+              <span className="flex items-center">
+                Orders
+                <span className="ml-1 cursor-pointer" title="Platform orders count each order once, even if multiple merchants are involved.">
+                  <Info size={16} className="text-blue-400" />
+                </span>
+              </span>
+            ),
             value: metrics?.monthly_orders?.count?.current?.toLocaleString() ?? '0',
             change: formatPercentage(metrics?.monthly_orders?.count?.change_percentage ?? 0),
             trend: (metrics?.monthly_orders?.count?.change_percentage ?? 0) >= 0 ? "up" : "down",
@@ -807,7 +827,12 @@ const Dashboard = () => {
 
         {/* Top Merchants */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Merchants</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            Top Merchants
+            <span className="ml-1 cursor-pointer" title="Each merchant's order count reflects the number of unique orders in which they had at least one item. Orders with products from multiple merchants are counted for each merchant involved.">
+              <Info size={16} className="text-blue-400" />
+            </span>
+          </h3>
           <div className="space-y-4">
             {topMerchants.map((merchant, index) => (
               <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
@@ -824,6 +849,9 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Note: Merchant order counts may exceed the platform's total orders if customers buy from multiple merchants in a single order.
+          </p>
         </div>
       </div>
 

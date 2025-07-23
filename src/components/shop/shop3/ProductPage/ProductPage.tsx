@@ -16,9 +16,9 @@ const ProductPage: React.FC = () => {
   return (
     <div className="w-full mx-auto min-h-screen bg-black">
       {/* Header Navigation */}
-      <header className="bg-black max-w-[1900px] w-full mx-auto text-white px-6 py-3 border-b border-gray-800">
+      <header className="bg-black max-w-[1920px] w-full mx-auto text-white px-6 py-3 border-b border-gray-800">
         <div className=" mx-auto">
-          <nav className="text-sm font-sans">
+          <nav className="text-[22px] font-bebas">
             <span className="text-gray-400">HOME</span>
             <span className="mx-2 text-gray-400">{'>'}</span>
             <span className="text-gray-400">MEN</span>
@@ -33,7 +33,7 @@ const ProductPage: React.FC = () => {
       {/* Main Content */}
       <div className="flex max-w-[1920px] w-full mx-auto">
         {/* Left Section - Product Images */}
-        <div className="w-full ">
+        <div className="w-[1332px] ">
           <div className=" px-6 rounded-lg">
             <div className="grid grid-cols-2 gap-4">
               {/* Top Left Image */}
@@ -76,65 +76,67 @@ const ProductPage: React.FC = () => {
         </div>
 
         {/* Right Section - Product Details */}
-        <div className="w-1/3 p-2 text-white">
+        <div className="w-[546px] px-4 text-white">
           {/* Reference Number */}
           <div className="text-left mb-4">
-            <span className="text-sm text-gray-400 font-sans">Ref.1234567GH</span>
+            <span className="text-sm text-[#FFFFFF] font-sans">Ref.1234567GH</span>
           </div>
 
           {/* Product Title */}
-          <h1 className="text-3xl font-bold mb-6 font-sans text-lime-400">
-            Lavender Metallic Pleated Jumpsuit
+          <h1 className="text-[24px] font-bold mb-6 font-alexandria text-[#CCFF00]">
+            Lavender Metallic Pleated <br /> Jumpsuit
           </h1>
 
           {/* Price Information */}
           <div className="mb-6">
-            <div className="flex items-center space-x-4 mb-2">
-              <span className="text-white line-through text-2xl font-sans">$234</span>
-              <span className="text-2xl font-bold text-white font-sans">$200</span>
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="text-white line-through text-[20px] font-sans">$234</span>
+              <span className="text-[20px] font-bold text-[#FE5335] font-sans">$200</span>
             </div>
-            <p className="text-sm text-white font-sans">Tax free (21%) outside US</p>
+            <p className="text-[14px] text-[#EDEAEA] font-sans">Tax free (21%) outside US</p>
           </div>
 
           {/* Product Description */}
-          <p className="text-white mb-8 leading-relaxed font-sans">
+          <p className="text-[#F4EDED] mb-8 text-[16px] leading-relaxed font-alexandria ">
             A stunning lavender metallic jumpsuit featuring soft pleats, a flattering silhouette, and a lustrous sheen that effortlessly blends elegance with modern edge.
           </p>
 
           {/* Product Links */}
-          <div className="flex space-x-8 mb-8">
-            <button className="text-white font-sans underline">
+          <div className="flex font-[14px] space-x-8 mb-8">
+            <button className="text-white font-openSans underline">
               Product details
             </button>
-            <button className="text-white font-sans underline">
+            <button className="text-white font-openSans underline">
               Size guide
             </button>
           </div>
 
           {/* Color Selection */}
           <div className="mb-6">
-            <div className="flex items-center space-x-4 mb-4">
-              {colorOptions.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => setSelectedColor(color.value)}
-                  className={`w-8 h-8 rounded ${color.color} border-2 ${
-                    selectedColor === color.value ? 'border-white' : 'border-transparent'
-                  }`}
-                />
-              ))}
-              <span className="text-sm text-gray-400 font-sans">
+            <div className="flex items-center justify-between mb-16">
+              <div className="flex items-center space-x-4">
+                {colorOptions.map((color) => (
+                  <button
+                    key={color.value}
+                    onClick={() => setSelectedColor(color.value)}
+                    className={`w-8 h-8 rounded ${color.color} border-2 ${
+                      selectedColor === color.value ? 'border-white' : 'border-transparent'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-[14px] text-[#757575] font-sans">
                 {colorOptions.find(c => c.value === selectedColor)?.name}
               </span>
             </div>
           </div>
 
           {/* Size Selection */}
-          <div className="mb-8">
+          <div className="mb-4">
             <select
               value={selectedSize}
               onChange={(e) => setSelectedSize(e.target.value)}
-              className="w-full bg-lime-400 text-black font-medium py-3 px-4 rounded appearance-none cursor-pointer font-sans"
+              className="w-full bg-[#CCFF00] text-black font-medium py-2 px-4 rounded appearance-none cursor-pointer font-sans"
             >
               <option value="">Choose youre size</option>
               {sizeOptions.map((size) => (
@@ -146,18 +148,60 @@ const ProductPage: React.FC = () => {
           </div>
 
           {/* Add to Bag Button */}
-          <button className="w-full bg-black border border-white text-white py-3 px-6 font-medium font-sans mb-8">
+          <button className="w-full bg-black  border-white text-white py-3 px-6 font-medium font-openSans mb-4">
             Add to bag
           </button>
 
           {/* Bottom Section */}
           <div className="flex justify-between items-center pt-6">
-            <span className="text-white font-sans underline">Product details</span>
+            <span className="text-white font-openSans underline">Product details</span>
             <div className="flex items-center space-x-2 text-white">
               <span className="font-sans">Share</span>
-              <svg className="w-5 h-5 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-[#CCFF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
               </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Bottom Product Details Section */}
+      <div className="w-full flex justify-center items-start bg-black py-14">
+        <div className="max-w-6xl w-full flex flex-row gap-16">
+          {/* Left: Product Details */}
+          <div className="flex-1">
+            <h2 className="text-[18px] font-bold mb-6 font-alexandria text-white">Product details</h2>
+            <p className="text-[#FAF8F8] font-openSans text-[16px] font-normal leading-[30px]">
+              Lavender Metallic Pleated Jumpsuit, designed to make a statement.<br />
+              Crafted from a luxe metallic fabric with delicate pleats, it offers a flattering silhouette with a cinched waist and flowing wide-leg design.<br />
+              The subtle shimmer adds a touch of glamour, perfect for evening events, parties, or special occasions
+            </p>
+            <ul className="list-disc ml-5 mt-8 text-[#FAF8F8] mb-8 text-[16px] font-openSans font-normal leading-[26px] space-y-1">
+              <li>Luxe metallic finish</li>
+              <li>Delicate pleated texture</li>
+              <li>Adjustable waist tie for a tailored fit</li>
+            </ul>
+            <div className="flex gap-4 font-montserrat mt-4">
+              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-3 rounded shadow-md font-sans whitespace-nowrap">Material &amp; Care</button>
+              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-3 rounded shadow-md font-sans whitespace-nowrap">Fit &amp; Style</button>
+              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-2 rounded shadow-md font-sans whitespace-nowrap">Design</button>
+              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-4 rounded shadow-md font-sans whitespace-nowrap">metallic shine</button>
+            </div>
+          </div>
+          {/* Right: Information */}
+          <div className="flex-1">
+            <h2 className="text-[18px] font-bold mb-6 font-alexandria text-white">Information</h2>
+            <ul className="list-disc ml-4 mt-6 text-[#FAF8F8] mb-6 text-[16px] font-openSans font-normal leading-[26px] space-y-1">
+              <li>Soft lavender hue with metallic shine</li>
+              <li>V-neckline or halter neck (depending on design)</li>
+              <li>Pleated throughout for texture and movement</li>
+            </ul>
+            <p className="text-white mb-8 text-[16px] font-openSans">
+              Smooth, lightweight fabric with a glossy metallic <br /> finish for an elevated look.
+            </p>
+            <div className="flex font-montserrat gap-8 mt-8">
+              <a href="#" className="underline text-white  text-[14px]">Delivery</a>
+              <a href="#" className="underline text-white text-[14px]">Return</a>
+              <a href="#" className="underline text-white text-[14px]">Help</a>
             </div>
           </div>
         </div>

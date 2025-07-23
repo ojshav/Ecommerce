@@ -798,14 +798,6 @@ const ProductDetail: React.FC = () => {
                       ₹{product.price || product.selling_price}
                     </td>
                   </tr>
-                  <tr className="border-b border-gray-200">
-                    <td className="py-3 pr-4 font-medium text-gray-700">
-                      Discount
-                    </td>
-                    <td className="py-3 text-gray-800">
-                      {product.discount_pct}%
-                    </td>
-                  </tr>
                   {/* Product Attributes */}
                   {product.attributes &&
                     product.attributes.map((attr) => (

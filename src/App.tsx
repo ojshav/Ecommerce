@@ -67,6 +67,7 @@ import Shop2Productpage from './pages/Shop2Productpage';
 import Shop3ProductPage from './pages/Shop3ProductPage';
 import Shop1AllProductpage from './pages/Shop1AllProductpage';
 import Shop2AllProductpage from './pages/Shop2AllProductpage';
+import Shop3AllProductpage from './pages/Shop3AllProductpage';
 import FAQ from './pages/FAQ';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -127,9 +128,11 @@ import { useVisitTracking } from './hooks/useVisitTracking';
 import SearchResultsPage from './pages/SearchResultsPage';
 import MerchantPaymentReport from './pages/superadmin/reports/MerchantPaymentReport';
 import MerchantSubscription from './pages/MerchantSubscription';
+import NewsletterSubscribers from './pages/superadmin/NewsletterSubscribers';
 
 import Aoinlive from './pages/business/Aoinlive';
 import LiveStreamView from './pages/LiveStreamView';
+import ShopAnalytics from './pages/superadmin/ShopAnalytics';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -223,7 +226,7 @@ const App: React.FC = () => {
                     <Route path="/shop3-productpage" element={<Shop3ProductPage />} />
                     <Route path="/shop1-allproductpage" element={<Shop1AllProductpage />} />
                     <Route path="/shop2-allproductpage" element={<Shop2AllProductpage />} />
-                    
+                    <Route path="/shop3-allproductpage" element={<Shop3AllProductpage />} />
                     <Route
                       path="/business/login"
                       element={<BusinessLogin />}
@@ -483,6 +486,10 @@ const App: React.FC = () => {
                     <Route path="promotions" element={<Promotions />} />
                     <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
+
+                    <Route path="shop-analytics" element={<ShopAnalytics />} />
+                    <Route path="newsletter-subscribers" element={<NewsletterSubscribers />} />
+
 
                     {/* Shop Management Routes */}
                     <Route path="shops" element={<Shops />} />

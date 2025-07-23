@@ -67,6 +67,11 @@ export const dashboardSections: MenuSection[] = [
         icon: FileBarChart2,
         description: "Track and manage merchant payments and delivery status",
       },
+      {
+        title: "Shop Analytics",
+        icon: BarChart3,
+        description: "Analyze shop performance, traffic, and conversion metrics",
+      },
     ],
   },
   {
@@ -148,11 +153,11 @@ export const dashboardSections: MenuSection[] = [
     color: "amber",
     icon: ShieldCheck,
     items: [
-      {
-        title: "Payments",
-        icon: ShieldCheck,
-        description: "Monitor payment processing and transaction security",
-      },
+      // {
+      //   title: "Payments",
+      //   icon: ShieldCheck,
+      //   description: "Monitor payment processing and transaction security",
+      // },
       {
         title: "Promotions",
         icon: Percent,
@@ -231,6 +236,11 @@ export const dashboardSections: MenuSection[] = [
         title: "Merchant Support",
         icon: MessageSquare,
         description: "Support for merchants",
+      },
+      {
+        title: "Newsletter Subscribers",
+        icon: MessageSquare,
+        description: "View and export newsletter subscribers",
       },
     ],
   },
