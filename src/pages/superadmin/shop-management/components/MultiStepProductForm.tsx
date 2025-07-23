@@ -387,7 +387,7 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
       setStepErrors(prev => ({ ...prev, 3: '' }));
       
       // Frontend validation - only for new media, skip existing media
-      const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg', 'image/webp'];
       const validVideoTypes = ['video/mp4', 'video/mov', 'video/avi'];
       const maxImageSize = 5 * 1024 * 1024; // 5MB
       const maxVideoSize = 50 * 1024 * 1024; // 50MB
@@ -400,7 +400,7 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
         
         if (media.type === 'image') {
           if (!validImageTypes.includes(media.file.type)) {
-            throw new Error('Invalid image format. Please use JPEG, PNG, or WebP.');
+            throw new Error('Invalid image format. Please use JPEG, PNG, SVG, or WebP.');
           }
           if (media.file.size > maxImageSize) {
             throw new Error('Image size must be less than 5MB.');

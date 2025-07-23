@@ -28,7 +28,7 @@ const MediaStep: React.FC<MediaStepProps> = ({ data, onChange }) => {
   const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
   const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
   
-  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/svg'];
   const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/mov', 'video/avi'];
 
   const imageCount = data.filter(item => item.type === 'image').length;
@@ -47,7 +47,7 @@ const MediaStep: React.FC<MediaStepProps> = ({ data, onChange }) => {
         return `Maximum ${MAX_IMAGES} images allowed`;
       }
       if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-        return 'Invalid image format. Please use JPEG, PNG, or WebP';
+        return 'Invalid image format. Please use JPEG, PNG, SVG, or WebP';
       }
       if (file.size > MAX_IMAGE_SIZE) {
         return 'Image size must be less than 5MB';
@@ -245,7 +245,7 @@ const MediaStep: React.FC<MediaStepProps> = ({ data, onChange }) => {
         <ul className="text-sm text-blue-800 space-y-1">
           <li>• Maximum {MAX_IMAGES} images (at least 1 required)</li>
           <li>• Maximum {MAX_VIDEOS} video (optional)</li>
-          <li>• Images: Max 5MB each (JPEG, PNG, WebP)</li>
+          <li>• Images: Max 5MB each (JPEG, PNG, SVG, WebP)</li>
           <li>• Videos: Max 50MB (MP4, MOV, AVI - will be converted to MP4)</li>
         </ul>
       </div>
