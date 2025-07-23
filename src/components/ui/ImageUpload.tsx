@@ -179,7 +179,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             </div>
             <p className="text-sm font-medium text-gray-700 mb-1">{placeholder}</p>
             <p className="text-xs text-gray-500 mb-1">
-              PNG, JPG, JPEG, WEBP up to {maxSize}MB
+              PNG, JPG, JPEG, SVG, WEBP up to {maxSize}MB
             </p>
             <button
               type="button"
