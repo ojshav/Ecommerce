@@ -232,6 +232,11 @@ export const dashboardSections: MenuSection[] = [
         icon: MessageSquare,
         description: "Support for merchants",
       },
+      {
+        title: "Newsletter Subscribers",
+        icon: MessageSquare,
+        description: "View and export newsletter subscribers",
+      },
     ],
   },
 ];
