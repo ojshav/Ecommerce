@@ -67,6 +67,11 @@ export const dashboardSections: MenuSection[] = [
         icon: FileBarChart2,
         description: "Track and manage merchant payments and delivery status",
       },
+      {
+        title: "Shop Analytics",
+        icon: BarChart3,
+        description: "Analyze shop performance, traffic, and conversion metrics",
+      },
     ],
   },
   {
