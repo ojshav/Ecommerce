@@ -146,6 +146,11 @@ export const dashboardSections: MenuSection[] = [
         icon: ShoppingBag,
         description: "Manage products for all shops",
       },
+      {
+        title: "Shop Inventory",
+        icon: ShoppingBag,
+        description: "Manage inventory for each shop",
+      },
     ],
   },
   {
