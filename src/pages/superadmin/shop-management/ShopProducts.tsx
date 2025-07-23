@@ -13,8 +13,8 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { shopManagementService, Shop, ShopCategory, ShopBrand, ShopProduct } from '../../../services/shopManagementService';
-import ImageUpload from '../../../components/ui/ImageUpload';
 import { useToastHelpers } from '../../../context/ToastContext';
+import MultiStepProductForm from './components/MultiStepProductForm';
 
 const ShopProducts: React.FC = () => {
   const [shops, setShops] = useState<Shop[]>([]);
@@ -25,26 +25,10 @@ const ShopProducts: React.FC = () => {
   const [selectedBrand, setSelectedBrand] = useState<ShopBrand | null>(null);
   const [products, setProducts] = useState<ShopProduct[]>([]);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ShopProduct | null>(null);
-  const [formData, setFormData] = useState({
-    product_name: '',
-    sku: '',
-    product_description: '',
-    cost_price: 0,
-    selling_price: 0,
-    special_price: 0,
-    special_start: '',
-    special_end: '',
-    is_on_special_offer: false,
-    is_published: true,
-    active_flag: true
-  });
-  const [productImage, setProductImage] = useState<File | null>(null);
-  const [productImageUrl, setProductImageUrl] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     min_price: '',
     max_price: '',
@@ -131,73 +115,14 @@ const ShopProducts: React.FC = () => {
     }
   };
 
-  const generateSKU = (name: string) => {
-    return name.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 8) + '-' + Date.now().toString().slice(-4);
-  };
-
-  const handleNameChange = (name: string) => {
-    setFormData({ 
-      ...formData, 
-      product_name: name,
-      sku: editingProduct ? formData.sku : generateSKU(name)
-    });
-  };
-
-  const handleImageUpload = (file: File | null, url: string | null) => {
-    setProductImage(file);
-    setProductImageUrl(url);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedShop || !selectedCategory) return;
-
-    try {
-      setSubmitting(true);
-      
-      const productData = {
-        ...formData,
-        shop_id: selectedShop.shop_id,
-        category_id: selectedCategory.category_id,
-        brand_id: selectedBrand?.brand_id || undefined,
-        price: formData.selling_price,
-        special_price: formData.is_on_special_offer ? formData.special_price : undefined,
-      };
-
-      if (editingProduct) {
-        await shopManagementService.updateProduct(editingProduct.product_id, productData);
-        showSuccess('Product updated successfully');
-      } else {
-        await shopManagementService.createProduct(productData);
-        showSuccess('Product created successfully');
-      }
-
-      setShowModal(false);
-      setEditingProduct(null);
-      resetForm();
-      fetchProducts();
-    } catch (error: any) {
-      showError(error.message || 'Operation failed');
-    } finally {
-      setSubmitting(false);
-    }
+  const handleProductFormComplete = () => {
+    setShowModal(false);
+    setEditingProduct(null);
+    fetchProducts(); // Refresh the products list
   };
 
   const handleEdit = (product: ShopProduct) => {
     setEditingProduct(product);
-    setFormData({
-      product_name: product.product_name,
-      sku: product.sku,
-      product_description: product.product_description,
-      cost_price: product.cost_price,
-      selling_price: product.selling_price,
-      special_price: product.special_price || 0,
-      special_start: product.special_start || '',
-      special_end: product.special_end || '',
-      is_on_special_offer: product.is_on_special_offer,
-      is_published: product.is_published,
-      active_flag: product.active_flag
-    });
     setShowModal(true);
   };
 
@@ -212,22 +137,23 @@ const ShopProducts: React.FC = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      product_name: '',
-      sku: '',
-      product_description: '',
-      cost_price: 0,
-      selling_price: 0,
-      special_price: 0,
-      special_start: '',
-      special_end: '',
-      is_on_special_offer: false,
-      is_published: true,
-      active_flag: true
-    });
-    setProductImage(null);
-    setProductImageUrl(null);
+  const toggleProductStatus = async (productId: number, field: 'active_flag' | 'is_published' | 'is_on_special_offer', currentValue: boolean) => {
+    try {
+      await shopManagementService.updateProduct(productId, {
+        [field]: !currentValue
+      });
+      
+      const statusMessages = {
+        active_flag: !currentValue ? 'Product activated' : 'Product deactivated',
+        is_published: !currentValue ? 'Product published' : 'Product unpublished',
+        is_on_special_offer: !currentValue ? 'Special offer enabled' : 'Special offer disabled'
+      };
+      
+      showSuccess(statusMessages[field]);
+      fetchProducts();
+    } catch (error: any) {
+      showError(error.message || `Failed to update product ${field}`);
+    }
   };
 
   const resetFilters = () => {
@@ -238,8 +164,10 @@ const ShopProducts: React.FC = () => {
       is_on_special_offer: ''
     });
     setSelectedBrand(null);
+    setSearchTerm('');
   };
 
+  // Filter products based on search term
   const filteredProducts = products.filter(product =>
     product.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.sku.toLowerCase().includes(searchTerm.toLowerCase())
@@ -462,15 +390,34 @@ const ShopProducts: React.FC = () => {
           {filteredProducts.map((product) => (
             <div key={product.product_id} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
               <div className="aspect-w-1 aspect-h-1 w-full h-48 bg-gray-200">
-                {product.primary_image ? (
+                {product.primary_image && !product.primary_image.startsWith('blob:') ? (
                   <img
                     src={product.primary_image}
                     alt={product.product_name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `
+                          <div class="w-full h-full flex items-center justify-center">
+                            <svg class="text-gray-400" width="48" height="48" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M20 6h-2.18l-1.41-1.41A2 2 0 0 0 15 4H9a2 2 0 0 0-1.41.59L6.18 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+                            </svg>
+                          </div>
+                        `;
+                      }
+                    }}
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Package className="text-gray-400" size={48} />
+                  <div className="w-full h-full flex flex-col items-center justify-center">
+                    <Package className="text-gray-400 mb-2" size={32} />
+                    {product.primary_image?.startsWith('blob:') && (
+                      <span className="text-xs text-red-500 text-center px-2">
+                        Image needs re-upload
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -514,24 +461,61 @@ const ShopProducts: React.FC = () => {
                     <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">{product.brand_name}</span>
                   )}
                 </div>
-                <div className="flex justify-between items-center">
-                  <div className="flex space-x-2">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                      product.is_published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {product.is_published ? 'Published' : 'Draft'}
-                    </span>
-                    {product.is_on_special_offer && (
-                      <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
-                        Special Offer
-                      </span>
-                    )}
+                
+                {/* Product Status Toggles */}
+                <div className="border-t pt-3 mt-3">
+                  <div className="space-y-2">
+                    {/* Active Status Toggle */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">Active</span>
+                      <button
+                        onClick={() => toggleProductStatus(product.product_id, 'active_flag', product.active_flag)}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                          product.active_flag ? 'bg-green-500' : 'bg-gray-300'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                            product.active_flag ? 'translate-x-5' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    
+                    {/* Published Status Toggle */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">Published</span>
+                      <button
+                        onClick={() => toggleProductStatus(product.product_id, 'is_published', product.is_published)}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                          product.is_published ? 'bg-blue-500' : 'bg-gray-300'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                            product.is_published ? 'translate-x-5' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    
+                    {/* Special Offer Toggle */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">Special Offer</span>
+                      <button
+                        onClick={() => toggleProductStatus(product.product_id, 'is_on_special_offer', product.is_on_special_offer)}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                          product.is_on_special_offer ? 'bg-red-500' : 'bg-gray-300'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                            product.is_on_special_offer ? 'translate-x-5' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
                   </div>
-                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                    product.active_flag ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
-                    {product.active_flag ? 'Active' : 'Inactive'}
-                  </span>
                 </div>
               </div>
             </div>
@@ -550,9 +534,9 @@ const ShopProducts: React.FC = () => {
       )}
 
       {/* Product Modal */}
-      {showModal && (
+      {showModal && selectedShop && selectedCategory && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4 max-h-screen overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl mx-4 max-h-screen overflow-y-auto">
             <div className="flex justify-between items-center p-6 border-b">
               <h2 className="text-xl font-semibold">
                 {editingProduct ? 'Edit Product' : 'Add New Product'}
@@ -562,174 +546,13 @@ const ShopProducts: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Left Column - Basic Info */}
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.product_name}
-                      onChange={(e) => handleNameChange(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Enter product name"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">SKU *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.sku}
-                      onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Enter product SKU"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
-                    <textarea
-                      required
-                      value={formData.product_description}
-                      onChange={(e) => setFormData({ ...formData, product_description: e.target.value })}
-                      rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Enter product description"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Cost Price *</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        required
-                        value={formData.cost_price}
-                        onChange={(e) => setFormData({ ...formData, cost_price: parseFloat(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        placeholder="0.00"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Selling Price *</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        required
-                        value={formData.selling_price}
-                        onChange={(e) => setFormData({ ...formData, selling_price: parseFloat(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        placeholder="0.00"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column - Special Offers & Settings */}
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
-                    <ImageUpload
-                      value={editingProduct?.primary_image}
-                      onChange={handleImageUpload}
-                      showViewButton={true}
-                    />
-                  </div>
-
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="is_on_special_offer"
-                      checked={formData.is_on_special_offer}
-                      onChange={(e) => setFormData({ ...formData, is_on_special_offer: e.target.checked })}
-                      className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="is_on_special_offer" className="ml-2 block text-sm text-gray-900">Special Offer</label>
-                  </div>
-
-                  {formData.is_on_special_offer && (
-                    <>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Special Price</label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={formData.special_price}
-                          onChange={(e) => setFormData({ ...formData, special_price: parseFloat(e.target.value) || 0 })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                          placeholder="0.00"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-                          <input
-                            type="datetime-local"
-                            value={formData.special_start}
-                            onChange={(e) => setFormData({ ...formData, special_start: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-                          <input
-                            type="datetime-local"
-                            value={formData.special_end}
-                            onChange={(e) => setFormData({ ...formData, special_end: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="is_published"
-                        checked={formData.is_published}
-                        onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-                        className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-                      />
-                      <label htmlFor="is_published" className="ml-2 block text-sm text-gray-900">Published</label>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="active_flag"
-                        checked={formData.active_flag}
-                        onChange={(e) => setFormData({ ...formData, active_flag: e.target.checked })}
-                        className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-                      />
-                      <label htmlFor="active_flag" className="ml-2 block text-sm text-gray-900">Active</label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-4 mt-6 pt-6 border-t">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg disabled:opacity-50"
-                >
-                  {submitting ? 'Saving...' : (editingProduct ? 'Update' : 'Create')}
-                </button>
-              </div>
-            </form>
+            <MultiStepProductForm
+              selectedShop={selectedShop}
+              selectedCategory={selectedCategory}
+              editingProduct={editingProduct}
+              onComplete={handleProductFormComplete}
+              onCancel={() => setShowModal(false)}
+            />
           </div>
         </div>
       )}
