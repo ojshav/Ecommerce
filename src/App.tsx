@@ -79,9 +79,6 @@ import SuperAdminLayout from './pages/superadmin/SuperAdminLayout';
 import MerchantDetails from './pages/superadmin/MerchantDetails';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
 import Profile from './pages/superadmin/Profile';
-<<<<<<<<< Temporary merge branch 1
-import YouTubeManagement from './pages/superadmin/YouTubeManagement';
-=========
 import Shops from './pages/superadmin/shop-management/Shops';
 import ShopCategories from './pages/superadmin/shop-management/ShopCategories';
 import ShopBrands from './pages/superadmin/shop-management/ShopBrands';
@@ -495,7 +492,7 @@ const App: React.FC = () => {
                     <Route path="shop-products" element={<AdminShopProducts />} />
                     <Route path="merchant-subscriptions" element={<MerchantSubscription />} />
                     <Route path="youtube-integration" element={<YouTubeManagement />} />
-                    <Route path="newsletter-subscribers" element={<NewsletterSubscribers />} />
+                    
                   </Route>
 
                     {/* Public Routes with header/footer */}
