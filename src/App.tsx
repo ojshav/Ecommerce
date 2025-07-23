@@ -485,6 +485,7 @@ const App: React.FC = () => {
                     <Route path="promotions" element={<Promotions />} />
                     <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
+                    <Route path="newsletter-subscribers" element={<NewsletterSubscribers />} />
 
                     {/* Shop Management Routes */}
                     <Route path="shops" element={<Shops />} />
