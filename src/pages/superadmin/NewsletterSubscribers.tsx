@@ -8,11 +8,7 @@ interface Subscriber {
   subscribed_at: string;
 }
 
-const dummySubscribers: Subscriber[] = [
-  { id: 1, email: 'alice@example.com', subscribed_at: '2024-06-01T10:00:00Z' },
-  { id: 2, email: 'bob@example.com', subscribed_at: '2024-06-02T12:30:00Z' },
-  { id: 3, email: 'charlie@example.com', subscribed_at: '2024-06-03T15:45:00Z' },
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const NewsletterSubscribers: React.FC = () => {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
@@ -22,11 +18,42 @@ const NewsletterSubscribers: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setSubscribers(dummySubscribers);
-      setLoading(false);
-    }, 500);
+    const fetchSubscribers = async () => {
+      setLoading(true);
+      setError(null);
+      console.log('[DEBUG] Fetching newsletter subscribers...');
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/superadmin/newsletter/subscribers`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          },
+        });
+        console.log('[DEBUG] Response status:', response.status);
+        if (!response.ok) {
+          const text = await response.text();
+          console.error('[DEBUG] Response not ok:', text);
+          throw new Error('Failed to fetch newsletter subscribers');
+        }
+        const data = await response.json();
+        console.log('[DEBUG] Data received:', data);
+        // Map API 'created_at' to 'subscribed_at' for frontend
+        const mapped: Subscriber[] = (Array.isArray(data) ? data : []).map((s: any) => ({
+          id: s.id,
+          email: s.email,
+          subscribed_at: s.created_at,
+        }));
+        // Sort by id ascending (oldest first)
+        mapped.sort((a, b) => a.id - b.id);
+        setSubscribers(mapped);
+      } catch (err: any) {
+        console.error('[DEBUG] Error fetching subscribers:', err);
+        setError(err.message || 'Failed to fetch newsletter subscribers');
+      } finally {
+        setLoading(false);
+        console.log('[DEBUG] Loading set to false');
+      }
+    };
+    fetchSubscribers();
   }, []);
 
   const handleExport = async (format: string) => {
@@ -103,7 +130,16 @@ const NewsletterSubscribers: React.FC = () => {
                     >
                       <td className="px-6 py-4 text-gray-800 font-medium rounded-l-lg">{sub.id}</td>
                       <td className="px-6 py-4 text-gray-700">{sub.email}</td>
-                      <td className="px-6 py-4 text-gray-600 rounded-r-lg">{new Date(sub.subscribed_at).toLocaleString()}</td>
+                      <td className="px-6 py-4 text-gray-600 rounded-r-lg">{
+                        new Date(sub.subscribed_at).toLocaleString(undefined, {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })
+                      }</td>
                     </tr>
                   ))
                 )}
