@@ -1,8 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Twitter, Facebook, Github, Instagram } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Footer: React.FC = () => {
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterMessage, setNewsletterMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setNewsletterMessage(null);
+    if (!newsletterEmail) {
+      setNewsletterMessage({ type: 'error', text: 'Please enter your email address.' });
+      return;
+    }
+    setNewsletterLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/public/newsletter/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+      const data = await response.json();
+      if (response.ok && data.status === 'success') {
+        setNewsletterMessage({ type: 'success', text: 'You have been subscribed to our newsletter.' });
+        setNewsletterEmail('');
+      } else {
+        setNewsletterMessage({ type: 'error', text: data.message || 'Could not subscribe.' });
+      }
+    } catch (err) {
+      setNewsletterMessage({ type: 'error', text: 'Could not connect to the server.' });
+    } finally {
+      setNewsletterLoading(false);
+    }
+  };
+
   return (
     <footer className="bg-[#FFE7DB] text-black w-full ">
       <div className="container mx-auto px-6 xs:px-2 sm:px-2 md:px-2 lg:px-12 xl:px-16 2xl:pl-16 py-8 sm:py-12  lg:py-16">
@@ -82,27 +119,32 @@ const Footer: React.FC = () => {
               <a href="#" className="text-[#F2631F] hover:text-white transition-colors"><Instagram size={18} className="sm:w-5 sm:h-5" /></a>
               <a href="#" className="text-[#F2631F] hover:text-white transition-colors"><Github size={18} className="sm:w-5 sm:h-5" /></a>
             </div>
-
             {/* Email Subscription */}
-            <form className="flex items-center bg-white rounded-xl overflow-visible shadow-sm max-w-full  lg:max-w-[330px]">
+            <form className="flex items-center bg-white rounded-xl overflow-visible shadow-sm max-w-full  lg:max-w-[330px]" onSubmit={handleNewsletterSubmit}>
               <div className="flex items-center px-2 font-worksans text-black">
                 <Mail size={14} className="sm:w-4 sm:h-4" />
               </div>
               <div className='w-[900px] xs:w-full'> 
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 text-xs sm:text-sm text-gray-700 placeholder-black font-worksans bg-white border-none outline-none py-2 px-2 text-left"
-              />
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="flex-1 text-xs sm:text-sm text-gray-700 placeholder-black font-worksans bg-white border-none outline-none py-2 px-2 text-left"
+                  value={newsletterEmail}
+                  onChange={e => setNewsletterEmail(e.target.value)}
+                  disabled={newsletterLoading}
+                />
               </div>
               <button
                 type="submit"
                 className="bg-[#F2631F] hover:bg-[#d44f12] font-worksans overflow-visible text-white px-4 py-2 sm:-ml-10 -ml-16 xl:-ml-6 lg:-ml-6 text-xs  font-medium transition-colors"
+                disabled={newsletterLoading}
               >
-                Submit
+                {newsletterLoading ? 'Submitting...' : 'Submit'}
               </button>
             </form>
-
+            {newsletterMessage && (
+              <div className={`mt-2 text-xs sm:text-sm font-worksans ${newsletterMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>{newsletterMessage.text}</div>
+            )}
             <p className="mt-3 lg:mt-4 text-[14px] sm:text-[16px] lg:text-[18px] text-[#161616] font-normal font-worksans leading-snug">
               Receive our latest updates about our products&nbsp;& promotions
             </p>
