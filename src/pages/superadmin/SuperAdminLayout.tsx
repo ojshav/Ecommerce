@@ -148,11 +148,11 @@ export const dashboardSections: MenuSection[] = [
     color: "amber",
     icon: ShieldCheck,
     items: [
-      {
-        title: "Payments",
-        icon: ShieldCheck,
-        description: "Monitor payment processing and transaction security",
-      },
+      // {
+      //   title: "Payments",
+      //   icon: ShieldCheck,
+      //   description: "Monitor payment processing and transaction security",
+      // },
       {
         title: "Promotions",
         icon: Percent,
