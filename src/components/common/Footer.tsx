@@ -64,6 +64,7 @@ const Footer: React.FC = () => {
                 <a href="tel:2129299953" className="text-[#F2631F] hover:text-white transition-colors">212 929 9953</a>
               </li>
               <li><Link to="/faq" className="hover:text-[#F2631F] transition-colors">Frequently asked Questions</Link></li>
+              <li><Link to="/contact" className="hover:text-[#F2631F] transition-colors">Contact Us</Link></li>
               <li><Link to="terms" className="hover:text-[#F2631F] transition-colors">Terms & Conditions</Link></li>
               <li><Link to="/shipping" className="hover:text-[#F2631F] transition-colors">Shipping Methods</Link></li>
               <li className="mt-2">
