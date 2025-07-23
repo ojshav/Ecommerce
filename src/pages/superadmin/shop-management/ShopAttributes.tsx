@@ -44,7 +44,6 @@ const ShopAttributes: React.FC = () => {
   });
   const [valueFormData, setValueFormData] = useState({
     value: '',
-    display_name: '',
     sort_order: 0,
     is_active: true
   });
@@ -95,6 +94,9 @@ const ShopAttributes: React.FC = () => {
       setLoading(true);
       const data = await shopManagementService.getAttributesByShopCategory(selectedShop.shop_id, selectedCategory.category_id);
       setAttributes(data);
+      // Clear any success/error messages when fetching new data
+      setSuccess('');
+      setError('');
     } catch (error) {
       setError('Failed to fetch attributes');
     } finally {
@@ -249,7 +251,6 @@ const ShopAttributes: React.FC = () => {
     setSelectedAttributeForValue(attribute);
     setValueFormData({
       value: value.value,
-      display_name: value.display_name || '',
       sort_order: value.sort_order,
       is_active: value.is_active
     });
@@ -300,7 +301,6 @@ const ShopAttributes: React.FC = () => {
   const resetValueForm = () => {
     setValueFormData({
       value: '',
-      display_name: '',
       sort_order: 0,
       is_active: true
     });
@@ -403,27 +403,27 @@ const ShopAttributes: React.FC = () => {
 
   // Attributes Management View
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           <button
             onClick={() => setSelectedCategory(null)}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 self-start"
           >
             <ArrowLeft size={20} />
             <span>Back to Categories</span>
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">
               {selectedShop.name} {'>'} {selectedCategory.name} - Attributes
             </h1>
-            <p className="text-gray-600">Manage attributes for this category</p>
+            <p className="text-gray-600 text-sm sm:text-base">Manage attributes for this category</p>
           </div>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
+          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 w-full sm:w-auto"
         >
           <Plus size={20} />
           <span>Add Attribute</span>
@@ -467,12 +467,12 @@ const ShopAttributes: React.FC = () => {
         <div className="space-y-4">
           {filteredAttributes.map((attribute) => (
             <div key={attribute.attribute_id} className="bg-white rounded-lg shadow-md border border-gray-200">
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                  <div className="flex items-start sm:items-center space-x-4">
                     <button
                       onClick={() => toggleAttributeExpansion(attribute)}
-                      className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+                      className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mt-1 sm:mt-0"
                     >
                       {expandedAttributes.has(attribute.attribute_id) ? (
                         <ChevronDown size={20} />
@@ -480,12 +480,12 @@ const ShopAttributes: React.FC = () => {
                         <ChevronRight size={20} />
                       )}
                     </button>
-                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0">
                       <Tag className="text-indigo-500" size={24} />
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{attribute.name}</h3>
-                      <div className="flex items-center space-x-2">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 break-words">{attribute.name}</h3>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
                         <span className="text-sm text-gray-500">Type: {attribute.type}</span>
                         {attribute.is_required && (
                           <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Required</span>
@@ -498,60 +498,66 @@ const ShopAttributes: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <button
                       onClick={() => handleAddValue(attribute)}
-                      className="px-3 py-1 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                      className="px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center justify-center space-x-1"
                     >
-                      Add Value
+                      <Plus size={16} />
+                      <span className="hidden sm:inline">Add Value</span>
+                      <span className="sm:hidden">Value</span>
                     </button>
                     <button
                       onClick={() => handleEdit(attribute)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg flex items-center justify-center"
                     >
                       <Edit2 size={16} />
+                      <span className="sm:hidden ml-1">Edit</span>
                     </button>
                     <button
                       onClick={() => handleDelete(attribute.attribute_id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg flex items-center justify-center"
                     >
                       <Trash2 size={16} />
+                      <span className="sm:hidden ml-1">Delete</span>
                     </button>
                   </div>
                 </div>
                 
                 {attribute.description && (
-                  <p className="mt-2 ml-10 text-gray-600 text-sm">{attribute.description}</p>
+                  <p className="mt-2 ml-0 sm:ml-10 text-gray-600 text-sm break-words">{attribute.description}</p>
                 )}
 
                 {/* Attribute Values */}
                 {expandedAttributes.has(attribute.attribute_id) && (
-                  <div className="mt-4 ml-10">
+                  <div className="mt-4 ml-0 sm:ml-10">
                     <h4 className="text-sm font-medium text-gray-700 mb-2">Attribute Values</h4>
                     {attributeValues[attribute.attribute_id]?.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
                         {attributeValues[attribute.attribute_id].map((value) => (
-                          <div key={value.value_id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                            <div>
-                              <span className="text-sm font-medium">{value.display_name || value.value}</span>
-                              <span className={`ml-2 inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          <div key={value.value_id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 p-3 rounded-lg space-y-2 sm:space-y-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+                              <span className="text-sm font-medium break-words">{value.value}</span>
+                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full self-start ${
                                 value.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                               }`}>
                                 {value.is_active ? 'Active' : 'Inactive'}
                               </span>
                             </div>
-                            <div className="flex space-x-1">
+                            <div className="flex space-x-1 self-start sm:self-auto">
                               <button
                                 onClick={() => handleEditValue(value, attribute)}
-                                className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                                className="p-1 text-blue-600 hover:bg-blue-50 rounded flex items-center justify-center"
                               >
                                 <Edit2 size={14} />
+                                <span className="sm:hidden ml-1 text-xs">Edit</span>
                               </button>
                               <button
                                 onClick={() => handleDeleteValue(value.value_id, attribute.attribute_id)}
-                                className="p-1 text-red-600 hover:bg-red-50 rounded"
+                                className="p-1 text-red-600 hover:bg-red-50 rounded flex items-center justify-center"
                               >
                                 <Trash2 size={14} />
+                                <span className="sm:hidden ml-1 text-xs">Delete</span>
                               </button>
                             </div>
                           </div>
@@ -569,10 +575,10 @@ const ShopAttributes: React.FC = () => {
       )}
 
       {filteredAttributes.length === 0 && !loading && (
-        <div className="text-center py-12">
+        <div className="text-center py-12 px-4">
           <Tag className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">No attributes found</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 max-w-md mx-auto">
             {searchTerm ? 'Try adjusting your search criteria' : 'Get started by creating a new attribute'}
           </p>
         </div>
@@ -580,10 +586,11 @@ const ShopAttributes: React.FC = () => {
 
       {/* Attribute Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-            <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-xl font-semibold">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl max-h-[90vh] flex flex-col">
+            {/* Fixed Header */}
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b shrink-0">
+              <h2 className="text-lg sm:text-xl font-semibold">
                 {editingAttribute ? 'Edit Attribute' : 'Add New Attribute'}
               </h2>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
@@ -591,8 +598,10 @@ const ShopAttributes: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6">
-              <div className="space-y-4">
+            {/* Scrollable Form Content */}
+            <div className="flex-1 overflow-y-auto">
+              <form onSubmit={handleSubmit} className="p-4 sm:p-6">
+                <div className="space-y-4 sm:space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Attribute Name *</label>
                   <input
@@ -645,62 +654,92 @@ const ShopAttributes: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Sort Order</label>
                     <input
-                      type="checkbox"
-                      id="is_required"
-                      checked={formData.is_required}
-                      onChange={(e) => setFormData({ ...formData, is_required: e.target.checked })}
-                      className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                      type="number"
+                      value={formData.sort_order}
+                      onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="0"
+                      min="0"
                     />
-                    <label htmlFor="is_required" className="ml-2 block text-sm text-gray-900">Required</label>
                   </div>
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="is_active"
-                      checked={formData.is_active}
-                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">Active</label>
+                  <div className="flex flex-col justify-center">
+                    <div className="space-y-3">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="is_required"
+                          checked={formData.is_required}
+                          onChange={(e) => setFormData({ ...formData, is_required: e.target.checked })}
+                          className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor="is_required" className="ml-2 block text-sm text-gray-900">Required</label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="is_filterable"
+                          checked={formData.is_filterable}
+                          onChange={(e) => setFormData({ ...formData, is_filterable: e.target.checked })}
+                          className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor="is_filterable" className="ml-2 block text-sm text-gray-900">Filterable</label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="is_active"
+                          checked={formData.is_active}
+                          onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                          className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">Active</label>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {error && (
-                <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                  {error}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                    {error}
+                  </div>
+                )}
                 </div>
-              )}
 
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg"
-                >
-                  {editingAttribute ? 'Update' : 'Create'}
-                </button>
-              </div>
-            </form>
+                {/* Fixed Footer */}
+                <div className="border-t p-4 sm:p-6 bg-gray-50 shrink-0">
+                  <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                      className="w-full sm:w-auto px-4 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="w-full sm:w-auto px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg"
+                    >
+                      {editingAttribute ? 'Update' : 'Create'}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
 
       {/* Attribute Value Modal */}
       {showValueModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-            <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-xl font-semibold">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md sm:max-w-lg max-h-[90vh] flex flex-col">
+            {/* Fixed Header */}
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b shrink-0">
+              <h2 className="text-lg sm:text-xl font-semibold">
                 {editingValue ? 'Edit Attribute Value' : 'Add Attribute Value'}
               </h2>
               <button 
@@ -716,70 +755,80 @@ const ShopAttributes: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleValueSubmit} className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Value *</label>
-                  <input
-                    type="text"
-                    required
-                    value={valueFormData.value}
-                    onChange={(e) => setValueFormData({ ...valueFormData, value: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Enter attribute value"
-                  />
+            {/* Scrollable Form Content */}
+            <div className="flex-1 overflow-y-auto">
+              <form onSubmit={handleValueSubmit} className="p-4 sm:p-6">
+                <div className="space-y-4 sm:space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Value *</label>
+                    <input
+                      type="text"
+                      required
+                      value={valueFormData.value}
+                      onChange={(e) => setValueFormData({ ...valueFormData, value: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="Enter attribute value"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Sort Order</label>
+                      <input
+                        type="number"
+                        value={valueFormData.sort_order}
+                        onChange={(e) => setValueFormData({ ...valueFormData, sort_order: parseInt(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        placeholder="0"
+                        min="0"
+                      />
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="value_is_active"
+                          checked={valueFormData.is_active}
+                          onChange={(e) => setValueFormData({ ...valueFormData, is_active: e.target.checked })}
+                          className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor="value_is_active" className="ml-2 block text-sm text-gray-900">Active</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                      {error}
+                    </div>
+                  )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
-                  <input
-                    type="text"
-                    value={valueFormData.display_name}
-                    onChange={(e) => setValueFormData({ ...valueFormData, display_name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Enter display name (optional)"
-                  />
+                {/* Fixed Footer */}
+                <div className="border-t pt-4 mt-6">
+                  <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowValueModal(false);
+                        setEditingValue(null);
+                        setSelectedAttributeForValue(null);
+                        resetValueForm();
+                      }}
+                      className="w-full sm:w-auto px-4 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="w-full sm:w-auto px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg"
+                    >
+                      {editingValue ? 'Update' : 'Create'}
+                    </button>
+                  </div>
                 </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="value_is_active"
-                    checked={valueFormData.is_active}
-                    onChange={(e) => setValueFormData({ ...valueFormData, is_active: e.target.checked })}
-                    className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="value_is_active" className="ml-2 block text-sm text-gray-900">Active</label>
-                </div>
-              </div>
-
-              {error && (
-                <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                  {error}
-                </div>
-              )}
-
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowValueModal(false);
-                    setEditingValue(null);
-                    setSelectedAttributeForValue(null);
-                    resetValueForm();
-                  }}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg"
-                >
-                  {editingValue ? 'Update' : 'Create'}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}
