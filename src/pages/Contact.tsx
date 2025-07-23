@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, ShoppingBag, CreditCard, HelpCircle, FileText, UserCheck, MessageCircle } from 'lucide-react';
 import MessengerPopup from '../components/MessengerPopup';
+import { useAuth } from '../context/useAuth';
 
 const topics = [
   { label: 'Order Related', icon: <ShoppingBag className="w-8 h-8 text-[#F2631F] mx-auto" /> },
@@ -15,23 +16,26 @@ const topics = [
 const Contact: React.FC = () => {
   const [showChat, setShowChat] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#FFE7DB] py-10 px-2 font-worksans">
       {/* Sign In Prompt */}
-      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow p-4 flex items-center gap-4 mb-8 border border-gray-100">
-        <User className="w-8 h-8 text-[#F2631F]" />
-        <div className="flex-1">
-          <div className="font-semibold text-black">Getting help is easy</div>
-          <div className="text-gray-500 text-sm">Sign in to get help with recent orders</div>
+      {!isAuthenticated && (
+        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow p-4 flex items-center gap-4 mb-8 border border-gray-100">
+          <User className="w-8 h-8 text-[#F2631F]" />
+          <div className="flex-1">
+            <div className="font-semibold text-black">Getting help is easy</div>
+            <div className="text-gray-500 text-sm">Sign in to get help with recent orders</div>
+          </div>
+          <button
+            className="bg-[#F2631F] hover:bg-[#d44f12] text-white font-medium px-6 py-2 rounded-lg transition-colors"
+            onClick={() => navigate('/sign-in')}
+          >
+            Sign in
+          </button>
         </div>
-        <button
-          className="bg-[#F2631F] hover:bg-[#d44f12] text-white font-medium px-6 py-2 rounded-lg transition-colors"
-          onClick={() => navigate('/auth/signin')}
-        >
-          Sign in
-        </button>
-      </div>
+      )}
 
       {/* Browse Topics */}
       <div className="max-w-4xl mx-auto">
@@ -63,28 +67,12 @@ const Contact: React.FC = () => {
           </div>
           <button
             className="ml-4 bg-[#F2631F] hover:bg-[#d44f12] text-white font-medium px-6 py-2 rounded-lg transition-colors"
-            onClick={() => setShowChat(true)}
+            onClick={() => navigate('/RaiseTicket')}
           >
             Chat
           </button>
         </div>
       </div>
-
-      {/* Messenger Popup (modal style) */}
-      {showChat && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="relative">
-            <button
-              className="absolute -top-4 -right-4 bg-white rounded-full shadow p-1"
-              onClick={() => setShowChat(false)}
-              aria-label="Close chat"
-            >
-              <span className="text-black">✕</span>
-            </button>
-            <MessengerPopup />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
