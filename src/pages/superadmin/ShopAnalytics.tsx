@@ -133,6 +133,11 @@ const SHOP_LIST = [
   { id: "shop3", name: "Shop 3" },
 ];
 
+const PRODUCT_SALES_FILTERS = [
+  { year: 2024, months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'] },
+  { year: 2023, months: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] },
+];
+
 function renderPieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }: PieLabelRenderProps & { name: string }) {
   // Fallbacks for undefined values
   const safeCx = typeof cx === 'number' ? cx : 0;
@@ -161,10 +166,22 @@ function renderPieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent, i
 
 const ShopAnalytics: React.FC = () => {
   const [selectedShop, setSelectedShop] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<number>(2024);
+  const [selectedMonth, setSelectedMonth] = useState<string>('Jan');
   const analytics = selectedShop ? STATIC_ANALYTICS[selectedShop] : null;
 
   // Calculate total for categoryDist for percentage
   const totalCategories = analytics ? analytics.categoryDist.reduce((sum: number, c: { name: string; value: number }) => sum + c.value, 0) : 0;
+
+  // For demo: filter productSales by selected year/month (static, so just show all or a subset)
+  let filteredProductSales = analytics ? analytics.productSales : [];
+  if (selectedYear === 2024 && selectedMonth === 'Jan') {
+    filteredProductSales = analytics ? analytics.productSales : [];
+  } else if (selectedYear === 2024 && selectedMonth === 'Feb') {
+    filteredProductSales = analytics ? analytics.productSales.slice(0, 2) : [];
+  } else if (selectedYear === 2023) {
+    filteredProductSales = analytics ? analytics.productSales.slice(2) : [];
+  }
 
   return (
     <div className="space-y-8">
@@ -229,11 +246,36 @@ const ShopAnalytics: React.FC = () => {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            {/* Product Sales Bar Chart */}
-            <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center min-h-[350px]">
-              <h3 className="text-lg font-semibold mb-4 text-orange-700 self-start">Products Sold</h3>
+            {/* Product Sales Bar Chart with filters */}
+            <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center min-h-[350px] w-full">
+              <div className="flex flex-wrap gap-4 mb-2 w-full justify-between items-center">
+                <h3 className="text-lg font-semibold text-orange-700">Products Sold</h3>
+                <div className="flex gap-2 items-center">
+                  <select
+                    className="p-1 rounded border border-orange-300 focus:ring-2 focus:ring-orange-400"
+                    value={selectedYear}
+                    onChange={e => {
+                      setSelectedYear(Number(e.target.value));
+                      setSelectedMonth(PRODUCT_SALES_FILTERS.find(f => f.year === Number(e.target.value))?.months[0] || 'Jan');
+                    }}
+                  >
+                    {PRODUCT_SALES_FILTERS.map(f => (
+                      <option key={f.year} value={f.year}>{f.year}</option>
+                    ))}
+                  </select>
+                  <select
+                    className="p-1 rounded border border-orange-300 focus:ring-2 focus:ring-orange-400"
+                    value={selectedMonth}
+                    onChange={e => setSelectedMonth(e.target.value)}
+                  >
+                    {(PRODUCT_SALES_FILTERS.find(f => f.year === selectedYear)?.months || []).map(m => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={analytics.productSales} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                <BarChart data={filteredProductSales} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
