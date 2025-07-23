@@ -479,6 +479,15 @@ class ShopManagementService {
     return data.data || data;
   }
 
+  async getActiveAttributesByShopCategory(shopId: number, categoryId: number): Promise<ShopAttribute[]> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/attributes/shop/${shopId}/category/${categoryId}?active_only=true`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to fetch active attributes');
+    const data = await response.json();
+    return data.data || data;
+  }
+
   async createAttribute(attributeData: Omit<ShopAttribute, 'attribute_id' | 'created_at' | 'updated_at'>): Promise<ShopAttribute> {
     const response = await fetch(`${API_BASE_URL}/api/shop/attributes`, {
       method: 'POST',

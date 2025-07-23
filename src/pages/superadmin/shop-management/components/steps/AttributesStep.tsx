@@ -30,7 +30,8 @@ const AttributesStep: React.FC<AttributesStepProps> = ({
     try {
       setLoading(true);
       
-      const attributes = await shopManagementService.getAttributesByShopCategory(shopId, categoryId);
+      // Use getActiveAttributesByShopCategory to only show active attributes for product creation
+      const attributes = await shopManagementService.getActiveAttributesByShopCategory(shopId, categoryId);
       setAttributes(attributes);
     } catch (error) {
       console.error('Failed to fetch attributes:', error);
@@ -149,7 +150,7 @@ const AttributesStep: React.FC<AttributesStepProps> = ({
               <input
                 type="radio"
                 name={`attribute_${attribute.attribute_id}`}
-                checked={value === true}
+                checked={value === true || value === 'true'}
                 onChange={() => handleAttributeChange(attribute.attribute_id, true)}
                 className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
               />
@@ -159,7 +160,7 @@ const AttributesStep: React.FC<AttributesStepProps> = ({
               <input
                 type="radio"
                 name={`attribute_${attribute.attribute_id}`}
-                checked={value === false}
+                checked={value === false || value === 'false' || value === ''}
                 onChange={() => handleAttributeChange(attribute.attribute_id, false)}
                 className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
               />
