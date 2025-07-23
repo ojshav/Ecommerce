@@ -2,15 +2,15 @@ import React from 'react';
 
 const outfits = [
   {
-    image: '/assets/images/look1.png',
+    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745158/public_assets_shop1_LP/public_assets_images_look1.svg',
     bgColor: 'bg-[#89B6D9]', // Blue
   },
   {
-    image: '/assets/images/look2.png',
+    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745160/public_assets_shop1_LP/public_assets_images_look2.svg',
     bgColor: 'bg-[#FFDE8C]', // Yellow
   },
   {
-    image: '/assets/images/look3.png',
+    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745163/public_assets_shop1_LP/public_assets_images_look3.svg',
     bgColor: 'bg-[#A47B63]', // Brown
   },
 ];
@@ -33,6 +33,7 @@ const OutfitCards = () => {
                 left: '3%',
                 transform: 'translateX(-50%)',
               }}
+              loading="lazy"
             />
           </div>
         ))}

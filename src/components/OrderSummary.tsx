@@ -103,7 +103,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   // Calculate totals based on display items
   const itemsTotal = displayItems.reduce((total, item) => {
-    const price = item.product.original_price || item.product.price;
+    const price = item.product.price || item.product.original_price;
     return total + price * item.quantity;
   }, 0);
 

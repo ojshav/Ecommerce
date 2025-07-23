@@ -378,6 +378,7 @@ const Products: React.FC = () => {
   useEffect(() => {
     fetchCategories();
     fetchBrands();
+    fetchRecentlyViewed(); // <-- Add this line
   }, []);
 
   // Refetch products when filters or pagination changes

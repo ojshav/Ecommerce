@@ -12,11 +12,11 @@ const ProductDetail = () => {
     <div className="max-w-[1280px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-1 pb-6 sm:pb-8 lg:pb-10 flex flex-col gap-0">
       <hr className="border-black border-t-1 mb-4 sm:mb-6" />
       {/* Top Container: Responsive grid for images and details */}
-      <div className="grid grid-cols-1 max-w-[1580px]  md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-1 items-start lg:items-center">
+      <div className="grid grid-cols-1 max-w-[1580px]  md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4 lg:gap-4 2xl:gap-2 items-start lg:items-center">
         {/* First image */}
         <div className="flex justify-center order-1 md:order-1 lg:order-1">
           <img 
-            src="/assets/images/pd-1.jpg" 
+            src="/assets/shop2/ProductPage/pd1.svg" 
             alt="Front View" 
             className="rounded-2xl w-full max-w-[320px] sm:max-w-[390px] lg:w-[390px] h-[300px] sm:h-[380px] lg:h-[456px] object-cover" 
           />
@@ -25,7 +25,7 @@ const ProductDetail = () => {
         {/* Second image with Heart Icon */}
         <div className="relative flex justify-center order-2 md:order-2 lg:order-2">
           <img 
-            src="/assets/images/pd-2.jpg" 
+            src="/assets/shop2/ProductPage/pd1.svg" 
             alt="Back View" 
             className="rounded-2xl w-full max-w-[320px] sm:max-w-[360px] lg:w-[390px] h-[300px] sm:h-[380px] lg:h-[456px] object-cover" 
           />
@@ -94,13 +94,13 @@ const ProductDetail = () => {
       {/* Bottom Container: Next two images */}
       <div className="flex flex-col lg:flex-row w-full max-w-[1230px] mx-auto items-center mt-4 sm:mt-6 lg:mt-1 gap-4">
         <img 
-          src="/assets/images/pd-3.jpg" 
+          src="/assets/shop2/ProductPage/pd3.svg" 
           alt="Side View" 
           className="rounded-xl w-full lg:w-[486px] h-[250px] sm:h-[300px] lg:h-[412px] object-cover" 
         />
         <div className="relative rounded-xl overflow-hidden flex-1 h-[250px] sm:h-[300px] lg:h-[412px] w-full lg:ml-0">
           <img 
-            src="/assets/images/pd-4.jpg" 
+            src="/assets/shop2/ProductPage/pd4.svg" 
             alt="Closeup" 
             className="rounded-xl w-full h-full object-cover" 
           />
