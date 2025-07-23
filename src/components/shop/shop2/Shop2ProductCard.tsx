@@ -8,7 +8,7 @@ interface Shop2ProductCardProps {
   overlay?: number;
 }
 
-const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ image, name, price, discount, overlay }) => {
+const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ image, name, price, discount }) => {
   return (
     <div className="flex flex-col items-center pb-7 relative group">
       {/* Product Image Container */}
@@ -18,12 +18,9 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ image, name, price,
           alt={name}
           className="rounded-t-xl w-full h-full object-cover bg-none border-none shadow-none transition-transform duration-300 hover:scale-100"
         />
-        {/* Optional overlay or discount badge */}
+        {/* Optional discount badge */}
         {discount && (
           <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">{discount}% OFF</span>
-        )}
-        {overlay && (
-          <span className="absolute top-4 right-4 bg-black text-white px-3 py-1 rounded-full text-xs font-bold">ID: {overlay}</span>
         )}
       </div>
       {/* Product Info and Hover Add-to-Cart, with hover bg color */}
