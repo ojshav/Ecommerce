@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Shop2ProductCard from '../Shop2ProductCard';
 
 const products = [
   {
@@ -302,44 +303,16 @@ const ProductPage = () => {
             </div>
             {/* Product Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 md:gap-x-4 2xl:gap-x-8 gap-y-8">
-              {paginatedProducts.map((product, idx) =>
-                idx === 2 ? (
-                  <div className="w-full">
-                  <div key={product.id} className="flex flex-col items-center pb-6 rounded-t">
-                    {/* Product Image */}
-                    <img
-                      src={product.image}
-                      alt="Special Edition Necklace"
-                      className="rounded-t-xl w-full max-w-[340px] sm:max-w-[400px] md:max-w-[519px] h-[320px] sm:h-[400px] md:h-[595px] object-cover bg-none border-none shadow-none"
-                    />
-                    {/* Product Info & Buttons with background */}
-                    <div className="w-full max-w-[519px] flex flex-col items-center bg-[#DFD1C6] rounded-b-xl pt-8 pb-6">
-                      <span className="font-medium  text-[30px] font-bebas text-center tracking-wider">
-                        Special Edition Necklace
-                      </span>
-                      <span className="font-semibold text-[25px] font-bebas mt-4 mb-6">
-                        $199
-                      </span>
-                      <div className="mt-4 flex items-center gap-2 w-full justify-center">
-                        <button className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold">-</button>
-                        <span className="font-semibold">1</span>
-                        <button className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold">+</button>
-                        <button className="ml-2 sm:ml-4 bg-black text-white px-4 sm:px-6 py-2 rounded-full font-semibold text-xs">ADD TO CART</button>
-                      </div>
-                    </div>
-                  </div>
-                  </div>
-                ) : (
-                  <div key={product.id} className="flex flex-col items-center pb-7">
-                    {/* Default content for other products */}
-                    <img src={product.image} alt={product.name} className="rounded-xl w-full max-w-[340px] sm:max-w-[400px] md:max-w-[519px] h-[320px] sm:h-[400px] md:h-[595px] object-cover bg-none border-none shadow-none transition-transform duration-300  hover:scale-75 " />
-                    <div className="mt-10 flex flex-col items-center w-full">
-                      <span className="font-medium text-[30px] font-bebas text-center tracking-wider">{product.name}</span>
-                      <span className="font-semibold text-[25px] font-bebas mt-3">${product.price}</span>
-                    </div>
-                  </div>
-                )
-              )}
+              {paginatedProducts.map((product) => (
+                <Shop2ProductCard
+                  key={product.id}
+                  image={product.image}
+                  name={product.name}
+                  price={product.price}
+                  discount={product.discount}
+                  overlay={product.overlay}
+                />
+              ))}
             </div>
             {/* Pagination - centered below grid */}
             <div className="py-16 mb-32 flex justify-center">
