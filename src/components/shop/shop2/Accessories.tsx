@@ -2,7 +2,7 @@ import React from 'react';
 
 const Accessories: React.FC = () => {
   return (
-    <section className="relative w-screen h-[60vh] md:h-[80vh]  sm:h-[70vh] lg:h-[1024px]  bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center flex items-center justify-center overflow-hidden">
+    <section className="relative w-screen h-[60vh] md:h-[80vh]  sm:h-[70vh] lg:h-[1024px]  bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center flex items-center justify-center overflow-hidden">
       
       {/* Top Horizontal Line */}
 

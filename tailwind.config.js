@@ -116,6 +116,7 @@ export default {
         alexandria: ['Alexandria', 'sans-serif'],
         segoe: ['Segoe UI', 'sans-serif'],
         futura: ["Futura Book BT V1", "Futura", "Trebuchet MS", "Arial", "sans-serif"],
+        openSans: ['Open Sans', 'sans-serif'],
       },
       fontSize: {
         display: ['96px', { lineHeight: '90px' }],

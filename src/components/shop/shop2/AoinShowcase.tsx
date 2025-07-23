@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 
 const AoinShowcase = () => {
   return (
-    <section className="relative w-full min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] xl:min-h-[1024px] bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center text-white font-sans flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
+    <section className="relative w-full min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] xl:min-h-[1024px] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center text-white font-sans flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
       
       {/* Carousel Section */}
       <div className="w-full max-w-[1364px] relative flex items-center justify-end overflow-hidden px-2 xl:ml-48  sm:px-4 md:px-6 mb-6 sm:mb-8">

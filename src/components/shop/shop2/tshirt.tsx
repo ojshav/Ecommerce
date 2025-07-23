@@ -2,7 +2,7 @@ import React from 'react';
 
 const Tshirt: React.FC = () => {
   return (
-    <section className="relative w-screen h-[60vh] md:h-[80vh] sm:h-[70vh] lg:h-[1024px] bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center flex items-center justify-center overflow-hidden">
+    <section className="relative w-screen h-[60vh] md:h-[80vh] sm:h-[70vh] lg:h-[1024px] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center flex items-center justify-center overflow-hidden">
       
       {/* Top Horizontal Line */}
       <div className="absolute top-4 sm:top-8 md:top-12 lg:top-[46px] left-1/2 -translate-x-1/2 w-[90vw] max-w-[1346px] h-[1px] sm:h-[2px] bg-[#B285DE] z-50 scale-y-50" />

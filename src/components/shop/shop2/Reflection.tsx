@@ -13,7 +13,7 @@ const Reflection = () => {
   }, []);
 
   return (
-    <div className="w-full h-[90vh] sm:h-[100vh] md:h-[1024px] lg:h-[1024px] bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center flex items-center justify-center relative overflow-hidden">
+    <div className="w-full h-[90vh] sm:h-[100vh] md:h-[1024px] lg:h-[1024px] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center flex items-center justify-center relative overflow-hidden">
       <div className="w-full max-w-[1440px] h-full px-4 sm:px-8 relative">
 
         {/* Gradient Title */}

@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 
 const QualityShowcase = () => {
   return (
-    <section className="relative w-full min-h-screen bg-[url('/assets/shop2/bg-image.png')] bg-cover bg-center px-4 sm:px-6 lg:px-8 py-6 pt-20 sm:pt-24 lg:pt-28 font-sans text-white">
+    <section className="relative w-full min-h-screen bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center px-4 sm:px-6 lg:px-8 py-6 pt-20 sm:pt-24 lg:pt-28 font-sans text-white">
       {/* Top Grid */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-40 md:gap-40 lg:gap-8 mb-12 sm:mb-16 lg:mb-24">
         {/* Left Image Box */}
