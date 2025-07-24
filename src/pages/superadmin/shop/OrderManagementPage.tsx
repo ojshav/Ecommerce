@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, PrinterIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PrinterIcon, LockClosedIcon, UserIcon, CreditCardIcon } from '@heroicons/react/24/outline';
 
 // Dummy order data with details
 const DUMMY_ORDERS = [
@@ -79,7 +79,7 @@ const OrderManagementPage: React.FC = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen p-4 sm:p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button onClick={() => navigate(-1)} className="flex items-center text-orange-600 hover:underline"><ArrowLeftIcon className="h-5 w-5 mr-1" />Back to Orders</button>
@@ -87,22 +87,24 @@ const OrderManagementPage: React.FC = () => {
           <button onClick={() => window.print()} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded flex items-center"><PrinterIcon className="h-5 w-5 mr-2" />Print Invoice</button>
         </div>
 
-        {/* Status and summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="md:col-span-2 bg-white rounded-lg shadow p-4 flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-700">Order Status</div>
-                <div className="flex items-center gap-2 mt-1">
-                  {statusBadge(order.order_status)}
-                  {statusBadge(order.payment_status)}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">Placed on {new Date(order.order_date).toLocaleDateString()}</div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left: Main Info */}
+          <div className="space-y-4 lg:col-span-2">
+            {/* Order Status */}
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
+              <div className="font-semibold text-gray-800 mb-2">Order Status</div>
+              <div className="flex flex-wrap gap-3 items-center mb-1">
+                {statusBadge(order.order_status)}
+                {statusBadge(order.payment_status)}
               </div>
+              <div className="text-xs text-gray-500">Placed on {new Date(order.order_date).toLocaleDateString()}</div>
             </div>
             {/* Order Items */}
-            <div>
-              <div className="font-semibold text-gray-800 mb-2 flex items-center gap-2"><span className="inline-block">Order Items ({order.items.length})</span></div>
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
+              <div className="flex items-center gap-2 font-semibold text-gray-800 mb-2">
+                <LockClosedIcon className="h-5 w-5 text-orange-500" />
+                Order Items ({order.items.length})
+              </div>
               <div className="divide-y divide-gray-100">
                 {order.items.map((item, idx) => (
                   <div key={idx} className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -119,7 +121,7 @@ const OrderManagementPage: React.FC = () => {
               </div>
             </div>
             {/* Status History */}
-            <div>
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
               <div className="font-semibold text-gray-800 mb-2">Status History</div>
               <div className="space-y-2">
                 {order.status_history.map((h, idx) => (
@@ -135,9 +137,10 @@ const OrderManagementPage: React.FC = () => {
               </div>
             </div>
           </div>
-          {/* Order Summary, Customer Info, Payment Info */}
-          <div className="flex flex-col gap-4">
-            <div className="bg-white rounded-lg shadow p-4">
+          {/* Right: Summary & Info */}
+          <div className="space-y-4">
+            {/* Order Summary */}
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
               <div className="font-semibold text-gray-800 mb-2">Order Summary</div>
               <div className="flex flex-col gap-1 text-sm">
                 <div className="flex justify-between"><span>Subtotal</span><span>{order.currency} {order.subtotal.toLocaleString(undefined, {minimumFractionDigits:2})}</span></div>
@@ -146,16 +149,18 @@ const OrderManagementPage: React.FC = () => {
                 <div className="flex justify-between font-semibold border-t pt-2 mt-2"><span>Total</span><span>{order.currency} {parseFloat(order.total_amount).toLocaleString(undefined, {minimumFractionDigits:2})}</span></div>
               </div>
             </div>
-            <div className="bg-white rounded-lg shadow p-4">
-              <div className="font-semibold text-gray-800 mb-2 flex items-center gap-2"><span>Customer Information</span></div>
+            {/* Customer Information */}
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
+              <div className="flex items-center gap-2 font-semibold text-gray-800 mb-2"><UserIcon className="h-5 w-5 text-orange-500" /> Customer Information</div>
               <div className="text-sm">
                 <div className="font-medium">Shipping Address</div>
                 <div>{order.shipping_address_details.address_line1}</div>
                 <div>{order.shipping_address_details.city} {order.shipping_address_details.postal_code ? ', ' + order.shipping_address_details.postal_code : ''}</div>
               </div>
             </div>
-            <div className="bg-white rounded-lg shadow p-4">
-              <div className="font-semibold text-gray-800 mb-2 flex items-center gap-2"><span>Payment Information</span></div>
+            {/* Payment Information */}
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
+              <div className="flex items-center gap-2 font-semibold text-gray-800 mb-2"><CreditCardIcon className="h-5 w-5 text-orange-500" /> Payment Information</div>
               <div className="text-sm">
                 <div className="font-medium">Payment Method</div>
                 <div>{order.payment_method.replace('_', ' ')}</div>

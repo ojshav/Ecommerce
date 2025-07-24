@@ -135,7 +135,7 @@ import LiveStreamView from './pages/LiveStreamView';
 import ShopAnalytics from './pages/superadmin/shop/ShopAnalytics';
 import ShopInventoryManagement from './pages/superadmin/shop/ShopInventoryManagement';
 import ShopOrders from './pages/superadmin/shop/ShopOrders';
-import OrderManagementPage from './pages/superadmin/OrderManagementPage';
+import OrderManagementPage from './pages/superadmin/shop/OrderManagementPage';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
