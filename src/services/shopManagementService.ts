@@ -299,6 +299,22 @@ class ShopManagementService {
     }
   }
 
+  async hardDeleteShop(shopId: number): Promise<any> {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const response = await fetch(`${API_BASE_URL}/api/shop/shops/${shopId}/hard`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to hard delete shop');
+    }
+    return response.json();
+  }
+
   // Category Management
   async getCategoriesByShop(shopId: number): Promise<ShopCategory[]> {
     const response = await fetch(`${API_BASE_URL}/api/shop/categories/shop/${shopId}`, {
