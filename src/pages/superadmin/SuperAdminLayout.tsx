@@ -154,6 +154,28 @@ export const dashboardSections: MenuSection[] = [
     ],
   },
   {
+    category: "Shop Operations",
+    color: "pink",
+    icon: ShoppingBag,
+    items: [
+      {
+        title: "Order Management",
+        icon: FileBarChart2,
+        description: "Process orders, track fulfillment, and manage exceptions",
+      },
+      {
+        title: "Refund and Return",
+        icon: Percent,
+        description: "Process refund requests and manage return policies",
+      },
+      {
+        title: "Customer Support Management",
+        icon: MessageSquare,
+        description: "Oversee support tickets, response times, and resolution rates",
+      },
+    ],
+  },
+  {
     category: "Operations",
     color: "amber",
     icon: ShieldCheck,
