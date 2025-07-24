@@ -459,7 +459,8 @@ const SuperAdminLayout = () => {
   };
 
   const handleNavigation = (section: string) => {
-    const route = `/superadmin/${section.toLowerCase().replace(/\s+/g, "-")}`;
+    let route = `/superadmin/${section.toLowerCase().replace(/\s+/g, "-")}`;
+    if (section === "Order Management") route = "/superadmin/order-management";
     navigate(route);
     setExpandedCategories([section]);
     if (window.innerWidth < 768) {
