@@ -7,6 +7,9 @@ export interface Product {
   product_description: string;
   short_description: string;
   full_description: string;
+  meta_description?: string;
+  meta_title?: string;
+  meta_keywords?: string;
   sku: string;
   price: number;
   originalPrice?: number;
@@ -14,7 +17,20 @@ export interface Product {
   special_price?: number;
   is_on_special_offer: boolean;
   primary_image: string;
-  media?: Media[];
+  media?: {
+    images: Array<{
+      url: string;
+      type: string;
+      is_primary: boolean;
+    }>;
+    videos: Array<{
+      url: string;
+      type: string;
+      is_primary: boolean;
+    }>;
+    primary_image: string;
+    total_media: number;
+  };
   category_id: number;
   category_name: string;
   brand_id?: number;

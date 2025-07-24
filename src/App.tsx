@@ -219,6 +219,7 @@ const App: React.FC = () => {
                 <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                   <Routes>
                     <Route path="/shop1" element={<Shop1LandingPage />} />
+                    <Route path="/shop1/product/:id" element={<Shop1Productpage />} />
                     <Route path="/shop2" element={<Shop2LandingPage />} />
                     <Route path="/shop3" element={<Shop3LandingPage />} />
                     <Route path="/shop1-productpage" element={<Shop1Productpage />} />
