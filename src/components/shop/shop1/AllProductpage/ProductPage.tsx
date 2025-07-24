@@ -407,6 +407,7 @@ const ProductPage = () => {
             {products.map((product, idx) => (
               <Shop1ProductCard
                 key={product.product_id || idx}
+                id={product.product_id}
                 image={product.primary_image || ''}
                 category={product.category_name || ''}
                 name={product.product_name}
