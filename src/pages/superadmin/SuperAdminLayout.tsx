@@ -180,11 +180,11 @@ export const dashboardSections: MenuSection[] = [
     color: "amber",
     icon: ShieldCheck,
     items: [
-      // {
-      //   title: "Payments",
-      //   icon: ShieldCheck,
-      //   description: "Monitor payment processing and transaction security",
-      // },
+      {
+        title: "Payments",
+        icon: ShieldCheck,
+        description: "Monitor payment processing and transaction security",
+      },
       {
         title: "Promotions",
         icon: Percent,
@@ -462,6 +462,7 @@ const SuperAdminLayout = () => {
     let route = `/superadmin/${section.toLowerCase().replace(/\s+/g, "-")}`;
     if (section === "Order Management") route = "/superadmin/order-management";
     if (section === "Shop Reviews") route = "/superadmin/shop/reviews/1";
+    if (section === "Payments") route = "/superadmin/payments";
     navigate(route);
     setExpandedCategories([section]);
     if (window.innerWidth < 768) {
