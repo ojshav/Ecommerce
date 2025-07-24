@@ -169,9 +169,9 @@ export const dashboardSections: MenuSection[] = [
         description: "Process refund requests and manage return policies",
       },
       {
-        title: "Customer Support Management",
-        icon: MessageSquare,
-        description: "Oversee support tickets, response times, and resolution rates",
+        title: "Shop Reviews",
+        icon: ShoppingBag,
+        description: "View and manage shop reviews",
       },
     ],
   },
@@ -461,6 +461,7 @@ const SuperAdminLayout = () => {
   const handleNavigation = (section: string) => {
     let route = `/superadmin/${section.toLowerCase().replace(/\s+/g, "-")}`;
     if (section === "Order Management") route = "/superadmin/order-management";
+    if (section === "Shop Reviews") route = "/superadmin/shop/reviews/1";
     navigate(route);
     setExpandedCategories([section]);
     if (window.innerWidth < 768) {
