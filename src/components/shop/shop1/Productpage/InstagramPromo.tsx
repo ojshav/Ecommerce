@@ -3,11 +3,11 @@ import { ArrowUpRight } from 'lucide-react';
 
 const InstagramPromo = () => {
   return (
-    <section className="relative w-full max-w-[1280px] mx-auto mb-8 sm:mb-10 md:mb-12 py-8 sm:py-12 md:py-16 px-2 sm:px-4">
+    <section className="relative w-full max-w-[1280px] mx-auto mb-8 sm:mb-10 md:mb-12 py-8 sm:py-12 md:py-16 px-2 sm:px-8">
       <div
         className="bg-center bg-cover w-full h-[320px] sm:h-[420px] md:h-[540px] lg:h-[681px] flex items-center justify-center"
         style={{
-          backgroundImage: "url('/assets/images/instapromo.jpg')", // Your image path
+          backgroundImage: "url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1753264505/public_assets_shop1_LP/public_assets_images_Productcard_instapromo.svg')", // Your image path
         }}
       >
         <div className="text-center w-full max-w-[904px] px-2 sm:px-4">

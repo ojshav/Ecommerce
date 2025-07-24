@@ -2,7 +2,7 @@ import React from 'react';
 import '../styles/globals.css';
 import Header from '../components/shop/shop2/Productpage/Header';
 import ProductDetail from '../components/shop/shop2/Productpage/ProductDetail';
-import DescriptionAccordion from '../components/shop/shop2/Productpage/DescriptionReview';
+
 import SimilarProducts from '../components/shop/shop2/Productpage/SimilarProducts';
 
 function Shop2Productpage() {
@@ -17,7 +17,7 @@ function Shop2Productpage() {
     <div className="min-h-screen bg-white scroll-smooth overflow-x-hidden">
       <Header />
       <ProductDetail />
-      <DescriptionAccordion />
+   
       <SimilarProducts />
     </div>  
   );

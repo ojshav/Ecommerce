@@ -146,6 +146,33 @@ export const dashboardSections: MenuSection[] = [
         icon: ShoppingBag,
         description: "Manage products for all shops",
       },
+      {
+        title: "Shop Inventory",
+        icon: ShoppingBag,
+        description: "Manage inventory for each shop",
+      },
+    ],
+  },
+  {
+    category: "Shop Operations",
+    color: "pink",
+    icon: ShoppingBag,
+    items: [
+      {
+        title: "Order Management",
+        icon: FileBarChart2,
+        description: "Process orders, track fulfillment, and manage exceptions",
+      },
+      {
+        title: "Refund and Return",
+        icon: Percent,
+        description: "Process refund requests and manage return policies",
+      },
+      {
+        title: "Customer Support Management",
+        icon: MessageSquare,
+        description: "Oversee support tickets, response times, and resolution rates",
+      },
     ],
   },
   {
