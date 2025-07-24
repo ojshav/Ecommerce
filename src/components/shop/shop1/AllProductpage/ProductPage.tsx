@@ -1,99 +1,127 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import shop1ApiService, { Product, Category, Brand } from '../../../../services/shop1ApiService';
 import Shop1ProductCard from '../Shop1ProductCard';
 
-const categories = [
-  'Jackets & Outerwear',
-  'Ethnic & fusion wear',
-  'Bottomwear',
-];
-const brands = [
-  'Calvin Klein',
-  'Diesel',
-  'Polo',
-  'Tommy Hilfigher',
-];
-
-const products = [
-  {
-    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752572756/public_assets_shop1/public_assets_shop1_a.svg',
-    category: 'mini dress',
-    name: 'One-Shoulder mini dress',
-    price: 25,
-  },
-  {
-    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752572758/public_assets_shop1/public_assets_shop1_b.svg',
-    category: 'Top',
-    name: 'Peplum top',
-    price: 45,
-  },
-  {
-    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752572760/public_assets_shop1/public_assets_shop1_c.svg',
-    category: 'Shirt',
-    name: 'Printed Co-ord Shirt & Skort Set',
-    price: 24,
-  },
-  {
-    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752572762/public_assets_shop1/public_assets_shop1_d.svg',
-    category: 'Cap',
-    name: 'Cocktail Dress Code',
-    price: 15,
-  },
-  {
-    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752572764/public_assets_shop1/public_assets_shop1_e.svg',
-    category: 'Coat',
-    name: 'Cocktail Dress Code',
-    price: 45,
-  },
-  {
-    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752572767/public_assets_shop1/public_assets_shop1_f.svg',
-    category: 'Scarf',
-    name: 'Grey Scarf suit',
-    price: 20,
-  },
-  {
-    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752572770/public_assets_shop1/public_assets_shop1_g.svg',
-    category: 'Bag',
-    name: 'Bridal Embroidered Lehenga',
-    price: 51,
-  },
-  {
-    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752572773/public_assets_shop1/public_assets_shop1_h.svg',
-    category: 'Jacket',
-    name: 'Bridal Embroidered Lehenga',
-    price: 64,
-  },
-  {
-    image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752572775/public_assets_shop1/public_assets_shop1_i.svg',
-    category: 'Shoes',
-    name: 'Yellow Converse',
-    price: 89,
-  },
-];
-
+// Using real data from API instead of mock data
 const ProductPage = () => {
+  // URL search params
+  const [searchParams] = useSearchParams();
+  
+  // API Data States
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Filter States
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<number | null>(null);
+  const [priceRange, setPriceRange] = useState([33, 98]);
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [itemsPerPage, setItemsPerPage] = useState(9);
+
+  // UI States (keeping original behavior)
   const [price, setPrice] = useState([33, 98]);
   const minPrice = 33;
   const maxPrice = 98;
 
   // Sidebar section toggles for mobile
-  const [allFiltersOpen, setAllFiltersOpen] = useState(false); // NEW: controls all sections on mobile
+  const [allFiltersOpen, setAllFiltersOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [brandOpen, setBrandOpen] = useState(false);
   const [priceOpen, setPriceOpen] = useState(false);
   const [colorsOpen, setColorsOpen] = useState(false);
   const [sizeOpen, setSizeOpen] = useState(false);
 
+  // Load initial data
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
+        const [categoriesData, brandsData] = await Promise.all([
+          shop1ApiService.getCategories(),
+          shop1ApiService.getBrands()
+        ]);
+        
+        setCategories(categoriesData);
+        setBrands(brandsData);
+
+        // Check for category filter from URL
+        const categoryParam = searchParams.get('category');
+        if (categoryParam) {
+          setSelectedCategory(parseInt(categoryParam));
+        }
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, [searchParams]);
+
+  // Load products when filters change
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await shop1ApiService.getProducts({
+          page: currentPage,
+          per_page: itemsPerPage,
+          category_id: selectedCategory || undefined,
+          brand_id: selectedBrand || undefined,
+          min_price: priceRange[0] > minPrice ? priceRange[0] : undefined,
+          max_price: priceRange[1] < maxPrice ? priceRange[1] : undefined,
+          sort_by: sortBy,
+          order: sortOrder
+        });
+
+        if (response.success) {
+          setProducts(response.products);
+          setTotalProducts(response.pagination.total_items);
+          setTotalPages(response.pagination.total_pages);
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, [currentPage, itemsPerPage, selectedCategory, selectedBrand, priceRange, sortBy, sortOrder]);
+
+  // Handle category selection
+  const handleCategoryChange = (categoryId: number | null) => {
+    setSelectedCategory(categoryId);
+    setCurrentPage(1);
+  };
+
+  // Handle brand selection
+  const handleBrandChange = (brandId: number | null) => {
+    setSelectedBrand(brandId);
+    setCurrentPage(1);
+  };
+
+  // Original slider handlers (keeping UI behavior)
   const handleMinSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(Number(e.target.value), price[1] - 1);
     setPrice([value, price[1]]);
+    setPriceRange([value, price[1]]); // Update filter state
   };
 
   const handleMaxSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.max(Number(e.target.value), price[0] + 1);
     setPrice([price[0], value]);
+    setPriceRange([price[0], value]); // Update filter state
   };
-  const [sort, setSort] = useState('Default Sorting');
-  const [show, setShow] = useState(9);
 
   return (
     <div className="flex flex-col md:flex-row bg-white mx-auto min-h-screen px-2 sm:px-4 md:px-8 lg:px-16 py-6 md:py-20 max-w-full md:max-w-[1440px]">
@@ -133,11 +161,27 @@ const ProductPage = () => {
             </div>
             <div className={`${categoryOpen ? 'block' : 'hidden'} md:block`}>
               {categories.map((cat) => (
-                <div key={cat} className="flex items-center mb-4">
-                  <input type="radio" name="category" className="mr-2" />
-                  <span className="text-[16px] md:text-[18px] font-archivo font-medium">{cat}</span>
+                <div key={cat.category_id} className="flex items-center mb-4">
+                  <input 
+                    type="radio" 
+                    name="category" 
+                    className="mr-2"
+                    checked={selectedCategory === cat.category_id}
+                    onChange={() => handleCategoryChange(cat.category_id)}
+                  />
+                  <span className="text-[16px] md:text-[18px] font-archivo font-medium">{cat.name}</span>
                 </div>
               ))}
+              <div className="flex items-center mb-4">
+                <input 
+                  type="radio" 
+                  name="category" 
+                  className="mr-2"
+                  checked={selectedCategory === null}
+                  onChange={() => handleCategoryChange(null)}
+                />
+                <span className="text-[16px] md:text-[18px] font-archivo font-medium">All Categories</span>
+              </div>
             </div>
           </div>
           {/* Brand */}
@@ -153,11 +197,27 @@ const ProductPage = () => {
             </div>
             <div className={`${brandOpen ? 'block' : 'hidden'} md:block`}>
               {brands.map((brand) => (
-                <div key={brand} className="flex items-center mb-4">
-                  <input type="radio" className="mr-2" />
-                  <span className="text-[16px] md:text-[18px] font-archivo font-medium">{brand}</span>
+                <div key={brand.brand_id} className="flex items-center mb-4">
+                  <input 
+                    type="radio" 
+                    name="brand"
+                    className="mr-2"
+                    checked={selectedBrand === brand.brand_id}
+                    onChange={() => handleBrandChange(brand.brand_id)}
+                  />
+                  <span className="text-[16px] md:text-[18px] font-archivo font-medium">{brand.name}</span>
                 </div>
               ))}
+              <div className="flex items-center mb-4">
+                <input 
+                  type="radio" 
+                  name="brand"
+                  className="mr-2"
+                  checked={selectedBrand === null}
+                  onChange={() => handleBrandChange(null)}
+                />
+                <span className="text-[16px] md:text-[18px] font-archivo font-medium">All Brands</span>
+              </div>
             </div>
           </div>
           {/* Price */}
@@ -310,18 +370,23 @@ const ProductPage = () => {
           <div className="flex items-center gap-2 w-full md:w-auto">
             <select
               className="border rounded px-2 py-1 text-[16px] md:text-[18px] font-poppins w-full md:w-auto"
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
+              value={`${sortBy}-${sortOrder}`}
+              onChange={(e) => {
+                const [newSortBy, newSortOrder] = e.target.value.split('-');
+                setSortBy(newSortBy);
+                setSortOrder(newSortOrder);
+              }}
             >
-              <option>Default Sorting</option>
-              <option>Price: Low to High</option>
-              <option>Price: High to Low</option>
-              <option>Newest</option>
+              <option value="created_at-desc">Default Sorting</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="product_name-asc">Name: A to Z</option>
+              <option value="product_name-desc">Name: Z to A</option>
             </select>
             <select
               className="border rounded px-2 py-1 text-[16px] md:text-[18px] font-poppins w-full md:w-auto"
-              value={show}
-              onChange={(e) => setShow(Number(e.target.value))}
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
             >
               <option value={9}> Shop: 09</option>
               <option value={18}>Shop: 18</option>
@@ -329,42 +394,84 @@ const ProductPage = () => {
             </select>
           </div>
           <div className="text-[16px] md:text-[18px] font-poppins md:mr-10 text-black w-full md:w-auto">
-            Show 01 - 09 Of 36 Product
+            Show {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalProducts)} Of {totalProducts} Product{totalProducts !== 1 ? 's' : ''}
           </div>
         </div>
         {/* Product Grid */}
-        <div className="grid grid-cols-2 xm:grid-cols-2  md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-0">
-          {products.map((product, idx) => (
-            <Shop1ProductCard
-              key={idx}
-              image={product.image}
-              category={product.category}
-              name={product.name}
-              price={product.price}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center w-full h-40">
+            <div className="text-lg text-gray-600">Loading products...</div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 xm:grid-cols-2  md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-0">
+            {products.map((product, idx) => (
+              <Shop1ProductCard
+                key={product.product_id || idx}
+                image={product.primary_image || ''}
+                category={product.category_name || ''}
+                name={product.product_name}
+                price={product.price}
+              />
+            ))}
+          </div>
+        )}
         {/* Pagination */}
-        <div className="flex justify-center mt-8 pb-14 md:pb-0">
-          <nav className="inline-flex items-center space-x-4">
-            <button
-              className="w-12 h-12 rounded-xl bg-[#E7AB3C] text-white text-xl font-bold flex items-center justify-center shadow"
-              disabled
-            >
-              1
-            </button>
-            <button
-              className="w-12 h-12 rounded-xl bg-white border border-gray-300 text-gray-400 text-xl font-bold flex items-center justify-center"
-            >
-              2
-            </button>
-            <button
-              className="w-12 h-12 rounded-xl bg-white border border-gray-300 text-gray-400 text-xl font-bold flex items-center justify-center"
-            >
-              <span className="text-2xl">&gt;</span>
-            </button>
-          </nav>
-        </div>
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8 pb-14 md:pb-0">
+            <nav className="inline-flex items-center space-x-4">
+              {/* Previous Button */}
+              <button
+                className={`w-12 h-12 rounded-xl ${currentPage === 1 
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                  : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                } text-xl font-bold flex items-center justify-center`}
+                onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <span className="text-2xl">&lt;</span>
+              </button>
+              
+              {/* Page Numbers */}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <button
+                    key={pageNum}
+                    className={`w-12 h-12 rounded-xl ${currentPage === pageNum
+                      ? 'bg-[#E7AB3C] text-white'
+                      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                    } text-xl font-bold flex items-center justify-center shadow`}
+                    onClick={() => setCurrentPage(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+              
+              {/* Next Button */}
+              <button
+                className={`w-12 h-12 rounded-xl ${currentPage === totalPages
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                } text-xl font-bold flex items-center justify-center`}
+                onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                <span className="text-2xl">&gt;</span>
+              </button>
+            </nav>
+          </div>
+        )}
       </main>
     </div>
   );
