@@ -705,6 +705,19 @@ class ShopManagementService {
     }
     return await response.json();
   }
+
+  async updateProductStep1(productId: number, stepData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/step1/${productId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(stepData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update basic product information');
+    }
+    return await response.json();
+  }
 }
 
 export const shopManagementService = new ShopManagementService();

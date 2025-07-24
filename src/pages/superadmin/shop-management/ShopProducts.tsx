@@ -15,6 +15,7 @@ import {
 import { shopManagementService, Shop, ShopCategory, ShopBrand, ShopProduct } from '../../../services/shopManagementService';
 import { useToastHelpers } from '../../../context/ToastContext';
 import MultiStepProductForm from './components/MultiStepProductForm';
+import EditProducts from './components/EditProducts';
 
 const ShopProducts: React.FC = () => {
   const [shops, setShops] = useState<Shop[]>([]);
@@ -283,7 +284,10 @@ const ShopProducts: React.FC = () => {
             <span>Filters</span>
           </button>
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              setEditingProduct(null); // <-- Reset editingProduct
+              setShowModal(true);
+            }}
             className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
           >
             <Plus size={20} />
@@ -546,13 +550,22 @@ const ShopProducts: React.FC = () => {
               </button>
             </div>
 
-            <MultiStepProductForm
-              selectedShop={selectedShop}
-              selectedCategory={selectedCategory}
-              editingProduct={editingProduct}
-              onComplete={handleProductFormComplete}
-              onCancel={() => setShowModal(false)}
-            />
+            {editingProduct ? (
+              <EditProducts
+                selectedShop={selectedShop}
+                selectedCategory={selectedCategory}
+                editingProduct={editingProduct}
+                onComplete={handleProductFormComplete}
+                onCancel={() => setShowModal(false)}
+              />
+            ) : (
+              <MultiStepProductForm
+                selectedShop={selectedShop}
+                selectedCategory={selectedCategory}
+                onComplete={handleProductFormComplete}
+                onCancel={() => setShowModal(false)}
+              />
+            )}
           </div>
         </div>
       )}
