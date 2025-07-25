@@ -181,11 +181,6 @@ export const dashboardSections: MenuSection[] = [
     icon: ShieldCheck,
     items: [
       {
-        title: "Payments",
-        icon: ShieldCheck,
-        description: "Monitor payment processing and transaction security",
-      },
-      {
         title: "Promotions",
         icon: Percent,
         description: "Create and manage platform-wide promotions and offers",
