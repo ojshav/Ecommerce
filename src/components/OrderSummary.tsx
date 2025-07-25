@@ -247,6 +247,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       <h2 className="text-lg font-semibold mb-6">Your Order</h2>
       <div className="space-y-4 mb-6">
         {displayItems.map((item) => {
+     
           // Calculate the item's effective price after discount
           const itemDiscount =
             itemDiscounts[item.product.id || item.product_id] || 0;
@@ -262,7 +263,11 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               className="flex items-start gap-4"
             >
               <img
-                src={item.product.image_url}
+                src={
+                  item.product.primary_image ||
+                  item.product.image_url ||
+                  "/placeholder-image.png"
+                }
                 alt={item.product.name}
                 className="w-16 h-16 rounded object-cover flex-shrink-0"
               />

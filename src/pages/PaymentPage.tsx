@@ -141,6 +141,9 @@ const PaymentPage: React.FC = () => {
   const [addressToDelete, setAddressToDelete] = useState<Address | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const [noCourierService, setNoCourierService] = useState(false);
+  const [noCourierServiceForOrder, setNoCourierServiceForOrder] = useState(false);
+  const [checkingCourierService, setCheckingCourierService] = useState(false);
 
   // --- Read state passed from Cart.tsx or direct purchase ---
   const stateData = location.state || {};
@@ -429,15 +432,7 @@ const PaymentPage: React.FC = () => {
           : totalPrice;
       const codAmount = isCOD ? currentTotal - discount : 0;
 
-      // console.log("Calculating shipping for:", {
-      //   pickupPincode: "474005", // Default pickup pincode (should come from merchant)
-      //   deliveryPincode: selectedAddress.postal_code,
-      //   weight: totalWeight,
-      //   isCOD,
-      //   codAmount,
-      //   isDirectPurchase,
-      //   requestId: currentRequestId,
-      // });
+  
 
       const requestBody: any = {
         pickup_pincode: "474005", // This should come from merchant's address
@@ -506,6 +501,7 @@ const PaymentPage: React.FC = () => {
         const couriers = data.data.available_courier_companies;
         // console.log(`Available couriers: ${couriers.length} options`);
         setAvailableCouriers(couriers);
+        setNoCourierService(couriers.length === 0); // <-- set warning state
 
         // Select the best courier (lowest price or highest rating)
         if (couriers.length > 0) {
@@ -532,7 +528,7 @@ const PaymentPage: React.FC = () => {
           setShippingCost(100); // Default shipping cost if no couriers available
         }
       } else {
-        // console.log("Invalid response structure, using default cost");
+        setNoCourierService(true); // No couriers found
         setShippingCost(100); // Default shipping cost
       }
     } catch (error) {
@@ -838,6 +834,102 @@ const PaymentPage: React.FC = () => {
       toast.error("Please select a payment card.");
       return;
     }
+
+    setNoCourierServiceForOrder(false);
+    setCheckingCourierService(true);
+    // --- ShipRocket serviceability check before placing order ---
+    try {
+      // Get items for calculation
+      const itemsForShipping =
+        isDirectPurchase && directPurchaseItem
+          ? [
+              {
+                product_id: directPurchaseItem.product.id,
+                quantity: directPurchaseItem.quantity,
+              },
+            ]
+          : cart.map((item) => ({
+              product_id: item.product_id,
+              quantity: item.quantity,
+            }));
+
+      // Calculate total weight (assuming 0.5kg per item as default)
+      const totalWeight = itemsForShipping.reduce(
+        (weight, item) => weight + item.quantity * 0.5,
+        0
+      );
+
+      // Determine if this is COD or prepaid
+      const isCOD = paymentMethod === "cash_on_delivery";
+      // Calculate total price for COD amount
+      const currentTotal =
+        isDirectPurchase && directPurchaseItem
+          ? directPurchaseItem.product.price * directPurchaseItem.quantity
+          : totalPrice;
+      const codAmount = isCOD ? currentTotal - discount : 0;
+
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        toast.error("Please login to continue");
+        setCheckingCourierService(false);
+        return;
+      }
+      const selectedAddress = addresses.find(
+        (addr) => addr.address_id === selectedAddressId
+      );
+      if (!selectedAddress) {
+        toast.error("Selected address not found");
+        setCheckingCourierService(false);
+        return;
+      }
+      const requestBody = {
+        pickup_pincode: "474005", // This should come from merchant's address
+        delivery_pincode: selectedAddress.postal_code,
+        weight: totalWeight,
+        cod: isCOD,
+        ...(isCOD && codAmount > 0 ? { cod_amount: codAmount } : {}),
+      };
+      const response = await fetch(
+        `${API_BASE_URL}/api/shiprocket/serviceability`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+      const data = await response.json();
+      // Debug: Log the full ShipRocket serviceability API response
+      console.log("ShipRocket serviceability API response:", data);
+      // Handle new backend response structure
+      if (!response.ok) {
+        setNoCourierServiceForOrder(true);
+        setCheckingCourierService(false);
+        // Show a professional message for 422 or similar errors
+        if (response.status === 422) {
+          toast.error("Unable to check courier service for this address. Please verify your address details or try again later.");
+        } else {
+          toast.error("No courier services available for this route. Please check your postal code or try a different address.");
+        }
+        return;
+      }
+      const availableCouriers = data?.data?.data?.available_courier_companies || data?.data?.available_courier_companies || [];
+      if (!Array.isArray(availableCouriers) || availableCouriers.length === 0) {
+        setNoCourierServiceForOrder(true);
+        setCheckingCourierService(false);
+        toast.error("No courier services available for this route. Please check your postal code or try a different address.");
+        return;
+      }
+    } catch (err) {
+      setNoCourierServiceForOrder(true);
+      setCheckingCourierService(false);
+      toast.error("Failed to check courier serviceability. Please try again.");
+      return;
+    }
+    setCheckingCourierService(false);
 
     setProcessingPayment(true);
 
@@ -1984,14 +2076,20 @@ const PaymentPage: React.FC = () => {
       {/* Order Summary */}
       <div className="w-full lg:w-[400px] bg-white rounded-lg p-1 h-fit">
         <h2 className="text-lg font-semibold mb-6">Your Order</h2>
+        {/* Show warning if no courier service is available */}
+        {noCourierService && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+            Sorry, no courier service is available for the selected address. Please check your postal code or try a different address.
+          </div>
+        )}
         <OrderSummary
           className="sticky top-8 mr-20"
           selectedCountry={selectedCountry}
           discount={discount}
           promoCode={appliedPromo?.code}
           itemDiscounts={itemDiscounts}
-          shippingCost={shippingCost}
-          shippingLoading={shippingLoading}
+          shippingCost={0}
+          shippingLoading={false}
           availableCouriers={availableCouriers}
           selectedCourier={selectedCourier}
           onRefreshShipping={refreshShippingCost}
@@ -2040,14 +2138,23 @@ const PaymentPage: React.FC = () => {
         </div>
         <button
           onClick={handleOrder}
-          disabled={!selectedAddressId || processingPayment}
-          className={`w-full py-3 rounded font-medium transition-colors ${selectedAddressId && !processingPayment
+          disabled={!selectedAddressId || processingPayment || checkingCourierService}
+          className={`w-full py-3 rounded font-medium transition-colors ${selectedAddressId && !processingPayment && !checkingCourierService
               ? "bg-orange-500 text-white hover:bg-orange-600"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
         >
-          {processingPayment ? "Processing Payment..." : "Place Order"}
+          {checkingCourierService
+            ? "Checking Courier Service..."
+            : processingPayment
+            ? "Processing Payment..."
+            : "Place Order"}
         </button>
+        {noCourierServiceForOrder && (
+          <div className="mt-3 p-3 bg-red-100 text-red-700 rounded text-center">
+            Sorry, no courier service is available for the selected address. Please check your postal code or try a different address.
+          </div>
+        )}
       </div>
 
       {/* Confirmation Modal for address deletion */}
@@ -2068,7 +2175,7 @@ const PaymentPage: React.FC = () => {
         }}
         confirmText="Delete"
         cancelText="Cancel"
-        isDestructive
+        // isDestructive
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import React from "react";
+import Shop3ProductCard from '../Shop3ProductCard';
 
 const dummyProducts = [
   {
@@ -116,7 +117,7 @@ const dummyProducts = [
   {
     id: 11,
     name: "Electric Avenue Sneakers",
-    image: "/assets/shop3/AllProduct/a.svg",
+    image: "/assets/images/Productcard/liked1.jpg",
     price: 99,
     originalPrice: 120,
     badge: "-15%",
@@ -157,45 +158,11 @@ const dummyProducts = [
     isNew: false,
     discount: null,
   },
-  // New products for the 4th row
   {
-    id: 15,
-    name: "Quantum Flux Hoodie",
-    image: "/assets/images/Productcard/card-section1.jpg",
-    price: 140,
-    originalPrice: 180,
-    badge: "-22%",
-    badgeColor: "bg-pink-600 text-white",
-    isNew: false,
-    discount: 22,
-  },
-  {
-    id: 16,
-    name: "Neon Pulse Sneakers",
-    image: "/assets/images/Productcard/card-section2.jpg",
-    price: 110,
-    originalPrice: null,
-    badge: "Free shipping",
-    badgeColor: "bg-lime-400 text-black",
-    isNew: true,
-    discount: null,
-  },
-  {
-    id: 17,
-    name: "Lunar Street Jacket",
-    image: "/assets/images/Productcard/hero1.jpg",
-    price: 210,
-    originalPrice: 250,
-    badge: "-16%",
-    badgeColor: "bg-pink-600 text-white",
-    isNew: false,
-    discount: 16,
-  },
-  {
-    id: 18,
-    name: "Starlight Techwear Boots",
-    image: "/assets/images/Productcard/hero2.jpg",
-    price: 175,
+    id: 14,
+    name: "Urban Neon Backpack",
+    image: "/assets/images/Productcard/liked4.jpg",
+    price: 80,
     originalPrice: null,
     badge: null,
     badgeColor: "",
@@ -204,193 +171,86 @@ const dummyProducts = [
   },
 ];
 
-// Utility function to chunk array into rows
-function chunkArray<T>(array: T[], size: number): T[][] {
-  const result: T[][] = [];
-  for (let i = 0; i < array.length; i += size) {
-    result.push(array.slice(i, i + size));
-  }
-  return result;
-}
-
 const ProductPage = () => {
-  // Chunk products into rows of 4
-  const rows = chunkArray(dummyProducts, 4);
   return (
-    <div className="min-h-screen  bg-black text-white font-sans px-6 pb-12">
+    <div className="min-h-screen bg-black text-white font-sans pb-12 px-4 sm:px-8 2xl:px-6">
       {/* Header & Breadcrumbs */}
-      <div className="pt-6 pb-2 flex flex-col gap-2">
-        <div className="flex items-center text-sm gap-2 text-gray-300">
-          <span>Home</span>
+      <div className="pt-6 pb-2 flex flex-col gap-2 max-w-[1920px] mx-auto ">
+        <div className="flex items-center text-sm gap-2 text-white">
+          <span className="text-[18px] font-alexandria font-semibold">Home</span>
           <span className="mx-1">&gt;</span>
-          <span className="text-lime-400">Men</span>
+          <span className="text-lime-400 text-[18px] font-alexandria font-semibold">Men</span>
         </div>
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex gap-4 items-center">
-            <span className="text-2xl font-bold tracking-widest text-lime-400">AOIN</span>
-          </div>
-          <div className="flex gap-2 items-center">
-            <span className="text-gray-400 text-xs">View: <span className="text-lime-400">2/4</span></span>
-            <select className="bg-zinc-900 border border-zinc-700 text-gray-200 text-xs rounded px-2 py-1 ml-2">
+      </div>
+      {/* Full-width horizontal line */}
+      <div className="w-screen mt-2 mb-2 relative left-1/2 right-1/2 -mx-[50vw]">
+        <svg className="block" width="100%" height="1" viewBox="0 0 1920 1" fill="none">
+          <path fillRule="evenodd" clipRule="evenodd" d="M0 1V0H1920V1H0Z" fill="#E0E0E0" />
+        </svg>
+      </div>
+      {/* Main content with padding */}
+      <div className="max-w-[1920px] mx-auto ">
+      {/* Controls: View and Sort by left, View filters right */}
+      <div className="flex items-center justify-between mt-5">
+        <div className="flex w-full items-center">
+          <div className="flex gap-7 items-center">
+          <span className="text-white text-[16px] flex items-center font-alexandria font-semibold">
+              View:
+              <span className="ml-1 text-white text-[16px] font-semibold">2</span>
+              <span className="mx-1 text-white text-[16px] font-semibold">|</span>
+              <span className="text-[#CCFF00] text-[16px] font-semibold">4</span>
+            </span>
+            <select className="bg-zinc-900 border border-zinc-700 text-white text-[14px] font-alexandria rounded px-2 py-1 ">
               <option>Sort by</option>
             </select>
-            <button className="bg-zinc-900 border border-zinc-700 text-gray-200 text-xs rounded px-3 py-1 ml-2">View filters</button>
           </div>
+          <div className="flex-1" />
+          <button className="flex items-center justify-between bg-gray-600 border px-4 py-2 ml-2 w-[192px]" aria-label="View filters">
+            <span className="font-bold text-white text-[14px] font-alexandria ">View filters</span>
+            <svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 8L10 13L15 8" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
         </div>
       </div>
 
-      {/* Product Grid Rows */}
-      <div className="flex flex-col gap-6 mt-8">
-        {rows.slice(0, 4).map((row, idx) => (
-          <div
-            key={idx}
-            className={
-              idx === 2
-                ? "grid grid-cols-4 gap-6"
-                : idx === 3
-                  ? "grid grid-cols-4 gap-6"
-                  : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-            }
-          >
-            {idx === 2
-              ? row.slice(0, 3).map((product: typeof dummyProducts[number], i) => (
-                  <div
-                    key={product.id + product.name}
-                    className={`relative ${i < 2 ? "col-span-1" : "col-span-2"}`}
-                  >
-                    {/* Image */}
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-2/3 object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                    />
-                    {/* Badge */}
-                    {product.badge && (
-                      <span
-                        className={`absolute top-3 left-3 px-2 py-1 text-xs font-semibold rounded ${product.badgeColor} z-10`}
-                      >
-                        {product.badge}
-                      </span>
-                    )}
-                    {/* Info */}
-                    <div className="flex flex-col flex-1 justify-between p-4">
-                      <div>
-                        <div className="text-sm font-semibold mb-1 truncate">
-                          {product.name}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lime-400 text-base font-bold">
-                            ${product.price}
-                          </span>
-                          {product.originalPrice && (
-                            <span className="text-pink-400 text-sm line-through">
-                              ${product.originalPrice}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {/* Add button for specific card */}
-                      {product.showAdd && (
-                        <button className="w-full mt-4 bg-lime-400 text-black font-semibold py-2 rounded transition hover:bg-lime-300">
-                          Add
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))
-              : idx === 3
-                ? row.map((product: typeof dummyProducts[number]) => (
-                    <div
-                      key={product.id + product.name}
-                      className="relative"
-                    >
-                        {/* Image */}
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-2/3 object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                        />
-                        {/* Badge */}
-                        {product.badge && (
-                          <span
-                            className={`absolute top-3 left-3 px-2 py-1 text-xs font-semibold rounded ${product.badgeColor} z-10`}
-                          >
-                            {product.badge}
-                          </span>
-                        )}
-                        {/* Info */}
-                        <div className="flex flex-col flex-1 justify-between p-4">
-                          <div>
-                            <div className="text-sm font-semibold mb-1 truncate">
-                              {product.name}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-lime-400 text-base font-bold">
-                                ${product.price}
-                              </span>
-                              {product.originalPrice && (
-                                <span className="text-pink-400 text-sm line-through">
-                                  ${product.originalPrice}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          {/* Add button for specific card */}
-                          {product.showAdd && (
-                            <button className="w-full mt-4 bg-lime-400 text-black font-semibold py-2 rounded transition hover:bg-lime-300">
-                              Add
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))
-              : row.map((product: typeof dummyProducts[number]) => (
-                  <div
-                    key={product.id + product.name}
-                    className="relative"
-                  >
-                    {/* Image */}
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-2/3 object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                    />
-                    {/* Badge */}
-                    {product.badge && (
-                      <span
-                        className={`absolute top-3 left-3 px-2 py-1 text-xs font-semibold rounded ${product.badgeColor} z-10`}
-                      >
-                        {product.badge}
-                      </span>
-                    )}
-                    {/* Info */}
-                    <div className="flex flex-col flex-1 justify-between p-4">
-                      <div>
-                        <div className="text-sm font-semibold mb-1 truncate">
-                          {product.name}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lime-400 text-base font-bold">
-                            ${product.price}
-                          </span>
-                          {product.originalPrice && (
-                            <span className="text-pink-400 text-sm line-through">
-                              ${product.originalPrice}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {/* Add button for specific card */}
-                      {product.showAdd && (
-                        <button className="w-full mt-4 bg-lime-400 text-black font-semibold py-2 rounded transition hover:bg-lime-300">
-                          Add
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-          </div>
+      {/* Product Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10 2xl:gap-12 lg:gap-y-28 2xl:gap-y-24 mt-8 justify-center mx-auto items-start">
+        {dummyProducts.map((product) => (
+          <Shop3ProductCard
+            key={product.id}
+            image={product.image}
+            name={product.name}
+            price={product.price}
+            originalPrice={product.originalPrice}
+            badge={product.badge}
+            badgeColor={product.badgeColor}
+            isNew={product.isNew}
+            discount={product.discount}
+          />
         ))}
+      </div>
+      {/* Section below product cards */}
+      <div className="flex flex-col items-center w-full pt-24 py-12">
+        <span className="text-[14px] font-alexandria text-gray-200 mb-6">15 of 234 items was view</span>
+        <button className="bg-[#CCFF00] text-black font-semibold text-[16px] px-20 py-3 font-alexandria mb-8 shadow-lg  transition-all">Load More</button>
+        {/* Full-width horizontal line below product cards */}
+        <div className="w-screen mb-8 relative -mx-[50vw]">
+          <svg className="block" width="100%" height="3" viewBox="0 0 1920 1" fill="none">
+            <path fillRule="evenodd" clipRule="evenodd" d="M0 1V0H1920V1H0Z" fill="#E0E0E0" />
+          </svg>
+        </div>
+        <div className="flex flex-wrap justify-center font-alexandria  gap-4 w-full">
+          {['Sneakers', 'Puffer', 'Boots', 'Sunglasses', 'Co-Ord Set', 'Casual', 'T-shirt', 'Clothing', 'Shoe', 'Collection', 'Sale', 'Exclusive'].map((cat) => (
+            <button
+              key={cat}
+              className="bg-[rgba(204,255,0,0.7)] text-white font-bold font-alexandria text-[12px] leading-[30px] px-4 py-1 mb-2  transition-all shadow text-center"
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
       </div>
     </div>
   );

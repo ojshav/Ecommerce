@@ -146,6 +146,33 @@ export const dashboardSections: MenuSection[] = [
         icon: ShoppingBag,
         description: "Manage products for all shops",
       },
+      {
+        title: "Shop Inventory",
+        icon: ShoppingBag,
+        description: "Manage inventory for each shop",
+      },
+    ],
+  },
+  {
+    category: "Shop Operations",
+    color: "pink",
+    icon: ShoppingBag,
+    items: [
+      {
+        title: "Order Management",
+        icon: FileBarChart2,
+        description: "Process orders, track fulfillment, and manage exceptions",
+      },
+      {
+        title: "Refund and Return",
+        icon: Percent,
+        description: "Process refund requests and manage return policies",
+      },
+      {
+        title: "Shop Reviews",
+        icon: ShoppingBag,
+        description: "View and manage shop reviews",
+      },
     ],
   },
   {
@@ -153,11 +180,6 @@ export const dashboardSections: MenuSection[] = [
     color: "amber",
     icon: ShieldCheck,
     items: [
-      // {
-      //   title: "Payments",
-      //   icon: ShieldCheck,
-      //   description: "Monitor payment processing and transaction security",
-      // },
       {
         title: "Promotions",
         icon: Percent,
@@ -432,7 +454,10 @@ const SuperAdminLayout = () => {
   };
 
   const handleNavigation = (section: string) => {
-    const route = `/superadmin/${section.toLowerCase().replace(/\s+/g, "-")}`;
+    let route = `/superadmin/${section.toLowerCase().replace(/\s+/g, "-")}`;
+    if (section === "Order Management") route = "/superadmin/order-management";
+    if (section === "Shop Reviews") route = "/superadmin/shop/reviews/1";
+    if (section === "Payments") route = "/superadmin/payments";
     navigate(route);
     setExpandedCategories([section]);
     if (window.innerWidth < 768) {

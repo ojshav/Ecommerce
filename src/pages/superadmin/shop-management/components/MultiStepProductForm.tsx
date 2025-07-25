@@ -297,7 +297,14 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
         selling_price: productData.selling_price
       };
 
-      const response = await shopManagementService.createProductStep1(basicData);
+      let response;
+      if (editingProduct && editingProduct.product_id) {
+        // EDIT MODE: call update endpoint
+        response = await shopManagementService.updateProductStep1(editingProduct.product_id, basicData);
+      } else {
+        // ADD MODE: call create endpoint
+        response = await shopManagementService.createProductStep1(basicData);
+      }
       
       if (response.status === 'success') {
         setCreatedProductId(response.data.product_id);

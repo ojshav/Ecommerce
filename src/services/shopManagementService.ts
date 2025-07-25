@@ -299,6 +299,22 @@ class ShopManagementService {
     }
   }
 
+  async hardDeleteShop(shopId: number): Promise<any> {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const response = await fetch(`${API_BASE_URL}/api/shop/shops/${shopId}/hard`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to hard delete shop');
+    }
+    return response.json();
+  }
+
   // Category Management
   async getCategoriesByShop(shopId: number): Promise<ShopCategory[]> {
     const response = await fetch(`${API_BASE_URL}/api/shop/categories/shop/${shopId}`, {
@@ -686,6 +702,19 @@ class ShopManagementService {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Failed to save product meta information');
+    }
+    return await response.json();
+  }
+
+  async updateProductStep1(productId: number, stepData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/step1/${productId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(stepData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update basic product information');
     }
     return await response.json();
   }
