@@ -27,36 +27,6 @@ interface Product {
   };
 }
 
-interface HeroProps {
-  productData?: Product | null;
-}
-import { Minus, Plus, Star, ChevronLeft, ChevronRight } from 'lucide-react';
-
-interface Product {
-  product_id: number;
-  product_name: string;
-  price: number;
-  primary_image: string;
-  category_name: string;
-  product_description?: string;
-  full_description?: string;
-  short_description?: string;
-  meta_description?: string;
-  media?: {
-    images: Array<{
-      url: string;
-      type: string;
-      is_primary: boolean;
-    }>;
-    videos: Array<{
-      url: string;
-      type: string;
-      is_primary: boolean;
-    }>;
-    primary_image: string;
-    total_media: number;
-  };
-}
 
 interface HeroProps {
   productData?: Product | null;

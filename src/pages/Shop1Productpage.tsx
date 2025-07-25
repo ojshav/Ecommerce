@@ -73,7 +73,7 @@ function Shop1ProductPage() {
       <Header />
       
       <Hero productData={product} />
-     
+      <FashionCardsSection />
       <RatingsReviews />
       <SimilarProducts />
       <InstagramPromo />
