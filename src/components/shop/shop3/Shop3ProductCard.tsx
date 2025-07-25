@@ -30,8 +30,8 @@ const Shop3ProductCard: React.FC<Shop3ProductCardProps> = ({ image, name, price,
         />
       </div>
       {/* Info: show by default, hide on hover */}
-      <div className="w-full flex flex-col items-start mt-6 px-2 group-hover:hidden">
-        <div className="text-sm font-semibold mb-1 truncate">
+      <div className="w-full flex flex-col items-start font-alexandria mt-6 group-hover:hidden">
+        <div className="text-[16px] font-semibold mb-1 truncate">
           {name}
         </div>
         <div className="flex items-center gap-2">
