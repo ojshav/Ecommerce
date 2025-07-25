@@ -47,7 +47,6 @@ import ContentModeration from './pages/superadmin/ContentModeration';
 import ProductMonitoring from './pages/superadmin/ProductMonitoring';
 import Settings from './pages/superadmin/Settings';
 import RefundAndReturnManagement from './pages/superadmin/RefundAndReturnManagement';
-import PaymentAndTransactionMonitoring from './pages/superadmin/PaymentAndTransaction';
 import Promotions from './pages/superadmin/Promotions';
 
 import TrafficAnalytics from './pages/superadmin/TrafficAnalytics';
@@ -486,7 +485,6 @@ const App: React.FC = () => {
                     <Route path="merchant-support" element={<MerchantSupport />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="refund-and-return" element={<RefundAndReturnManagement />} />
-                    <Route path="payments" element={<PaymentAndTransactionMonitoring />} />
                     <Route path="promotions" element={<Promotions />} />
                     <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
