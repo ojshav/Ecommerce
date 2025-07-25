@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import '../styles/globals.css';
 import Header from '../components/shop/shop1/Header';
-
+import Hero from '../components/shop/shop1/Productpage/Hero';
 import FashionCardsSection from '../components/shop/shop1/Productpage/FashionCardsSection';
-
+import RatingsReviews from '../components/shop/shop1/Productpage/Rating';
 import SimilarProducts from '../components/shop/shop1/Productpage/SimilarProducts';
 import InstagramPromo from '../components/shop/shop1/Productpage/InstagramPromo';
 import shop1ApiService, { Product } from '../services/shop1ApiService';
