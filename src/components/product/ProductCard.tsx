@@ -86,7 +86,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
 
     const directPurchaseItem = {
-      product,
+      product: {
+        ...product,
+        image_url: product.image_url || product.primary_image || "/placeholder-image.png",
+      },
       quantity: 1,
       selected_attributes:
         Object.keys(defaultAttributes).length > 0

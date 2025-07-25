@@ -47,7 +47,6 @@ import ContentModeration from './pages/superadmin/ContentModeration';
 import ProductMonitoring from './pages/superadmin/ProductMonitoring';
 import Settings from './pages/superadmin/Settings';
 import RefundAndReturnManagement from './pages/superadmin/RefundAndReturnManagement';
-import PaymentAndTransactionMonitoring from './pages/superadmin/PaymentAndTransaction';
 import Promotions from './pages/superadmin/Promotions';
 
 import TrafficAnalytics from './pages/superadmin/TrafficAnalytics';
@@ -132,7 +131,11 @@ import NewsletterSubscribers from './pages/superadmin/NewsletterSubscribers';
 
 import Aoinlive from './pages/business/Aoinlive';
 import LiveStreamView from './pages/LiveStreamView';
-import ShopAnalytics from './pages/superadmin/ShopAnalytics';
+import ShopAnalytics from './pages/superadmin/shop/ShopAnalytics';
+import ShopInventoryManagement from './pages/superadmin/shop/ShopInventoryManagement';
+import ShopOrders from './pages/superadmin/shop/ShopOrders';
+import OrderManagementPage from './pages/superadmin/shop/OrderManagementPage';
+import ShopReviews from './pages/superadmin/shop/ShopReviews';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -483,10 +486,12 @@ const App: React.FC = () => {
                     <Route path="merchant-support" element={<MerchantSupport />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="refund-and-return" element={<RefundAndReturnManagement />} />
-                    <Route path="payments" element={<PaymentAndTransactionMonitoring />} />
                     <Route path="promotions" element={<Promotions />} />
                     <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
+                    <Route path="order-management" element={<ShopOrders />} />
+                    <Route path="order-management/:orderId" element={<OrderManagementPage />} />
+                    <Route path="shop/reviews/:shopId" element={<ShopReviews />} />
 
                     <Route path="shop-analytics" element={<ShopAnalytics />} />
                     <Route path="newsletter-subscribers" element={<NewsletterSubscribers />} />
@@ -498,6 +503,7 @@ const App: React.FC = () => {
                     <Route path="shop-brands" element={<ShopBrands />} />
                     <Route path="shop-attributes" element={<ShopAttributes />} />
                     <Route path="shop-products" element={<AdminShopProducts />} />
+                    <Route path="shop-inventory" element={<ShopInventoryManagement />} />
                     <Route path="merchant-subscriptions" element={<MerchantSubscription />} />
                     <Route path="youtube-integration" element={<YouTubeManagement />} />
                     
