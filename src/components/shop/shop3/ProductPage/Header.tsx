@@ -5,11 +5,11 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-black w-full  text-white px-4 sm:px-8 2xl:px-6 py-4">
-      <div className="flex items-center justify-between max-w-[1860px] mx-auto">
+      <div className="flex items-center justify-between max-w-[1920px] mx-auto">
         {/* Left side - Dots and Navigation */}
         <div className="flex items-center space-x-2 sm:space-x-6">
           {/* Colored dots - hidden on mobile */}
-          <div className="hidden sm:flex space-x-2">
+          <div className="hidden sm:flex space-x-1">
             <div className="w-3 h-3 rounded-full bg-lime-400"></div>
             <div className="w-3 h-3 rounded-full bg-purple-500"></div>
             <div className="w-3 h-3 rounded-full bg-green-500"></div>
