@@ -227,7 +227,7 @@ export default function SalesReport() {
 
   return (
     <div className="bg-white min-h-screen p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-full mx-auto">
         {/* Header with updated styling */}
         <div className="bg-white rounded-lg shadow-lg mb-8 p-6" style={{background: 'linear-gradient(135deg, #FF5733 0%, #FF8C33 100%)'}}>
           <div className="flex flex-wrap gap-4 justify-between items-center">

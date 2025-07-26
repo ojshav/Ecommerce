@@ -78,8 +78,8 @@ const OrderManagementPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen p-4 sm:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="bg-gray-50 min-h-screen py-10 px-4">
+      <div className="max-w-8xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button onClick={() => navigate(-1)} className="flex items-center text-orange-600 hover:underline"><ArrowLeftIcon className="h-5 w-5 mr-1" />Back to Orders</button>
@@ -169,6 +169,49 @@ const OrderManagementPage: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* Printable Invoice Section */}
+      {order && (
+        <div className="print-invoice screen-hidden watermark-bg" style={{position: 'relative', zIndex: 1}}>
+          <h2 className="text-2xl font-bold mb-2">Invoice</h2>
+          <div className="mb-2">
+            <strong>Order ID:</strong> {order.order_id}<br/>
+            <strong>Date:</strong> {new Date(order.order_date).toLocaleDateString()}<br/>
+            <strong>Customer:</strong> {order.shipping_address_details.address_line1}, {order.shipping_address_details.city} {order.shipping_address_details.postal_code}
+          </div>
+          <hr className="my-2" />
+          <table className="w-full text-sm mb-4 border-collapse">
+            <tbody>
+              {order.items.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  <tr>
+                    <th className="border-b text-left">Item</th>
+                    <td className="border-b text-left" colSpan={3}>{item.name}</td>
+                  </tr>
+                  <tr>
+                    <th className="border-b text-left">Qty</th>
+                    <td className="border-b text-left" colSpan={3}>{item.quantity}</td>
+                  </tr>
+                  <tr>
+                    <th className="border-b text-left">Price</th>
+                    <td className="border-b text-left" colSpan={3}>{order.currency} {item.price.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+                  </tr>
+                  <tr>
+                    <th className="border-b text-left">Total</th>
+                    <td className="border-b text-left" colSpan={3}>{order.currency} {(item.price * item.quantity).toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+                  </tr>
+                  
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+          <div className="text-right space-y-1">
+            <div>Subtotal: {order.currency} {order.subtotal.toLocaleString(undefined, {minimumFractionDigits:2})}</div>
+            <div>Tax: {order.currency} {order.tax.toLocaleString(undefined, {minimumFractionDigits:2})}</div>
+            <div>Shipping: {order.currency} {order.shipping.toLocaleString(undefined, {minimumFractionDigits:2})}</div>
+            <div className="font-bold">Total: {order.currency} {parseFloat(order.total_amount).toLocaleString(undefined, {minimumFractionDigits:2})}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

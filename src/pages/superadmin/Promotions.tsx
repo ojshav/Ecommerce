@@ -347,7 +347,7 @@ const Promotions: React.FC = () => {
   });
 
   return (
-    <div className="p-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
+    <div className="p-6 max-w-full mx-auto bg-gray-50 min-h-screen">
       {/* --- Game Promos Table Section --- */}
       <div className="mb-12">
         <div className="bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-xl shadow-lg p-6 mb-4">

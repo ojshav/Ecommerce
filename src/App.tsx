@@ -1,7 +1,8 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigationType, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
+import Shop1Header from './components/shop/shop1/Header';
 import Footer from './components/common/Footer';
 import Home from './pages/Home';
 import Products from './pages/Products';
@@ -16,7 +17,8 @@ import Shop2LandingPage from './pages/Shop2LandingPage';
 import Shop3LandingPage from './pages/Shop3LandingPage';
 import VerificationPending from './pages/auth/VerificationPending';
 import TrendyDealsPage from './pages/TrendyDealsPage';
-
+import Shopwishlist from './pages/Shop/shopwishlist';
+import Shopcart from './pages/Shop/Shopcart';
 import PasswordReset from './pages/auth/PasswordReset';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import RequestPasswordReset from './pages/auth/RequestPasswordReset';
@@ -622,6 +624,23 @@ const App: React.FC = () => {
                         </>
                       }
                     />
+                    <Route
+                      path="/shop1"
+                      element={
+                        <>
+                          <Shop1Header />
+                          <main className="">
+                            <Outlet />
+                          </main>
+                        </>
+                      }
+                    >
+                      <Route path="wishlist" element={<Shopwishlist />} />
+                      <Route path="cart" element={<Shopcart />} />
+                     
+                     
+                    </Route>
+
 
                     {/* Add this route outside of /business and /superadmin, so it's public */}
 

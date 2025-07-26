@@ -55,16 +55,22 @@ const Footer: React.FC = () => {
               <div className="flex items-start space-x-3">
                 <MapPin size={16} className="text-black mt-1  flex-shrink-0" />
                 <span className="leading-tight font-worksans font-normal">
-                  1658 Rosewood Lane<br />New York city, NY
+                Anjis Overseas Pvt. Ltd.
+                <br />
+                H-104, MIG Colony, RSS Nagar
+                <br />
+                Indore – 452003
+                <br />
+                Madhya Pradesh, India
                 </span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone size={16} className="text-[#161616] flex-shrink-0" />
-                <a href="tel:2129299953" className="text-[#F2631F] ">212 929 9953</a>
+                <a href="tel: 7879702202" className="text-[#F2631F] ">+91 78797 02202</a>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail size={16} className="text-[#161616] flex-shrink-0" />
-                <span className="text-[#F2631F]">************.com</span>
+                <span className="text-[#F2631F]">anjisoverseas@gmail.com</span>
               </div>
             </div>
           </div>
@@ -98,7 +104,8 @@ const Footer: React.FC = () => {
             {/* <li><Link to="/RaiseTicket" className="hover:text-[#F2631F] transition-colors">User Support</Link></li> */}
               <li>
                 <div>Call us at</div>
-                <a href="tel:2129299953" className="text-[#F2631F] hover:text-white transition-colors">212 929 9953</a>
+                <a href="tel: 7879702202" className="text-[#F2631F]  transition-colors"> +91 78797 02202
+                </a>
               </li>
               <li><Link to="/faq" className="hover:text-[#F2631F] transition-colors">Frequently asked Questions</Link></li>
               <li><Link to="/contact" className="hover:text-[#F2631F] transition-colors">Contact Us</Link></li>
@@ -106,7 +113,7 @@ const Footer: React.FC = () => {
               <li><Link to="/shipping" className="hover:text-[#F2631F] transition-colors">Shipping Methods</Link></li>
               <li className="mt-2">
                 <div>Mail us at</div>
-                <span className="text-[#F2631F]">******@gmail.com</span>
+                <span className="text-[#F2631F]">anjisoverseas@gmail.com</span>
               </li>
             </ul>
           </div>

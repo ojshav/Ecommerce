@@ -101,7 +101,7 @@ const NewsletterSubscribers: React.FC = () => {
           Export
         </button>
       </div>
-      <div className="bg-white rounded-xl shadow-lg p-6 max-w-5xl mx-auto">
+      <div className="bg-white rounded-xl shadow-lg p-6 max-w-full mx-auto">
         {loading ? (
           <div className="text-orange-600 font-medium">Loading...</div>
         ) : error ? (

@@ -106,7 +106,7 @@ const GSTRuleManagement: React.FC = () => {
 
   return (
     // Responsive padding: p-4 for small screens, p-6 for medium and up
-    <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 md:p-4 bg-gray-50 min-h-screen">
       <header className="mb-6">
         {/* Responsive text size for the header */}
         <h1 className="text-2xl sm:text-3xl font-bold text-orange-600">
