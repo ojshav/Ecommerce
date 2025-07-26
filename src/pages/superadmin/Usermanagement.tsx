@@ -140,7 +140,7 @@ const UserManagement = () => {
 
   return (
     <div className="min-h-screen bg-white p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-full mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <UserPlus className="text-orange-500 w-8 h-8" />
           <h1 className="text-3xl font-bold text-black">User Management</h1>
