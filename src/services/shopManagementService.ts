@@ -110,6 +110,16 @@ export interface ShopProduct {
   originalPrice?: number;
   attributes?: any[];
   variants?: any[];
+  variant_count?: number;
+  price_range?: {
+    min: number;
+    max: number;
+  };
+  available_attributes?: Record<string, string[]>;
+  default_variant?: any;
+  is_parent_product?: boolean;
+  is_variant_product?: boolean;
+  is_simple_product?: boolean;
   stock?: {
     stock_qty: number;
     low_stock_threshold: number;
@@ -706,6 +716,200 @@ class ShopManagementService {
     return await response.json();
   }
 
+  // Variant Management Methods
+  async getProductVariants(productId: number): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/${productId}/variants`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch product variants');
+    }
+    return await response.json();
+  }
+
+  async getVariantDetails(productId: number): Promise<any> {
+    // Get the parent product and find this variant's relation
+    const productResponse = await fetch(`${API_BASE_URL}/api/shop/products/${productId}/details`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+    if (!productResponse.ok) {
+      const error = await productResponse.json();
+      throw new Error(error.message || 'Failed to fetch product details');
+    }
+    const product = await productResponse.json();
+    
+    // If this is a variant product, get its variant relation data
+    if (product.data.parent_product_id) {
+      const variantsResponse = await this.getProductVariants(product.data.parent_product_id);
+      const variants = variantsResponse.variants || variantsResponse.message?.variants || [];
+      const variantRelation = variants.find((v: any) => v.variant_product_id === productId);
+      
+      return {
+        product: product.data,
+        variantRelation: variantRelation || null
+      };
+    }
+    
+    return {
+      product: product.data,
+      variantRelation: null
+    };
+  }
+
+  async createVariant(productId: number, variantData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/${productId}/variants`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(variantData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to create variant');
+    }
+    return await response.json();
+  }
+
+  async updateVariant(variantId: number, variantData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/variants/${variantId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(variantData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update variant');
+    }
+    return await response.json();
+  }
+
+  async updateVariantAttributes(variantId: number, attributes: Record<string, any>): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/variants/${variantId}/attributes`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ attribute_combination: attributes }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update variant attributes');
+    }
+    return await response.json();
+  }
+
+  async addVariantMedia(variantId: number, mediaData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/variants/${variantId}/media`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(mediaData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to add variant media');
+    }
+    return await response.json();
+  }
+
+  async getVariantMedia(variantId: number): Promise<any> {
+    // For variants, we need to get the variant_product_id first, then get media for that product
+    const response = await fetch(`${API_BASE_URL}/api/shop/variants/${variantId}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to get variant details');
+    }
+    const variantData = await response.json();
+    const variantProductId = variantData.variant_product_id;
+    
+    // Now get media for the variant product
+    const mediaResponse = await fetch(`${API_BASE_URL}/api/shop/products/${variantProductId}/media`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+    if (!mediaResponse.ok) {
+      const error = await mediaResponse.json();
+      throw new Error(error.message || 'Failed to get variant media');
+    }
+    return await mediaResponse.json();
+  }
+
+  async addVariantProductMedia(variantProductId: number, mediaData: any): Promise<any> {
+    // Use the step3 endpoint to save media for the variant product
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/step3`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({
+        product_id: variantProductId,
+        media: [mediaData]
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to add variant media');
+    }
+    return await response.json();
+  }
+
+  async addVariantProductMediaBatch(variantProductId: number, mediaDataArray: any[]): Promise<any> {
+    // Use the step3 endpoint to save multiple media items for the variant product
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/step3`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({
+        product_id: variantProductId,
+        media: mediaDataArray
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to add variant media batch');
+    }
+    return await response.json();
+  }
+
+  async getProductMedia(productId: number): Promise<any> {
+    // Use the product details endpoint which includes media
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/${productId}/details`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to get product details');
+    }
+    const productDetails = await response.json();
+    // Return just the media array from the product details
+    return productDetails.media || [];
+  }
+
+  async deleteVariant(variantId: number): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/variants/${variantId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to delete variant');
+    }
+    return await response.json();
+  }
+
+  async bulkCreateVariants(productId: number, variantData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/${productId}/variants/bulk`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(variantData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to create variants in bulk');
+    }
+    return await response.json();
+  }
+
   async updateProductStep1(productId: number, stepData: any): Promise<any> {
     const response = await fetch(`${API_BASE_URL}/api/shop/products/step1/${productId}`, {
       method: 'PUT',
@@ -715,6 +919,31 @@ class ShopManagementService {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Failed to update basic product information');
+    }
+    return await response.json();
+  }
+
+  async updateProductStock(productId: number, stockData: any): Promise<any> {
+    // Check if this is a variant product (has parent_product_id)
+    const productDetails = await this.getProductDetails(productId);
+    
+    if (productDetails.parent_product_id) {
+      // This is a variant - use the variant update endpoint
+      const variantDetails = await this.getVariantDetails(productId);
+      if (variantDetails.variantRelation?.variant_id) {
+        return await this.updateVariant(variantDetails.variantRelation.variant_id, stockData);
+      }
+    }
+    
+    // For non-variant products, try the product update endpoint
+    const response = await fetch(`${API_BASE_URL}/api/shop/products/${productId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(stockData),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to update product stock');
     }
     return await response.json();
   }
