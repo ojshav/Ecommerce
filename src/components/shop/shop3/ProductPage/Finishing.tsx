@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Footer from "../AllProductpage/Footer";
+
 
 const products = [
   {
@@ -41,7 +41,7 @@ const Finishing: React.FC = () => {
   return (
     <>
       <section className="w-full mx-auto h-full bg-black flex flex-col items-center justify-center py-4 px-2 sm:px-4 md:px-8">
-        <div className="w-full max-w-[1820px] md:h-[842px] mx-auto flex flex-col items-center">
+        <div className="w-full max-w-[1920px] md:h-[842px] mx-auto flex flex-col items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="1820"
@@ -125,8 +125,7 @@ const Finishing: React.FC = () => {
           </div>
         </div>
       </section>
-      {/* Footer Section */}
-      <Footer />
+     
     </>
   );
 };

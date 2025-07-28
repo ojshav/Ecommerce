@@ -1,7 +1,8 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigationType, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
+import Shop1Header from './components/shop/shop1/Header';
 import Footer from './components/common/Footer';
 import Home from './pages/Home';
 import Products from './pages/Products';
@@ -16,7 +17,8 @@ import Shop2LandingPage from './pages/Shop2LandingPage';
 import Shop3LandingPage from './pages/Shop3LandingPage';
 import VerificationPending from './pages/auth/VerificationPending';
 import TrendyDealsPage from './pages/TrendyDealsPage';
-
+import Shopwishlist from './pages/Shop/shopwishlist';
+import Shopcart from './pages/Shop/Shopcart';
 import PasswordReset from './pages/auth/PasswordReset';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import RequestPasswordReset from './pages/auth/RequestPasswordReset';
@@ -47,7 +49,6 @@ import ContentModeration from './pages/superadmin/ContentModeration';
 import ProductMonitoring from './pages/superadmin/ProductMonitoring';
 import Settings from './pages/superadmin/Settings';
 import RefundAndReturnManagement from './pages/superadmin/RefundAndReturnManagement';
-import PaymentAndTransactionMonitoring from './pages/superadmin/PaymentAndTransaction';
 import Promotions from './pages/superadmin/Promotions';
 
 import TrafficAnalytics from './pages/superadmin/TrafficAnalytics';
@@ -223,6 +224,7 @@ const App: React.FC = () => {
                 <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                   <Routes>
                     <Route path="/shop1" element={<Shop1LandingPage />} />
+                    <Route path="/shop1/product/:id" element={<Shop1Productpage />} />
                     <Route path="/shop2" element={<Shop2LandingPage />} />
                     <Route path="/shop3" element={<Shop3LandingPage />} />
                     <Route path="/shop1-productpage" element={<Shop1Productpage />} />
@@ -486,7 +488,6 @@ const App: React.FC = () => {
                     <Route path="merchant-support" element={<MerchantSupport />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="refund-and-return" element={<RefundAndReturnManagement />} />
-                    <Route path="payments" element={<PaymentAndTransactionMonitoring />} />
                     <Route path="promotions" element={<Promotions />} />
                     <Route path="gst-management" element={<GSTRuleManagement />} />
                     <Route path="profile" element={<Profile />} />
@@ -623,6 +624,23 @@ const App: React.FC = () => {
                         </>
                       }
                     />
+                    <Route
+                      path="/shop1"
+                      element={
+                        <>
+                          <Shop1Header />
+                          <main className="">
+                            <Outlet />
+                          </main>
+                        </>
+                      }
+                    >
+                      <Route path="wishlist" element={<Shopwishlist />} />
+                      <Route path="cart" element={<Shopcart />} />
+                     
+                     
+                    </Route>
+
 
                     {/* Add this route outside of /business and /superadmin, so it's public */}
 
