@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StarIcon } from '@heroicons/react/24/solid';
+import { SparklesIcon } from '@heroicons/react/24/outline';
 
 // Types
 interface Shop {
@@ -159,23 +160,31 @@ const ShopReviewOverview: React.FC = () => {
   // --- Shop List View ---
   if (!selectedShop) {
     return (
-      <div className="bg-gray-50 min-h-screen p-4 sm:p-8">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-6">Shop Reviews Overview</h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="bg-gradient-to-br from-orange-50 to-gray-50 min-h-screen p-4 sm:p-8">
+        <div className="max-w-full mx-auto">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="bg-orange-100 p-2 rounded-full">
+              <SparklesIcon className="h-8 w-8 text-orange-500" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Shop Reviews Overview</h1>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {DUMMY_SHOPS.map((shop: Shop) => {
               const avg = getShopAverageRating(shop.shop_id);
+              // Count total reviews for this shop
+              const products = DUMMY_PRODUCTS[String(shop.shop_id)] || [];
+              const reviewCount = products.reduce((acc, p) => acc + (DUMMY_REVIEWS[String(p.product_id)]?.length || 0), 0);
               return (
                 <div
                   key={shop.shop_id}
-                  className="bg-white rounded-lg p-6 shadow-sm cursor-pointer hover:shadow-md transition"
+                  className="bg-white rounded-2xl p-6 shadow-lg border border-orange-100 cursor-pointer hover:scale-[1.03] hover:shadow-2xl transition-all group relative"
                   onClick={() => {
                     setSelectedShop(shop);
                     setProductRatingFilter('all');
                   }}
                 >
-                  <div className="text-lg font-bold mb-2">{shop.name}</div>
-                  <div className="flex items-center gap-2">
+                  <div className="text-lg font-bold mb-2 text-gray-800 group-hover:text-orange-600 transition">{shop.name}</div>
+                  <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl text-orange-500 font-bold">{avg.toFixed(1)}</span>
                     <div className="flex items-center">
                       {[1,2,3,4,5].map((i: number) => (
@@ -183,10 +192,18 @@ const ShopReviewOverview: React.FC = () => {
                       ))}
                     </div>
                   </div>
+                  <span className="inline-block bg-orange-50 text-orange-600 text-xs font-semibold px-3 py-1 rounded-full mb-2">{reviewCount} review{reviewCount !== 1 ? 's' : ''}</span>
+                  <div className="absolute top-4 right-4 bg-orange-100 rounded-full px-2 py-1 text-xs text-orange-500 font-bold shadow-sm">Shop #{shop.shop_id}</div>
                 </div>
               );
             })}
           </div>
+          {DUMMY_SHOPS.length === 0 && (
+            <div className="flex flex-col items-center mt-16">
+              <SparklesIcon className="h-12 w-12 text-gray-300 mb-2" />
+              <div className="text-gray-400 text-lg">No shops found.</div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -200,21 +217,22 @@ const ShopReviewOverview: React.FC = () => {
       ? products
       : products.filter(p => Math.round(getProductAverageRating(p.product_id)) === productRatingFilter);
     return (
-      <div className="bg-gray-50 min-h-screen p-4 sm:p-8">
-        <div className="max-w-4xl mx-auto">
+      <div className="bg-gradient-to-br from-orange-50 to-gray-50 min-h-screen p-4 sm:p-8">
+        <div className="max-w-full mx-auto">
           <button
-            className="mb-4 text-orange-600 hover:underline"
+            className="mb-6 flex items-center gap-1 text-orange-600 hover:underline hover:text-orange-700 text-sm font-medium"
             onClick={() => setSelectedShop(null)}
           >
-            ← Back to Shops
+            <span className="text-lg">←</span> Back to Shops
           </button>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Products in {selectedShop.name}
-          </h2>
-          <div className="flex items-center gap-4 mb-4">
-            <label className="font-medium">Filter by Avg Rating:</label>
+          <div className="flex items-center gap-3 mb-6">
+            <SparklesIcon className="h-7 w-7 text-orange-400" />
+            <h2 className="text-2xl font-bold text-gray-900">Products in {selectedShop.name}</h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <label className="font-medium text-gray-700">Filter by Avg Rating:</label>
             <select
-              className="border rounded px-2 py-1"
+              className="border border-orange-200 rounded px-2 py-1 focus:ring-2 focus:ring-orange-300"
               value={productRatingFilter}
               onChange={e => setProductRatingFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
             >
@@ -224,24 +242,27 @@ const ShopReviewOverview: React.FC = () => {
               ))}
             </select>
           </div>
-          <div className="overflow-x-auto bg-white shadow-lg rounded-lg">
+          <div className="overflow-x-auto bg-white shadow-xl rounded-2xl border border-orange-100">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100">
+              <thead className="bg-orange-50 sticky top-0 z-10">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Rating</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-orange-700 uppercase tracking-wider">Product Id</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-orange-700 uppercase tracking-wider">Product</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-orange-700 uppercase tracking-wider">Avg Rating</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-orange-700 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-100">
                 {filteredProducts.length === 0 && (
-                  <tr><td colSpan={3} className="text-center py-6 text-gray-400">No products found.</td></tr>
+                  <tr><td colSpan={4} className="text-center py-10 text-gray-400 font-medium">No products found.</td></tr>
                 )}
                 {filteredProducts.map(product => {
                   const avg = getProductAverageRating(product.product_id);
+                  const reviewCount = DUMMY_REVIEWS[String(product.product_id)]?.length || 0;
                   return (
-                    <tr key={product.product_id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-4 whitespace-nowrap font-semibold">{product.name}</td>
+                    <tr key={product.product_id} className="hover:bg-orange-50/40 transition-colors">
+                      <td className="px-4 py-4 whitespace-nowrap text-gray-700">{product.product_id}</td>
+                      <td className="px-4 py-4 whitespace-nowrap font-semibold text-gray-900">{product.name}</td>
                       <td className="px-4 py-4 whitespace-nowrap flex items-center gap-2">
                         <span className="text-lg text-orange-500 font-bold">{avg.toFixed(1)}</span>
                         <div className="flex items-center">
@@ -249,10 +270,11 @@ const ShopReviewOverview: React.FC = () => {
                             <StarIcon key={i} className={`h-4 w-4 ${i <= Math.round(avg) ? 'text-orange-400' : 'text-gray-200'}`} />
                           ))}
                         </div>
+                        <span className="ml-2 bg-orange-50 text-orange-600 text-xs font-semibold px-2 py-0.5 rounded-full">{reviewCount} review{reviewCount !== 1 ? 's' : ''}</span>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <button
-                          className="text-orange-600 hover:underline"
+                          className="text-orange-600 hover:underline hover:text-orange-700 font-semibold text-sm px-3 py-1 rounded transition"
                           onClick={() => {
                             setSelectedProduct(product);
                             setReviewRatingFilter('all');
@@ -279,21 +301,22 @@ const ShopReviewOverview: React.FC = () => {
       ? reviews
       : reviews.filter(r => r.rating === reviewRatingFilter);
     return (
-      <div className="bg-gray-50 min-h-screen p-4 sm:p-8">
-        <div className="max-w-3xl mx-auto">
+      <div className="bg-gradient-to-br from-orange-50 to-gray-50 min-h-screen p-4 sm:p-8">
+        <div className="max-w-full mx-auto">
           <button
-            className="mb-4 text-orange-600 hover:underline"
+            className="mb-6 flex items-center gap-1 text-orange-600 hover:underline hover:text-orange-700 text-sm font-medium"
             onClick={() => setSelectedProduct(null)}
           >
-            ← Back to Products
+            <span className="text-lg">←</span> Back to Products
           </button>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Reviews for {selectedProduct.name} (in {selectedShop.name})
-          </h2>
-          <div className="flex items-center gap-4 mb-4">
-            <label className="font-medium">Filter by Rating:</label>
+          <div className="flex items-center gap-3 mb-6">
+            <SparklesIcon className="h-7 w-7 text-orange-400" />
+            <h2 className="text-2xl font-bold text-gray-900">Reviews for {selectedProduct.name} <span className="text-base font-normal text-gray-500">(in {selectedShop.name})</span></h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <label className="font-medium text-gray-700">Filter by Rating:</label>
             <select
-              className="border rounded px-2 py-1"
+              className="border border-orange-200 rounded px-2 py-1 focus:ring-2 focus:ring-orange-300"
               value={reviewRatingFilter}
               onChange={e => setReviewRatingFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
             >
@@ -303,23 +326,30 @@ const ShopReviewOverview: React.FC = () => {
               ))}
             </select>
           </div>
-          <div className="overflow-x-auto bg-white shadow-lg rounded-lg">
+          <div className="overflow-x-auto bg-white shadow-xl rounded-2xl border border-orange-100">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100">
+              <thead className="bg-orange-50 sticky top-0 z-10">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reviewer</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comment</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-orange-700 uppercase tracking-wider">Reviewer</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-orange-700 uppercase tracking-wider">Rating</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-orange-700 uppercase tracking-wider">Comment</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-orange-700 uppercase tracking-wider">Date</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-100">
                 {filteredReviews.length === 0 && (
-                  <tr><td colSpan={4} className="text-center py-6 text-gray-400">No reviews found.</td></tr>
+                  <tr>
+                    <td colSpan={4} className="text-center py-10 text-gray-400 font-medium">
+                      <div className="flex flex-col items-center">
+                        <SparklesIcon className="h-10 w-10 text-gray-200 mb-2" />
+                        No reviews found.
+                      </div>
+                    </td>
+                  </tr>
                 )}
                 {filteredReviews.map(review => (
-                  <tr key={review.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-4 whitespace-nowrap font-semibold">{review.reviewer}</td>
+                  <tr key={review.id} className="hover:bg-orange-50/40 transition-colors">
+                    <td className="px-4 py-4 whitespace-nowrap font-semibold text-gray-900">{review.reviewer}</td>
                     <td className="px-4 py-4 whitespace-nowrap flex items-center gap-2">
                       <span className="text-lg text-orange-500 font-bold">{review.rating}</span>
                       <div className="flex items-center">
@@ -328,8 +358,8 @@ const ShopReviewOverview: React.FC = () => {
                         ))}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">{review.comment}</td>
-                    <td className="px-4 py-4 whitespace-nowrap">{review.date}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-gray-700">{review.comment}</td>
+                    <td className="px-4 py-4 whitespace-nowrap text-gray-500">{review.date}</td>
                   </tr>
                 ))}
               </tbody>

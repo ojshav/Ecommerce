@@ -409,8 +409,20 @@ const SuperAdminLayout = () => {
   // Check if a submenu item is active
   const isSubmenuActive = (itemTitle: string) => {
     const path = location.pathname;
+    
+    // Special cases for items with custom routes
+    if (itemTitle === "Shop Reviews" && path.includes("/superadmin/shop/reviews")) {
+      return true;
+    }
+    if (itemTitle === "Order Management" && path.includes("/superadmin/order-management")) {
+      return true;
+    }
+    if (itemTitle === "Payments" && path.includes("/superadmin/payments")) {
+      return true;
+    }
+    
+    // Default case for other items
     const itemPath = itemTitle.toLowerCase().replace(/\s+/g, "-");
-    // Use exact path match or ensure it's a complete path segment
     return path === `/superadmin/${itemPath}` || path.endsWith(`/${itemPath}`);
   };
 
@@ -432,8 +444,23 @@ const SuperAdminLayout = () => {
     );
     if (section) {
       return section.items.some((item) => {
+        // Use the same logic as isSubmenuActive for consistency
+        const path = location.pathname;
+        
+        // Special cases for items with custom routes
+        if (item.title === "Shop Reviews" && path.includes("/superadmin/shop/reviews")) {
+          return true;
+        }
+        if (item.title === "Order Management" && path.includes("/superadmin/order-management")) {
+          return true;
+        }
+        if (item.title === "Payments" && path.includes("/superadmin/payments")) {
+          return true;
+        }
+        
+        // Default case for other items
         const itemPath = item.title.toLowerCase().replace(/\s+/g, "-");
-        return location.pathname === `/superadmin/${itemPath}` || location.pathname.endsWith(`/${itemPath}`);
+        return path === `/superadmin/${itemPath}` || path.endsWith(`/${itemPath}`);
       });
     }
 
@@ -459,7 +486,16 @@ const SuperAdminLayout = () => {
     if (section === "Shop Reviews") route = "/superadmin/shop/reviews/1";
     if (section === "Payments") route = "/superadmin/payments";
     navigate(route);
-    setExpandedCategories([section]);
+    
+    // Find the category that contains this section and keep it expanded
+    const category = dashboardSections.find(s => 
+      s.items.some(item => item.title === section)
+    )?.category;
+    
+    if (category) {
+      setExpandedCategories([category]);
+    }
+    
     if (window.innerWidth < 768) {
       setIsSidebarOpen(false);
     }
