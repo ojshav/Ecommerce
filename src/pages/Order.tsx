@@ -17,6 +17,21 @@ interface OrderItem {
   item_status: string;
 }
 
+interface TrackingData {
+  order_id: string;
+  shipments: {
+    [key: string]: {
+      shipment_id: number;
+      merchant_id: number;
+      carrier_name: string;
+      tracking_number: string;
+      shiprocket_order_id?: number;
+      tracking_data?: any;
+      error?: string;
+    };
+  };
+}
+
 interface Order {
   order_id: string;
   order_status: string;
@@ -37,6 +52,7 @@ interface Order {
     changed_at: string;
     notes: string;
   }[];
+  tracking_info?: TrackingData;
 }
 
 interface ApiResponse {
@@ -68,6 +84,7 @@ const Order: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [perPage] = useState(10);
+  const [trackingLoading, setTrackingLoading] = useState<{ [key: string]: boolean }>({});
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
@@ -110,7 +127,22 @@ const Order: React.FC = () => {
       // console.log('Orders API Response:', data);
       
       if (data.status === 'success') {
-        setOrders(data.data.orders);
+        const ordersWithTracking = await Promise.all(
+          data.data.orders.map(async (order) => {
+            try {
+              const trackingInfo = await fetchOrderTracking(order.order_id);
+              return {
+                ...order,
+                tracking_info: trackingInfo
+              };
+            } catch (error) {
+              console.error(`Failed to fetch tracking for order ${order.order_id}:`, error);
+              return order;
+            }
+          })
+        );
+        
+        setOrders(ordersWithTracking);
         setTotalPages(data.data.pages);
       } else {
         throw new Error(data.message || 'Failed to fetch orders');
@@ -131,7 +163,8 @@ const Order: React.FC = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/track`, {
+      // First try to get tracking using the database order ID
+      const response = await fetch(`${API_BASE_URL}/api/shiprocket/tracking/db-order/${orderId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -144,12 +177,114 @@ const Order: React.FC = () => {
       }
 
       const data = await response.json();
-      // console.log('Order Tracking Response:', data);
-      return data.data;
+      console.log('ShipRocket Order Tracking Response:', data);
+      
+      if (data.status === 'success') {
+        return data.data;
+      } else {
+        throw new Error(data.message || 'Failed to fetch order tracking');
+      }
     } catch (err) {
       console.error('Error fetching order tracking:', err);
-      toast.error('Failed to load order tracking information');
+      // toast.error('Failed to load order tracking information');
       return null;
+    }
+  };
+
+  const fetchShipmentTracking = async (shipmentId: number) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/shiprocket/tracking/shipment/${shipmentId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch shipment tracking: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('ShipRocket Shipment Tracking Response:', data);
+      
+      if (data.status === 'success') {
+        return data.data;
+      } else {
+        throw new Error(data.message || 'Failed to fetch shipment tracking');
+      }
+    } catch (err) {
+      console.error('Error fetching shipment tracking:', err);
+      toast.error('Failed to load shipment tracking information');
+      return null;
+    }
+  };
+
+  const fetchDirectOrderTracking = async (orderId: string, channelId?: number) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      let url = `${API_BASE_URL}/api/shiprocket/tracking/order/${orderId}`;
+      if (channelId) {
+        url += `?channel_id=${channelId}`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch direct order tracking: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('ShipRocket Direct Order Tracking Response:', data);
+      
+      if (data.status === 'success') {
+        return data.data;
+      } else {
+        throw new Error(data.message || 'Failed to fetch direct order tracking');
+      }
+    } catch (err) {
+      console.error('Error fetching direct order tracking:', err);
+      toast.error('Failed to load direct order tracking information');
+      return null;
+    }
+  };
+
+  const refreshOrderTracking = async (orderId: string) => {
+    try {
+      setTrackingLoading(prev => ({ ...prev, [orderId]: true }));
+      const trackingInfo = await fetchOrderTracking(orderId);
+      
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.order_id === orderId 
+            ? { ...order, tracking_info: trackingInfo }
+            : order
+        )
+      );
+      
+      toast.success('Tracking information updated');
+      return trackingInfo;
+    } catch (error) {
+      console.error('Error refreshing tracking:', error);
+      toast.error('Failed to refresh tracking information');
+      return null;
+    } finally {
+      setTrackingLoading(prev => ({ ...prev, [orderId]: false }));
     }
   };
 
@@ -184,20 +319,24 @@ const Order: React.FC = () => {
 
   const handleAction = async (e: React.MouseEvent, type: string, order: Order) => {
     e.stopPropagation();
-    const trackingInfo = await fetchOrderTracking(order.order_id);
     
     switch (type) {
+      case 'track':
+        // Refresh tracking information before navigating
+        const trackingInfo = await refreshOrderTracking(order.order_id);
+        navigate(`/track/${order.order_id}`, { state: { trackingInfo } });
+        break;
       case 'exchange':
-        navigate(`/exchange/${order.order_id}`, { state: { order, trackingInfo } });
+        const exchangeTrackingInfo = await fetchOrderTracking(order.order_id);
+        navigate(`/exchange/${order.order_id}`, { state: { order, trackingInfo: exchangeTrackingInfo } });
         break;
       case 'return':
-        navigate(`/refund/${order.order_id}`, { state: { order, trackingInfo } });
+        const returnTrackingInfo = await fetchOrderTracking(order.order_id);
+        navigate(`/refund/${order.order_id}`, { state: { order, trackingInfo: returnTrackingInfo } });
         break;
       case 'review':
-        navigate(`/review/${order.order_id}`, { state: { order, trackingInfo } });
-        break;
-      case 'track':
-        navigate(`/track/${order.order_id}`, { state: { trackingInfo } });
+        const reviewTrackingInfo = await fetchOrderTracking(order.order_id);
+        navigate(`/review/${order.order_id}`, { state: { order, trackingInfo: reviewTrackingInfo } });
         break;
     }
   };
@@ -215,6 +354,57 @@ const Order: React.FC = () => {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const renderTrackingInfo = (trackingInfo: TrackingData, orderId: string) => {
+    if (!trackingInfo || !trackingInfo.shipments) {
+      return null;
+    }
+
+    const shipments = Object.values(trackingInfo.shipments);
+    const isLoading = trackingLoading[orderId];
+    
+    return (
+      <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="font-medium text-blue-800">Tracking Information</h4>
+          {isLoading && (
+            <div className="flex items-center gap-2 text-blue-600 text-sm">
+              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-600"></div>
+              <span>Updating...</span>
+            </div>
+          )}
+        </div>
+        <div className="space-y-2">
+          {shipments.map((shipment, index) => (
+            <div key={shipment.shipment_id} className="text-sm">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-gray-700">
+                  {shipment.carrier_name}
+                </span>
+                {shipment.tracking_number && (
+                  <span className="text-blue-600 font-mono text-xs">
+                    #{shipment.tracking_number}
+                  </span>
+                )}
+              </div>
+              {shipment.error ? (
+                <p className="text-red-600 text-xs mt-1">{shipment.error}</p>
+              ) : shipment.tracking_data ? (
+                <div className="text-xs text-gray-600 mt-1">
+                  <p>ShipRocket Order ID: {shipment.shiprocket_order_id}</p>
+                  {shipment.tracking_data.status && (
+                    <p>Status: {shipment.tracking_data.status}</p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-xs mt-1">No tracking data available</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
@@ -355,6 +545,9 @@ const Order: React.FC = () => {
                   </div>
                 ))}
 
+                {/* Tracking Information */}
+                {order.tracking_info && renderTrackingInfo(order.tracking_info, order.order_id)}
+                
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t gap-4">
                   <div className="flex flex-wrap gap-2 sm:gap-3">
                     {order.order_status === 'delivered' && (
@@ -383,6 +576,19 @@ const Order: React.FC = () => {
                     >
                       Track Order
                     </button>
+                    {order.tracking_info && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          refreshOrderTracking(order.order_id);
+                        }}
+                        disabled={trackingLoading[order.order_id]}
+                        className="px-3 sm:px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <RotateCcw size={16} className={trackingLoading[order.order_id] ? 'animate-spin' : ''} />
+                        {trackingLoading[order.order_id] ? 'Updating...' : 'Refresh Tracking'}
+                      </button>
+                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();

@@ -142,8 +142,6 @@ const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [noCourierService, setNoCourierService] = useState(false);
-  const [noCourierServiceForOrder, setNoCourierServiceForOrder] = useState(false);
-  const [checkingCourierService, setCheckingCourierService] = useState(false);
 
   // --- Read state passed from Cart.tsx or direct purchase ---
   const stateData = location.state || {};
@@ -432,8 +430,6 @@ const PaymentPage: React.FC = () => {
           : totalPrice;
       const codAmount = isCOD ? currentTotal - discount : 0;
 
-  
-
       const requestBody: any = {
         pickup_pincode: "474005", // This should come from merchant's address
         delivery_pincode: selectedAddress.postal_code,
@@ -461,13 +457,8 @@ const PaymentPage: React.FC = () => {
 
       // Check if this request is still current (not cancelled by a newer request)
       if (shippingRequestId !== currentRequestId) {
-        // console.log(
-        //   "Shipping request was superseded by a newer request, ignoring response"
-        // );
         return;
       }
-
-      // console.log("Shipping calculation response status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -494,14 +485,35 @@ const PaymentPage: React.FC = () => {
       }
 
       const data = await response.json();
-      // console.log("Shipping calculation response status:", data.message);
 
-      // Check if response has the expected structure (backend uses 'message' not 'status')
-      if (data.message && data.data?.available_courier_companies) {
-        const couriers = data.data.available_courier_companies;
-        // console.log(`Available couriers: ${couriers.length} options`);
+      // Debug: Log the actual response structure
+      console.log("ShipRocket shipping calculation response:", {
+        status: response.status,
+        message: data.message,
+        hasData: !!data.data,
+        hasCouriers: !!data.data?.data?.available_courier_companies,
+        couriersCount: data.data?.data?.available_courier_companies?.length || 0,
+        fullResponse: data
+      });
+
+      // Check if response has the expected structure
+      // Backend returns: { message: "Serviceability check successful", data: { available_courier_companies: [...] } }
+      console.log("Checking response structure:", {
+        hasMessage: !!data.message,
+        hasData: !!data.data,
+        hasCouriers: !!data.data?.data?.available_courier_companies,
+        couriersLength: data.data?.data?.available_courier_companies?.length || 0,
+        conditionResult: !!(data.message && data.data?.data?.available_courier_companies)
+      });
+      
+      // Check for couriers in the response - the actual structure is data.data.data.available_courier_companies
+      const couriers = data.data?.data?.available_courier_companies || [];
+      const hasCouriers = Array.isArray(couriers) && couriers.length > 0;
+      
+      if (data.message && hasCouriers) {
+        console.log("Found couriers:", couriers.length, couriers);
         setAvailableCouriers(couriers);
-        setNoCourierService(couriers.length === 0); // <-- set warning state
+        setNoCourierService(false); // Explicitly set to false when we have couriers
 
         // Select the best courier (lowest price or highest rating)
         if (couriers.length > 0) {
@@ -518,16 +530,23 @@ const PaymentPage: React.FC = () => {
             return best;
           });
 
-          // console.log(
-          //   `Selected courier: ${bestCourier.courier_name} - ₹${bestCourier.rate} (Rating: ${bestCourier.rating})`
-          // );
+          console.log("Selected best courier:", bestCourier);
           setSelectedCourier(bestCourier);
           setShippingCost(parseFloat(bestCourier.rate || "0"));
         } else {
-          // console.log("No couriers available, using default cost");
           setShippingCost(100); // Default shipping cost if no couriers available
         }
       } else {
+        // Debug: Log the actual response structure
+        console.log("ShipRocket response structure:", {
+          message: data.message,
+          hasData: !!data.data,
+          hasCouriers: !!data.data?.data?.available_courier_companies,
+          couriersCount: data.data?.data?.available_courier_companies?.length || 0,
+          fullResponse: data
+        });
+        
+        console.log("Setting noCourierService to true because condition failed");
         setNoCourierService(true); // No couriers found
         setShippingCost(100); // Default shipping cost
       }
@@ -835,102 +854,6 @@ const PaymentPage: React.FC = () => {
       return;
     }
 
-    setNoCourierServiceForOrder(false);
-    setCheckingCourierService(true);
-    // --- ShipRocket serviceability check before placing order ---
-    try {
-      // Get items for calculation
-      const itemsForShipping =
-        isDirectPurchase && directPurchaseItem
-          ? [
-              {
-                product_id: directPurchaseItem.product.id,
-                quantity: directPurchaseItem.quantity,
-              },
-            ]
-          : cart.map((item) => ({
-              product_id: item.product_id,
-              quantity: item.quantity,
-            }));
-
-      // Calculate total weight (assuming 0.5kg per item as default)
-      const totalWeight = itemsForShipping.reduce(
-        (weight, item) => weight + item.quantity * 0.5,
-        0
-      );
-
-      // Determine if this is COD or prepaid
-      const isCOD = paymentMethod === "cash_on_delivery";
-      // Calculate total price for COD amount
-      const currentTotal =
-        isDirectPurchase && directPurchaseItem
-          ? directPurchaseItem.product.price * directPurchaseItem.quantity
-          : totalPrice;
-      const codAmount = isCOD ? currentTotal - discount : 0;
-
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        toast.error("Please login to continue");
-        setCheckingCourierService(false);
-        return;
-      }
-      const selectedAddress = addresses.find(
-        (addr) => addr.address_id === selectedAddressId
-      );
-      if (!selectedAddress) {
-        toast.error("Selected address not found");
-        setCheckingCourierService(false);
-        return;
-      }
-      const requestBody = {
-        pickup_pincode: "474005", // This should come from merchant's address
-        delivery_pincode: selectedAddress.postal_code,
-        weight: totalWeight,
-        cod: isCOD,
-        ...(isCOD && codAmount > 0 ? { cod_amount: codAmount } : {}),
-      };
-      const response = await fetch(
-        `${API_BASE_URL}/api/shiprocket/serviceability`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(requestBody),
-        }
-      );
-      const data = await response.json();
-      // Debug: Log the full ShipRocket serviceability API response
-      console.log("ShipRocket serviceability API response:", data);
-      // Handle new backend response structure
-      if (!response.ok) {
-        setNoCourierServiceForOrder(true);
-        setCheckingCourierService(false);
-        // Show a professional message for 422 or similar errors
-        if (response.status === 422) {
-          toast.error("Unable to check courier service for this address. Please verify your address details or try again later.");
-        } else {
-          toast.error("No courier services available for this route. Please check your postal code or try a different address.");
-        }
-        return;
-      }
-      const availableCouriers = data?.data?.data?.available_courier_companies || data?.data?.available_courier_companies || [];
-      if (!Array.isArray(availableCouriers) || availableCouriers.length === 0) {
-        setNoCourierServiceForOrder(true);
-        setCheckingCourierService(false);
-        toast.error("No courier services available for this route. Please check your postal code or try a different address.");
-        return;
-      }
-    } catch (err) {
-      setNoCourierServiceForOrder(true);
-      setCheckingCourierService(false);
-      toast.error("Failed to check courier serviceability. Please try again.");
-      return;
-    }
-    setCheckingCourierService(false);
-
     setProcessingPayment(true);
 
     // Determine items source: cart or direct purchase
@@ -962,17 +885,6 @@ const PaymentPage: React.FC = () => {
     );
     const remainingDiscount = discount - totalItemDiscounts;
 
-    // Debug: Log discount distribution
-    // console.log("Order Processing Debug:", {
-    //   isDirectPurchase,
-    //   itemsCount: itemsSource.length,
-    //   totalDiscount: discount,
-    //   totalItemDiscounts,
-    //   remainingDiscount,
-    //   subtotal,
-    //   finalTotal,
-    // });
-
     const orderData = {
       items: itemsSource.map((item) => {
         // Use original_price as the base price for calculations
@@ -1002,16 +914,6 @@ const PaymentPage: React.FC = () => {
 
         // Calculate final unit price after discount
         const finalUnitPrice = basePrice - roundedPerUnitDiscount;
-
-        // console.log(`Product ${item.product.id || item.product_id}:`, {
-        //   name: item.product.name,
-        //   quantity: item.quantity,
-        //   originalPrice: basePrice,
-        //   itemTotal: itemTotal,
-        //   totalDiscountForItem: itemDiscountAmount,
-        //   perUnitDiscount: roundedPerUnitDiscount,
-        //   finalUnitPrice: finalUnitPrice,
-        // });
 
         return {
           product_id: item.product.id || item.product_id,
@@ -1048,21 +950,6 @@ const PaymentPage: React.FC = () => {
           ? selectedCardId
           : undefined,
     };
-
-    // Debug: Log the request data
-    // console.log("Sending order data:", {
-    //   ...orderData,
-    //   items: orderData.items.map((item) => ({
-    //     ...item,
-    //     unit_price_inclusive_gst: parseFloat(
-    //       item.unit_price_inclusive_gst
-    //     ).toFixed(2),
-    //     line_item_total_inclusive_gst: parseFloat(
-    //       item.line_item_total_inclusive_gst
-    //     ).toFixed(2),
-    //     final_price_for_item: parseFloat(item.final_price_for_item).toFixed(2),
-    //   })),
-    // });
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders`, {
@@ -1101,21 +988,10 @@ const PaymentPage: React.FC = () => {
           console.warn(
             "Failed to create merchant transactions, but order was successful"
           );
-          // Don't fail the order if merchant transaction creation fails
-          // The admin can manually create transactions later if needed
         }
 
         // ------------- ShipRocket shipment creation -------------
         try {
-          // console.log(
-          //   "Creating ShipRocket orders for all merchants in order:",
-          //   {
-          //     order_id: orderId,
-          //     delivery_address_id: selectedAddressId,
-          //     courier_id: selectedCourier?.courier_company_id,
-          //   }
-          // );
-
           const shiprocketResp = await fetch(
             `${API_BASE_URL}/api/shiprocket/create-orders-for-all-merchants`,
             {
@@ -1133,16 +1009,16 @@ const PaymentPage: React.FC = () => {
           );
 
           const srData = await shiprocketResp.json();
-          // console.log("ShipRocket API response status:", shiprocketResp.status);
-          // console.log("ShipRocket API response data:", srData);
 
-          if (shiprocketResp.ok && srData.status === "success") {
+          // Only show error if ShipRocket API truly failed (no successful merchants)
+          if (
+            shiprocketResp.ok &&
+            srData.status === "success" &&
+            srData.data &&
+            Array.isArray(srData.data.successful_merchants) &&
+            srData.data.successful_merchants.length > 0
+          ) {
             const response = srData.data;
-            // console.log("ShipRocket orders created successfully:", {
-            //   total_merchants: response.total_merchants,
-            //   successful_merchants: response.successful_merchants,
-            //   failed_merchants: response.failed_merchants,
-            // });
 
             // Show success message to user
             if (response.successful_merchants.length > 0) {
@@ -1175,16 +1051,10 @@ const PaymentPage: React.FC = () => {
               });
             }
           } else {
-            console.warn("ShipRocket create-orders-for-all-merchants failed:", {
-              status: shiprocketResp.status,
-              statusText: shiprocketResp.statusText,
-              data: srData,
-            });
-
-            // Don't fail the order if ShipRocket fails, but log the issue
-            toast.error(
-              "Order placed successfully, but shipment creation failed. Please contact support."
-            );
+            // Only show error if there are no successful merchants
+            // toast.error(
+            //   "Order placed successfully, but shipment creation failed for all merchants. Please contact support."
+            // );
           }
         } catch (srErr) {
           console.error("ShipRocket call error:", {
@@ -1210,15 +1080,11 @@ const PaymentPage: React.FC = () => {
       }
     } catch (error) {
       console.error("Error in handleOrder:", error);
-      // Debug: Log the full error object
-      console.error("Full error details:", {
-        name: error instanceof Error ? error.name : "Unknown",
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-      });
       toast.error(
         error instanceof Error ? error.message : "Failed to place order"
       );
+    } finally {
+      setProcessingPayment(false);
     }
   };
 
@@ -2138,23 +2004,16 @@ const PaymentPage: React.FC = () => {
         </div>
         <button
           onClick={handleOrder}
-          disabled={!selectedAddressId || processingPayment || checkingCourierService}
-          className={`w-full py-3 rounded font-medium transition-colors ${selectedAddressId && !processingPayment && !checkingCourierService
+          disabled={!selectedAddressId || processingPayment}
+          className={`w-full py-3 rounded font-medium transition-colors ${selectedAddressId && !processingPayment
               ? "bg-orange-500 text-white hover:bg-orange-600"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
         >
-          {checkingCourierService
-            ? "Checking Courier Service..."
-            : processingPayment
+          {processingPayment
             ? "Processing Payment..."
             : "Place Order"}
         </button>
-        {noCourierServiceForOrder && (
-          <div className="mt-3 p-3 bg-red-100 text-red-700 rounded text-center">
-            Sorry, no courier service is available for the selected address. Please check your postal code or try a different address.
-          </div>
-        )}
       </div>
 
       {/* Confirmation Modal for address deletion */}
