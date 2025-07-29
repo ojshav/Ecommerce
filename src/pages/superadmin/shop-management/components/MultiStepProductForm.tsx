@@ -243,14 +243,35 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
             name: attr.name || '',
             value: attr.value || ''
           })) || [],
-          media: variant.media?.map((media: any) => ({
-            id: media.media_id?.toString() || `media-${Date.now()}`,
-            type: media.type.toLowerCase() as 'image' | 'video',
-            url: media.url,
-            is_primary: media.is_primary || false,
-            isExisting: true,
-            media_id: media.media_id
-          })) || [],
+          media: (() => {
+            // Handle both old array format and new object format
+            if (Array.isArray(variant.media)) {
+              // Old format: array of media objects
+              return variant.media.map((media: any) => ({
+                id: media.media_id?.toString() || `media-${Date.now()}`,
+                type: media.type.toLowerCase() as 'image' | 'video',
+                url: media.url,
+                is_primary: media.is_primary || false,
+                isExisting: true,
+                media_id: media.media_id
+              }));
+            } else if (variant.media && typeof variant.media === 'object') {
+              // New format: object with images and videos arrays
+              const allMedia = [
+                ...(variant.media.images || []),
+                ...(variant.media.videos || [])
+              ];
+              return allMedia.map((media: any) => ({
+                id: media.media_id?.toString() || `media-${Date.now()}`,
+                type: media.type.toLowerCase() as 'image' | 'video',
+                url: media.url,
+                is_primary: media.is_primary || false,
+                isExisting: true,
+                media_id: media.media_id
+              }));
+            }
+            return [];
+          })(),
           is_default: variant.is_default || false,
           sort_order: variant.sort_order || 0
         })) || [],

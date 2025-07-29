@@ -1,48 +1,196 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Minus, Plus, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Product as ApiProduct } from '../../../../services/shop1ApiService';
 
-interface Product {
-  product_id: number;
-  product_name: string;
-  price: number;
-  primary_image: string;
-  category_name: string;
-  product_description?: string;
-  full_description?: string;
-  short_description?: string;
-  meta_description?: string;
-  media?: {
-    images: Array<{
-      url: string;
-      type: string;
-      is_primary: boolean;
-    }>;
-    videos: Array<{
-      url: string;
-      type: string;
-      is_primary: boolean;
-    }>;
-    primary_image: string;
-    total_media: number;
-  };
+interface Product extends ApiProduct {
+  // Keeping the original interface structure for backward compatibility
 }
-
 
 interface HeroProps {
   productData?: Product | null;
 }
 
-const colorOptions = [
-  { name: 'Yellow', value: 'yellow', className: 'bg-yellow-300' },
-  { name: 'Pink', value: 'pink', className: 'bg-[#EABABA]' },
-];
-const sizeOptions = ['XS', 'S', 'M', 'L', 'XL'];
-
 const Hero: React.FC<HeroProps> = ({ productData }) => {
-  const [selectedColor, setSelectedColor] = useState('yellow');
-  const [selectedSize, setSelectedSize] = useState('L');
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentVariant, setCurrentVariant] = useState<Product | null>(null);
+  const [stockError, setStockError] = useState<string>('');
+
+  // Extract and combine attributes from both parent product attributes and variant attributes
+  const availableAttributes = useMemo(() => {
+    if (!productData) return [];
+    
+    // Get variant options
+    const variantAttrs = productData.variant_attributes || [];
+    
+    // Get parent product attributes for default values
+    const parentAttrs = productData.attributes || [];
+    
+    // Create a map to combine all attribute options
+    const attributeMap = new Map();
+    
+    // First, collect parent product attribute values as defaults
+    const parentDefaults: Record<string, string> = {};
+    parentAttrs.forEach(attr => {
+      const attrName = attr.attribute?.name;
+      const attrValue = attr.value;
+      if (attrName && attrValue) {
+        parentDefaults[attrName] = attrValue;
+      }
+    });
+    
+    // Add variant attributes with their available options
+    variantAttrs.forEach(attr => {
+      const allValues = new Set<string>();
+      
+      // Add parent value if it exists for this attribute
+      if (parentDefaults[attr.name]) {
+        allValues.add(parentDefaults[attr.name]);
+      }
+      
+      // Add all variant values
+      (attr.values || []).forEach(value => allValues.add(value));
+      
+      attributeMap.set(attr.name, {
+        name: attr.name,
+        values: Array.from(allValues).sort(),
+        defaultValue: parentDefaults[attr.name] || (attr.values && attr.values[0]) || ''
+      });
+    });
+    
+    // Add any parent attributes that don't have variant options
+    parentAttrs.forEach(attr => {
+      const attrName = attr.attribute?.name;
+      const attrValue = attr.value;
+      
+      if (attrName && attrValue && !attributeMap.has(attrName)) {
+        // Add all possible values from the attribute definition
+        const allValues = new Set<string>([attrValue]);
+        
+        // If it's a select attribute, add all possible values
+        if (attr.attribute?.values) {
+          attr.attribute.values.forEach(val => allValues.add(val.value));
+        }
+        
+        attributeMap.set(attrName, {
+          name: attrName,
+          values: Array.from(allValues).sort(),
+          defaultValue: attrValue
+        });
+      }
+    });
+    
+    return Array.from(attributeMap.values());
+  }, [productData?.product_id, productData?.variant_attributes, productData?.attributes]);
+
+  // Extract variant data from product data (no API calls needed)
+  const variants = productData?.variants || [];
+
+  // Set default attributes when product changes
+  useEffect(() => {
+    if (productData?.has_variants && availableAttributes.length > 0) {
+      // Set default selection to parent product attributes (auto-selected)
+      const defaultAttributes: Record<string, string> = {};
+      availableAttributes.forEach(attr => {
+        // Use the default value from parent product (auto-selected)
+        defaultAttributes[attr.name] = attr.defaultValue || (attr.values.length > 0 ? attr.values[0] : '');
+      });
+      setSelectedAttributes(defaultAttributes);
+    } else {
+      setSelectedAttributes({});
+      setCurrentVariant(null);
+    }
+  }, [productData?.product_id, availableAttributes]);
+
+  // Find matching variant when attributes change
+  useEffect(() => {
+    if (!productData?.has_variants || Object.keys(selectedAttributes).length === 0) return;
+
+    const findVariantByAttributes = () => {
+      setStockError('');
+      
+      // Find variant by matching SKU pattern or by checking if selection matches available variants
+      let matchingVariant = null;
+      
+      // Method 1: Try to find variant by SKU pattern (most reliable)
+      if (Object.keys(selectedAttributes).length > 0) {
+        matchingVariant = variants.find(variant => {
+          const sku = variant.sku?.toUpperCase() || '';
+          let matches = 0;
+          let totalSelectedAttributes = 0;
+          
+          // Check each selected attribute
+          Object.entries(selectedAttributes).forEach(([attrName, attrValue]) => {
+            if (attrValue) {
+              totalSelectedAttributes++;
+              
+              // Create SKU pattern for this attribute
+              const attrCode = attrName.toUpperCase().substring(0, 3); // COL, SIZ, etc.
+              const valueCode = attrValue.toUpperCase().substring(0, 3); // BLU, RED, S, M, etc.
+              const pattern = `${attrCode}${valueCode}`;
+              
+              if (sku.includes(pattern)) {
+                matches++;
+              }
+            }
+          });
+          
+          return matches === totalSelectedAttributes && totalSelectedAttributes > 0;
+        });
+      }
+      
+      // Method 2: Fallback - if only one variant, check if selected attributes are available
+      if (!matchingVariant && variants.length === 1) {
+        const variant = variants[0];
+        // Use the available_attributes from the API response (it exists in the actual response)
+        const availableAttrs = (productData as any).available_attributes || {};
+        
+        // Check if all selected attributes have available values
+        const allAttributesAvailable = Object.entries(selectedAttributes).every(([attrName, attrValue]) => {
+          const availableValues = availableAttrs[attrName] || [];
+          return availableValues.includes(attrValue);
+        });
+        
+        if (allAttributesAvailable) {
+          matchingVariant = variant;
+        }
+      }
+      
+      // Update state based on variant match
+      if (matchingVariant) {
+        setCurrentVariant(matchingVariant);
+        // Reset image carousel to first image when variant changes
+        setCurrentImageIndex(0);
+        
+        // Check stock and show warning if low
+        const stockQty = matchingVariant.stock?.stock_qty || 0;
+        const lowStockThreshold = (matchingVariant.stock as any)?.low_stock_threshold || 5;
+        
+        if (stockQty <= 0) {
+          setStockError('This variant is out of stock');
+        } else if (stockQty <= lowStockThreshold) {
+          setStockError(`Only ${stockQty} left in stock!`);
+        }
+      } else {
+        setCurrentVariant(null);
+        // Reset to parent media when no variant is selected
+        setCurrentImageIndex(0);
+        if (Object.keys(selectedAttributes).length > 0) {
+          setStockError('This combination is not available. Please choose a different combination.');
+        }
+      }
+    };
+
+    findVariantByAttributes();
+  }, [selectedAttributes, variants, productData?.has_variants]);
+
+  const handleAttributeSelect = (attributeName: string, value: string) => {
+    setSelectedAttributes(prev => ({
+      ...prev,
+      [attributeName]: value
+    }));
+  };
 
   // Simple markdown parser for basic formatting
   const parseMarkdown = (text: string): JSX.Element[] => {
@@ -107,11 +255,26 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
     return elements;
   };
 
-  // Get all media (images and videos) for the carousel
-  const allMedia = productData?.media ? [
-    ...productData.media.images,
-    ...productData.media.videos
-  ] : [];
+  // Get all media (images and videos) for the carousel - prioritize variant media
+  const allMedia = (() => {
+    // If we have a current variant with media, use that
+    if (currentVariant?.media) {
+      return [
+        ...currentVariant.media.images || [],
+        ...currentVariant.media.videos || []
+      ];
+    }
+    
+    // Otherwise, use product media
+    if (productData?.media) {
+      return [
+        ...productData.media.images || [],
+        ...productData.media.videos || []
+      ];
+    }
+    
+    return [];
+  })();
 
   // Fallback images if no media
   const fallbackImages = [
@@ -123,8 +286,6 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
 
   const mediaToDisplay = allMedia.length > 0 ? allMedia : fallbackImages.map(url => ({ url, type: 'IMAGE' }));
 
-  const handleColorSelect = (color: string) => setSelectedColor(color);
-  const handleSizeSelect = (size: string) => setSelectedSize(size);
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => Math.max(1, prev + delta));
   };
@@ -139,6 +300,52 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
 
   const goToImage = (index: number) => {
     setCurrentImageIndex(index);
+  };
+
+  // Get display price (use variant price if available, otherwise product price)
+  const getDisplayPrice = () => {
+    if (currentVariant) {
+      return currentVariant.selling_price || currentVariant.price;
+    }
+    return productData?.selling_price || productData?.price || 450;
+  };
+
+  // Check if current selection is in stock
+  const isInStock = () => {
+    if (currentVariant) {
+      return (currentVariant.stock?.stock_qty || 0) > 0;
+    }
+    return productData?.is_in_stock !== false;
+  };
+
+  // Get stock quantity for display
+  const getStockQuantity = () => {
+    if (currentVariant) {
+      return currentVariant.stock?.stock_qty || 0;
+    }
+    return productData?.stock?.stock_qty || 0;
+  };
+
+  // Helper function to get color style for color attributes
+  const getColorStyle = (attributeName: string, value: string) => {
+    if (attributeName.toLowerCase() === 'color') {
+      // Map common color names to CSS colors
+      const colorMap: Record<string, string> = {
+        'yellow': '#FDE047',
+        'pink': '#EABABA',
+        'red': '#EF4444',
+        'blue': '#3B82F6',
+        'green': '#10B981',
+        'black': '#000000',
+        'white': '#FFFFFF',
+        'purple': '#8B5CF6',
+        'orange': '#F97316',
+        'gray': '#6B7280',
+        'grey': '#6B7280'
+      };
+      return colorMap[value.toLowerCase()] || value;
+    }
+    return undefined;
   };
 
   return (
@@ -325,48 +532,108 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
             <p className="text-gray-600 text-[18px] ml-2">(4.8 from 328 Reviews)</p>
           </div>
 
-          {/* Color and Size Selection */}
-          <div className="flex space-x-16 mb-10">
-            {/* Color */}
-            <div>
-              <p className="text-[20px] font-semibold mb-4">Select color</p>
-              <div className="flex space-x-6">
-                {colorOptions.map((color) => (
+          {/* Dynamic Attribute Selection */}
+          {productData?.has_variants && availableAttributes.length > 0 ? (
+            <div className="flex flex-wrap gap-8 mb-10">
+              {availableAttributes.map((attribute) => (
+                <div key={attribute.name}>
+                  <p className="text-[20px] font-semibold mb-4 capitalize">
+                    Select {attribute.name}
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {attribute.values.map((value: string) => {
+                      const isSelected = selectedAttributes[attribute.name] === value;
+                      const colorStyle = getColorStyle(attribute.name, value);
+                      
+                      // Render color swatches for color attributes
+                      if (attribute.name.toLowerCase() === 'color' && colorStyle) {
+                        return (
+                          <button
+                            key={value}
+                            aria-label={value}
+                            onClick={() => handleAttributeSelect(attribute.name, value)}
+                            className={`w-[48px] h-[48px] rounded-full border-4 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center ${
+                              isSelected
+                                ? 'border-[#FEEBD8] scale-110'
+                                : 'border-white opacity-80 hover:scale-105'
+                            }`}
+                            style={{ backgroundColor: colorStyle }}
+                            disabled={false}
+                          />
+                        );
+                      }
+                      
+                      // Render buttons for size and other attributes
+                      return (
+                        <button
+                          key={value}
+                          onClick={() => handleAttributeSelect(attribute.name, value)}
+                          className={`px-4 py-2 min-w-[64px] h-[48px] rounded-full border text-[18px] font-semibold transition-all duration-150 focus:outline-none
+                            ${isSelected
+                              ? 'bg-[#FEEBD8] border-[#FEEBD8] text-black shadow-md'
+                              : 'bg-white border-black text-black hover:bg-gray-100'}
+                          `}
+                          disabled={false}
+                        >
+                          {value}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            // Fallback to original hardcoded selection for products without variants
+            <div className="flex space-x-16 mb-10">
+              {/* Color */}
+              <div>
+                <p className="text-[20px] font-semibold mb-4">Select color</p>
+                <div className="flex space-x-6">
                   <button
-                    key={color.value}
-                    aria-label={color.name}
-                    onClick={() => handleColorSelect(color.value)}
-                    className={`w-[48px] h-[48px] rounded-full border-4 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center ${
-                      selectedColor === color.value
-                        ? 'border-[#FEEBD8] scale-110'
-                        : 'border-white opacity-80 hover:scale-105'
-                    }`}
-                    style={{ backgroundColor: color.value === 'yellow' ? '#FDE047' : '#EABABA' }}
+                    aria-label="Yellow"
+                    className="w-[48px] h-[48px] rounded-full border-4 border-[#FEEBD8] scale-110 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center"
+                    style={{ backgroundColor: '#FDE047' }}
                   />
-                ))}
-              </div>
-            </div>
-
-            {/* Size */}
-            <div>
-              <p className="text-[20px] font-semibold mb-4">Select Size</p>
-              <div className="flex space-x-4">
-                {sizeOptions.map((size) => (
                   <button
-                    key={size}
-                    onClick={() => handleSizeSelect(size)}
-                    className={`w-[64px] h-[48px] rounded-full border text-[18px] font-semibold transition-all duration-150 focus:outline-none
-                      ${selectedSize === size
-                        ? 'bg-[#FEEBD8] border-[#FEEBD8] text-black shadow-md'
-                        : 'bg-white border-black text-black hover:bg-gray-100'}
-                    `}
-                  >
-                    {size}
-                  </button>
-                ))}
+                    aria-label="Pink"
+                    className="w-[48px] h-[48px] rounded-full border-4 border-white opacity-80 hover:scale-105 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center"
+                    style={{ backgroundColor: '#EABABA' }}
+                  />
+                </div>
+              </div>
+
+              {/* Size */}
+              <div>
+                <p className="text-[20px] font-semibold mb-4">Select Size</p>
+                <div className="flex space-x-4">
+                  {['XS', 'S', 'M', 'L', 'XL'].map((size, index) => (
+                    <button
+                      key={size}
+                      className={`w-[64px] h-[48px] rounded-full border text-[18px] font-semibold transition-all duration-150 focus:outline-none
+                        ${index === 3 // L is selected by default
+                          ? 'bg-[#FEEBD8] border-[#FEEBD8] text-black shadow-md'
+                          : 'bg-white border-black text-black hover:bg-gray-100'}
+                      `}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Stock Warning */}
+          {stockError && (
+            <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${
+              stockError.includes('out of stock') 
+                ? 'bg-red-100 text-red-800' 
+                : 'bg-yellow-100 text-yellow-800'
+            }`}>
+              {stockError}
+            </div>
+          )}
         </div>
 
         {/* RIGHT: Price, Quantity, Actions */}
@@ -377,12 +644,24 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
               <p className="text-gray-600 text-[20px] font-medium mb-1">Total Price</p>
               <div className="flex items-center space-x-3">
                 <span className="text-[40px] font-bold text-[#FF6A3A]">
-                  ${productData?.price || 450}
+                  ${getDisplayPrice()}
                 </span>
-                <span className="text-[28px] text-gray-500 line-through">
-                  ${(productData?.price ? productData.price * 1.33 : 600).toFixed(0)}
-                </span>
+                {/* Show original price only if there's a special price discount */}
+                {(currentVariant?.special_price || productData?.special_price) && (
+                  <span className="text-[28px] text-gray-500 line-through">
+                    ${currentVariant?.selling_price || productData?.selling_price}
+                  </span>
+                )}
               </div>
+              {/* Stock indicator */}
+              {!isInStock() && (
+                <p className="text-red-600 text-sm font-medium mt-2">Out of Stock</p>
+              )}
+              {isInStock() && getStockQuantity() <= 5 && getStockQuantity() > 0 && (
+                <p className="text-yellow-600 text-sm font-medium mt-2">
+                  Only {getStockQuantity()} left!
+                </p>
+              )}
             </div>
             {/* Quantity */}
             <div className="flex flex-col items-center mb-4">
@@ -409,11 +688,25 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
 
           {/* Buttons */}
           <div className="flex items-center space-x-6 w-full mt-6">
-            <button className="bg-[#FEEBD8] hover:bg-[#fdd7b9] px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 border-[#FEEBD8]">
-              ADD TO CART
+            <button 
+              className={`px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 ${
+                isInStock()
+                  ? 'bg-[#FEEBD8] hover:bg-[#fdd7b9] border-[#FEEBD8] text-black'
+                  : 'bg-gray-300 border-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+              disabled={!isInStock()}
+            >
+              {!isInStock() ? 'OUT OF STOCK' : 'ADD TO CART'}
             </button>
-            <button className="bg-black hover:bg-[#222] text-white px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 border-black">
-              BUY IT NOW
+            <button 
+              className={`px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 ${
+                isInStock()
+                  ? 'bg-black hover:bg-[#222] text-white border-black'
+                  : 'bg-gray-400 border-gray-400 text-gray-600 cursor-not-allowed'
+              }`}
+              disabled={!isInStock()}
+            >
+              {!isInStock() ? 'OUT OF STOCK' : 'BUY IT NOW'}
             </button>
           </div>
         </div>

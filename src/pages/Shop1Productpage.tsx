@@ -74,7 +74,7 @@ function Shop1ProductPage() {
       
       <Hero productData={product} />
       <FashionCardsSection />
-      <RatingsReviews />
+      {/* <RatingsReviews /> */}
       <SimilarProducts />
       <InstagramPromo />
     </div>  
