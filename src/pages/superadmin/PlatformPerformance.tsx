@@ -3,8 +3,9 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, Cell
 } from 'recharts';
-import { AlertCircle, CheckCircle, Clock, Activity, Server, RefreshCw, X } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Activity, Server, RefreshCw, X, Download } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
+import ExportModal from '../../components/business/reports/ExportModal';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -172,6 +173,8 @@ export default function PlatformPerformance() {
   });
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [isInvestigateModalOpen, setIsInvestigateModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [investigatingService, setInvestigatingService] = useState<{
     name: string;
     details: {
@@ -494,6 +497,57 @@ export default function PlatformPerformance() {
   const handleRefresh = () => {
     if (isAuthenticated && accessToken) {
       fetchData();
+    }
+  };
+
+  const handleExportReport = async (format: string) => {
+    try {
+      setIsExporting(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/monitoring/export-platform-performance?format=${format}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': '*/*'
+        },
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to export report');
+      }
+
+      // Get filename from Content-Disposition header or create default
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `platform_performance_report_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`Platform performance report exported successfully as ${format.toUpperCase()}`);
+      setIsExportModalOpen(false);
+      
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to export report. Please try again.');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -820,14 +874,23 @@ export default function PlatformPerformance() {
           <h1 className="text-2xl font-bold text-black">Platform Performance Dashboard</h1>
           <p className="text-sm text-gray-500">Monitor real-time metrics and service health</p>
         </div>
-        <button 
-          onClick={handleRefresh} 
-          className="flex items-center gap-2 bg-[#FF5733]/20 text-[#FF5733] px-4 py-2 rounded-lg font-medium hover:bg-[#FF5733]/30 transition-all duration-300 group"
-          disabled={loadingData}
-        >
-          <RefreshCw className={`w-5 h-5 ${loadingData ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
-          Refresh Data
-        </button>
+        <div className="flex space-x-4">
+          <button 
+            onClick={handleRefresh} 
+            className="flex items-center gap-2 bg-[#FF5733]/20 text-[#FF5733] px-4 py-2 rounded-lg font-medium hover:bg-[#FF5733]/30 transition-all duration-300 group"
+            disabled={loadingData}
+          >
+            <RefreshCw className={`w-5 h-5 ${loadingData ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
+            Refresh Data
+          </button>
+          <button 
+            onClick={() => setIsExportModalOpen(true)}
+            className="flex items-center gap-2 bg-[#FF5733] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#FF4500] transition-all duration-300"
+          >
+            <Download className="w-5 h-5" />
+            Export Report
+          </button>
+        </div>
       </div>
 
       {/* System Status Overview */}
@@ -1015,6 +1078,14 @@ export default function PlatformPerformance() {
         </div>
       </div>
       {isInvestigateModalOpen && <InvestigateModal />}
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={handleExportReport}
+        isExporting={isExporting}
+      />
     </div>
   );
 }

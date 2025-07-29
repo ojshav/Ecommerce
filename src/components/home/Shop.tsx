@@ -27,6 +27,7 @@ const Shop = () => {
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [hoveredBanner, setHoveredBanner] = useState<number | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   // Calculate time remaining until closing (22:00)
   const calculateTimeLeft = () => {
@@ -100,6 +101,12 @@ const Shop = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Animation trigger on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleBannerClick = (bannerId: number, navigationPath: string) => {
     if (isShopOpen) {
       navigate(navigationPath);
@@ -142,275 +149,375 @@ const Shop = () => {
   };
 
   return (
-    <div className="w-full min-h-screen mb-16 sm:mb-20 md:mb-24 lg:mb-32" style={{ background: 'linear-gradient(135deg, #F2631F 0%, #F2631F 100%)' }}>
-      {/* Innovation Window Section with Decorative Frame */}
-      <div className="relative py-6 px-4 sm:py-8 md:py-12 lg:py-16 sm:px-6 lg:px-8">
-        {/* Decorative Frame */}
+    <div className="w-full min-h-screen mb-16 sm:mb-20 md:mb-24 lg:mb-32">
+      {/* Innovation Window Section with Enhanced Professional Design */}
+      <div className="relative py-6 px-4 sm:py-8 md:py-12 lg:py-12 sm:px-6 lg:px-8 overflow-hidden" 
+           style={{ 
+             background: 'linear-gradient(135deg, #F2631F 0%, #FF6B35 25%, #F2631F 50%, #FF6B35 75%, #F2631F 100%)',
+             backgroundSize: '400% 400%'
+           }}>
+        
+        {/* Animated Background Particles */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-yellow-300/20 rounded-full animate-particle"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 3}s`,
+                animationDuration: `${3 + Math.random() * 4}s`
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Floating Geometric Shapes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-10 left-10 w-16 h-16 border-2 border-yellow-300/30 rotate-45 animate-float-slow"></div>
+          <div className="absolute top-20 right-20 w-12 h-12 bg-yellow-300/20 rounded-full animate-float-delayed"></div>
+          <div className="absolute bottom-20 left-20 w-20 h-20 border border-yellow-300/40 rounded-full animate-float-slow-delayed"></div>
+          <div className="absolute bottom-10 right-10 w-8 h-8 bg-yellow-300/30 rotate-45 animate-float"></div>
+        </div>
+
+        {/* Enhanced Decorative Frame */}
         <div className="absolute inset-0 z-0">
-          {/* Main Frame Border */}
-          <div className="absolute inset-4 border-[2px] border-yellow-300/30 rounded-lg">
-            {/* Corner Ornaments */}
-            <div className="absolute -left-3 -top-3 w-12 h-12 animate-corner-pulse">
-              <div className="absolute inset-0 rotate-45 border-t-4 border-l-4 border-yellow-300/50"></div>
-              <div className="absolute inset-1 rotate-45 border-t-2 border-l-2 border-white/20"></div>
+          {/* Main Frame Border with Glow Effect */}
+          <div className="absolute inset-4 border-[3px] border-yellow-300/40 rounded-xl shadow-[0_0_30px_rgba(251,191,36,0.3)]">
+            {/* Animated Corner Ornaments */}
+            <div className="absolute -left-4 -top-4 w-16 h-16 animate-corner-pulse">
+              <div className="absolute inset-0 rotate-45 border-t-4 border-l-4 border-yellow-300/60 shadow-[0_0_20px_rgba(251,191,36,0.4)]"></div>
+              <div className="absolute inset-2 rotate-45 border-t-2 border-l-2 border-white/30"></div>
+              <div className="absolute inset-0 w-2 h-2 bg-yellow-300/50 rounded-full animate-ping"></div>
             </div>
-            <div className="absolute -right-3 -top-3 w-12 h-12 animate-corner-pulse">
-              <div className="absolute inset-0 rotate-45 border-t-4 border-r-4 border-yellow-300/50"></div>
-              <div className="absolute inset-1 rotate-45 border-t-2 border-r-2 border-white/20"></div>
+            <div className="absolute -right-4 -top-4 w-16 h-16 animate-corner-pulse delay-100">
+              <div className="absolute inset-0 rotate-45 border-t-4 border-r-4 border-yellow-300/60 shadow-[0_0_20px_rgba(251,191,36,0.4)]"></div>
+              <div className="absolute inset-2 rotate-45 border-t-2 border-r-2 border-white/30"></div>
+              <div className="absolute inset-0 w-2 h-2 bg-yellow-300/50 rounded-full animate-ping delay-300"></div>
             </div>
-            <div className="absolute -left-3 -bottom-3 w-12 h-12 animate-corner-pulse">
-              <div className="absolute inset-0 rotate-45 border-b-4 border-l-4 border-yellow-300/50"></div>
-              <div className="absolute inset-1 rotate-45 border-b-2 border-l-2 border-white/20"></div>
+            <div className="absolute -left-4 -bottom-4 w-16 h-16 animate-corner-pulse delay-200">
+              <div className="absolute inset-0 rotate-45 border-b-4 border-l-4 border-yellow-300/60 shadow-[0_0_20px_rgba(251,191,36,0.4)]"></div>
+              <div className="absolute inset-2 rotate-45 border-b-2 border-l-2 border-white/30"></div>
+              <div className="absolute inset-0 w-2 h-2 bg-yellow-300/50 rounded-full animate-ping delay-600"></div>
             </div>
-            <div className="absolute -right-3 -bottom-3 w-12 h-12 animate-corner-pulse">
-              <div className="absolute inset-0 rotate-45 border-b-4 border-r-4 border-yellow-300/50"></div>
-              <div className="absolute inset-1 rotate-45 border-b-2 border-r-2 border-white/20"></div>
+            <div className="absolute -right-4 -bottom-4 w-16 h-16 animate-corner-pulse delay-300">
+              <div className="absolute inset-0 rotate-45 border-b-4 border-r-4 border-yellow-300/60 shadow-[0_0_20px_rgba(251,191,36,0.4)]"></div>
+              <div className="absolute inset-2 rotate-45 border-b-2 border-r-2 border-white/30"></div>
+              <div className="absolute inset-0 w-2 h-2 bg-yellow-300/50 rounded-full animate-ping delay-900"></div>
             </div>
 
-            {/* Decorative Lines */}
-            <div className="absolute top-0 left-12 right-12 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent"></div>
-            <div className="absolute bottom-0 left-12 right-12 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent"></div>
-            <div className="absolute left-0 top-12 bottom-12 w-px bg-gradient-to-b from-transparent via-yellow-300/30 to-transparent"></div>
-            <div className="absolute right-0 top-12 bottom-12 w-px bg-gradient-to-b from-transparent via-yellow-300/30 to-transparent"></div>
+            {/* Animated Decorative Lines */}
+            <div className="absolute top-0 left-16 right-16 h-px bg-gradient-to-r from-transparent via-yellow-300/50 to-transparent animate-shimmer"></div>
+            <div className="absolute bottom-0 left-16 right-16 h-px bg-gradient-to-r from-transparent via-yellow-300/50 to-transparent animate-shimmer delay-500"></div>
+            <div className="absolute left-0 top-16 bottom-16 w-px bg-gradient-to-b from-transparent via-yellow-300/50 to-transparent animate-shimmer delay-1000"></div>
+            <div className="absolute right-0 top-16 bottom-16 w-px bg-gradient-to-b from-transparent via-yellow-300/50 to-transparent animate-shimmer delay-1500"></div>
 
-            {/* Inner Frame Accent */}
-            <div className="absolute inset-4 border border-white/10 rounded-lg"></div>
+            {/* Inner Frame with Multiple Layers */}
+            <div className="absolute inset-6 border border-white/20 rounded-lg"></div>
+            <div className="absolute inset-8 border border-yellow-300/20 rounded-lg"></div>
           </div>
 
-          {/* Animated Corner Lights */}
-          <div className="absolute -left-1 -top-1 w-8 h-8">
-            <div className="absolute inset-0 bg-yellow-300/20 rounded-full blur-md animate-glow"></div>
+          {/* Enhanced Corner Lights */}
+          <div className="absolute -left-2 -top-2 w-12 h-12">
+            <div className="absolute inset-0 bg-yellow-300/30 rounded-full blur-md animate-glow"></div>
+            <div className="absolute inset-2 bg-yellow-300/20 rounded-full blur-sm animate-pulse"></div>
           </div>
-          <div className="absolute -right-1 -top-1 w-8 h-8">
-            <div className="absolute inset-0 bg-yellow-300/20 rounded-full blur-md animate-glow delay-100"></div>
+          <div className="absolute -right-2 -top-2 w-12 h-12">
+            <div className="absolute inset-0 bg-yellow-300/30 rounded-full blur-md animate-glow delay-200"></div>
+            <div className="absolute inset-2 bg-yellow-300/20 rounded-full blur-sm animate-pulse delay-200"></div>
           </div>
-          <div className="absolute -left-1 -bottom-1 w-8 h-8">
-            <div className="absolute inset-0 bg-yellow-300/20 rounded-full blur-md animate-glow delay-200"></div>
+          <div className="absolute -left-2 -bottom-2 w-12 h-12">
+            <div className="absolute inset-0 bg-yellow-300/30 rounded-full blur-md animate-glow delay-400"></div>
+            <div className="absolute inset-2 bg-yellow-300/20 rounded-full blur-sm animate-pulse delay-400"></div>
           </div>
-          <div className="absolute -right-1 -bottom-1 w-8 h-8">
-            <div className="absolute inset-0 bg-yellow-300/20 rounded-full blur-md animate-glow delay-300"></div>
+          <div className="absolute -right-2 -bottom-2 w-12 h-12">
+            <div className="absolute inset-0 bg-yellow-300/30 rounded-full blur-md animate-glow delay-600"></div>
+            <div className="absolute inset-2 bg-yellow-300/20 rounded-full blur-sm animate-pulse delay-600"></div>
           </div>
         </div>
 
-        {/* Main Content with Background */}
-        <div className="bg-[#F2631F] relative overflow-hidden rounded-lg shadow-2xl">
-          {/* Innovation Window Section */}
-          <div className="max-w-4xl mx-auto text-center relative">
-            {/* 3D Floating Title Container */}
-            <div className="transform-gpu hover:scale-105 transition-transform duration-500 mb-8 perspective-1000">
-              <div className="flex items-center justify-center space-x-2 mb-2 animate-float">
-                {/* Mystic Shopping Icon Left */}
-                <div className="relative group">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-yellow-300 animate-mystic-spin">
+        {/* Main Content with Enhanced Background */}
+        <div className="relative overflow-hidden rounded-xl shadow-2xl min-h-[100px] sm:min-h-[100px] md:min-h-[100px] lg:min-h-[100px] backdrop-blur-sm"
+             style={{
+               background: `
+                 radial-gradient(circle at 20% 80%, rgba(251,191,36,0.1) 0%, transparent 50%),
+                 radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                 linear-gradient(135deg, rgba(242,99,31,0.95) 0%, rgba(255,107,53,0.95) 100%)
+               `
+             }}>
+          
+          {/* Innovation Window Section with Enhanced Animations */}
+          <div className="max-w-4xl mx-auto text-center relative py-8 sm:py-12 md:py-16 lg:py-20">
+            
+            {/* Enhanced 3D Floating Title Container */}
+            <div className={`transform-gpu transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+              <div className="flex items-center justify-center space-x-3 mb-4 animate-float">
+                
+                {/* Enhanced Mystic Shopping Icon Left */}
+                <div className="relative group transform hover:scale-110 transition-transform duration-300">
+                  <div className="absolute inset-0 bg-yellow-300/20 rounded-full blur-lg animate-pulse"></div>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-yellow-300 animate-mystic-spin relative z-10">
                     <path
                       d="M20 7h-4V6c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v1H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM10 6h4v1h-4V6z"
                       fill="currentColor"
                     />
                   </svg>
-                  <div className="absolute inset-0 bg-yellow-300/20 rounded-full blur-md animate-pulse"></div>
+                  <div className="absolute -inset-2 bg-gradient-to-r from-yellow-300/0 via-yellow-300/20 to-yellow-300/0 rounded-full blur-md animate-shimmer"></div>
                 </div>
                 
-                {/* Title with Gradient Animation */}
+                {/* Enhanced Title with Multiple Effects */}
                 <div className="relative group perspective">
-                  <span className="text-white font-bold tracking-wider text-xl sm:text-2xl md:text-3xl lg:text-4xl font-[Work Sans] block transform transition-all duration-500 hover:transform-gpu hover:rotate-y-12 relative">
-                    <span className="absolute inset-0 bg-gradient-to-r from-yellow-300/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
-                    <span className="relative inline-block animate-text-shimmer bg-gradient-to-r from-white via-yellow-100/10 to-white bg-clip-text">
+                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-300/20 via-transparent to-yellow-300/20 rounded-lg blur-sm animate-shimmer"></div>
+                  <span className="text-white font-bold tracking-wider text-xl sm:text-2xl md:text-3xl lg:text-4xl font-[Work Sans] block transform transition-all duration-500 hover:transform-gpu hover:rotate-y-12 relative z-10">
+                    <span className="relative inline-block animate-text-shimmer bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text">
                       THE INNOVATION WINDOW
                     </span>
+                    <div className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-yellow-300 to-transparent animate-shimmer"></div>
                   </span>
                 </div>
                 
-                {/* Mystic Shopping Icon Right */}
-                <div className="relative group">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-yellow-300 animate-mystic-spin-reverse">
+                {/* Enhanced Mystic Shopping Icon Right */}
+                <div className="relative group transform hover:scale-110 transition-transform duration-300">
+                  <div className="absolute inset-0 bg-yellow-300/20 rounded-full blur-lg animate-pulse"></div>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-yellow-300 animate-mystic-spin-reverse relative z-10">
                     <path
                       d="M20 7h-4V6c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v1H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM10 6h4v1h-4V6z"
                       fill="currentColor"
                     />
                   </svg>
-                  <div className="absolute inset-0 bg-yellow-300/20 rounded-full blur-md animate-pulse"></div>
+                  <div className="absolute -inset-2 bg-gradient-to-r from-yellow-300/0 via-yellow-300/20 to-yellow-300/0 rounded-full blur-md animate-shimmer delay-500"></div>
                 </div>
               </div>
             </div>
 
-            {/* Animated Time Badge */}
-            <div className="flex justify-center mb-6 transform-gpu hover:scale-105 transition-all duration-500">
-              <span className="bg-white/20 border border-white/40 text-white font-semibold px-6 sm:px-8 py-2 sm:py-3 rounded-full text-sm sm:text-base shadow-lg backdrop-blur-sm font-[Work Sans] relative overflow-hidden group">
-                <span className="relative z-10 animate-text-fade">9 AM to 10 PM Daily</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-300/0 via-white/20 to-yellow-300/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-              </span>
+            {/* Enhanced Animated Time Badge */}
+            <div className={`flex justify-center mb-6 transform-gpu transition-all duration-1000 delay-200 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-white/20 rounded-full blur-lg animate-pulse"></div>
+                <span className="relative bg-white/20 border-2 border-white/40 text-white font-semibold px-8 sm:px-10 py-3 sm:py-4 rounded-full text-sm sm:text-base shadow-2xl backdrop-blur-sm font-[Work Sans] block transform hover:scale-105 transition-all duration-300">
+                  <span className="relative z-10 animate-text-fade">9 AM to 10 PM Daily</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-300/0 via-white/30 to-yellow-300/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                </span>
+              </div>
             </div>
             
-            {/* Animated Description with Floating Icons */}
-            <div className="relative">
+            {/* Enhanced Animated Description */}
+            <div className={`relative transform-gpu transition-all duration-1000 delay-400 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
               <p className="text-white text-sm sm:text-base md:text-lg font-medium mb-6 sm:mb-8 font-[Work Sans] relative transform hover:scale-105 transition-all duration-500">
-                <span className="relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-white/30 after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-500">
+                <span className="relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-gradient-to-r after:from-transparent after:via-yellow-300 after:to-transparent after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-700">
                   Every day from 9 to 10, AOIN opens its shutters to offer exclusive, handpicked products for a limited time only.
                 </span>
               </p>
             </div>
 
-            <style>{`
-              @keyframes float-bag {
-                0%, 100% { transform: translateY(0) rotate(0deg); }
-                50% { transform: translateY(-20px) rotate(5deg); }
-              }
-
-              @keyframes mystic-spin {
-                0% { transform: rotate(0deg) scale(1); }
-                50% { transform: rotate(180deg) scale(1.1); }
-                100% { transform: rotate(360deg) scale(1); }
-              }
-
-              @keyframes mystic-spin-reverse {
-                0% { transform: rotate(360deg) scale(1); }
-                50% { transform: rotate(180deg) scale(1.1); }
-                100% { transform: rotate(0deg) scale(1); }
-              }
-
-              @keyframes text-shimmer {
-                0% { background-position: -200% center; }
-                100% { background-position: 200% center; }
-              }
-
-              @keyframes text-fade {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.8; }
-              }
-
-              .animate-mystic-spin {
-                animation: mystic-spin 6s infinite linear;
-              }
-
-              .animate-mystic-spin-reverse {
-                animation: mystic-spin-reverse 6s infinite linear;
-              }
-
-              .animate-text-shimmer {
-                animation: text-shimmer 3s infinite linear;
-                background-size: 200% auto;
-              }
-
-              .animate-text-fade {
-                animation: text-fade 3s infinite ease-in-out;
-              }
-
-              .perspective {
-                perspective: 1000px;
-              }
-            `}</style>
-
-            {/* Current Time and Status Section remains unchanged */}
-            <div className="flex items-center justify-center mt-2 transform-gpu hover:scale-105 transition-all duration-500">
-              <div className="flex flex-col sm:flex-row items-center bg-white/90 rounded-xl shadow-2xl px-4 sm:px-6 py-2 sm:py-3 space-y-2 sm:space-y-0 sm:space-x-8 border border-white/20 backdrop-blur-lg relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-transparent to-orange-500/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-                
-                <div className="flex items-center space-x-2 relative z-10">
-                  <span className="w-3 h-3 rounded-full bg-orange-500 inline-block animate-pulse"></span>
-                  <span className="text-gray-700 font-semibold text-sm sm:text-base">Current Time:</span>
-                  <span className="text-gray-900 font-bold text-sm sm:text-base">{formatTime(currentTime)}</span>
-                </div>
-                
-                <div className="flex items-center space-x-2 relative z-10">
-                  <span className={`w-3 h-3 rounded-full ${isShopOpen ? 'bg-green-500' : 'bg-red-500'} inline-block animate-pulse`}></span>
-                  <span className="text-gray-700 font-semibold text-sm sm:text-base">Status:</span>
-                  <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                    isShopOpen 
-                      ? 'bg-green-100 text-green-700 animate-status-open' 
-                      : 'bg-red-100 text-red-700 animate-status-closed'
-                  }`}>
-                    {isShopOpen ? 'OPEN' : 'CLOSED'}
-                  </span>
+            {/* Enhanced Current Time and Status Section */}
+            <div className={`flex items-center justify-center mt-4 transform-gpu transition-all duration-1000 delay-600 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-white/10 rounded-2xl blur-lg animate-pulse"></div>
+                <div className="flex flex-col sm:flex-row items-center bg-white/95 rounded-2xl shadow-2xl px-6 sm:px-8 py-4 sm:py-5 space-y-3 sm:space-y-0 sm:space-x-8 border-2 border-white/30 backdrop-blur-lg relative z-10 transform hover:scale-105 transition-all duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-transparent to-orange-500/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                  
+                  <div className="flex items-center space-x-3 relative z-10">
+                    <div className="relative">
+                      <span className="w-4 h-4 rounded-full bg-orange-500 inline-block animate-pulse"></span>
+                      <div className="absolute inset-0 w-4 h-4 rounded-full bg-orange-500/30 animate-ping"></div>
+                    </div>
+                    <span className="text-gray-700 font-semibold text-sm sm:text-base">Current Time:</span>
+                    <span className="text-gray-900 font-bold text-sm sm:text-base animate-text-fade">{formatTime(currentTime)}</span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3 relative z-10">
+                    <div className="relative">
+                      <span className={`w-4 h-4 rounded-full ${isShopOpen ? 'bg-green-500' : 'bg-red-500'} inline-block animate-pulse`}></span>
+                      <div className={`absolute inset-0 w-4 h-4 rounded-full ${isShopOpen ? 'bg-green-500/30' : 'bg-red-500/30'} animate-ping`}></div>
+                    </div>
+                    <span className="text-gray-700 font-semibold text-sm sm:text-base">Status:</span>
+                    <span className={`px-4 py-2 rounded-full text-sm font-bold shadow-lg transform hover:scale-110 transition-all duration-300 ${
+                      isShopOpen 
+                        ? 'bg-gradient-to-r from-green-100 to-green-200 text-green-700 animate-status-open' 
+                        : 'bg-gradient-to-r from-red-100 to-red-200 text-red-700 animate-status-closed'
+                    }`}>
+                      {isShopOpen ? 'OPEN' : 'CLOSED'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Frame Animation Styles */}
+        {/* Enhanced Animation Styles */}
         <style>{`
+          @keyframes particle {
+            0% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) translateX(50px) rotate(360deg); opacity: 0; }
+          }
+
+          @keyframes float-slow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+          }
+
+          @keyframes float-delayed {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-15px) scale(1.1); }
+          }
+
+          @keyframes float-slow-delayed {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-25px) rotate(-180deg); }
+          }
+
+          @keyframes shimmer {
+            0% { opacity: 0.3; transform: scaleX(0); }
+            50% { opacity: 1; transform: scaleX(1); }
+            100% { opacity: 0.3; transform: scaleX(0); }
+          }
+
+          @keyframes mystic-spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+          }
+
+          @keyframes mystic-spin-reverse {
+            0% { transform: rotate(360deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(0deg) scale(1); }
+          }
+
+          @keyframes text-shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+          }
+
+          @keyframes text-fade {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+          }
+
           @keyframes corner-pulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
           }
 
           @keyframes glow {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.2); }
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.3); }
+          }
+
+          .animate-particle {
+            animation: particle 4s infinite linear;
+          }
+
+          .animate-float-slow {
+            animation: float-slow 8s infinite ease-in-out;
+          }
+
+          .animate-float-delayed {
+            animation: float-delayed 6s infinite ease-in-out;
+            animation-delay: 2s;
+          }
+
+          .animate-float-slow-delayed {
+            animation: float-slow-delayed 10s infinite ease-in-out;
+            animation-delay: 4s;
+          }
+
+          .animate-shimmer {
+            animation: shimmer 3s infinite ease-in-out;
+          }
+
+          .animate-mystic-spin {
+            animation: mystic-spin 8s infinite linear;
+          }
+
+          .animate-mystic-spin-reverse {
+            animation: mystic-spin-reverse 8s infinite linear;
+          }
+
+          .animate-text-shimmer {
+            animation: text-shimmer 4s infinite linear;
+            background-size: 200% auto;
+          }
+
+          .animate-text-fade {
+            animation: text-fade 3s infinite ease-in-out;
           }
 
           .animate-corner-pulse {
-            animation: corner-pulse 3s infinite ease-in-out;
+            animation: corner-pulse 4s infinite ease-in-out;
           }
 
           .animate-glow {
-            animation: glow 4s infinite ease-in-out;
+            animation: glow 5s infinite ease-in-out;
+          }
+
+          .perspective {
+            perspective: 1000px;
+          }
+
+          .rotate-y-12 {
+            transform: rotateY(12deg);
+          }
+
+          @keyframes status-open {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(34,197,94,0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(34,197,94,0.5); }
+          }
+
+          @keyframes status-closed {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(239,68,68,0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(239,68,68,0.5); }
+          }
+
+          .animate-status-open {
+            animation: status-open 2s ease-in-out infinite;
+          }
+
+          .animate-status-closed {
+            animation: status-closed 2s ease-in-out infinite;
+          }
+
+          @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+          }
+          
+          @keyframes lightning {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+          }
+          
+          @keyframes lightning-delayed {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+          }
+
+          .animate-float {
+            animation: float 3s ease-in-out infinite;
+          }
+          
+          .animate-lightning {
+            animation: lightning 2s ease-in-out infinite;
+          }
+          
+          .animate-lightning-delayed {
+            animation: lightning 2s ease-in-out infinite;
+            animation-delay: 1s;
+          }
+          
+          .perspective-1000 {
+            perspective: 1000px;
           }
         `}</style>
       </div>
 
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-        
-        @keyframes lightning {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(0.8); }
-        }
-        
-        @keyframes lightning-delayed {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(0.8); }
-        }
-
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-        
-        .animate-lightning {
-          animation: lightning 2s ease-in-out infinite;
-        }
-        
-        .animate-lightning-delayed {
-          animation: lightning 2s ease-in-out infinite;
-          animation-delay: 1s;
-        }
-        
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        
-        .perspective {
-          perspective: 1000px;
-        }
-        
-        .rotate-y-12 {
-          transform: rotateY(12deg);
-        }
-
-        @keyframes status-open {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-
-        @keyframes status-closed {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-
-        .animate-status-open {
-          animation: status-open 2s ease-in-out infinite;
-        }
-
-        .animate-status-closed {
-          animation: status-closed 2s ease-in-out infinite;
-        }
-      `}</style>
-
       {/* Banners Section with Shutter */}
-      <div className="bg-gray-100 py-4 sm:py-6 md:py-8 mt-10 sm:mt-16 md:mt-20 lg:mt-24 mb-10 sm:mb-16 md:mb-20 lg:mb-24 px-4 sm:px-6 md:px-8 lg:px-12 mx-auto">
+      <div className="bg-gray-100 py-4 sm:py-6 md:py-8 mt-10 sm:mt-16 md:mt-20 lg:mt-16 mb-10 sm:mb-16 md:mb-20 lg:mb-24 px-4 sm:px-6 md:px-8 lg:px-12 mx-auto">
         <div className="relative">
           {/* Shop Banners */}
           <div className={`space-y-4 sm:space-y-6 md:space-y-8 transition-all duration-1000 ${!isShopOpen ? 'opacity-30' : 'opacity-100'}`}>

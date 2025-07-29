@@ -17,18 +17,20 @@ const ProductPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // Dynamic Price Range States
+  const [priceRange, setPriceRange] = useState([0, 100]);
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(100);
+
   // Filter States
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<number | null>(null);
-  const [priceRange, setPriceRange] = useState([33, 98]);
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
   const [itemsPerPage, setItemsPerPage] = useState(9);
 
   // UI States (keeping original behavior)
-  const [price, setPrice] = useState([33, 98]);
-  const minPrice = 33;
-  const maxPrice = 98;
+  const [price, setPrice] = useState([0, 100]);
 
   // Sidebar section toggles for mobile
   const [allFiltersOpen, setAllFiltersOpen] = useState(false);
@@ -37,6 +39,24 @@ const ProductPage = () => {
   const [priceOpen, setPriceOpen] = useState(false);
   const [colorsOpen, setColorsOpen] = useState(false);
   const [sizeOpen, setSizeOpen] = useState(false);
+
+  // Calculate price range from products
+  const calculatePriceRange = (productList: Product[]) => {
+    if (productList.length === 0) {
+      return { min: 0, max: 100 };
+    }
+
+    const prices = productList.map(product => product.price).filter(price => price > 0);
+    
+    if (prices.length === 0) {
+      return { min: 0, max: 100 };
+    }
+
+    const min = Math.floor(Math.min(...prices));
+    const max = Math.ceil(Math.max(...prices));
+    
+    return { min, max };
+  };
 
   // Load initial data
   useEffect(() => {
@@ -98,6 +118,23 @@ const ProductPage = () => {
     loadProducts();
   }, [currentPage, itemsPerPage, selectedCategory, selectedBrand, priceRange, sortBy, sortOrder]);
 
+  // Calculate dynamic price range when products change
+  useEffect(() => {
+    if (products.length > 0) {
+      const { min, max } = calculatePriceRange(products);
+      setMinPrice(min);
+      setMaxPrice(max);
+      
+      // Only update price range on initial load (when priceRange is at default values)
+      const isInitialLoad = priceRange[0] === 0 && priceRange[1] === 100;
+      
+      if (isInitialLoad) {
+        setPriceRange([min, max]);
+        setPrice([min, max]);
+      }
+    }
+  }, [products]);
+
   // Handle category selection
   const handleCategoryChange = (categoryId: number | null) => {
     setSelectedCategory(categoryId);
@@ -110,17 +147,58 @@ const ProductPage = () => {
     setCurrentPage(1);
   };
 
-  // Original slider handlers (keeping UI behavior)
+  // Slider handlers for price range
   const handleMinSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(Number(e.target.value), price[1] - 1);
-    setPrice([value, price[1]]);
-    setPriceRange([value, price[1]]); // Update filter state
+    const newPrice = [value, price[1]];
+    setPrice(newPrice);
+    setPriceRange(newPrice); // Update filter state
   };
 
   const handleMaxSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.max(Number(e.target.value), price[0] + 1);
-    setPrice([price[0], value]);
-    setPriceRange([price[0], value]); // Update filter state
+    const newPrice = [price[0], value];
+    setPrice(newPrice);
+    setPriceRange(newPrice); // Update filter state
+  };
+
+  // Input handlers for price inputs
+  const handleMinInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+    const value = Number(inputValue);
+    
+    if (value >= minPrice && value < price[1]) {
+      const newPrice = [value, price[1]];
+      setPrice(newPrice);
+      setPriceRange(newPrice);
+    }
+  };
+
+  const handleMaxInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+    const value = Number(inputValue);
+    
+    if (value > price[0] && value <= maxPrice) {
+      const newPrice = [price[0], value];
+      setPrice(newPrice);
+      setPriceRange(newPrice);
+    }
+  };
+
+  const handleMinInputBlur = () => {
+    // Ensure the value is within valid range
+    const value = Math.max(minPrice, Math.min(price[0], price[1] - 1));
+    const newPrice = [value, price[1]];
+    setPrice(newPrice);
+    setPriceRange(newPrice);
+  };
+
+  const handleMaxInputBlur = () => {
+    // Ensure the value is within valid range
+    const value = Math.min(maxPrice, Math.max(price[1], price[0] + 1));
+    const newPrice = [price[0], value];
+    setPrice(newPrice);
+    setPriceRange(newPrice);
   };
 
   return (
@@ -233,66 +311,92 @@ const ProductPage = () => {
             </div>
             <div className={`${priceOpen ? 'block' : 'hidden'} md:block`}>
               <div className="flex items-center justify-between mb-4">
-                <input
-                  type="text"
-                  value={`$${price[0]}`}
-                  readOnly
-                  className="w-[50px] md:w-[63px] h-[33px] text-center border border-gray-300 rounded-xl text-[14px] font-normal font-poppins bg-white shadow-sm"
-                />
+                <div className="relative">
+                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">$</span>
+                  <input
+                    type="text"
+                    value={price[0]}
+                    onChange={handleMinInput}
+                    onBlur={handleMinInputBlur}
+                    className="w-[50px] md:w-[63px] h-[33px] text-center border border-gray-300 rounded-xl text-[14px] font-normal font-poppins bg-white shadow-sm focus:border-blue-500 focus:outline-none pl-4"
+                    placeholder="Min"
+                  />
+                </div>
                 <div className="flex-1 h-px bg-gray-300 mx-2 md:mx-4"></div>
-                <input
-                  type="text"
-                  value={`$${price[1]}`}
-                  readOnly
-                  className="w-[50px] md:w-[63px] h-[33px] text-center border border-gray-300 rounded-xl text-[14px] font-normal bg-white shadow-sm"
-                />
+                <div className="relative">
+                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">$</span>
+                  <input
+                    type="text"
+                    value={price[1]}
+                    onChange={handleMaxInput}
+                    onBlur={handleMaxInputBlur}
+                    className="w-[50px] md:w-[63px] h-[33px] text-center border border-gray-300 rounded-xl text-[14px] font-normal bg-white shadow-sm focus:border-blue-500 focus:outline-none pl-4"
+                    placeholder="Max"
+                  />
+                </div>
               </div>
-              <div className="relative flex items-center mb-4" style={{ height: 40 }}>
+              
+              {/* Price Range Slider */}
+              <div className="relative mb-4" style={{ height: 20 }}>
                 {/* Track */}
-                <div className="absolute left-0 right-0 top-1/2 transform -translate-y-1/2 h-2 bg-yellow-400 rounded-full z-0"></div>
-                {/* Min slider */}
+                <div className="absolute left-0 right-0 top-1/2 transform -translate-y-1/2 h-2 bg-gray-200 rounded-full"></div>
+                
+                {/* Active range track */}
+                <div 
+                  className="absolute top-1/2 transform -translate-y-1/2 h-2 bg-yellow-400 rounded-full"
+                  style={{
+                    left: `${((price[0] - minPrice) / (maxPrice - minPrice)) * 100}%`,
+                    right: `${100 - ((price[1] - minPrice) / (maxPrice - minPrice)) * 100}%`
+                  }}
+                ></div>
+                
+                {/* Min slider - covers left half */}
                 <input
                   type="range"
                   min={minPrice}
                   max={maxPrice}
                   value={price[0]}
                   onChange={handleMinSlider}
-                  className="absolute w-full pointer-events-none accent-yellow-400 z-10"
-                  style={{ WebkitAppearance: 'none', background: 'transparent' }}
+                  className="absolute opacity-0 cursor-pointer"
+                  style={{ 
+                    zIndex: 3,
+                    left: 0,
+                    width: '50%',
+                    height: '100%'
+                  }}
                 />
-                {/* Max slider */}
+                
+                {/* Max slider - covers right half */}
                 <input
                   type="range"
                   min={minPrice}
                   max={maxPrice}
                   value={price[1]}
                   onChange={handleMaxSlider}
-                  className="absolute w-full pointer-events-none accent-yellow-400 z-10"
-                  style={{ WebkitAppearance: 'none', background: 'transparent' }}
+                  className="absolute opacity-0 cursor-pointer"
+                  style={{ 
+                    zIndex: 2,
+                    left: '50%',
+                    width: '50%',
+                    height: '100%'
+                  }}
                 />
-                {/* Custom thumbs */}
-                <div
-                  className="absolute"
+                
+                {/* Slider thumbs */}
+                <div 
+                  className="absolute w-4 h-4 bg-yellow-400 rounded-full border-2 border-white shadow-md transform -translate-x-1/2 -translate-y-1/2"
                   style={{
                     left: `${((price[0] - minPrice) / (maxPrice - minPrice)) * 100}%`,
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    zIndex: 20,
+                    top: '50%'
                   }}
-                >
-                  <div className="w-4 h-4 ml-4 bg-white border border-gray-300 rounded-full shadow"></div>
-                </div>
-                <div
-                  className="absolute"
+                ></div>
+                <div 
+                  className="absolute w-4 h-4 bg-yellow-400 rounded-full border-2 border-white shadow-md transform -translate-x-1/2 -translate-y-1/2"
                   style={{
                     left: `${((price[1] - minPrice) / (maxPrice - minPrice)) * 100}%`,
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    zIndex: 20,
+                    top: '50%'
                   }}
-                >
-                  <div className="w-4 h-4 mr-4 bg-white border border-gray-300 rounded-full shadow"></div>
-                </div>
+                ></div>
               </div>
               <button className="px-3 bg-black text-white py-1.5 rounded text-[14px] md:text-[16px] font-bold tracking-wide w-full md:w-auto">FILTER</button>
             </div>

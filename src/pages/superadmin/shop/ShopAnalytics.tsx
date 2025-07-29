@@ -3,6 +3,9 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell, PieLabelRenderProps
 } from 'recharts';
+import { Download } from 'lucide-react';
+import ExportModal from '../../../components/business/reports/ExportModal';
+import toast from 'react-hot-toast';
 
 const CHART_COLORS = {
   primary: '#FF5733',
@@ -168,6 +171,8 @@ const ShopAnalytics: React.FC = () => {
   const [selectedShop, setSelectedShop] = useState<string>("");
   const [selectedYear, setSelectedYear] = useState<number>(2024);
   const [selectedMonth, setSelectedMonth] = useState<string>('Jan');
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const analytics = selectedShop ? STATIC_ANALYTICS[selectedShop] : null;
 
   // Calculate total for categoryDist for percentage
@@ -183,12 +188,78 @@ const ShopAnalytics: React.FC = () => {
     filteredProductSales = analytics ? analytics.productSales.slice(2) : [];
   }
 
+  const handleExportReport = async (format: string) => {
+    if (!selectedShop) {
+      toast.error('Please select a shop first');
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+      
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/shop/export-analytics?shop=${selectedShop}&year=${selectedYear}&month=${selectedMonth}&format=${format}`, {
+        method: 'GET',
+        headers: {
+          'Accept': '*/*'
+        },
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to export report');
+      }
+
+      // Get filename from Content-Disposition header or create default
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `${selectedShop}_analytics_${selectedYear}_${selectedMonth}_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`${selectedShop} analytics exported successfully as ${format.toUpperCase()}`);
+      setIsExportModalOpen(false);
+      
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to export report. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="bg-[#FF4D00] text-white p-6 rounded-xl shadow flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Shop Analytics</h1>
-        <span className="text-lg font-medium">Overview & Insights</span>
+        <div>
+          <h1 className="text-2xl font-bold">Shop Analytics</h1>
+          <span className="text-lg font-medium">Overview & Insights</span>
+        </div>
+        <button
+          onClick={() => setIsExportModalOpen(true)}
+          disabled={!selectedShop}
+          className="flex items-center gap-2 bg-white text-[#FF4D00] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Download className="w-5 h-5" />
+          Export Report
+        </button>
       </div>
 
       {/* Shop Selector */}
@@ -331,6 +402,14 @@ const ShopAnalytics: React.FC = () => {
       ) : (
         <div className="text-center text-orange-400">Please select a shop to view analytics.</div>
       )}
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={handleExportReport}
+        isExporting={isExporting}
+      />
     </div>
   );
 };
