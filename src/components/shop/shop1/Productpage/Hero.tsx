@@ -27,6 +27,7 @@ interface Product {
   };
 }
 
+
 interface HeroProps {
   productData?: Product | null;
 }

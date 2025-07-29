@@ -10,12 +10,14 @@ import {
   Store,
   FolderOpen,
   Filter,
-  ExternalLink
+  ExternalLink,
+  Layers
 } from 'lucide-react';
 import { shopManagementService, Shop, ShopCategory, ShopBrand, ShopProduct } from '../../../services/shopManagementService';
 import { useToastHelpers } from '../../../context/ToastContext';
 import MultiStepProductForm from './components/MultiStepProductForm';
 import EditProducts from './components/EditProducts';
+import VariantDisplayModal from '../../../components/superadmin/shop-management/VariantDisplayModal';
 
 const ShopProducts: React.FC = () => {
   const [shops, setShops] = useState<Shop[]>([]);
@@ -28,6 +30,8 @@ const ShopProducts: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showVariantsModal, setShowVariantsModal] = useState(false);
+  const [selectedProductForVariants, setSelectedProductForVariants] = useState<ShopProduct | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ShopProduct | null>(null);
   const [filters, setFilters] = useState({
@@ -125,6 +129,11 @@ const ShopProducts: React.FC = () => {
   const handleEdit = (product: ShopProduct) => {
     setEditingProduct(product);
     setShowModal(true);
+  };
+
+  const handleVariants = (product: ShopProduct) => {
+    setSelectedProductForVariants(product);
+    setShowVariantsModal(true);
   };
 
   const handleDelete = async (productId: number) => {
@@ -443,6 +452,16 @@ const ShopProducts: React.FC = () => {
                     >
                       <Edit2 size={16} />
                     </button>
+                    {/* Only show Manage Variants button for parent products (not variant products) */}
+                    {!product.parent_product_id && (
+                      <button
+                        onClick={() => handleVariants(product)}
+                        className="p-1 text-green-600 hover:bg-green-50 rounded"
+                        title="Manage Variants"
+                      >
+                        <Layers size={16} />
+                      </button>
+                    )}
                     <button
                       onClick={() => handleDelete(product.product_id)}
                       className="p-1 text-red-600 hover:bg-red-50 rounded"
@@ -453,6 +472,28 @@ const ShopProducts: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mb-2">SKU: {product.sku}</p>
+                
+                {/* Variant Information */}
+                {(product.variant_count || 0) > 0 && (
+                  <div className="mb-2">
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      {product.variant_count} variant{(product.variant_count || 0) > 1 ? 's' : ''}
+                    </span>
+                    {product.price_range && product.price_range.min !== product.price_range.max && (
+                      <span className="text-xs text-gray-600 ml-2">
+                        ₹{product.price_range.min} - ₹{product.price_range.max}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {product.parent_product_id && (
+                  <div className="mb-2">
+                    <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                      Variant Product
+                    </span>
+                  </div>
+                )}
+                
                 <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.product_description}</p>
                 <div className="flex justify-between items-center mb-3">
                   <div>
@@ -568,6 +609,18 @@ const ShopProducts: React.FC = () => {
             )}
           </div>
         </div>
+      )}
+
+      {/* Variant Management Modal */}
+      {showVariantsModal && selectedProductForVariants && (
+        <VariantDisplayModal
+          product={selectedProductForVariants}
+          onClose={() => {
+            setShowVariantsModal(false);
+            setSelectedProductForVariants(null);
+          }}
+          onRefresh={fetchProducts}
+        />
       )}
     </div>
   );

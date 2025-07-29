@@ -1,6 +1,7 @@
 import React from 'react';
 import { Shop, ShopCategory, ShopProduct } from '../../../../services/shopManagementService';
 import MultiStepProductForm from './MultiStepProductForm';
+import VariantEditForm from './VariantEditForm';
 
 interface EditProductsProps {
   selectedShop: Shop;
@@ -17,6 +18,21 @@ const EditProducts: React.FC<EditProductsProps> = ({
   onComplete,
   onCancel
 }) => {
+  // Check if this is a variant product (has parent_product_id)
+  const isVariantProduct = editingProduct.parent_product_id !== null && editingProduct.parent_product_id !== undefined;
+
+  if (isVariantProduct) {
+    // Use simplified variant edit form for variant products
+    return (
+      <VariantEditForm
+        variant={editingProduct}
+        onComplete={onComplete}
+        onCancel={onCancel}
+      />
+    );
+  }
+
+  // Use full multi-step form for parent/standalone products
   return (
     <MultiStepProductForm
       selectedShop={selectedShop}

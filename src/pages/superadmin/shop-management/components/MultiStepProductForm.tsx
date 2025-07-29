@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -14,6 +14,7 @@ import {
   BasicInfoStep,
   AttributesStep,
   MediaStep,
+  VariantsStep,
   ShippingStep,
   StockStep,
   MetaStep
@@ -52,7 +53,33 @@ interface ProductData {
     media_id?: number; // For existing media
   }>;
   
-  // Step 4: Shipping
+  // Step 4: Variants
+  variants: Array<{
+    id: string;
+    sku: string;
+    selling_price: number;
+    cost_price: number;
+    stock_qty: number;
+    low_stock_threshold: number;
+    attributes: Array<{
+      attribute_id: number;
+      value: string | number | boolean;
+    }>;
+    media: Array<{
+      id: string;
+      type: 'image' | 'video';
+      file?: File;
+      url: string;
+      is_primary: boolean;
+      isExisting?: boolean;
+      media_id?: number;
+    }>;
+    is_default: boolean;
+    sort_order: number;
+    variant_product_id?: number; // Add variant product ID for media operations
+  }>;
+  
+  // Step 5: Shipping
   shipping: {
     length_cm: number;
     width_cm: number;
@@ -61,13 +88,13 @@ interface ProductData {
     shipping_class: string;
   };
   
-  // Step 5: Stock
+  // Step 6: Stock
   stock: {
     stock_qty: number;
     low_stock_threshold: number;
   };
   
-  // Step 6: Meta
+  // Step 7: Meta
   meta: {
     short_desc: string;
     full_desc: string;
@@ -81,9 +108,10 @@ const STEPS = [
   { id: 1, title: 'Basic Info', description: 'Product name, SKU, prices' },
   { id: 2, title: 'Attributes', description: 'Product specifications' },
   { id: 3, title: 'Media', description: 'Images and videos' },
-  { id: 4, title: 'Shipping', description: 'Dimensions and weight' },
-  { id: 5, title: 'Stock', description: 'Inventory management' },
-  { id: 6, title: 'Meta', description: 'SEO and descriptions' }
+  { id: 4, title: 'Variants', description: 'Product variations' },
+  { id: 5, title: 'Shipping', description: 'Dimensions and weight' },
+  { id: 6, title: 'Stock', description: 'Inventory management' },
+  { id: 7, title: 'Meta', description: 'SEO and descriptions' }
 ];
 
 const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
@@ -115,6 +143,7 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
           value: attr.value
         })) || [],
         media: [], // Will be populated from database
+        variants: [], // Will be populated from database
         shipping: {
           length_cm: editingProduct.shipping?.length_cm || 0,
           width_cm: editingProduct.shipping?.width_cm || 0,
@@ -145,6 +174,7 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
       brand_id: undefined,
       attributes: [],
       media: [],
+      variants: [],
       shipping: {
         length_cm: 0,
         width_cm: 0,
@@ -202,6 +232,28 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
           isExisting: true, // Mark as existing media
           media_id: media.media_id
         })) || [],
+        variants: completeProduct.variants?.map(variant => ({
+          id: variant.variant_id?.toString() || `variant-${Date.now()}`,
+          sku: variant.sku || '',
+          selling_price: variant.selling_price || 0,
+          cost_price: variant.cost_price || 0,
+          stock_qty: variant.stock?.stock_qty || 0,
+          low_stock_threshold: variant.stock?.low_stock_threshold || 0,
+          attributes: variant.attributes?.map((attr: any) => ({
+            name: attr.name || '',
+            value: attr.value || ''
+          })) || [],
+          media: variant.media?.map((media: any) => ({
+            id: media.media_id?.toString() || `media-${Date.now()}`,
+            type: media.type.toLowerCase() as 'image' | 'video',
+            url: media.url,
+            is_primary: media.is_primary || false,
+            isExisting: true,
+            media_id: media.media_id
+          })) || [],
+          is_default: variant.is_default || false,
+          sort_order: variant.sort_order || 0
+        })) || [],
         shipping: {
           length_cm: completeProduct.shipping?.length_cm || 0,
           width_cm: completeProduct.shipping?.width_cm || 0,
@@ -248,6 +300,11 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
   const handleStepData = (stepData: any) => {
     setProductData(prev => ({ ...prev, ...stepData }));
   };
+
+  // Memoized variant update handler to prevent infinite re-renders
+  const handleVariantUpdate = useCallback((field: string, value: any) => {
+    handleStepData({ [field]: value });
+  }, []);
 
   const handleNext = async () => {
     if (currentStep === 1) {
@@ -332,9 +389,10 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
       const steps = [
         { id: 2, name: 'Attributes', fn: saveAttributes },
         { id: 3, name: 'Media', fn: saveMedia },
-        { id: 4, name: 'Shipping', fn: saveShipping },
-        { id: 5, name: 'Stock', fn: saveStock },
-        { id: 6, name: 'Meta', fn: saveMeta }
+        { id: 4, name: 'Variants', fn: saveVariants },
+        { id: 5, name: 'Shipping', fn: saveShipping },
+        { id: 6, name: 'Stock', fn: saveStock },
+        { id: 7, name: 'Meta', fn: saveMeta }
       ];
       
       let failedStep = null;
@@ -453,11 +511,167 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
     }
   };
 
-  const saveShipping = async () => {
+  const saveVariantMedia = async (variant: any, variantProductId: number) => {
+    // Save new media (non-existing) to shop_product_media using variant_product_id
+    const newMedia = variant.media.filter((m: any) => !m.isExisting && m.url);
+    
+    if (newMedia.length === 0) return;
+    
+    // Prepare all media data
+    const allMediaData = newMedia.map((media: any, index: number) => ({
+      type: media.type.toUpperCase(),
+      url: media.url,
+      file_size: media.file?.size || 0,
+      file_name: media.file?.name || media.url?.split('/').pop() || '',
+      is_primary: media.is_primary,
+      sort_order: index + 1,
+      public_id: media.public_id || ''
+    }));
+    
+    try {
+      // Send all media in a single request
+      await shopManagementService.addVariantProductMediaBatch(variantProductId, allMediaData);
+    } catch (error) {
+      console.error('Failed to save variant media:', error);
+    }
+  };
+
+  const saveVariants = async () => {
     if (!createdProductId) return;
     
     try {
       setStepErrors(prev => ({ ...prev, 4: '' }));
+      
+      // Skip if no variants
+      if (productData.variants.length === 0) {
+        setCompletedSteps(prev => new Set(prev).add(4));
+        return;
+      }
+      
+      // Frontend validation
+      for (const variant of productData.variants) {
+        if (!variant.sku) {
+          throw new Error('All variants must have a SKU');
+        }
+        if (variant.selling_price <= 0) {
+          throw new Error('All variants must have a selling price greater than 0');
+        }
+        if (variant.stock_qty < 0) {
+          throw new Error('Variant stock quantity cannot be negative');
+        }
+        if (variant.attributes.length === 0) {
+          throw new Error('All variants must have at least one attribute');
+        }
+      }
+
+      if (editingProduct) {
+        // EDIT MODE: Update existing variants individually
+        // Get available attributes to map IDs to names
+        const availableAttributes = await shopManagementService.getActiveAttributesByShopCategory(selectedShop.shop_id, selectedCategory.category_id);
+        
+        for (const variant of productData.variants) {
+          const variantData = {
+            sku: variant.sku,
+            selling_price: variant.selling_price,
+            cost_price: variant.cost_price,
+            stock_qty: variant.stock_qty,
+            low_stock_threshold: variant.low_stock_threshold,
+            attributes: variant.attributes.reduce((acc, attr) => {
+              // Find the attribute name by ID
+              const attribute = availableAttributes?.find(a => a.attribute_id === attr.attribute_id);
+              const attributeName = attribute?.name || `attribute_${attr.attribute_id}`;
+              return {
+                ...acc,
+                [attributeName]: attr.value
+              };
+            }, {}),
+            is_default: variant.is_default,
+            sort_order: variant.sort_order
+            // Remove media from variant data - will be handled separately
+          };
+
+          if (variant.id && !variant.id.startsWith('variant-')) {
+            // Update existing variant using PUT
+            await shopManagementService.updateVariant(parseInt(variant.id), variantData);
+            
+            // Handle media separately for existing variants - save to product_media using variant_product_id
+            if (variant.media && variant.media.length > 0 && variant.variant_product_id) {
+              await saveVariantMedia(variant, variant.variant_product_id);
+            }
+          } else {
+            // Create new variant in edit mode using POST  
+            const createResult = await shopManagementService.createVariant(createdProductId, variantData);
+            
+            // Handle media separately for new variants
+            if (variant.media && variant.media.length > 0 && createResult?.variant_product_id) {
+              await saveVariantMedia(variant, createResult.variant_product_id);
+            }
+          }
+        }
+      } else {
+        // CREATE MODE: Use bulk creation as before
+        // Get available attributes to map IDs to names
+        const availableAttributes = await shopManagementService.getActiveAttributesByShopCategory(selectedShop.shop_id, selectedCategory.category_id);
+        
+        // Prepare variant data in the format expected by the backend
+        const variantData = {
+          combinations: productData.variants.map((variant, index) => ({
+            name: `Variant ${index + 1}`,
+            sku: variant.sku,
+            selling_price: variant.selling_price,
+            cost_price: variant.cost_price,
+            stock_qty: variant.stock_qty,
+            low_stock_threshold: variant.low_stock_threshold,
+            attributes: variant.attributes.reduce((acc, attr) => {
+              // Find the attribute name by ID
+              const attributeName = availableAttributes?.find(a => a.attribute_id === attr.attribute_id)?.name || `attribute_${attr.attribute_id}`;
+              return {
+                ...acc,
+                [attributeName]: attr.value
+              };
+            }, {}),
+            is_default: variant.is_default,
+            sort_order: variant.sort_order,
+            // Handle variant media if any
+            media: variant.media.filter(m => !m.isExisting).map((media, mediaIndex) => ({
+              type: media.type.toUpperCase(),
+              file_size: media.file?.size,
+              file_name: media.file?.name,
+              is_primary: media.is_primary,
+              sort_order: mediaIndex + 1
+            }))
+          }))
+        };
+        
+        // Save variants using the correct API endpoint with product ID
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5110'}/api/shop/products/${createdProductId}/variants/bulk`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          },
+          body: JSON.stringify(variantData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to save variants');
+        }
+      }
+      
+      setCompletedSteps(prev => new Set(prev).add(4));
+    } catch (error: any) {
+      const errorMessage = error.message || 'Failed to save variants';
+      setStepErrors(prev => ({ ...prev, 4: errorMessage }));
+      throw error;
+    }
+  };
+
+  const saveShipping = async () => {
+    if (!createdProductId) return;
+    
+    try {
+      setStepErrors(prev => ({ ...prev, 5: '' }));
       
       // Frontend validation
       if (productData.shipping.weight_kg <= 0) {
@@ -477,10 +691,10 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
       };
       
       await shopManagementService.createProductStep4(shippingData);
-      setCompletedSteps(prev => new Set(prev).add(4));
+      setCompletedSteps(prev => new Set(prev).add(5));
     } catch (error: any) {
       const errorMessage = error.message || 'Failed to save shipping information';
-      setStepErrors(prev => ({ ...prev, 4: errorMessage }));
+      setStepErrors(prev => ({ ...prev, 5: errorMessage }));
       throw error;
     }
   };
@@ -489,7 +703,7 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
     if (!createdProductId) return;
     
     try {
-      setStepErrors(prev => ({ ...prev, 5: '' }));
+      setStepErrors(prev => ({ ...prev, 6: '' }));
       
       // Frontend validation
       if (productData.stock.stock_qty < 0) {
@@ -506,10 +720,10 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
       };
       
       await shopManagementService.createProductStep5(stockData);
-      setCompletedSteps(prev => new Set(prev).add(5));
+      setCompletedSteps(prev => new Set(prev).add(6));
     } catch (error: any) {
       const errorMessage = error.message || 'Failed to save stock information';
-      setStepErrors(prev => ({ ...prev, 5: errorMessage }));
+      setStepErrors(prev => ({ ...prev, 6: errorMessage }));
       throw error;
     }
   };
@@ -518,7 +732,7 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
     if (!createdProductId) return;
     
     try {
-      setStepErrors(prev => ({ ...prev, 6: '' }));
+      setStepErrors(prev => ({ ...prev, 7: '' }));
       
       // Auto-generate meta title if not provided
       const metaTitle = productData.meta.meta_title || productData.product_name;
@@ -534,10 +748,10 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
       };
       
       await shopManagementService.createProductStep6(metaData);
-      setCompletedSteps(prev => new Set(prev).add(6));
+      setCompletedSteps(prev => new Set(prev).add(7));
     } catch (error: any) {
       const errorMessage = error.message || 'Failed to save meta information';
-      setStepErrors(prev => ({ ...prev, 6: errorMessage }));
+      setStepErrors(prev => ({ ...prev, 7: errorMessage }));
       throw error;
     }
   };
@@ -593,19 +807,34 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
         );
       case 4:
         return (
+          <VariantsStep
+            data={{
+              variants: productData.variants,
+              parent_sku: productData.sku,
+              parent_name: productData.product_name
+            }}
+            onUpdate={handleVariantUpdate}
+            categoryId={selectedCategory.category_id}
+            shopId={selectedShop.shop_id}
+            editMode={!!editingProduct}
+            parentProductId={editingProduct?.product_id}
+          />
+        );
+      case 5:
+        return (
           <ShippingStep
             data={productData.shipping}
             onChange={(shipping: any) => handleStepData({ shipping })}
           />
         );
-      case 5:
+      case 6:
         return (
           <StockStep
             data={productData.stock}
             onChange={(stock: any) => handleStepData({ stock })}
           />
         );
-      case 6:
+      case 7:
         return (
           <MetaStep
             data={productData.meta}
