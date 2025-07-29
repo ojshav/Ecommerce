@@ -6,11 +6,15 @@ interface Shop2ProductCardProps {
   price: number;
   discount?: number;
   overlay?: number;
+  onClick?: () => void;
 }
 
-const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ image, name, price, discount }) => {
+const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ image, name, price, discount, onClick }) => {
   return (
-    <div className="flex flex-col items-center pb-7 relative group">
+    <div 
+      className="flex flex-col items-center pb-7 relative group cursor-pointer"
+      onClick={onClick}
+    >
       {/* Product Image Container */}
       <div className="relative w-full max-w-[340px] sm:max-w-[400px] md:max-w-[519px] h-[320px] sm:h-[400px] md:h-[595px]">
         <img
@@ -30,10 +34,28 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ image, name, price,
         {/* Hover Block: Add-to-cart only */}
         <div className="w-full flex flex-col items-center transition-all duration-300 max-h-0 opacity-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100">
           <div className="flex items-center gap-2 w-full justify-center p-6">
-            <button className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold">-</button>
+            <button 
+              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Handle quantity decrease
+              }}
+            >-</button>
             <span className="font-semibold">1</span>
-            <button className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold">+</button>
-            <button className="ml-2 sm:ml-4 bg-black text-white px-4 sm:px-6 py-2 rounded-full font-semibold text-xs">ADD TO CART</button>
+            <button 
+              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Handle quantity increase
+              }}
+            >+</button>
+            <button 
+              className="ml-2 sm:ml-4 bg-black text-white px-4 sm:px-6 py-2 rounded-full font-semibold text-xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Handle add to cart
+              }}
+            >ADD TO CART</button>
           </div>
         </div>
       </div>

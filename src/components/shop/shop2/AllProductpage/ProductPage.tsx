@@ -1,51 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Shop2ProductCard from '../Shop2ProductCard';
-
-const products = [
-  {
-    id: 1098,
-    name: "CAPE JEWELRY FOR WOMEN",
-    price: 120,
-    image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80",
-    discount: 10,
-    overlay: 1098,
-  },
-  {
-    id: 1259,
-    name: "CAPE JEWELRY FOR WOMEN",
-    price: 120,
-    image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=400&q=80",
-    overlay: 1259,
-  },
-  {
-    id: 142,
-    name: "CAPE JEWELRY FOR WOMEN",
-    price: 120,
-    image: "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80",
-    discount: 10,
-    overlay: 142,
-  },
-  {
-    id: 1,
-    name: "CAPE JEWELRY FOR WOMEN",
-    price: 120,
-    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: 2,
-    name: "CAPE JEWELRY FOR WOMEN",
-    price: 120,
-    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: 3,
-    name: "CAPE JEWELRY FOR WOMEN",
-    price: 120,
-    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80",
-  },
-  
-  
-];
+import shop2ApiService, { Product, Category, Brand } from '../../../../services/shop2ApiService';
 
 const collections = [
   { name: "Graphic Hoodies", disabled: false },
@@ -66,6 +22,17 @@ const productTypes = [
 ];
 
 const ProductPage = () => {
+  const navigate = useNavigate();
+  
+  // API Data States
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
   // Price filter state
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(1000000);
@@ -74,13 +41,8 @@ const ProductPage = () => {
   const priceGap = 0;
 
   // Pagination state
-  const productsPerPage = 9;
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(products.length / productsPerPage);
-  const paginatedProducts = products.slice(
-    (currentPage - 1) * productsPerPage,
-    currentPage * productsPerPage
-  );
+  const [perPage] = useState(9);
 
   // Sort dropdown state
   const [sortOpen, setSortOpen] = useState(false);
@@ -104,6 +66,130 @@ const ProductPage = () => {
     );
   };
 
+  // Navigation handler
+  const handleProductClick = (productId: number) => {
+    navigate(`/shop2/product/${productId}`);
+  };
+
+  // Load initial data
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
+        const [categoriesData, brandsData] = await Promise.all([
+          shop2ApiService.getCategories(),
+          shop2ApiService.getBrands()
+        ]);
+        
+        setCategories(categoriesData);
+        setBrands(brandsData);
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+        setError('Failed to load initial data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, []);
+
+  // Load products when filters change
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Map sort options to API parameters
+        const sortMapping = {
+          "Price: Low to High": { sort_by: "selling_price", order: "asc" },
+          "Price: High to Low": { sort_by: "selling_price", order: "desc" },
+          "Newest First": { sort_by: "created_at", order: "desc" },
+          "Oldest First": { sort_by: "created_at", order: "asc" },
+          "Name: A-Z": { sort_by: "product_name", order: "asc" },
+          "Name: Z-A": { sort_by: "product_name", order: "desc" }
+        };
+
+        const selectedSort = sortMapping[sortOption as keyof typeof sortMapping] || { sort_by: "created_at", order: "desc" };
+
+        const response = await shop2ApiService.getProducts({
+          page: currentPage,
+          per_page: perPage,
+          min_price: minPrice > 0 ? minPrice : undefined,
+          max_price: maxPrice < 1000000 ? maxPrice : undefined,
+          sort_by: selectedSort.sort_by,
+          order: selectedSort.order
+        });
+
+        if (response.success) {
+          setProducts(response.products);
+          setTotalProducts(response.pagination.total_items);
+          setTotalPages(response.pagination.total_pages);
+        } else {
+          setError('Failed to fetch products');
+          setProducts([]);
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        setError('Failed to load products');
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, [currentPage, sortOption, minPrice, maxPrice]);
+
+  // Handle sort change
+  const handleSortChange = (option: string) => {
+    setSortOption(option);
+    setSortOpen(false);
+    setCurrentPage(1); // Reset to first page when sort changes
+  };
+
+  // Handle price filter
+  const handlePriceFilter = () => {
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setMinPrice(0);
+    setMaxPrice(1000000);
+    setCheckedTypes([]);
+    setCurrentPage(1);
+    setSortOption("Sort By List");
+  };
+
+  // Loading state
+  if (loading && products.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#B19D7F]"></div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && products.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-500 text-center">
+          <p className="text-xl font-semibold mb-2">Error Loading Products</p>
+          <p>{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-[#B19D7F] text-white rounded hover:bg-[#A08C6F]"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <hr className="w-[1280px] border-t border-black mb-6 mx-auto" />
@@ -115,8 +201,14 @@ const ProductPage = () => {
           {/* Sidebar */}
           <aside className="w-full lg:w-[340px] 2xl:w-[455px] h-auto lg:h-[1746px] bg-[#DFD1C6] rounded-xl shadow p-4 md:p-6 mb-6 lg:mb-0 lg:mr-8 flex-shrink-0">
             <div className="flex items-center px-2 justify-between mb-6 pt-2">
-              <span className="font-semibold text-[16px] font-bebas tracking-widest text-gray-700">51 RESULTS</span>
-              <button className="bg-black text-white font-bebas text-[20px] lg:text-[14px] px-6 2xl:px-6 lg:px-4 py-3 rounded-full font-semibold tracking-[0.2em] " style={{letterSpacing:'0.2em'}}>CLEAR FILTERS</button>
+              <span className="font-semibold text-[16px] font-bebas tracking-widest text-gray-700">{totalProducts} RESULTS</span>
+              <button 
+                onClick={clearFilters}
+                className="bg-black text-white font-bebas text-[20px] lg:text-[14px] px-6 2xl:px-6 lg:px-4 py-3 rounded-full font-semibold tracking-[0.2em]" 
+                style={{letterSpacing:'0.2em'}}
+              >
+                CLEAR FILTERS
+              </button>
             </div>
             {/* Price Filter */}
             <hr className="border-t mb-8" style={{ background: '#888181', height: '1px', border: 'none' }} />
@@ -196,7 +288,13 @@ const ProductPage = () => {
               <div className="flex justify-start text-xl font-bold text-black mt-4 mb-8">
                 <span>Price: ₹{minPrice.toLocaleString()} — ₹{maxPrice.toLocaleString()}</span>
               </div>
-              <button className="bg-black text-white text-[14px] font-poppins px-4 py-2 rounded-full font-semibold w-1/2 tracking-[0.2em]" style={{letterSpacing:'0.2em'}}>FILTER</button>
+              <button 
+                onClick={handlePriceFilter}
+                className="bg-black text-white text-[14px] font-poppins px-4 py-2 rounded-full font-semibold w-1/2 tracking-[0.2em]" 
+                style={{letterSpacing:'0.2em'}}
+              >
+                FILTER
+              </button>
             </div>
             {/* Product Type */}
             <div className="mb-8">
@@ -275,7 +373,9 @@ const ProductPage = () => {
           <main className="flex-auto">
             {/* Top Bar */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-2 sm:px-8 md:px-12 lg:px-8 mb-8 md:mb-16 gap-4 md:gap-0">
-              <span className="font-normal text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-bebas tracking-widest">SHOWING 1-9 OF 15 RESULTS</span>
+              <span className="font-normal text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-bebas tracking-widest">
+                SHOWING {((currentPage - 1) * perPage) + 1}-{Math.min(currentPage * perPage, totalProducts)} OF {totalProducts} RESULTS
+              </span>
               <div className="relative w-full md:w-auto">
                 <button
                   className="flex items-center bg-black text-white text-base sm:text-lg md:text-xl px-4 sm:px-8 md:px-12 py-2 sm:py-3 md:py-4 rounded-full font-semibold tracking-[0.2em] focus:outline-none select-none min-w-0 md:min-w-[350px] justify-between w-full md:w-auto"
@@ -291,7 +391,7 @@ const ProductPage = () => {
                       <div
                         key={option}
                         className={`px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 text-white text-base sm:text-lg font-semibold cursor-pointer hover:bg-gray-900 rounded-xl transition-all ${sortOption === option ? 'bg-gray-900' : ''}`}
-                        onClick={() => { setSortOption(option); setSortOpen(false); }}
+                        onClick={() => handleSortChange(option)}
                         style={{ letterSpacing: '0.15em', fontFamily: 'Bebas Neue, sans-serif' }}
                       >
                         {option.toUpperCase()}
@@ -303,38 +403,49 @@ const ProductPage = () => {
             </div>
             {/* Product Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 md:gap-x-4 2xl:gap-x-8 gap-y-8">
-              {paginatedProducts.map((product) => (
-                <Shop2ProductCard
-                  key={product.id}
-                  image={product.image}
-                  name={product.name}
-                  price={product.price}
-                  discount={product.discount}
-                  overlay={product.overlay}
-                />
-              ))}
+              {products.length > 0 ? (
+                products.map((product) => (
+                  <Shop2ProductCard
+                    key={product.product_id}
+                    image={product.primary_image || "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80"}
+                    name={product.product_name}
+                    price={product.selling_price}
+                    discount={product.special_price ? Math.round(((product.selling_price - product.special_price) / product.selling_price) * 100) : undefined}
+                    overlay={product.product_id}
+                    onClick={() => handleProductClick(product.product_id)}
+                  />
+                ))
+              ) : (
+                <div className="col-span-2 text-center py-12">
+                  <p className="text-gray-500 text-lg">No products found</p>
+                  <p className="text-gray-400 text-sm mt-2">Products count: {products.length}</p>
+                  <p className="text-gray-400 text-sm">Total products: {totalProducts}</p>
+                </div>
+              )}
             </div>
             {/* Pagination - centered below grid */}
-            <div className="py-16 mb-32 flex justify-center">
-              <nav className="flex items-center space-x-3">
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <button
-                    key={i + 1}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${currentPage === i + 1 ? 'bg-[#B19D7F] text-white shadow' : 'border border-gray-300 text-black bg-white'}`}
-                    onClick={() => setCurrentPage(i + 1)}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-                {currentPage < totalPages && (
-                  <button className="ml-2" onClick={() => setCurrentPage(currentPage + 1)}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="30" viewBox="0 0 14 30" fill="none">
-                      <path d="M1.00037 1.0001L12.5228 13.6215C13.0549 14.2043 13.0549 15.1495 12.5228 15.7322L1.00037 28.3501" stroke="black" strokeWidth="2"/>
-                    </svg>
-                  </button>
-                )}
-              </nav>
-            </div>
+            {totalPages > 1 && (
+              <div className="py-16 mb-32 flex justify-center">
+                <nav className="flex items-center space-x-3">
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                      key={i + 1}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${currentPage === i + 1 ? 'bg-[#B19D7F] text-white shadow' : 'border border-gray-300 text-black bg-white'}`}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  {currentPage < totalPages && (
+                    <button className="ml-2" onClick={() => setCurrentPage(currentPage + 1)}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="30" viewBox="0 0 14 30" fill="none">
+                        <path d="M1.00037 1.0001L12.5228 13.6215C13.0549 14.2043 13.0549 15.1495 12.5228 15.7322L1.00037 28.3501" stroke="black" strokeWidth="2"/>
+                      </svg>
+                    </button>
+                  )}
+                </nav>
+              </div>
+            )}
           </main>
         </div>
       </div>

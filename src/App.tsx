@@ -18,8 +18,8 @@ import Shop3LandingPage from './pages/Shop3LandingPage';
 import Shop4LandingPage from './pages/Shop4LandingPage';
 import VerificationPending from './pages/auth/VerificationPending';
 import TrendyDealsPage from './pages/TrendyDealsPage';
-import Shopwishlist from './pages/Shop/shopwishlist';
-import Shopcart from './pages/Shop/Shopcart';
+import Shopwishlist from './pages/Shop/Shopwishlist';
+import Shopcart from './pages/Shop/shopcart';
 import PasswordReset from './pages/auth/PasswordReset';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import RequestPasswordReset from './pages/auth/RequestPasswordReset';
@@ -229,6 +229,7 @@ const App: React.FC = () => {
                     <Route path="/shop1" element={<Shop1LandingPage />} />
                     <Route path="/shop1/product/:id" element={<Shop1Productpage />} />
                     <Route path="/shop2" element={<Shop2LandingPage />} />
+                    <Route path="/shop2/product/:productId" element={<Shop2Productpage />} />
                     <Route path="/shop3" element={<Shop3LandingPage />} />
                     <Route path="/shop1-productpage" element={<Shop1Productpage />} />
                     <Route path="/shop2-productpage" element={<Shop2Productpage />} />

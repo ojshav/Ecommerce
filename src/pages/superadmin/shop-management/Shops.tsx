@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Edit2, 
-  Trash2, 
   Search, 
   Store, 
   AlertCircle,
@@ -30,7 +29,6 @@ const Shops: React.FC = () => {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [shopToDelete, setShopToDelete] = useState<Shop | null>(null);
   
   const { showSuccess, showError } = useToastHelpers();
 
@@ -106,29 +104,6 @@ const Shops: React.FC = () => {
     setLogoPreview(shop.logo_url || null);
     setLogoFile(null);
     setShowModal(true);
-  };
-
-  const handleDelete = (shopId: number) => {
-    const shop = shops.find(s => s.shop_id === shopId) || null;
-    setShopToDelete(shop);
-  };
-
-  const confirmDelete = async () => {
-    if (!shopToDelete) return;
-    try {
-      await shopManagementService.hardDeleteShop(shopToDelete.shop_id);
-      showSuccess('Shop permanently deleted', 'The shop has been removed from the database.');
-      setShopToDelete(null);
-      fetchShops();
-    } catch (error: any) {
-      const errorMessage = error.message || 'Failed to delete shop';
-      setError(errorMessage);
-      showError('Delete failed', errorMessage);
-    }
-  };
-
-  const cancelDelete = () => {
-    setShopToDelete(null);
   };
 
   const resetForm = () => {
@@ -242,12 +217,6 @@ const Shops: React.FC = () => {
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                   >
                     <Edit2 size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(shop.shop_id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
@@ -394,38 +363,6 @@ const Shops: React.FC = () => {
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {shopToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 border-2 border-orange-500">
-            <div className="flex items-center mb-4">
-              <AlertCircle className="h-8 w-8 text-orange-600 mr-3" />
-              <h3 className="text-xl font-semibold text-orange-700">Permanently Delete Shop</h3>
-            </div>
-            <div className="mb-4">
-              <p className="text-gray-800 text-base">
-                Are you sure you want to <span className="text-orange-700 font-bold">permanently delete</span> the shop <span className="font-semibold">"{shopToDelete.name}"</span>?<br />
-                <span className="text-red-600 font-semibold">This action cannot be undone.</span>
-              </p>
-            </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={cancelDelete}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-semibold shadow"
-              >
-                Permanently Delete
-              </button>
             </div>
           </div>
         </div>
