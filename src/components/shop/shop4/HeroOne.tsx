@@ -14,13 +14,13 @@ import { Search, ShoppingCart, Menu } from 'lucide-react';
 
 const HeroOne = () => {
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen mx-auto bg-black relative overflow-hidden">
       {/* Radial gradient overlay */}
       <div className="absolute inset-0"></div>
       
       {/* Navigation Bar */}
-      <nav className="relative z-10 flex justify-between items-center px-4 sm:px-6 md:px-12 lg:px-16 xl:px-20 py-6 md:py-8">
-        <div className="text-white text-sm md:text-base lg:text-lg font-light tracking-widest uppercase">
+      <nav className="relative z-10 max-w-[1920px] mx-auto flex justify-between items-center px-4 sm:px-6 md:px-12 lg:px-16 xl:px-18 py-6 md:py-12">
+      <div className="text-white font-junge text-[22px] font-normal tracking-[3.3px] uppercase bg-gradient-to-r from-[#383838] to-[#9e9e9e] bg-clip-text text-transparent" style={{ WebkitTextStroke: '1px', WebkitTextStrokeColor: '#aea8a8' }}>
           AOIN POOJA STORE
         </div>
         
@@ -41,74 +41,73 @@ const HeroOne = () => {
       </nav>
 
       {/* Hero Content */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center items-center text-center px-4 sm:px-6 md:px-12 lg:px-16 xl:px-20 min-h-[calc(100vh-120px)] animate-fade-in-up">
+      <div className="relative z-10 flex-1 flex flex-col justify-center items-center text-center py-10 px-4 sm:px-6 md:px-12 lg:px-16 xl:px-8 min-h-[calc(100vh-120px)] animate-fade-in-up">
         {/* Main Heading */}
-        {/* <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-thin tracking-[0.15em] sm:tracking-[0.2em] md:tracking-[0.25em] text-white uppercase leading-tight mb-4 md:mb-6">
-          TIMELESS RITUALS.
-        </h1> */}
-
         <h1
-  className="md:text-[80px] leading-[1] tracking-[0.15em] font-normal uppercase text-white text-center mb-4  md:mb-6 text-[30px]"
-  
->
-  TIMELESS RITUALS.
-</h1>
+          className="md:text-[80px] leading-[1] tracking-[0.15em] font-normal uppercase text-white text-center mb-2  font-abeezee"
+        >
+          TIMELESS RITUALS.
+        </h1>
 
         
         {/* Sub Heading Line 1 */}
-
-         
-        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-light tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.2em] uppercase leading-tight mb-2 md:mb-4">
-          <span className="text-[#BB9D7B] italic text-[30px]  md:text-[50px]">CONTEMPORARY</span>{' '}
-          <span className="text-[#BB9D7B] italic text-[30px] md:text-[50px]">DESIGN</span>
-          <span className="text-white font-thin text-[30px] md:text-[50px]">.ONLY</span>
+        <h2 className="text-[80px] font-light tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.15em] uppercase leading-tight">
+          <span className="text-[#BB9D7B] italic font-abeezee text-[80px] font-normal  uppercase" style={{ fontStyle: 'italic', fontWeight: 400 }}>CONTEMPORARY</span>{' '}
+          <span className="text-[#BB9D7B] italic font-abeezee text-[80px] font-normal   uppercase" style={{ fontStyle: 'italic', fontWeight: 400 }}>DESIGN</span>
+          <span className="text-white font-abeezee" style={{ fontWeight: 100 }}>.ONLY</span>
         </h2>
         
         {/* Sub Heading Line 2 */}
-        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-light tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.2em] uppercase leading-tight mb-8 md:mb-12">
-          <span className="text-white font-thin">AT</span>{' '}
-          <span className="text-[#F26340] font-normal drop-shadow-[0_0_20px_rgba(239,68,68,0.3)]">AOIN</span>
-          <span className="text-white font-thin">.</span>
+        <h2 className="text-[80px] font-light tracking-[0.1em] sm:tracking-[0.15em] font-abeezee uppercase leading-[1] mb-8 md:mb-12">
+          <span className="text-white font-abeezee text-[80px] font-normal leading-normal uppercase">AT</span>{' '}
+          <span className="text-[#F26340] font-abeezee text-[80px] font-normal leading-normal  uppercase">
+            AOIN
+          </span>
+          <span className="text-white font-abeezee" style={{ fontWeight: 100 }}>.</span>
         </h2>
         
-    <img src='https://res.cloudinary.com/do3vxz4gw/image/upload/v1753462996/public_assets_shop4/public_assets_shop4_Group%201000006571.png' alt='' className=''/>
-      </div>
+        <div className="w-full max-w-[1920px] mx-auto p-4 sm:p-6 rounded-[24px]">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* Column 1 - Single image */}
+            <div className="col-span-1">
+              <img 
+                src="/assets/shop4/Hero1.svg" 
+                alt="Festive Diyas and Sweets" 
+                className="w-full h-auto object-cover rounded-[16px]" 
+              />
+            </div>
 
-      <style jsx>{`
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fade-in-up {
-          animation: fade-in-up 1.5s ease-out;
-        }
-        
-        .animate-pulse-slow {
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.6;
-            transform: scale(1.2);
-          }
-        }
-        
-        .bg-gradient-radial {
-          background: radial-gradient(ellipse at center, rgba(55, 65, 81, 0.2) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.9) 100%);
-        }
-      `}</style>
+            {/* Column 2 - Single image */}
+            <div className="col-span-1 flex items-end">
+              <img 
+                src="/assets/shop4/Hero2.svg" 
+                alt="Festive Table with Sweets and Flowers" 
+                className="w-full h-auto object-cover rounded-[16px]" 
+              />
+            </div>
+
+            {/* Column 3 - Two images stacked vertically */}
+            <div className="col-span-1 md:col-span-2 lg:col-span-1 grid grid-rows-2 gap-4">
+              <img 
+                src="/assets/shop4/Hero3.svg" 
+                alt="Statue with Tea Lights" 
+                className="w-full h-auto object-cover rounded-[16px]" 
+              />
+              <div className="relative">
+                <img 
+                  src="/assets/shop4/Hero4.svg" 
+                  alt="Evil Eye Charms and Jewelry" 
+                  className="w-full h-auto object-cover rounded-[16px]" 
+                />
+                <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#BB9D7B] text-white font-futurapt transition-all duration-300 hover:scale-105 shadow-lg text-xs font-medium tracking-[3px] uppercase w-[120px] sm:w-[156px] h-[40px] sm:h-[50px] flex-shrink-0 rounded-[30px]">
+                  SHOP NOW
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };
