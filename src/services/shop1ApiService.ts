@@ -42,6 +42,62 @@ export interface Product {
   };
   attributes?: ProductAttribute[];
   variants?: Product[];
+  // Variant-specific fields
+  has_variants?: boolean;
+  variant_attributes?: VariantAttribute[];
+  total_variants?: number;
+  is_parent_product?: boolean;
+  current_variant_attributes?: Record<string, string>;
+}
+
+export interface ProductVariant {
+  variant_id: number;
+  variant_sku: string;
+  variant_name?: string;
+  attribute_combination: Record<string, string>;
+  effective_price: number;
+  stock_qty: number;
+  is_in_stock: boolean;
+  media: {
+    images: Array<{
+      url: string;
+      type: string;
+      is_primary: boolean;
+    }>;
+    videos: Array<{
+      url: string;
+      type: string;
+      is_primary: boolean;
+    }>;
+    primary_image: string;
+    total_media: number;
+  };
+  primary_image: string;
+}
+
+export interface VariantAttribute {
+  name: string;
+  values: string[];
+}
+
+export interface VariantListResponse {
+  success: boolean;
+  parent_product_id: number;
+  parent_product_name: string;
+  variants: ProductVariant[];
+  total_variants: number;
+}
+
+export interface VariantByAttributesResponse {
+  success: boolean;
+  variant: ProductVariant;
+}
+
+export interface AvailableAttributesResponse {
+  success: boolean;
+  parent_product_id: number;
+  attributes: VariantAttribute[];
+  total_variants: number;
 }
 
 export interface Media {
@@ -73,9 +129,41 @@ export interface Brand {
 }
 
 export interface ProductAttribute {
+  id: number;
   attribute_id: number;
-  attribute_name: string;
-  attribute_value: string;
+  product_id: number;
+  value: string;
+  value_id?: number;
+  attribute?: {
+    attribute_id: number;
+    name: string;
+    attribute_type: string;
+    category_id: number;
+    category_name: string;
+    shop_id: number;
+    shop_name: string;
+    slug: string;
+    type: string;
+    is_required: boolean;
+    is_filterable: boolean;
+    is_active: boolean;
+    sort_order: number;
+    description?: string;
+    values?: Array<{
+      value_id: number;
+      attribute_id: number;
+      value: string;
+      sort_order: number;
+      is_active: boolean;
+      created_at: string;
+      updated_at: string;
+      deleted_at?: string;
+    }>;
+    created_at: string;
+    updated_at: string;
+    deleted_at?: string;
+  };
+  attribute_value?: any;
 }
 
 export interface ApiResponse<T> {
@@ -290,6 +378,54 @@ class Shop1ApiService {
       ...options,
       search: query
     });
+  }
+
+  // Get all variants for a product
+  async getProductVariants(productId: number): Promise<VariantListResponse | null> {
+    try {
+      return await this.fetchApi<VariantListResponse>(`/products/${productId}/variants`);
+    } catch (error) {
+      console.error('Error fetching product variants:', error);
+      return null;
+    }
+  }
+
+  // Get variant by attribute combination
+  async getVariantByAttributes(productId: number, attributes: Record<string, string>): Promise<VariantByAttributesResponse | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/${productId}/variants/by-attributes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ attributes })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || 'API request failed');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching variant by attributes:', error);
+      return null;
+    }
+  }
+
+  // Get available attributes for a product's variants
+  async getAvailableAttributes(productId: number): Promise<AvailableAttributesResponse | null> {
+    try {
+      return await this.fetchApi<AvailableAttributesResponse>(`/products/${productId}/attributes`);
+    } catch (error) {
+      console.error('Error fetching available attributes:', error);
+      return null;
+    }
   }
 }
 
