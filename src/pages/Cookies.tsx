@@ -99,7 +99,7 @@ const CookiesPage: React.FC = () => {
             
             <h2>Where Can I Get Further Information?</h2>
             <p>
-              If you have any questions about our use of cookies or other technologies, please email us at privacy@auin.com or contact us at:
+              If you have any questions about our use of cookies or other technologies, please email us at auoinstore@gmail.com or contact us at:
             </p>
             <p>
               <strong>AUIN</strong><br />
