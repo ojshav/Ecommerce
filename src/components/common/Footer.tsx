@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Twitter, Facebook, Github, Instagram } from 'lucide-react';
+import { Mail, Phone, MapPin, Twitter, Facebook, Linkedin, Instagram } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -122,10 +122,10 @@ const Footer: React.FC = () => {
           <div className="lg:col-span-1 lg:-ml-8 xl:-ml-32">
             <h4 className="text-[16px] sm:text-[18px] font-medium font-worksans text-[#161616] mb-3 lg:mb-4">Follow Us</h4>
             <div className="flex space-x-4 lg:space-x-5 mb-4 lg:mb-6">
-              <a href="#" className="text-[#F2631F] hover:text-white transition-colors"><Twitter size={18} className="sm:w-5 sm:h-5" /></a>
-              <a href="#" className="text-[#F2631F] hover:text-white transition-colors"><Facebook size={18} className="sm:w-5 sm:h-5" /></a>
-              <a href="#" className="text-[#F2631F] hover:text-white transition-colors"><Instagram size={18} className="sm:w-5 sm:h-5" /></a>
-              <a href="#" className="text-[#F2631F] hover:text-white transition-colors"><Github size={18} className="sm:w-5 sm:h-5" /></a>
+              <a href="https://x.com/AOIN111111" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Twitter size={18} className="sm:w-5 sm:h-5" /></a>
+              <a href="https://www.facebook.com/people/AOIN/61578809217780/" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Facebook size={18} className="sm:w-5 sm:h-5" /></a>
+              <a href="https://www.instagram.com/aoin.in/?igsh=NGk3dml2ZHk2cjM4#" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Instagram size={18} className="sm:w-5 sm:h-5" /></a>
+              <a href="https://www.linkedin.com/company/aoinstore" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Linkedin size={18} className="sm:w-5 sm:h-5" /></a>
             </div>
             {/* Email Subscription */}
             <form className="flex items-center bg-white rounded-xl overflow-visible shadow-sm max-w-full  lg:max-w-[330px]" onSubmit={handleNewsletterSubmit}>

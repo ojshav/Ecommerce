@@ -734,7 +734,7 @@ const MerchantDetails: React.FC = () => {
   // Main JSX - Based on your initial code, with targeted changes
   return (
     <div className="bg-gray-50 min-h-screen p-3 sm:p-4 md:p-6"> {/* Retained bg-gray-50 */}
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-full mx-auto">
         <div className="mb-4 sm:mb-6"> {/* Retained margin */}
           <button
             onClick={() => navigate('/superadmin/merchants')} // Corrected navigate(-1) to specific path

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 // Heroicons SVGs (inline for simplicity)
 const MailIcon = () => (
@@ -59,7 +60,7 @@ const languages = [
   { code: 'fr', label: 'French', flag: '🇫🇷' },
 ];
 const navLinks = [
-  { label: 'HOME', href: '#' },
+  { label: 'HOME', href: '/shop1' },
   { label: 'PRODUCTS', href: '#', active: true },
   { label: 'BLOG', href: '#' },
   { label: 'CONTACT', href: '#' },
@@ -223,13 +224,13 @@ const Header: React.FC = () => {
             </div>
             <div className="flex-1 flex items-center font-archivo justify-end gap-0 bg-[#E7E7E7] h-full overflow-x-auto min-w-0">
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.label}
-                  href={link.href}
+                  to={link.href}
                   className={` md:px-4 nav2:px-10 py-4 md:text-[14px] lg:text-[17px] font-medium font-archivo transition-colors ${link.active ? 'bg-[#FFB998]' : 'hover:bg-[#FFB998] text-gray-700'}`}
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -254,14 +255,14 @@ const Header: React.FC = () => {
                 </div>
                 <nav className="flex flex-col gap-2">
                   {navLinks.map((link) => (
-                    <a
+                    <Link
                       key={link.label}
-                      href={link.href}
+                      to={link.href}
                       className={`px-4 py-3 text-lg font-medium rounded transition-colors ${link.active ? 'bg-[#FFB998]' : 'hover:bg-[#FFB998] text-gray-700'}`}
                       onClick={() => setMobileNavOpen(false)}
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   ))}
                 </nav>
               </div>

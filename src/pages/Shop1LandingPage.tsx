@@ -12,6 +12,7 @@ import AoinTrendsSection from '../components/shop/shop1/AoinTrendsSection';
 import EthnicWear from '../components/shop/shop1/EthnicWear';
 import FashionDesk from '../components/shop/shop1/FashionDesk';
 import SubscribeSection from '../components/shop/shop1/SubscribeSection';
+import Footer from '../components/shop/shop1/AllProductpage/Footer.tsx';
 
 function Shop1LandingPage() {
   React.useEffect(() => {
@@ -36,7 +37,7 @@ function Shop1LandingPage() {
         <EthnicWear />
         <FashionDesk />
         <SubscribeSection />
-       
+        <Footer />
     </div>  
   );
 }

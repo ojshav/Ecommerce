@@ -3,8 +3,9 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts';
-import { Calendar, Clock, TrendingUp, Users, BarChart2, PieChart as PieChartIcon, RefreshCw, Loader2, Info } from 'lucide-react';
+import { Calendar, Clock, TrendingUp, Users, BarChart2, PieChart as PieChartIcon, RefreshCw, Loader2, Info, Download } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import ExportModal from '../../components/business/reports/ExportModal';
 import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -118,6 +119,8 @@ const TrafficAnalytics: React.FC = () => {
   const [conversionData, setConversionData] = useState<ConversionRateData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const { accessToken, user } = useAuth();
   const [refreshCount, setRefreshCount] = useState<number>(0);
 
@@ -174,6 +177,57 @@ const TrafficAnalytics: React.FC = () => {
     setRefreshCount(prev => prev + 1);
   };
 
+  const handleExportReport = async (format: string) => {
+    try {
+      setIsExporting(true);
+      
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/analytics/export-traffic-report?format=${format}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': '*/*'
+        },
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to export report');
+      }
+
+      // Get filename from Content-Disposition header or create default
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `traffic_analytics_report_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`Traffic analytics report exported successfully as ${format.toUpperCase()}`);
+      setIsExportModalOpen(false);
+      
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to export report. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const renderCustomTick = (props: any) => {
     const { x, y, payload } = props;
     return (
@@ -226,13 +280,22 @@ const TrafficAnalytics: React.FC = () => {
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Traffic Analytics</h2>
         </div>
-        <button
-          onClick={handleRefresh}
-          className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 flex items-center gap-2"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+        <div className="flex space-x-4">
+          <button
+            onClick={handleRefresh}
+            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 flex items-center gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+          <button
+            onClick={() => setIsExportModalOpen(true)}
+            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Export Report
+          </button>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -358,6 +421,14 @@ const TrafficAnalytics: React.FC = () => {
           </LineChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={handleExportReport}
+        isExporting={isExporting}
+      />
     </div>
   );
 };
