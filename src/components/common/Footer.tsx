@@ -70,7 +70,7 @@ const Footer: React.FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail size={16} className="text-[#161616] flex-shrink-0" />
-                <span className="text-[#F2631F]">anjisoverseas@gmail.com</span>
+                <span className="text-[#F2631F]">auoinstore@gmail.com</span>
               </div>
             </div>
           </div>
@@ -113,7 +113,7 @@ const Footer: React.FC = () => {
               <li><Link to="/shipping" className="hover:text-[#F2631F] transition-colors">Shipping Methods</Link></li>
               <li className="mt-2">
                 <div>Mail us at</div>
-                <span className="text-[#F2631F]">anjisoverseas@gmail.com</span>
+                <span className="text-[#F2631F]">auoinstore@gmail.com</span>
               </li>
             </ul>
           </div>

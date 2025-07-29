@@ -17,7 +17,7 @@ const Footer = () => {
             <p className="font-semibold">Phone : <span className="font-normal">+91 78797 02202</span></p>
           </div>
           <div className="mb-4 sm:mb-6 font-poppins text-base sm:text-[18px]">
-            <p className="font-semibold">Email : <span className="font-normal">anjisoverseas@gmail.com</span></p>
+            <p className="font-semibold">Email : <span className="font-normal">auoinstore@gmail.com</span></p>
           </div>
           <div className="flex gap-3 sm:gap-3 mt-4 sm:mt-6">
             {/* Facebook */}
