@@ -176,14 +176,32 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
         setCurrentVariant(null);
         // Reset to parent media when no variant is selected
         setCurrentImageIndex(0);
-        if (Object.keys(selectedAttributes).length > 0) {
+        
+        // Check if selected attributes match parent product attributes
+        const parentAttributes: Record<string, string> = {};
+        if (productData?.attributes) {
+          productData.attributes.forEach(attr => {
+            if (attr.attribute?.name && attr.value) {
+              parentAttributes[attr.attribute.name] = attr.value;
+            }
+          });
+        }
+        
+        // Check if current selection matches parent product attributes
+        const matchesParentAttributes = Object.keys(selectedAttributes).length > 0 && 
+          Object.entries(selectedAttributes).every(([attrName, attrValue]) => 
+            parentAttributes[attrName] === attrValue
+          );
+        
+        if (Object.keys(selectedAttributes).length > 0 && !matchesParentAttributes) {
           setStockError('This combination is not available. Please choose a different combination.');
         }
+        // If it matches parent attributes, don't show any error (user is viewing parent product)
       }
     };
 
     findVariantByAttributes();
-  }, [selectedAttributes, variants, productData?.has_variants]);
+  }, [selectedAttributes, variants, productData?.has_variants, productData?.attributes]);
 
   const handleAttributeSelect = (attributeName: string, value: string) => {
     setSelectedAttributes(prev => ({
@@ -533,9 +551,11 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
           </div>
 
           {/* Dynamic Attribute Selection */}
-          {productData?.has_variants && availableAttributes.length > 0 ? (
+          {(productData?.has_variants && availableAttributes.length > 0) || 
+           (!productData?.has_variants && productData?.attributes && productData.attributes.length > 0) ? (
             <div className="flex flex-wrap gap-8 mb-10">
-              {availableAttributes.map((attribute) => (
+              {/* For products with variants, show availableAttributes */}
+              {productData?.has_variants && availableAttributes.length > 0 && availableAttributes.map((attribute) => (
                 <div key={attribute.name}>
                   <p className="text-[20px] font-semibold mb-4 capitalize">
                     Select {attribute.name}
@@ -582,46 +602,86 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                   </div>
                 </div>
               ))}
+              
+              {/* For products without variants, show parent product attributes as display-only */}
+              {!productData?.has_variants && productData?.attributes && productData.attributes.map((attr) => (
+                attr.attribute?.name && attr.value && (
+                  <div key={attr.attribute.name}>
+                    <p className="text-[20px] font-semibold mb-4 capitalize">
+                      {attr.attribute.name}
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      {(() => {
+                        const colorStyle = getColorStyle(attr.attribute.name, attr.value);
+                        
+                        // Render color swatch for color attributes
+                        if (attr.attribute.name.toLowerCase() === 'color' && colorStyle) {
+                          return (
+                            <div
+                              key={attr.value}
+                              aria-label={attr.value}
+                              className="w-[48px] h-[48px] rounded-full border-4 border-[#FEEBD8] scale-110 transition-all duration-150 shadow-md flex items-center justify-center"
+                              style={{ backgroundColor: colorStyle }}
+                            />
+                          );
+                        }
+                        
+                        // Render button for size and other attributes
+                        return (
+                          <div
+                            key={attr.value}
+                            className="px-4 py-2 min-w-[64px] h-[48px] rounded-full border bg-[#FEEBD8] border-[#FEEBD8] text-black shadow-md text-[18px] font-semibold flex items-center justify-center"
+                          >
+                            {attr.value}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )
+              ))}
             </div>
           ) : (
-            // Fallback to original hardcoded selection for products without variants
-            <div className="flex space-x-16 mb-10">
-              {/* Color */}
-              <div>
-                <p className="text-[20px] font-semibold mb-4">Select color</p>
-                <div className="flex space-x-6">
-                  <button
-                    aria-label="Yellow"
-                    className="w-[48px] h-[48px] rounded-full border-4 border-[#FEEBD8] scale-110 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center"
-                    style={{ backgroundColor: '#FDE047' }}
-                  />
-                  <button
-                    aria-label="Pink"
-                    className="w-[48px] h-[48px] rounded-full border-4 border-white opacity-80 hover:scale-105 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center"
-                    style={{ backgroundColor: '#EABABA' }}
-                  />
-                </div>
-              </div>
-
-              {/* Size */}
-              <div>
-                <p className="text-[20px] font-semibold mb-4">Select Size</p>
-                <div className="flex space-x-4">
-                  {['XS', 'S', 'M', 'L', 'XL'].map((size, index) => (
+            // Fallback to original hardcoded selection only if no attributes exist at all
+            productData && (
+              <div className="flex space-x-16 mb-10">
+                {/* Color */}
+                <div>
+                  <p className="text-[20px] font-semibold mb-4">Select color</p>
+                  <div className="flex space-x-6">
                     <button
-                      key={size}
-                      className={`w-[64px] h-[48px] rounded-full border text-[18px] font-semibold transition-all duration-150 focus:outline-none
-                        ${index === 3 // L is selected by default
-                          ? 'bg-[#FEEBD8] border-[#FEEBD8] text-black shadow-md'
-                          : 'bg-white border-black text-black hover:bg-gray-100'}
-                      `}
-                    >
-                      {size}
-                    </button>
-                  ))}
+                      aria-label="Yellow"
+                      className="w-[48px] h-[48px] rounded-full border-4 border-[#FEEBD8] scale-110 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center"
+                      style={{ backgroundColor: '#FDE047' }}
+                    />
+                    <button
+                      aria-label="Pink"
+                      className="w-[48px] h-[48px] rounded-full border-4 border-white opacity-80 hover:scale-105 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center"
+                      style={{ backgroundColor: '#EABABA' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Size */}
+                <div>
+                  <p className="text-[20px] font-semibold mb-4">Select Size</p>
+                  <div className="flex space-x-4">
+                    {['XS', 'S', 'M', 'L', 'XL'].map((size, index) => (
+                      <button
+                        key={size}
+                        className={`w-[64px] h-[48px] rounded-full border text-[18px] font-semibold transition-all duration-150 focus:outline-none
+                          ${index === 3 // L is selected by default
+                            ? 'bg-[#FEEBD8] border-[#FEEBD8] text-black shadow-md'
+                            : 'bg-white border-black text-black hover:bg-gray-100'}
+                        `}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            )
           )}
 
           {/* Stock Warning */}
