@@ -279,7 +279,7 @@ const ShippingDelivery = () => {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-gray-700"><span className="font-medium">Email:</span> <span className="text-[#FF4D00]">shipping@auin.com</span></p>
+              <p className="text-gray-700"><span className="font-medium">Email:</span> <span className="text-[#FF4D00]">auoinstore@gmail.com</span></p>
               <p className="text-gray-700"><span className="font-medium">Phone:</span> <span className="text-[#FF4D00]">212 929 9953</span></p>
               <p className="text-gray-700"><span className="font-medium">Hours:</span> Monday-Friday, 9 AM - 6 PM EST</p>
             </div>

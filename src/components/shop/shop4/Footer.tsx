@@ -67,16 +67,16 @@ const Footer = () => {
 
             {/* Social Media Icons */}
             <div className="flex space-x-4 mt-6">
-              <a href="#" className="text-blue-500 hover:text-blue-400 transition-colors">
+              <a href="https://www.facebook.com/profile.php?id=61578809217780" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-400 transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="text-blue-400 hover:text-blue-300 transition-colors">
+              <a href="https://x.com/AOIN111111" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">
                 <Twitter size={20} />
               </a>
-              <a href="#" className="text-pink-500 hover:text-pink-400 transition-colors">
+              <a href="https://www.instagram.com/aoin.in?igsh=NGk3dml2ZHk2cjM4" target="_blank" rel="noopener noreferrer" className="text-pink-500 hover:text-pink-400 transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="text-red-500 hover:text-red-400 transition-colors">
+              <a href="https://www.linkedin.com/company/aoinstore" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-red-400 transition-colors">
                 <div className="w-5 h-5 bg-red-500 rounded"></div>
               </a>
             </div>

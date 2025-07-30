@@ -70,7 +70,7 @@ const Footer: React.FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail size={16} className="text-[#161616] flex-shrink-0" />
-                <span className="text-[#F2631F]">anjisoverseas@gmail.com</span>
+                <span className="text-[#F2631F]">auoinstore@gmail.com</span>
               </div>
             </div>
           </div>
@@ -113,7 +113,7 @@ const Footer: React.FC = () => {
               <li><Link to="/shipping" className="hover:text-[#F2631F] transition-colors">Shipping Methods</Link></li>
               <li className="mt-2">
                 <div>Mail us at</div>
-                <span className="text-[#F2631F]">anjisoverseas@gmail.com</span>
+                <span className="text-[#F2631F]">auoinstore@gmail.com</span>
               </li>
             </ul>
           </div>
@@ -123,8 +123,8 @@ const Footer: React.FC = () => {
             <h4 className="text-[16px] sm:text-[18px] font-medium font-worksans text-[#161616] mb-3 lg:mb-4">Follow Us</h4>
             <div className="flex space-x-4 lg:space-x-5 mb-4 lg:mb-6">
               <a href="https://x.com/AOIN111111" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Twitter size={18} className="sm:w-5 sm:h-5" /></a>
-              <a href="https://www.facebook.com/people/AOIN/61578809217780/" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Facebook size={18} className="sm:w-5 sm:h-5" /></a>
-              <a href="https://www.instagram.com/aoin.in/?igsh=NGk3dml2ZHk2cjM4#" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Instagram size={18} className="sm:w-5 sm:h-5" /></a>
+              <a href="https://www.facebook.com/profile.php?id=61578809217780" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Facebook size={18} className="sm:w-5 sm:h-5" /></a>
+              <a href="https://www.instagram.com/aoin.in?igsh=NGk3dml2ZHk2cjM4" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Instagram size={18} className="sm:w-5 sm:h-5" /></a>
               <a href="https://www.linkedin.com/company/aoinstore" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Linkedin size={18} className="sm:w-5 sm:h-5" /></a>
             </div>
             {/* Email Subscription */}

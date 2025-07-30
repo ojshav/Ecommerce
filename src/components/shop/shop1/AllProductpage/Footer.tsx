@@ -17,17 +17,17 @@ const Footer = () => {
             <p className="font-semibold">Phone : <span className="font-normal">+91 78797 02202</span></p>
           </div>
           <div className="mb-4 sm:mb-6 font-poppins text-base sm:text-[18px]">
-            <p className="font-semibold">Email : <span className="font-normal">anjisoverseas@gmail.com</span></p>
+            <p className="font-semibold">Email : <span className="font-normal">auoinstore@gmail.com</span></p>
           </div>
           <div className="flex gap-3 sm:gap-3 mt-4 sm:mt-6">
             {/* Facebook */}
-            <a href="https://www.facebook.com/people/AOIN/61578809217780/" target="_blank" rel="noopener noreferrer" className="bg-white rounded-full px-2 sm:px-3 py-3 sm:py-4 items-center shadow-md hover:bg-gray-200 transition-colors">
+            <a href="https://www.facebook.com/profile.php?id=61578809217780" target="_blank" rel="noopener noreferrer" className="bg-white rounded-full px-2 sm:px-3 py-3 sm:py-4 items-center shadow-md hover:bg-gray-200 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
   <path d="M13.397 20.9972V12.8012H16.162L16.573 9.59225H13.397V7.54825C13.397 6.62225 13.655 5.98825 14.984 5.98825H16.668V3.12725C15.8487 3.03874 15.0251 2.99634 14.201 3.00025C11.757 3.00025 10.079 4.49225 10.079 7.23125V9.58625H7.33203V12.7952H10.085V20.9972H13.397Z" fill="#0066FF"/>
 </svg>
             </a>
             {/* Instagram */}
-            <a href="https://www.instagram.com/aoin.in/?igsh=NGk3dml2ZHk2cjM4#" target="_blank" rel="noopener noreferrer" className="bg-white rounded-full px-2 sm:px-3 py-3 sm:py-4 shadow-md hover:bg-gray-200 transition-colors">
+            <a href="https://www.instagram.com/aoin.in?igsh=NGk3dml2ZHk2cjM4" target="_blank" rel="noopener noreferrer" className="bg-white rounded-full px-2 sm:px-3 py-3 sm:py-4 shadow-md hover:bg-gray-200 transition-colors">
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M7.15004 1.8335H14.85C17.7834 1.8335 20.1667 4.21683 20.1667 7.15016V14.8502C20.1667 16.2602 19.6066 17.6125 18.6095 18.6096C17.6124 19.6067 16.2601 20.1668 14.85 20.1668H7.15004C4.21671 20.1668 1.83337 17.7835 1.83337 14.8502V7.15016C1.83337 5.7401 2.39352 4.38778 3.39059 3.39071C4.38766 2.39364 5.73997 1.8335 7.15004 1.8335ZM6.96671 3.66683C6.09149 3.66683 5.25213 4.01451 4.63326 4.63338C4.01438 5.25225 3.66671 6.09162 3.66671 6.96683V15.0335C3.66671 16.8577 5.14254 18.3335 6.96671 18.3335H15.0334C15.9086 18.3335 16.748 17.9858 17.3668 17.367C17.9857 16.7481 18.3334 15.9087 18.3334 15.0335V6.96683C18.3334 5.14266 16.8575 3.66683 15.0334 3.66683H6.96671ZM15.8125 5.04183C16.1164 5.04183 16.4079 5.16255 16.6228 5.37744C16.8377 5.59232 16.9584 5.88377 16.9584 6.18766C16.9584 6.49156 16.8377 6.783 16.6228 6.99789C16.4079 7.21277 16.1164 7.3335 15.8125 7.3335C15.5086 7.3335 15.2172 7.21277 15.0023 6.99789C14.7874 6.783 14.6667 6.49156 14.6667 6.18766C14.6667 5.88377 14.7874 5.59232 15.0023 5.37744C15.2172 5.16255 15.5086 5.04183 15.8125 5.04183ZM11 6.41683C12.2156 6.41683 13.3814 6.89971 14.2409 7.75926C15.1005 8.6188 15.5834 9.78459 15.5834 11.0002C15.5834 12.2157 15.1005 13.3815 14.2409 14.2411C13.3814 15.1006 12.2156 15.5835 11 15.5835C9.78447 15.5835 8.61868 15.1006 7.75913 14.2411C6.89959 13.3815 6.41671 12.2157 6.41671 11.0002C6.41671 9.78459 6.89959 8.6188 7.75913 7.75926C8.61868 6.89971 9.78447 6.41683 11 6.41683ZM11 8.25016C10.2707 8.25016 9.57122 8.53989 9.0555 9.05562C8.53977 9.57134 8.25004 10.2708 8.25004 11.0002C8.25004 11.7295 8.53977 12.429 9.0555 12.9447C9.57122 13.4604 10.2707 13.7502 11 13.7502C11.7294 13.7502 12.4289 13.4604 12.9446 12.9447C13.4603 12.429 13.75 11.7295 13.75 11.0002C13.75 10.2708 13.4603 9.57134 12.9446 9.05562C12.4289 8.53989 11.7294 8.25016 11 8.25016Z" fill="url(#paint0_linear_1395_428)"/>
 <defs>

@@ -89,7 +89,7 @@ const faqs = {
   others: [
     {
       q: 'How do I contact customer support?',
-      a: 'Use the “Need more help?” section below or email us at support@aoin.com.'
+      a: 'Use the "Need more help?" section below or email us at auoinstore@gmail.com.'
     },
     {
       q: 'Where can I find your return policy?',
