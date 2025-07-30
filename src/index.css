@@ -1,5 +1,7 @@
 @import '@fontsource/work-sans';
 @import url('https://db.onlinewebfonts.com/c/de0c6a419bef2e705d921d829889cf80?family=Futura+Book+BT+V1');
+@import url('https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Futura+PT:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -54,6 +56,41 @@
 
   .animate-shrink-width {
     animation: shrink-width 5s linear forwards;
+  }
+
+  /* Hero animations */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in-up {
+    animation: fade-in-up 1.5s ease-out;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.2);
+    }
+  }
+  
+  .bg-gradient-radial {
+    background: radial-gradient(ellipse at center, rgba(55, 65, 81, 0.2) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.9) 100%);
   }
 
   /* Enhanced input sizes for all merchant/business pages */

@@ -33,62 +33,64 @@ const collections = [
 
 function UniqueCollections() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="h-[720px] bg-black text-white">
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-16 md:py-24">
+      <div className="container max-w-[1634px] mx-auto px-4 py-16  md:py-20">
         {/* Header Section */}
         <div className="text-center mb-12 md:mb-16">
-          <p className="text-xs md:text-sm font-light tracking-[0.2em] text-gray-400 mb-4">
+          <p className="text-xs md:text-[14px] font-light font-['Futura_PT'] tracking-[0.2em] text-white mb-8">
             UNIQUE COLLECTIONS
           </p>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-wide">
+          <h1 className="text-3xl md:text-4xl lg:text-[50px] font-poppins font-light tracking-wide mb-8">
             Luxury Brands New Arrival
           </h1>
         </div>
 
-        {/* Collections Grid */}
-        <div className="relative">
-          {/* Desktop connecting line */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent transform -translate-y-1/2 z-0"></div>
+        {/* Collections Section */}
+        <div className="relative max-w-full mx-auto">
+          {/* Horizontal connecting line */}
+          <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-amber-200 transform -translate-y-1/2 z-0"></div>
+          
+          {/* Left endpoint circle */}
+          <div className="absolute top-1/2 left-0 w-2 h-2 bg-amber-200 rounded-full transform -translate-x-1 -translate-y-1/2 z-0"></div>
+          
+          {/* Right endpoint circle */}
+          <div className="absolute top-1/2 right-0 w-2 h-2 bg-amber-200 rounded-full transform translate-x-1 -translate-y-1/2 z-0"></div>
           
           {/* Collections Container */}
-          {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-6 lg:gap-8 xl:gap-12 relative z-10"> */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-6 lg:gap-8 xl:gap-12 relative z-10">
-
+          <div className="grid grid-cols-5 gap-4 md:gap-8 lg:gap-2 relative z-10 items-center pt-10">
             {collections.map((collection, index) => (
               <div key={collection.id} className="flex flex-col items-center group">
-                {/* Connecting dots for mobile/tablet */}
-                {index < collections.length - 1 && (
-                  <div className="lg:hidden absolute top-32 left-1/2 transform -translate-x-1/2 w-px h-16 bg-gradient-to-b from-gray-600 to-transparent"></div>
-                )}
-                
                 {/* Image Container */}
-                <div className="relative mb-6">
-                  {/* Background glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-600/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 scale-110"></div>
-                  
+                <div className="relative mb-1">
                   {/* Main image circle */}
-                  <div className="relative w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 xl:w-36 xl:h-36 rounded-full overflow-hidden border-2 border-gray-700 group-hover:border-amber-500/50 transition-all duration-300 group-hover:scale-105">
+                  <div className={`relative rounded-full overflow-hidden border border-gray-600 transition-all duration-300 ease-in-out group-hover:border-transparent ${
+                    index === 2 ? 'w-[200px] h-[200px]' : 'w-[156px] h-[156px]'
+                  }`}>
                     <img
                       src={collection.image}
                       alt={collection.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105 "
                     />
-                    
-                    {/* Overlay gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    {/* White ring overlay on hover */}
+                    <div className="absolute inset-0 rounded-full border-8 border-white opacity-0 group-hover:opacity-100 transition-opacity duration-900 ease-in-out pointer-events-none"></div>
                   </div>
-                  
-                  {/* Connection point dot */}
-                  <div className="hidden lg:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-gray-600 rounded-full group-hover:bg-amber-500 transition-colors duration-300"></div>
                 </div>
                 
                 {/* Text Content */}
-                <div className="text-center">
-                  <h3 className="text-sm md:text-base font-medium tracking-wider mb-1 group-hover:text-amber-500 transition-colors duration-300">
+                <div className="text-center mt-1">
+                  <h3 className={`uppercase mt-2 tracking-[0.2em] transition-colors duration-300 ease-in-out ${
+                    index === 2 
+                      ? 'font-futura text-white text-[20px] font-[450] leading-normal' 
+                      : 'font-poppins text-gray-500 text-[20px] font-normal leading-normal'
+                  } `}>
                     {collection.name}
                   </h3>
-                  <p className="text-xs md:text-sm font-light tracking-wide text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
+                  <p className={`uppercase tracking-[0.2em] ${
+                    index === 2 
+                      ? 'font-futura text-white text-[20px] font-[450] leading-normal' 
+                      : 'font-poppins text-gray-500 text-[20px] font-normal leading-normal'
+                  }`}>
                     {collection.subtitle}
                   </p>
                 </div>
@@ -97,7 +99,7 @@ function UniqueCollections() {
           </div>
         </div>
 
-        {/* Additional spacing for mobile */}
+        {/* Additional spacing */}
         <div className="mt-16 md:mt-24"></div>
       </div>
     </div>
