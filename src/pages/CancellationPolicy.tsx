@@ -164,7 +164,7 @@ const CancellationPolicy: React.FC = () => {
             </div>
             <div className="flex items-start">
               <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 mt-0.5 mr-3 flex-shrink-0">2</div>
-              <p className="text-gray-700"><strong>Email:</strong> Send a cancellation request to <span className="text-[#FF4D00]">cancellations@auin.com</span> with your order number.</p>
+              <p className="text-gray-700"><strong>Email:</strong> Send a cancellation request to <span className="text-[#FF4D00]">auoinstore@gmail.com</span> with your order number.</p>
             </div>
             <div className="flex items-start">
               <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 mt-0.5 mr-3 flex-shrink-0">3</div>
@@ -184,7 +184,7 @@ const CancellationPolicy: React.FC = () => {
                 <p className="text-gray-900 font-medium">Need help with cancellation?</p>
                 <p className="text-gray-700 text-sm mt-1">Our support team is available Monday-Friday, 9 AM - 6 PM EST to assist you with the cancellation process.</p>
                 <div className="mt-3 space-y-1">
-                  <p className="text-sm text-gray-700"><strong>Email:</strong> support@auin.com</p>
+                  <p className="text-sm text-gray-700"><strong>Email:</strong> auoinstore@gmail.com</p>
                   <p className="text-sm text-gray-700"><strong>Phone:</strong> 212 929 9953</p>
                   <p className="text-sm text-gray-700"><strong>Response Time:</strong> Within 2-4 hours during business hours</p>
                 </div>
@@ -263,7 +263,7 @@ const CancellationPolicy: React.FC = () => {
 
         <div className="mt-8 p-5 border-t border-gray-200 text-sm text-gray-600">
           <p className="mb-1">Last Updated: December 15, 2024</p>
-          <p>This cancellation policy is subject to change. Please check back regularly for updates. For questions about this policy, contact us at support@auin.com or call 212 929 9953.</p>
+          <p>This cancellation policy is subject to change. Please check back regularly for updates. For questions about this policy, contact us at auoinstore@gmail.com or call 212 929 9953.</p>
         </div>
       </div>
     </div>

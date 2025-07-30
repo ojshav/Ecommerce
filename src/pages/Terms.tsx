@@ -243,13 +243,13 @@ const Terms: React.FC = () => {
                     <p>1658 Rosewood Lane</p>
                     <p>New York City, NY</p>
                     <p className="mt-2">
-                      <span className="text-[#FF4D00]">Email:</span> legal@auin.com
+                      <span className="text-[#FF4D00]">Email:</span> auoinstore@gmail.com
                     </p>
                     <p>
                       <span className="text-[#FF4D00]">Phone:</span> 212 929 9953
                     </p>
                     <p>
-                      <span className="text-[#FF4D00]">Customer Support:</span> support@auin.com
+                      <span className="text-[#FF4D00]">Customer Support:</span> auoinstore@gmail.com
                     </p>
                   </div>
                 </div>
