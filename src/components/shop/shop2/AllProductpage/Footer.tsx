@@ -17,13 +17,13 @@ const Footer = () => {
           </div>
           <div className="flex space-x-6 mt-12">
             {/* Social Icons */}
-            <a href="#" aria-label="Facebook">
+            <a href="https://www.facebook.com/profile.php?id=61578809217780" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6 text-white"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3V2z" /></svg>
             </a>
-            <a href="#" aria-label="Twitter">
+            <a href="https://x.com/AOIN111111" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
               <svg fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 text-white"><path d="M23 3a10.9 10.9 0 01-3.14 1.53A4.48 4.48 0 0022.4.36a9.09 9.09 0 01-2.88 1.1A4.52 4.52 0 0016.11 0c-2.5 0-4.52 2.01-4.52 4.5 0 .35.04.7.11 1.03C7.69 5.4 4.07 3.7 1.64 1.15c-.38.65-.6 1.4-.6 2.2 0 1.52.77 2.86 1.95 3.65A4.48 4.48 0 01.96 6v.06c0 2.13 1.52 3.91 3.55 4.31-.37.1-.76.16-1.16.16-.28 0-.55-.03-.81-.08.55 1.7 2.16 2.94 4.07 2.97A9.05 9.05 0 010 21.54a12.8 12.8 0 006.95 2.04c8.34 0 12.9-6.91 12.9-12.9 0-.2 0-.39-.01-.58A9.22 9.22 0 0023 3z" /></svg>
             </a>
-            <a href="#" aria-label="Instagram">
+            <a href="https://www.instagram.com/aoin.in?igsh=NGk3dml2ZHk2cjM4" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6 text-white"><rect width="20" height="20" x="2" y="2" rx="5" strokeWidth={2} /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" /><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" /></svg>
             </a>
           </div>

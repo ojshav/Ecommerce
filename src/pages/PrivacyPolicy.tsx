@@ -219,7 +219,7 @@ const PrivacyPolicy = () => {
             <p className="text-gray-700">
               To exercise these rights or for any privacy-related inquiries, please contact us at:
               <br />
-              Email: privacy@auin.com
+              Email: auoinstore@gmail.com
               <br />
               Phone: 212 929 9953
               <br />
@@ -291,9 +291,9 @@ const PrivacyPolicy = () => {
                   <p className="text-gray-700">New York City, NY</p>
                 </div>
                 <div>
-                  <p className="text-gray-700"><span className="font-medium">Email:</span> privacy@auin.com</p>
+                  <p className="text-gray-700"><span className="font-medium">Email:</span> auoinstore@gmail.com</p>
                   <p className="text-gray-700"><span className="font-medium">Phone:</span> 212 929 9953</p>
-                  <p className="text-gray-700"><span className="font-medium">Customer Support:</span> support@auin.com</p>
+                  <p className="text-gray-700"><span className="font-medium">Customer Support:</span> auoinstore@gmail.com</p>
                 </div>
               </div>
             </div>

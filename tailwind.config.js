@@ -117,6 +117,9 @@ export default {
         segoe: ['Segoe UI', 'sans-serif'],
         futura: ["Futura Book BT V1", "Futura", "Trebuchet MS", "Arial", "sans-serif"],
         openSans: ['Open Sans', 'sans-serif'],
+        junge: ['Junge', 'serif'],
+        abeezee: ['ABeeZee', 'sans-serif'],
+        futurapt: ['Futura PT', 'sans-serif'],
       },
       fontSize: {
         display: ['96px', { lineHeight: '90px' }],

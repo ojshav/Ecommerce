@@ -138,7 +138,7 @@ const ReturnRefund = () => {
               <div className="space-y-6">
                 <Step icon={<Package size={20} />} title="Initiate Return">
                   <p>
-                    Start your return online through your AUIN account or contact our customer service team at <a href="mailto:returns@auin.com" className="text-[#FF4D00] hover:underline">returns@auin.com</a> with your order number and reason for return.
+                    Start your return online through your AUIN account or contact our customer service team at <a href="mailto:auoinstore@gmail.com" className="text-[#FF4D00] hover:underline">auoinstore@gmail.com</a> with your order number and reason for return.
                   </p>
                 </Step>
                 
@@ -188,7 +188,7 @@ const ReturnRefund = () => {
                 <div className="bg-[#FFF9E5] p-4 rounded-lg">
                   <h3 className="font-medium text-gray-900 mb-2">Late or Missing Refunds:</h3>
                   <p className="text-gray-700">
-                    If you haven't received a refund yet, first check your bank account again. Then contact your credit card company - it may take some time before your refund is officially posted. Next contact your bank. There is often some processing time before a refund is posted. If you still haven't received your refund after 10 business days, please contact us at <span className="text-[#FF4D00]">support@auin.com</span>.
+                    If you haven't received a refund yet, first check your bank account again. Then contact your credit card company - it may take some time before your refund is officially posted. Next contact your bank. There is often some processing time before a refund is posted. If you still haven't received your refund after 10 business days, please contact us at <span className="text-[#FF4D00]">auoinstore@gmail.com</span>.
                   </p>
                 </div>
               </div>
@@ -275,7 +275,7 @@ const ReturnRefund = () => {
               
               <FaqItem id="giftreturn" question="How do I return a gift?">
                 <p>
-                  If you received an item as a gift, you can return it for store credit or an exchange. You'll need the order number or gift receipt. Contact our customer service team at <span className="text-[#FF4D00]">support@auin.com</span> for assistance with gift returns.
+                  If you received an item as a gift, you can return it for store credit or an exchange. You'll need the order number or gift receipt. Contact our customer service team at <span className="text-[#FF4D00]">auoinstore@gmail.com</span> for assistance with gift returns.
                 </p>
               </FaqItem>
               
@@ -293,7 +293,7 @@ const ReturnRefund = () => {
               
               <FaqItem id="damaged" question="What if my item arrives damaged?">
                 <p>
-                  If your item arrives damaged, please contact us immediately at <span className="text-[#FF4D00]">support@auin.com</span> or call 212 929 9953. Take photos of the damage and we'll arrange for a free return and full refund or replacement.
+                  If your item arrives damaged, please contact us immediately at <span className="text-[#FF4D00]">auoinstore@gmail.com</span> or call 212 929 9953. Take photos of the damage and we'll arrange for a free return and full refund or replacement.
                 </p>
               </FaqItem>
               
@@ -309,7 +309,7 @@ const ReturnRefund = () => {
         <div className="mt-8 text-center">
           <div className="inline-flex items-center gap-2 text-[#FF4D00]">
             <AlertCircle size={20} />
-            <span>Need help with your return? <a href="mailto:support@auin.com" className="underline font-medium">Contact our support team</a> or call 212 929 9953</span>
+            <span>Need help with your return? <a href="mailto:auoinstore@gmail.com" className="underline font-medium">Contact our support team</a> or call 212 929 9953</span>
           </div>
         </div>
       </div>
