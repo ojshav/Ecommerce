@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 
 const AoinTrendsSection = () => {
   return (
@@ -28,9 +28,12 @@ const AoinTrendsSection = () => {
           muted
           playsInline
         />
-        <button className="bg-black text-white px-6 py-2 text-sm font-medium tracking-wide hover:bg-gray-800 transition mt-2">
+        <Link 
+          to="/shop1-allproductpage"
+          className="bg-black text-white px-6 py-2 text-sm font-medium tracking-wide hover:bg-gray-800 transition mt-2 inline-block text-center"
+        >
           SHOP NOW
-        </button>
+        </Link>
       </div>
 
       {/* Desktop Layout: Absolute, with frames */}
@@ -87,9 +90,12 @@ const AoinTrendsSection = () => {
         {/* Center video below the image layer */}
         <div className="relative z-10 flex items-center justify-center">
           {/* Button overlaps the top of the video */}
-          <button className="absolute -top-6 bg-black text-white px-6 py-2 text-sm font-medium tracking-wide hover:bg-gray-800 transition z-10">
+          <Link 
+            to="/shop1-allproductpage"
+            className="absolute -top-6 bg-black text-white px-6 py-2 text-sm font-medium tracking-wide hover:bg-gray-800 transition z-10 inline-block text-center"
+          >
             SHOP NOW
-          </button>
+          </Link>
 
           <video
             src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691055/public_assets_videos/Aoin3.mp4"
