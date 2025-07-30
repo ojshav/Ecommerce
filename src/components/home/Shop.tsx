@@ -74,7 +74,7 @@ const Shop = () => {
       id: 4,
       title: "LUXE HUB",
       timeLeft: calculateTimeLeft(),
-      navigationPath: "/shop/luxehub",
+      navigationPath: "/shop4", // changed from "/shop/luxehub"
       bannerImage: LuxeHub,
       innerBannerImage: LuxeHubInner
     }
