@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Heart, ShoppingCart, Image as ImageIcon, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import shop2ApiService, { Product } from '../../../../services/shop2ApiService';
+import chroma from 'chroma-js';
 
 const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
@@ -198,7 +199,9 @@ const ProductDetail = () => {
         <div className="relative flex flex-col justify-center min-w-0 lg:min-w-[340px] h-auto lg:h-[456px] px-2 mb-4 lg:mb-8 self-center order-3 md:order-3 lg:order-3">
           <div className="text-xs sm:text-sm uppercase text-gray-400 mb-2 sm:mb-4 font-bebas font-semibold tracking-wide">{product.category_name || 'CATEGORY'}</div>
           <p className="text-2xl sm:text-3xl lg:text-[42px] font-normal font-bebas leading-tight mb-2 sm:mb-3">{product.product_name}</p>
-          <p className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6">${product.price}</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6">
+            ₹{Number(product.price).toLocaleString('en-IN')}
+          </p>
           {/* Size Selection */}
           <div className="mb-3 sm:mb-4">
             <div className="flex items-center justify-between mb-2">
@@ -230,7 +233,10 @@ const ProductDetail = () => {
                   style={{ boxShadow: selectedColor === color ? '0 2px 8px rgba(0,0,0,0.08)' : undefined }}
                 >
                   {/* Color dot */}
-                  <span className={`inline-block font-gilroy w-3 h-3 sm:w-4 sm:h-4 rounded-full ml-1 sm:ml-2 ${color === 'Black' ? 'bg-gray-200' : color === 'Red' ? 'bg-red-200' : 'bg-blue-300'}`}></span>
+                  <span
+                    className="inline-block font-gilroy w-3 h-3 sm:w-4 sm:h-4 rounded-full ml-1 sm:ml-2 border"
+                    style={{ backgroundColor: chroma.valid(color) ? chroma(color).hex() : '#ccc' }}
+                  ></span>
                   {color}
                 </button>
               ))}
