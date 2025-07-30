@@ -53,6 +53,8 @@ export interface Product {
 
 export interface ProductVariant {
   variant_id: number;
+  parent_product_id: number;
+  variant_product_id: number;
   variant_sku: string;
   variant_name?: string;
   attribute_combination: Record<string, string>;
