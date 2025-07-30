@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import '../styles/globals.css';
 import Header from '../components/shop/shop1/Header';
 import Hero from '../components/shop/shop1/Productpage/Hero';
-import FashionCardsSection from '../components/shop/shop1/Productpage/FashionCardsSection';
+// import FashionCardsSection from '../components/shop/shop1/Productpage/FashionCardsSection';
 // import RatingsReviews from '../components/shop/shop1/Productpage/Rating';
 import SimilarProducts from '../components/shop/shop1/Productpage/SimilarProducts';
 import InstagramPromo from '../components/shop/shop1/Productpage/InstagramPromo';
@@ -12,6 +12,7 @@ import shop1ApiService, { Product } from '../services/shop1ApiService';
 function Shop1ProductPage() {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,12 +33,15 @@ function Shop1ProductPage() {
         
         if (response && response.success) {
           setProduct(response.product);
+          setRelatedProducts(response.related_products || []);
         } else {
           setProduct(null);
+          setRelatedProducts([]);
         }
       } catch (error) {
         console.error('Error fetching product:', error);
         setProduct(null);
+        setRelatedProducts([]);
       } finally {
         setLoading(false);
       }
@@ -73,9 +77,9 @@ function Shop1ProductPage() {
       <Header />
       
       <Hero productData={product} />
-      <FashionCardsSection />
+      {/* <FashionCardsSection /> */}
       {/* <RatingsReviews /> */}
-      <SimilarProducts />
+      <SimilarProducts relatedProducts={relatedProducts} />
       <InstagramPromo />
     </div>  
   );
