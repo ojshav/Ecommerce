@@ -1,11 +1,13 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import '../styles/globals.css';
 import Header from '../components/shop/shop2/Productpage/Header';
 import ProductDetail from '../components/shop/shop2/Productpage/ProductDetail';
-
 import SimilarProducts from '../components/shop/shop2/Productpage/SimilarProducts';
 
 function Shop2Productpage() {
+  const { productId } = useParams<{ productId: string }>();
+
   React.useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
     return () => {
@@ -18,7 +20,7 @@ function Shop2Productpage() {
       <Header />
       <ProductDetail />
    
-      <SimilarProducts />
+      <SimilarProducts currentProductId={productId ? Number(productId) : undefined} />
     </div>  
   );
 }
