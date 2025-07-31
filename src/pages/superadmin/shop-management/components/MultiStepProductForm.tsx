@@ -624,8 +624,8 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
             const createResult = await shopManagementService.createVariant(createdProductId, variantData);
             
             // Handle media separately for new variants
-            if (variant.media && variant.media.length > 0 && createResult?.variant_product_id) {
-              await saveVariantMedia(variant, createResult.variant_product_id);
+            if (variant.media && variant.media.length > 0 && createResult?.message?.variant?.variant_product_id) {
+              await saveVariantMedia(variant, createResult.message.variant.variant_product_id);
             }
           }
         }
@@ -656,6 +656,8 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
             // Handle variant media if any
             media: variant.media.filter(m => !m.isExisting).map((media, mediaIndex) => ({
               type: media.type.toUpperCase(),
+              url: media.url,
+              public_id: (media as any).public_id,
               file_size: media.file?.size,
               file_name: media.file?.name,
               is_primary: media.is_primary,
