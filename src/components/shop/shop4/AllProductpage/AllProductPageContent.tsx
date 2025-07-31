@@ -1,69 +1,69 @@
 import React, { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import ProductCard, { Product } from '../ProductCard';
+import Shop4ProductCard, { Product } from '../Shop4ProductCard';
 
 const products: Product[] = [
     {
         id: 1,
-        title: "Crystal Red Beads Four Layer",
+        name: "Crystal Red sindoor",
         price: 120,
-        discount: "11%",
-        image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753462993/public_assets_shop4/public_assets_shop4_Group%201000006564.png"
+        discount: 11,
+        image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463036/public_assets_shop4/public_assets_shop4_Rectangle%205.png"
     },
     {
         id: 2,
-        title: "Crystal Red sindoor",
+        name: "Crystal Red sindoor",
         price: 120,
-        discount: "11%",
+        discount: 11,
         image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463036/public_assets_shop4/public_assets_shop4_Rectangle%205.png"
     },
     {
         id: 3,
-        title: "Radha Locket Mala",
+        name: "Radha Locket Mala",
         price: 120,
-        discount: "11%",
+        discount: 11,
         image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463019/public_assets_shop4/public_assets_shop4_Rectangle%20103.png"
     },
     {
         id: 4,
-        title: "108 Dana Rudraksha Mala",
+        name: "108 Dana Rudraksha Mala",
         price: 120,
-        discount: "11%",
+        discount: 11,
         image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463020/public_assets_shop4/public_assets_shop4_Rectangle%20104.png"
     },
     {
         id: 5,
-        title: "Ganesha Shankh",
+        name: "Ganesha Shankh",
         price: 120,
-        discount: "11%",
+        discount: 11,
         image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463021/public_assets_shop4/public_assets_shop4_Rectangle%20105.png"
     },
     {
         id: 6,
-        title: "Pure Cow Ghee Diya",
+        name: "Pure Cow Ghee Diya",
         price: 120,
-        discount: "11%",
+        discount: 11,
         image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463023/public_assets_shop4/public_assets_shop4_Rectangle%20106.png"
     },
     {
         id: 7,
-        title: "Panchmukhi Rudraksha jaap",
+        name: "Panchmukhi Rudraksha jaap",
         price: 120,
-        discount: "11%",
+        discount: 11,
         image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463025/public_assets_shop4/public_assets_shop4_Rectangle%20107.png"
     },
     {
         id: 8,
-        title: "1 Inch Dhoop Candle",
+        name: "1 Inch Dhoop Candle",
         price: 120,
-        discount: "11%",
+        discount: 11,
         image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463027/public_assets_shop4/public_assets_shop4_Rectangle%20108.png"
     },
     {
         id: 9,
-        title: "Antique Turtle Loban Dingali",
+        name: "Antique Turtle Loban Dingali",
         price: 120,
-        discount: "11%",
+        discount: 11,
         image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463029/public_assets_shop4/public_assets_shop4_Rectangle%20109.png"
     }
 ];
@@ -82,7 +82,7 @@ const Sidebar: React.FC = () => {
     };
 
     return (
-        <div className="bg-[#1a1a1a] text-white min-h-screen w-full max-w-sm mx-auto lg:mx-0">
+        <div className="bg-[#1a1a1a] text-white min-h-screen w-full max-w-[1740px] mx-auto lg:mx-0">
             <div className="p-4 sm:p-6">
                 <div className="mb-6 sm:mb-8">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
@@ -212,15 +212,15 @@ const Sidebar: React.FC = () => {
 const ProductGrid: React.FC = () => {
     return (
         <div className="bg-black min-h-screen px-4 sm:px-6 lg:px-8 py-8">
-            <div className="max-w-4xl mx-auto mb-6">
+            <div className="max-w-[1640px] mx-auto mb-6">
                 <p className="text-white text-sm opacity-80">
                     Showing 1–9 of 15 Results
                 </p>
             </div>
-            <div className="max-w-4xl mx-auto">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+            <div className="max-w-[1640px] mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12 lg:gap-24">
                     {products.map((product) => (
-                        <ProductCard key={product.id} product={product} />
+                        <Shop4ProductCard key={product.id} product={product} />
                     ))}
                 </div>
             </div>
@@ -329,8 +329,8 @@ const AllProductPageContent: React.FC = () => {
     return (
         <>
             <Hero />
-            <main className="container mx-auto px-4 py-8">
-                <div className="flex flex-col lg:flex-row gap-8">
+            <main className="container mx-auto px-4 py-20">
+                <div className="flex flex-col lg:flex-row gap-12">
                     <aside className="lg:w-80 order-2 lg:order-1">
                         <div className="sticky top-8">
                             <Sidebar />
