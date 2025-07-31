@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Plus, Minus, ShoppingCart, ChevronDown, ChevronUp } from 'lucide-react';
-import CombinedProductPageComponent from '../components/shop/shop4/ProductPage/CombinedProductPageComponent';
+import CombinedProductPageComponent from '../components/shop/shop4/ProductPage/ProductDetail';
 import Header from '../components/shop/shop4/AllProductpage/Header';
 import Hero from '../components/shop/shop4/AllProductpage/Hero';
 import Footer from '../components/shop/shop4/Footer';
