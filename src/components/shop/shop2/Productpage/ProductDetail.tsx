@@ -198,6 +198,7 @@ const ProductDetail = () => {
   const fetchVariants = async (productId: number) => {
     setVariantsLoading(true);
     try {
+      
       const response = await shop2ApiService.getProductVariants(productId);
       if (response && response.success) {
         setVariants(response.variants);
@@ -477,41 +478,55 @@ const ProductDetail = () => {
           </button>
         </div>
       </div>
-      {/* Product Variants Section - Small Thumbnails */}
-      {variants.length > 0 && (
-        <div className="max-w-[1310px] w-full mx-auto mt-6 sm:mt-8">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <h3 className="text-lg sm:text-xl font-bold font-bebas">Other Variants</h3>
-            <span className="text-xs text-gray-600 font-gilroy">
-              {variants.length} available
-            </span>
-          </div>
-          
-          {variantsLoading ? (
-            <div className="flex justify-center items-center h-16">
-              <div className="text-gray-500 text-sm">Loading...</div>
+             {/* Product Variants Section - Small Thumbnails */}
+       {(variants.length > 0 || product?.is_parent_product) && (
+         <div className="max-w-[1310px] w-full mx-auto mt-6 sm:mt-8">
+                       <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h3 className="text-lg sm:text-xl font-bold font-bebas">
+                {product?.is_parent_product ? 'Available Variants' : 'Related Products'}
+              </h3>
+              <span className="text-xs text-gray-600 font-gilroy">
+                {variants.length} available
+              </span>
             </div>
-          ) : (
-                         <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
-               {variants.map((variant) => (
-                 <div
-                   key={variant.variant_id}
-                   onClick={() => handleVariantClick(variant)}
-                   className="group cursor-pointer bg-white rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200 flex-shrink-0"
-                   style={{ width: '60px', height: '60px' }}
-                 >
-                   {/* Small Variant Image Only */}
-                   <img
-                     src={variant.primary_image || variant.media?.primary_image || '/assets/shop2/ProductPage/pd1.svg'}
-                     alt={variant.variant_name || `Variant ${variant.variant_id}`}
-                     className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-200"
-                   />
-                 </div>
-               ))}
+           
+           {variantsLoading ? (
+             <div className="flex justify-center items-center h-16">
+               <div className="text-gray-500 text-sm">Loading...</div>
              </div>
-          )}
-        </div>
-      )}
+           ) : (
+                                                       <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
+                {/* Sort variants to show parent product first, then other variants */}
+                {variants
+                  .sort((a, b) => {
+                    // Sort parent product first (if it exists in variants)
+                    if (a.parent_product_id === null) return -1;
+                    if (b.parent_product_id === null) return 1;
+                    return 0;
+                  })
+                  .map((variant) => (
+                    <div
+                      key={variant.variant_id}
+                      onClick={() => handleVariantClick(variant)}
+                      className={`group cursor-pointer bg-white rounded-lg border transition-all duration-200 flex-shrink-0 ${
+                        variant.variant_product_id === Number(productId)
+                          ? 'border-orange-400 shadow-md'
+                          : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                      }`}
+                      style={{ width: '60px', height: '60px' }}
+                    >
+                      {/* Small Variant Image Only */}
+                      <img
+                        src={variant.primary_image || variant.media?.primary_image || '/assets/shop2/ProductPage/pd1.svg'}
+                        alt={variant.variant_name || `Variant ${variant.variant_id}`}
+                        className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-200"
+                      />
+                    </div>
+                  ))}
+              </div>
+           )}
+         </div>
+       )}
 
       {/* Description & Reviews Section */}
       <div className="max-w-[1310px]  pt-8 sm:pt-10 lg:pt-12 flex flex-col items-start">
