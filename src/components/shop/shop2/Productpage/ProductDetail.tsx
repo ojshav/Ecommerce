@@ -186,11 +186,35 @@ const ProductDetail = () => {
     }
   };
 
-  // Navigate to variant page
+  // Navigate to variant page or parent product
   const handleVariantClick = (variant: ProductVariant) => {
     // Navigate to the variant product page using variant_product_id
     // The variant_product_id is the actual product ID, not the variant_id
     navigate(`/shop2/product/${variant.variant_product_id}`);
+  };
+
+  // State for parent product data
+  const [parentProduct, setParentProduct] = useState<Product | null>(null);
+
+  // Navigate to parent product
+  const handleParentProductClick = () => {
+    // Find parent product ID from variants data
+    const parentProductId = variants.length > 0 ? variants[0]?.parent_product_id : null;
+    if (parentProductId) {
+      navigate(`/shop2/product/${parentProductId}`);
+    }
+  };
+
+  // Fetch parent product data when variants are loaded
+  const fetchParentProduct = async (parentProductId: number) => {
+    try {
+      const response = await shop2ApiService.getProductById(parentProductId);
+      if (response && response.success) {
+        setParentProduct(response.product);
+      }
+    } catch (err) {
+      console.error('Failed to fetch parent product:', err);
+    }
   };
 
   useEffect(() => {
@@ -243,6 +267,17 @@ const ProductDetail = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
+
+  // Fetch parent product when variants are available and this is a variant product
+  useEffect(() => {
+    if (product && variants.length > 0 && isVariantProduct(product)) {
+      const parentProductId = variants[0]?.parent_product_id;
+      if (parentProductId && !parentProduct) {
+        fetchParentProduct(parentProductId);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product, variants]);
 
   if (loading) return <div className="flex justify-center items-center h-96 text-lg">Loading...</div>;
   if (error) return <div className="flex justify-center items-center h-96 text-red-500 text-lg">{error}</div>;
@@ -453,7 +488,7 @@ const ProductDetail = () => {
                 {product?.is_parent_product ? 'Available Variants' : 'Related Products'}
               </h3>
               <span className="text-xs text-gray-600 font-gilroy">
-                {variants.length} available
+                {(variants.length + (isVariantProduct(product) && variants.length > 0 ? 1 : 0))} available
               </span>
             </div>
            
@@ -463,6 +498,25 @@ const ProductDetail = () => {
              </div>
            ) : (
                                                        <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
+                {/* Show parent product first if this is a variant product */}
+                {isVariantProduct(product) && variants.length > 0 && variants[0]?.parent_product_id && (
+                  <div
+                    onClick={handleParentProductClick}
+                    className={`group cursor-pointer bg-white rounded-lg border transition-all duration-200 flex-shrink-0 ${
+                      Number(productId) === variants[0]?.parent_product_id
+                        ? 'border-orange-400 shadow-md'
+                        : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                    }`}
+                    style={{ width: '60px', height: '60px' }}
+                  >
+                    <img
+                      src={parentProduct?.primary_image || '/assets/shop2/ProductPage/pd1.svg'}
+                      alt="Parent Product"
+                      className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-200"
+                    />
+                  </div>
+                )}
+                
                 {/* Sort variants to show parent product first, then other variants */}
                 {variants
                   .sort((a, b) => {
