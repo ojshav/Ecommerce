@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Shop2ProductCard from '../Shop2ProductCard';
 import shop2ApiService, { Product, Category, Brand } from '../../../../services/shop2ApiService';
 
@@ -16,6 +16,7 @@ const collections = [
 
 const ProductPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   
   // API Data States
   const [products, setProducts] = useState<Product[]>([]);
@@ -77,11 +78,37 @@ const ProductPage = () => {
     navigate(`/shop2/product/${productId}`);
   };
 
-  // Load initial data
+  // Update URL with current filter state
+  const updateURL = useCallback(() => {
+    console.log('updateURL called with:', {
+      searchTerm,
+      selectedCategoryIds,
+      selectedBrandIds,
+      minPrice,
+      maxPrice,
+      sortOption
+    });
+
+    const params = new URLSearchParams();
+    
+    if (searchTerm.trim()) params.set('search', searchTerm.trim());
+    if (selectedCategoryIds.length > 0) params.set('category', selectedCategoryIds.join(','));
+    if (selectedBrandIds.length > 0) params.set('brand', selectedBrandIds.join(','));
+    if (minPrice > 0) params.set('min_price', minPrice.toString());
+    if (maxPrice < 1000000) params.set('max_price', maxPrice.toString());
+    if (sortOption !== "Sort By List") params.set('sort', sortOption);
+    
+    const newURL = params.toString() ? `/shop2-allproductpage?${params.toString()}` : '/shop2-allproductpage';
+    console.log('Navigating to:', newURL);
+    navigate(newURL, { replace: true });
+  }, [searchTerm, selectedCategoryIds, selectedBrandIds, minPrice, maxPrice, sortOption, navigate]);
+
+  // Load initial data and parse URL parameters
   useEffect(() => {
     const loadInitialData = async () => {
       try {
         setLoading(true);
+        setInitialLoadComplete(false); // Reset flag when location changes
         const [categoriesData, brandsData] = await Promise.all([
           shop2ApiService.getCategories(),
           shop2ApiService.getBrands()
@@ -89,16 +116,83 @@ const ProductPage = () => {
         
         setCategories(categoriesData);
         setBrands(brandsData);
+
+        // Parse URL search parameters
+        const searchParams = new URLSearchParams(location.search);
+        const searchQuery = searchParams.get('search');
+        const categoryParam = searchParams.get('category');
+        const brandParam = searchParams.get('brand');
+        const minPriceParam = searchParams.get('min_price');
+        const maxPriceParam = searchParams.get('max_price');
+        const sortParam = searchParams.get('sort');
+
+        // Set initial search term if provided
+        if (searchQuery) {
+          setSearchTerm(searchQuery);
+        }
+
+        // Set initial category filter if provided
+        if (categoryParam) {
+          const categoryIds = categoryParam.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+          if (categoryIds.length > 0) {
+            setSelectedCategoryIds(categoryIds);
+          }
+        }
+
+        // Set initial brand filter if provided
+        if (brandParam) {
+          const brandIds = brandParam.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+          if (brandIds.length > 0) {
+            setSelectedBrandIds(brandIds);
+          }
+        }
+
+        // Set initial price filters if provided
+        if (minPriceParam) {
+          const minPriceValue = parseInt(minPriceParam);
+          if (!isNaN(minPriceValue)) {
+            setMinPrice(minPriceValue);
+          }
+        }
+
+        if (maxPriceParam) {
+          const maxPriceValue = parseInt(maxPriceParam);
+          if (!isNaN(maxPriceValue)) {
+            setMaxPrice(maxPriceValue);
+          }
+        }
+
+        // Set initial sort option if provided
+        if (sortParam) {
+          setSortOption(sortParam);
+        }
+
+        // Mark initial load as complete
+        setInitialLoadComplete(true);
       } catch (error) {
         console.error('Error loading initial data:', error);
         setError('Failed to load initial data');
+        setInitialLoadComplete(true); // Still mark as complete even on error
       } finally {
         setLoading(false);
       }
     };
 
     loadInitialData();
-  }, []);
+  }, [location.search]);
+
+  // Track if initial load is complete
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
+  // Update URL when filters change (but not on initial load)
+  useEffect(() => {
+    console.log('URL update useEffect triggered, initialLoadComplete:', initialLoadComplete);
+    // Only update URL after initial load is complete
+    if (initialLoadComplete) {
+      console.log('Calling updateURL because initialLoadComplete is true');
+      updateURL();
+    }
+  }, [searchTerm, selectedCategoryIds, selectedBrandIds, minPrice, maxPrice, sortOption, updateURL, initialLoadComplete]);
 
   // Load products when filters change
   useEffect(() => {
@@ -172,6 +266,9 @@ const ProductPage = () => {
     setSearchTerm('');
     setCurrentPage(1);
     setSortOption("Sort By List");
+    
+    // Clear URL parameters
+    navigate('/shop2-allproductpage', { replace: true });
   };
 
   // Loading state

@@ -1,7 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const QualityShowcase = () => {
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterMessage, setNewsletterMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setNewsletterMessage(null);
+    if (!newsletterEmail) {
+      setNewsletterMessage({ type: 'error', text: 'Please enter your email address.' });
+      return;
+    }
+    setNewsletterLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/public/newsletter/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+      const data = await response.json();
+      if (response.ok && data.status === 'success') {
+        setNewsletterMessage({ type: 'success', text: 'You have been subscribed to our newsletter.' });
+        setNewsletterEmail('');
+      } else {
+        setNewsletterMessage({ type: 'error', text: data.message || 'Could not subscribe.' });
+      }
+    } catch (err) {
+      setNewsletterMessage({ type: 'error', text: 'Could not connect to the server.' });
+    } finally {
+      setNewsletterLoading(false);
+    }
+  };
   return (
     <section className="relative w-full min-h-screen bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center px-4 sm:px-6 lg:px-8 py-6 pt-20 sm:pt-24 lg:pt-28 font-sans text-white">
       {/* Top Grid */}
@@ -70,16 +106,28 @@ const QualityShowcase = () => {
             Subscribe to our newsletter for the latest drops <br className="hidden sm:block" />
             and insider news.
           </p>
-          <div className="flex flex-col items-center sm:flex-row gap-2">
+          <form onSubmit={handleNewsletterSubmit} className="flex flex-col items-center sm:flex-row gap-2">
             <input
               type="email"
               placeholder="Enter your email"
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
+              disabled={newsletterLoading}
               className="w-full px-3 sm:px-4 py-2 rounded-none text-black focus:outline-none text-sm sm:text-base"
             />
-            <button className="bg-[#A023EC] px-4 sm:px-6 py-2 text-white font-semibold hover:bg-[#8d1cd1] transition text-sm sm:text-base">
-              Subscribe
+            <button 
+              type="submit"
+              disabled={newsletterLoading}
+              className="bg-[#A023EC] px-4 sm:px-6 py-2 text-white font-semibold hover:bg-[#8d1cd1] transition text-sm sm:text-base disabled:opacity-50"
+            >
+              {newsletterLoading ? 'Submitting...' : 'Subscribe'}
             </button>
-          </div>
+          </form>
+          {newsletterMessage && (
+            <div className={`text-xs sm:text-sm font-archivio ${newsletterMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+              {newsletterMessage.text}
+            </div>
+          )}
         </div>
       </div>
     </section>
