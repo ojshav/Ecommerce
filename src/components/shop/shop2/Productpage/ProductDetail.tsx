@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Heart, ShoppingCart, Image as ImageIcon, ChevronDown, ChevronUp, Star, ExternalLink } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Heart, ShoppingCart, Image as ImageIcon, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import shop2ApiService, { Product, ProductVariant } from '../../../../services/shop2ApiService';
 import chroma from 'chroma-js';
@@ -47,110 +47,86 @@ const ProductDetail = () => {
     },
   ];
 
-  // Helper to get attribute values as array
-  function getAttributeValues(product: Product | null, attrName: string): string[] {
-    // First try to get from variant attributes (for variant products)
-    if (product?.variant_attributes && Array.isArray(product.variant_attributes)) {
-      const variantAttr = product.variant_attributes.find(
-        (a: any) => a.name && a.name.toLowerCase() === attrName.toLowerCase()
-      );
-      if (variantAttr && Array.isArray(variantAttr.values)) {
-        return variantAttr.values;
-      }
-    }
-    
-    // Then try to get from current product attributes
-    const attr = product?.attributes?.find(
-      a => a.attribute?.name?.toLowerCase() === attrName.toLowerCase()
-    );
-    if (attr && typeof attr.value === 'string') {
-      return attr.value.split(',').map(v => v.trim()).filter(Boolean);
-    }
-    
-    // Fallback to static values if no attributes found
-    if (attrName.toLowerCase() === 'size') return ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-    if (attrName.toLowerCase() === 'color') return ['Black', 'Red', 'Blue'];
-    return [];
-  }
 
-  // Helper to get all available attributes for a product (including variant attributes)
-  function getAllProductAttributes(product: Product | null): Array<{name: string, value: string, attribute_id: number}> {
-    const allAttributes: Array<{name: string, value: string, attribute_id: number}> = [];
-    
-    // For parent products, only show parent attributes
+
+  // Helper to get current product's attributes, including from variants data
+  function getCurrentProductAttributes(): Array<{name: string, value: string, attribute_id: number}> {
+    const attributes: Array<{name: string, value: string, attribute_id: number}> = [];
+
+    // For parent products, show parent attributes
     if (product?.is_parent_product && product?.attributes) {
       product.attributes.forEach(attr => {
-        allAttributes.push({
+        attributes.push({
           name: attr.attribute?.name || 'Unknown',
           value: attr.value || 'N/A',
           attribute_id: attr.attribute_id
         });
       });
+      return attributes;
     }
-    
-    // For variant products, show variant attributes
+
+    // For variant products, first try to find current variant in variants array
+    if (isVariantProduct(product) && variants.length > 0) {
+      const currentVariant = variants.find(v => v.variant_product_id === Number(productId));
+      if (currentVariant && currentVariant.attribute_combination) {
+        // Use attribute_combination from current variant
+        Object.entries(currentVariant.attribute_combination).forEach(([key, value], index) => {
+          attributes.push({
+            name: key,
+            value: String(value),
+            attribute_id: index // Use index as ID for variant attributes
+          });
+        });
+        return attributes;
+      }
+    }
+
+    // Fallback to variant_attributes if available
     if (isVariantProduct(product) && product?.variant_attributes && Array.isArray(product.variant_attributes)) {
-      product.variant_attributes.forEach(variantAttr => {
+      product.variant_attributes.forEach((variantAttr, index) => {
         if (variantAttr.values && Array.isArray(variantAttr.values)) {
-          // Create individual attribute entries for each value
-          variantAttr.values.forEach(value => {
-            allAttributes.push({
-              name: variantAttr.name || 'Unknown',
-              value: value,
-              attribute_id: 0 // Use 0 for variant attributes since they don't have individual IDs
-            });
+          attributes.push({
+            name: variantAttr.name || 'Unknown',
+            value: variantAttr.values.join(', '),
+            attribute_id: index
           });
         }
       });
+      return attributes;
     }
-    
-    // If no variant attributes found for variant product, fall back to regular attributes
-    if (isVariantProduct(product) && allAttributes.length === 0 && product?.attributes) {
+
+    // Final fallback to regular attributes
+    if (product?.attributes) {
       product.attributes.forEach(attr => {
-        allAttributes.push({
+        attributes.push({
           name: attr.attribute?.name || 'Unknown',
           value: attr.value || 'N/A',
           attribute_id: attr.attribute_id
         });
       });
     }
-    
-    return allAttributes;
+
+    return attributes;
   }
 
-  // Helper to get all available attribute values for a product (including from parent if it's a variant)
-  function getAllAttributeValues(product: Product | null, attrName: string): string[] {
-    // If this is a variant product and has variant attributes, use those
-    if (isVariantProduct(product) && product?.variant_attributes) {
-      const variantAttr = product.variant_attributes.find(
-        (a: any) => a.name && a.name.toLowerCase() === attrName.toLowerCase()
-      );
-      if (variantAttr && Array.isArray(variantAttr.values)) {
-        return variantAttr.values;
+  // Helper to get current variant's available attribute values
+  function getCurrentVariantAttributeValues(attrName: string): string[] {
+    // Find current variant in variants array
+    const currentVariant = variants.find(v => v.variant_product_id === Number(productId));
+    
+    if (currentVariant && currentVariant.attribute_combination && currentVariant.attribute_combination[attrName]) {
+      const value = currentVariant.attribute_combination[attrName];
+      if (typeof value === 'string') {
+        return value.split(',').map(v => v.trim()).filter(Boolean).sort();
+      } else {
+        return [String(value)];
       }
     }
-    
-    // Otherwise use the regular attribute values
-    return getAttributeValues(product, attrName);
+
+    return [];
   }
 
-  // Helper to get all current product attributes
-  function getCurrentProductAttributes(product: Product | null): Array<{name: string, value: string}> {
-    if (!product?.attributes) return [];
-    
-    return product.attributes.map(attr => ({
-      name: attr.attribute?.name || 'Unknown',
-      value: attr.value || 'N/A'
-    }));
-  }
 
-  // Helper to get current variant's selected attributes
-  function getCurrentVariantAttribute(product: Product | null, attrName: string): string | null {
-    if (product?.current_variant_attributes) {
-      return product.current_variant_attributes[attrName] || null;
-    }
-    return null;
-  }
 
   // Helper to check if this is a variant product
   function isVariantProduct(product: Product | null): boolean {
@@ -365,30 +341,26 @@ const ProductDetail = () => {
           </p>
                      {/* Dynamic Attribute Selection */}
            {(() => {
-             const allAttributes = getAllProductAttributes(product);
+             const currentAttributes = getCurrentProductAttributes();
              
-             if (allAttributes.length === 0) return null;
-             
-             // Group attributes by name
-             const groupedAttributes = allAttributes.reduce((groups, attr) => {
-               const key = attr.name.toLowerCase();
-               if (!groups[key]) {
-                 groups[key] = [];
-               }
-               groups[key].push(attr);
-               return groups;
-             }, {} as { [key: string]: typeof allAttributes });
+             if (currentAttributes.length === 0) return null;
 
              return (
                <div className="mb-4 sm:mb-6">
-                 {Object.entries(groupedAttributes).map(([groupKey, attributes]) => {
-                   const firstAttr = attributes[0];
-                   const attrName = firstAttr.name;
+                 {currentAttributes.map((attr) => {
+                   const attrName = attr.name;
                    const isMultiSelect = isMultiSelectAttribute(attrName);
-                   const selectedValues = selectedAttributes[firstAttr.attribute_id];
+                   const selectedValues = selectedAttributes[attr.attribute_id];
+
+                   // Get current variant's specific values for this attribute
+                   const currentVariantValues = getCurrentVariantAttributeValues(attrName);
+                   // If no variant values found, use current attribute values
+                   const valuesToShow = currentVariantValues.length > 0 
+                     ? currentVariantValues 
+                     : attr.value.split(',').map(v => v.trim()).filter(Boolean);
 
                    return (
-                     <div key={groupKey} className="mb-3 sm:mb-4">
+                     <div key={`${attrName.toLowerCase()}-${attr.attribute_id}`} className="mb-3 sm:mb-4">
                        <div className="flex items-center justify-between mb-2">
                          <span className="text-xs sm:text-[14px] font-bebas font-bold tracking-wide">
                            {attrName.toUpperCase()}
@@ -400,42 +372,37 @@ const ProductDetail = () => {
                          )}
                        </div>
                        <div className="flex flex-wrap gap-1 sm:gap-2">
-                         {attributes.map((attr, attrIndex) => {
-                           // Parse comma-separated values into individual options
-                           const values = attr.value.split(',').map(v => v.trim()).filter(Boolean);
-                           
-                           return values.map((value, index) => {
-                             const isSelected = isMultiSelect
-                               ? (selectedValues as string[])?.includes(value)
-                               : selectedValues === value;
+                         {valuesToShow.map((value, index) => {
+                           const isSelected = isMultiSelect
+                             ? (selectedValues as string[])?.includes(value)
+                             : selectedValues === value;
 
-                             return (
-                               <button
-                                 key={`${attr.attribute_id}-${attrIndex}-${index}`}
-                                 onClick={() => handleAttributeSelect(
-                                   firstAttr.attribute_id,
-                                   value,
-                                   isMultiSelect
-                                 )}
-                                 className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-[10px] sm:text-[12px] font-semibold shadow-sm transition-all focus:outline-none ${
-                                   isSelected 
-                                     ? 'bg-orange-100 border-orange-400 shadow-md text-black' 
-                                     : 'bg-white border-gray-300 text-gray-700'
-                                 }`}
-                                 style={{ 
-                                   boxShadow: isSelected ? '0 2px 8px rgba(255, 165, 0, 0.15)' : undefined 
-                                 }}
-                               >
-                                 {attrName.toLowerCase() === 'color' && (
-                                   <span
-                                     className="inline-block w-3 h-3 sm:w-4 sm:h-4 rounded-full mr-1 sm:mr-2 border"
-                                     style={{ backgroundColor: chroma.valid(value) ? chroma(value).hex() : '#ccc' }}
-                                   />
-                                 )}
-                                 {value}
-                               </button>
-                             );
-                           });
+                           return (
+                             <button
+                               key={`${attr.attribute_id}-${index}`}
+                               onClick={() => handleAttributeSelect(
+                                 attr.attribute_id,
+                                 value,
+                                 isMultiSelect
+                               )}
+                               className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-[10px] sm:text-[12px] font-semibold shadow-sm transition-all focus:outline-none ${
+                                 isSelected 
+                                   ? 'bg-orange-100 border-orange-400 shadow-md text-black' 
+                                   : 'bg-white border-gray-300 text-gray-700'
+                               }`}
+                               style={{ 
+                                 boxShadow: isSelected ? '0 2px 8px rgba(255, 165, 0, 0.15)' : undefined 
+                               }}
+                             >
+                               {attrName.toLowerCase() === 'color' && (
+                                 <span
+                                   className="inline-block w-3 h-3 sm:w-4 sm:h-4 rounded-full mr-1 sm:mr-2 border"
+                                   style={{ backgroundColor: chroma.valid(value) ? chroma(value).hex() : '#ccc' }}
+                                 />
+                               )}
+                               {value}
+                             </button>
+                           );
                          })}
                        </div>
                      </div>
