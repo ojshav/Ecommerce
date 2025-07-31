@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Plus, Minus, ShoppingCart, ChevronDown, ChevronUp } from 'lucide-react';
-import HomeThreeScreen from '../components/shop/shop4/ProductPage/HomeThreeScreen';
+import CombinedProductPageComponent from '../components/shop/shop4/ProductPage/ProductDetail';
 import Header from '../components/shop/shop4/AllProductpage/Header';
 import Hero from '../components/shop/shop4/AllProductpage/Hero';
 import Footer from '../components/shop/shop4/Footer';
@@ -277,7 +277,7 @@ const Shop4Productpage: React.FC = () => {
           <div className="border-t border-gray-700"></div>
         </div>
       </div>
-           <HomeThreeScreen/>  
+           <CombinedProductPageComponent/>  
      <Footer/>
     </div>
   );
