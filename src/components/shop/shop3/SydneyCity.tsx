@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const IMAGE1_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component4_Image1.svg";
 
@@ -45,9 +46,11 @@ const SydneyCity: React.FC = () => {
             <div className="bg-transparent text-white text-[14px] sm:text-[15px] lg:text-[16px] font-clash font-bold p-0 mb-4 sm:mb-6 text-center lg:text-left max-w-[500px] lg:max-w-none">
               "SYDNEY CITY: INSIDE LOOK SUMMER FASHION - 2023" IS YOUR ULTIMATE GUIDE TO EMBRACING THE ESSENCE OF SYDNEY SUMMER FASHION STYLE. SO GRAB YOUR SUNNIES AND GET READY TO BE INSPIRED BY THE THRILLING FASHION SHOW SCENE IN ONE OF AUSTRALIA'S MOST ICONIC CITIES.
             </div>
-            <button className="border border-white text-white px-6 sm:px-4 lg:px-4 py-2 rounded-full text-[12px] sm:text-[13px] lg:text-[14px] font-bold hover:bg-[#3D5914] font-clash transition-colors duration-300">
-              EXPLORE COLLECTION
-            </button>
+            <Link to="/shop3-allproductpage">
+              <button className="border border-white text-white px-6 sm:px-4 lg:px-4 py-2 rounded-full text-[12px] sm:text-[13px] lg:text-[14px] font-bold hover:bg-[#3D5914] font-clash transition-colors duration-300">
+                EXPLORE COLLECTION
+              </button>
+            </Link>
           </div>
         </div>
       </div>
