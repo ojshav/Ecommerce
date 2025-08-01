@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const AwesomeCollection = () => {
   return (
     <div className="w-full h-full  bg-black">
@@ -36,9 +38,9 @@ const AwesomeCollection = () => {
           </div>
           {/* Button positioned over the incense sticks area */}
           <div className="absolute bottom-[200px] left-[80px] transform ">
-            <button className="flex w-[156px] h-[50px] justify-center items-center gap-[10px] flex-shrink-0 rounded-[30px] bg-[#BB9D7B] text-black font-poppins text-[12px] font-semibold tracking-[3px] uppercase">
+            <Link to="/shop4-Allproductpage" className="flex w-[156px] h-[50px] justify-center items-center gap-[10px] flex-shrink-0 rounded-[30px] bg-[#BB9D7B] text-black font-poppins text-[12px] font-semibold tracking-[3px] uppercase hover:bg-[#A88A6A] transition-colors duration-200">
               VIEW ALL
-            </button>
+            </Link>
           </div>
         </div>
 

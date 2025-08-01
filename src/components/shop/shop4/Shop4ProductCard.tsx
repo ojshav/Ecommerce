@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Plus, Minus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export interface Product {
   id: number;
@@ -28,6 +29,7 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(1);
+  const navigate = useNavigate();
 
   const handleQuantityChange = (change: number) => {
     setQuantity(Math.max(1, quantity + change));
@@ -41,10 +43,17 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
+  const handleImageClick = () => {
+    navigate('/shop4-productpage');
+  };
+
   return (
     <div className={`relative group cursor-pointer ${className}`}>
       {/* Product Image Container */}
-      <div className={`w-full h-[450px] rounded-lg overflow-hidden flex items-center justify-center ${product.background || ''} transition-all duration-300 group-hover:border-4 group-hover:border-white`}>
+      <div 
+        className={`w-full h-[450px] rounded-lg overflow-hidden flex items-center justify-center ${product.background || ''} transition-all duration-300 group-hover:border-4 group-hover:border-white cursor-pointer`}
+        onClick={handleImageClick}
+      >
         <img
           src={product.image}
           alt={product.name}

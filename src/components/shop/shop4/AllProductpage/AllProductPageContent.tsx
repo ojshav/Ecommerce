@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import Shop4ProductCard, { Product } from '../Shop4ProductCard';
 
@@ -72,235 +72,366 @@ const products: Product[] = [
 
 // --- Sidebar ---
 const Sidebar: React.FC = () => {
-    const [priceRange, setPriceRange] = useState([280, 7500]);
+    const [priceRange, setPriceRange] = useState([0, 7500]);
     const [inStock, setInStock] = useState(false);
     const [outOfStock, setOutOfStock] = useState(false);
+    const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
+    const sliderRef = useRef<HTMLDivElement>(null);
 
-    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = parseInt(e.target.value);
-        setPriceRange([280, value]);
+    const minPrice = 0;
+    const maxPrice = 7500;
+
+    const handleMouseDown = (e: React.MouseEvent, handle: 'min' | 'max') => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(handle);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+    };
+
+    const handleHandleClick = (e: React.MouseEvent, handle: 'min' | 'max') => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Don't start dragging on click, just prevent the track click
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+        if (!isDragging || !sliderRef.current) return;
+        e.preventDefault();
+
+        const rect = sliderRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const width = rect.width;
+        const percentage = Math.max(0, Math.min(1, x / width));
+        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+
+        if (isDragging === 'min') {
+            const newMin = Math.min(value, priceRange[1] - 100);
+            setPriceRange([newMin, priceRange[1]]);
+        } else {
+            const newMax = Math.max(value, priceRange[0] + 100);
+            setPriceRange([priceRange[0], newMax]);
+        }
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(null);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    const handleTouchStart = (e: React.TouchEvent, handle: 'min' | 'max') => {
+        e.preventDefault();
+        setIsDragging(handle);
+        document.addEventListener('touchmove', handleTouchMove);
+        document.addEventListener('touchend', handleTouchEnd);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+        if (!isDragging || !sliderRef.current) return;
+        e.preventDefault();
+
+        const rect = sliderRef.current.getBoundingClientRect();
+        const x = e.touches[0].clientX - rect.left;
+        const width = rect.width;
+        const percentage = Math.max(0, Math.min(1, x / width));
+        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+
+        if (isDragging === 'min') {
+            const newMin = Math.min(value, priceRange[1] - 100);
+            setPriceRange([newMin, priceRange[1]]);
+        } else {
+            const newMax = Math.max(value, priceRange[0] + 100);
+            setPriceRange([priceRange[0], newMax]);
+        }
+    };
+
+    const handleTouchEnd = () => {
+        setIsDragging(null);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+    };
+
+    const getMinPosition = () => ((priceRange[0] - minPrice) / (maxPrice - minPrice)) * 100;
+    const getMaxPosition = () => ((priceRange[1] - minPrice) / (maxPrice - minPrice)) * 100;
+
+    const handleClearFilters = () => {
+        setPriceRange([0, 7500]);
+        setInStock(false);
+        setOutOfStock(false);
     };
 
     return (
-        <div className="bg-[#1a1a1a] text-white min-h-screen w-full max-w-[1740px] mx-auto lg:mx-0">
-            <div className="p-4 sm:p-6">
-                <div className="mb-6 sm:mb-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-                        <span className="text-gray-300 text-sm sm:text-base">Home/Pooja Items</span>
-                        <button className="border border-white text-[#895200] px-4 py-2 rounded text-sm hover:bg-[#BB9D7B] hover:text-white transition-colors self-start">
+        <div className="bg-[#161616] text-white w-[455px] h-[638px] rounded-[5px]">
+            <div className="p-10">
+                {/* Top Section - Breadcrumbs and Clear Filters */}
+                <div className="mb-6">
+                    <div className="flex items-center justify-between mb-8">
+                        <span className="text-white font-poppins text-base font-normal leading-[30px] tracking-[2.4px] capitalize">Home/Pooja Items</span>
+                        <button 
+                            onClick={handleClearFilters}
+                            className="w-[168px] h-[50px] flex-shrink-0 border border-white text-[#895200] font-poppins text-[14px] font-normal leading-normal tracking-[2.1px] capitalize hover:bg-white hover:text-black transition-colors duration-300"
+                        >
                             Clear Filters
                         </button>
                     </div>
-                    <div className="w-full h-px bg-white"></div>
+                    <div className="w-full h-px bg-[#E0E0E0]"></div>
                 </div>
-                <div className="mb-8 sm:mb-10">
-                    <h3 className="text-white text-lg sm:text-xl font-medium mb-6">Filter By Price</h3>
-                    <div className="mb-6 relative">
-                        <div className="relative">
-                            <input
-                                type="range"
-                                min="280"
-                                max="7500"
-                                value={priceRange[1]}
-                                onChange={handlePriceChange}
-                                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer price-slider"
-                                style={{
-                                    background: `linear-gradient(to right, #BB9D7B 0%, #BB9D7B ${((priceRange[1] - 280) / (7500 - 280)) * 100}%, #374151 ${((priceRange[1] - 280) / (7500 - 280)) * 100}%, #374151 100%)`
-                                }} />
+
+                {/* Filter By Price Section */}
+                <div className="mb-6">
+                    <h3 className="text-white font-futura text-[25px] font-[450] leading-[30px] capitalize mb-6">Filter By Price</h3>
+                    <div className="mb-6">
+                        <div className="relative" ref={sliderRef}>
+                            {/* Track */}
+                            <div 
+                                className="w-full h-2 bg-[#374151] rounded-lg relative cursor-pointer"
+                                onClick={(e) => {
+                                    // Don't handle clicks if we're clicking on a handle
+                                    if ((e.target as HTMLElement).closest('[data-handle]')) return;
+                                    
+                                    if (!sliderRef.current) return;
+                                    const rect = sliderRef.current.getBoundingClientRect();
+                                    const x = e.clientX - rect.left;
+                                    const width = rect.width;
+                                    const percentage = Math.max(0, Math.min(1, x / width));
+                                    const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+                                    
+                                    // Determine which handle to move based on which is closer
+                                    const minDistance = Math.abs(value - priceRange[0]);
+                                    const maxDistance = Math.abs(value - priceRange[1]);
+                                    
+                                    if (minDistance < maxDistance) {
+                                        const newMin = Math.min(value, priceRange[1] - 100);
+                                        setPriceRange([newMin, priceRange[1]]);
+                                    } else {
+                                        const newMax = Math.max(value, priceRange[0] + 100);
+                                        setPriceRange([priceRange[0], newMax]);
+                                    }
+                                }}
+                            >
+                                {/* Active track */}
+                                <div 
+                                    className="absolute h-2 bg-[#A06020] rounded-lg"
+                                    style={{
+                                        left: `${getMinPosition()}%`,
+                                        width: `${getMaxPosition() - getMinPosition()}%`,
+                                        transition: isDragging ? 'none' : 'left 0.3s ease-out, width 0.3s ease-out'
+                                    }}
+                                />
+                            </div>
+                            
+                            {/* Min Handle */}
                             <div
-                                className="absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-[#BB9D7B] rounded-full border-2 border-white shadow-lg pointer-events-none"
-                                style={{ left: `${((priceRange[0] - 280) / (7500 - 280)) * 100}%`, marginLeft: '-10px' }}
-                            ></div>
+                                data-handle="min"
+                                className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-[#A06020] border-2 border-white rounded-full cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl transition-all duration-300 ease-out z-10 select-none"
+                                style={{ 
+                                    left: `calc(${getMinPosition()}% - 12px)`,
+                                    transition: isDragging ? 'none' : 'left 0.3s ease-out'
+                                }}
+                                onMouseDown={(e) => handleMouseDown(e, 'min')}
+                                onClick={(e) => handleHandleClick(e, 'min')}
+                                onTouchStart={(e) => handleTouchStart(e, 'min')}
+                            />
+                            
+                            {/* Max Handle */}
                             <div
-                                className="absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-[#BB9D7B] rounded-full border-2 border-white shadow-lg pointer-events-none"
-                                style={{ left: `${((priceRange[1] - 280) / (7500 - 280)) * 100}%`, marginLeft: '-10px' }}
-                            ></div>
+                                data-handle="max"
+                                className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-[#A06020] border-2 border-white rounded-full cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl transition-all duration-300 ease-out z-10 select-none"
+                                style={{ 
+                                    left: `calc(${getMaxPosition()}% - 12px)`,
+                                    transition: isDragging ? 'none' : 'left 0.3s ease-out'
+                                }}
+                                onMouseDown={(e) => handleMouseDown(e, 'max')}
+                                onClick={(e) => handleHandleClick(e, 'max')}
+                                onTouchStart={(e) => handleTouchStart(e, 'max')}
+                            />
                         </div>
                     </div>
-                    <div className="text-gray-300 text-sm sm:text-base mb-6">
-                        Price: ${priceRange[0]} — ${priceRange[1]}
+                    <div className="text-[#E0E0E0] text-sm mb-6">
+                        Price: ${priceRange[0]} – ${priceRange[1]}
                     </div>
-                    <button className="w-full bg-black text-white py-3 px-4 text-sm font-medium tracking-wider hover:bg-gray-900 transition-colors border border-gray-800">
+                    <button className="flex w-[197px] h-[50px] px-[31px] py-[21px] justify-center items-center gap-[11px] flex-shrink-0 bg-black text-white font-futura text-[14px] font-normal leading-normal tracking-[3.5px] uppercase hover:bg-gray-900 transition-colors">
                         FILTER
                     </button>
                 </div>
-                <div>
-                    <h3 className="text-white text-lg sm:text-xl font-medium mb-6">Availability</h3>
-                    <div className="space-y-4">
-                        <div>
-                            <label className="flex items-center text-gray-300 cursor-pointer group">
-                                <div className="relative">
-                                    <input
-                                        type="checkbox"
-                                        checked={inStock}
-                                        onChange={(e) => setInStock(e.target.checked)}
-                                        className="sr-only" />
-                                    <div className={`w-4 h-4 border-2 border-white rounded-sm mr-3 flex items-center justify-center transition-colors ${inStock ? 'bg-[#BB9D7B] border-[#BB9D7B]' : 'bg-transparent'
-                                        }`}>
-                                        {inStock && (
-                                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        )}
-                                    </div>
-                                </div>
-                                <span className="text-sm sm:text-base group-hover:text-white text-white transition-colors">In Stock</span>
-                            </label>
-                            <div className="w-full h-px bg-white mt-4"></div>
-                        </div>
-                        <div>
-                            <label className="flex items-center text-white cursor-pointer group">
-                                <div className="relative">
-                                    <input
-                                        type="checkbox"
-                                        checked={outOfStock}
-                                        onChange={(e) => setOutOfStock(e.target.checked)}
-                                        className="sr-only" />
-                                    <div className={`w-4 h-4 border-2 border-white rounded-sm mr-3 flex items-center justify-center transition-colors ${outOfStock ? 'bg-[#BB9D7B] border-[#BB9D7B]' : 'bg-transparent'
-                                        }`}>
-                                        {outOfStock && (
-                                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        )}
-                                    </div>
-                                </div>
-                                <span className="text-sm sm:text-base group-hover:text-white text-white transition-colors">Out Of Stock</span>
-                            </label>
-                            <div className="w-full h-px bg-white mt-4"></div>
-                        </div>
+
+                {/* Separator */}
+                <div className="w-full h-px bg-[#E0E0E0] mb-6"></div>
+
+                {/* Availability Section */}
+                <div className="mb-6">
+                    <h3 className="text-white font-poppins text-[25px] font-normal leading-[30px] capitalize mb-6">Availability</h3>
+                    
+                    {/* In Stock Option */}
+                    <div className="flex items-center mb-2">
+                        <input
+                            type="checkbox"
+                            id="inStock"
+                            checked={inStock}
+                            onChange={(e) => setInStock(e.target.checked)}
+                            className="w-4 h-4 border border-white bg-transparent rounded-none focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                        />
+                        <label htmlFor="inStock" className="ml-3 mt-2.5 !font-poppins !text-base !font-medium !leading-[30px] !capitalize !cursor-pointer !text-white">
+                            In Stock
+                        </label>
                     </div>
+                    
+                    {/* Separator Line */}
+                    <div className="w-full h-px bg-[#CCCCCC] mb-2"></div>
+                    
+                    {/* Out Of Stock Option */}
+                    <div className="flex items-center">
+                        <input
+                            type="checkbox"
+                            id="outOfStock"
+                            checked={outOfStock}
+                            onChange={(e) => setOutOfStock(e.target.checked)}
+                            className="w-4 h-4 border border-white bg-transparent rounded-none focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                        />
+                        <label htmlFor="outOfStock" className="ml-3 mt-2.5 !font-poppins !text-base !font-normal !leading-normal !cursor-pointer !text-white">
+                            Out Of Stock
+                        </label>
+                    </div>
+                    
+                    {/* Separator Line */}
+                    <div className="w-full h-px bg-[#CCCCCC] mt-4"></div>
                 </div>
             </div>
             <style>{`
-        .price-slider::-webkit-slider-thumb {
-          appearance: none;
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          background: #BB9D7B;
-          border: 2px solid white;
-          cursor: pointer;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        }
+                /* Custom checkbox styling */
+                input[type="checkbox"] {
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid white;
+                    background: transparent;
+                    cursor: pointer;
+                    position: relative;
+                }
 
-        .price-slider::-moz-range-thumb {
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          background: #BB9D7B;
-          border: 2px solid white;
-          cursor: pointer;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        }
+                input[type="checkbox"]:checked {
+                    background: #A06020;
+                    border-color: #A06020;
+                }
 
-        .price-slider::-webkit-slider-track {
-          height: 8px;
-          border-radius: 4px;
-        }
+                input[type="checkbox"]:checked::after {
+                    content: '';
+                    position: absolute;
+                    left: 4px;
+                    top: 1px;
+                    width: 4px;
+                    height: 8px;
+                    border: solid white;
+                    border-width: 0 2px 2px 0;
+                    transform: rotate(45deg);
+                }
 
-        .price-slider::-moz-range-track {
-          height: 8px;
-          border-radius: 4px;
-        }
-      `}</style>
+                /* Ensure label text is white */
+                label[for="inStock"], label[for="outOfStock"] {
+                    color: white !important;
+                }
+            `}</style>
         </div>
     );
 };
 
 // --- ProductGrid ---
 const ProductGrid: React.FC = () => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const productsPerPage = 9; // 3x3 grid
+    const totalProducts = products.length;
+    const totalPages = Math.ceil(totalProducts / productsPerPage);
+    
+    // Calculate which products to show on current page
+    const startIndex = (currentPage - 1) * productsPerPage;
+    const endIndex = startIndex + productsPerPage;
+    const currentProducts = products.slice(startIndex, endIndex);
+    
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
     return (
-        <div className="bg-black min-h-screen px-4 sm:px-6 lg:px-8 py-8">
-            <div className="max-w-[1640px] mx-auto mb-6">
+        <div className="bg-black max-w-[1078px] mx-auto min-h-screen px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-[1078px] mx-auto mb-6">
                 <p className="text-white text-sm opacity-80">
-                    Showing 1–9 of 15 Results
+                    Showing {startIndex + 1}–{Math.min(endIndex, totalProducts)} of {totalProducts} Results
                 </p>
             </div>
-            <div className="max-w-[1640px] mx-auto">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12 lg:gap-24">
-                    {products.map((product) => (
+            <div className="max-w-[1078px] mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 sm:gap-x-12 lg:gap-x-20 gap-y-12 sm:gap-y-16 lg:gap-y-28">
+                    {currentProducts.map((product) => (
                         <Shop4ProductCard key={product.id} product={product} />
                     ))}
                 </div>
             </div>
             <div className="max-w-7xl mx-auto mt-12 flex justify-center">
-                <Pagination />
+                <Pagination 
+                    currentPage={currentPage}
+                    totalPages={5}
+                    onPageChange={handlePageChange}
+                />
             </div>
         </div>
     );
 };
 
 // --- Pagination ---
-const Pagination: React.FC = () => {
-    const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = 5;
+interface PaginationProps {
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+}
 
+const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
     const handlePageClick = (page: number) => {
-        setCurrentPage(page);
+        onPageChange(page);
     };
 
     const handleNextClick = () => {
         if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
+            onPageChange(currentPage + 1);
         } else {
-            setCurrentPage(1); // Loop back to first page
+            onPageChange(1); // Loop back to first page
         }
     };
 
-    const PaginationButton = ({ page, isActive, onClick }: { page: number, isActive: boolean, onClick: (page: number) => void }) => (
-        <button
-            onClick={() => onClick(page)}
-            className={`
-        w-11 h-11 sm:w-10 sm:h-10 md:w-11 md:h-11
-        rounded-full
-        flex items-center justify-center
-        font-medium text-base sm:text-sm md:text-base
-        transition-all duration-300 ease-out
-        transform hover:-translate-y-0.5 active:scale-95
-        focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-50
-        ${isActive
-                    ? 'bg-gradient-to-br from-amber-600 to-amber-500 text-black font-semibold shadow-lg shadow-amber-500/30 hover:from-amber-500 hover:to-amber-400 hover:shadow-xl hover:shadow-amber-500/40 hover:-translate-y-1'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                }
-      `}
-        >
-            {page}
-        </button>
-    );
-
-    const NextButton = ({ onClick }: { onClick: () => void }) => (
-        <button
-            onClick={onClick}
-            className="
-        w-10 h-10 sm:w-9 sm:h-9 md:w-10 md:h-10
-        rounded-full
-        flex items-center justify-center
-        text-white/70 hover:text-white hover:bg-white/10
-        transition-all duration-300 ease-out
-        transform hover:-translate-y-0.5 active:scale-95
-        focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-opacity-50
-        group
-      "
-        >
-            <ChevronRight
-                size={20}
-                className="sm:w-4 sm:h-4 md:w-5 md:h-5 transition-transform duration-300 group-hover:translate-x-0.5"
-            />
-        </button>
-    );
+    // Generate array of page numbers to display
+    const getPageNumbers = () => {
+        const pages = [];
+        for (let i = 1; i <= totalPages; i++) {
+            pages.push(i);
+        }
+        return pages;
+    };
 
     return (
-        <div className="flex items-center gap-2 sm:gap-1.5 md:gap-2 bg-white/5 backdrop-blur-md px-4 py-3 sm:px-3 sm:py-2.5 md:px-4 md:py-3 rounded-full border border-white/10 shadow-2xl">
-            {[1, 2, 3, 4, 5].map((page) => (
-                <PaginationButton
+        <div className="flex items-center py-20 gap-4">
+            {getPageNumbers().map((page) => (
+                <button
                     key={page}
-                    page={page}
-                    isActive={currentPage === page}
-                    onClick={handlePageClick}
-                />
+                    onClick={() => handlePageClick(page)}
+                    className={`
+                        w-[47px] h-[47px] rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0
+                        transition-all duration-200
+                        ${currentPage === page
+                            ? 'bg-[#B19D7F] text-white'
+                            : 'text-white hover:text-gray-300'
+                        }
+                    `}
+                >
+                    {page}
+                </button>
             ))}
-            <NextButton onClick={handleNextClick} />
+            <button
+                onClick={handleNextClick}
+                className="text-white hover:text-gray-300 transition-colors duration-200"
+            >
+                <ChevronRight size={32} />
+            </button>
         </div>
     );
 };
@@ -309,15 +440,15 @@ const Pagination: React.FC = () => {
 // --- Hero ---
 const Hero: React.FC = () => {
     return (
-        <section className="text-white py-16">
+        <section className="text-white py-12">
             <div className="container mx-auto px-4 text-center">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 font-poppins">
+                <h1 className="text-[36px] font-poppins font-normal leading-normal uppercase text-[#FFF] mb-4">
                     AOIN POOJA STORE
                 </h1>
-                <div className="text-sm md:text-base text-gray-300">
+                <div className="text-[14px] font-poppins font-normal leading-normal tracking-[2.1px] uppercase text-[#FFF]">
                     <span className="hover:text-yellow-400 cursor-pointer transition-colors">HOME</span>
                     <span className="mx-2">-</span>
-                    <span className="text-white">POOJA SHOP</span>
+                    <span className="text-[#FFF]">POOJA SHOP</span>
                 </div>
             </div>
         </section>
@@ -329,8 +460,8 @@ const AllProductPageContent: React.FC = () => {
     return (
         <>
             <Hero />
-            <main className="container mx-auto px-4 py-20">
-                <div className="flex flex-col lg:flex-row gap-12">
+            <main className="container max-w-[1740px] mx-auto px-4 py-20">
+                <div className="flex flex-col lg:flex-row gap-16 lg:gap-20">
                     <aside className="lg:w-80 order-2 lg:order-1">
                         <div className="sticky top-8">
                             <Sidebar />
