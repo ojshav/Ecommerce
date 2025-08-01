@@ -8,20 +8,20 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-black text-white relative">
-      <div className="container mx-auto px-4">
+      <div className="container max-w-[1920px] mx-auto px-20 pt-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="text-xl font-bold font-poppins tracking-wider">
-            AOIN POOJA STORE
-          </div>
+          <div className="text-white font-junge text-[22px] font-normal tracking-[3.3px] uppercase bg-gradient-to-r from-[#383838] to-[#9e9e9e] bg-clip-text text-transparent" style={{ WebkitTextStroke: '1px', WebkitTextStrokeColor: '#aea8a8' }}>
+          AOIN POOJA STORE
+        </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex space-x-8">
+          <nav className="hidden lg:flex space-x-16">
             {navItems.map((item) => (
               <a
                 key={item}
                 href="#"
-                className="text-sm font-medium hover:text-yellow-400 transition-colors duration-200"
+                className="text-white font-poppins text-[14px] font-normal leading-normal tracking-[2.1px] uppercase hover:text-yellow-400 transition-colors duration-200"
               >
                 {item}
               </a>
@@ -29,15 +29,20 @@ const Header: React.FC = () => {
           </nav>
 
           {/* Desktop Icons */}
-          <div className="hidden lg:flex items-center space-x-4">
-            <Search className="w-5 h-5 cursor-pointer hover:text-yellow-400 transition-colors" />
-            <div className="relative">
-              <ShoppingCart className="w-5 h-5 cursor-pointer hover:text-yellow-400 transition-colors" />
-              <span className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                0
-              </span>
-            </div>
-          </div>
+          <div className="flex items-center gap-4 md:gap-6 lg:gap-8">
+          <Search 
+            className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
+            strokeWidth={1.5}
+          />
+          <ShoppingCart 
+            className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
+            strokeWidth={1.5}
+          />
+          <Menu 
+            className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
+            strokeWidth={1.5}
+          />
+        </div>
 
           {/* Mobile Menu Button */}
           <button
@@ -56,7 +61,7 @@ const Header: React.FC = () => {
                 <a
                   key={item}
                   href="#"
-                  className="px-4 py-3 text-sm font-medium hover:bg-gray-900 hover:text-yellow-400 transition-colors duration-200"
+                  className="px-4 py-3 text-white font-poppins text-[14px] font-normal leading-normal tracking-[2.1px] uppercase hover:bg-gray-900 hover:text-yellow-400 transition-colors duration-200"
                 >
                   {item}
                 </a>
