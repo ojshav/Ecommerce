@@ -3,21 +3,21 @@ const CelebrateFestival = () => {
     <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] xl:h-[750px] mt-10 sm:mt-16 md:mt-20 lg:mt-32 xl:mt-56 mb-10 sm:mb-16 md:mb-20 lg:mb-24 xl:mb-24">
       {/* Base image (2nd image) */}
       <img 
-        src="/assets/shop4/Sales1.svg" 
+        src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144765/public_assets_shop4/public_assets_shop4_Sales1.svg" 
         alt="Base festival celebration" 
         className="w-full h-full object-cover"
       />
       
       {/* First image overlapping (1st image) */}
       <img 
-        src="/assets/shop4/Sales2.svg" 
+        src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144765/public_assets_shop4/public_assets_shop4_Sales2.svg" 
         alt="Festival celebration" 
         className="absolute bottom-[0px] transform -translate-x-1/8 -translate-y-1/8 min-w-[769px] min-h-[750px] w-[769px] h-[750px] z-20 object-contain"
       />
       
       {/* Third image overlapping (3rd image) */}
       <img 
-        src="/assets/shop4/Sales3.svg" 
+        src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144765/public_assets_shop4/public_assets_shop4_Sales3.svg" 
         alt="Festival celebration details" 
         className="absolute top-1/2 left-[770px] sm:right-[150px] md:right-[200px] lg:right-[300px] xl:right-[390px] transform -translate-x-1/2 -translate-y-1/2 w-[150px] h-[200px] sm:w-[200px] sm:h-[250px] md:w-[250px] md:h-[300px] lg:w-[300px] lg:h-[350px] xl:w-[383px] xl:h-[485px] z-20 object-contain"
       />

@@ -145,27 +145,46 @@ const Header: React.FC = () => {
         </div>
 
         {/* Main Header */}
-        <div className="flex flex-col md:flex-row max-w-[1440px] mx-auto items-center justify-between px-2 xs:px-4 sm:px-8 md:px-14 lg:px-16 py-3 xs:py-4 md:py-10 bg-white gap-3 xs:gap-4 md:gap-0">
-          {/* Logo */}
-          <div className="text-[22px] xs:text-[28px] md:text-[36px] font-playfair font-bold tracking-wide">AOIN</div>
-          {/* Mobile hamburger for nav */}
-          <button className="md:hidden ml-auto absolute right-6 top-6 z-30" onClick={() => setMobileNavOpen((v) => !v)} aria-label="Open navigation">
-            <MenuIcon />
-          </button>
+        <div className="flex flex-col md:flex-row max-w-[1440px] mx-auto items-center justify-between px-4 sm:px-8 md:px-14 lg:px-16 py-4 md:py-10 bg-white gap-4 md:gap-0">
+          {/* Top bar with Logo and Icons for mobile */}
+          <div className="flex w-full justify-between items-center md:hidden">
+            <div className="text-2xl xs:text-[28px] font-playfair font-bold tracking-wide">AOIN</div>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <button className="hover:text-orange-400">
+                  <HeartIcon />
+                </button>
+                <span className="absolute -top-2 -right-2 text-[10px] rounded-full px-1.5 bg-[#FFB998]">1</span>
+              </div>
+              <div className="relative">
+                <button className="hover:text-orange-400">
+                  <CartIcon />
+                </button>
+                <span className="absolute -top-2 -right-2 text-[10px] rounded-full px-1.5 bg-[#FFB998]">3</span>
+              </div>
+              <button onClick={() => setMobileNavOpen((v) => !v)} aria-label="Open navigation">
+                <MenuIcon />
+              </button>
+            </div>
+          </div>
+
+          {/* Desktop Logo */}
+          <div className="hidden md:block text-[36px] font-playfair font-bold tracking-wide">AOIN</div>
+
           {/* Search Bar */}
-          <div className="w-full md:flex-1 flex items-center md:mx-10 lg:ml-20  nav2:ml-48 max-w-full md:max-w-2xl lg:max-w-2xl order-2 md:order-none min-w-0">
-            <div className="flex w-full md:w-[600px] nav2:w-[600px] h-10 xs:h-12 md:h-[44px] nav:h-[48px] lg:h-[59px] rounded-2xl border border-gray-300 min-w-0">
-              <div className="relative" ref={catRef}>
+          <div className="w-full md:flex-1 flex items-center md:mx-10 lg:ml-20 nav2:ml-48 max-w-full md:max-w-2xl lg:max-w-2xl">
+            <div className="flex w-full md:w-[600px] nav2:w-[600px] h-14 md:h-[44px] nav:h-[48px] lg:h-[59px] rounded-2xl border border-gray-300 min-w-0">
+              <div className="relative hidden md:block" ref={catRef}>
                 <button
                   onClick={() => setCategoryOpen((v) => !v)}
-                  className="flex items-center justify-between font-poppins px-2 md:px-5 h-full text-[16px] md:text-[14px] lg:text-[16px] min-w-[120px] md:min-w-[160px] focus:outline-none"
+                  className="flex items-center justify-between font-poppins px-5 h-full text-[14px] lg:text-[16px] min-w-[160px] focus:outline-none"
                   style={{ border: 'none' }}
                 >
                   <span>{category}</span>
                   <span className="ml-2"><ChevronDownIcon /></span>
                 </button>
                 {categoryOpen && (
-                  <div className="absolute left-0 w-40  lg:w-48 bg-white border rounded shadow z-10">
+                  <div className="absolute left-0 w-40 lg:w-48 bg-white border rounded shadow z-10">
                     {categories.map((cat) => (
                       <button key={cat} onClick={() => { setCategory(cat); setCategoryOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-gray-100">
                         {cat}
@@ -174,35 +193,41 @@ const Header: React.FC = () => {
                   </div>
                 )}
               </div>
-              <div className="w-px h-8 md:h-10 my-auto bg-gray-300" />
+              <div className="w-px h-8 md:h-10 my-auto bg-gray-300 hidden md:block" />
               <input
                 type="text"
-                className="flex-1 px-1 xs:px-2 md:px-3 nav:px-4 lg:px-6 py-1 xs:py-2 md:py-2 nav:py-2.5 lg:py-5 text-[12px] xs:text-[14px] md:text-[13px] nav:text-[14px] lg:text-[16px] focus:outline-none bg-white border-0 placeholder:text-black min-w-0"
+                className="flex-1 px-4 py-1 md:py-2 text-sm md:text-base focus:outline-none focus:ring-0 bg-white border-0 placeholder:text-black min-w-0 rounded-l-2xl md:rounded-none"
                 placeholder="What do you need?"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 style={{ border: 'none', boxShadow: 'none' }}
               />
-              <button className="px-2 xs:px-3 md:px-5 py-1 xs:py-2 md:py-5 transition-colors rounded-xl flex items-center justify-center" style={{ border: 'none', boxShadow: 'none', backgroundColor: '#FFB998' }}>
+              <button className="px-4 py-3 md:py-2 transition-colors rounded-r-2xl md:rounded-xl flex items-center justify-center bg-[#FFB998]" style={{ border: 'none', boxShadow: 'none' }}>
                 <SearchIcon />
               </button>
             </div>
           </div>
-          {/* Wishlist, Cart, Price */}
-          <div className="flex items-center gap-2 xs:gap-4 md:gap-6 md:mr-10 order-3 md:order-none mt-1 xs:mt-2 md:mt-0">
+
+          {/* Desktop Wishlist, Cart, Price */}
+          <div className="hidden md:flex items-center gap-6 mr-10">
             <div className="relative">
               <button className="hover:text-orange-400">
                 <HeartIcon />
               </button>
-              <span className="absolute -top-2 -right-2 text-[10px] xs:text-xs rounded-full px-1 xs:px-1.5" style={{ backgroundColor: '#FFB998' }}>1</span>
+              <span className="absolute -top-2 -right-2 text-xs rounded-full px-1.5 bg-[#FFB998]">1</span>
             </div>
             <div className="relative">
               <button className="hover:text-orange-400">
                 <CartIcon />
               </button>
-              <span className="absolute -top-2 -right-2 text-[10px] xs:text-xs rounded-full px-1 xs:px-1.5" style={{ backgroundColor: '#FFB998' }}>3</span>
+              <span className="absolute -top-2 -right-2 text-xs rounded-full px-1.5 bg-[#FFB998]">3</span>
             </div>
-            <span className="text-[12px] xs:text-[14px] md:text-[16px] font-archivo font-medium">$150.00</span>
+            <span className="text-base font-archivo font-medium">$150.00</span>
+          </div>
+
+          {/* Mobile Price */}
+          <div className="flex md:hidden justify-end w-full">
+            <span className="text-sm font-archivo font-medium">$150.00</span>
           </div>
         </div>
 

@@ -23,7 +23,7 @@ const NewCollection = () => {
         <div className="flex w-full lg:[500px] 2xl:w-[607px] h-auto lg:h-[840px] flex-col justify-center items-center flex-shrink-0 order-2 lg:order-2">
           <div className="relative w-full h-full flex items-center justify-center group">
             <img 
-              src="/assets/shop4/NewCollection.svg" 
+              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144763/public_assets_shop4/public_assets_shop4_NewCollection.svg" 
               alt="New Collection" 
               className="w-full h-auto object-contain transition-all duration-300"
             />

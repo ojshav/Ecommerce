@@ -3,21 +3,21 @@ const TrendyDeals = () => {
     <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] xl:h-[750px] mt-10 sm:mt-16 md:mt-20 lg:mt-32 xl:mt-56 mb-10 sm:mb-16 md:mb-20 lg:mb-24 xl:mb-24 overflow-hidden">
       {/* Base image */}
       <img 
-        src="/assets/shop4/Trendy1.svg" 
+        src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144778/public_assets_shop4/public_assets_shop4_Trendy1.svg" 
         alt="Base watch offer" 
         className="w-full h-full object-cover"
       />
       
       {/* Second image overlapping */}
       <img 
-        src="/assets/shop4/Trendy2.svg" 
+        src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144778/public_assets_shop4/public_assets_shop4_Trendy2.svg" 
         alt="Trendy deals" 
         className="absolute top-1/4 right-[-50px] sm:right-[-100px] md:right-[-150px] lg:right-[-200px] transform -translate-x-1/4 -translate-y-1/4 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] lg:w-[600px] lg:h-[600px] xl:w-[777px] xl:h-[750px] z-10 object-contain"
       />
       
       {/* Third image overlapping */}
       <img 
-        src="/assets/shop4/Trendy3.svg" 
+        src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144778/public_assets_shop4/public_assets_shop4_Trendy3.svg" 
         alt="Trendy watch deals" 
         className="absolute top-1/2 right-[100px] sm:right-[150px] md:right-[200px] lg:right-[300px] xl:right-[390px] transform -translate-x-1/2 -translate-y-1/2 w-[150px] h-[200px] sm:w-[200px] sm:h-[250px] md:w-[250px] md:h-[300px] lg:w-[300px] lg:h-[350px] xl:w-[383px] xl:h-[485px] z-20 object-contain"
       />

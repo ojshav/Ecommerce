@@ -77,7 +77,7 @@ const HeroOne = () => {
             {/* Column 1 - Single image */}
             <div className="col-span-1 lg:col-span-3 flex justify-center">
               <img 
-                src="/assets/shop4/Hero1.svg" 
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144750/public_assets_shop4/public_assets_shop4_Hero1.svg" 
                 alt="Festive Diyas and Sweets" 
                 className="w-full max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[560px] h-auto aspect-[560/807] object-cover rounded-[8px] sm:rounded-[12px] md:rounded-[16px]" 
               />
@@ -86,7 +86,7 @@ const HeroOne = () => {
             {/* Column 2 - Single image (wider) */}
             <div className="col-span-1 lg:col-span-3 flex items-end justify-center">
               <img 
-                src="/assets/shop4/Hero2.svg" 
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144750/public_assets_shop4/public_assets_shop4_Hero2.svg" 
                 alt="Festive Table with Sweets and Flowers" 
                 className="w-full max-w-[350px] sm:max-w-[450px] md:max-w-[550px] lg:max-w-[650px] h-[446px] aspect-[650/446] object-cover rounded-[8px] sm:rounded-[12px] md:rounded-[16px]" 
               />
@@ -95,13 +95,13 @@ const HeroOne = () => {
             {/* Column 3 - Two images stacked vertically */}
             <div className="col-span-1 lg:col-span-3 grid grid-rows-2 gap-2 sm:gap-3 md:gap-4 justify-items-center">
               <img 
-                src="/assets/shop4/Hero3.svg" 
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144750/public_assets_shop4/public_assets_shop4_Hero3.svg" 
                 alt="Statue with Tea Lights" 
                 className="w-full max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[550px] h-auto aspect-[550/386] object-cover rounded-[8px] sm:rounded-[12px] md:rounded-[16px]" 
               />
               <div className="relative">
                 <img 
-                  src="/assets/shop4/Hero4.svg" 
+                  src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144750/public_assets_shop4/public_assets_shop4_Hero4.svg" 
                   alt="Evil Eye Charms and Jewelry" 
                   className="w-full max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[550px] h-auto aspect-[550/386] object-cover rounded-[8px] sm:rounded-[12px] md:rounded-[16px]" 
                 />

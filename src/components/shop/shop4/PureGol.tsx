@@ -4,7 +4,7 @@ const PureGol = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 md:gap-20 lg:gap-40 bg-black">
         {/* Left Section */}
         <div className="flex flex-col">
-          <div className="relative w-full aspect-[770/844] bg-cover bg-center bg-no-repeat bg-[url('/assets/shop4/ShopCollection1.svg')] group">
+          <div className="relative w-full aspect-[770/844] bg-cover bg-center bg-no-repeat bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144772/public_assets_shop4/public_assets_shop4_ShopCollection1.svg')] group">
             {/* Image only - no overlay or text */}
             <div className="absolute inset-0 border-4 sm:border-6 lg:border-8 border-transparent group-hover:border-white transition-all duration-300 pointer-events-none"></div>
           </div>
@@ -28,7 +28,7 @@ const PureGol = () => {
               Shop Collections
             </button>
           </div>
-          <div className="relative w-full aspect-[770/844] bg-cover bg-center bg-no-repeat bg-[url('/assets/shop4/ShopCollection2.svg')] mt-6 sm:mt-8 md:mt-10 group">
+          <div className="relative w-full aspect-[770/844] bg-cover bg-center bg-no-repeat bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144772/public_assets_shop4/public_assets_shop4_ShopCollection2.svg')] mt-6 sm:mt-8 md:mt-10 group">
             {/* Image only - no overlay or text */}
             <div className="absolute inset-0 border-4 sm:border-6 lg:border-8 border-transparent group-hover:border-white transition-all duration-300 pointer-events-none"></div>
           </div>

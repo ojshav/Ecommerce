@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 const AoinTrendsSection = () => {
   return (
-    <div className="relative w-full max-w-[1340px] mx-auto bg-white pt-8 md:pt-24 pb-8 md:pb-12 px-4 sm:px-6 overflow-hidden">
+    <div className="relative w-full max-w-[1340px] mx-auto bg-white pt-8 md:pt-24 pb-8 md:pb-12 px-4 md:px-8 overflow-hidden">
       {/* Mobile Layout: Stacked, no frames */}
       <div className="flex flex-col md:hidden items-center gap-6">
         <img
@@ -37,7 +37,7 @@ const AoinTrendsSection = () => {
       </div>
 
       {/* Desktop Layout: Absolute, with frames */}
-      <div className="hidden md:block">
+      <div className="hidden gap-10 md:block">
         {/* Text overlay */}
         <div className="absolute top-0 left-0 w-full h-[728px] flex items-center justify-center pointer-events-none z-20 px-4">
           <h1 className="text-center font-normal leading-[60px] text-[48px] font-playfair text-gray-900 max-w-4xl">
