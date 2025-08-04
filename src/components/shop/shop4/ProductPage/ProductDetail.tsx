@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Plus, Minus, ShoppingCart, ChevronDown, ChevronUp, Star, ThumbsUp, ThumbsDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Minus, ShoppingCart, ChevronDown, ChevronUp, Star, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import Shop4ProductCard from '../Shop4ProductCard';
+import shop4ApiService, { Product as ApiProduct } from '../../../../services/shop4ApiService';
 
 // --- StarRating ---
 interface StarRatingProps {
@@ -307,9 +309,53 @@ const ReviewsSection: React.FC = () => {
 
 // --- Main ProductDetail Component ---
 const ProductDetail: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const [product, setProduct] = useState<ApiProduct | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('L');
   const [expandedSections, setExpandedSections] = useState(['specifications', 'about']);
+
+  const productId = searchParams.get('id');
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!productId) return;
+      
+      setLoading(true);
+      try {
+        const productIdNum = parseInt(productId);
+        const response = await shop4ApiService.getProductById(productIdNum);
+        
+        if (response && response.success) {
+          setProduct(response.product);
+          
+          // Fetch related products if available
+          if (response.related_products) {
+            const mappedRelated = response.related_products.map(p => ({
+              id: p.product_id,
+              name: p.product_name,
+              price: p.special_price || p.price,
+              image: p.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463036/public_assets_shop4/public_assets_shop4_Rectangle%205.png",
+              discount: p.special_price ? Math.round(((p.price - p.special_price) / p.price) * 100) : 0
+            }));
+            setRelatedProducts(mappedRelated);
+          }
+        } else {
+          setProduct(null);
+          setRelatedProducts([]);
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        setProduct(null);
+        setRelatedProducts([]);
+      }
+      setLoading(false);
+    };
+
+    fetchProduct();
+  }, [productId]);
 
   const sizes = ['S', 'M', 'L'];
 
@@ -323,6 +369,22 @@ const ProductDetail: React.FC = () => {
         : [...prev, sectionName]
     );
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full mx-auto bg-black text-white flex items-center justify-center">
+        <div className="text-white text-xl">Loading product...</div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen w-full mx-auto bg-black text-white flex items-center justify-center">
+        <div className="text-white text-xl">Product not found</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full mx-auto bg-black text-white">
@@ -341,18 +403,18 @@ const ProductDetail: React.FC = () => {
             {/* Main Product Images */}
             <div className="flex flex-col space-y-8 sm:space-y-12 lg:space-y-20 justify-center items-center">
               <img
-                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1753462984/public_assets_shop4/public_assets_shop4_13.png"
-                alt="Pure Brass Aarti Akhand Diya"
+                src={product.media?.images?.[0]?.url || product.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753462984/public_assets_shop4/public_assets_shop4_13.png"}
+                alt={product.product_name}
                 className="w-full h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[707px] object-cover rounded-lg"
               />
               <img
-                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1753462986/public_assets_shop4/public_assets_shop4_14.png"
-                alt="Pure Brass Aarti Akhand Diya"
+                src={product.media?.images?.[1]?.url || product.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753462986/public_assets_shop4/public_assets_shop4_14.png"}
+                alt={product.product_name}
                 className="w-full h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[707px] object-cover rounded-lg"
               />
               <img
-                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1753462987/public_assets_shop4/public_assets_shop4_15.png"
-                alt="Pure Brass Aarti Akhand Diya"
+                src={product.media?.images?.[2]?.url || product.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753462987/public_assets_shop4/public_assets_shop4_15.png"}
+                alt={product.product_name}
                 className="w-full h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[707px] object-cover rounded-lg"
               />
             </div>
@@ -368,14 +430,23 @@ const ProductDetail: React.FC = () => {
 
           {/* Product Title */}
           <h1 className="text-white text-lg sm:text-xl md:text-[26px] font-normal leading-3 font-poppins">
-            Pure Brass Aarti Akhand Diya With Ring Holder
+            {product.product_name}
           </h1>
 
           {/* Pricing */}
           <div className="flex flex-wrap items-center gap-2 md:gap-4">
-            <span className="text-gray-400 line-through text-xs sm:text-sm md:text-base">Actual Price $200.00</span>
-            <span className="text-xs sm:text-sm md:text-base text-white">Our price</span>
-            <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">$120.00</span>
+            {product.special_price && product.special_price < product.price ? (
+              <>
+                <span className="text-gray-400 line-through text-xs sm:text-sm md:text-base">Actual Price ${product.price}</span>
+                <span className="text-xs sm:text-sm md:text-base text-white">Our price</span>
+                <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">${product.special_price}</span>
+              </>
+            ) : (
+              <>
+                <span className="text-xs sm:text-sm md:text-base text-white">Price</span>
+                <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">${product.price}</span>
+              </>
+            )}
           </div>
 
           {/* Rating */}
@@ -592,13 +663,16 @@ const ProductDetail: React.FC = () => {
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
-            {products.map((product) => (
+            {relatedProducts.slice(0, 3).map((product) => (
               <div key={product.id} className="w-full h-auto">
                 <Shop4ProductCard 
-                  product={product}
-                  showColorOptions={false}
-                  showQuantitySelector={false}
-                  className="w-full h-full"
+                  product={{
+                    id: product.id,
+                    title: product.name,
+                    price: typeof product.price === 'string' ? parseFloat(product.price) : product.price,
+                    discount: product.discount ? `${product.discount}%` : '0%',
+                    image: product.image
+                  }}
                 />
               </div>
             ))}
@@ -611,6 +685,7 @@ const ProductDetail: React.FC = () => {
     </div>
   );
 };
+
 
 // --- Products Data ---
 const products: Product[] = [
@@ -639,4 +714,5 @@ const products: Product[] = [
 
 
 export default ProductDetail;
+
 
