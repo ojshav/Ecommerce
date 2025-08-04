@@ -5,18 +5,6 @@ const AoinTrendsSection = () => {
     <div className="relative w-full max-w-[1400px] mx-auto bg-white pt-8 md:pt-24 pb-8 md:pb-12 px-4 md:px-8 overflow-hidden">
       {/* Mobile Layout: Stacked, no frames */}
       <div className="flex flex-col md:hidden items-center gap-6">
-        <img
-          src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745100/public_assets_shop1_LP/public_assets_images_Aoin1.svg"
-          alt="Headwrap"
-          className="hidden md:block w-full max-w-xs rounded-lg object-contain"
-          loading="lazy"
-        />
-        <img
-          src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745103/public_assets_shop1_LP/public_assets_images_Aoin2.svg"
-          alt="Orange skirt"
-          className="hidden md:block w-full max-w-xs rounded-lg object-contain"
-          loading="lazy"
-        />
         <h1 className="text-center font-normal leading-9 text-2xl font-playfair text-gray-900">
           Discover the trends that resonate with you. Dive into Aoin today.
         </h1>
@@ -39,7 +27,7 @@ const AoinTrendsSection = () => {
       {/* Desktop Layout: Absolute, with frames */}
       <div className="hidden gap-10 md:block">
         {/* Text overlay */}
-        <div className="absolute top-0 left-0 w-full h-[728px] flex items-center justify-center pointer-events-none z-20 px-4">
+        <div className="absolute top-0 left-0 w-full  h-[200px] lg:h-[728px] flex items-center justify-center pointer-events-none z-20 px-4">
           <h1 className="text-center font-normal leading-[60px] text-[48px] font-playfair text-gray-900 max-w-4xl">
             Discover the trends that resonate <br className="hidden sm:block" />
             with you. Dive into Aoin today.
@@ -47,7 +35,7 @@ const AoinTrendsSection = () => {
         </div>
 
         {/* Left Image with Frame */}
-        <div className="absolute top-40 left-16 z-10">
+        <div className="absolute top-40 left-16 z-10 hidden lg:block">
           <div className="relative w-[356px] h-[520px]">
             {/* Shifted Frame corners */}
             <div className="absolute inset-0 top-[36px] bottom-[36px]">
@@ -59,14 +47,14 @@ const AoinTrendsSection = () => {
             <img
               src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745100/public_assets_shop1_LP/public_assets_images_Aoin1.svg"
               alt="Headwrap"
-              className="w-full h-full object-contain"
+              className="w-full hidden lg:block h-full object-contain"
               loading="lazy"
             />
           </div>
         </div>
 
         {/* Right Image with Frame */}
-        <div className="absolute top-12 right-16 z-10">
+        <div className="absolute top-12 right-16 z-10 hidden lg:block">
           <div className="relative w-[356px] h-[828px]">
             {/* Frame corners */}
             <div className="absolute inset-0 top-[56px] bottom-[36px]">
@@ -85,7 +73,7 @@ const AoinTrendsSection = () => {
         </div>
 
         {/* Spacer for image section height */}
-        <div className="h-[420px]" />
+        <div className="h-[100px] lg:h-[420px]" />
 
         {/* Center video below the image layer */}
         <div className="relative z-10 flex items-center justify-center">

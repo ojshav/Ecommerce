@@ -36,7 +36,7 @@ const NewCollection = () => {
         </div>
 
         {/* Grid of Looks */}
-        <div className="grid grid-cols-2 gap-4 sm:gap-4 mt-2 sm:mt-16">
+        <div className="grid grid-cols-2 gap-4  lg:gap-4 mt-2 sm:mt-16 lg:mt-20 2xl:mt-16">
           <img 
             src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745134/public_assets_shop1_LP/public_assets_images_New2.svg" 
             alt="Look 1" 
@@ -45,17 +45,17 @@ const NewCollection = () => {
           <img 
             src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745136/public_assets_shop1_LP/public_assets_images_New3.svg" 
             alt="Look 2" 
-            className="w-full max-w-[199px] aspect-square object-cover self-end -ml-2 sm:-ml-2 md:-ml-16" 
+            className="w-full max-w-[199px] aspect-square object-cover self-end -ml-2 sm:-ml-2 md:ml-0 lg:-ml-1 nav2:-ml-8 xl:-ml-16" 
           />
           <img 
             src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745138/public_assets_shop1_LP/public_assets_images_New4.svg" 
             alt="Look 3" 
             className="w-full max-w-[291px] aspect-square object-cover" 
           />
-          <img 
+          <img  
             src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745141/public_assets_shop1_LP/public_assets_images_New5.svg" 
             alt="Look 4" 
-            className="w-full max-w-[291px] aspect-square object-cover -ml-2 sm:-ml-2 md:-ml-16" 
+            className="w-full max-w-[291px] aspect-square object-cover -ml-2 sm:-ml-2 md:ml-0 lg:-ml-1 nav2:-ml-8 xl:-ml-16" 
           />
         </div>
       </div>
