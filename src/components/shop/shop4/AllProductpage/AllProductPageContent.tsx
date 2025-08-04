@@ -1,72 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
-import Shop4ProductCard, { Product } from '../Shop4ProductCard';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import Shop4ProductCard, { Product } from '../ProductCard';
+import shop4ApiService, { Product as ApiProduct } from '../../../../services/shop4ApiService';
 
-const products: Product[] = [
-    {
-        id: 1,
-        name: "Crystal Red sindoor",
-        price: 120,
-        discount: 11,
-        image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463036/public_assets_shop4/public_assets_shop4_Rectangle%205.png"
-    },
-    {
-        id: 2,
-        name: "Crystal Red sindoor",
-        price: 120,
-        discount: 11,
-        image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463036/public_assets_shop4/public_assets_shop4_Rectangle%205.png"
-    },
-    {
-        id: 3,
-        name: "Radha Locket Mala",
-        price: 120,
-        discount: 11,
-        image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463019/public_assets_shop4/public_assets_shop4_Rectangle%20103.png"
-    },
-    {
-        id: 4,
-        name: "108 Dana Rudraksha Mala",
-        price: 120,
-        discount: 11,
-        image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463020/public_assets_shop4/public_assets_shop4_Rectangle%20104.png"
-    },
-    {
-        id: 5,
-        name: "Ganesha Shankh",
-        price: 120,
-        discount: 11,
-        image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463021/public_assets_shop4/public_assets_shop4_Rectangle%20105.png"
-    },
-    {
-        id: 6,
-        name: "Pure Cow Ghee Diya",
-        price: 120,
-        discount: 11,
-        image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463023/public_assets_shop4/public_assets_shop4_Rectangle%20106.png"
-    },
-    {
-        id: 7,
-        name: "Panchmukhi Rudraksha jaap",
-        price: 120,
-        discount: 11,
-        image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463025/public_assets_shop4/public_assets_shop4_Rectangle%20107.png"
-    },
-    {
-        id: 8,
-        name: "1 Inch Dhoop Candle",
-        price: 120,
-        discount: 11,
-        image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463027/public_assets_shop4/public_assets_shop4_Rectangle%20108.png"
-    },
-    {
-        id: 9,
-        name: "Antique Turtle Loban Dingali",
-        price: 120,
-        discount: 11,
-        image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463029/public_assets_shop4/public_assets_shop4_Rectangle%20109.png"
-    }
-];
+// Convert API product to local Product interface
+const mapApiProductToLocal = (apiProduct: ApiProduct): Product => ({
+  id: apiProduct.product_id,
+  title: apiProduct.product_name,
+  price: apiProduct.special_price || apiProduct.price,
+  discount: apiProduct.special_price ? 
+    `${Math.round(((apiProduct.price - apiProduct.special_price) / apiProduct.price) * 100)}%` : 
+    '0%',
+  image: apiProduct.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463036/public_assets_shop4/public_assets_shop4_Rectangle%205.png"
+});
 
 
 
@@ -89,7 +36,7 @@ const Sidebar: React.FC = () => {
         document.addEventListener('mouseup', handleMouseUp);
     };
 
-    const handleHandleClick = (e: React.MouseEvent, handle: 'min' | 'max') => {
+    const handleHandleClick = (e: React.MouseEvent, _handle: 'min' | 'max') => {
         e.preventDefault();
         e.stopPropagation();
         // Don't start dragging on click, just prevent the track click
@@ -340,41 +287,115 @@ const Sidebar: React.FC = () => {
 
 // --- ProductGrid ---
 const ProductGrid: React.FC = () => {
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalProducts, setTotalProducts] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
     const productsPerPage = 9; // 3x3 grid
-    const totalProducts = products.length;
-    const totalPages = Math.ceil(totalProducts / productsPerPage);
-    
-    // Calculate which products to show on current page
-    const startIndex = (currentPage - 1) * productsPerPage;
-    const endIndex = startIndex + productsPerPage;
-    const currentProducts = products.slice(startIndex, endIndex);
-    
+
+    // Get filters from URL parameters
+    const categoryId = searchParams.get('category_id');
+    const brandId = searchParams.get('brand_id');
+    const search = searchParams.get('search');
+    const minPrice = searchParams.get('min_price');
+    const maxPrice = searchParams.get('max_price');
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            setLoading(true);
+            try {
+                const params: any = {
+                    page: currentPage,
+                    per_page: productsPerPage,
+                    in_stock_only: true,
+                };
+
+                // Add filters if they exist
+                if (categoryId) params.category_id = parseInt(categoryId);
+                if (brandId) params.brand_id = parseInt(brandId);
+                if (search) params.search = search;
+                if (minPrice) params.min_price = parseFloat(minPrice);
+                if (maxPrice) params.max_price = parseFloat(maxPrice);
+
+                const response = await shop4ApiService.getProducts(params);
+                
+                if (response && response.success) {
+                    const mappedProducts = response.products.map(mapApiProductToLocal);
+                    setProducts(mappedProducts);
+                    setTotalProducts(response.total);
+                    setTotalPages(response.total_pages);
+                } else {
+                    setProducts([]);
+                    setTotalProducts(0);
+                    setTotalPages(0);
+                }
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                setProducts([]);
+                setTotalProducts(0);
+                setTotalPages(0);
+            }
+            setLoading(false);
+        };
+
+        fetchProducts();
+    }, [currentPage, categoryId, brandId, search, minPrice, maxPrice]);
+
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
+
+    const handleProductClick = (productId: number) => {
+        navigate(`/shop4-productpage?id=${productId}`);
+    };
+
+    if (loading) {
+        return (
+            <div className="bg-black max-w-[1078px] mx-auto min-h-screen px-4 sm:px-6 lg:px-8 py-8">
+                <div className="flex justify-center items-center h-64">
+                    <div className="text-white text-xl">Loading products...</div>
+                </div>
+            </div>
+        );
+    }
+
+    const startIndex = (currentPage - 1) * productsPerPage;
+    const endIndex = Math.min(startIndex + productsPerPage, totalProducts);
 
     return (
         <div className="bg-black max-w-[1078px] mx-auto min-h-screen px-4 sm:px-6 lg:px-8 py-8">
             <div className="max-w-[1078px] mx-auto mb-6">
                 <p className="text-white text-sm opacity-80">
-                    Showing {startIndex + 1}–{Math.min(endIndex, totalProducts)} of {totalProducts} Results
+                    Showing {startIndex + 1}–{endIndex} of {totalProducts} Results
                 </p>
             </div>
             <div className="max-w-[1078px] mx-auto">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 sm:gap-x-12 lg:gap-x-20 gap-y-12 sm:gap-y-16 lg:gap-y-28">
-                    {currentProducts.map((product) => (
-                        <Shop4ProductCard key={product.id} product={product} />
-                    ))}
+                {products.length === 0 ? (
+                    <div className="flex justify-center items-center h-64">
+                        <div className="text-white text-xl">No products found</div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 sm:gap-x-12 lg:gap-x-20 gap-y-12 sm:gap-y-16 lg:gap-y-28">
+                        {products.map((product) => (
+                            <div key={product.id} onClick={() => handleProductClick(product.id)} className="cursor-pointer">
+                                <Shop4ProductCard product={product} />
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+            {totalPages > 1 && (
+                <div className="max-w-7xl mx-auto mt-12 flex justify-center">
+                    <Pagination 
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
                 </div>
-            </div>
-            <div className="max-w-7xl mx-auto mt-12 flex justify-center">
-                <Pagination 
-                    currentPage={currentPage}
-                    totalPages={5}
-                    onPageChange={handlePageChange}
-                />
-            </div>
+            )}
         </div>
     );
 };
