@@ -66,40 +66,46 @@ const HeroOne = () => {
           <span className="text-white font-abeezee" style={{ fontWeight: 100 }}>.</span>
         </h2>
         
-        <div className="w-full max-w-[1920px] mx-auto p-4 sm:p-6 rounded-[24px]">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="w-full max-w-[1920px] mx-auto p-2 sm:p-4 md:p-4 rounded-[12px] sm:rounded-[16px] md:rounded-[20px] lg:rounded-[24px] relative">
+          {/* Decorative SVG Border */}
+          <svg xmlns="http://www.w3.org/2000/svg" width="1859" height="858" viewBox="0 0 1859 858" fill="none" className="absolute inset-0 w-full h-full">
+            <path d="M20 1.5H585.168C595.385 1.50013 603.668 9.78281 603.668 20V338C603.668 349.874 613.294 359.5 625.168 359.5H1232.6C1244.48 359.5 1254.1 349.874 1254.1 338V20C1254.1 9.78274 1262.39 1.5 1272.6 1.5H1839C1849.22 1.5 1857.5 9.78273 1857.5 20V838C1857.5 848.217 1849.22 856.5 1839 856.5H20C9.78273 856.5 1.5 848.217 1.5 838V20C1.5 9.78274 9.78273 1.5 20 1.5Z" stroke="#BB9D7B" strokeOpacity="0.3" strokeWidth="3"/>
+          </svg>
+
+          {/* Grid Container */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-9 gap-2 sm:gap-3 md:gap-0 relative z-10">
             {/* Column 1 - Single image */}
-            <div className="col-span-1">
+            <div className="col-span-1 lg:col-span-3 flex justify-center">
               <img 
-                src="/assets/shop4/Hero1.svg" 
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144750/public_assets_shop4/public_assets_shop4_Hero1.svg" 
                 alt="Festive Diyas and Sweets" 
-                className="w-full h-auto object-cover rounded-[16px]" 
+                className="w-full max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[560px] h-auto aspect-[560/807] object-cover rounded-[8px] sm:rounded-[12px] md:rounded-[16px]" 
               />
             </div>
 
-            {/* Column 2 - Single image */}
-            <div className="col-span-1 flex items-end">
+            {/* Column 2 - Single image (wider) */}
+            <div className="col-span-1 lg:col-span-3 flex items-end justify-center">
               <img 
-                src="/assets/shop4/Hero2.svg" 
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144750/public_assets_shop4/public_assets_shop4_Hero2.svg" 
                 alt="Festive Table with Sweets and Flowers" 
-                className="w-full h-auto object-cover rounded-[16px]" 
+                className="w-full max-w-[350px] sm:max-w-[450px] md:max-w-[550px] lg:max-w-[650px] h-[446px] aspect-[650/446] object-cover rounded-[8px] sm:rounded-[12px] md:rounded-[16px]" 
               />
             </div>
 
             {/* Column 3 - Two images stacked vertically */}
-            <div className="col-span-1 md:col-span-2 lg:col-span-1 grid grid-rows-2 gap-4">
+            <div className="col-span-1 lg:col-span-3 grid grid-rows-2 gap-2 sm:gap-3 md:gap-4 justify-items-center">
               <img 
-                src="/assets/shop4/Hero3.svg" 
+                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144750/public_assets_shop4/public_assets_shop4_Hero3.svg" 
                 alt="Statue with Tea Lights" 
-                className="w-full h-auto object-cover rounded-[16px]" 
+                className="w-full max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[550px] h-auto aspect-[550/386] object-cover rounded-[8px] sm:rounded-[12px] md:rounded-[16px]" 
               />
               <div className="relative">
                 <img 
-                  src="/assets/shop4/Hero4.svg" 
+                  src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144750/public_assets_shop4/public_assets_shop4_Hero4.svg" 
                   alt="Evil Eye Charms and Jewelry" 
-                  className="w-full h-auto object-cover rounded-[16px]" 
+                  className="w-full max-w-[300px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[550px] h-auto aspect-[550/386] object-cover rounded-[8px] sm:rounded-[12px] md:rounded-[16px]" 
                 />
-                <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#BB9D7B] text-white font-futurapt transition-all duration-300 hover:scale-105 shadow-lg text-xs font-medium tracking-[3px] uppercase w-[120px] sm:w-[156px] h-[40px] sm:h-[50px] flex-shrink-0 rounded-[30px]">
+                <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#BB9D7B] text-white font-futurapt transition-all duration-300 hover:scale-105 shadow-lg text-xs font-medium tracking-[2px] sm:tracking-[3px] uppercase w-[100px] sm:w-[120px] md:w-[140px] lg:w-[156px] h-[32px] sm:h-[40px] md:h-[45px] lg:h-[50px] flex-shrink-0 rounded-[20px] sm:rounded-[25px] md:rounded-[30px]">
                   SHOP NOW
                 </button>
               </div>

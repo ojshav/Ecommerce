@@ -17,8 +17,8 @@ const outfits = [
 
 const OutfitCards = () => {
   return (
-    <div className="container mx-auto px-6 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24 mb-32 sm:mb-40 lg:mb-48">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-40 sm:gap-8 lg:gap-10">
+    <div className="container mx-auto px-6 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24 mb-10 sm:mb-40 lg:mb-48">
+      <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-8 lg:gap-10">
         {outfits.map((outfit, index) => (
           <div
             key={index}

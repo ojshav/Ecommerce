@@ -2,8 +2,8 @@ import React from 'react';
 
 const PromotionalBanners = () => {
   return (
-    <section className="py-8 md:py-12 lg:py-16 w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-8 md:py-12 lg:py-16 w-full  mx-auto px-4 sm:px-6 lg:px-8 bg-white">
+      <div className="max-w-[1280px] mx-auto">
         <div className="flex flex-col lg:flex-row gap-3 lg:gap-3 justify-center items-center lg:items-start">
           {/* Video Block */}
           <div className="relative w-full lg:w-[522px] h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden">
@@ -47,7 +47,7 @@ const PromotionalBanners = () => {
               <img
                 src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745165/public_assets_shop1_LP/public_assets_images_promo1.svg"
                 alt="Colorful silk scarves arranged artistically"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain md:object-cover"
               />
               
             </div>

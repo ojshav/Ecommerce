@@ -14,7 +14,7 @@ const NewlyUpdated = () => {
         </div>
 
       {/* Hero Section - Pink Background */}
-      <div className="w-full h-[750px] relative overflow-hidden bg-cover bg-center bg-no-repeat bg-[url('/assets/shop4/HeroBanner.svg')]">
+      <div className="w-full h-[750px] relative overflow-hidden bg-cover bg-center bg-no-repeat bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144761/public_assets_shop4/public_assets_shop4_HeroBanner.svg')]">
         <div className="container h-full relative">
           {/* Main Content */}
           <div className="absolute top-[350px] right-[10px] transform -translate-y-1/2 z-10">
