@@ -367,9 +367,9 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
   };
 
   return (
-    <section className="relative w-full max-w-[1280px] mx-auto bg-white px-4 sm:px-6 lg:px-8 py-12">
+    <section className="relative w-full max-w-[1280px] mx-auto bg-white px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       {/* Breadcrumb */}
-      <div className="max-w-7xl mx-auto mb-6">
+      <div className="max-w-7xl mx-auto mb-4 sm:mb-6">
         <nav className="text-gray-500 text-sm sm:text-base flex flex-wrap gap-1">
           <span>Shop1</span>
           <span>/</span>
@@ -380,9 +380,9 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
       </div>
 
       {/* Images */}
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 items-start">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
         {/* Left big image - Main carousel */}
-        <div className="w-full lg:w-[607px] h-[607px] bg-gray-100 rounded-3xl overflow-hidden relative">
+        <div className="w-full lg:w-[607px] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[607px] bg-gray-100 rounded-2xl lg:rounded-3xl overflow-hidden relative">
           {/* Main Image/Video Display */}
           {mediaToDisplay[currentImageIndex]?.type?.toLowerCase() === 'video' ? (
             <video
@@ -407,29 +407,29 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
             <>
               <button
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all"
+                className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-1.5 sm:p-2 shadow-lg transition-all"
                 aria-label="Previous image"
               >
-                <ChevronLeft size={24} className="text-gray-800" />
+                <ChevronLeft size={20} className="text-gray-800 sm:w-6 sm:h-6" />
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all"
+                className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-1.5 sm:p-2 shadow-lg transition-all"
                 aria-label="Next image"
               >
-                <ChevronRight size={24} className="text-gray-800" />
+                <ChevronRight size={20} className="text-gray-800 sm:w-6 sm:h-6" />
               </button>
             </>
           )}
 
           {/* Image indicators */}
           {mediaToDisplay.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-1.5 sm:space-x-2">
               {mediaToDisplay.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => goToImage(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
+                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all ${
                     index === currentImageIndex 
                       ? 'bg-white' 
                       : 'bg-white bg-opacity-50 hover:bg-opacity-75'
@@ -443,17 +443,20 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
 
         {/* Right side thumbnails */}
         <div className="flex flex-col gap-3 w-full lg:w-[626px]">
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Display next 2 images as thumbnails if available */}
-            {mediaToDisplay.length > 1 && (
-              <>
+          {/* Mobile: Single row of small images */}
+          <div className="flex flex-row gap-2 lg:gap-4 overflow-x-auto ">
+            {/* Display all available images as small thumbnails for mobile */}
+                         {mediaToDisplay.length > 1 && mediaToDisplay.map((_, index) => {
+              const displayIndex = (currentImageIndex + index + 1) % mediaToDisplay.length;
+              return (
                 <div 
-                  className="w-full sm:w-1/2 h-[291px] bg-gray-100 rounded-3xl overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={() => goToImage((currentImageIndex + 1) % mediaToDisplay.length)}
+                  key={displayIndex}
+                  className="flex-shrink-0 w-[100px] h-[100px] xs:w-[150px] xs:h-[150px] sm:w-[235px] sm:h-[200px] lg:w-1/2 lg:h-[291px] bg-gray-100 rounded-xl lg:rounded-3xl overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => goToImage(displayIndex)}
                 >
-                  {mediaToDisplay[(currentImageIndex + 1) % mediaToDisplay.length]?.type?.toLowerCase() === 'video' ? (
+                  {mediaToDisplay[displayIndex]?.type?.toLowerCase() === 'video' ? (
                     <video
-                      src={mediaToDisplay[(currentImageIndex + 1) % mediaToDisplay.length].url}
+                      src={mediaToDisplay[displayIndex].url}
                       className="object-cover w-full h-full"
                       muted
                       poster={productData?.primary_image}
@@ -462,42 +465,19 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                     </video>
                   ) : (
                     <img
-                      src={mediaToDisplay[(currentImageIndex + 1) % mediaToDisplay.length]?.url || "/assets/images/Productcard/hero2.jpg"}
+                      src={mediaToDisplay[displayIndex]?.url || `/assets/images/Productcard/hero${(displayIndex % 4) + 1}.jpg`}
                       alt="Thumbnail"
                       className="object-cover w-full h-full"
                     />
                   )}
                 </div>
-                {mediaToDisplay.length > 2 && (
-                  <div 
-                    className="w-full sm:w-1/2 h-[291px] bg-gray-100 rounded-3xl overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => goToImage((currentImageIndex + 2) % mediaToDisplay.length)}
-                  >
-                    {mediaToDisplay[(currentImageIndex + 2) % mediaToDisplay.length]?.type?.toLowerCase() === 'video' ? (
-                      <video
-                        src={mediaToDisplay[(currentImageIndex + 2) % mediaToDisplay.length].url}
-                        className="object-cover w-full h-full"
-                        muted
-                        poster={productData?.primary_image}
-                      >
-                        Your browser does not support the video tag.
-                      </video>
-                    ) : (
-                      <img
-                        src={mediaToDisplay[(currentImageIndex + 2) % mediaToDisplay.length]?.url || "/assets/images/Productcard/hero3.jpg"}
-                        alt="Thumbnail"
-                        className="object-cover w-full h-full"
-                      />
-                    )}
-                  </div>
-                )}
-              </>
-            )}
+              );
+            })}
           </div>
-          {/* Third thumbnail if available */}
+          
+          {/* Desktop: Show additional thumbnail if available (only on large screens) */}
           {mediaToDisplay.length > 3 && (
-            <div 
-              className="w-full h-[303px] bg-gray-100 rounded-3xl overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+            <div className="hidden lg:block w-full h-[303px] bg-gray-100 rounded-3xl overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => goToImage((currentImageIndex + 3) % mediaToDisplay.length)}
             >
               {mediaToDisplay[(currentImageIndex + 3) % mediaToDisplay.length]?.type?.toLowerCase() === 'video' ? (
@@ -522,45 +502,45 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
       </div>
 
       {/* Title + Price (side-by-side) */}
-      <div className="flex flex-col lg:flex-row justify-between items-start w-full gap-12 mt-10 mb-6">
+      <div className="flex flex-col xl:flex-row justify-between items-start w-full gap-6 lg:gap-12 mt-6 lg:mt-10 mb-4 lg:mb-6">
         {/* LEFT: Product Info */}
-        <div className="flex-1 min-w-[220px]">
+        <div className="flex-1 min-w-0">
           {/* Product Name */}
-          <h2 className="text-[42px] font-playfair font-semibold text-black">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-playfair font-semibold text-black leading-tight">
             {productData?.product_name || 'NADETTA COAT'}
           </h2>
 
           {/* Short Description / Meta Description */}
           {(productData?.short_description || productData?.meta_description) && (
-            <div className="mb-4">
-              <p className="text-gray-600 text-[18px] leading-relaxed">
+            <div className="mb-3 lg:mb-4">
+              <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
                 {productData.short_description || productData.meta_description}
               </p>
             </div>
           )}
 
           {/* Rating */}
-          <div className="flex items-center mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center mb-4 lg:mb-6 gap-2 sm:gap-0">
             <div className="flex space-x-1 text-[#FFB800] text-lg">
               {[...Array(4)].map((_, i) => (
-                <Star key={i} fill="#FFB800" stroke="#FFB800" size={20} />
+                <Star key={i} fill="#FFB800" stroke="#FFB800" size={18} className="sm:w-5 sm:h-5" />
               ))}
-              <Star fill="none" stroke="#FFB800" size={20} />
+              <Star fill="none" stroke="#FFB800" size={18} className="sm:w-5 sm:h-5" />
             </div>
-            <p className="text-gray-600 text-[18px] ml-2">(4.8 from 328 Reviews)</p>
+            <p className="text-gray-600 text-sm sm:text-base lg:text-lg sm:ml-2">(4.8 from 328 Reviews)</p>
           </div>
 
           {/* Dynamic Attribute Selection */}
           {(productData?.has_variants && availableAttributes.length > 0) || 
            (!productData?.has_variants && productData?.attributes && productData.attributes.length > 0) ? (
-            <div className="flex flex-wrap gap-8 mb-10">
+            <div className="flex flex-row flex-wrap gap-6 lg:gap-8 mb-6 lg:mb-10">
               {/* For products with variants, show availableAttributes */}
               {productData?.has_variants && availableAttributes.length > 0 && availableAttributes.map((attribute) => (
-                <div key={attribute.name}>
-                  <p className="text-[20px] font-semibold mb-4 capitalize">
+                <div key={attribute.name} className="min-w-0">
+                  <p className="text-lg sm:text-xl font-semibold mb-3 lg:mb-4 capitalize">
                     Select {attribute.name}
                   </p>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     {attribute.values.map((value: string) => {
                       const isSelected = selectedAttributes[attribute.name] === value;
                       const colorStyle = getColorStyle(attribute.name, value);
@@ -572,7 +552,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                             key={value}
                             aria-label={value}
                             onClick={() => handleAttributeSelect(attribute.name, value)}
-                            className={`w-[48px] h-[48px] rounded-full border-4 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center ${
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center ${
                               isSelected
                                 ? 'border-[#FEEBD8] scale-110'
                                 : 'border-white opacity-80 hover:scale-105'
@@ -588,7 +568,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                         <button
                           key={value}
                           onClick={() => handleAttributeSelect(attribute.name, value)}
-                          className={`px-4 py-2 min-w-[64px] h-[48px] rounded-full border text-[18px] font-semibold transition-all duration-150 focus:outline-none
+                          className={`px-3 sm:px-4 py-2 min-w-[48px] sm:min-w-[64px] h-10 sm:h-12 rounded-full border text-sm sm:text-base lg:text-lg font-semibold transition-all duration-150 focus:outline-none
                             ${isSelected
                               ? 'bg-[#FEEBD8] border-[#FEEBD8] text-black shadow-md'
                               : 'bg-white border-black text-black hover:bg-gray-100'}
@@ -606,11 +586,11 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
               {/* For products without variants, show parent product attributes as display-only */}
               {!productData?.has_variants && productData?.attributes && productData.attributes.map((attr) => (
                 attr.attribute?.name && attr.value && (
-                  <div key={attr.attribute.name}>
-                    <p className="text-[20px] font-semibold mb-4 capitalize">
+                  <div key={attr.attribute.name} className="min-w-0">
+                    <p className="text-lg sm:text-xl font-semibold mb-3 lg:mb-4 capitalize">
                       {attr.attribute.name}
                     </p>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
                       {(() => {
                         const colorStyle = getColorStyle(attr.attribute.name, attr.value);
                         
@@ -620,7 +600,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                             <div
                               key={attr.value}
                               aria-label={attr.value}
-                              className="w-[48px] h-[48px] rounded-full border-4 border-[#FEEBD8] scale-110 transition-all duration-150 shadow-md flex items-center justify-center"
+                              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-[#FEEBD8] scale-110 transition-all duration-150 shadow-md flex items-center justify-center"
                               style={{ backgroundColor: colorStyle }}
                             />
                           );
@@ -630,7 +610,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                         return (
                           <div
                             key={attr.value}
-                            className="px-4 py-2 min-w-[64px] h-[48px] rounded-full border bg-[#FEEBD8] border-[#FEEBD8] text-black shadow-md text-[18px] font-semibold flex items-center justify-center"
+                            className="px-3 sm:px-4 py-2 min-w-[48px] sm:min-w-[64px] h-10 sm:h-12 rounded-full border bg-[#FEEBD8] border-[#FEEBD8] text-black shadow-md text-sm sm:text-base lg:text-lg font-semibold flex items-center justify-center"
                           >
                             {attr.value}
                           </div>
@@ -644,32 +624,32 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
           ) : (
             // Fallback to original hardcoded selection only if no attributes exist at all
             productData && (
-              <div className="flex space-x-16 mb-10">
+              <div className="flex flex-row flex-wrap gap-6 lg:gap-16 mb-1 lg:mb-10">
                 {/* Color */}
-                <div>
-                  <p className="text-[20px] font-semibold mb-4">Select color</p>
-                  <div className="flex space-x-6">
+                <div className="min-w-0">
+                  <p className="text-lg sm:text-xl font-semibold mb-3 lg:mb-4">Select color</p>
+                  <div className="flex gap-3 sm:gap-6">
                     <button
                       aria-label="Yellow"
-                      className="w-[48px] h-[48px] rounded-full border-4 border-[#FEEBD8] scale-110 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-[#FEEBD8] scale-110 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center"
                       style={{ backgroundColor: '#FDE047' }}
                     />
                     <button
                       aria-label="Pink"
-                      className="w-[48px] h-[48px] rounded-full border-4 border-white opacity-80 hover:scale-105 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-white opacity-80 hover:scale-105 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center"
                       style={{ backgroundColor: '#EABABA' }}
                     />
                   </div>
                 </div>
 
                 {/* Size */}
-                <div>
-                  <p className="text-[20px] font-semibold mb-4">Select Size</p>
-                  <div className="flex space-x-4">
+                <div className="min-w-0">
+                  <p className="text-lg sm:text-xl font-semibold mb-3 lg:mb-4">Select Size</p>
+                  <div className="flex flex-wrap gap-2 sm:gap-4">
                     {['XS', 'S', 'M', 'L', 'XL'].map((size, index) => (
                       <button
                         key={size}
-                        className={`w-[64px] h-[48px] rounded-full border text-[18px] font-semibold transition-all duration-150 focus:outline-none
+                        className={`w-12 sm:w-16 h-10 sm:h-12 rounded-full border text-sm sm:text-base lg:text-lg font-semibold transition-all duration-150 focus:outline-none
                           ${index === 3 // L is selected by default
                             ? 'bg-[#FEEBD8] border-[#FEEBD8] text-black shadow-md'
                             : 'bg-white border-black text-black hover:bg-gray-100'}
@@ -697,18 +677,18 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
         </div>
 
         {/* RIGHT: Price, Quantity, Actions */}
-        <div className="flex flex-col items-end min-w-[380px] w-full lg:w-auto">
-          <div className="flex w-full justify-between items-end mb-6">
+        <div className="flex flex-col xl:items-end w-full mt-0 sm:mt-10 xl:w-auto xl:min-w-[380px]">
+          <div className="flex flex-row  w-full justify-between items-start sm:items-end xl:items-start gap-4 sm:gap-6 xl:gap-4 mb-4 lg:mb-6">
             {/* Total Price */}
-            <div>
-              <p className="text-gray-600 text-[20px] font-medium mb-1">Total Price</p>
-              <div className="flex items-center space-x-3">
-                <span className="text-[40px] font-bold text-[#FF6A3A]">
+            <div className="flex-1 sm:flex-none">
+              <p className="text-gray-600 text-base sm:text-lg lg:text-xl font-medium mb-1">Total Price</p>
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#FF6A3A]">
                   ${getDisplayPrice()}
                 </span>
                 {/* Show original price only if there's a special price discount */}
                 {(currentVariant?.special_price || productData?.special_price) && (
-                  <span className="text-[28px] text-gray-500 line-through">
+                  <span className="text-xl sm:text-2xl lg:text-3xl text-gray-500 line-through">
                     ${currentVariant?.selling_price || productData?.selling_price}
                   </span>
                 )}
@@ -724,32 +704,32 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
               )}
             </div>
             {/* Quantity */}
-            <div className="flex flex-col items-center mb-4">
-              <p className="text-gray-600 text-[20px] font-medium mb-4">Quantity</p>
-              <div className="flex items-center space-x-4">
+            <div className="flex flex-col items-start sm:items-center xl:items-start">
+              <p className="text-gray-600 text-base sm:text-lg lg:text-xl font-medium mb-3 lg:mb-4">Quantity</p>
+              <div className="flex items-center space-x-3 sm:space-x-4">
                 <button
-                  className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-lg transition-all duration-150 hover:bg-gray-800"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black text-white flex items-center justify-center text-lg transition-all duration-150 hover:bg-gray-800"
                   onClick={() => handleQuantityChange(-1)}
                   aria-label="Decrease quantity"
                 >
-                  <Minus size={24} />
+                  <Minus size={20} className="sm:w-6 sm:h-6" />
                 </button>
-                <span className="text-[22px] font-bold w-8 text-center">{quantity}</span>
+                <span className="text-lg sm:text-xl lg:text-2xl font-bold w-8 text-center">{quantity}</span>
                 <button
-                  className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-lg transition-all duration-150 hover:bg-gray-800"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black text-white flex items-center justify-center text-lg transition-all duration-150 hover:bg-gray-800"
                   onClick={() => handleQuantityChange(1)}
                   aria-label="Increase quantity"
                 >
-                  <Plus size={24} />
+                  <Plus size={20} className="sm:w-6 sm:h-6" />
                 </button>
               </div>
             </div>
           </div>
 
           {/* Buttons */}
-          <div className="flex items-center space-x-6 w-full mt-6">
+          <div className="flex flex-row gap-3 sm:gap-4 lg:gap-6 w-full mt-4 lg:mt-6 sm:justify-center xl:justify-start">
             <button 
-              className={`px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 ${
+              className={`flex-1 sm:flex-none px-6 sm:px-12 lg:px-20 py-3 rounded-full font-semibold text-base sm:text-lg lg:text-xl transition-all duration-150 shadow-md border-2 ${
                 isInStock()
                   ? 'bg-[#FEEBD8] hover:bg-[#fdd7b9] border-[#FEEBD8] text-black'
                   : 'bg-gray-300 border-gray-300 text-gray-500 cursor-not-allowed'
@@ -759,7 +739,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
               {!isInStock() ? 'OUT OF STOCK' : 'ADD TO CART'}
             </button>
             <button 
-              className={`px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 ${
+              className={`flex-1 sm:flex-none px-6 sm:px-12 lg:px-20 py-3 rounded-full font-semibold text-base sm:text-lg lg:text-xl transition-all duration-150 shadow-md border-2 ${
                 isInStock()
                   ? 'bg-black hover:bg-[#222] text-white border-black'
                   : 'bg-gray-400 border-gray-400 text-gray-600 cursor-not-allowed'
@@ -772,25 +752,25 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
         </div>
       </div>
       {/* Product Details Section */}
-<div className="w-full mt-20 flex flex-col lg:flex-row justify-between gap-10">
+<div className="w-full mt-12 lg:mt-20 flex flex-col lg:flex-row justify-between gap-8 lg:gap-10">
   {/* Left - Description List */}
   <div className="flex-1">
-    <h3 className="text-[32px] font-playfair font-bold text-black mb-6">
+    <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-playfair font-bold text-black mb-4 lg:mb-6">
       Product <span className="italic font-normal">Details</span>
     </h3>
     <div className="space-y-2">
       {productData?.full_description 
         ? parseMarkdown(productData.full_description)
         : (
-          <ul className="space-y-4">
+          <ul className="space-y-3 lg:space-y-4">
             {[
               'Midnight womens fabric',
               'Regular Fit',
               'Peak lapels',
               'Dry clean',
             ].map((item, index) => (
-              <li key={index} className="flex items-center text-[18px]">
-                <span className="w-2 h-2 rounded-full bg-[#EABABA] mr-4"></span>
+              <li key={index} className="flex items-center text-base sm:text-lg">
+                <span className="w-2 h-2 rounded-full bg-[#EABABA] mr-3 lg:mr-4 flex-shrink-0"></span>
                 {item}
               </li>
             ))}
@@ -803,11 +783,11 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
   {/* Right - Size Selector & Measurements */}
   <div className="flex-1">
     {/* Sizes */}
-    <div className="flex space-x-4 mb-6 ">
+    <div className="flex flex-wrap gap-3 lg:gap-4 mb-6">
       {['XS', 'S', 'M', 'L', 'XL'].map((size) => (
         <div
           key={size}
-          className={`w-[50px] h-[50px] rounded-full flex items-center justify-center border-2 text-sm font-semibold 
+          className={`w-10 h-10 sm:w-12 sm:h-12 lg:w-[50px] lg:h-[50px] rounded-full flex items-center justify-center border-2 text-sm font-semibold 
             ${
               size === 'L'
                 ? 'bg-black text-white border-black shadow'
@@ -816,7 +796,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
         >
           {size}
           <span
-            className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-5 h-1 rounded-full ${
+            className={`absolute -bottom-1 sm:-bottom-2 left-1/2 transform -translate-x-1/2 w-4 sm:w-5 h-0.5 sm:h-1 rounded-full ${
               size === 'L' ? 'bg-transparent' : 'bg-[#FEEBD8]'
             }`}
           />
@@ -825,18 +805,30 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
     </div>
 
     {/* Measurement Table */}
-    <div className="grid grid-cols-2 font-archivio gap-y-3 gap-x-4 mt-10 text-[16px]">
-      <div className="font-semibold text-black">Shoulder</div>
-      <div className="text-gray-500">50cm /19.75 in</div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 font-archivio gap-y-3 gap-x-4 mt-6 lg:mt-10 text-sm sm:text-base">
+      <div className="flex justify-between sm:block">
+        <span className="font-semibold text-black">Shoulder</span>
+        <span className="text-gray-500 sm:hidden">50cm /19.75 in</span>
+      </div>
+      <div className="text-gray-500 hidden sm:block">50cm /19.75 in</div>
 
-      <div className="font-semibold text-black">length</div>
-      <div className="text-gray-500">124 cm /47.75 in</div>
+      <div className="flex justify-between sm:block">
+        <span className="font-semibold text-black">Length</span>
+        <span className="text-gray-500 sm:hidden">124 cm /47.75 in</span>
+      </div>
+      <div className="text-gray-500 hidden sm:block">124 cm /47.75 in</div>
 
-      <div className="font-semibold text-black">Bust</div>
-      <div className="text-gray-500">50cm /19.75 in</div>
+      <div className="flex justify-between sm:block">
+        <span className="font-semibold text-black">Bust</span>
+        <span className="text-gray-500 sm:hidden">50cm /19.75 in</span>
+      </div>
+      <div className="text-gray-500 hidden sm:block">50cm /19.75 in</div>
 
-      <div className="font-semibold text-black">Sleeve length</div>
-      <div className="text-gray-500">50cm /19.75 in</div>
+      <div className="flex justify-between sm:block">
+        <span className="font-semibold text-black">Sleeve length</span>
+        <span className="text-gray-500 sm:hidden">50cm /19.75 in</span>
+      </div>
+      <div className="text-gray-500 hidden sm:block">50cm /19.75 in</div>
     </div>
   </div>
 </div>

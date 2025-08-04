@@ -2,19 +2,19 @@ import { Link } from 'react-router-dom';
 
 const AoinTrendsSection = () => {
   return (
-    <div className="relative w-full max-w-[1340px] mx-auto bg-white pt-8 md:pt-24 pb-8 md:pb-12 px-4 md:px-8 overflow-hidden">
+    <div className="relative w-full max-w-[1400px] mx-auto bg-white pt-8 md:pt-24 pb-8 md:pb-12 px-4 md:px-8 overflow-hidden">
       {/* Mobile Layout: Stacked, no frames */}
       <div className="flex flex-col md:hidden items-center gap-6">
         <img
           src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745100/public_assets_shop1_LP/public_assets_images_Aoin1.svg"
           alt="Headwrap"
-          className="w-full max-w-xs rounded-lg object-contain"
+          className="hidden md:block w-full max-w-xs rounded-lg object-contain"
           loading="lazy"
         />
         <img
           src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745103/public_assets_shop1_LP/public_assets_images_Aoin2.svg"
           alt="Orange skirt"
-          className="w-full max-w-xs rounded-lg object-contain"
+          className="hidden md:block w-full max-w-xs rounded-lg object-contain"
           loading="lazy"
         />
         <h1 className="text-center font-normal leading-9 text-2xl font-playfair text-gray-900">
