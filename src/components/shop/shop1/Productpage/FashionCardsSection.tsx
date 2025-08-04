@@ -160,10 +160,10 @@ const FashionCardsSection: React.FC = () => {
             </div>
           </div>
           {/* RIGHT: Price, Quantity, Actions */}
-          <div className="flex flex-col items-end min-w-[380px]  w-full lg:w-auto">
-            <div className="flex w-full justify-between  items-end mb-6">
+          <div className="flex flex-col lg:flex-row items-end min-w-[380px] w-full lg:w-auto">
+            <div className="flex w-full justify-between items-end mb-6">
               {/* Total Price */}
-              <div className='flex flex-col items-end '>
+              <div className='flex flex-col items-end'>
                 <p className="text-gray-600 text-[20px] font-medium mb-1">Total Price</p>
                 <div className="flex items-center space-x-3">
                   <span className="text-[40px] font-bold text-[#FF6A3A]">$450</span>
@@ -193,7 +193,7 @@ const FashionCardsSection: React.FC = () => {
               </div>
             </div>
             {/* Buttons */}
-            <div className="flex items-center space-x-6 w-full mt-6">
+            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 w-full mt-6">
               <button className="bg-[#FEEBD8] hover:bg-[#fdd7b9] px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 border-[#FEEBD8]">
                 ADD TO CART
               </button>

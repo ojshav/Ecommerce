@@ -47,13 +47,13 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
   return (
     <section className="relative w-full max-w-[1280px] mx-auto bg-white px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4 sm:gap-0">
+      <div className="flex flex-row sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4 sm:gap-0">
         <h2 className="text-2xl sm:text-3xl md:text-[42px] font-bold font-playfair text-black leading-tight">
           Similar <em className="italic font-light font-playfair">products</em>
         </h2>
         {/* Show scroll arrows only if there are more than 3 products */}
         {relatedProducts.length > 3 && (
-          <div className="flex space-x-4 md:ml-8 md:mt-[38px] md:pb-3 self-end">
+          <div className="flex space-x-2 sm:space-x-4 md:ml-8 md:mt-[38px] md:pb-3 self-end">
             <button 
               className="group rounded-full flex items-center justify-center w-14 h-14"
               onMouseEnter={() => setLeftHovered(true)}
@@ -64,7 +64,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
               <img 
                 src={leftHovered ? leftArrowHover : leftArrow}
                 alt="Arrow Left"
-                className="w-12 h-12 object-contain group-hover:w-24 group-hover:h-24"
+                className="w-8 h-8 sm:w-12 sm:h-12 object-contain group-hover:w-10 group-hover:h-10 sm:group-hover:w-24 sm:group-hover:h-24"
               />
             </button>
             <button 
@@ -77,7 +77,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
               <img 
                 src={rightHovered ? rightArrowHover : rightArrow}
                 alt="Arrow Right"
-                className="w-12 h-12 object-contain group-hover:w-24 group-hover:h-24"
+                className="w-8 h-8 sm:w-12 sm:h-12 object-contain group-hover:w-10 group-hover:h-10 sm:group-hover:w-24 sm:group-hover:h-24"
               />
             </button>
           </div>
@@ -91,7 +91,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
           {relatedProducts.map((product) => (
             <Link key={product.product_id} to={`/shop1/product/${product.product_id}`} className="group">
               {/* Image */}
-              <div className="bg-gray-100 rounded-2xl md:rounded-3xl overflow-hidden mb-4 md:mb-6 relative w-[399px] h-[447px]">
+              <div className="bg-gray-100 rounded-2xl md:rounded-3xl overflow-hidden mb-4 md:mb-6 relative w-full sm:w-[399px] h-[447px]">
                 <img
                   src={product.primary_image}
                   alt={product.product_name}
@@ -127,10 +127,10 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
             <Link 
               key={product.product_id} 
               to={`/shop1/product/${product.product_id}`} 
-              className="group flex-shrink-0 w-[280px] sm:w-[400px]"
+              className="group flex-shrink-0 w-full sm:w-[380px]"
             >
               {/* Image */}
-              <div className="bg-white rounded-2xl md:rounded-3xl overflow-hidden mb-4 md:mb-6 relative w-[399px] h-[447px]">
+              <div className="bg-white rounded-2xl md:rounded-3xl overflow-hidden mb-4 md:mb-6 relative w-full sm:w-[399px] h-[447px]">
                 <img
                   src={product.primary_image}
                   alt={product.product_name}

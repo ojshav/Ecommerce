@@ -3,10 +3,10 @@ import { ArrowRight } from 'lucide-react';
 
 const NewCollection = () => {
   return (
-    <div className="w-full max-w-[1280px] mx-auto bg-white px-4 sm:px-6 py-8 sm:py-12 lg:py-16 flex flex-col md:flex-row gap-10 md:gap-6">
+    <div className="w-full max-w-[1310px] mx-auto bg-white px-4 sm:px-6 py-8 sm:py-12 lg:py-16 flex flex-col md:flex-row gap-10 md:gap-6">
       
       {/* Left Main Image */}
-      <div className="w-full md:w-[45%] lg:w-[491px] flex-shrink-0">
+      <div className="hidden md:block w-full md:w-[45%] lg:w-[491px] flex-shrink-0">
         <div className="w-full h-[600px] sm:h-[600px] md:h-[720px] lg:h-[881px] overflow-hidden">
           <img
             src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745131/public_assets_shop1_LP/public_assets_images_New1.svg"
@@ -36,7 +36,7 @@ const NewCollection = () => {
         </div>
 
         {/* Grid of Looks */}
-        <div className="grid grid-cols-2 gap-4 sm:gap-4 mt-10 sm:mt-16">
+        <div className="grid grid-cols-2 gap-4 sm:gap-4 mt-2 sm:mt-16">
           <img 
             src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745134/public_assets_shop1_LP/public_assets_images_New2.svg" 
             alt="Look 1" 
