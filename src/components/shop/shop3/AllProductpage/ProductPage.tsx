@@ -1,177 +1,47 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Shop3ProductCard from '../Shop3ProductCard';
+import shop3ApiService, { Product } from '../../../../services/shop3ApiService';
 
-const dummyProducts = [
-  {
-    id: 1,
-    name: "Neon Mech Gears Sneaker",
-    image: "/assets/images/Productcard/card-section1.jpg",
-    price: 26.4,
-    originalPrice: null,
-    badge: "Free shipping",
-    badgeColor: "bg-lime-400 text-black",
-    isNew: false,
-    discount: null,
-  },
-  {
-    id: 2,
-    name: "SprayLab Street Co-ord",
-    image: "/assets/images/Productcard/card-section2.jpg",
-    price: 120,
-    originalPrice: 200,
-    badge: "-30%",
-    badgeColor: "bg-pink-600 text-white",
-    isNew: false,
-    discount: 30,
-  },
-  {
-    id: 3,
-    name: "Midnight Luxe Shades",
-    image: "/assets/images/Productcard/hero1.jpg",
-    price: 200,
-    originalPrice: null,
-    badge: "Limited Edition",
-    badgeColor: "bg-lime-400 text-black",
-    isNew: true,
-    discount: null,
-  },
-  {
-    id: 4,
-    name: "Radiant Rebel Sunglasses",
-    image: "/assets/images/Productcard/hero2.jpg",
-    price: 321,
-    originalPrice: null,
-    badge: "Free shipping",
-    badgeColor: "bg-lime-400 text-black",
-    isNew: false,
-    discount: null,
-  },
-  {
-    id: 5,
-    name: "Neon Drift Puffer",
-    image: "/assets/images/Productcard/hero3.jpg",
-    price: 200,
-    originalPrice: null,
-    badge: "Free shipping",
-    badgeColor: "bg-lime-400 text-black",
-    isNew: false,
-    discount: null,
-    showAdd: true,
-  },
-  {
-    id: 6,
-    name: "Neon Gear Techwear Boots",
-    image: "/assets/images/Productcard/hero4.jpg",
-    price: 26.4,
-    originalPrice: null,
-    badge: null,
-    badgeColor: "",
-    isNew: false,
-    discount: null,
-  },
-  {
-    id: 7,
-    name: "Neon Rush Co-Ord Set",
-    image: "/assets/images/Productcard/pd-1.jpg",
-    price: 120,
-    originalPrice: 200,
-    badge: "-30%",
-    badgeColor: "bg-pink-600 text-white",
-    isNew: false,
-    discount: 30,
-  },
-  // Additional products for more rows below
-  {
-    id: 8,
-    name: "Cyberpunk Street Hoodie",
-    image: "/assets/images/Productcard/pd-2.jpg",
-    price: 150,
-    originalPrice: null,
-    badge: "Free shipping",
-    badgeColor: "bg-lime-400 text-black",
-    isNew: false,
-    discount: null,
-  },
-  {
-    id: 9,
-    name: "Luminous City Jacket",
-    image: "/assets/images/Productcard/pd-3.jpg",
-    price: 180,
-    originalPrice: 220,
-    badge: "-20%",
-    badgeColor: "bg-pink-600 text-white",
-    isNew: false,
-    discount: 20,
-  },
-  {
-    id: 10,
-    name: "Neon Skyline Tracksuit",
-    image: "/assets/images/Productcard/pd-4.jpg",
-    price: 210,
-    originalPrice: null,
-    badge: null,
-    badgeColor: "",
-    isNew: false,
-    discount: null,
-  },
-  {
-    id: 11,
-    name: "Electric Avenue Sneakers",
-    image: "/assets/images/Productcard/liked1.jpg",
-    price: 99,
-    originalPrice: 120,
-    badge: "-15%",
-    badgeColor: "bg-pink-600 text-white",
-    isNew: false,
-    discount: 15,
-  },
-  {
-    id: 12,
-    name: "Prism Glow Windbreaker",
-    image: "/assets/images/Productcard/liked2.jpg",
-    price: 175,
-    originalPrice: null,
-    badge: "Free shipping",
-    badgeColor: "bg-lime-400 text-black",
-    isNew: false,
-    discount: null,
-  },
-  {
-    id: 13,
-    name: "Holo Street Joggers",
-    image: "/assets/images/Productcard/liked3.jpg",
-    price: 130,
-    originalPrice: 160,
-    badge: "-18%",
-    badgeColor: "bg-pink-600 text-white",
-    isNew: false,
-    discount: 18,
-  },
-  {
-    id: 14,
-    name: "Urban Neon Backpack",
-    image: "/assets/images/Productcard/liked4.jpg",
-    price: 80,
-    originalPrice: null,
-    badge: null,
-    badgeColor: "",
-    isNew: false,
-    discount: null,
-  },
-  {
-    id: 14,
-    name: "Urban Neon Backpack",
-    image: "/assets/images/Productcard/liked4.jpg",
-    price: 80,
-    originalPrice: null,
-    badge: null,
-    badgeColor: "",
-    isNew: false,
-    discount: null,
-  },
-];
+const mapProductToCard = (product: Product) => ({
+  id: product.product_id,
+  name: product.product_name,
+  image: product.primary_image || "/assets/images/Productcard/card-section1.jpg",
+  price: product.price,
+  originalPrice: product.originalPrice ?? product.special_price ?? null,
+  badge: product.is_on_special_offer ? (product.special_price ? `-${Math.round(100 * (1 - product.special_price / product.price))}%` : "Special Offer") : null,
+  badgeColor: product.is_on_special_offer ? "bg-pink-600 text-white" : "bg-lime-400 text-black",
+  isNew: false, // Adjust if you have a field for newness
+  discount: product.is_on_special_offer && product.special_price ? Math.round(100 * (1 - product.special_price / product.price)) : null,
+});
 
 const ProductPage = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const handleProductClick = (productId: number) => {
+    navigate(`/shop3-productpage?id=${productId}`);
+  };
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const res = await shop3ApiService.getProducts({ per_page: 20 });
+        if (res && res.success) {
+          setProducts(res.products);
+        } else {
+          setProducts([]);
+        }
+      } catch (e) {
+        setProducts([]);
+      }
+      setLoading(false);
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <div className="min-h-screen bg-black text-white font-sans pb-12 px-4 sm:px-8 2xl:px-6">
       {/* Header & Breadcrumbs */}
@@ -216,19 +86,29 @@ const ProductPage = () => {
 
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10 2xl:gap-12 lg:gap-y-28 2xl:gap-y-24 mt-8 justify-center mx-auto items-start">
-        {dummyProducts.map((product) => (
-          <Shop3ProductCard
-            key={product.id}
-            image={product.image}
-            name={product.name}
-            price={product.price}
-            originalPrice={product.originalPrice}
-            badge={product.badge}
-            badgeColor={product.badgeColor}
-            isNew={product.isNew}
-            discount={product.discount}
-          />
-        ))}
+        {loading ? (
+          <div className="col-span-full text-center py-10">Loading products...</div>
+        ) : products.length === 0 ? (
+          <div className="col-span-full text-center py-10">No products found.</div>
+        ) : (
+          products.map((product) => {
+            const card = mapProductToCard(product);
+            return (
+              <Shop3ProductCard
+                key={card.id}
+                image={card.image}
+                name={card.name}
+                price={card.price}
+                originalPrice={card.originalPrice}
+                badge={card.badge}
+                badgeColor={card.badgeColor}
+                isNew={card.isNew}
+                discount={card.discount}
+                onClick={() => handleProductClick(product.product_id)}
+              />
+            );
+          })
+        )}
       </div>
       {/* Section below product cards */}
       <div className="flex flex-col items-center w-full pt-24 py-12">

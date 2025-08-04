@@ -637,4 +637,6 @@ const products: Product[] = [
     }
   ];
 
+
 export default ProductDetail;
+
