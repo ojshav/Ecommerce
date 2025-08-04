@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useShopCart } from '../../../context/ShopCartContext';
+import { useAuth } from '../../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 interface Shop3ProductCardProps {
   image: string;
@@ -10,9 +13,61 @@ interface Shop3ProductCardProps {
   isNew?: boolean;
   discount?: number | null;
   onClick?: () => void;
+  productId?: number; // Add product ID for cart functionality
 }
 
-const Shop3ProductCard: React.FC<Shop3ProductCardProps> = ({ image, name, price, originalPrice, badge, badgeColor, onClick }) => {
+const Shop3ProductCard: React.FC<Shop3ProductCardProps> = ({ 
+  image, 
+  name, 
+  price, 
+  originalPrice, 
+  badge, 
+  badgeColor, 
+  onClick,
+  productId 
+}) => {
+  // Cart functionality
+  const { addToShopCart } = useShopCart();
+  const { accessToken, user } = useAuth();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  
+  // Shop3 has a fixed shop ID of 3
+  const SHOP_ID = 3;
+  
+  // Handle add to cart
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!productId) {
+      toast.error("Product ID not available");
+      return;
+    }
+    
+    if (!accessToken) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error("Only customers can add items to cart");
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      
+      // Add to cart with default quantity of 1 and no selected attributes
+      await addToShopCart(SHOP_ID, productId, 1, {});
+      toast.success("Product added to cart");
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error("Failed to add product to cart");
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   return (
     <div 
       className="flex flex-col items-center group w-[436px] h-[600px] cursor-pointer"
@@ -50,8 +105,12 @@ const Shop3ProductCard: React.FC<Shop3ProductCardProps> = ({ image, name, price,
         </div>
       </div>
       {/* Add button: hidden by default, show on hover */}
-      <button className="w-full mt-6 bg-lime-400 text-black font-semibold py-2 rounded transition hover:bg-lime-300 max-w-md hidden group-hover:flex items-center justify-center">
-        Add
+      <button 
+        onClick={handleAddToCart}
+        disabled={isAddingToCart}
+        className="w-full mt-6 bg-lime-400 text-black font-semibold py-2 rounded transition hover:bg-lime-300 max-w-md hidden group-hover:flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isAddingToCart ? 'Adding...' : 'Add to Cart'}
       </button>
     </div>
   );

@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useShopCart } from '../../../context/ShopCartContext';
+import { useAuth } from '../../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 interface Shop2ProductCardProps {
   image: string;
@@ -6,10 +9,53 @@ interface Shop2ProductCardProps {
   price: number;
   discount?: number;
   overlay?: number;
+  shopProductId: number;
   onClick?: () => void;
 }
 
-const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ image, name, price, discount, onClick }) => {
+const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ 
+  image, 
+  name, 
+  price, 
+  discount, 
+  shopProductId, 
+  onClick 
+}) => {
+  const [quantity, setQuantity] = useState(1);
+  const { addToShopCart } = useShopCart();
+  const { accessToken, user } = useAuth();
+  
+  // Shop2 has a fixed shop ID of 2
+  const SHOP_ID = 2;
+
+  const handleQuantityChange = (increment: boolean) => {
+    if (increment) {
+      setQuantity(prev => prev + 1);
+    } else {
+      setQuantity(prev => Math.max(1, prev - 1));
+    }
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!accessToken) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error("Only customers can add items to cart");
+      return;
+    }
+
+    try {
+      await addToShopCart(SHOP_ID, shopProductId, quantity);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
+  };
+
   return (
     <div 
       className="flex flex-col items-center pb-7 relative group cursor-pointer"
@@ -35,26 +81,23 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ image, name, price,
         <div className="w-full flex flex-col items-center transition-all duration-300 max-h-0 opacity-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100">
           <div className="flex items-center gap-2 w-full justify-center p-6">
             <button 
-              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold"
+              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold hover:bg-gray-100 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
-                // Handle quantity decrease
+                handleQuantityChange(false);
               }}
             >-</button>
-            <span className="font-semibold">1</span>
+            <span className="font-semibold min-w-[2rem] text-center">{quantity}</span>
             <button 
-              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold"
+              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold hover:bg-gray-100 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
-                // Handle quantity increase
+                handleQuantityChange(true);
               }}
             >+</button>
             <button 
-              className="ml-2 sm:ml-4 bg-black text-white px-4 sm:px-6 py-2 rounded-full font-semibold text-xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle add to cart
-              }}
+              className="ml-2 sm:ml-4 bg-black text-white px-4 sm:px-6 py-2 rounded-full font-semibold text-xs hover:bg-gray-800 transition-colors"
+              onClick={handleAddToCart}
             >ADD TO CART</button>
           </div>
         </div>

@@ -2,6 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import shop3ApiService, { Product } from '../../../../services/shop3ApiService';
 import SimilarProducts from './SimilarProducts';
+import { useShopCart } from '../../../../context/ShopCartContext';
+import { useAuth } from '../../../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 const ProductPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -12,6 +15,14 @@ const ProductPage: React.FC = () => {
   const [currentVariant, setCurrentVariant] = useState<Product | null>(null);
   const [stockError, setStockError] = useState<string>('');
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+
+  // Cart functionality
+  const { addToShopCart } = useShopCart();
+  const { accessToken, user } = useAuth();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  
+  // Shop3 has a fixed shop ID of 3
+  const SHOP_ID = 3;
 
   // Helper function to get color style for color attributes (same as Shop1)
   const getColorStyleForValue = (value: string) => {
@@ -392,6 +403,52 @@ const ProductPage: React.FC = () => {
     }));
   };
 
+  // Handle add to cart
+  const handleAddToCart = async () => {
+    if (!accessToken) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error("Only customers can add items to cart");
+      return;
+    }
+
+    if (!product) {
+      toast.error("Product not available");
+      return;
+    }
+
+    // Check if product is in stock
+    const currentProduct = currentVariant || product;
+    const stockQty = currentProduct.stock?.stock_qty || 0;
+    if (stockQty <= 0) {
+      toast.error("Product is out of stock");
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      
+      // Create selected attributes object from current selections
+      const cartAttributes: Record<string, string[]> = {};
+      Object.entries(selectedAttributes).forEach(([key, value]) => {
+        if (value) {
+          cartAttributes[key] = [value];
+        }
+      });
+      
+      await addToShopCart(SHOP_ID, product.product_id, 1, cartAttributes);
+      toast.success("Product added to cart");
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error("Failed to add product to cart");
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   // Simple markdown parser for basic formatting with Shop3 styling
   const parseMarkdown = (text: string): JSX.Element[] => {
     if (!text) return [];
@@ -726,8 +783,28 @@ const ProductPage: React.FC = () => {
           )}
 
           {/* Add to Bag Button */}
-          <button className="w-full bg-black  border-white text-white py-3 px-6 font-medium font-openSans mb-4">
-            Add to bag
+          <button 
+            onClick={handleAddToCart}
+            disabled={isAddingToCart || (() => {
+              const currentProduct = currentVariant || product;
+              const stockQty = currentProduct.stock?.stock_qty || 0;
+              return stockQty <= 0;
+            })()}
+            className={`w-full py-3 px-6 font-medium font-openSans mb-4 transition-all ${
+              isAddingToCart || (() => {
+                const currentProduct = currentVariant || product;
+                const stockQty = currentProduct.stock?.stock_qty || 0;
+                return stockQty <= 0;
+              })()
+                ? 'bg-gray-600 border-gray-400 text-gray-300 cursor-not-allowed'
+                : 'bg-black border-white text-white hover:bg-gray-800'
+            }`}
+          >
+            {isAddingToCart ? 'Adding...' : (() => {
+              const currentProduct = currentVariant || product;
+              const stockQty = currentProduct.stock?.stock_qty || 0;
+              return stockQty <= 0 ? 'Out of Stock' : 'Add to bag';
+            })()}
           </button>
 
           {/* Bottom Section */}

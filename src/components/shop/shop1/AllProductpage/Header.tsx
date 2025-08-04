@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Heroicons SVGs (inline for simplicity)
 const MailIcon = () => (
@@ -67,6 +67,7 @@ const navLinks = [
 ];
 
 const Header: React.FC = () => {
+  const navigate = useNavigate();
   const [category, setCategory] = useState(categories[0]);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [lang, setLang] = useState(languages[0]);
@@ -75,6 +76,13 @@ const Header: React.FC = () => {
   const [search, setSearch] = useState('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileDeptOpen, setMobileDeptOpen] = useState(false);
+
+  // Shop1 has a fixed shop ID of 1
+  const SHOP_ID = 1;
+
+  const handleCartClick = () => {
+    navigate(`/shop/${SHOP_ID}/cart`);
+  };
 
   // Close dropdowns on outside click
   const catRef = useRef<HTMLDivElement>(null);
@@ -157,7 +165,10 @@ const Header: React.FC = () => {
                 <span className="absolute -top-2 -right-2 text-[10px] rounded-full px-1.5 bg-[#FFB998]">1</span>
               </div>
               <div className="relative">
-                <button className="hover:text-orange-400">
+                <button 
+                  className="hover:text-orange-400 transition-colors"
+                  onClick={handleCartClick}
+                >
                   <CartIcon />
                 </button>
                 <span className="absolute -top-2 -right-2 text-[10px] rounded-full px-1.5 bg-[#FFB998]">3</span>
@@ -217,7 +228,10 @@ const Header: React.FC = () => {
               <span className="absolute -top-2 -right-2 text-xs rounded-full px-1.5 bg-[#FFB998]">1</span>
             </div>
             <div className="relative">
-              <button className="hover:text-orange-400">
+              <button 
+                className="hover:text-orange-400 transition-colors"
+                onClick={handleCartClick}
+              >
                 <CartIcon />
               </button>
               <span className="absolute -top-2 -right-2 text-xs rounded-full px-1.5 bg-[#FFB998]">3</span>

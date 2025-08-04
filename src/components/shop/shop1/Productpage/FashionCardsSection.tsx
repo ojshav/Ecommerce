@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Minus, Plus, Star } from 'lucide-react';
+import { useShopCart } from '../../../../context/ShopCartContext';
+import { useAuth } from '../../../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 // --- Ratings Data (from Rating.tsx) ---
 const reviews = [
@@ -36,6 +39,17 @@ const FashionCardsSection: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   // --- Ratings state ---
   const [selectedRating, setSelectedRating] = useState(5);
+  
+  // Cart functionality
+  const { addToShopCart } = useShopCart();
+  const { accessToken, user } = useAuth();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  
+  // Shop1 has a fixed shop ID of 1
+  const SHOP_ID = 1;
+  
+  // Mock product ID for this specific product
+  const PRODUCT_ID = 1; // You can change this to the actual product ID
 
   // --- Hero handlers ---
   const handleColorSelect = (color: string) => setSelectedColor(color);
@@ -46,6 +60,51 @@ const FashionCardsSection: React.FC = () => {
   // --- Ratings handler ---
   const handleRatingChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedRating(parseInt(e.target.value));
+  };
+  
+  // --- Cart handler ---
+  const handleAddToCart = async () => {
+    console.log('Add to cart clicked!');
+    console.log('Access token:', accessToken);
+    console.log('User role:', user?.role);
+    console.log('Selected color:', selectedColor);
+    console.log('Selected size:', selectedSize);
+    console.log('Quantity:', quantity);
+    
+    if (!accessToken) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error("Only customers can add items to cart");
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      
+      // Create selected attributes object
+      const selectedAttributes = {
+        0: [selectedColor], // Color attribute
+        1: [selectedSize]   // Size attribute
+      };
+      
+      console.log('Calling addToShopCart with:', {
+        shopId: SHOP_ID,
+        productId: PRODUCT_ID,
+        quantity,
+        selectedAttributes
+      });
+      
+      await addToShopCart(SHOP_ID, PRODUCT_ID, quantity, selectedAttributes);
+      toast.success("Product added to cart");
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error("Failed to add product to cart");
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   return (
@@ -192,11 +251,20 @@ const FashionCardsSection: React.FC = () => {
                 </div>
               </div>
             </div>
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 w-full mt-6">
-              <button className="bg-[#FEEBD8] hover:bg-[#fdd7b9] px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 border-[#FEEBD8]">
-                ADD TO CART
-              </button>
+                         {/* Buttons */}
+             <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 w-full mt-6">
+               <button 
+                 onClick={(e) => {
+                   e.preventDefault();
+                   e.stopPropagation();
+                   console.log('Button clicked!');
+                   handleAddToCart();
+                 }}
+                 disabled={isAddingToCart}
+                 className="bg-[#FEEBD8] hover:bg-[#fdd7b9] px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 border-[#FEEBD8] disabled:opacity-50 disabled:cursor-not-allowed"
+               >
+                 {isAddingToCart ? 'ADDING...' : 'ADD TO CART'}
+               </button>
               <button className="bg-black hover:bg-[#222] text-white px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 border-black">
                 BUY IT NOW
               </button>

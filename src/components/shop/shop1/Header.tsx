@@ -39,7 +39,7 @@ const Header = () => {
             <Link to="/shop1/wishlist" className="text-gray-900 hover:text-gray-600 transition-colors">
               <Heart className="w-6 h-6" />
             </Link>
-            <Link to="/shop1/cart" className="text-gray-900 hover:text-gray-600 transition-colors">
+            <Link to="/shop/1/cart" className="text-gray-900 hover:text-gray-600 transition-colors">
               <ShoppingBag className="w-6 h-6" />
             </Link>
           </div>
@@ -67,7 +67,7 @@ const Header = () => {
               <Link to="/shop1/wishlist" className="hover:text-gray-600 transition-colors">
                 <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
               </Link>
-              <Link to="/shop1/cart" className="hover:text-gray-600 transition-colors">
+              <Link to="/shop/1/cart" className="hover:text-gray-600 transition-colors">
                 <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
               </Link>
               

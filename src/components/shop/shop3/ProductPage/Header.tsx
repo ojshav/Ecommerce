@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  
+  // Handle cart click
+  const handleCartClick = () => {
+    navigate('/shop/3/cart');
+  };
 
   return (
     <header className="bg-black w-full  text-white px-4 sm:px-8 2xl:px-6 py-4">
@@ -62,7 +69,10 @@ const Header: React.FC = () => {
           
           {/* Shopping cart with badge */}
           <div className="relative">
-            <button className="text-white hover:text-gray-300 transition-colors">
+            <button 
+              onClick={handleCartClick}
+              className="text-white hover:text-gray-300 transition-colors"
+            >
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>

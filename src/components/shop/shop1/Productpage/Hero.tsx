@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Minus, Plus, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product as ApiProduct } from '../../../../services/shop1ApiService';
+import { useShopCart } from '../../../../context/ShopCartContext';
+import { useAuth } from '../../../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 interface Product extends ApiProduct {
   // Keeping the original interface structure for backward compatibility
@@ -16,6 +19,14 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentVariant, setCurrentVariant] = useState<Product | null>(null);
   const [stockError, setStockError] = useState<string>('');
+  
+  // Cart functionality
+  const { addToShopCart } = useShopCart();
+  const { accessToken, user } = useAuth();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  
+  // Shop1 has a fixed shop ID of 1
+  const SHOP_ID = 1;
 
   // Extract and combine attributes from both parent product attributes and variant attributes
   const availableAttributes = useMemo(() => {
@@ -306,6 +317,44 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
 
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => Math.max(1, prev + delta));
+  };
+
+  // Handle add to cart
+  const handleAddToCart = async () => {
+    if (!accessToken) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error("Only customers can add items to cart");
+      return;
+    }
+
+    if (!productData) {
+      toast.error("Product not available");
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      
+      // Create selected attributes object from current selections
+      const cartAttributes: Record<string, string[]> = {};
+      Object.entries(selectedAttributes).forEach(([key, value]) => {
+        if (value) {
+          cartAttributes[key] = [value];
+        }
+      });
+      
+      await addToShopCart(SHOP_ID, productData.product_id, quantity, cartAttributes);
+      toast.success("Product added to cart");
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error("Failed to add product to cart");
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   const nextImage = () => {
@@ -866,14 +915,15 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
           {/* Buttons */}
           <div className="flex flex-row gap-3 sm:gap-4 lg:gap-6 w-full mt-4 lg:mt-6 sm:justify-center xl:justify-start">
             <button 
+              onClick={handleAddToCart}
+              disabled={!isInStock() || isAddingToCart}
               className={`flex-1 sm:flex-none px-6 sm:px-12 lg:px-20 py-3 rounded-full font-semibold text-base sm:text-lg lg:text-xl transition-all duration-150 shadow-md border-2 ${
                 isInStock()
                   ? 'bg-[#FEEBD8] hover:bg-[#fdd7b9] border-[#FEEBD8] text-black'
                   : 'bg-gray-300 border-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              disabled={!isInStock()}
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              {!isInStock() ? 'OUT OF STOCK' : 'ADD TO CART'}
+              {!isInStock() ? 'OUT OF STOCK' : isAddingToCart ? 'ADDING...' : 'ADD TO CART'}
             </button>
             <button 
               className={`flex-1 sm:flex-none px-6 sm:px-12 lg:px-20 py-3 rounded-full font-semibold text-base sm:text-lg lg:text-xl transition-all duration-150 shadow-md border-2 ${

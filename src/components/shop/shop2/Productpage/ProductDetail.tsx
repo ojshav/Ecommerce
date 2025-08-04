@@ -3,6 +3,9 @@ import { Heart, ShoppingCart, Image as ImageIcon, ChevronDown, ChevronUp, Star }
 import { useParams, useNavigate } from 'react-router-dom';
 import shop2ApiService, { Product, ProductVariant } from '../../../../services/shop2ApiService';
 import chroma from 'chroma-js';
+import { useShopCart } from '../../../../context/ShopCartContext';
+import { useAuth } from '../../../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
@@ -169,6 +172,49 @@ const ProductDetail = () => {
 
   const [showPhotosModal, setShowPhotosModal] = useState(false);
   const [currentPhotoIdx, setCurrentPhotoIdx] = useState(0);
+  
+  // Cart functionality
+  const { addToShopCart } = useShopCart();
+  const { accessToken, user } = useAuth();
+  
+  // Shop2 has a fixed shop ID of 2
+  const SHOP_ID = 2;
+  
+  // State for quantity
+  const [quantity, setQuantity] = useState(1);
+
+  // Handle quantity change
+  const handleQuantityChange = (increment: boolean) => {
+    if (increment) {
+      setQuantity(prev => prev + 1);
+    } else {
+      setQuantity(prev => Math.max(1, prev - 1));
+    }
+  };
+
+  // Handle add to cart
+  const handleAddToCart = async () => {
+    if (!accessToken) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error("Only customers can add items to cart");
+      return;
+    }
+
+    if (!product) {
+      toast.error("Product not available");
+      return;
+    }
+
+    try {
+      await addToShopCart(SHOP_ID, product.product_id, quantity, selectedAttributes);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
+  };
 
   // Fetch product variants
   const fetchVariants = async (productId: number) => {
@@ -449,10 +495,30 @@ const ProductDetail = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
-            <button className="w-full sm:flex-1 bg-black text-[16px] font-gilroy text-white px-3 py-1 rounded-full font-bold flex items-center justify-center gap-2 text-base  shadow hover:bg-gray-900 transition-all">
+            {/* Quantity Controls */}
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start mb-2 sm:mb-0">
+              <button 
+                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold hover:bg-gray-100 transition-colors"
+                onClick={() => handleQuantityChange(false)}
+              >
+                -
+              </button>
+              <span className="font-semibold min-w-[2rem] text-center">{quantity}</span>
+              <button 
+                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold hover:bg-gray-100 transition-colors"
+                onClick={() => handleQuantityChange(true)}
+              >
+                +
+              </button>
+            </div>
+            
+            <button 
+              className="w-full sm:flex-1 bg-black text-[16px] font-gilroy text-white px-3 py-1 rounded-full font-bold flex items-center justify-center gap-2 text-base shadow hover:bg-gray-900 transition-all"
+              onClick={handleAddToCart}
+            >
               <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" /> Add to Cart
             </button>
-            <button className="w-full sm:flex-1 border-2 border-black text-black px-3 py-3 sm:py-4 rounded-full font-bold text-base  hover:bg-gray-100 transition-all">
+            <button className="w-full sm:flex-1 border-2 border-black text-black px-3 py-3 sm:py-4 rounded-full font-bold text-base hover:bg-gray-100 transition-all">
               Buy Now
             </button>
           </div>
