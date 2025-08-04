@@ -40,6 +40,15 @@ const ShopProducts: React.FC = () => {
     is_published: '',
     is_on_special_offer: ''
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    has_next: false,
+    has_prev: false,
+    pages: 1,
+    per_page: 10,
+    total: 0
+  });
   const { showSuccess, showError } = useToastHelpers();
 
   useEffect(() => {
@@ -62,7 +71,8 @@ const ShopProducts: React.FC = () => {
     if (selectedShop && selectedCategory) {
       fetchProducts();
     }
-  }, [selectedShop, selectedCategory, selectedBrand]);
+    // eslint-disable-next-line
+  }, [selectedShop, selectedCategory, selectedBrand, currentPage]);
 
   const fetchShops = async () => {
     try {
@@ -108,11 +118,22 @@ const ShopProducts: React.FC = () => {
         ...(filters.max_price && { max_price: parseFloat(filters.max_price) }),
         ...(filters.is_published && { is_published: filters.is_published === 'true' }),
         ...(filters.is_on_special_offer && { is_on_special_offer: filters.is_on_special_offer === 'true' }),
-        ...(searchTerm && { search: searchTerm })
+        ...(searchTerm && { search: searchTerm }),
+        page: currentPage
       };
-      
       const response = await shopManagementService.getShopProducts(filterParams);
-      setProducts(response.data || []);
+      // If API returns {products, pagination}
+      if (response.products && response.pagination) {
+        setProducts(response.products || []);
+        setPagination(response.pagination);
+      } else if (response.data && response.pagination) {
+        setProducts(response.data || []);
+        setPagination(response.pagination);
+      } else if (response.data) {
+        setProducts(response.data || []);
+      } else {
+        setProducts([]);
+      }
     } catch (error) {
       showError('Failed to fetch products');
     } finally {
@@ -124,6 +145,18 @@ const ShopProducts: React.FC = () => {
     setShowModal(false);
     setEditingProduct(null);
     fetchProducts(); // Refresh the products list
+  };
+
+  const handleNextPage = () => {
+    if (pagination.has_next) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (pagination.has_prev) {
+      setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1));
+    }
   };
 
   const handleEdit = (product: ShopProduct) => {
@@ -175,13 +208,11 @@ const ShopProducts: React.FC = () => {
     });
     setSelectedBrand(null);
     setSearchTerm('');
+    setCurrentPage(1);
   };
 
-  // Filter products based on search term
-  const filteredProducts = products.filter(product =>
-    product.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.sku.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter products based on search term (now handled by backend, so just use products)
+  const filteredProducts = products;
 
   // Shop Selection View
   if (!selectedShop) {
@@ -399,173 +430,194 @@ const ShopProducts: React.FC = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <div key={product.product_id} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="aspect-w-1 aspect-h-1 w-full h-48 bg-gray-200">
-                {product.primary_image && !product.primary_image.startsWith('blob:') ? (
-                  <img
-                    src={product.primary_image}
-                    alt={product.product_name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent) {
-                        parent.innerHTML = `
-                          <div class="w-full h-full flex items-center justify-center">
-                            <svg class="text-gray-400" width="48" height="48" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M20 6h-2.18l-1.41-1.41A2 2 0 0 0 15 4H9a2 2 0 0 0-1.41.59L6.18 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
-                            </svg>
-                          </div>
-                        `;
-                      }
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center">
-                    <Package className="text-gray-400 mb-2" size={32} />
-                    {product.primary_image?.startsWith('blob:') && (
-                      <span className="text-xs text-red-500 text-center px-2">
-                        Image needs re-upload
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900 truncate">{product.product_name}</h3>
-                  <div className="flex space-x-1 ml-2">
-                    <button
-                      onClick={() => window.open(`/product/${product.product_id}`, '_blank')}
-                      className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-                      title="View Product"
-                    >
-                      <ExternalLink size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleEdit(product)}
-                      className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-                      title="Edit Product"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    {/* Only show Manage Variants button for parent products (not variant products) */}
-                    {!product.parent_product_id && (
-                      <button
-                        onClick={() => handleVariants(product)}
-                        className="p-1 text-green-600 hover:bg-green-50 rounded"
-                        title="Manage Variants"
-                      >
-                        <Layers size={16} />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleDelete(product.product_id)}
-                      className="p-1 text-red-600 hover:bg-red-50 rounded"
-                      title="Delete Product"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-600 mb-2">SKU: {product.sku}</p>
-                
-                {/* Variant Information */}
-                {(product.variant_count || 0) > 0 && (
-                  <div className="mb-2">
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                      {product.variant_count} variant{(product.variant_count || 0) > 1 ? 's' : ''}
-                    </span>
-                    {product.price_range && product.price_range.min !== product.price_range.max && (
-                      <span className="text-xs text-gray-600 ml-2">
-                        ₹{product.price_range.min} - ₹{product.price_range.max}
-                      </span>
-                    )}
-                  </div>
-                )}
-                {product.parent_product_id && (
-                  <div className="mb-2">
-                    <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
-                      Variant Product
-                    </span>
-                  </div>
-                )}
-                
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.product_description}</p>
-                <div className="flex justify-between items-center mb-3">
-                  <div>
-                    <span className="text-lg font-bold text-gray-900">₹{product.selling_price}</span>
-                    {product.is_on_special_offer && product.special_price && (
-                      <span className="text-sm text-red-500 line-through ml-2">₹{product.special_price}</span>
-                    )}
-                  </div>
-                  {product.brand_name && (
-                    <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">{product.brand_name}</span>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredProducts.map((product) => (
+              <div key={product.product_id} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+               
+                <div className="aspect-w-1 aspect-h-1 w-full h-48 bg-gray-200">
+                  {product.primary_image && !product.primary_image.startsWith('blob:') ? (
+                    <img
+                      src={product.primary_image}
+                      alt={product.product_name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          parent.innerHTML = `
+                            <div class=\"w-full h-full flex items-center justify-center\">
+                              <svg class=\"text-gray-400\" width=\"48\" height=\"48\" fill=\"currentColor\" viewBox=\"0 0 24 24\">
+                                <path d=\"M20 6h-2.18l-1.41-1.41A2 2 0 0 0 15 4H9a2 2 0 0 0-1.41.59L6.18 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8z\"/>
+                              </svg>
+                            </div>
+                          `;
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center">
+                      <Package className="text-gray-400 mb-2" size={32} />
+                      {product.primary_image?.startsWith('blob:') && (
+                        <span className="text-xs text-red-500 text-center px-2">
+                          Image needs re-upload
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
                 
-                {/* Product Status Toggles */}
-                <div className="border-t pt-3 mt-3">
-                  <div className="space-y-2">
-                    {/* Active Status Toggle */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">Active</span>
+                <div className="p-4">
+                  
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 truncate">{product.product_name}</h3>
+                    <div className="flex space-x-1 ml-2">
                       <button
-                        onClick={() => toggleProductStatus(product.product_id, 'active_flag', product.active_flag)}
-                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                          product.active_flag ? 'bg-green-500' : 'bg-gray-300'
-                        }`}
+                        onClick={() => window.open(`/product/${product.product_id}`, '_blank')}
+                        className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                        title="View Product"
                       >
-                        <span
-                          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                            product.active_flag ? 'translate-x-5' : 'translate-x-1'
-                          }`}
-                        />
+                        <ExternalLink size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleEdit(product)}
+                        className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                        title="Edit Product"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      {/* Only show Manage Variants button for parent products (not variant products) */}
+                      {!product.parent_product_id && (
+                        <button
+                          onClick={() => handleVariants(product)}
+                          className="p-1 text-green-600 hover:bg-green-50 rounded"
+                          title="Manage Variants"
+                        >
+                          <Layers size={16} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDelete(product.product_id)}
+                        className="p-1 text-red-600 hover:bg-red-50 rounded"
+                        title="Delete Product"
+                      >
+                        <Trash2 size={16} />
                       </button>
                     </div>
-                    
-                    {/* Published Status Toggle */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">Published</span>
-                      <button
-                        onClick={() => toggleProductStatus(product.product_id, 'is_published', product.is_published)}
-                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                          product.is_published ? 'bg-blue-500' : 'bg-gray-300'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                            product.is_published ? 'translate-x-5' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">SKU: {product.sku}</p>
+                
+                  {(product.variant_count || 0) > 0 && (
+                    <div className="mb-2">
+                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                        {product.variant_count} variant{(product.variant_count || 0) > 1 ? 's' : ''}
+                      </span>
+                      {product.price_range && product.price_range.min !== product.price_range.max && (
+                        <span className="text-xs text-gray-600 ml-2">
+                          ₹{product.price_range.min} - ₹{product.price_range.max}
+                        </span>
+                      )}
                     </div>
-                    
-                    {/* Special Offer Toggle */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">Special Offer</span>
-                      <button
-                        onClick={() => toggleProductStatus(product.product_id, 'is_on_special_offer', product.is_on_special_offer)}
-                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                          product.is_on_special_offer ? 'bg-red-500' : 'bg-gray-300'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                            product.is_on_special_offer ? 'translate-x-5' : 'translate-x-1'
+                  )}
+                  {product.parent_product_id && (
+                    <div className="mb-2">
+                      <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                        Variant Product
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.product_description}</p>
+                  <div className="flex justify-between items-center mb-3">
+                    <div>
+                      <span className="text-lg font-bold text-gray-900">₹{product.selling_price}</span>
+                      {product.is_on_special_offer && product.special_price && (
+                        <span className="text-sm text-red-500 line-through ml-2">₹{product.special_price}</span>
+                      )}
+                    </div>
+                    {product.brand_name && (
+                      <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">{product.brand_name}</span>
+                    )}
+                  </div>
+                  <div className="border-t pt-3 mt-3">
+                    <div className="space-y-2">
+                      {/* Active Status Toggle */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">Active</span>
+                        <button
+                          onClick={() => toggleProductStatus(product.product_id, 'active_flag', product.active_flag)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                            product.active_flag ? 'bg-green-500' : 'bg-gray-300'
                           }`}
-                        />
-                      </button>
+                        >
+                          <span
+                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                              product.active_flag ? 'translate-x-5' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      {/* Published Status Toggle */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">Published</span>
+                        <button
+                          onClick={() => toggleProductStatus(product.product_id, 'is_published', product.is_published)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                            product.is_published ? 'bg-blue-500' : 'bg-gray-300'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                              product.is_published ? 'translate-x-5' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      {/* Special Offer Toggle */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-700">Special Offer</span>
+                        <button
+                          onClick={() => toggleProductStatus(product.product_id, 'is_on_special_offer', product.is_on_special_offer)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                            product.is_on_special_offer ? 'bg-red-500' : 'bg-gray-300'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                              product.is_on_special_offer ? 'translate-x-5' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+            ))}
+          </div>
+          {/* Pagination Controls */}
+          {pagination.pages > 1 && (
+            <div className="flex justify-center items-center mt-8 space-x-4">
+              <button
+                onClick={handlePrevPage}
+                disabled={!pagination.has_prev}
+                className={`px-4 py-2 rounded-lg border ${pagination.has_prev ? 'bg-white hover:bg-gray-100 text-gray-900' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+              >
+                Previous
+              </button>
+              <span className="text-gray-700 font-medium">
+                Page {pagination.current_page} of {pagination.pages}
+              </span>
+              <button
+                onClick={handleNextPage}
+                disabled={!pagination.has_next}
+                className={`px-4 py-2 rounded-lg border ${pagination.has_next ? 'bg-white hover:bg-gray-100 text-gray-900' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+              >
+                Next
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {filteredProducts.length === 0 && !loading && (
