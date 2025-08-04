@@ -90,7 +90,7 @@ const Categories = () => {
 
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1280px] mx-auto">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-10">
           {categoriesWithStyles.map((category, index) => (
             <div

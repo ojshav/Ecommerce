@@ -1,6 +1,12 @@
 import React from 'react';
-
+import { useNavigate } from 'react-router-dom';
 const Shirts: React.FC = () => {
+  const navigate = useNavigate();
+  
+  const handleViewMore = () => {
+    // Navigate to ProductPage with bottoms category filter
+    navigate('/shop2-allproductpage');
+  };
   return (
     <section className="relative w-screen h-[60vh] md:h-[80vh]  sm:h-[70vh] lg:h-[1024px]  bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center flex items-center justify-center overflow-hidden">
       
@@ -35,7 +41,9 @@ const Shirts: React.FC = () => {
 
           {/* View More Button */}
           <div className="absolute bottom-[12vh] left-[60%] sm:bottom-[15vh] md:bottom-[18vh] lg:bottom-[300px] right-8 sm:right-1 md:right-8 lg:right-16 xl:right-[250px]">
-            <button className="w-[120px] sm:w-[140px] md:w-[160px] lg:w-[180px] xl:w-[199px] h-[40px] sm:h-[45px] md:h-[50px] lg:h-[54px] xl:h-[58px] text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px] xl:text-[28px] font-semibold text-[#AB3DFF] border border-[#423780] hover:bg-purple-500/20 transition-all duration-300 font-quicksand rounded-sm">
+            <button 
+              onClick={handleViewMore}
+            className="w-[120px] sm:w-[140px] md:w-[160px] lg:w-[180px] xl:w-[199px] h-[40px] sm:h-[45px] md:h-[50px] lg:h-[54px] xl:h-[58px] text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px] xl:text-[28px] font-semibold text-[#AB3DFF] border border-[#423780] hover:bg-purple-500/20 transition-all duration-300 font-quicksand rounded-sm">
               View More
             </button>
           </div>

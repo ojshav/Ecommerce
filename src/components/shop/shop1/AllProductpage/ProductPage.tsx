@@ -18,9 +18,9 @@ const ProductPage = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   // Dynamic Price Range States
-  const [priceRange, setPriceRange] = useState([0, 100]);
+  const [priceRange, setPriceRange] = useState([0, 100000]);
   const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(100);
+  const [maxPrice, setMaxPrice] = useState(100000);
 
   // Filter States
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -30,7 +30,7 @@ const ProductPage = () => {
   const [itemsPerPage, setItemsPerPage] = useState(9);
 
   // UI States (keeping original behavior)
-  const [price, setPrice] = useState([0, 100]);
+  const [price, setPrice] = useState([0, 100000]);
 
   // Sidebar section toggles for mobile
   const [allFiltersOpen, setAllFiltersOpen] = useState(false);
@@ -43,13 +43,13 @@ const ProductPage = () => {
   // Calculate price range from products
   const calculatePriceRange = (productList: Product[]) => {
     if (productList.length === 0) {
-      return { min: 0, max: 100 };
+      return { min: 0, max: 100000 };
     }
 
     const prices = productList.map(product => product.price).filter(price => price > 0);
     
     if (prices.length === 0) {
-      return { min: 0, max: 100 };
+      return { min: 0, max: 100000 };
     }
 
     const min = Math.floor(Math.min(...prices));
@@ -96,8 +96,8 @@ const ProductPage = () => {
           per_page: itemsPerPage,
           category_id: selectedCategory || undefined,
           brand_id: selectedBrand || undefined,
-          min_price: priceRange[0] > minPrice ? priceRange[0] : undefined,
-          max_price: priceRange[1] < maxPrice ? priceRange[1] : undefined,
+          min_price: priceRange[0] > 0 ? priceRange[0] : undefined,
+          max_price: priceRange[1] < 100000 ? priceRange[1] : undefined,
           sort_by: sortBy,
           order: sortOrder
         });
@@ -126,7 +126,7 @@ const ProductPage = () => {
       setMaxPrice(max);
       
       // Only update price range on initial load (when priceRange is at default values)
-      const isInitialLoad = priceRange[0] === 0 && priceRange[1] === 100;
+      const isInitialLoad = priceRange[0] === 0 && priceRange[1] === 100000;
       
       if (isInitialLoad) {
         setPriceRange([min, max]);
@@ -482,8 +482,8 @@ const ProductPage = () => {
               }}
             >
               <option value="created_at-desc">Default Sorting</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
+              <option value="selling_price-asc">Price: Low to High</option>
+              <option value="selling_price-desc">Price: High to Low</option>
               <option value="product_name-asc">Name: A to Z</option>
               <option value="product_name-desc">Name: Z to A</option>
             </select>

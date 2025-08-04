@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, ShoppingCart, ChevronDown, ChevronUp, Star, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import Shop4ProductCard from '../ProductCard';
+import Shop4ProductCard from '../Shop4ProductCard';
 import shop4ApiService, { Product as ApiProduct } from '../../../../services/shop4ApiService';
 
 // --- StarRating ---
@@ -686,4 +686,33 @@ const ProductDetail: React.FC = () => {
   );
 };
 
+
+// --- Products Data ---
+const products: Product[] = [
+    {
+      id: 1,
+      name: 'Radha Locket Mala',
+      price: 120,
+      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463005/public_assets_shop4/public_assets_shop4_one%20%281%29.png',
+      background: 'bg-gradient-to-br from-amber-900 to-amber-700'
+    },
+    {
+      id: 2,
+      name: 'Antique Turtle Loban Dingali',
+      price: 120,
+      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463048/public_assets_shop4/public_assets_shop4_two.png',
+      background: 'bg-gradient-to-br from-amber-900 to-amber-700'
+    },
+    {
+      id: 3,
+      name: 'Antique Turtle Loban Dingali',
+      price: 120,
+      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463046/public_assets_shop4/public_assets_shop4_thre.png',
+      background: 'bg-gradient-to-br from-amber-900 to-amber-700'
+    }
+  ];
+
+
 export default ProductDetail;
+
+

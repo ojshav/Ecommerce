@@ -48,8 +48,10 @@ const FreshOffRunway = () => {
   // Scroll functionality
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
+      const containerWidth = scrollContainerRef.current.offsetWidth;
+      const scrollAmount = window.innerWidth < 768 ? containerWidth : 350;
       scrollContainerRef.current.scrollBy({
-        left: -400, // Scroll by approximately one product width
+        left: -scrollAmount,
         behavior: 'smooth'
       });
     }
@@ -57,8 +59,10 @@ const FreshOffRunway = () => {
 
   const scrollRight = () => {
     if (scrollContainerRef.current) {
+      const containerWidth = scrollContainerRef.current.offsetWidth;
+      const scrollAmount = window.innerWidth < 768 ? containerWidth : 350;
       scrollContainerRef.current.scrollBy({
-        left: 400, // Scroll by approximately one product width
+        left: scrollAmount,
         behavior: 'smooth'
       });
     }
@@ -74,10 +78,10 @@ const FreshOffRunway = () => {
 
   if (loading) {
     return (
-      <section className="w-full max-w-[1280px] mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-9xl mx-auto">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-lg text-gray-600">Loading fresh products...</div>
+      <section className="w-full max-w-[1280px] mx-auto py-8 xs:py-10 sm:py-12 md:py-14 lg:py-16 xl:py-18 px-3 xs:px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white">
+        <div className="max-w-[1280px] mx-auto">
+          <div className="flex items-center justify-center py-8 xs:py-10 sm:py-12">
+            <div className="text-base xs:text-lg sm:text-xl text-gray-600">Loading fresh products...</div>
           </div>
         </div>
       </section>
@@ -86,10 +90,10 @@ const FreshOffRunway = () => {
 
   if (error) {
     return (
-      <section className="w-full max-w-[1280px] mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-9xl mx-auto">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-lg text-red-600">{error}</div>
+      <section className="w-full max-w-[1280px] mx-auto py-8 xs:py-10 sm:py-12 md:py-14 lg:py-16 xl:py-18 px-3 xs:px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white">
+        <div className="max-w-[1280px] mx-auto">
+          <div className="flex items-center justify-center py-8 xs:py-10 sm:py-12">
+            <div className="text-base xs:text-lg sm:text-xl text-red-600">{error}</div>
           </div>
         </div>
       </section>
@@ -97,14 +101,14 @@ const FreshOffRunway = () => {
   }
 
   return (
-    <section className=" w-full max-w-[1280px] mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="max-w-9xl mx-auto">
-        <div className="flex items-start justify-between mb-12">
-          <div>
-            <h2 className="text-6xl lg:text-7xl font-semibold font-playfair text-#222222 leading-tight tracking-tight">
+    <section className="w-full max-w-[1280px] mx-auto py-8 xs:py-10 sm:py-12 md:py-14 lg:py-16 xl:py-18 px-3 xs:px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white">
+      <div className="max-w-[1280px] mx-auto">
+        <div className="flex flex-row lg:flex-row lg:items-start justify-between mb-6 xs:mb-8 sm:mb-10 md:mb-12 lg:mb-12 xl:mb-14">
+          <div className="mb-0 lg:mb-0">
+            <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold font-playfair text-[#222222] leading-tight tracking-tight">
               FRESH OFF THE
               <br />
-              <span className="italic  text-#222222 font-normal font-playfair">Runway</span>
+              <span className="italic text-[#222222] font-normal font-playfair">Runway</span>
             </h2>
           </div>
           <div className="flex space-x-3 md:ml-8 md:mt-[38px] md:pb-3 self-end">
@@ -117,6 +121,7 @@ const FreshOffRunway = () => {
               <img 
                 src={leftHovered ? leftArrowHover : leftArrow}
                 alt="Arrow Left"
+                className="w-7 h-7 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-8 md:h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 object-contain"
               />
             </button>
             <button 
@@ -126,6 +131,7 @@ const FreshOffRunway = () => {
               <img 
                 src={rightArrow}
                 alt="Arrow Right"
+                className="w-8 h-8 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-9 md:h-9 lg:w-11 lg:h-11 xl:w-14 xl:h-14 object-contain"
               />
             </button>
           </div>
@@ -134,33 +140,33 @@ const FreshOffRunway = () => {
         {/* Scrollable Products Container */}
         <div 
           ref={scrollContainerRef}
-          className="flex gap-8 overflow-x-auto pb-4"
+          className="flex gap-4 xs:gap-6 sm:gap-8 md:gap-10 lg:gap-12 overflow-x-auto pb-4 xs:pb-6 sm:pb-8"
           style={{ 
             scrollbarWidth: 'none', 
             msOverflowStyle: 'none'
           }}
         >
           {products.map((product) => (
-            <div key={product.product_id} className="group cursor-pointer flex-shrink-0 min-w-[300px] md:min-w-[400px]">
-              <div className="relative overflow-hidden mb-6">
+            <div key={product.product_id} className="group cursor-pointer flex-shrink-0 w-full sm:w-[320px] md:w-[300px] lg:w-[350px] xl:w-[380px]">
+              <div className="relative overflow-hidden mb-3 xs:mb-4 sm:mb-5 md:mb-6">
                 <Link to={`/shop1/product/${product.product_id}`}>
                   <img
                     src={product.primary_image || product.media?.primary_image || '/assets/images/placeholder.jpg'}
                     alt={product.product_name}
-                    className="w-[413px] h-[370px] object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-[300px] xs:h-[350px] sm:h-[290px] md:h-[300px] lg:h-[350px] xl:h-[370px] object-contain  group-hover:scale-105 transition-transform duration-300"
                   />
                 </Link>
-                <div className="absolute bottom-0 right-0">
-                  <button className="w-12 h-12 bg-gray-900 text-white rounded-sm flex items-center justify-center hover:bg-gray-800 transition-colors">
-                    <ShoppingBag className="w-5 h-5" />
+                <div className="absolute bottom-2 xs:bottom-3 sm:bottom-4 right-2 xs:right-3 sm:right-4">
+                  <button className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-gray-900 text-white rounded-sm flex items-center justify-center hover:bg-gray-800 transition-colors">
+                    <ShoppingBag className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2 tracking-wide">
+                <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-medium text-gray-900 mb-1 xs:mb-2 tracking-wide leading-tight">
                   {product.product_name.toUpperCase()}
                 </h3>
-                <p className="text-xl text-gray-600">
+                <p className="text-base xs:text-lg sm:text-xl md:text-2xl text-gray-600">
                   {formatPrice(product)}
                 </p>
               </div>

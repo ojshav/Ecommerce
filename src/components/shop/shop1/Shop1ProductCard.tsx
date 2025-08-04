@@ -15,7 +15,7 @@ const Shop1ProductCard: React.FC<Shop1ProductCardProps> = ({ id, image, category
       <img
         src={image}
         alt={name}
-        className="w-full max-w-[302px] h-[220px] sm:h-[260px] md:h-[321px] object-cover rounded-md mb-2"
+        className="w-full max-w-[302px] h-[220px] sm:h-[260px] md:h-[321px] object-contain rounded-md mb-2"
       />
       <div className="text-[12px] md:text-[14px] text-gray-400 mb-1.5 mt-2 uppercase font-poppins tracking-widest">{category}</div>
       <div className="font-semibold font-poppins text-center text-[16px] md:text-[18px]">{name}</div>

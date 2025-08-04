@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import Shop4ProductCard, { Product } from '../ProductCard';
+import Shop4ProductCard, { Product } from '../Shop4ProductCard';
 import shop4ApiService, { Product as ApiProduct } from '../../../../services/shop4ApiService';
 
 // Convert API product to local Product interface
@@ -497,4 +497,6 @@ const AllProductPageContent: React.FC = () => {
     );
 }
 
+
 export default AllProductPageContent;
+
