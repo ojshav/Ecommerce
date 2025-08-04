@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import {  User, Menu, X, Search, ShoppingCart } from 'lucide-react';
+import { useState } from 'react';
+import { User, Menu, X, Search, ShoppingCart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -10,12 +11,10 @@ const Header = () => {
         <div className="flex items-center justify-between h-24 relative">
           {/* Left Navigation */}
           <nav className="hidden md:flex items-center w-[43%] space-x-10">
-            <a href="#" className="text-[16px] font-medium font-gilroy  text-gray-900 hover:text-gray-600 transition-colors tracking-[0.1em]">
+            <Link to="/shop2-allproductpage" className="text-[16px] font-medium font-gilroy text-gray-900 hover:text-gray-600 transition-colors tracking-[0.1em]">
               Products
-            </a>
-            <a href="#" className="text-[16px] font-medium font-gilroy  text-gray-900 hover:text-gray-600 transition-colors tracking-[0.1em]">
-              Blogs
-            </a>
+            </Link>
+         
             <a href="#" className="text-[16px] font-medium font-gilroy text-gray-900 hover:text-gray-600 transition-colors tracking-[0.1em]">
               Contact us
             </a>
@@ -54,8 +53,8 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden py-6 border-t border-gray-100">
             <nav className="flex flex-col space-y-6">
-              <a href="#" className="text-sm font-medium text-gray-900 tracking-[0.1em]">SHOP</a>
-              <a href="#" className="text-sm font-medium text-gray-900 tracking-[0.1em]">ABOUT</a>
+              <Link to="/shop2/products" className="text-sm font-medium text-gray-900 tracking-[0.1em]">PRODUCTS</Link>
+              <a href="#" className="text-sm font-medium text-gray-900 tracking-[0.1em]">CONTACT US</a>
             </nav>
             <div className="flex items-center space-x-6 mt-6 pt-6 border-t border-gray-100">
               <Search className="w-5 h-5 text-gray-900" />

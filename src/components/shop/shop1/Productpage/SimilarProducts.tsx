@@ -91,11 +91,11 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
           {relatedProducts.map((product) => (
             <Link key={product.product_id} to={`/shop1/product/${product.product_id}`} className="group">
               {/* Image */}
-              <div className="bg-gray-100 rounded-2xl md:rounded-3xl overflow-hidden mb-4 md:mb-6 aspect-[4/5] relative">
+              <div className="bg-gray-100 rounded-2xl md:rounded-3xl overflow-hidden mb-4 md:mb-6 relative w-[399px] h-[447px]">
                 <img
                   src={product.primary_image}
                   alt={product.product_name}
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
 
@@ -127,14 +127,14 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
             <Link 
               key={product.product_id} 
               to={`/shop1/product/${product.product_id}`} 
-              className="group flex-shrink-0 w-[280px] sm:w-[320px]"
+              className="group flex-shrink-0 w-[280px] sm:w-[400px]"
             >
               {/* Image */}
-              <div className="bg-gray-100 rounded-2xl md:rounded-3xl overflow-hidden mb-4 md:mb-6 aspect-[4/5] relative">
+              <div className="bg-white rounded-2xl md:rounded-3xl overflow-hidden mb-4 md:mb-6 relative w-[399px] h-[447px]">
                 <img
                   src={product.primary_image}
                   alt={product.product_name}
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
 

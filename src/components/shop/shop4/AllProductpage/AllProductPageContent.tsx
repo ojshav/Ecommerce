@@ -476,4 +476,6 @@ const AllProductPageContent: React.FC = () => {
     );
 }
 
+
 export default AllProductPageContent;
+

@@ -69,7 +69,7 @@ const FashionCardsSection: React.FC = () => {
             <img
               src="/assets/images/Productcard/hero1.jpg"
               alt="Main model"
-              className="object-cover w-full h-full"
+              className="object-contain w-full h-full"
             />
           </div>
           {/* Right side images */}
@@ -79,14 +79,14 @@ const FashionCardsSection: React.FC = () => {
                 <img
                   src="/assets/images/Productcard/hero2.jpg"
                   alt="Detail"
-                  className="object-cover w-full h-full"
+                  className="object-contain w-full h-full"
                 />
               </div>
               <div className="w-full sm:w-1/2 h-[291px] bg-gray-100 rounded-3xl overflow-hidden">
                 <img
                   src="/assets/images/Productcard/hero3.jpg"
                   alt="Back"
-                  className="object-cover w-full h-full"
+                  className="object-contain w-full h-full"
                 />
               </div>
             </div>
@@ -94,7 +94,7 @@ const FashionCardsSection: React.FC = () => {
               <img
                 src="/assets/images/Productcard/hero4.jpg"
                 alt="Side view"
-                className="object-cover w-full h-full"
+                className="object-contain w-full h-full"
               />
             </div>
           </div>
@@ -160,10 +160,10 @@ const FashionCardsSection: React.FC = () => {
             </div>
           </div>
           {/* RIGHT: Price, Quantity, Actions */}
-          <div className="flex flex-col items-end min-w-[380px] w-full lg:w-auto">
-            <div className="flex w-full justify-between items-end mb-6">
+          <div className="flex flex-col items-end min-w-[380px]  w-full lg:w-auto">
+            <div className="flex w-full justify-between  items-end mb-6">
               {/* Total Price */}
-              <div>
+              <div className='flex flex-col items-end '>
                 <p className="text-gray-600 text-[20px] font-medium mb-1">Total Price</p>
                 <div className="flex items-center space-x-3">
                   <span className="text-[40px] font-bold text-[#FF6A3A]">$450</span>

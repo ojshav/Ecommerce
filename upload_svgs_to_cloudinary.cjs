@@ -11,7 +11,7 @@ cloudinary.config({
 });
 
 
-const svgDir = path.join(__dirname, 'public', 'assets' ,'images');
+const svgDir = path.join(__dirname, 'public', 'assets' ,'shop4');
 
 // Function to validate image file (SVG only)
 function isValidImageFile(filePath) {
@@ -70,7 +70,7 @@ async function uploadAllImages() {
 
       const result = await cloudinary.uploader.upload(file, {
         resource_type: 'image',
-        folder: 'public_assets_shop1_LP',
+        folder: 'public_assets_shop4',
         public_id: publicId, // already removed extension
         overwrite: false,
       });

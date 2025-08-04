@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart, ShoppingCart, Image as ImageIcon, ChevronDown, ChevronUp, Star } from 'lucide-react';
-import { useParams } from 'react-router-dom';
-import shop2ApiService, { Product } from '../../../../services/shop2ApiService';
+import { useParams, useNavigate } from 'react-router-dom';
+import shop2ApiService, { Product, ProductVariant } from '../../../../services/shop2ApiService';
 import chroma from 'chroma-js';
 
 const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [variantsLoading, setVariantsLoading] = useState(false);
   const { productId } = useParams<{ productId: string }>();
+  const navigate = useNavigate();
 
   // For accordion
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -44,31 +47,175 @@ const ProductDetail = () => {
     },
   ];
 
-  // Helper to get attribute values as array
-  function getAttributeValues(product: Product | null, attrName: string): string[] {
-    const variantAttr = product?.variant_attributes?.find(attr => attr.name.toLowerCase() === attrName.toLowerCase());
-    if (variantAttr && Array.isArray(variantAttr.values) && variantAttr.values.length > 0) {
-      return variantAttr.values;
+
+
+  // Helper to get current product's attributes, including from variants data
+  function getCurrentProductAttributes(): Array<{name: string, value: string, attribute_id: number}> {
+    const attributes: Array<{name: string, value: string, attribute_id: number}> = [];
+
+    // For parent products, show parent attributes
+    if (product?.is_parent_product && product?.attributes) {
+      product.attributes.forEach(attr => {
+        attributes.push({
+          name: attr.attribute?.name || 'Unknown',
+          value: attr.value || 'N/A',
+          attribute_id: attr.attribute_id
+        });
+      });
+      return attributes;
     }
-    const attr = product?.attributes?.find(
-      a => a.attribute?.name?.toLowerCase() === attrName.toLowerCase()
-    );
-    if (attr && typeof attr.value === 'string') {
-      return attr.value.split(',').map(v => v.trim()).filter(Boolean);
+
+    // For variant products, first try to find current variant in variants array
+    if (isVariantProduct(product) && variants.length > 0) {
+      const currentVariant = variants.find(v => v.variant_product_id === Number(productId));
+      if (currentVariant && currentVariant.attribute_combination) {
+        // Use attribute_combination from current variant
+        Object.entries(currentVariant.attribute_combination).forEach(([key, value], index) => {
+          attributes.push({
+            name: key,
+            value: String(value),
+            attribute_id: index // Use index as ID for variant attributes
+          });
+        });
+        return attributes;
+      }
     }
-    if (attrName.toLowerCase() === 'size') return ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-    if (attrName.toLowerCase() === 'color') return ['Black', 'Red', 'Blue'];
+
+    // Fallback to variant_attributes if available
+    if (isVariantProduct(product) && product?.variant_attributes && Array.isArray(product.variant_attributes)) {
+      product.variant_attributes.forEach((variantAttr, index) => {
+        if (variantAttr.values && Array.isArray(variantAttr.values)) {
+          attributes.push({
+            name: variantAttr.name || 'Unknown',
+            value: variantAttr.values.join(', '),
+            attribute_id: index
+          });
+        }
+      });
+      return attributes;
+    }
+
+    // Final fallback to regular attributes
+    if (product?.attributes) {
+      product.attributes.forEach(attr => {
+        attributes.push({
+          name: attr.attribute?.name || 'Unknown',
+          value: attr.value || 'N/A',
+          attribute_id: attr.attribute_id
+        });
+      });
+    }
+
+    return attributes;
+  }
+
+  // Helper to get current variant's available attribute values
+  function getCurrentVariantAttributeValues(attrName: string): string[] {
+    // Find current variant in variants array
+    const currentVariant = variants.find(v => v.variant_product_id === Number(productId));
+    
+    if (currentVariant && currentVariant.attribute_combination && currentVariant.attribute_combination[attrName]) {
+      const value = currentVariant.attribute_combination[attrName];
+      if (typeof value === 'string') {
+        return value.split(',').map(v => v.trim()).filter(Boolean).sort();
+      } else {
+        return [String(value)];
+      }
+    }
+
     return [];
   }
 
-  // For size/color selection, fallback to static if not present in product
-  const sizes = getAttributeValues(product, 'size');
-  const colors = getAttributeValues(product, 'color');
-  const [selectedSize, setSelectedSize] = useState(sizes[0] || 'M');
-  const [selectedColor, setSelectedColor] = useState(colors[0] || 'Black');
+
+
+  // Helper to check if this is a variant product
+  function isVariantProduct(product: Product | null): boolean {
+    return !!(product?.has_variants && !product?.is_parent_product);
+  }
+
+  // State for selected attributes (supports both single and multi-select)
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<number, string | string[]>>({});
+
+  // Helper to determine if an attribute should be multi-select
+  function isMultiSelectAttribute(attrName: string): boolean {
+    const name = attrName.toLowerCase();
+    return name.includes('color') || 
+           name.includes('size') || 
+           name.includes('style') || 
+           name.includes('ram') || 
+           name.includes('storage') || 
+           name.includes('memory') || 
+           name.includes('capacity');
+  }
+
+  // Handle attribute selection for both single and multi-select
+  const handleAttributeSelect = (
+    attributeId: number,
+    value: string,
+    isMultiSelect: boolean
+  ) => {
+    setSelectedAttributes((prev) => {
+      if (isMultiSelect) {
+        const currentValues = (prev[attributeId] as string[]) || [];
+        const newValues = currentValues.includes(value)
+          ? currentValues.filter((v) => v !== value)
+          : [...currentValues, value];
+        return { ...prev, [attributeId]: newValues };
+      } else {
+        return { ...prev, [attributeId]: value };
+      }
+    });
+  };
 
   const [showPhotosModal, setShowPhotosModal] = useState(false);
   const [currentPhotoIdx, setCurrentPhotoIdx] = useState(0);
+
+  // Fetch product variants
+  const fetchVariants = async (productId: number) => {
+    setVariantsLoading(true);
+    try {
+      
+      const response = await shop2ApiService.getProductVariants(productId);
+      if (response && response.success) {
+        setVariants(response.variants);
+      }
+    } catch (err) {
+      console.error('Failed to fetch variants:', err);
+    } finally {
+      setVariantsLoading(false);
+    }
+  };
+
+  // Navigate to variant page or parent product
+  const handleVariantClick = (variant: ProductVariant) => {
+    // Navigate to the variant product page using variant_product_id
+    // The variant_product_id is the actual product ID, not the variant_id
+    navigate(`/shop2/product/${variant.variant_product_id}`);
+  };
+
+  // State for parent product data
+  const [parentProduct, setParentProduct] = useState<Product | null>(null);
+
+  // Navigate to parent product
+  const handleParentProductClick = () => {
+    // Find parent product ID from variants data
+    const parentProductId = variants.length > 0 ? variants[0]?.parent_product_id : null;
+    if (parentProductId) {
+      navigate(`/shop2/product/${parentProductId}`);
+    }
+  };
+
+  // Fetch parent product data when variants are loaded
+  const fetchParentProduct = async (parentProductId: number) => {
+    try {
+      const response = await shop2ApiService.getProductById(parentProductId);
+      if (response && response.success) {
+        setParentProduct(response.product);
+      }
+    } catch (err) {
+      console.error('Failed to fetch parent product:', err);
+    }
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -83,6 +230,8 @@ const ProductDetail = () => {
         const response = await shop2ApiService.getProductById(Number(productId));
         if (response && response.success) {
           setProduct(response.product);
+          // Fetch variants after product is loaded
+          await fetchVariants(Number(productId));
         } else {
           setError('Product not found');
         }
@@ -96,16 +245,39 @@ const ProductDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
-  // Update sizes/colors if product changes
+  // Initialize selected attributes when product changes
   useEffect(() => {
     if (product) {
-      const newSizes = getAttributeValues(product, 'size');
-      const newColors = getAttributeValues(product, 'color');
-      setSelectedSize(newSizes[0] || newSizes[0]);
-      setSelectedColor(newColors[0] || newColors[0]);
+      const initialAttributes: Record<number, string | string[]> = {};
+      
+      // Initialize with current variant attributes if available
+      if (product.current_variant_attributes) {
+        Object.entries(product.current_variant_attributes).forEach(([key, value]) => {
+          // Find the attribute ID for this attribute name
+          const attr = product.attributes?.find(a => 
+            a.attribute?.name?.toLowerCase() === key.toLowerCase()
+          );
+          if (attr) {
+            initialAttributes[attr.attribute_id] = value;
+          }
+        });
+      }
+      
+      setSelectedAttributes(initialAttributes);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
+
+  // Fetch parent product when variants are available and this is a variant product
+  useEffect(() => {
+    if (product && variants.length > 0 && isVariantProduct(product)) {
+      const parentProductId = variants[0]?.parent_product_id;
+      if (parentProductId && !parentProduct) {
+        fetchParentProduct(parentProductId);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product, variants]);
 
   if (loading) return <div className="flex justify-center items-center h-96 text-lg">Loading...</div>;
   if (error) return <div className="flex justify-center items-center h-96 text-red-500 text-lg">{error}</div>;
@@ -202,46 +374,79 @@ const ProductDetail = () => {
           <p className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6">
             ₹{Number(product.price).toLocaleString('en-IN')}
           </p>
-          {/* Size Selection */}
-          <div className="mb-3 sm:mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs sm:text-[14px] font-bebas font-bold tracking-wide">SIZE</span>
-              <span className="text-xs sm:text-[13px] text-black underline cursor-pointer font-medium">Size Guide</span>
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {sizes.map(size => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-[10px] sm:text-[12px] font-semibold shadow-sm transition-all focus:outline-none ${selectedSize === size ? 'bg-orange-100 border-orange-400 shadow-md' : 'bg-white border-gray-300'} ${selectedSize === size ? 'text-black' : 'text-gray-700'}`}
-                  style={{ boxShadow: selectedSize === size ? '0 2px 8px rgba(255, 165, 0, 0.15)' : undefined }}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* Color Selection */}
-          <div className="mb-2">
-            <div className="text-sm sm:text-base font-bebas font-bold mb-2 tracking-wide">COLOR</div>
-            <div className="flex flex-wrap font-gilroy gap-2 sm:gap-3">
-              {colors.map(color => (
-                <button
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`px-2 py-1.5 sm:py-2 rounded-lg border font-gilroy text-[10px] sm:text-[12px] font-semibold flex items-center gap-1 sm:gap-2 shadow-sm transition-all focus:outline-none ${selectedColor === color ? 'border-gray-400 bg-gray-100' : 'border-gray-300 bg-white'}`}
-                  style={{ boxShadow: selectedColor === color ? '0 2px 8px rgba(0,0,0,0.08)' : undefined }}
-                >
-                  {/* Color dot */}
-                  <span
-                    className="inline-block font-gilroy w-3 h-3 sm:w-4 sm:h-4 rounded-full ml-1 sm:ml-2 border"
-                    style={{ backgroundColor: chroma.valid(color) ? chroma(color).hex() : '#ccc' }}
-                  ></span>
-                  {color}
-                </button>
-              ))}
-            </div>
-          </div>
+                     {/* Dynamic Attribute Selection */}
+           {(() => {
+             const currentAttributes = getCurrentProductAttributes();
+             
+             if (currentAttributes.length === 0) return null;
+
+             return (
+               <div className="mb-4 sm:mb-6">
+                 {currentAttributes.map((attr) => {
+                   const attrName = attr.name;
+                   const isMultiSelect = isMultiSelectAttribute(attrName);
+                   const selectedValues = selectedAttributes[attr.attribute_id];
+
+                   // Get current variant's specific values for this attribute
+                   const currentVariantValues = getCurrentVariantAttributeValues(attrName);
+                   // If no variant values found, use current attribute values
+                   const valuesToShow = currentVariantValues.length > 0 
+                     ? currentVariantValues 
+                     : attr.value.split(',').map(v => v.trim()).filter(Boolean);
+
+                   return (
+                     <div key={`${attrName.toLowerCase()}-${attr.attribute_id}`} className="mb-3 sm:mb-4">
+                       <div className="flex items-center justify-between mb-2">
+                         <span className="text-xs sm:text-[14px] font-bebas font-bold tracking-wide">
+                           {attrName.toUpperCase()}
+                         </span>
+                         {attrName.toLowerCase() === 'size' && (
+                           <span className="text-xs sm:text-[13px] text-black underline cursor-pointer font-medium">
+                             Size Guide
+                           </span>
+                         )}
+                       </div>
+                       <div className="flex flex-wrap gap-1 sm:gap-2">
+                         {valuesToShow.map((value, index) => {
+                           const isSelected = isMultiSelect
+                             ? (selectedValues as string[])?.includes(value)
+                             : selectedValues === value;
+
+                           return (
+                             <button
+                               key={`${attr.attribute_id}-${index}`}
+                               onClick={() => handleAttributeSelect(
+                                 attr.attribute_id,
+                                 value,
+                                 isMultiSelect
+                               )}
+                               className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-[10px] sm:text-[12px] font-semibold shadow-sm transition-all focus:outline-none ${
+                                 isSelected 
+                                   ? 'bg-orange-100 border-orange-400 shadow-md text-black' 
+                                   : 'bg-white border-gray-300 text-gray-700'
+                               }`}
+                               style={{ 
+                                 boxShadow: isSelected ? '0 2px 8px rgba(255, 165, 0, 0.15)' : undefined 
+                               }}
+                             >
+                               {attrName.toLowerCase() === 'color' && (
+                                 <span
+                                   className="inline-block w-3 h-3 sm:w-4 sm:h-4 rounded-full mr-1 sm:mr-2 border"
+                                   style={{ backgroundColor: chroma.valid(value) ? chroma(value).hex() : '#ccc' }}
+                                 />
+                               )}
+                               {value}
+                             </button>
+                           );
+                         })}
+                       </div>
+                     </div>
+                   );
+                 })}
+               </div>
+             );
+           })()}
+
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
             <button className="w-full sm:flex-1 bg-black text-[16px] font-gilroy text-white px-3 py-1 rounded-full font-bold flex items-center justify-center gap-2 text-base  shadow hover:bg-gray-900 transition-all">
@@ -253,6 +458,7 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
+
       {/* Bottom Container: Next two images */}
       <div className="flex flex-col lg:flex-row w-full max-w-[1230px] mx-auto items-center mt-4 sm:mt-6 lg:mt-1 gap-4">
         <img 
@@ -274,6 +480,75 @@ const ProductDetail = () => {
           </button>
         </div>
       </div>
+             {/* Product Variants Section - Small Thumbnails */}
+       {(variants.length > 0 || product?.is_parent_product) && (
+         <div className="max-w-[1310px] w-full mx-auto mt-6 sm:mt-8">
+                       <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h3 className="text-lg sm:text-xl font-bold font-bebas">
+                {product?.is_parent_product ? 'Available Variants' : 'Related Products'}
+              </h3>
+              <span className="text-xs text-gray-600 font-gilroy">
+                {(variants.length + (isVariantProduct(product) && variants.length > 0 ? 1 : 0))} available
+              </span>
+            </div>
+           
+           {variantsLoading ? (
+             <div className="flex justify-center items-center h-16">
+               <div className="text-gray-500 text-sm">Loading...</div>
+             </div>
+           ) : (
+                                                       <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
+                {/* Show parent product first if this is a variant product */}
+                {isVariantProduct(product) && variants.length > 0 && variants[0]?.parent_product_id && (
+                  <div
+                    onClick={handleParentProductClick}
+                    className={`group cursor-pointer bg-white rounded-lg border transition-all duration-200 flex-shrink-0 ${
+                      Number(productId) === variants[0]?.parent_product_id
+                        ? 'border-orange-400 shadow-md'
+                        : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                    }`}
+                    style={{ width: '60px', height: '60px' }}
+                  >
+                    <img
+                      src={parentProduct?.primary_image || '/assets/shop2/ProductPage/pd1.svg'}
+                      alt="Parent Product"
+                      className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-200"
+                    />
+                  </div>
+                )}
+                
+                {/* Sort variants to show parent product first, then other variants */}
+                {variants
+                  .sort((a, b) => {
+                    // Sort parent product first (if it exists in variants)
+                    if (a.parent_product_id === null) return -1;
+                    if (b.parent_product_id === null) return 1;
+                    return 0;
+                  })
+                  .map((variant) => (
+                    <div
+                      key={variant.variant_id}
+                      onClick={() => handleVariantClick(variant)}
+                      className={`group cursor-pointer bg-white rounded-lg border transition-all duration-200 flex-shrink-0 ${
+                        variant.variant_product_id === Number(productId)
+                          ? 'border-orange-400 shadow-md'
+                          : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                      }`}
+                      style={{ width: '60px', height: '60px' }}
+                    >
+                      {/* Small Variant Image Only */}
+                      <img
+                        src={variant.primary_image || variant.media?.primary_image || '/assets/shop2/ProductPage/pd1.svg'}
+                        alt={variant.variant_name || `Variant ${variant.variant_id}`}
+                        className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-200"
+                      />
+                    </div>
+                  ))}
+              </div>
+           )}
+         </div>
+       )}
+
       {/* Description & Reviews Section */}
       <div className="max-w-[1310px]  pt-8 sm:pt-10 lg:pt-12 flex flex-col items-start">
         {/* Accordion Section */}
