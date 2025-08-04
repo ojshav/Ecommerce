@@ -9,11 +9,15 @@ interface Shop3ProductCardProps {
   badgeColor?: string;
   isNew?: boolean;
   discount?: number | null;
+  onClick?: () => void;
 }
 
-const Shop3ProductCard: React.FC<Shop3ProductCardProps> = ({ image, name, price, originalPrice, badge, badgeColor }) => {
+const Shop3ProductCard: React.FC<Shop3ProductCardProps> = ({ image, name, price, originalPrice, badge, badgeColor, onClick }) => {
   return (
-    <div className="flex flex-col items-center group w-[436px] h-[600px]">
+    <div 
+      className="flex flex-col items-center group w-[436px] h-[600px] cursor-pointer"
+      onClick={onClick}
+    >
       {/* Image with Badge Overlay */}
       <div className="relative w-full h-[553px] aspect-[3/4] overflow-hidden">
         {badge && (

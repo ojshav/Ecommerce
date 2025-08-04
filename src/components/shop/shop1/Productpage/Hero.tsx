@@ -20,16 +20,16 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
   // Extract and combine attributes from both parent product attributes and variant attributes
   const availableAttributes = useMemo(() => {
     if (!productData) return [];
-    
+
     // Get variant options
     const variantAttrs = productData.variant_attributes || [];
-    
+
     // Get parent product attributes for default values
     const parentAttrs = productData.attributes || [];
-    
+
     // Create a map to combine all attribute options
     const attributeMap = new Map();
-    
+
     // First, collect parent product attribute values as defaults
     const parentDefaults: Record<string, string> = {};
     parentAttrs.forEach(attr => {
@@ -39,40 +39,40 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
         parentDefaults[attrName] = attrValue;
       }
     });
-    
+
     // Add variant attributes with their available options
     variantAttrs.forEach(attr => {
       const allValues = new Set<string>();
-      
+
       // Add parent value if it exists for this attribute
       if (parentDefaults[attr.name]) {
         allValues.add(parentDefaults[attr.name]);
       }
-      
+
       // Add all variant values
       (attr.values || []).forEach(value => allValues.add(value));
-      
+
       attributeMap.set(attr.name, {
         name: attr.name,
         values: Array.from(allValues).sort(),
         defaultValue: parentDefaults[attr.name] || (attr.values && attr.values[0]) || ''
       });
     });
-    
+
     // Add any parent attributes that don't have variant options
     parentAttrs.forEach(attr => {
       const attrName = attr.attribute?.name;
       const attrValue = attr.value;
-      
+
       if (attrName && attrValue && !attributeMap.has(attrName)) {
         // Add all possible values from the attribute definition
         const allValues = new Set<string>([attrValue]);
-        
+
         // If it's a select attribute, add all possible values
         if (attr.attribute?.values) {
           attr.attribute.values.forEach(val => allValues.add(val.value));
         }
-        
+
         attributeMap.set(attrName, {
           name: attrName,
           values: Array.from(allValues).sort(),
@@ -80,7 +80,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
         });
       }
     });
-    
+
     return Array.from(attributeMap.values());
   }, [productData?.product_id, productData?.variant_attributes, productData?.attributes]);
 
@@ -109,64 +109,64 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
 
     const findVariantByAttributes = () => {
       setStockError('');
-      
+
       // Find variant by matching SKU pattern or by checking if selection matches available variants
       let matchingVariant = null;
-      
+
       // Method 1: Try to find variant by SKU pattern (most reliable)
       if (Object.keys(selectedAttributes).length > 0) {
         matchingVariant = variants.find(variant => {
           const sku = variant.sku?.toUpperCase() || '';
           let matches = 0;
           let totalSelectedAttributes = 0;
-          
+
           // Check each selected attribute
           Object.entries(selectedAttributes).forEach(([attrName, attrValue]) => {
             if (attrValue) {
               totalSelectedAttributes++;
-              
+
               // Create SKU pattern for this attribute
               const attrCode = attrName.toUpperCase().substring(0, 3); // COL, SIZ, etc.
               const valueCode = attrValue.toUpperCase().substring(0, 3); // BLU, RED, S, M, etc.
               const pattern = `${attrCode}${valueCode}`;
-              
+
               if (sku.includes(pattern)) {
                 matches++;
               }
             }
           });
-          
+
           return matches === totalSelectedAttributes && totalSelectedAttributes > 0;
         });
       }
-      
+
       // Method 2: Fallback - if only one variant, check if selected attributes are available
       if (!matchingVariant && variants.length === 1) {
         const variant = variants[0];
         // Use the available_attributes from the API response (it exists in the actual response)
         const availableAttrs = (productData as any).available_attributes || {};
-        
+
         // Check if all selected attributes have available values
         const allAttributesAvailable = Object.entries(selectedAttributes).every(([attrName, attrValue]) => {
           const availableValues = availableAttrs[attrName] || [];
           return availableValues.includes(attrValue);
         });
-        
+
         if (allAttributesAvailable) {
           matchingVariant = variant;
         }
       }
-      
+
       // Update state based on variant match
       if (matchingVariant) {
         setCurrentVariant(matchingVariant);
         // Reset image carousel to first image when variant changes
         setCurrentImageIndex(0);
-        
+
         // Check stock and show warning if low
         const stockQty = matchingVariant.stock?.stock_qty || 0;
         const lowStockThreshold = (matchingVariant.stock as any)?.low_stock_threshold || 5;
-        
+
         if (stockQty <= 0) {
           setStockError('This variant is out of stock');
         } else if (stockQty <= lowStockThreshold) {
@@ -176,7 +176,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
         setCurrentVariant(null);
         // Reset to parent media when no variant is selected
         setCurrentImageIndex(0);
-        
+
         // Check if selected attributes match parent product attributes
         const parentAttributes: Record<string, string> = {};
         if (productData?.attributes) {
@@ -186,13 +186,13 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
             }
           });
         }
-        
+
         // Check if current selection matches parent product attributes
-        const matchesParentAttributes = Object.keys(selectedAttributes).length > 0 && 
-          Object.entries(selectedAttributes).every(([attrName, attrValue]) => 
+        const matchesParentAttributes = Object.keys(selectedAttributes).length > 0 &&
+          Object.entries(selectedAttributes).every(([attrName, attrValue]) =>
             parentAttributes[attrName] === attrValue
           );
-        
+
         if (Object.keys(selectedAttributes).length > 0 && !matchesParentAttributes) {
           setStockError('This combination is not available. Please choose a different combination.');
         }
@@ -213,13 +213,13 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
   // Simple markdown parser for basic formatting
   const parseMarkdown = (text: string): JSX.Element[] => {
     if (!text) return [];
-    
+
     const lines = text.split('\n').filter(line => line.trim() !== '');
     const elements: JSX.Element[] = [];
-    
+
     lines.forEach((line, index) => {
       const trimmed = line.trim();
-      
+
       // Headers
       if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
         const content = trimmed.slice(2, -2);
@@ -269,7 +269,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
         );
       }
     });
-    
+
     return elements;
   };
 
@@ -282,7 +282,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
         ...currentVariant.media.videos || []
       ];
     }
-    
+
     // Otherwise, use product media
     if (productData?.media) {
       return [
@@ -290,14 +290,14 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
         ...productData.media.videos || []
       ];
     }
-    
+
     return [];
   })();
 
   // Fallback images if no media
   const fallbackImages = [
     "/assets/images/Productcard/hero1.jpg",
-    "/assets/images/Productcard/hero2.jpg", 
+    "/assets/images/Productcard/hero2.jpg",
     "/assets/images/Productcard/hero3.jpg",
     "/assets/images/Productcard/hero4.jpg"
   ];
@@ -349,18 +349,156 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
     if (attributeName.toLowerCase() === 'color') {
       // Map common color names to CSS colors
       const colorMap: Record<string, string> = {
-        'yellow': '#FDE047',
-        'pink': '#EABABA',
-        'red': '#EF4444',
-        'blue': '#3B82F6',
-        'green': '#10B981',
+        'aliceblue': '#F0F8FF',
+        'antiquewhite': '#FAEBD7',
+        'aqua': '#00FFFF',
+        'aquamarine': '#7FFFD4',
+        'azure': '#F0FFFF',
+        'beige': '#F5F5DC',
+        'bisque': '#FFE4C4',
         'black': '#000000',
+        'blanchedalmond': '#FFEBCD',
+        'blue': '#0000FF',
+        'blueviolet': '#8A2BE2',
+        'brown': '#A52A2A',
+        'burlywood': '#DEB887',
+        'cadetblue': '#5F9EA0',
+        'chartreuse': '#7FFF00',
+        'chocolate': '#D2691E',
+        'coral': '#FF7F50',
+        'cornflowerblue': '#6495ED',
+        'cornsilk': '#FFF8DC',
+        'crimson': '#DC143C',
+        'cyan': '#00FFFF',
+        'darkblue': '#00008B',
+        'darkcyan': '#008B8B',
+        'darkgoldenrod': '#B8860B',
+        'darkgray': '#A9A9A9',
+        'darkgreen': '#006400',
+        'darkgrey': '#A9A9A9',
+        'darkkhaki': '#BDB76B',
+        'darkmagenta': '#8B008B',
+        'darkolivegreen': '#556B2F',
+        'darkorange': '#FF8C00',
+        'darkorchid': '#9932CC',
+        'darkred': '#8B0000',
+        'darksalmon': '#E9967A',
+        'darkseagreen': '#8FBC8F',
+        'darkslateblue': '#483D8B',
+        'darkslategray': '#2F4F4F',
+        'darkslategrey': '#2F4F4F',
+        'darkturquoise': '#00CED1',
+        'darkviolet': '#9400D3',
+        'deeppink': '#FF1493',
+        'deepskyblue': '#00BFFF',
+        'dimgray': '#696969',
+        'dimgrey': '#696969',
+        'dodgerblue': '#1E90FF',
+        'firebrick': '#B22222',
+        'floralwhite': '#FFFAF0',
+        'forestgreen': '#228B22',
+        'fuchsia': '#FF00FF',
+        'gainsboro': '#DCDCDC',
+        'ghostwhite': '#F8F8FF',
+        'gold': '#FFD700',
+        'goldenrod': '#DAA520',
+        'gray': '#808080',
+        'green': '#008000',
+        'greenyellow': '#ADFF2F',
+        'grey': '#808080',
+        'honeydew': '#F0FFF0',
+        'hotpink': '#FF69B4',
+        'indianred': '#CD5C5C',
+        'indigo': '#4B0082',
+        'ivory': '#FFFFF0',
+        'khaki': '#F0E68C',
+        'lavender': '#E6E6FA',
+        'lavenderblush': '#FFF0F5',
+        'lawngreen': '#7CFC00',
+        'lemonchiffon': '#FFFACD',
+        'lightblue': '#ADD8E6',
+        'lightcoral': '#F08080',
+        'lightcyan': '#E0FFFF',
+        'lightgoldenrodyellow': '#FAFAD2',
+        'lightgray': '#D3D3D3',
+        'lightgreen': '#90EE90',
+        'lightgrey': '#D3D3D3',
+        'lightpink': '#FFB6C1',
+        'lightsalmon': '#FFA07A',
+        'lightseagreen': '#20B2AA',
+        'lightskyblue': '#87CEFA',
+        'lightslategray': '#778899',
+        'lightslategrey': '#778899',
+        'lightsteelblue': '#B0C4DE',
+        'lightyellow': '#FFFFE0',
+        'lime': '#00FF00',
+        'limegreen': '#32CD32',
+        'linen': '#FAF0E6',
+        'magenta': '#FF00FF',
+        'maroon': '#800000',
+        'mediumaquamarine': '#66CDAA',
+        'mediumblue': '#0000CD',
+        'mediumorchid': '#BA55D3',
+        'mediumpurple': '#9370DB',
+        'mediumseagreen': '#3CB371',
+        'mediumslateblue': '#7B68EE',
+        'mediumspringgreen': '#00FA9A',
+        'mediumturquoise': '#48D1CC',
+        'mediumvioletred': '#C71585',
+        'midnightblue': '#191970',
+        'mintcream': '#F5FFFA',
+        'mistyrose': '#FFE4E1',
+        'moccasin': '#FFE4B5',
+        'navajowhite': '#FFDEAD',
+        'navy': '#000080',
+        'oldlace': '#FDF5E6',
+        'olive': '#808000',
+        'olivedrab': '#6B8E23',
+        'orange': '#FFA500',
+        'orangered': '#FF4500',
+        'orchid': '#DA70D6',
+        'palegoldenrod': '#EEE8AA',
+        'palegreen': '#98FB98',
+        'paleturquoise': '#AFEEEE',
+        'palevioletred': '#DB7093',
+        'papayawhip': '#FFEFD5',
+        'peachpuff': '#FFDAB9',
+        'peru': '#CD853F',
+        'pink': '#FFC0CB',
+        'plum': '#DDA0DD',
+        'powderblue': '#B0E0E6',
+        'purple': '#800080',
+        'rebeccapurple': '#663399',
+        'red': '#FF0000',
+        'rosybrown': '#BC8F8F',
+        'royalblue': '#4169E1',
+        'saddlebrown': '#8B4513',
+        'salmon': '#FA8072',
+        'sandybrown': '#F4A460',
+        'seagreen': '#2E8B57',
+        'seashell': '#FFF5EE',
+        'sienna': '#A0522D',
+        'silver': '#C0C0C0',
+        'skyblue': '#87CEEB',
+        'slateblue': '#6A5ACD',
+        'slategray': '#708090',
+        'slategrey': '#708090',
+        'snow': '#FFFAFA',
+        'springgreen': '#00FF7F',
+        'steelblue': '#4682B4',
+        'tan': '#D2B48C',
+        'teal': '#008080',
+        'thistle': '#D8BFD8',
+        'tomato': '#FF6347',
+        'turquoise': '#40E0D0',
+        'violet': '#EE82EE',
+        'wheat': '#F5DEB3',
         'white': '#FFFFFF',
-        'purple': '#8B5CF6',
-        'orange': '#F97316',
-        'gray': '#6B7280',
-        'grey': '#6B7280'
-      };
+        'whitesmoke': '#F5F5F5',
+        'yellow': '#FFFF00',
+        'yellowgreen': '#9ACD32'
+      }
+
       return colorMap[value.toLowerCase()] || value;
     }
     return undefined;
@@ -401,7 +539,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
               className="object-cover w-full h-full"
             />
           )}
-          
+
           {/* Navigation arrows */}
           {mediaToDisplay.length > 1 && (
             <>
@@ -433,7 +571,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                     index === currentImageIndex 
                       ? 'bg-white' 
                       : 'bg-white bg-opacity-50 hover:bg-opacity-75'
-                  }`}
+                    }`}
                   aria-label={`Go to image ${index + 1}`}
                 />
               ))}
@@ -544,7 +682,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                     {attribute.values.map((value: string) => {
                       const isSelected = selectedAttributes[attribute.name] === value;
                       const colorStyle = getColorStyle(attribute.name, value);
-                      
+
                       // Render color swatches for color attributes
                       if (attribute.name.toLowerCase() === 'color' && colorStyle) {
                         return (
@@ -556,13 +694,13 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                               isSelected
                                 ? 'border-[#FEEBD8] scale-110'
                                 : 'border-white opacity-80 hover:scale-105'
-                            }`}
+                              }`}
                             style={{ backgroundColor: colorStyle }}
                             disabled={false}
                           />
                         );
                       }
-                      
+
                       // Render buttons for size and other attributes
                       return (
                         <button
@@ -582,7 +720,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                   </div>
                 </div>
               ))}
-              
+
               {/* For products without variants, show parent product attributes as display-only */}
               {!productData?.has_variants && productData?.attributes && productData.attributes.map((attr) => (
                 attr.attribute?.name && attr.value && (
@@ -593,7 +731,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                     <div className="flex flex-wrap gap-2 sm:gap-3">
                       {(() => {
                         const colorStyle = getColorStyle(attr.attribute.name, attr.value);
-                        
+
                         // Render color swatch for color attributes
                         if (attr.attribute.name.toLowerCase() === 'color' && colorStyle) {
                           return (
@@ -605,7 +743,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                             />
                           );
                         }
-                        
+
                         // Render button for size and other attributes
                         return (
                           <div
@@ -666,11 +804,10 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
 
           {/* Stock Warning */}
           {stockError && (
-            <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${
-              stockError.includes('out of stock') 
-                ? 'bg-red-100 text-red-800' 
+            <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${stockError.includes('out of stock')
+                ? 'bg-red-100 text-red-800'
                 : 'bg-yellow-100 text-yellow-800'
-            }`}>
+              }`}>
               {stockError}
             </div>
           )}
@@ -733,7 +870,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                 isInStock()
                   ? 'bg-[#FEEBD8] hover:bg-[#fdd7b9] border-[#FEEBD8] text-black'
                   : 'bg-gray-300 border-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+                }`}
               disabled={!isInStock()}
             >
               {!isInStock() ? 'OUT OF STOCK' : 'ADD TO CART'}
@@ -743,7 +880,7 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
                 isInStock()
                   ? 'bg-black hover:bg-[#222] text-white border-black'
                   : 'bg-gray-400 border-gray-400 text-gray-600 cursor-not-allowed'
-              }`}
+                }`}
               disabled={!isInStock()}
             >
               {!isInStock() ? 'OUT OF STOCK' : 'BUY IT NOW'}
@@ -803,7 +940,6 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
         </div>
       ))}
     </div>
-
     {/* Measurement Table */}
     <div className="grid grid-cols-1 sm:grid-cols-2 font-archivio gap-y-3 gap-x-4 mt-6 lg:mt-10 text-sm sm:text-base">
       <div className="flex justify-between sm:block">

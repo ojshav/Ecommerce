@@ -505,7 +505,7 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
       const mediaData = {
         product_id: createdProductId,
         media: productData.media.map((item, index) => ({
-          type: item.type.toUpperCase(),
+          type: item.type.toLowerCase(),
           url: item.url,
           sort_order: index + 1,
           is_primary: item.is_primary,
@@ -540,7 +540,7 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
     
     // Prepare all media data
     const allMediaData = newMedia.map((media: any, index: number) => ({
-      type: media.type.toUpperCase(),
+      type: media.type.toLowerCase(),
       url: media.url,
       file_size: media.file?.size || 0,
       file_name: media.file?.name || media.url?.split('/').pop() || '',
@@ -655,7 +655,7 @@ const MultiStepProductForm: React.FC<MultiStepProductFormProps> = ({
             sort_order: variant.sort_order,
             // Handle variant media if any
             media: variant.media.filter(m => !m.isExisting).map((media, mediaIndex) => ({
-              type: media.type.toUpperCase(),
+              type: media.type.toLowerCase(),
               url: media.url,
               public_id: (media as any).public_id,
               file_size: media.file?.size,
