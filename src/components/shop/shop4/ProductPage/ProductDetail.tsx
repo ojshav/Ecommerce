@@ -315,9 +315,104 @@ const ProductDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('L');
-  const [expandedSections, setExpandedSections] = useState(['specifications', 'about']);
+  const [expandedSections, setExpandedSections] = useState(['about']);
 
   const productId = searchParams.get('id');
+
+  // Simple markdown parser for basic formatting with Shop4 styling
+  const parseMarkdown = (text: string): JSX.Element[] => {
+    if (!text) return [];
+
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    const elements: JSX.Element[] = [];
+
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
+
+      // Headers (bold text with **)
+      if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
+        const content = trimmed.slice(2, -2);
+        elements.push(
+          <h4 key={index} className="text-lg font-bold text-white mb-2">
+            {content}
+          </h4>
+        );
+      }
+      // Headers (bold text within line like **Material**: content)
+      else if (trimmed.includes('**') && trimmed.split('**').length >= 3) {
+        const parts = trimmed.split('**');
+        const beforeBold = parts[0];
+        const boldText = parts[1];
+        const afterBold = parts.slice(2).join('**');
+        
+        elements.push(
+          <p key={index} className="text-gray-300 mb-2">
+            {beforeBold}
+            <span className="font-bold text-white">{boldText}</span>
+            {afterBold}
+          </p>
+        );
+      }
+      // Italic text
+      else if (trimmed.startsWith('*') && trimmed.endsWith('*') && !trimmed.startsWith('**')) {
+        const content = trimmed.slice(1, -1);
+        elements.push(
+          <p key={index} className="text-gray-300 italic mb-2">
+            {content}
+          </p>
+        );
+      }
+      // Numbered lists (standard format like "1. content")
+      else if (/^\d+\./.test(trimmed)) {
+        const content = trimmed.replace(/^\d+\.\s*/, '');
+        elements.push(
+          <div key={index} className="flex items-start mb-2">
+            <span className="w-6 h-6 rounded-full bg-[#BB9D7B] text-white text-sm flex items-center justify-center mr-3 mt-0.5 font-semibold">
+              {trimmed.match(/^\d+/)?.[0]}
+            </span>
+            <span className="text-gray-300">{content}</span>
+          </div>
+        );
+      }
+      // Numbered items (alternative format like just "1" on separate line)
+      else if (/^\d+$/.test(trimmed)) {
+        // Skip standalone numbers, they'll be handled with the next line
+        return;
+      }
+      // Content that follows a standalone number
+      else if (index > 0 && /^\d+$/.test(lines[index - 1]?.trim())) {
+        const number = lines[index - 1].trim();
+        elements.push(
+          <div key={index} className="flex items-start mb-2">
+            <span className="w-6 h-6 rounded-full bg-[#BB9D7B] text-white text-sm flex items-center justify-center mr-3 mt-0.5 font-semibold">
+              {number}
+            </span>
+            <span className="text-gray-300">{trimmed}</span>
+          </div>
+        );
+      }
+      // Bullet points
+      else if (trimmed.startsWith('- ')) {
+        const content = trimmed.slice(2);
+        elements.push(
+          <div key={index} className="flex items-start mb-2">
+            <span className="w-2 h-2 rounded-full bg-[#BB9D7B] mr-4 mt-2"></span>
+            <span className="text-gray-300">{content}</span>
+          </div>
+        );
+      }
+      // Regular text (but skip if it's immediately after a standalone number)
+      else if (trimmed && !(index > 0 && /^\d+$/.test(lines[index - 1]?.trim()))) {
+        elements.push(
+          <p key={index} className="text-gray-300 mb-2">
+            {trimmed}
+          </p>
+        );
+      }
+    });
+
+    return elements;
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -425,7 +520,7 @@ const ProductDetail: React.FC = () => {
         <div className="w-full lg:w-1/2 p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6">
           {/* Product Category */}
           <div className="text-white text-sm sm:text-base font-normal leading-normal font-['Poppins']">
-            Metal Diya
+            {product.category_name || 'Product Category'}
           </div>
 
           {/* Product Title */}
@@ -485,20 +580,6 @@ const ProductDetail: React.FC = () => {
             </div>
           </div>
 
-          {/* Countdown Timer */}
-          <div className="space-y-2">
-            <span className="text-gray-300 text-xs md:text-sm">Hurry up! Deals end up :</span>
-            <div className="flex items-center gap-1 text-xs md:text-sm">
-              <span className="text-white">300D</span>
-              <span className="text-gray-400">:</span>
-              <span className="text-white">14Hours</span>
-              <span className="text-gray-400">:</span>
-              <span className="text-white">35 Mins</span>
-              <span className="text-gray-400">:</span>
-              <span className="text-white">23 Sec</span>
-            </div>
-          </div>
-
           {/* Quantity and Actions */}
           <div className="flex items-center gap-3 md:gap-4">
             <div className="flex items-center border border-gray-600 rounded bg-[#2B2B2B] overflow-hidden">
@@ -541,48 +622,13 @@ const ProductDetail: React.FC = () => {
           {/* Divider */}
           <div className="border-t border-gray-700"></div>
 
-          {/* Specifications Section */}
-          <div className="space-y-3 md:space-y-4">
-            <button
-              onClick={() => toggleSection('specifications')}
-              className="flex items-center justify-between w-full text-left group"
-            >
-              <h3 className="text-sm sm:text-base md:text-lg font-medium text-white">Specifications:</h3>
-              {expandedSections.includes('specifications') ? (
-                <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:text-gray-300" />
-              ) : (
-                <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:text-gray-300" />
-              )}
-            </button>
-            
-            {expandedSections.includes('specifications') && (
-              <div className="space-y-2 md:space-y-3 text-gray-300 text-xs md:text-sm pl-0">
-                <div className="flex items-start gap-2">
-                  <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Pure Brass Aarti Akhand Diya</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Made with Virgin Quality of Brass</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                  <span>Small: Height: 4.4cm, Length: 8.2cm</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-gray-700"></div>
-
-          {/* About The Ring Section */}
+          {/* About Product Section */}
           <div className="space-y-3 md:space-y-4">
             <button
               onClick={() => toggleSection('about')}
               className="flex items-center justify-between w-full text-left group"
             >
-              <h3 className="text-sm sm:text-base md:text-lg font-medium text-white">About The Ring:</h3>
+              <h3 className="text-sm sm:text-base md:text-lg font-medium text-white">About Product</h3>
               {expandedSections.includes('about') ? (
                 <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:text-gray-300" />
               ) : (
@@ -591,53 +637,14 @@ const ProductDetail: React.FC = () => {
             </button>
             
             {expandedSections.includes('about') && (
-              <div className="space-y-3 md:space-y-4 text-gray-300 text-xs md:text-sm">
-                <p className="leading-relaxed">
-                  Diyas are an essential part of Diwali decoration. This is beautiful Page Rank 1 
-                  product.Considering this we come with the beautiful range of Diwali Collections. 
-                  You can decor your home on Diwali festival with Diya Tech-light holders, oil lamp, 
-                  earthen Dil / diya, traditional diya, natural diya, colorful diya, designer diya, clay 
-                  diya, terracotta diya, plain diya, stone diya
-                </p>
-                
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2">
-                    <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>Free shipping for orders $75.00 USD+</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>2-year warranty</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <span>30-day returns</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-gray-700"></div>
-
-          {/* Additional Details Section */}
-          <div className="space-y-3 md:space-y-4">
-            <button
-              onClick={() => toggleSection('details')}
-              className="flex items-center justify-between w-full text-left group"
-            >
-              <h3 className="text-sm sm:text-base md:text-lg font-medium text-white">Additional Details</h3>
-              {expandedSections.includes('details') ? (
-                <ChevronUp className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:text-gray-300" />
-              ) : (
-                <ChevronDown className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:text-gray-300" />
-              )}
-            </button>
-            
-            {expandedSections.includes('details') && (
               <div className="text-gray-300 text-xs md:text-sm">
-                <p>Additional product details and care instructions would appear here.</p>
+                {product.full_description || product.product_description || product.short_description ? (
+                  <div className="leading-relaxed">
+                    {parseMarkdown(product.full_description || product.product_description || product.short_description)}
+                  </div>
+                ) : (
+                  <p className="leading-relaxed text-gray-400">No product information available.</p>
+                )}
               </div>
             )}
           </div>
@@ -668,9 +675,9 @@ const ProductDetail: React.FC = () => {
                 <Shop4ProductCard 
                   product={{
                     id: product.id,
-                    title: product.name,
+                    name: product.name,  // Use 'name' not 'title' for Shop4ProductCard
                     price: typeof product.price === 'string' ? parseFloat(product.price) : product.price,
-                    discount: product.discount ? `${product.discount}%` : '0%',
+                    discount: product.discount,  // Keep as number for Shop4ProductCard
                     image: product.image
                   }}
                 />
@@ -685,33 +692,6 @@ const ProductDetail: React.FC = () => {
     </div>
   );
 };
-
-
-// --- Products Data ---
-const products: Product[] = [
-    {
-      id: 1,
-      name: 'Radha Locket Mala',
-      price: 120,
-      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463005/public_assets_shop4/public_assets_shop4_one%20%281%29.png',
-      background: 'bg-gradient-to-br from-amber-900 to-amber-700'
-    },
-    {
-      id: 2,
-      name: 'Antique Turtle Loban Dingali',
-      price: 120,
-      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463048/public_assets_shop4/public_assets_shop4_two.png',
-      background: 'bg-gradient-to-br from-amber-900 to-amber-700'
-    },
-    {
-      id: 3,
-      name: 'Antique Turtle Loban Dingali',
-      price: 120,
-      image: 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463046/public_assets_shop4/public_assets_shop4_thre.png',
-      background: 'bg-gradient-to-br from-amber-900 to-amber-700'
-    }
-  ];
-
 
 export default ProductDetail;
 
