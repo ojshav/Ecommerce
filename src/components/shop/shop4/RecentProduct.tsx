@@ -1,44 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Shop4ProductCard, { Product } from './Shop4ProductCard';
+import shop4ApiService, { Product as ApiProduct } from '../../../services/shop4ApiService';
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Vamavarti Shankh",
-    price: 120,
-    image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463032/public_assets_shop4/public_assets_shop4_Rectangle%20111.png",
-    background: "bg-blue-400"
-  },
-  {
-    id: 2,
-    name: "Moti Shankh",
-    price: 120,
-    image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463031/public_assets_shop4/public_assets_shop4_Rectangle%20110.png",
-    background: "bg-slate-700",
-    selected: true
-  },
-  {
-    id: 3,
-    name: "Ganesha Shankh",
-    price: 120,
-    image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463021/public_assets_shop4/public_assets_shop4_Rectangle%20105.png",
-    background: "bg-teal-300"
-  },
-  {
-    id: 4,
-    name: "Pancha Shankh",
-    price: 120,
-    image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463035/public_assets_shop4/public_assets_shop4_Rectangle%2023.png",
-    background: "bg-red-500",
-    discount: 10
-  }
-];
+// Convert API product to local Product interface
+const mapApiProductToLocal = (apiProduct: ApiProduct): Product => ({
+  id: apiProduct.product_id,
+  name: apiProduct.product_name,
+  price: apiProduct.special_price || apiProduct.price,
+  image: apiProduct.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463036/public_assets_shop4/public_assets_shop4_Rectangle%205.png",
+  discount: apiProduct.special_price ? 
+    Math.round(((apiProduct.price - apiProduct.special_price) / apiProduct.price) * 100) : 
+    undefined
+});
 
 function Recentproduct() {
   const [activeTab, setActiveTab] = useState('RITUAL KITS');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentScrollIndex, setCurrentScrollIndex] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
-  const tabs = ['DIYAS', 'OIL LAMPS', 'RITUAL KITS'];
+  // Maximum products to show is 3
+  const maxVisibleProducts = 3;
+  const canScrollLeft = currentScrollIndex > 0;
+  const canScrollRight = currentScrollIndex < products.length - maxVisibleProducts;
+
+  // Fetch products from API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const response = await shop4ApiService.getProducts({
+          page: 1,
+          per_page: 10, // Fetch more than 3 to enable scrolling
+          in_stock_only: true
+        });
+        
+        if (response && response.success) {
+          const mappedProducts = response.products.map(mapApiProductToLocal);
+          setProducts(mappedProducts);
+        } else {
+          setProducts([]);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]);
+      }
+      setLoading(false);
+    };
+
+    fetchProducts();
+  }, []);
+
+  const scrollLeft = () => {
+    if (canScrollLeft) {
+      setCurrentScrollIndex(prev => prev - 1);
+    }
+  };
+
+  const scrollRight = () => {
+    if (canScrollRight) {
+      setCurrentScrollIndex(prev => prev + 1);
+    }
+  };
+
+  // Get visible products (only 3 at a time)
+  const visibleProducts = products.slice(currentScrollIndex, currentScrollIndex + maxVisibleProducts);
 
   const handleAddToCart = (product: Product, quantity: number, selectedColor: number) => {
     console.log(`Added ${product.name} to cart:`, {
@@ -114,27 +144,80 @@ function Recentproduct() {
 
       {/* Product Carousel */}
       <div className="relative px-4 md:px-8 lg:px-16 max-w-[1920px] mx-auto">
-        {/* Navigation Arrows */}
-        <button className="hidden lg:flex absolute left-16 top-[200px] transform -translate-y-1/2 z-10 w-12 h-12 rounded-full border border-[#BB9D7B] items-center justify-center hover:bg-gray-800 transition-colors">
-          <ChevronLeft size={20} />
-        </button>
-        <button className="hidden lg:flex absolute right-16 top-[200px] transform -translate-y-1/2 z-10 w-12 h-12 rounded-full border border-gray-600 items-center justify-center hover:bg-gray-800 transition-colors">
-          <ChevronRight size={20} />
-        </button>
+        {/* Navigation Arrows - Show only when there are more than 3 products */}
+        {products.length > maxVisibleProducts && (
+          <>
+            <button 
+              onClick={scrollLeft}
+              disabled={!canScrollLeft}
+              className={`hidden lg:flex absolute left-16 top-[200px] transform -translate-y-1/2 z-10 w-12 h-12 rounded-full border items-center justify-center transition-colors ${
+                canScrollLeft 
+                  ? 'border-[#BB9D7B] hover:bg-gray-800 cursor-pointer' 
+                  : 'border-gray-600 opacity-50 cursor-not-allowed'
+              }`}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button 
+              onClick={scrollRight}
+              disabled={!canScrollRight}
+              className={`hidden lg:flex absolute right-16 top-[200px] transform -translate-y-1/2 z-10 w-12 h-12 rounded-full border items-center justify-center transition-colors ${
+                canScrollRight 
+                  ? 'border-[#BB9D7B] hover:bg-gray-800 cursor-pointer' 
+                  : 'border-gray-600 opacity-50 cursor-not-allowed'
+              }`}
+            >
+              <ChevronRight size={20} />
+            </button>
+          </>
+        )}
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 lg:grid-cols-3 gap-4 max-w-[1640px] mx-auto">
-          {products.map((product) => (
-            <div key={product.id} className="relative h-[500px] flex items-center justify-center">
-              <Shop4ProductCard 
-                product={product}
-                onAddToCart={handleAddToCart}
-                showColorOptions={true}
-                showQuantitySelector={true}
+        {loading ? (
+          <div className="flex items-center justify-center h-[500px]">
+            <div className="text-white text-xl">Loading products...</div>
+          </div>
+        ) : (
+          <div 
+            ref={scrollContainerRef}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-[1640px] mx-auto"
+          >
+            {visibleProducts.map((product) => (
+              <div 
+                key={product.id} 
+                className="relative h-[500px] flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
+                onClick={() => {
+                  // Navigate to the product detail page
+                  navigate(`/shop4-productpage?id=${product.id}`);
+                }}
+              >
+                <Shop4ProductCard 
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                  showColorOptions={true}
+                  showQuantitySelector={true}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Scroll Indicators - Show dots when there are more than 3 products */}
+        {products.length > maxVisibleProducts && (
+          <div className="flex justify-center mt-8 space-x-2">
+            {Array.from({ length: products.length - maxVisibleProducts + 1 }, (_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentScrollIndex(index)}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  index === currentScrollIndex 
+                    ? 'bg-[#BB9D7B]' 
+                    : 'bg-gray-600 hover:bg-gray-500'
+                }`}
               />
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

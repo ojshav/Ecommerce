@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, ShoppingCart, ChevronDown, ChevronUp, Star, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Shop4ProductCard from '../Shop4ProductCard';
 import shop4ApiService, { 
   Product as ApiProduct, 
@@ -314,6 +314,7 @@ const ReviewsSection: React.FC = () => {
 // --- Main ProductDetail Component ---
 const ProductDetail: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState<ApiProduct | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1096,15 +1097,22 @@ const ProductDetail: React.FC = () => {
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
-            {relatedProducts.slice(0, 3).map((product) => (
-              <div key={product.id} className="w-full h-auto">
+            {relatedProducts.slice(0, 3).map((relatedProduct) => (
+              <div 
+                key={relatedProduct.id} 
+                className="w-full h-auto cursor-pointer transition-transform hover:scale-105" 
+                onClick={() => {
+                  // Navigate to the related product's detail page
+                  navigate(`?id=${relatedProduct.id}`);
+                }}
+              >
                 <Shop4ProductCard 
                   product={{
-                    id: product.id,
-                    name: product.name,  // Use 'name' not 'title' for Shop4ProductCard
-                    price: typeof product.price === 'string' ? parseFloat(product.price) : product.price,
-                    discount: product.discount,  // Keep as number for Shop4ProductCard
-                    image: product.image
+                    id: relatedProduct.id,
+                    name: relatedProduct.name,  // Use 'name' not 'title' for Shop4ProductCard
+                    price: typeof relatedProduct.price === 'string' ? parseFloat(relatedProduct.price) : relatedProduct.price,
+                    discount: relatedProduct.discount,  // Keep as number for Shop4ProductCard
+                    image: relatedProduct.image
                   }}
                 />
               </div>
