@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import { useShopCart } from '../../../context/ShopCartContext';
+import { useAuth } from '../../../context/AuthContext';
 import shop1ApiService, { Product } from '../../../services/shop1ApiService';
 
 const FreshOffRunway = () => {
@@ -8,7 +11,14 @@ const FreshOffRunway = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [addingToCart, setAddingToCart] = useState<{ [key: number]: boolean }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  const { addToShopCart } = useShopCart();
+  const { accessToken, user } = useAuth();
+  
+  // Shop1 has a fixed shop ID of 1
+  const SHOP_ID = 1;
   
   const leftArrow = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745143/public_assets_shop1_LP/public_assets_images_arrow-left.svg";
   const rightArrow = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745145/public_assets_shop1_LP/public_assets_images_arrow-right.svg";
@@ -44,6 +54,32 @@ const FreshOffRunway = () => {
 
     fetchProducts();
   }, []);
+
+  // Add to cart functionality
+  const handleAddToCart = async (e: React.MouseEvent, productId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!accessToken) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error("Only customers can add items to cart");
+      return;
+    }
+
+    try {
+      setAddingToCart(prev => ({ ...prev, [productId]: true }));
+      await addToShopCart(SHOP_ID, productId, 1, {});
+      toast.success("Product added to cart");
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
+      setAddingToCart(prev => ({ ...prev, [productId]: false }));
+    }
+  };
 
   // Scroll functionality
   const scrollLeft = () => {
@@ -157,8 +193,16 @@ const FreshOffRunway = () => {
                   />
                 </Link>
                 <div className="absolute bottom-2 xs:bottom-3 sm:bottom-4 right-2 xs:right-3 sm:right-4">
-                  <button className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-gray-900 text-white rounded-sm flex items-center justify-center hover:bg-gray-800 transition-colors">
-                    <ShoppingBag className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5" />
+                  <button 
+                    className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-gray-900 text-white rounded-sm flex items-center justify-center hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={(e) => handleAddToCart(e, product.product_id)}
+                    disabled={addingToCart[product.product_id]}
+                  >
+                    {addingToCart[product.product_id] ? (
+                      <div className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <ShoppingBag className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5" />
+                    )}
                   </button>
                 </div>
               </div>
