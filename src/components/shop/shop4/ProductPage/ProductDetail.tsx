@@ -318,7 +318,6 @@ const ProductDetail: React.FC = () => {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState('L');
   const [expandedSections, setExpandedSections] = useState(['about']);
   
   // Variant handling state
@@ -382,8 +381,8 @@ const ProductDetail: React.FC = () => {
       }
     });
 
-    // Add variant attributes with their available options (only if product has variants)
     if (product.has_variants) {
+      // For variant products: Add variant attributes with their available options
       variantAttrs.forEach(attr => {
         if (attr.name && attr.values && Array.isArray(attr.values)) {
           const allValues = new Set<string>();
@@ -402,21 +401,42 @@ const ProductDetail: React.FC = () => {
           });
         }
       });
+
+      // Only add parent attributes if they have multiple options through variants
+      // This prevents showing single-value attributes that can't be changed
+      parentAttrs.forEach(attr => {
+        const attrName = attr.attribute?.name;
+        const attrValue = attr.value;
+
+        if (attrName && attrValue && !attributeMap.has(attrName)) {
+          // Only add if there are variant options for this attribute
+          const hasVariantOptions = variantAttrs.some(vAttr => 
+            vAttr.name === attrName && vAttr.values && vAttr.values.length > 1
+          );
+          
+          if (hasVariantOptions) {
+            attributeMap.set(attrName, {
+              name: attrName,
+              values: [attrValue]
+            });
+          }
+        }
+      });
+    } else {
+      // For non-variant products: Show parent product attributes (read-only)
+      console.log('Product does not have variants, showing parent product attributes');
+      parentAttrs.forEach(attr => {
+        const attrName = attr.attribute?.name;
+        const attrValue = attr.value;
+
+        if (attrName && attrValue) {
+          attributeMap.set(attrName, {
+            name: attrName,
+            values: [attrValue] // Single value, non-selectable
+          });
+        }
+      });
     }
-
-    // Add any parent attributes that don't have variant options OR for non-variant products
-    parentAttrs.forEach(attr => {
-      const attrName = attr.attribute?.name;
-      const attrValue = attr.value;
-
-      if (attrName && attrValue && !attributeMap.has(attrName)) {
-        // For non-variant products, only use the actual value from backend
-        attributeMap.set(attrName, {
-          name: attrName,
-          values: [attrValue]
-        });
-      }
-    });
 
     return Array.from(attributeMap.values());
   };
@@ -694,10 +714,41 @@ const ProductDetail: React.FC = () => {
             }
           } else {
             console.log('Product does not have variants');
+            // For non-variant products, still extract and show parent product attributes
+            const availableAttrs = extractAvailableAttributes(response.product);
+            console.log('Extracted available attributes for non-variant product:', availableAttrs);
+            setAvailableAttributes(availableAttrs);
+            
+            // Initialize default selected attributes from parent product (same as Shop1/Shop3)
+            const defaultSelected: Record<string, string> = {};
+            
+            // Get parent product attributes first
+            const parentAttrs = response.product.attributes || [];
+            const parentDefaults: Record<string, string> = {};
+            parentAttrs.forEach(attr => {
+              const attrName = attr.attribute?.name;
+              const attrValue = attr.value;
+              if (attrName && attrValue) {
+                parentDefaults[attrName] = attrValue;
+              }
+            });
+            
+            // Set default attributes based on parent product (like Shop1/Shop3 do with defaultValue)
+            availableAttrs.forEach(attr => {
+              if (parentDefaults[attr.name]) {
+                // Use parent product value as default
+                defaultSelected[attr.name] = parentDefaults[attr.name];
+              } else if (attr.values.length > 0) {
+                // Fallback to first available value
+                defaultSelected[attr.name] = attr.values[0];
+              }
+            });
+            
+            console.log('Default selected attributes for non-variant product:', defaultSelected);
+            setSelectedAttributes(defaultSelected);
+            
             // Clear variant-related state for non-variant products
             setVariants([]);
-            setAvailableAttributes([]);
-            setSelectedAttributes({});
             setCurrentVariant(null);
             setStockError('');
           }
@@ -727,8 +778,6 @@ const ProductDetail: React.FC = () => {
 
     fetchProduct();
   }, [productId]);
-
-  const sizes = ['S', 'M', 'L'];
 
   const incrementQuantity = () => setQuantity(prev => prev + 1);
   const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1));
@@ -864,7 +913,7 @@ const ProductDetail: React.FC = () => {
           {/* Divider */}
           <div className="border-t border-gray-700"></div>
 
-          {/* Dynamic Attribute Selection */}
+          {/* Dynamic Attribute Selection - Show attributes from backend */}
           {availableAttributes.length > 0 && (
             <div className="space-y-4 md:space-y-6">
               {availableAttributes.map((attribute) => (
@@ -880,16 +929,20 @@ const ProductDetail: React.FC = () => {
                         {attribute.values.map((value) => {
                           const isSelected = selectedAttributes[attribute.name] === value;
                           const colorStyle = getColorStyle(attribute.name, value);
+                          const isClickable = attribute.values.length > 1; // Only clickable if multiple values
                           
                           return (
                             <button
                               key={value}
-                              onClick={() => handleAttributeSelect(attribute.name, value)}
+                              onClick={isClickable ? () => handleAttributeSelect(attribute.name, value) : undefined}
+                              disabled={!isClickable}
                               className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-2 transition-all duration-200 ${
                                 isSelected
                                   ? 'border-[#BB9D7B] scale-110'
-                                  : 'border-gray-600 hover:border-gray-400'
-                              }`}
+                                  : isClickable 
+                                  ? 'border-gray-600 hover:border-gray-400 cursor-pointer'
+                                  : 'border-[#BB9D7B] cursor-default'
+                              } ${!isClickable ? 'opacity-90' : ''}`}
                               style={{ 
                                 backgroundColor: colorStyle || '#808080',
                                 border: colorStyle === '#FFFFFF' ? '2px solid #333' : undefined
@@ -906,15 +959,19 @@ const ProductDetail: React.FC = () => {
                       <div className="flex gap-2">
                         {attribute.values.map((value) => {
                           const isSelected = selectedAttributes[attribute.name] === value;
+                          const isClickable = attribute.values.length > 1; // Only clickable if multiple values
                           
                           return (
                             <button
                               key={value}
-                              onClick={() => handleAttributeSelect(attribute.name, value)}
+                              onClick={isClickable ? () => handleAttributeSelect(attribute.name, value) : undefined}
+                              disabled={!isClickable}
                               className={`px-3 py-2 md:px-4 md:py-2 rounded text-xs md:text-sm font-medium transition-all ${
                                 isSelected
                                   ? 'border-2 border-[#BB9D7B] bg-[#BB9D7B] text-white'
-                                  : 'border-2 border-gray-600 bg-[#515151] text-white hover:border-gray-400'
+                                  : isClickable
+                                  ? 'border-2 border-gray-600 bg-[#515151] text-white hover:border-gray-400 cursor-pointer'
+                                  : 'border-2 border-[#BB9D7B] bg-[#BB9D7B] text-white cursor-default opacity-90'
                               }`}
                             >
                               {value}
@@ -946,33 +1003,6 @@ const ProductDetail: React.FC = () => {
                   {stockError}
                 </div>
               )}
-            </div>
-          )}
-          
-          {/* Fallback to original size selection if no attributes */}
-          {availableAttributes.length === 0 && (
-            <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4">
-                <span className="text-xs sm:text-sm md:text-base text-white">Size :</span>
-                <div className="flex gap-2">
-                  {sizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`w-8 h-8 md:w-10 md:h-10 rounded text-xs md:text-sm font-medium transition-all ${
-                        selectedSize === size
-                          ? 'border-2 border-[#BB9D7B] bg-[#BB9D7B] text-white'
-                          : 'border-2 border-gray-600 bg-[#515151] text-white hover:border-gray-400'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-                <button className="text-white text-xs md:text-sm underline hover:text-gray-300 transition-colors">
-                  File Size Chart
-                </button>
-              </div>
             </div>
           )}
 
