@@ -37,7 +37,7 @@ const Reflection = () => {
 
         {/* Tagline */}
         <div
-          className="absolute left-1/2 translate-x-[-50%] sm:left-auto sm:translate-x-0 sm:right-8 bottom-24 sm:bottom-30 text-center sm:text-left w-[90%] sm:w-[365px] font-inter text-[5vw] sm:text-[28px] font-semibold leading-snug z-10"
+          className="absolute left-1/2 translate-x-[-50%] sm:left-auto sm:translate-x-0 sm:right-8 bottom-28 sm:bottom-30 text-center sm:text-left w-[90%] sm:w-[365px] font-inter text-[5vw] sm:text-[28px] font-semibold leading-snug z-10"
           style={{ color: colors[colorIndex] }}
         >
           <p>
