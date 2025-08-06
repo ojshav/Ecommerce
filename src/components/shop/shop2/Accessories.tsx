@@ -17,7 +17,7 @@ const Accessories: React.FC = () => {
       <div className="relative w-full h-full max-w-[1440px] mx-auto flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 lg:px-8">
 
         {/* ACCESSORIES Text */}
-        <h1 className="text-[8vw] xs:text-[7vw] sm:text-[6vw] top-[12vw] left-[20vw]  md:left-[20vw] xl:left-[20vw] md:text-[5vw] lg:text-[4vw] xl:text-[72px] font-normal tracking-wider text-transparent font-nosifer bg-clip-text bg-gradient-to-b from-[#C28BF9] to-[#411271] relative text-center leading-none">
+        <h1 className="text-[6vw] xs:text-[6vw] sm:text-[5vw] top-[12vw] left-[15vw]  md:left-[20vw] xl:left-[20vw] md:text-[5vw] lg:text-[4vw] xl:text-[72px] font-normal tracking-wider text-transparent font-nosifer bg-clip-text bg-gradient-to-b from-[#C28BF9] to-[#411271] relative text-center leading-none">
           ACCESSORIES
         </h1>
 
@@ -34,7 +34,7 @@ const Accessories: React.FC = () => {
           </div>
 
           {/* Center Model */}
-          <div className="absolute left-[24%] -translate-x-1/2 bottom-[8vh] sm:bottom-[12vh] md:bottom-[12vh] lg:bottom-[100px]">
+          <div className="absolute left-[24%] -translate-x-1/2 bottom-[8vh] sm:bottom-[8vh] md:bottom-[12vh] lg:bottom-[100px]">
             <img
               src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059220/public_assets_shop2/public_assets_shop2_accessories2.svg"
               alt="Center Model"
@@ -52,7 +52,7 @@ const Accessories: React.FC = () => {
           </div>
 
           {/* View More Button */}
-          <div className="absolute bottom-[12vh] left-[60%] sm:bottom-[15vh] md:bottom-[18vh] lg:bottom-[300px] right-8 sm:right-1 md:right-8 lg:right-16 xl:right-[250px]">
+          <div className="absolute bottom-[12vh] left-[60%] sm:bottom-[12vh] md:bottom-[18vh] lg:bottom-[300px] right-8 sm:right-1 md:right-8 lg:right-16 xl:right-[220px] 2xl:right-[220px]">
             <button 
               onClick={handleViewMore}
             className="w-[120px] sm:w-[140px] md:w-[160px] lg:w-[180px] xl:w-[199px] h-[40px] sm:h-[45px] md:h-[50px] lg:h-[54px] xl:h-[58px] text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px] xl:text-[28px] font-semibold text-[#AB3DFF] border border-[#423780] hover:bg-purple-500/20 transition-all duration-300 font-quicksand rounded-sm">

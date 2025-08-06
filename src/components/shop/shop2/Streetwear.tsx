@@ -2,7 +2,7 @@ import React from 'react';
 
 const Streetwear: React.FC = () => {
   return (
-    <section className="relative w-screen sm:h-[140vh] md:h-[135vh] lg:h-[100vh] xl:h-[120vh] h-[100vh] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center overflow-hidden flex items-center justify-center py-16 sm:py-0">
+    <section className="relative w-screen sm:h-[140vh] md:h-[135vh] lg:h-[100vh] xl:h-[120vh] h-[150vh] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center overflow-hidden flex items-center justify-center py-16 sm:py-0">
       {/* Wrapper to center the content */}
       <div className="w-full flex items-center justify-center px-4 sm:px-6">
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-14 sm:gap-32 items-center">
@@ -10,7 +10,7 @@ const Streetwear: React.FC = () => {
           <div className="relative flex items-center justify-center lg:justify-start">
             <div className="relative bg-[#CD9CFF] w-full max-w-[311px] h-[600px] sm:h-[697px] rounded-xl flex items-end mx-auto">
               {/* Vertical Text */}
-              <div className="absolute left-[-280px] sm:left-[-330px] top-1/2 transform -translate-y-1/2 rotate-[-90deg] overflow-hidden">
+              <div className="absolute left-[-180px] xs:left-[-180px] md:left-[-330px] sm:left-[-250px] top-1/2 transform -translate-y-1/2 rotate-[-90deg] overflow-hidden">
                 <h2 className="text-[64px] sm:text-[90px] md:text-[120px] font-black tracking-tight leading-none text-black whitespace-nowrap">
                   STREETWEAR
                 </h2>

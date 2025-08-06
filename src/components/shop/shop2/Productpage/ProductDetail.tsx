@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, ShoppingCart, Image as ImageIcon, ChevronDown, ChevronUp, Star } from 'lucide-react';
+import { Heart, ShoppingCart, Image as ImageIcon, ChevronDown, ChevronUp, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import shop2ApiService, { Product, ProductVariant } from '../../../../services/shop2ApiService';
 import chroma from 'chroma-js';
@@ -20,6 +20,18 @@ const ProductDetail = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const toggleSection = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
+  };
+
+  // Mobile carousel state
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Mobile carousel navigation functions
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
   // Placeholder reviews and sections (can be replaced with API data if available)
@@ -394,16 +406,82 @@ const ProductDetail = () => {
       <hr className="border-black border-t-1 mb-4 sm:mb-6" />
       {/* Top Container: Responsive grid for images and details */}
       <div className="grid grid-cols-1 max-w-[1580px]  md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4 lg:gap-4 2xl:gap-2 items-start lg:items-center">
-        {/* First image */}
-        <div className="flex justify-center order-1 md:order-1 lg:order-1">
+        {/* Mobile/Tablet Carousel - Hidden on large desktop */}
+        <div className="lg:hidden relative order-1">
+          <div className="relative w-full h-[300px] sm:h-[380px] rounded-2xl overflow-hidden">
+            <img 
+              src={images[currentImageIndex]?.url || '/assets/shop2/ProductPage/pd1.svg'} 
+              alt={`Product image ${currentImageIndex + 1}`} 
+              className="w-full h-full object-contain" 
+            />
+            {/* Navigation arrows */}
+            {images.length > 1 && (
+              <>
+                <button 
+                  onClick={prevImage}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white/90 rounded-full p-2 shadow-lg transition-all"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-800" />
+                </button>
+                <button 
+                  onClick={nextImage}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white/90 rounded-full p-2 shadow-lg transition-all"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-800" />
+                </button>
+              </>
+            )}
+            {/* Image counter */}
+            {images.length > 1 && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs font-medium">
+                {currentImageIndex + 1} / {images.length}
+              </div>
+            )}
+            {/* Heart icon */}
+            <button className="absolute top-4 right-4 p-2 rounded-full transition-all">
+              <Heart className="w-6 h-6 text-white" />
+            </button>
+            {/* Mobile See All Photos button */}
+            <button
+              className="absolute bottom-3 right-3 bg-white/90 hover:bg-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 shadow-lg border border-gray-200"
+              onClick={() => { setShowPhotosModal(true); setCurrentPhotoIdx(currentImageIndex); }}
+            >
+              <ImageIcon className="w-3 h-3" /> All Photos
+            </button>
+          </div>
+          
+          {/* Mobile Photo Gallery Section */}
+          <div className="mt-4 grid grid-cols-4 gap-2 w-full">
+            {images.slice(0, 4).map((img, idx) => (
+              <div
+                key={idx}
+                onClick={() => setCurrentImageIndex(idx)}
+                className={`aspect-square cursor-pointer rounded-lg border-2 transition-all ${
+                  currentImageIndex === idx 
+                    ? 'border-orange-400 shadow-md' 
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <img
+                  src={img.url}
+                  alt={`Thumbnail ${idx + 1}`}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Desktop First image - Hidden on mobile/tablet */}
+        <div className="hidden lg:flex justify-center order-1 md:order-1 lg:order-1">
           <img 
             src={images[0]?.url || '/assets/shop2/ProductPage/pd1.svg'} 
             alt="Front View" 
             className="rounded-2xl w-full max-w-[320px] sm:max-w-[390px] lg:w-[390px] h-[300px] sm:h-[380px] lg:h-[456px] object-cover" 
           />
         </div>
-        {/* Second image with Heart Icon */}
-        <div className="relative flex justify-center order-2 md:order-2 lg:order-2">
+        {/* Desktop Second image with Heart Icon - Hidden on mobile/tablet */}
+        <div className="hidden lg:relative lg:flex justify-center order-2 md:order-2 lg:order-2">
           <img 
             src={images[1]?.url || images[0]?.url || '/assets/shop2/ProductPage/pd1.svg'} 
             alt="Back View" 
@@ -452,39 +530,58 @@ const ProductDetail = () => {
                            </span>
                          )}
                        </div>
-                       <div className="flex flex-wrap gap-1 sm:gap-2">
-                         {valuesToShow.map((value, index) => {
-                           const isSelected = isMultiSelect
-                             ? (selectedValues as string[])?.includes(value)
-                             : selectedValues === value;
+                       <div className="flex items-center justify-between">
+                         <div className="flex flex-wrap gap-1 sm:gap-2 flex-1">
+                           {valuesToShow.map((value, index) => {
+                             const isSelected = isMultiSelect
+                               ? (selectedValues as string[])?.includes(value)
+                               : selectedValues === value;
 
-                           return (
-                             <button
-                               key={`${attr.attribute_id}-${index}`}
-                               onClick={() => handleAttributeSelect(
-                                 attr.attribute_id,
-                                 value,
-                                 isMultiSelect
-                               )}
-                               className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-[10px] sm:text-[12px] font-semibold shadow-sm transition-all focus:outline-none ${
-                                 isSelected 
-                                   ? 'bg-orange-100 border-orange-400 shadow-md text-black' 
-                                   : 'bg-white border-gray-300 text-gray-700'
-                               }`}
-                               style={{ 
-                                 boxShadow: isSelected ? '0 2px 8px rgba(255, 165, 0, 0.15)' : undefined 
-                               }}
+                             return (
+                               <button
+                                 key={`${attr.attribute_id}-${index}`}
+                                 onClick={() => handleAttributeSelect(
+                                   attr.attribute_id,
+                                   value,
+                                   isMultiSelect
+                                 )}
+                                 className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-[10px] sm:text-[12px] font-semibold shadow-sm transition-all focus:outline-none ${
+                                   isSelected 
+                                     ? 'bg-orange-100 border-orange-400 shadow-md text-black' 
+                                     : 'bg-white border-gray-300 text-gray-700'
+                                 }`}
+                                 style={{ 
+                                   boxShadow: isSelected ? '0 2px 8px rgba(255, 165, 0, 0.15)' : undefined 
+                                 }}
+                               >
+                                 {attrName.toLowerCase() === 'color' && (
+                                   <span
+                                     className="inline-block w-3 h-3 sm:w-4 sm:h-4 rounded-full mr-1 sm:mr-2 border"
+                                     style={{ backgroundColor: chroma.valid(value) ? chroma(value).hex() : '#ccc' }}
+                                   />
+                                 )}
+                                 {value}
+                               </button>
+                             );
+                           })}
+                         </div>
+                         {attrName.toLowerCase() === 'size' && (
+                           <div className="flex items-center gap-2 ml-4">
+                             <button 
+                               className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold hover:bg-gray-100 transition-colors"
+                               onClick={() => handleQuantityChange(false)}
                              >
-                               {attrName.toLowerCase() === 'color' && (
-                                 <span
-                                   className="inline-block w-3 h-3 sm:w-4 sm:h-4 rounded-full mr-1 sm:mr-2 border"
-                                   style={{ backgroundColor: chroma.valid(value) ? chroma(value).hex() : '#ccc' }}
-                                 />
-                               )}
-                               {value}
+                               -
                              </button>
-                           );
-                         })}
+                             <span className="font-semibold min-w-[2rem] text-center">{quantity}</span>
+                             <button 
+                               className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold hover:bg-gray-100 transition-colors"
+                               onClick={() => handleQuantityChange(true)}
+                             >
+                               +
+                             </button>
+                           </div>
+                         )}
                        </div>
                      </div>
                    );
@@ -495,23 +592,6 @@ const ProductDetail = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
-            {/* Quantity Controls */}
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start mb-2 sm:mb-0">
-              <button 
-                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold hover:bg-gray-100 transition-colors"
-                onClick={() => handleQuantityChange(false)}
-              >
-                -
-              </button>
-              <span className="font-semibold min-w-[2rem] text-center">{quantity}</span>
-              <button 
-                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold hover:bg-gray-100 transition-colors"
-                onClick={() => handleQuantityChange(true)}
-              >
-                +
-              </button>
-            </div>
-            
             <button 
               className="w-full sm:flex-1 bg-black text-[16px] font-gilroy text-white px-3 py-1 rounded-full font-bold flex items-center justify-center gap-2 text-base shadow hover:bg-gray-900 transition-all"
               onClick={handleAddToCart}
@@ -525,8 +605,8 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* Bottom Container: Next two images */}
-      <div className="flex flex-col lg:flex-row w-full max-w-[1230px] mx-auto items-center mt-4 sm:mt-6 lg:mt-1 gap-4">
+      {/* Bottom Container: Next two images - Hidden on mobile/tablet since we have carousel */}
+      <div className="hidden lg:flex flex-col lg:flex-row w-full max-w-[1230px] mx-auto items-center mt-4 sm:mt-6 lg:mt-1 gap-4">
         <img 
           src={images[2]?.url || images[0]?.url || '/assets/shop2/ProductPage/pd3.svg'} 
           alt="Side View" 

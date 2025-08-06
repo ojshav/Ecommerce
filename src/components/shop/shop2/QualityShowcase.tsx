@@ -61,7 +61,7 @@ const QualityShowcase = () => {
         </div>
 
         {/* Right Vertical Box */}
-        <div className="relative h-[300px] sm:h-[400px] md:h-[450px] lg:h-[511px] w-full">
+        <div className="hidden lg:block relative h-[300px] sm:h-[400px] md:h-[450px] lg:h-[511px] w-full">
           {/* Background card */}
           <div className="absolute inset-0 bg-[#F9FFCE] rounded-xl sm:rounded-2xl z-0" />
 

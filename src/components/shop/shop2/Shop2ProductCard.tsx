@@ -58,15 +58,15 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({
 
   return (
     <div 
-      className="flex flex-col items-center pb-7 relative group cursor-pointer"
+      className="flex flex-col items-center pb-7 px-4 relative group cursor-pointer max-w-full sm:max-w-[400px] md:max-w-[519px]"
       onClick={onClick}
     >
       {/* Product Image Container */}
-      <div className="relative w-full max-w-[340px] sm:max-w-[400px] md:max-w-[519px] h-[320px] sm:h-[400px] md:h-[595px]">
+      <div className="relative w-full h-[450px] xs:h-[590px] sm:h-[400px] md:h-[595px]">
         <img
           src={image}
           alt={name}
-          className="rounded-t-xl w-full h-full object-cover bg-none border-none shadow-none transition-transform duration-300 hover:scale-100"
+          className="rounded-t-xl w-full h-full object-cover sm:object-cover bg-none border-none shadow-none transition-transform duration-300 hover:scale-100"
         />
         {/* Optional discount badge */}
         {discount && (

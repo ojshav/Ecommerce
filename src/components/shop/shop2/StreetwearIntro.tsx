@@ -2,7 +2,7 @@ import React from 'react';
 
 const StreetwearIntro = () => {
   return (
-    <section className="relative w-screen h-[1024px]  bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center overflow-hidden flex items-center justify-center">
+    <section className="hidden md:block relative w-screen h-[1024px]  bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center overflow-hidden flex items-center justify-center">
       {/* Left Content */}
       <div className="flex flex-col mb-24 gap-1  max-w-[600px] px-4 sm:px-6 md:px-8 lg:px-0">
         <h1 className="text-white text-[32px] sm:text-[40px] md:text-[50px] lg:text-[60px] leading-[1] font-archivio mb-6 sm:mb-8 lg:mb-24 font-black">
@@ -31,7 +31,7 @@ const StreetwearIntro = () => {
       </div>
 
       {/* Right Side */}
-      <div className="relative w-full sm:w-[500px] md:w-[600px] lg:w-[692px] h-[300px] sm:h-[400px] md:h-[450px] lg:h-[510px] mt-12 sm:mt-16 md:mt-20 lg:mt-24 px-4 sm:px-6 md:px-8 lg:px-0">
+      <div className="hidden sm:block relative w-full sm:w-[500px] md:w-[600px] lg:w-[692px] h-[300px] sm:h-[400px] md:h-[450px] lg:h-[510px] mt-12 sm:mt-16 md:mt-20 lg:mt-24 px-4 sm:px-6 md:px-8 lg:px-0">
         {/* Text Overlay */}
         <div className="absolute -top-48 sm:-top-48 md:-top-48 lg:-top-48 left-8 sm:left-16 md:left-32 lg:left-64 max-w-[300px] sm:max-w-[400px] lg:max-w-[500px] text-[14px] sm:text-[16px] lg:text-[18px] text-gray-300 leading-relaxed z-20">
           Discover our brand's impressive growth, loyal <br />

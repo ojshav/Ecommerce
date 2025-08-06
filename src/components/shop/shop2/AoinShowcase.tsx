@@ -1,7 +1,43 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
 const AoinShowcase = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const images = [
+    "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059248/public_assets_shop2/public_assets_shop2_model1.svg",
+    "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059251/public_assets_shop2/public_assets_shop2_model2.svg"
+  ];
+
+  const handlePreviousSlide = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        const slideWidth = container.scrollWidth / images.length;
+        container.scrollTo({
+          left: (currentSlide - 1) * slideWidth,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
+  const handleNextSlide = () => {
+    if (currentSlide < images.length - 1) {
+      setCurrentSlide(currentSlide + 1);
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        const slideWidth = container.scrollWidth / images.length;
+        container.scrollTo({
+          left: (currentSlide + 1) * slideWidth,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
   return (
     <section className="relative w-full min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] xl:min-h-[1024px] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center text-white font-sans flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
       
@@ -9,33 +45,61 @@ const AoinShowcase = () => {
       <div className="w-full max-w-[1364px] relative flex items-center justify-end overflow-hidden px-2 xl:ml-48  sm:px-4 md:px-6 mb-6 sm:mb-8">
         
         {/* Left Arrow */}
-        <button className="absolute left-1 sm:left-2 md:left-0 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 sm:p-3 border border-[#9747FF] transition-colors duration-200 z-10">
-          <ArrowLeft size={16} className="text-[#9747FF] sm:w-12 sm:h-12" />
+        <button 
+          onClick={handlePreviousSlide}
+          disabled={currentSlide === 0}
+          className={`absolute left-1 sm:left-2 md:left-0 top-1/2 transform -translate-y-1/2 rounded-full p-2 sm:p-3 border border-[#9747FF] transition-colors duration-200 z-10 ${
+            currentSlide === 0 
+              ? 'bg-black/30 cursor-not-allowed' 
+              : 'bg-black/60 hover:bg-black/80 cursor-pointer'
+          }`}
+        >
+          <ArrowLeft size={16} className={`sm:w-12 sm:h-12 ${
+            currentSlide === 0 ? 'text-gray-500' : 'text-[#9747FF]'
+          }`} />
         </button>
 
         {/* Right Arrow */}
-        <button className="absolute right-1 sm:right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 sm:p-3 border border-purple-400 transition-colors duration-200 z-10">
-          <ArrowLeft size={16} className="text-purple-400 sm:w-5 sm:h-5 rotate-180" />
+        <button 
+          onClick={handleNextSlide}
+          disabled={currentSlide === images.length - 1}
+          className={`absolute right-1 sm:right-2 md:right-4 top-1/2 transform -translate-y-1/2 rounded-full p-2 sm:p-3 border border-purple-400 transition-colors duration-200 z-10 ${
+            currentSlide === images.length - 1 
+              ? 'bg-black/30 cursor-not-allowed' 
+              : 'bg-black/60 hover:bg-black/80 cursor-pointer'
+          }`}
+        >
+          <ArrowLeft size={16} className={`sm:w-5 sm:h-5 rotate-180 ${
+            currentSlide === images.length - 1 ? 'text-gray-500' : 'text-purple-400'
+          }`} />
         </button>
 
         {/* Image Slides */}
-        <div className="flex gap-4 sm:gap-4 md:gap-6 overflow-x-auto no-scrollbar scroll-smooth w-full justify-center sm:px-12 md:px-16 lg:px-20 xl:px-2 ">
-          <img
-            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059248/public_assets_shop2/public_assets_shop2_model1.svg"
-            alt="Model 1"
-            className="rounded-xl object-cover object-top w-[907px] h-[473px] max-w-[85vw] sm:max-w-[70vw] md:max-w-[60vw] lg:max-w-[50vw] xl:max-w-[907px] flex-shrink-0"
-          />
-          <img
-            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059251/public_assets_shop2/public_assets_shop2_model2.svg"
-            alt="Model 2"
-            className="rounded-xl object-cover w-[425px] h-[473px] max-w-[60vw] sm:max-w-[50vw] md:max-w-[40vw] lg:max-w-[35vw] xl:max-w-[425px] flex-shrink-0"
-          />
+        <div 
+          ref={scrollContainerRef}
+          className="flex gap-4 sm:gap-4 md:gap-6 overflow-x-auto no-scrollbar scroll-smooth w-full justify-center sm:px-12 md:px-16 lg:px-20 xl:px-2"
+        >
+          {images.map((image, index) => (
+            <img
+              key={index}
+              src={image}
+              alt={`Model ${index + 1}`}
+              className={`rounded-xl object-cover h-[473px] flex-shrink-0 ${
+                index === 0 
+                  ? 'w-full max-w-full' 
+                  : 'w-[425px] max-w-[40vw] sm:max-w-[50vw] md:max-w-[40vw] lg:max-w-[35vw] xl:max-w-[425px]'
+              }`}
+            />
+          ))}
         </div>
       </div>
 
       {/* Progress Bar */}
       <div className="w-full max-w-[1100px] h-1.5 sm:h-2  bg-gray-700 rounded-full mb-6 sm:mb-8 lg:mb-10 mt-4 sm:mt-6">
-        <div className="h-full w-[30%] bg-purple-500 rounded-full transition-all duration-500"></div>
+        <div 
+          className="h-full bg-purple-500 rounded-full transition-all duration-500"
+          style={{ width: `${((currentSlide + 1) / images.length) * 100}%` }}
+        ></div>
       </div>
 
       {/* Brand & Social Section */}

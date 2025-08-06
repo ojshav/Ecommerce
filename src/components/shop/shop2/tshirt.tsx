@@ -18,7 +18,7 @@ const Tshirt: React.FC = () => {
       <div className="relative w-full h-full max-w-[1440px] mx-auto flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 lg:px-8">
 
         {/* T-SHIRTS Text */}
-        <h1 className="text-[8vw] xs:text-[7vw] sm:text-[6vw] top-[12vw] left-[16vw] md:left-[16vw] xl:left-[16vw] md:text-[5vw] lg:text-[4vw] xl:text-[96px] font-normal tracking-wider text-transparent font-nosifer bg-clip-text bg-gradient-to-b from-[#C28BF9] to-[#411271] relative text-center leading-none">
+        <h1 className="text-[6vw] xs:text-[7vw] sm:text-[6vw] top-[12vw] left-[16vw] md:left-[16vw] xl:left-[16vw] md:text-[5vw] lg:text-[4vw] xl:text-[96px] font-normal tracking-wider text-transparent font-nosifer bg-clip-text bg-gradient-to-b from-[#C28BF9] to-[#411271] relative text-center leading-none">
           T-SHIRTS
         </h1>
 

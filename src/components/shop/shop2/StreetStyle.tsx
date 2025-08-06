@@ -4,10 +4,10 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 const StreetStyle: React.FC = () => {
   return (
-    <section className="relative w-full  sm:h-[100vh] md:h-[100vh] lg:h-[1024px] h-[90vh] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <section className="relative w-full  sm:h-[100vh] md:h-[100vh] lg:h-[1024px] h-[120vh] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center flex items-center justify-center px-4 sm:px-6 lg:px-8">
       {/* Container */}
 
-      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-1 items-center pt-20 lg:pt-0">
+      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-1 items-center  sm:pt-20 lg:pt-0">
         {/* Left side - Text */}
         <div className="flex flex-col justify-center items-center lg:items-start space-y-4 lg:space-y-1 text-center lg:text-left">
           <h2 className="text-[32px] sm:text-[40px] md:text-[50px] lg:text-[60px] font-black font-archivio leading-tight">
