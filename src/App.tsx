@@ -22,7 +22,8 @@ import Shop1Wishlist from './pages/Shop/Shop1Wishlist';
 import Shop2Wishlist from './pages/Shop/Shop2Wishlist';
 import Shop3Wishlist from './pages/Shop/Shop3Wishlist';
 import Shop4Wishlist from './pages/Shop/Shop4Wishlist';
-import Shopcart from './pages/Shop/shopcart';
+import { Shop1Cart, Shop2Cart, Shop3Cart, Shop4Cart } from './pages/Shop/ShopCartWrapper';
+import { Shop1Order, Shop2Order, Shop3Order, Shop4Order } from './pages/Shop/ShopOrderWrapper';
 import PasswordReset from './pages/auth/PasswordReset';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import RequestPasswordReset from './pages/auth/RequestPasswordReset';
@@ -123,6 +124,7 @@ import Settingss from './pages/business/Settings';
 import Profilee from './pages/business/Profile';
 import { WishlistProvider } from './context/WishlistContext';
 import { ShopWishlistProvider } from './context/ShopWishlistContext';
+import { ShopCartProvider } from './context/ShopCartContext';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import Subscription from './pages/business/Subscription';
 
@@ -226,7 +228,8 @@ const App: React.FC = () => {
         <CartProvider>
           <WishlistProvider>
             <ShopWishlistProvider>
-              <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+              <ShopCartProvider>
+                <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <Router>
               <VisitTracker>
                 <ScrollToTop />
@@ -250,6 +253,19 @@ const App: React.FC = () => {
                     <Route path="/shop4-productpage" element={<Shop4Productpage />} />
                     <Route path="/shop4-allproductpage" element={<Shop4AllProductpage />} />
                     <Route path="/shop4/wishlist" element={<Shop4Wishlist />} />
+                    
+                    {/* Shop Cart Routes */}
+                    <Route path="/shop1/cart" element={<Shop1Cart />} />
+                    <Route path="/shop2/cart" element={<Shop2Cart />} />
+                    <Route path="/shop3/cart" element={<Shop3Cart />} />
+                    <Route path="/shop4/cart" element={<Shop4Cart />} />
+                    
+                    {/* Shop Order Routes */}
+                    <Route path="/shop1/order" element={<Shop1Order />} />
+                    <Route path="/shop2/order" element={<Shop2Order />} />
+                    <Route path="/shop3/order" element={<Shop3Order />} />
+                    <Route path="/shop4/order" element={<Shop4Order />} />
+                    
                     <Route
                       path="/business/login"
                       element={<BusinessLogin />}
@@ -675,6 +691,7 @@ const App: React.FC = () => {
               }}
             />
           </GoogleOAuthProvider>
+              </ShopCartProvider>
             </ShopWishlistProvider>
         </WishlistProvider>
       </CartProvider>
