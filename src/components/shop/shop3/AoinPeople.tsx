@@ -18,25 +18,39 @@ const AoinPeople: React.FC = () => {
       <div className="absolute inset-0 w-screen h-full bg-opacity-40 z-10" />
 
       {/* Main Centered Content */}
-      <div className="relative z-20 mx-auto max-w-[1440px] h-full px-4 sm:px-6 lg:px-8">
+      <div className="relative z-20 mx-auto max-w-[1920px] h-full px-4 sm:px-6 lg:px-8">
         {/* Top Navigation Bar */}
         <nav className="relative top-0 left-0 w-auto flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 lg:space-x-12 items-center p-4 sm:ml-6 lg:ml-12 z-20">
-          <div className="text-white font-bold font-bebas text-[24px] sm:text-[28px] lg:text-[31px]">AOIN</div>
-          {/* Hamburger Icon for Mobile */}
-          <button
-            className="sm:hidden ml-auto focus:outline-none"
-            onClick={() => setMenuOpen((prev) => !prev)}
-            aria-label="Toggle menu"
-          >
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              {menuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          <div className="flex items-center justify-center">
+            <div className="text-white font-bold font-bebas text-[24px] sm:text-[28px] lg:text-[31px]">AOIN</div>
+            {/* Mobile Dropdown Button - Positioned centered with AOIN */}
+            <div className="sm:hidden relative">
+              <button
+                className="focus:outline-none text-white ml-1"
+                onClick={() => setMenuOpen((prev) => !prev)}
+                aria-label="Toggle menu"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  {menuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  )}
+                </svg>
+              </button>
+              {/* Mobile Dropdown Menu - Positioned centered below AOIN */}
+              {menuOpen && (
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-black bg-opacity-90 z-30 rounded-lg shadow-lg flex flex-col py-2 min-w-[150px] animate-fade-in">
+                  <a href="#" className="hover:text-[#CF0] transition-colors px-4 py-2 text-white font-bebas text-[16px] uppercase font-semibold" onClick={() => setMenuOpen(false)}>Home</a>
+                  <a href="#" className="hover:text-[#CF0] transition-colors px-4 py-2 text-white font-bebas text-[16px] uppercase font-semibold" onClick={() => setMenuOpen(false)}>Collections</a>
+                  <a href="#" className="hover:text-[#CF0] transition-colors px-4 py-2 text-white font-bebas text-[16px] uppercase font-semibold" onClick={() => setMenuOpen(false)}>Shop</a>
+                  <a href="#" className="hover:text-[#CF0] transition-colors px-4 py-2 text-white font-bebas text-[16px] uppercase font-semibold" onClick={() => setMenuOpen(false)}>Lookbook</a>
+                  <a href="#" className="hover:text-[#CF0] transition-colors px-4 py-2 text-white font-bebas text-[16px] uppercase font-semibold" onClick={() => setMenuOpen(false)}>About</a>
+                </div>
               )}
-            </svg>
-          </button>
-          {/* Nav Links */}
+            </div>
+          </div>
+          {/* Nav Links - Hidden on mobile, visible on larger screens */}
           <div className="hidden sm:flex flex-wrap justify-center sm:justify-start space-x-4 sm:space-x-6 lg:space-x-8 font-bebas text-white text-[14px] sm:text-[16px] lg:text-[21px] uppercase font-semibold">
             <a href="#" className="hover:text-[#CF0] transition-colors">Home</a>
             <a href="#" className="hover:text-[#CF0] transition-colors">Collections</a>
@@ -45,16 +59,6 @@ const AoinPeople: React.FC = () => {
             <a href="#" className="hover:text-[#CF0] transition-colors">About</a>
           </div>
         </nav>
-        {/* Mobile Dropdown Menu */}
-        {menuOpen && (
-          <div className="sm:hidden absolute left-0 right-0 top-20 bg-black bg-opacity-90 z-30 rounded-b-lg shadow-lg flex flex-col items-center py-4 space-y-4 font-bebas text-white text-[18px] uppercase font-semibold animate-fade-in">
-            <a href="#" className="hover:text-[#CF0] transition-colors" onClick={() => setMenuOpen(false)}>Home</a>
-            <a href="#" className="hover:text-[#CF0] transition-colors" onClick={() => setMenuOpen(false)}>Collections</a>
-            <a href="#" className="hover:text-[#CF0] transition-colors" onClick={() => setMenuOpen(false)}>Shop</a>
-            <a href="#" className="hover:text-[#CF0] transition-colors" onClick={() => setMenuOpen(false)}>Lookbook</a>
-            <a href="#" className="hover:text-[#CF0] transition-colors" onClick={() => setMenuOpen(false)}>About</a>
-          </div>
-        )}
 
         {/* Vertical Side Texts - Hidden on mobile, visible on larger screens */}
         <div className="hidden md:block absolute left-4 lg:left-16 top-1/2 -translate-y-1/2 z-20">
@@ -93,7 +97,7 @@ const AoinPeople: React.FC = () => {
       </div>
       {/* Bottom Banner */}
       <div className="absolute bottom-[-20px] sm:bottom-[-30px] lg:bottom-[-40px] left-0 w-screen z-30">
-        <div className="w-[2220px] bg-black py-2 sm:py-3 lg:py-4 px-2 h-[60px] sm:h-[80px] lg:h-[100px] flex items-center overflow-x-auto transform rotate-[1.5deg] whitespace-nowrap">
+        <div className="w-full bg-black py-2 sm:py-3 lg:py-4 px-2 h-[60px] sm:h-[80px] lg:h-[100px] flex items-center overflow-x-auto transform rotate-[1.5deg] whitespace-nowrap">
           <span className="text-white text-[20px] sm:text-[28px] md:text-[35px] lg:text-[43px] font-extrabold tracking-wider inline-block min-w-[200%]">
             SHOP NOW!  DISCOUNT UP TO 80%  SHOP NOW!  DISCOUNT UP TO 80%  SHOP NOW!  DISCOUNT UP TO 80%
           </span>

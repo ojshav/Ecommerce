@@ -70,7 +70,7 @@ const Shop3ProductCard: React.FC<Shop3ProductCardProps> = ({
 
   return (
     <div 
-      className="flex flex-col items-center group w-[436px] h-[600px] cursor-pointer"
+      className="flex flex-col items-center group w-full  sm:w-full  h-[600px] cursor-pointer"
       onClick={onClick}
     >
       {/* Image with Badge Overlay */}

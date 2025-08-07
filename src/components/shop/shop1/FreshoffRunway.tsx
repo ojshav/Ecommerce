@@ -141,10 +141,10 @@ const FreshOffRunway = () => {
       <div className="max-w-[1280px] mx-auto">
         <div className="flex flex-row lg:flex-row lg:items-start justify-between mb-6 xs:mb-8 sm:mb-10 md:mb-12 lg:mb-12 xl:mb-14">
           <div className="mb-0 lg:mb-0">
-            <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold font-playfair text-[#222222] leading-tight tracking-tight">
+            <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-[64px] xl:text-[72px] font-semibold font-playfair text-[#222222] leading-tight tracking-tight">
               FRESH OFF THE
               <br />
-              <span className="italic text-[#222222] font-normal font-playfair">Runway</span>
+              <span className="italic text-[#222222] font-normal font-playfair text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-[64px] xl:text-[72px]">Runway</span>
             </h2>
           </div>
           <div className="flex space-x-3 md:ml-8 md:mt-[38px] md:pb-3 self-end">

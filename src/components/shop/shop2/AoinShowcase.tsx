@@ -63,7 +63,7 @@ const AoinShowcase = () => {
         <button 
           onClick={handleNextSlide}
           disabled={currentSlide === images.length - 1}
-          className={`absolute right-1 sm:right-2 md:right-4 top-1/2 transform -translate-y-1/2 rounded-full p-2 sm:p-3 border border-purple-400 transition-colors duration-200 z-10 ${
+          className={`absolute right-1 sm:right-2 md:right-4 lg:right-16 2xl:right-4 top-1/2 transform -translate-y-1/2 rounded-full p-2 sm:p-3 border border-purple-400 transition-colors duration-200 z-10 ${
             currentSlide === images.length - 1 
               ? 'bg-black/30 cursor-not-allowed' 
               : 'bg-black/60 hover:bg-black/80 cursor-pointer'

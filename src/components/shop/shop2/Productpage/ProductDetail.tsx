@@ -441,13 +441,7 @@ const ProductDetail = () => {
             <button className="absolute top-4 right-4 p-2 rounded-full transition-all">
               <Heart className="w-6 h-6 text-white" />
             </button>
-            {/* Mobile See All Photos button */}
-            <button
-              className="absolute bottom-3 right-3 bg-white/90 hover:bg-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 shadow-lg border border-gray-200"
-              onClick={() => { setShowPhotosModal(true); setCurrentPhotoIdx(currentImageIndex); }}
-            >
-              <ImageIcon className="w-3 h-3" /> All Photos
-            </button>
+
           </div>
           
           {/* Mobile Photo Gallery Section */}
@@ -593,7 +587,7 @@ const ProductDetail = () => {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
             <button 
-              className="w-full sm:flex-1 bg-black text-[16px] font-gilroy text-white px-3 py-1 rounded-full font-bold flex items-center justify-center gap-2 text-base shadow hover:bg-gray-900 transition-all"
+              className="w-full sm:flex-1 bg-black text-[16px] font-gilroy text-white px-3 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-base shadow hover:bg-gray-900 transition-all"
               onClick={handleAddToCart}
             >
               <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" /> Add to Cart
@@ -734,7 +728,7 @@ const ProductDetail = () => {
               <h2 className="text-2xl sm:text-3xl lg:text-[42px] font-normal text-left font-bebas">REVIEWS</h2>
               <p className="underline text-xs sm:text-sm">Showing {reviews.length} review{reviews.length > 1 ? "s" : ""}</p>
             </div>
-            <button className="px-4 sm:px-6 py-2 bg-black text-white rounded-full font-gilroy text-sm sm:text-lg font-semibold w-full sm:w-auto">Write Review</button>
+            <button className="px-4 sm:px-6 py-4 my-4 bg-black text-white rounded-full font-gilroy text-sm sm:text-lg font-semibold w-full sm:w-auto">Write Review</button>
           </div>
           {reviews.map((review, index) => (
             <div key={index} className="mb-6 sm:mb-8">
