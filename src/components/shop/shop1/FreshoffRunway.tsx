@@ -1,7 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { ShoppingBag } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ShoppingBag, Heart } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
+import { toast } from 'react-hot-toast';
 import shop1ApiService, { Product } from '../../../services/shop1ApiService';
+
+const SHOP_ID = 1;
 
 const FreshOffRunway = () => {
   const [leftHovered, setLeftHovered] = useState(false);
@@ -9,6 +14,45 @@ const FreshOffRunway = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Wishlist functionality
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const {
+    toggleProductInWishlist,
+    isProductInWishlist,
+    isLoading: wishlistLoading
+  } = useShopWishlistOperations(SHOP_ID);
+
+  // Handle wishlist click
+  const handleWishlistClick = async (e: React.MouseEvent, productId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      toast.error('Please sign in to manage your wishlist');
+      navigate('/sign-in');
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error('Only customers can manage wishlists');
+      return;
+    }
+
+    try {
+      const wasInWishlist = isProductInWishlist(productId);
+      await toggleProductInWishlist(productId);
+      
+      if (wasInWishlist) {
+        toast.success('Removed from wishlist');
+      } else {
+        toast.success('Added to wishlist');
+      }
+    } catch (error) {
+      console.error('Wishlist operation failed:', error);
+    }
+  };
   
   const leftArrow = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745143/public_assets_shop1_LP/public_assets_images_arrow-left.svg";
   const rightArrow = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745145/public_assets_shop1_LP/public_assets_images_arrow-right.svg";
@@ -156,6 +200,28 @@ const FreshOffRunway = () => {
                     className="w-full h-[300px] xs:h-[350px] sm:h-[290px] md:h-[300px] lg:h-[350px] xl:h-[370px] object-contain  group-hover:scale-105 transition-transform duration-300"
                   />
                 </Link>
+                
+                {/* Wishlist button - positioned at top right */}
+                <button
+                  onClick={(e) => handleWishlistClick(e, product.product_id)}
+                  disabled={wishlistLoading}
+                  className={`absolute top-2 xs:top-3 sm:top-4 right-2 xs:right-3 sm:right-4 z-10 w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-200 ${
+                    isProductInWishlist(product.product_id) 
+                      ? 'bg-red-500 text-white shadow-lg' 
+                      : 'bg-white/80 hover:bg-white text-gray-600 hover:text-red-500'
+                  } ${wishlistLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  title={isProductInWishlist(product.product_id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  {wishlistLoading ? (
+                    <div className="animate-spin rounded-full h-3 w-3 xs:h-4 xs:w-4 sm:h-5 sm:w-5 border-b-2 border-current"></div>
+                  ) : (
+                    <Heart 
+                      size={window.innerWidth < 640 ? 12 : window.innerWidth < 768 ? 16 : 20} 
+                      className={isProductInWishlist(product.product_id) ? 'fill-current' : ''} 
+                    />
+                  )}
+                </button>
+
                 <div className="absolute bottom-2 xs:bottom-3 sm:bottom-4 right-2 xs:right-3 sm:right-4">
                   <button className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-gray-900 text-white rounded-sm flex items-center justify-center hover:bg-gray-800 transition-colors">
                     <ShoppingBag className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5" />

@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import {  ShoppingBag, Heart, User, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useShopWishlist } from '../../../context/ShopWishlistContext';
+
+const SHOP_ID = 1;
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { getShopWishlistCount } = useShopWishlist();
+  
+  const wishlistCount = getShopWishlistCount(SHOP_ID);
 
   return (
     <header className="bg-white  top-0 z-50">
@@ -36,8 +42,13 @@ const Header = () => {
             <Link to="/profile" className="text-gray-900 hover:text-gray-600 transition-colors">
               <User className="w-6 h-6" />
             </Link>
-            <Link to="/shop1/wishlist" className="text-gray-900 hover:text-gray-600 transition-colors">
+            <Link to="/shop1/wishlist" className="text-gray-900 hover:text-gray-600 transition-colors relative">
               <Heart className="w-6 h-6" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {wishlistCount > 99 ? '99+' : wishlistCount}
+                </span>
+              )}
             </Link>
             <Link to="/shop1/cart" className="text-gray-900 hover:text-gray-600 transition-colors">
               <ShoppingBag className="w-6 h-6" />
@@ -64,8 +75,13 @@ const Header = () => {
               <Link to="/profile">
                 <User className="w-5 h-5 text-gray-900" />
               </Link>
-              <Link to="/shop1/wishlist">
+              <Link to="/shop1/wishlist" className="relative">
                 <Heart className="w-5 h-5 text-gray-900" />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {wishlistCount > 99 ? '99+' : wishlistCount}
+                  </span>
+                )}
               </Link>
               <Link to="/shop1/cart">
                 <ShoppingBag className="w-5 h-5 text-gray-900" />

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useShopWishlistOperations } from '../../../../hooks/useShopWishlist';
 
 // Heroicons SVGs (inline for simplicity)
 const MailIcon = () => (
@@ -75,6 +76,9 @@ const Header: React.FC = () => {
   const [search, setSearch] = useState('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileDeptOpen, setMobileDeptOpen] = useState(false);
+
+  // Wishlist functionality
+  const { wishlistCount } = useShopWishlistOperations(1);
 
   // Close dropdowns on outside click
   const catRef = useRef<HTMLDivElement>(null);
@@ -154,7 +158,11 @@ const Header: React.FC = () => {
                 <button className="hover:text-orange-400">
                   <HeartIcon />
                 </button>
-                <span className="absolute -top-2 -right-2 text-[10px] rounded-full px-1.5 bg-[#FFB998]">1</span>
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-2 text-[10px] rounded-full px-1.5 bg-[#FFB998]">
+                    {wishlistCount}
+                  </span>
+                )}
               </div>
               <div className="relative">
                 <button className="hover:text-orange-400">
@@ -214,7 +222,11 @@ const Header: React.FC = () => {
               <button className="hover:text-orange-400">
                 <HeartIcon />
               </button>
-              <span className="absolute -top-2 -right-2 text-xs rounded-full px-1.5 bg-[#FFB998]">1</span>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 text-xs rounded-full px-1.5 bg-[#FFB998]">
+                  {wishlistCount}
+                </span>
+              )}
             </div>
             <div className="relative">
               <button className="hover:text-orange-400">
