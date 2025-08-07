@@ -1,6 +1,14 @@
 import React from 'react';
+import { Heart } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { useAuth } from '../../../context/AuthContext';
+import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
+import { useNavigate } from 'react-router-dom';
+
+const SHOP_ID = 2;
 
 interface Shop2ProductCardProps {
+  id: number;
   image: string;
   name: string;
   price: number;
@@ -9,7 +17,46 @@ interface Shop2ProductCardProps {
   onClick?: () => void;
 }
 
-const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ image, name, price, discount, onClick }) => {
+const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ id, image, name, price, discount, onClick }) => {
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const {
+    toggleProductInWishlist,
+    isProductInWishlist,
+    isLoading: wishlistLoading
+  } = useShopWishlistOperations(SHOP_ID);
+
+  const handleWishlistClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      toast.error('Please sign in to manage your wishlist');
+      navigate('/sign-in');
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error('Only customers can manage wishlists');
+      return;
+    }
+
+    try {
+      const wasInWishlist = isProductInWishlist(id);
+      await toggleProductInWishlist(id);
+      
+      if (wasInWishlist) {
+        toast.success('Removed from wishlist');
+      } else {
+        toast.success('Added to wishlist');
+      }
+    } catch (error) {
+      console.error('Wishlist operation failed:', error);
+      // Error is already handled by the hook with toast, so we don't need to show another one
+    }
+  };
+
+  const isInWishlist = isProductInWishlist(id);
   return (
     <div 
       className="flex flex-col items-center pb-7 relative group cursor-pointer"
@@ -26,6 +73,26 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ image, name, price,
         {discount && (
           <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">{discount}% OFF</span>
         )}
+        {/* Wishlist Button */}
+        <button
+          onClick={handleWishlistClick}
+          disabled={wishlistLoading}
+          className={`absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
+            isInWishlist 
+              ? 'bg-red-500 text-white shadow-lg' 
+              : 'bg-white/80 hover:bg-white text-gray-600 hover:text-red-500'
+          } ${wishlistLoading ? 'opacity-50 cursor-not-allowed' : ''} shadow-md hover:shadow-lg`}
+          title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+        >
+          {wishlistLoading ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+          ) : (
+            <Heart 
+              size={16} 
+              className={isInWishlist ? 'fill-current' : ''} 
+            />
+          )}
+        </button>
       </div>
       {/* Product Info and Hover Add-to-Cart, with hover bg color */}
       <div className="w-full flex flex-col pt-10 items-center rounded-b-xl transition-colors duration-300 group-hover:bg-[#DFD1C6]">

@@ -1,9 +1,15 @@
 import { useState } from 'react';
-import { User, Menu, X, Search, ShoppingCart } from 'lucide-react';
+import { User, Menu, X, Search, ShoppingCart, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useShopWishlist } from '../../../../context/ShopWishlistContext';
+
+const SHOP_ID = 2;
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { getShopWishlistCount } = useShopWishlist();
+  
+  const wishlistCount = getShopWishlistCount(SHOP_ID);
 
   return (
     <header className=" relative w-full max-w-[1280px] mx-auto bg-white top-0 z-50 ">
@@ -32,6 +38,14 @@ const Header = () => {
             <button className="text-gray-900 hover:text-gray-600 transition-colors">
               <Search className="w-6 h-6" />
             </button>
+            <Link to="/shop2/wishlist" className="text-gray-900 hover:text-gray-600 transition-colors relative">
+              <Heart className="w-6 h-6" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {wishlistCount > 99 ? '99+' : wishlistCount}
+                </span>
+              )}
+            </Link>
             <button className="text-gray-900 hover:text-gray-600 transition-colors">
               <ShoppingCart className="w-6 h-6" />
             </button>
@@ -58,6 +72,14 @@ const Header = () => {
             </nav>
             <div className="flex items-center space-x-6 mt-6 pt-6 border-t border-gray-100">
               <Search className="w-5 h-5 text-gray-900" />
+              <Link to="/shop2/wishlist" className="relative">
+                <Heart className="w-5 h-5 text-gray-900" />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {wishlistCount > 99 ? '99+' : wishlistCount}
+                  </span>
+                )}
+              </Link>
               <ShoppingCart className="w-5 h-5 text-gray-900" />
               <User className="w-5 h-5 text-gray-900" />
             </div>
