@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Minus, ShoppingCart, ChevronDown, ChevronUp, Star, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Plus, Minus, ShoppingCart, ChevronDown, ChevronUp, Star, ThumbsUp, ThumbsDown, Heart } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import Shop4ProductCard from '../Shop4ProductCard';
+import { toast } from 'react-hot-toast';
+import { useAuth } from '../../../../context/AuthContext';
+import { useShopWishlistOperations } from '../../../../hooks/useShopWishlist';
+import Shop4ProductCardWithWishlist from '../Shop4ProductCardWithWishlist';
 import shop4ApiService, { 
   Product as ApiProduct, 
   ProductVariant, 
@@ -315,6 +318,9 @@ const ReviewsSection: React.FC = () => {
 const ProductDetail: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const { toggleProductInWishlist, isProductInWishlist, isLoading: wishlistLoading } = useShopWishlistOperations(4);
+  
   const [product, setProduct] = useState<ApiProduct | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -783,6 +789,37 @@ const ProductDetail: React.FC = () => {
   const incrementQuantity = () => setQuantity(prev => prev + 1);
   const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1));
 
+  const handleWishlistClick = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please sign in to manage your wishlist');
+      navigate('/sign-in');
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error('Only customers can manage wishlists');
+      return;
+    }
+
+    if (!product) {
+      toast.error('Product not found');
+      return;
+    }
+
+    try {
+      const wasInWishlist = isProductInWishlist(product.product_id);
+      await toggleProductInWishlist(product.product_id);
+      
+      if (wasInWishlist) {
+        toast.success('Removed from wishlist');
+      } else {
+        toast.success('Added to wishlist');
+      }
+    } catch (error) {
+      console.error('Wishlist operation failed:', error);
+    }
+  };
+
   const toggleSection = (sectionName: string) => {
     setExpandedSections(prev => 
       prev.includes(sectionName) 
@@ -1031,10 +1068,25 @@ const ProductDetail: React.FC = () => {
               <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
             </button>
             
-            <button className="p-2 md:p-3 border border-gray-600 bg-[#515151] hover:bg-gray-700 rounded transition-colors">
-              <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-              </svg>
+            <button 
+              onClick={handleWishlistClick}
+              disabled={wishlistLoading}
+              className={`p-2 md:p-3 border border-gray-600 rounded transition-all duration-200 ${
+                product && isProductInWishlist(product.product_id)
+                  ? 'bg-red-500 hover:bg-red-600 text-white'
+                  : 'bg-[#515151] hover:bg-gray-700 text-white'
+              } ${wishlistLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              title={product && isProductInWishlist(product.product_id) ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              {wishlistLoading ? (
+                <div className="animate-spin rounded-full h-4 w-4 md:h-5 md:w-5 border-b-2 border-current"></div>
+              ) : (
+                <Heart 
+                  className={`w-4 h-4 md:w-5 md:h-5 ${
+                    product && isProductInWishlist(product.product_id) ? 'fill-current' : ''
+                  }`}
+                />
+              )}
             </button>
           </div>
 
@@ -1106,7 +1158,7 @@ const ProductDetail: React.FC = () => {
                   navigate(`?id=${relatedProduct.id}`);
                 }}
               >
-                <Shop4ProductCard 
+                <Shop4ProductCardWithWishlist 
                   product={{
                     id: relatedProduct.id,
                     name: relatedProduct.name,  // Use 'name' not 'title' for Shop4ProductCard

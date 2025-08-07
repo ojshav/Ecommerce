@@ -18,7 +18,10 @@ import Shop3LandingPage from './pages/Shop3LandingPage';
 import Shop4LandingPage from './pages/Shop4LandingPage';
 import VerificationPending from './pages/auth/VerificationPending';
 import TrendyDealsPage from './pages/TrendyDealsPage';
-import Shopwishlist from './pages/Shop/Shopwishlist';
+import Shop1Wishlist from './pages/Shop/Shop1Wishlist';
+import Shop2Wishlist from './pages/Shop/Shop2Wishlist';
+import Shop3Wishlist from './pages/Shop/Shop3Wishlist';
+import Shop4Wishlist from './pages/Shop/Shop4Wishlist';
 import Shopcart from './pages/Shop/shopcart';
 import PasswordReset from './pages/auth/PasswordReset';
 import VerifyEmail from './pages/auth/VerifyEmail';
@@ -89,6 +92,7 @@ import ShopCategories from './pages/superadmin/shop-management/ShopCategories';
 import ShopBrands from './pages/superadmin/shop-management/ShopBrands';
 import ShopAttributes from './pages/superadmin/shop-management/ShopAttributes';
 import AdminShopProducts from './pages/superadmin/shop-management/ShopProducts';
+import ShopGSTManagement from './components/superadmin/shop/ShopGSTManagement';
 import YouTubeManagement from './pages/superadmin/YouTubeManagement';
 import Brands from './components/home/brands';
 import Inventory from './pages/business/Inventory';
@@ -118,6 +122,7 @@ import Support from './pages/business/Support';
 import Settingss from './pages/business/Settings';
 import Profilee from './pages/business/Profile';
 import { WishlistProvider } from './context/WishlistContext';
+import { ShopWishlistProvider } from './context/ShopWishlistContext';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import Subscription from './pages/business/Subscription';
 
@@ -220,7 +225,8 @@ const App: React.FC = () => {
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>
-            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+            <ShopWishlistProvider>
+              <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <Router>
               <VisitTracker>
                 <ScrollToTop />
@@ -228,9 +234,12 @@ const App: React.FC = () => {
                   <Routes>
                     <Route path="/shop1" element={<Shop1LandingPage />} />
                     <Route path="/shop1/product/:id" element={<Shop1Productpage />} />
+                    <Route path="/shop1/wishlist" element={<Shop1Wishlist />} />
                     <Route path="/shop2" element={<Shop2LandingPage />} />
                     <Route path="/shop2/product/:productId" element={<Shop2Productpage />} />
+                    <Route path="/shop2/wishlist" element={<Shop2Wishlist />} />
                     <Route path="/shop3" element={<Shop3LandingPage />} />
+                    <Route path="/shop3/wishlist" element={<Shop3Wishlist />} />
                     <Route path="/shop1-productpage" element={<Shop1Productpage />} />
                     <Route path="/shop2-productpage" element={<Shop2Productpage />} />
                     <Route path="/shop3-productpage" element={<Shop3ProductPage />} />
@@ -240,6 +249,7 @@ const App: React.FC = () => {
                     <Route path="/shop4" element={<Shop4LandingPage />} />
                     <Route path="/shop4-productpage" element={<Shop4Productpage />} />
                     <Route path="/shop4-allproductpage" element={<Shop4AllProductpage />} />
+                    <Route path="/shop4/wishlist" element={<Shop4Wishlist />} />
                     <Route
                       path="/business/login"
                       element={<BusinessLogin />}
@@ -513,6 +523,7 @@ const App: React.FC = () => {
                     <Route path="shop-attributes" element={<ShopAttributes />} />
                     <Route path="shop-products" element={<AdminShopProducts />} />
                     <Route path="shop-inventory" element={<ShopInventoryManagement />} />
+                    <Route path="shop/gst-management" element={<ShopGSTManagement />} />
                     <Route path="merchant-subscriptions" element={<MerchantSubscription />} />
                     <Route path="youtube-integration" element={<YouTubeManagement />} />
                     
@@ -631,24 +642,6 @@ const App: React.FC = () => {
                         </>
                       }
                     />
-                    <Route
-                      path="/shop1"
-                      element={
-                        <>
-                          <Shop1Header />
-                          <main className="">
-                            <Outlet />
-                          </main>
-                        </>
-                      }
-                    >
-                      <Route path="wishlist" element={<Shopwishlist />} />
-                      <Route path="cart" element={<Shopcart />} />
-                     
-                     
-                    </Route>
-
-
                     {/* Add this route outside of /business and /superadmin, so it's public */}
 
                   </Routes>
@@ -682,6 +675,7 @@ const App: React.FC = () => {
               }}
             />
           </GoogleOAuthProvider>
+            </ShopWishlistProvider>
         </WishlistProvider>
       </CartProvider>
     </AuthProvider>

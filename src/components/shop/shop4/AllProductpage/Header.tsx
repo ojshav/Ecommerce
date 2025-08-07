@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
-import { Search, ShoppingCart, Menu, X } from 'lucide-react';
+import { Search, ShoppingCart, Menu, X, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useShopWishlist } from '../../../../context/ShopWishlistContext';
+
+const SHOP_ID = 4;
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { getShopWishlistCount } = useShopWishlist();
+  
+  const wishlistCount = getShopWishlistCount(SHOP_ID);
 
   const navItems = ['HOME', 'PAGES', 'ACCESSORIES', 'PORTFOLIO', 'SHOP', 'ABOUT', 'CONTACT'];
 
@@ -34,6 +41,17 @@ const Header: React.FC = () => {
             className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
             strokeWidth={1.5}
           />
+          <Link to="/shop4/wishlist" className="relative">
+            <Heart 
+              className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
+              strokeWidth={1.5}
+            />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {wishlistCount > 99 ? '99+' : wishlistCount}
+              </span>
+            )}
+          </Link>
           <ShoppingCart 
             className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
             strokeWidth={1.5}
@@ -68,6 +86,14 @@ const Header: React.FC = () => {
               ))}
               <div className="flex items-center justify-center space-x-6 py-4 border-t border-gray-800 mt-2">
                 <Search className="w-5 h-5 cursor-pointer hover:text-yellow-400 transition-colors" />
+                <Link to="/shop4/wishlist" className="relative">
+                  <Heart className="w-5 h-5 cursor-pointer hover:text-yellow-400 transition-colors" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                      {wishlistCount > 99 ? '99+' : wishlistCount}
+                    </span>
+                  )}
+                </Link>
                 <div className="relative">
                   <ShoppingCart className="w-5 h-5 cursor-pointer hover:text-yellow-400 transition-colors" />
                   <span className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs rounded-full w-4 h-4 flex items-center justify-center">
