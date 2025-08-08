@@ -12,8 +12,6 @@ const collections = [
   { name: "Denim Jackets", disabled: false },
 ];
 
-
-
 const ProductPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,6 +53,10 @@ const ProductPage = () => {
   const [selectedBrandIds, setSelectedBrandIds] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
+  // Mobile sidebar state
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [activeFilterTab, setActiveFilterTab] = useState<'price' | 'categories' | 'brands'>('price');
+
   const handleCategoryToggle = (categoryId: number) => {
     setSelectedCategoryIds(prev =>
       prev.includes(categoryId)
@@ -77,6 +79,29 @@ const ProductPage = () => {
   const handleProductClick = (productId: number) => {
     navigate(`/shop2/product/${productId}`);
   };
+
+  // Mobile sidebar handlers
+  const openMobileSidebar = () => {
+    console.log('Opening mobile sidebar');
+    setIsMobileSidebarOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeMobileSidebar = () => {
+    console.log('Closing mobile sidebar');
+    setIsMobileSidebarOpen(false);
+    document.body.style.overflow = 'unset';
+  };
+
+  const handleMobileFilterApply = () => {
+    closeMobileSidebar();
+    setCurrentPage(1);
+  };
+
+  // Debug mobile sidebar state
+  useEffect(() => {
+    console.log('Mobile sidebar state changed:', isMobileSidebarOpen);
+  }, [isMobileSidebarOpen]);
 
   // Update URL with current filter state
   const updateURL = useCallback(() => {
@@ -306,8 +331,8 @@ const ProductPage = () => {
         {/* Container */}
         <div className="flex flex-col lg:flex-row w-full 2xl:gap-12 px-0 md:px-4 2xl:px-10">
         
-          {/* Sidebar */}
-          <aside className="w-full lg:w-[340px] 2xl:w-[455px] h-auto lg:h-[1746px] bg-[#DFD1C6] rounded-xl shadow p-4 md:p-6 mb-6 lg:mb-0 lg:mr-8 flex-shrink-0">
+          {/* Desktop Sidebar */}
+          <aside className="hidden lg:block w-full lg:w-[340px] 2xl:w-[455px] h-auto lg:h-[1746px] bg-[#DFD1C6] rounded-xl shadow p-4 md:p-6 mb-6 lg:mb-0 lg:mr-8 flex-shrink-0">
             <div className="flex items-center px-2 justify-between mb-6 pt-2">
               <div className="flex flex-col">
                 <span className="font-semibold text-[16px] font-bebas tracking-widest text-gray-700">{totalProducts} RESULTS</span>
@@ -419,16 +444,7 @@ const ProductPage = () => {
               </button>
             </div>
             {/* Search */}
-            <div className="mb-8">
-              <div className="font-bold text-[25px] font-bebas mb-6 tracking-tight">SEARCH</div>
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B19D7F] focus:border-transparent"
-              />
-            </div>
+            
 
             {/* Categories */}
             <div className="mb-8">
@@ -554,14 +570,96 @@ const ProductPage = () => {
               <span className="bg-white border-none rounded-full px-10 py-4 text-xl font-medium  text-black shadow" style={{letterSpacing:'0.1em', fontFamily: 'inherit'}}>NEW</span>
             </div>
           </aside>
+
           {/* Main Content */}
           <main className="flex-auto">
+            {/* Mobile Search Bar */}
+            <div className="lg:hidden mb-4 px-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#B19D7F] focus:border-transparent shadow-sm"
+                />
+                
+              </div>
+            </div>
+
+            {/* Mobile Filter and Sort Buttons */}
+            <div className="lg:hidden mb-4 px-4">
+              <div className="flex gap-3 h-[50px] ">
+                {/* Filter Button */}
+                <button
+                  onClick={openMobileSidebar}
+                  className="flex-1 bg-[#DFD1C6] text-black font-bebas text-lg px-4 py-2 rounded-xl shadow flex items-center justify-center hover:bg-[#C8B8AD] transition-colors"
+                >
+                  <span className="tracking-widest">FILTERS</span>
+                  {(selectedCategoryIds.length > 0 || selectedBrandIds.length > 0 || searchTerm.trim() || minPrice > 0 || maxPrice < 1000000) && (
+                    <span className="bg-black text-white text-xs px-2 py-1 rounded-full ml-2">
+                      {[
+                        selectedCategoryIds.length,
+                        selectedBrandIds.length,
+                        searchTerm.trim() ? 1 : 0,
+                        (minPrice > 0 || maxPrice < 1000000) ? 1 : 0
+                      ].reduce((a, b) => a + b, 0)}
+                    </span>
+                  )}
+                </button>
+
+                {/* Sort Button */}
+                <div className="flex-1 relative">
+                  <button
+                    className="w-full bg-black text-white font-bebas text-lg px-4 py-2 rounded-xl shadow flex items-center justify-center hover:bg-gray-800 transition-colors"
+                    onClick={() => setSortOpen((prev) => !prev)}
+                  >
+                    <span className="tracking-widest mr-2">{sortOption.toUpperCase()}</span>
+                    <svg className={`transition-transform duration-200 ${sortOpen ? 'rotate-180' : ''}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  
+                  {/* Mobile Sort Dropdown */}
+                  {sortOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-black rounded-xl shadow-lg z-50 border border-gray-800">
+                      {sortOptions.map((option) => (
+                        <div
+                          key={option}
+                          className={`px-4 py-3 text-white text-sm font-semibold cursor-pointer hover:bg-gray-900 rounded-xl transition-all ${sortOption === option ? 'bg-gray-900' : ''}`}
+                          onClick={() => handleSortChange(option)}
+                          style={{ letterSpacing: '0.15em', fontFamily: 'Bebas Neue, sans-serif' }}
+                        >
+                          {option.toUpperCase()}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Search Bar */}
+            <div className="hidden lg:block mb-6 px-8">
+              <div className="relative max-w-md">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#B19D7F] focus:border-transparent shadow-sm"
+                />
+                
+              </div>
+            </div>
+
             {/* Top Bar */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-2 sm:px-8 md:px-12 lg:px-8 mb-8 md:mb-16 gap-4 md:gap-0">
               <span className="font-normal text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-bebas tracking-widest">
                 SHOWING {((currentPage - 1) * perPage) + 1}-{Math.min(currentPage * perPage, totalProducts)} OF {totalProducts} RESULTS
               </span>
-              <div className="relative w-full md:w-auto">
+              {/* Desktop Sort Button - Hidden on Mobile */}
+              <div className="hidden lg:block relative w-full md:w-auto">
                 <button
                   className="flex items-center bg-black text-white text-base sm:text-lg md:text-xl px-4 sm:px-8 md:px-12 py-2 sm:py-3 md:py-4 rounded-full font-semibold tracking-[0.2em] focus:outline-none select-none min-w-0 md:min-w-[350px] justify-between w-full md:w-auto"
                   style={{ letterSpacing: '0.2em', fontFamily: 'Bebas Neue, sans-serif', fontWeight: 600 }}
@@ -587,7 +685,7 @@ const ProductPage = () => {
               </div>
             </div>
             {/* Product Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 md:gap-x-4 2xl:gap-x-8 gap-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 md:gap-x-4 2xl:gap-x-8 gap-y-8">
               {products.length > 0 ? (
                 products.map((product) => (
                   <Shop2ProductCard
@@ -632,6 +730,223 @@ const ProductPage = () => {
               </div>
             )}
           </main>
+        </div>
+      </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {isMobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] lg:hidden"
+          onClick={closeMobileSidebar}
+        />
+      )}
+
+      {/* Mobile Sidebar */}
+      <div className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-[9999] lg:hidden transform transition-transform duration-300 ease-in-out ${
+        isMobileSidebarOpen ? 'translate-y-0' : 'translate-y-full'
+      }`} style={{ maxHeight: '85vh' }}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bebas font-bold tracking-widest">FILTERS</h2>
+          <button
+            onClick={closeMobileSidebar}
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="flex border-b border-gray-200">
+          {[
+            { key: 'price', label: 'PRICE' },
+            { key: 'categories', label: 'CATEGORIES' },
+            { key: 'brands', label: 'BRANDS' }
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveFilterTab(tab.key as any)}
+              className={`flex-1 py-4 text-center font-bebas font-semibold tracking-widest transition-colors ${
+                activeFilterTab === tab.key 
+                  ? 'text-black border-b-2 border-black' 
+                  : 'text-gray-500'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Filter Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {/* Price Filter */}
+          {activeFilterTab === 'price' && (
+            <div className="space-y-6">
+              <div className="font-bold text-xl font-bebas tracking-tight">FILTER BY PRICE</div>
+              <div className="relative w-full flex items-center justify-center h-10 mb-4">
+                <div className="absolute left-0 right-0 rounded-full h-1 bg-gray-200" style={{top: '50%', transform: 'translateY(-50%)'}}></div>
+                <div
+                  className="absolute h-1 bg-[#B19D7F] rounded-full"
+                  style={{
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    left: `${((minPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                    right: `${100 - ((maxPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                  }}
+                ></div>
+                <input
+                  type="range"
+                  min={minLimit}
+                  max={maxPrice - priceGap}
+                  value={minPrice}
+                  onChange={e => setMinPrice(Math.min(Number(e.target.value), maxPrice - priceGap))}
+                  className="absolute w-full accent-[#B19D7F] pointer-events-auto z-10"
+                  style={{ WebkitAppearance: 'none', background: 'transparent', height: '40px' }}
+                />
+                <input
+                  type="range"
+                  min={minPrice + priceGap}
+                  max={maxLimit}
+                  value={maxPrice}
+                  onChange={e => setMaxPrice(Math.max(Number(e.target.value), minPrice + priceGap))}
+                  className="absolute w-full accent-[#B19D7F] pointer-events-auto z-10"
+                  style={{ WebkitAppearance: 'none', background: 'transparent', height: '40px' }}
+                />
+                <div
+                  className="absolute w-6 h-6 bg-[#B19D7F] rounded-full border-2 border-white shadow"
+                  style={{
+                    left: `${((minPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 20,
+                  }}
+                />
+                <div
+                  className="absolute w-6 h-6 bg-[#B19D7F] rounded-full border-2 border-white shadow"
+                  style={{
+                    left: `${((maxPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 20,
+                  }}
+                />
+              </div>
+              <div className="text-center text-lg font-bold text-black">
+                Price: ₹{minPrice.toLocaleString()} — ₹{maxPrice.toLocaleString()}
+              </div>
+            </div>
+          )}
+
+          {/* Categories Filter */}
+          {activeFilterTab === 'categories' && (
+            <div className="space-y-4">
+              <div className="font-bold text-xl font-bebas tracking-tight mb-4">CATEGORIES</div>
+              <div className="space-y-3 max-h-60 overflow-y-auto">
+                {categories.map((category) => {
+                  const id = `mobile-category-${category.category_id}`;
+                  return (
+                    <label
+                      key={category.category_id}
+                      htmlFor={id}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer"
+                    >
+                      <input
+                        id={id}
+                        type="checkbox"
+                        checked={selectedCategoryIds.includes(category.category_id)}
+                        onChange={() => handleCategoryToggle(category.category_id)}
+                        className="sr-only"
+                      />
+                      <div className={`w-5 h-5 border-2 rounded flex items-center justify-center ${
+                        selectedCategoryIds.includes(category.category_id) 
+                          ? 'bg-black border-black' 
+                          : 'border-gray-300'
+                      }`}>
+                        {selectedCategoryIds.includes(category.category_id) && (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                            <polyline points="20,6 9,17 4,12"/>
+                          </svg>
+                        )}
+                      </div>
+                      <span className="flex-1">
+                        {category.name}
+                        {category.product_count !== undefined && (
+                          <span className="text-gray-500 text-sm ml-2">({category.product_count})</span>
+                        )}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Brands Filter */}
+          {activeFilterTab === 'brands' && (
+            <div className="space-y-4">
+              <div className="font-bold text-xl font-bebas tracking-tight mb-4">BRANDS</div>
+              <div className="space-y-3 max-h-60 overflow-y-auto">
+                {brands.map((brand) => {
+                  const id = `mobile-brand-${brand.brand_id}`;
+                  return (
+                    <label
+                      key={brand.brand_id}
+                      htmlFor={id}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer"
+                    >
+                      <input
+                        id={id}
+                        type="checkbox"
+                        checked={selectedBrandIds.includes(brand.brand_id)}
+                        onChange={() => handleBrandToggle(brand.brand_id)}
+                        className="sr-only"
+                      />
+                      <div className={`w-5 h-5 border-2 rounded flex items-center justify-center ${
+                        selectedBrandIds.includes(brand.brand_id) 
+                          ? 'bg-black border-black' 
+                          : 'border-gray-300'
+                      }`}>
+                        {selectedBrandIds.includes(brand.brand_id) && (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                            <polyline points="20,6 9,17 4,12"/>
+                          </svg>
+                        )}
+                      </div>
+                      <span className="flex-1">
+                        {brand.name}
+                        {brand.product_count !== undefined && (
+                          <span className="text-gray-500 text-sm ml-2">({brand.product_count})</span>
+                        )}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+
+        </div>
+
+        {/* Footer Actions */}
+        <div className="p-6 border-t border-gray-200 bg-white">
+          <div className="flex gap-3">
+            <button
+              onClick={clearFilters}
+              className="flex-1 py-3 px-6 border border-gray-300 text-black font-bebas font-semibold tracking-widest rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              CLEAR ALL
+            </button>
+            <button
+              onClick={handleMobileFilterApply}
+              className="flex-1 py-3 px-6 bg-black text-white font-bebas font-semibold tracking-widest rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              APPLY FILTERS
+            </button>
+          </div>
         </div>
       </div>
     </>

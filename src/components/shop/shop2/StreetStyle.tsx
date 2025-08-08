@@ -4,10 +4,10 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 const StreetStyle: React.FC = () => {
   return (
-    <section className="relative w-full  sm:h-[100vh] md:h-[100vh] lg:h-[1024px] h-[90vh] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <section className="relative w-full  sm:h-[120vh] md:h-[130vh] lg:h-[1024px] h-[110vh] bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center flex items-center justify-center px-4 sm:px-6 lg:px-8">
       {/* Container */}
 
-      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-1 items-center pt-20 lg:pt-0">
+      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-1 items-center  sm:pt-20 lg:pt-0">
         {/* Left side - Text */}
         <div className="flex flex-col justify-center items-center lg:items-start space-y-4 lg:space-y-1 text-center lg:text-left">
           <h2 className="text-[32px] sm:text-[40px] md:text-[50px] lg:text-[60px] font-black font-archivio leading-tight">
@@ -17,7 +17,7 @@ const StreetStyle: React.FC = () => {
           </h2>
 
           <div className="flex w-full lg:w-[900px] justify-center lg:ml-10 mt-6 lg:translate-y-12">
-            <p className="text-gray-300 text-[16px] sm:text-[17px] lg:text-[19px] text-center max-w-[700px] lg:translate-x-24 leading-relaxed px-4 lg:px-0">
+            <p className="text-gray-300 text-[16px] sm:text-[17px] lg:text-[17px] 2xl:text-[19px]  text-center lg:max-w-[500px] 2xl:max-w-[700px] lg:translate-x-24 leading-relaxed px-4 lg:px-0">
               Discover the latest trends and express your individuality with our
               cutting-edge streetwear collection. Our brand is all about embracing
               the urban culture and creating a style that is truly your own.
@@ -43,11 +43,11 @@ const StreetStyle: React.FC = () => {
           <img
             src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059271/public_assets_shop2/public_assets_shop2_ss1.svg"
             alt="Right Model"
-            className="w-[280px] h-[420px] sm:w-[320px] sm:h-[480px] md:w-[360px] md:h-[540px] lg:w-[408px] lg:h-[612px] object-contain"
+            className="w-[280px] h-[420px] sm:w-[320px] sm:h-[480px] md:w-[360px] md:h-[540px] lg:w-[600px] 2xl:w-[408px] lg:h-[612px] object-contain"
           />
         </div>
       </div>
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 w-[90%] max-w-[1346px] h-[2px] bg-[#B285DE] z-50 scale-y-50" />
+      <div className="absolute lg:bottom-24 bottom-10 left-1/2 -translate-x-1/2 w-[90%] max-w-[1346px] h-[2px] bg-[#B285DE] z-50 scale-y-50" />
     </section>
   );
 };

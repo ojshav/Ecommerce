@@ -15,7 +15,7 @@ interface Shop3ProductCardProps {
 const Shop3ProductCard: React.FC<Shop3ProductCardProps> = ({ image, name, price, originalPrice, badge, badgeColor, onClick }) => {
   return (
     <div 
-      className="flex flex-col items-center group w-[436px] h-[600px] cursor-pointer"
+      className="flex flex-col items-center group w-full  sm:w-full  h-[600px] cursor-pointer"
       onClick={onClick}
     >
       {/* Image with Badge Overlay */}

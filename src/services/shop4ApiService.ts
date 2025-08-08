@@ -39,12 +39,14 @@ export interface Product {
   is_in_stock: boolean;
   stock?: {
     stock_qty: number;
-    min_stock_level: number;
+    min_stock_level?: number;
+    low_stock_threshold?: number;
   };
   attributes?: ProductAttribute[];
   variants?: Product[];
   has_variants?: boolean;
   variant_attributes?: VariantAttribute[];
+  available_attributes?: Record<string, string[]>;
   total_variants?: number;
   is_parent_product?: boolean;
   current_variant_attributes?: Record<string, string>;

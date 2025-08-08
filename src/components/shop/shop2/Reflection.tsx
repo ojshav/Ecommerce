@@ -18,7 +18,7 @@ const Reflection = () => {
 
         {/* Gradient Title */}
         <div className="absolute top-[18%] left-1/2 -translate-x-1/2 z-10 text-center">
-          <h1 className="text-[11vw] sm:text-[96px] md:text-[88px] lg:text-[154px] font-bold tracking-wide font-zen text-transparent bg-clip-text bg-gradient-to-b from-[#17002C] to-[#4D0092] drop-shadow-[4px_0_0_#5C5353] leading-none">
+          <h1 className="text-[11vw] sm:text-[96px] md:text-[88px] lg:text-[110px] xl:text-[140px] 2xl:text-[154px] font-bold tracking-wide font-zen text-transparent bg-clip-text bg-gradient-to-b from-[#17002C] to-[#4D0092] drop-shadow-[4px_0_0_#5C5353] leading-none">
             REFLECTION
           </h1>
         </div>
@@ -37,7 +37,7 @@ const Reflection = () => {
 
         {/* Tagline */}
         <div
-          className="absolute left-1/2 translate-x-[-50%] sm:left-auto sm:translate-x-0 sm:right-8 bottom-24 sm:bottom-30 text-center sm:text-left w-[90%] sm:w-[365px] font-inter text-[5vw] sm:text-[28px] font-semibold leading-snug z-10"
+          className="absolute left-1/2 translate-x-[-50%] sm:left-auto sm:translate-x-0 sm:right-8 bottom-28 sm:bottom-30 text-center sm:text-left w-[90%] sm:w-[365px] font-inter text-[5vw] sm:text-[28px] font-semibold leading-snug z-10"
           style={{ color: colors[colorIndex] }}
         >
           <p>

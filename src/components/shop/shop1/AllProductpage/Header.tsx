@@ -55,10 +55,7 @@ const categories = [
   'Beauty',
   'Toys',
 ];
-const languages = [
-  { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'fr', label: 'French', flag: '🇫🇷' },
-];
+
 const navLinks = [
   { label: 'HOME', href: '/shop1' },
   { label: 'PRODUCTS', href: '#', active: true },
@@ -69,8 +66,6 @@ const navLinks = [
 const Header: React.FC = () => {
   const [category, setCategory] = useState(categories[0]);
   const [categoryOpen, setCategoryOpen] = useState(false);
-  const [lang, setLang] = useState(languages[0]);
-  const [langOpen, setLangOpen] = useState(false);
   const [departmentsOpen, setDepartmentsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -78,12 +73,10 @@ const Header: React.FC = () => {
 
   // Close dropdowns on outside click
   const catRef = useRef<HTMLDivElement>(null);
-  const langRef = useRef<HTMLDivElement>(null);
   const deptRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (catRef.current && !catRef.current.contains(e.target as Node)) setCategoryOpen(false);
-      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
       if (deptRef.current && !deptRef.current.contains(e.target as Node)) setDepartmentsOpen(false);
       // Close mobile nav/dept on outside click
       if (mobileNavOpen || mobileDeptOpen) {
@@ -124,21 +117,6 @@ const Header: React.FC = () => {
 <path d="M23.3959 6.25008C22.5938 6.61466 21.7292 6.85425 20.8334 6.96883C21.7501 6.41675 22.4584 5.54175 22.7917 4.48966C21.9272 5.0105 20.9688 5.37508 19.9584 5.58341C19.1355 4.68758 17.9792 4.16675 16.6667 4.16675C14.2188 4.16675 12.2188 6.16675 12.2188 8.6355C12.2188 8.98967 12.2605 9.33342 12.3334 9.65633C8.62508 9.46883 5.323 7.68758 3.12508 4.98966C2.73966 5.64591 2.52091 6.41675 2.52091 7.22925C2.52091 8.78133 3.30216 10.1563 4.5105 10.9376C3.77091 10.9376 3.08341 10.7292 2.47925 10.4167V10.448C2.47925 12.6147 4.02091 14.4272 6.06258 14.8334C5.4072 15.0136 4.71887 15.0385 4.05216 14.9063C4.33509 15.7943 4.88918 16.5713 5.63656 17.1281C6.38393 17.6849 7.287 17.9935 8.21883 18.0105C6.63932 19.261 4.68134 19.937 2.66675 19.9272C2.31258 19.9272 1.95841 19.9063 1.60425 19.8647C3.58341 21.1355 5.93758 21.8751 8.45841 21.8751C16.6667 21.8751 21.1772 15.0626 21.1772 9.15633C21.1772 8.95842 21.1772 8.77091 21.1667 8.573C22.0417 7.948 22.7917 7.15633 23.3959 6.25008Z" fill="#2D88FF"/>
 </svg>
 </a>
-              </div>
-              <div className="relative flex" ref={langRef}>
-                <div className="h-8 sm:h-10 border-l border-gray-300"></div>
-                <button onClick={() => setLangOpen((v) => !v)} className="flex items-center gap-1 px-2 py-1">
-                  <span>{lang.flag}</span> {lang.label} <ChevronDownIcon />
-                </button>
-                {langOpen && (
-                  <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow z-10">
-                    {languages.map((l) => (
-                      <button key={l.code} onClick={() => { setLang(l); setLangOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
-                        <span>{l.flag}</span> {l.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -222,13 +200,11 @@ const Header: React.FC = () => {
               </button>
               <span className="absolute -top-2 -right-2 text-xs rounded-full px-1.5 bg-[#FFB998]">3</span>
             </div>
-            <span className="text-base font-archivo font-medium">$150.00</span>
+           
           </div>
 
           {/* Mobile Price */}
-          <div className="flex md:hidden justify-end w-full">
-            <span className="text-sm font-archivo font-medium">$150.00</span>
-          </div>
+         
         </div>
 
         {/* Navigation Bar */}
@@ -237,7 +213,7 @@ const Header: React.FC = () => {
           <div className="hidden md:flex items-center bg-gray-100 max-w-[1440px] mx-auto" style={{ backgroundColor: '#FFB998' }}>
             <div className="relative" ref={deptRef}>
               <button onClick={() => setDepartmentsOpen((v) => !v)} className="flex items-center gap-1 px-4 py-4 md:text-[14px] lg: text-[17px] font-medium">
-                <MenuIcon className="md:mr-1 lg:mr-4" /> ALL DEPARTMENTS <ChevronDownIcon className="md:ml-4  lg:ml-24" />
+                <MenuIcon className="md:mr-1 lg:mr-4" /> ALL CATEGORIES <ChevronDownIcon className="md:ml-4  lg:ml-24" />
               </button>
               {departmentsOpen && (
                 <div className="absolute left-0 mt-1 w-56 bg-white border rounded shadow z-10">
@@ -268,7 +244,7 @@ const Header: React.FC = () => {
                 </button>
                 <div className="mb-6">
                   <button onClick={() => setMobileDeptOpen((v) => !v)} className="flex items-center gap-2 px-2 py-3 w-full text-left text-lg font-medium">
-                    <MenuIcon /> ALL DEPARTMENTS <ChevronDownIcon />
+                    <MenuIcon /> ALL CATEGORIES <ChevronDownIcon />
                   </button>
                   {mobileDeptOpen && (
                     <div id="mobile-dept-menu" className="ml-6 mt-2 border-l border-gray-200">
