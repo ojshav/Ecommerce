@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../../context/AuthContext';
 import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
+import { useShopCartOperations } from '../../../context/ShopCartContext';
 import { useNavigate } from 'react-router-dom';
 
 const SHOP_ID = 2;
@@ -14,10 +15,19 @@ interface Shop2ProductCardProps {
   price: number;
   discount?: number;
   overlay?: number;
+  shopProductId: number;
   onClick?: () => void;
 }
 
-const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ id, image, name, price, discount, onClick }) => {
+const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ 
+  id, 
+  image, 
+  name, 
+  price, 
+  discount, 
+  shopProductId, 
+  onClick 
+}) => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const {
@@ -25,6 +35,10 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ id, image, name, pr
     isProductInWishlist,
     isLoading: wishlistLoading
   } = useShopWishlistOperations(SHOP_ID);
+  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
+  
+  const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const handleWishlistClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -56,7 +70,34 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ id, image, name, pr
     }
   };
 
+  const handleQuantityChange = (change: number) => {
+    setQuantity(Math.max(1, quantity + change));
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to add items to cart');
+      navigate('/sign-in');
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      await addToShopCart(SHOP_ID, shopProductId, quantity);
+      toast.success('Added to cart successfully!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   const isInWishlist = isProductInWishlist(id);
+
   return (
     <div 
       className="flex flex-col items-center pb-7 px-4 relative group cursor-pointer max-w-full sm:max-w-[400px] md:max-w-[519px]"
@@ -102,27 +143,31 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ id, image, name, pr
         <div className="w-full flex flex-col items-center transition-all duration-300 max-h-0 opacity-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100">
           <div className="flex items-center gap-2 w-full justify-center p-6">
             <button 
-              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold"
+              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold hover:bg-gray-100 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
-                // Handle quantity decrease
+                handleQuantityChange(-1);
               }}
             >-</button>
-            <span className="font-semibold">1</span>
+            <span className="font-semibold min-w-[2rem] text-center">{quantity}</span>
             <button 
-              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold"
+              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-lg font-bold hover:bg-gray-100 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
-                // Handle quantity increase
+                handleQuantityChange(1);
               }}
             >+</button>
             <button 
-              className="ml-2 sm:ml-4 bg-black text-white px-4 sm:px-6 py-2 rounded-full font-semibold text-xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Handle add to cart
-              }}
-            >ADD TO CART</button>
+              className="ml-2 sm:ml-4 bg-black text-white px-4 sm:px-6 py-2 rounded-full font-semibold text-xs disabled:opacity-50 flex items-center gap-2"
+              onClick={handleAddToCart}
+              disabled={isAddingToCart}
+            >
+              {isAddingToCart ? (
+                <div className="animate-spin rounded-full h-3 w-3 border-2 border-current border-t-transparent" />
+              ) : (
+                "ADD TO CART"
+              )}
+            </button>
           </div>
         </div>
       </div>
@@ -130,4 +175,4 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({ id, image, name, pr
   );
 };
 
-export default Shop2ProductCard; 
+export default Shop2ProductCard;

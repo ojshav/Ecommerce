@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+
 import { ShoppingBag, Heart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
+import { useShopCartOperations } from '../../../context/ShopCartContext';
 import { toast } from 'react-hot-toast';
 import shop1ApiService, { Product } from '../../../services/shop1ApiService';
 
@@ -13,7 +15,7 @@ const FreshOffRunway = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [addingToCart, setAddingToCart] = useState<{ [key: number]: boolean }>({});
+  const [addingToCart, setAddingToCart] = useState<Record<number, boolean>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   // Wishlist functionality
@@ -24,6 +26,32 @@ const FreshOffRunway = () => {
     isProductInWishlist,
     isLoading: wishlistLoading
   } = useShopWishlistOperations(SHOP_ID);
+
+  // Cart functionality
+  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
+
+  // Handle cart click
+  const handleCartClick = async (e: React.MouseEvent, productId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to add items to cart');
+      navigate('/sign-in');
+      return;
+    }
+
+    try {
+      setAddingToCart(prev => ({ ...prev, [productId]: true }));
+      await addToShopCart(SHOP_ID, productId, 1);
+      toast.success('Added to cart successfully!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setAddingToCart(prev => ({ ...prev, [productId]: false }));
+    }
+  };
 
   // Handle wishlist click
   const handleWishlistClick = async (e: React.MouseEvent, productId: number) => {
@@ -89,32 +117,6 @@ const FreshOffRunway = () => {
 
     fetchProducts();
   }, []);
-
-  // Add to cart functionality
-  const handleAddToCart = async (e: React.MouseEvent, productId: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!accessToken) {
-      toast.error("Please sign in to add items to cart");
-      return;
-    }
-
-    if (user?.role !== 'customer') {
-      toast.error("Only customers can add items to cart");
-      return;
-    }
-
-    try {
-      setAddingToCart(prev => ({ ...prev, [productId]: true }));
-      await addToShopCart(SHOP_ID, productId, 1, {});
-      toast.success("Product added to cart");
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-    } finally {
-      setAddingToCart(prev => ({ ...prev, [productId]: false }));
-    }
-  };
 
   // Scroll functionality
   const scrollLeft = () => {
@@ -251,12 +253,12 @@ const FreshOffRunway = () => {
 
                 <div className="absolute bottom-2 xs:bottom-3 sm:bottom-4 right-2 xs:right-3 sm:right-4">
                   <button 
-                    className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-gray-900 text-white rounded-sm flex items-center justify-center hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={(e) => handleAddToCart(e, product.product_id)}
+                    onClick={(e) => handleCartClick(e, product.product_id)}
                     disabled={addingToCart[product.product_id]}
+                    className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-gray-900 text-white rounded-sm flex items-center justify-center hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {addingToCart[product.product_id] ? (
-                      <div className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="animate-spin rounded-full h-3 w-3 xs:h-4 xs:w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
                     ) : (
                       <ShoppingBag className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5" />
                     )}

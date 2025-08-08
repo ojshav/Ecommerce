@@ -14,6 +14,7 @@ import FashionDesk from '../components/shop/shop1/FashionDesk';
 import SubscribeSection from '../components/shop/shop1/SubscribeSection';
 import Footer from '../components/shop/shop1/AllProductpage/Footer.tsx';
 
+
 function Shop1LandingPage() {
   React.useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
@@ -25,7 +26,6 @@ function Shop1LandingPage() {
   return (
     <div className="min-h-screen bg-white scroll-smooth overflow-x-hidden">
       <Header />
-      
         <Hero />
         <ExclusiveDeals />
         <Categories />

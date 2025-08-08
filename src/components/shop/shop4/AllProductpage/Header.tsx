@@ -1,15 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ShoppingCart, Menu, X, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useShopWishlist } from '../../../../context/ShopWishlistContext';
+import { useShopCartOperations } from '../../../../context/ShopCartContext';
 
 const SHOP_ID = 4;
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const { getShopWishlistCount } = useShopWishlist();
+  const { getShopCartCount } = useShopCartOperations();
   
   const wishlistCount = getShopWishlistCount(SHOP_ID);
+
+  const loadCartCount = async () => {
+    try {
+      const count = await getShopCartCount(SHOP_ID);
+      setCartCount(count);
+    } catch (error) {
+      setCartCount(0);
+    }
+  };
+
+  useEffect(() => {
+    loadCartCount();
+    // Refresh cart count periodically
+    const interval = setInterval(loadCartCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const navItems = ['HOME', 'PAGES', 'ACCESSORIES', 'PORTFOLIO', 'SHOP', 'ABOUT', 'CONTACT'];
 
@@ -52,10 +71,17 @@ const Header: React.FC = () => {
               </span>
             )}
           </Link>
-          <ShoppingCart 
-            className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
-            strokeWidth={1.5}
-          />
+          <Link to="/shop4/cart" className="relative">
+            <ShoppingCart 
+              className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
+              strokeWidth={1.5}
+            />
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {cartCount > 99 ? '99+' : cartCount}
+              </span>
+            )}
+          </Link>
           <Menu 
             className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
             strokeWidth={1.5}
@@ -94,12 +120,14 @@ const Header: React.FC = () => {
                     </span>
                   )}
                 </Link>
-                <div className="relative">
+                <Link to="/shop4/cart" className="relative">
                   <ShoppingCart className="w-5 h-5 cursor-pointer hover:text-yellow-400 transition-colors" />
-                  <span className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                    0
-                  </span>
-                </div>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
+                </Link>
               </div>
             </nav>
           </div>

@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useShopCartOperations } from '../../../context/ShopCartContext';
+import { useAuth } from '../../../context/AuthContext';
+import { toast } from 'react-hot-toast';
+
+const SHOP_ID = 4;
 
 export interface Product {
   id: number;
@@ -29,17 +34,37 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const navigate = useNavigate();
+  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
+  const { isAuthenticated } = useAuth();
 
   const handleQuantityChange = (change: number) => {
     setQuantity(Math.max(1, quantity + change));
   };
 
-  const handleAddToCart = () => {
-    if (onAddToCart) {
-      onAddToCart(product, quantity, selectedColor);
-    } else {
-      console.log(`Added ${product.name} to cart with quantity ${quantity} and color ${selectedColor}`);
+  const handleAddToCart = async () => {
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to add items to cart');
+      navigate('/sign-in');
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      
+      // If custom onAddToCart is provided, use it, otherwise use our shop cart
+      if (onAddToCart) {
+        onAddToCart(product, quantity, selectedColor);
+      } else {
+        await addToShopCart(SHOP_ID, product.id, quantity);
+        toast.success('Added to cart successfully!');
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -124,9 +149,14 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
             {/* Add to Cart Button */}
             <button 
               onClick={handleAddToCart}
-              className="w-12 h-12 rounded-full bg-[#BB9D7B] flex items-center justify-center hover:bg-[#A08B6A] transition-colors drop-shadow-[0_6.413px_17.013px_#7E7061]"
+              disabled={isAddingToCart}
+              className="w-12 h-12 rounded-full bg-[#BB9D7B] flex items-center justify-center hover:bg-[#A08B6A] transition-colors drop-shadow-[0_6.413px_17.013px_#7E7061] disabled:opacity-50"
             >
-              <ShoppingCart size={20} className="text-white" />
+              {isAddingToCart ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent text-white" />
+              ) : (
+                <ShoppingCart size={20} className="text-white" />
+              )}
             </button>
           </div>
         </div>

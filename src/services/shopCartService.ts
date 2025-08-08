@@ -24,6 +24,16 @@ export interface ShopCart {
   items: ShopCartItem[];
 }
 
+export interface AddToShopCartPayload {
+  shop_product_id: number;
+  quantity: number;
+  selected_attributes?: { [key: number]: string | string[] };
+}
+
+export interface UpdateShopCartQuantityPayload {
+  quantity: number;
+}
+
 export const shopCartService = {
   // Get shop cart
   async getShopCart(shopId: number, accessToken: string): Promise<ShopCart> {

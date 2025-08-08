@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useShopWishlistOperations } from '../../../../hooks/useShopWishlist';
+import { useShopCartOperations } from '../../../../context/ShopCartContext';
 
 // Heroicons SVGs (inline for simplicity)
 const MailIcon = () => (
@@ -75,6 +76,33 @@ const Header: React.FC = () => {
   // Wishlist functionality
   const { wishlistCount } = useShopWishlistOperations(1);
 
+  // Cart functionality
+  const { getShopCartCount, canPerformShopCartOperations } = useShopCartOperations();
+  const [shopCartCount, setShopCartCount] = useState(0);
+
+  // Load cart count
+  useEffect(() => {
+    const loadCartCount = async () => {
+      if (canPerformShopCartOperations()) {
+        try {
+          const count = await getShopCartCount(1);
+          setShopCartCount(count);
+        } catch (error) {
+          console.error('Error loading cart count:', error);
+        }
+      } else {
+        setShopCartCount(0);
+      }
+    };
+
+    loadCartCount();
+    
+    // Refresh cart count periodically
+    const interval = setInterval(loadCartCount, 10000); // 10 seconds
+    
+    return () => clearInterval(interval);
+  }, [getShopCartCount, canPerformShopCartOperations]);
+
   // Close dropdowns on outside click
   const catRef = useRef<HTMLDivElement>(null);
   const deptRef = useRef<HTMLDivElement>(null);
@@ -132,7 +160,7 @@ const Header: React.FC = () => {
           <div className="flex w-full justify-between items-center md:hidden">
             <div className="text-2xl xs:text-[28px] font-playfair font-bold tracking-wide">AOIN</div>
             <div className="flex items-center gap-3">
-              <div className="relative">
+              <Link to="/shop1/wishlist" className="relative">
                 <button className="hover:text-orange-400">
                   <HeartIcon />
                 </button>
@@ -141,13 +169,17 @@ const Header: React.FC = () => {
                     {wishlistCount}
                   </span>
                 )}
-              </div>
-              <div className="relative">
+              </Link>
+              <Link to="/shop1/cart" className="relative">
                 <button className="hover:text-orange-400">
                   <CartIcon />
                 </button>
-                <span className="absolute -top-2 -right-2 text-[10px] rounded-full px-1.5 bg-[#FFB998]">3</span>
-              </div>
+                {shopCartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 text-[10px] rounded-full px-1.5 bg-[#FFB998]">
+                    {shopCartCount}
+                  </span>
+                )}
+              </Link>
               <button onClick={() => setMobileNavOpen((v) => !v)} aria-label="Open navigation">
                 <MenuIcon />
               </button>
@@ -196,7 +228,7 @@ const Header: React.FC = () => {
 
           {/* Desktop Wishlist, Cart, Price */}
           <div className="hidden md:flex items-center gap-6 mr-10">
-            <div className="relative">
+            <Link to="/shop1/wishlist" className="relative">
               <button className="hover:text-orange-400">
                 <HeartIcon />
               </button>
@@ -205,14 +237,18 @@ const Header: React.FC = () => {
                   {wishlistCount}
                 </span>
               )}
-            </div>
-            <div className="relative">
+            </Link>
+            <Link to="/shop1/cart" className="relative">
               <button className="hover:text-orange-400">
                 <CartIcon />
               </button>
-              <span className="absolute -top-2 -right-2 text-xs rounded-full px-1.5 bg-[#FFB998]">3</span>
-            </div>
-           
+              {shopCartCount > 0 && (
+                <span className="absolute -top-2 -right-2 text-xs rounded-full px-1.5 bg-[#FFB998]">
+                  {shopCartCount}
+                </span>
+              )}
+            </Link>
+            <span className="text-base font-archivo font-medium">$150.00</span>
           </div>
 
           {/* Mobile Price */}

@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../../../context/AuthContext';
 import { useShopWishlistOperations } from '../../../../hooks/useShopWishlist';
+import { useShopCartOperations } from '../../../../context/ShopCartContext';
 import Shop4ProductCardWithWishlist from '../Shop4ProductCardWithWishlist';
 import shop4ApiService, { 
   Product as ApiProduct, 
@@ -320,11 +321,13 @@ const ProductDetail: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const { toggleProductInWishlist, isProductInWishlist, isLoading: wishlistLoading } = useShopWishlistOperations(4);
+  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
   
   const [product, setProduct] = useState<ApiProduct | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [expandedSections, setExpandedSections] = useState(['about']);
   
   // Variant handling state
@@ -789,6 +792,48 @@ const ProductDetail: React.FC = () => {
   const incrementQuantity = () => setQuantity(prev => prev + 1);
   const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1));
 
+  const handleAddToCart = async () => {
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to add items to cart');
+      navigate('/sign-in');
+      return;
+    }
+
+    if (!product) {
+      toast.error('Product not found');
+      return;
+    }
+
+    // Check stock availability
+    const currentProduct = currentVariant || product;
+    const stockQty = currentVariant?.stock_qty || (currentProduct.is_in_stock ? 999 : 0);
+    
+    if (stockQty <= 0) {
+      toast.error('Product is out of stock');
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      
+      // Create selected attributes object from current selections
+      const cartAttributes: Record<string, string[]> = {};
+      Object.entries(selectedAttributes).forEach(([key, value]) => {
+        if (value) {
+          cartAttributes[key] = [value];
+        }
+      });
+      
+      await addToShopCart(4, product.product_id, quantity, cartAttributes);
+      toast.success('Added to cart successfully!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   const handleWishlistClick = async () => {
     if (!isAuthenticated) {
       toast.error('Please sign in to manage your wishlist');
@@ -1064,8 +1109,28 @@ const ProductDetail: React.FC = () => {
               </button>
             </div>
             
-            <button className="bg-[#BB9D7B] hover:bg-[#a8896a] text-white p-2 md:p-3 rounded-full transition-colors">
-              <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
+            <button 
+              onClick={handleAddToCart}
+              disabled={isAddingToCart || (() => {
+                const currentProduct = currentVariant || product;
+                const stockQty = currentVariant?.stock_qty || (currentProduct?.is_in_stock ? 999 : 0);
+                return stockQty <= 0;
+              })()}
+              className={`p-2 md:p-3 rounded-full transition-colors ${
+                isAddingToCart || (() => {
+                  const currentProduct = currentVariant || product;
+                  const stockQty = currentVariant?.stock_qty || (currentProduct?.is_in_stock ? 999 : 0);
+                  return stockQty <= 0;
+                })()
+                  ? 'bg-gray-600 cursor-not-allowed text-gray-300'
+                  : 'bg-[#BB9D7B] hover:bg-[#a8896a] text-white'
+              }`}
+            >
+              {isAddingToCart ? (
+                <div className="animate-spin rounded-full h-4 w-4 md:h-5 md:w-5 border-2 border-current border-t-transparent" />
+              ) : (
+                <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
+              )}
             </button>
             
             <button 

@@ -1,7 +1,24 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from './AuthContext';
-import { shopCartService, ShopCartItem } from '../services/shopCartService';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
+
+interface ShopCartItem {
+  cart_item_id: number;
+  shop_product_id: number;
+  quantity: number;
+  selected_attributes: { [key: number]: string | string[] };
+  product: {
+    name: string;
+    price: number;
+    original_price: number;
+    special_price?: number;
+    image_url: string;
+    stock: number;
+    is_deleted: boolean;
+  };
+}
 
 interface ShopCartContextType {
   // Shop cart operations
@@ -58,7 +75,19 @@ export const ShopCartProvider: React.FC<{ children: ReactNode }> = ({ children }
         return cartCache[shopId].items;
       }
 
-      const items = await shopCartService.getShopCartItems(shopId, accessToken!);
+      const response = await fetch(`${API_BASE_URL}/api/shop-cart/${shopId}/items`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch shop cart items');
+      }
+
+      const data = await response.json();
+      const items = data.status === 'success' ? data.data : [];
       
       // Update cache
       setCartCache(prev => ({
@@ -88,12 +117,32 @@ export const ShopCartProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
 
     try {
-      await shopCartService.addToShopCart(shopId, shopProductId, quantity, selectedAttributes, accessToken!);
-      
-      // Clear cache to force refresh
-      clearCacheForShop(shopId);
-      
-      toast.success('Item added to cart');
+      const payload = {
+        shop_product_id: shopProductId,
+        quantity,
+        selected_attributes: selectedAttributes
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/shop-cart/${shopId}/add`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add item to shop cart');
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        // Clear cache to force refresh
+        clearCacheForShop(shopId);
+        toast.success('Item added to cart');
+      }
     } catch (error) {
       console.error(`Error adding item to shop ${shopId} cart:`, error);
       toast.error(error instanceof Error ? error.message : 'Failed to add item to cart');
@@ -108,12 +157,26 @@ export const ShopCartProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
 
     try {
-      await shopCartService.updateShopCartItem(shopId, cartItemId, quantity, accessToken!);
-      
-      // Clear cache to force refresh
-      clearCacheForShop(shopId);
-      
-      toast.success('Cart updated');
+      const response = await fetch(`${API_BASE_URL}/api/shop-cart/${shopId}/update/${cartItemId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantity })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update shop cart item');
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        // Clear cache to force refresh
+        clearCacheForShop(shopId);
+        toast.success('Cart updated');
+      }
     } catch (error) {
       console.error(`Error updating shop ${shopId} cart item:`, error);
       toast.error(error instanceof Error ? error.message : 'Failed to update cart item');
@@ -128,12 +191,25 @@ export const ShopCartProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
 
     try {
-      await shopCartService.removeFromShopCart(shopId, cartItemId, accessToken!);
-      
-      // Clear cache to force refresh
-      clearCacheForShop(shopId);
-      
-      toast.success('Item removed from cart');
+      const response = await fetch(`${API_BASE_URL}/api/shop-cart/${shopId}/remove/${cartItemId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to remove item from shop cart');
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        // Clear cache to force refresh
+        clearCacheForShop(shopId);
+        toast.success('Item removed from cart');
+      }
     } catch (error) {
       console.error(`Error removing item from shop ${shopId} cart:`, error);
       toast.error(error instanceof Error ? error.message : 'Failed to remove item from cart');
@@ -148,12 +224,25 @@ export const ShopCartProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
 
     try {
-      await shopCartService.clearShopCart(shopId, accessToken!);
-      
-      // Clear cache
-      clearCacheForShop(shopId);
-      
-      toast.success('Cart cleared');
+      const response = await fetch(`${API_BASE_URL}/api/shop-cart/${shopId}/clear`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to clear shop cart');
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        // Clear cache
+        clearCacheForShop(shopId);
+        toast.success('Cart cleared');
+      }
     } catch (error) {
       console.error(`Error clearing shop ${shopId} cart:`, error);
       toast.error(error instanceof Error ? error.message : 'Failed to clear cart');
