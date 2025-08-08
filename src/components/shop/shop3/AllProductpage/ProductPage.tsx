@@ -85,7 +85,7 @@ const ProductPage = () => {
       </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10 2xl:gap-12 lg:gap-y-28 2xl:gap-y-24 mt-8 justify-center mx-auto items-start">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-8 xl:gap-10 2xl:gap-12 lg:gap-y-20 xl:gap-y-24 2xl:gap-y-24 mt-8 justify-center mx-auto items-center">
         {loading ? (
           <div className="col-span-full text-center py-10">Loading products...</div>
         ) : products.length === 0 ? (

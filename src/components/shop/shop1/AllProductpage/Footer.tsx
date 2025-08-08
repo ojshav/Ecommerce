@@ -1,11 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
     <footer className="bg-[#e18a4b] text-white w-full mx-auto py-8 px-4 sm:px-8 md:px-14 md:py-16">
-      <div className="max-w-[1340px] mx-auto flex flex-col md:flex-row justify-between gap-8 md:gap-16 lg:gap-32">
+      <div className="max-w-[1340px] mx-auto flex flex-col lg:flex-row justify-between">
         {/* Brand Info */}
-        <div className="flex-1 min-w-[200px] md:min-w-[310px] mb-10 md:mb-0">
+        <div className="flex-1 min-w-[200px] lg:min-w-[310px] mb-8 lg:mb-0">
           <h2 className="text-3xl sm:text-4xl font-playfair font-bold mb-6 sm:mb-8 text-white">AOIN</h2>
           <div className="mb-4 sm:mb-6 font-poppins text-base sm:text-[18px]">
             <p className="font-semibold mb-1">Address : <span className="font-normal">Anjis Overseas Pvt. Ltd.</span></p>
@@ -54,41 +55,35 @@ const Footer = () => {
             </a>
           </div>
         </div>
-        {/* Information */}
-        <div className="flex-1 font-segoe min-w-[140px] md:min-w-[180px] mb-8 md:mb-0">
-          <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">Information</h3>
-          <div className="w-8 sm:w-10 h-[1px]  bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
-          <ul className="space-y-2 sm:space-y-4 text-base sm:text-[18px]">
-            <li><a href="#" className="hover:underline">About Us</a></li>
-            <li><a href="#" className="hover:underline">Checkout</a></li>
-            <li><a href="#" className="hover:underline">Contact</a></li>
-            <li><a href="#" className="hover:underline">Services</a></li>
-          </ul>
-        </div>
-        {/* My Account */}
-        <div className="flex-1 font-segoe min-w-[140px] md:min-w-[180px] mb-8 md:mb-0">
-          <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">My Account</h3>
-          <div className="w-8 sm:w-10 h-[1px]  bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
-          <ul className="space-y-2 sm:space-y-4  text-base sm:text-[18px]">
-            <li><a href="#" className="hover:underline">My Account</a></li>
-            <li><a href="#" className="hover:underline">Contact</a></li>
-            <li><a href="#" className="hover:underline">Shopping Cart</a></li>
-            <li><a href="#" className="hover:underline">Shop</a></li>
-          </ul>
-        </div>
-        {/* Categories */}
-        <div className="flex-1 font-segoe min-w-[140px] md:min-w-[180px]">
-          <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">Categories</h3>
-          <div className="w-8 sm:w-10 h-[1px]  bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
-          <ul className="space-y-2 sm:space-y-4 text-base sm:text-lg">
-            <li><a href="#" className="hover:underline">Clothes</a></li>
-            <li><a href="#" className="hover:underline">Dress</a></li>
-            <li><a href="#" className="hover:underline">Shirt</a></li>
-            <li><a href="#" className="hover:underline">Shoes</a></li>
-          </ul>
+        
+        {/* Information and My Account - Responsive Grid */}
+        <div className="flex flex-col sm:flex-row gap-8 sm:gap-12 lg:gap-16 xl:gap-32 2xl:gap-40 mt-8 lg:mt-8">
+          {/* Information */}
+          <div className="flex-1 font-segoe min-w-[140px] lg:min-w-[180px]">
+            <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">Information</h3>
+            <div className="w-8 sm:w-10 h-[1px] bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
+            <ul className="space-y-2 sm:space-y-4 text-base sm:text-[18px]">
+              <li><Link to="/about">About Us</Link></li>
+              <li><Link to="/payment">Checkout</Link></li>
+              <li><Link to="/contact">Contact</Link></li>
+              <li><Link to="/services">Services</Link></li>
+            </ul>
+          </div>
+          
+          {/* My Account */}
+          <div className="flex-1 font-segoe min-w-[140px] lg:min-w-[180px]">
+            <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">My Account</h3>
+            <div className="w-8 sm:w-10 h-[1px] bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
+            <ul className="space-y-2 sm:space-y-4 text-base sm:text-[18px]">
+              <li><Link to="/account">My Account</Link></li>
+              <li><Link to="/contact">Contact</Link></li>
+              <li><Link to="/cart">Shopping Cart</Link></li>
+              <li><Link to="/shop">Shop</Link></li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div className="border-t border-white/30 mt-10 sm:mt-20 md:mt-32" />
+      <div className="border-t border-white/30 mt-10 sm:mt-20 lg:mt-32" />
     </footer>
   );
 };

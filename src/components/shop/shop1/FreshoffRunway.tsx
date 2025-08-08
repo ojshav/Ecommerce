@@ -13,6 +13,7 @@ const FreshOffRunway = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [addingToCart, setAddingToCart] = useState<{ [key: number]: boolean }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   // Wishlist functionality
@@ -89,6 +90,32 @@ const FreshOffRunway = () => {
     fetchProducts();
   }, []);
 
+  // Add to cart functionality
+  const handleAddToCart = async (e: React.MouseEvent, productId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!accessToken) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error("Only customers can add items to cart");
+      return;
+    }
+
+    try {
+      setAddingToCart(prev => ({ ...prev, [productId]: true }));
+      await addToShopCart(SHOP_ID, productId, 1, {});
+      toast.success("Product added to cart");
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
+      setAddingToCart(prev => ({ ...prev, [productId]: false }));
+    }
+  };
+
   // Scroll functionality
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -149,10 +176,10 @@ const FreshOffRunway = () => {
       <div className="max-w-[1280px] mx-auto">
         <div className="flex flex-row lg:flex-row lg:items-start justify-between mb-6 xs:mb-8 sm:mb-10 md:mb-12 lg:mb-12 xl:mb-14">
           <div className="mb-0 lg:mb-0">
-            <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold font-playfair text-[#222222] leading-tight tracking-tight">
+            <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-[64px] xl:text-[72px] font-semibold font-playfair text-[#222222] leading-tight tracking-tight">
               FRESH OFF THE
               <br />
-              <span className="italic text-[#222222] font-normal font-playfair">Runway</span>
+              <span className="italic text-[#222222] font-normal font-playfair text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-[64px] xl:text-[72px]">Runway</span>
             </h2>
           </div>
           <div className="flex space-x-3 md:ml-8 md:mt-[38px] md:pb-3 self-end">
@@ -223,8 +250,16 @@ const FreshOffRunway = () => {
                 </button>
 
                 <div className="absolute bottom-2 xs:bottom-3 sm:bottom-4 right-2 xs:right-3 sm:right-4">
-                  <button className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-gray-900 text-white rounded-sm flex items-center justify-center hover:bg-gray-800 transition-colors">
-                    <ShoppingBag className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5" />
+                  <button 
+                    className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-gray-900 text-white rounded-sm flex items-center justify-center hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={(e) => handleAddToCart(e, product.product_id)}
+                    disabled={addingToCart[product.product_id]}
+                  >
+                    {addingToCart[product.product_id] ? (
+                      <div className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <ShoppingBag className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5" />
+                    )}
                   </button>
                 </div>
               </div>
