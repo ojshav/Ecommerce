@@ -51,7 +51,7 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
     <div className={`relative group cursor-pointer ${className}`}>
       {/* Product Image Container */}
       <div 
-        className={`w-full h-[450px] rounded-lg overflow-hidden flex items-center justify-center ${product.background || ''} transition-all duration-300 group-hover:border-4 group-hover:border-white cursor-pointer`}
+        className={`w-full h-[343.931px] rounded-lg overflow-hidden flex items-center justify-center ${product.background || ''} transition-all duration-300 group-hover:border-4 group-hover:border-white cursor-pointer`}
         onClick={handleImageClick}
       >
         <img
@@ -68,8 +68,8 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
       </div>
       
       {/* Hover card that replaces the name and price */}
-      <div className="absolute top-[calc(100%-200px)] left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <div className="rounded-[20px] border-2 border-[#BB9D7B] bg-[#212121] p-6 w-[427px] h-[270px]">
+      <div className="absolute top-[calc(100%-180px)] left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-full">
+        <div className="rounded-[20px] border-2 border-[#BB9D7B] bg-[#212121] p-6 w-full h-[270px]">
           {/* Product Name */}
           <h3 className="text-white text-center font-abeezee text-[30px] font-normal leading-normal mb-1">{product.name}</h3>
           

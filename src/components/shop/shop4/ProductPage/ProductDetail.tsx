@@ -199,7 +199,7 @@ const ReviewsSection: React.FC = () => {
     };
 
     return (
-        <div className="bg-black text-white min-h-screen px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-black text-white min-h-screen px-4 sm:px-6 lg:px-16 py-8">
             <div className="max-w-[1640px] mx-auto">
                 <div className="border-b border-gray-700 mb-8">
                     <nav className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-0">
@@ -809,7 +809,7 @@ const ProductDetail: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full mx-auto bg-black text-white">
-      <div className="border-b border-gray-800 max-w-[1640px] mx-auto px-4 py-3 md:px-6 md:py-4">
+      <div className="border-b border-gray-800 max-w-[1640px] mx-auto px-4 py-3 md:px-8 md:py-4">
         <button className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors text-sm md:text-base">
          
           <span className="text-white font-poppins text-lg sm:text-xl lg:text-[30px] font-normal leading-normal">Back to: Diya Collection</span>
@@ -817,7 +817,7 @@ const ProductDetail: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-col mx-auto max-w-[1640px] gap-8 sm:gap-12 lg:gap-20 lg:flex-row">
+      <div className="flex flex-col mx-auto px-2 max-w-[1640px]  lg:flex-row">
         {/* Left Side - Image Gallery */}
         <div className="w-full lg:w-1/2 bg-black">
           <div className="p-4 md:p-6 space-y-4 md:space-y-6">
