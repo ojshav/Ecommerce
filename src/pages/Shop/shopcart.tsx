@@ -144,7 +144,7 @@ const Shopcart: React.FC = () => {
   };
 
   const handleContinueShopping = () => {
-    navigate(`/shop${currentShopId}`);
+    navigate(`/shop${currentShopId}-allproductpage`);
   };
 
   const handleClearCart = async () => {
