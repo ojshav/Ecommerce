@@ -596,7 +596,7 @@ const ProductPage = () => {
                     name={product.product_name}
                     price={product.selling_price}
                     discount={product.special_price ? Math.round(((product.selling_price - product.special_price) / product.selling_price) * 100) : undefined}
-                    shopProductId={product.product_id}
+                    overlay={product.product_id}
                     onClick={() => handleProductClick(product.product_id)}
                   />
                 ))

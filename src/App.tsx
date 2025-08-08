@@ -20,7 +20,6 @@ import VerificationPending from './pages/auth/VerificationPending';
 import TrendyDealsPage from './pages/TrendyDealsPage';
 import Shopwishlist from './pages/Shop/Shopwishlist';
 import Shopcart from './pages/Shop/shopcart';
-import ShopCartPage from './pages/Shop/ShopCartPage';
 import PasswordReset from './pages/auth/PasswordReset';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import RequestPasswordReset from './pages/auth/RequestPasswordReset';
@@ -39,7 +38,6 @@ import BusinessLogin from './pages/auth/BusinessLogin';
 import RegisterBusiness from './pages/auth/RegisterBusiness';
 
 import { CartProvider } from './context/CartContext';
-import { ShopCartProvider } from './context/ShopCartContext';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -221,8 +219,7 @@ const App: React.FC = () => {
     <ToastProvider>
       <AuthProvider>
         <CartProvider>
-          <ShopCartProvider>
-            <WishlistProvider>
+          <WishlistProvider>
             <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
             <Router>
               <VisitTracker>
@@ -243,8 +240,6 @@ const App: React.FC = () => {
                     <Route path="/shop4" element={<Shop4LandingPage />} />
                     <Route path="/shop4-productpage" element={<Shop4Productpage />} />
                     <Route path="/shop4-allproductpage" element={<Shop4AllProductpage />} />
-                    {/* Shop Cart Routes */}
-                    <Route path="/shop/:shopId/cart" element={<ShopCartPage />} />
                     <Route
                       path="/business/login"
                       element={<BusinessLogin />}
@@ -687,10 +682,9 @@ const App: React.FC = () => {
               }}
             />
           </GoogleOAuthProvider>
-                    </WishlistProvider>
-          </ShopCartProvider>
-        </CartProvider>
-      </AuthProvider>
+        </WishlistProvider>
+      </CartProvider>
+    </AuthProvider>
     </ToastProvider>
   );
 };
