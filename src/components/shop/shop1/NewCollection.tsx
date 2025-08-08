@@ -36,7 +36,7 @@ const NewCollection = () => {
         </div>
 
         {/* Grid of Looks */}
-        <div className="grid grid-cols-2 gap-4  lg:gap-4 mt-2 sm:mt-16 lg:mt-20 2xl:mt-16">
+        <div className="grid grid-cols-2 gap-4  lg:gap-4 mt-2 sm:mt-16 lg:mt-20 nav2:mt-16 xl:mt-16 2xl:mt-16">
           <img 
             src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745134/public_assets_shop1_LP/public_assets_images_New2.svg" 
             alt="Look 1" 

@@ -5,7 +5,7 @@ const IMAGE1_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v175154485
 
 const SydneyCity: React.FC = () => {
   return (
-    <section className="relative min-h-[800px] sm:h-[1000px] mx-auto lg:h-[1100px] w-full flex items-center justify-center bg-black overflow-hidden">
+    <section className="relative min-h-[900px] sm:h-[1000px] mx-auto lg:h-[1100px] w-full flex items-center justify-center bg-black overflow-hidden">
       {/* Background Image inside the bigger section */}
       
       <img

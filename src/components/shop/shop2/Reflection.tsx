@@ -18,7 +18,7 @@ const Reflection = () => {
 
         {/* Gradient Title */}
         <div className="absolute top-[18%] left-1/2 -translate-x-1/2 z-10 text-center">
-          <h1 className="text-[11vw] sm:text-[96px] md:text-[88px] lg:text-[154px] font-bold tracking-wide font-zen text-transparent bg-clip-text bg-gradient-to-b from-[#17002C] to-[#4D0092] drop-shadow-[4px_0_0_#5C5353] leading-none">
+          <h1 className="text-[11vw] sm:text-[96px] md:text-[88px] lg:text-[110px] xl:text-[140px] 2xl:text-[154px] font-bold tracking-wide font-zen text-transparent bg-clip-text bg-gradient-to-b from-[#17002C] to-[#4D0092] drop-shadow-[4px_0_0_#5C5353] leading-none">
             REFLECTION
           </h1>
         </div>

@@ -34,7 +34,7 @@ const Accessories: React.FC = () => {
           </div>
 
           {/* Center Model */}
-          <div className="absolute left-[24%] -translate-x-1/2 bottom-[8vh] sm:bottom-[8vh] md:bottom-[12vh] lg:bottom-[100px]">
+          <div className="absolute left-[20%] -translate-x-1/2 bottom-[8vh] sm:bottom-[8vh] md:bottom-[12vh] lg:bottom-[100px]">
             <img
               src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059220/public_assets_shop2/public_assets_shop2_accessories2.svg"
               alt="Center Model"
@@ -43,7 +43,7 @@ const Accessories: React.FC = () => {
           </div>
 
           {/* Right Model */}
-          <div className="absolute left-[60%] sm:left-[65%] md:left-[70%] lg:left-[75%] xl:left-[680px] bottom-[4vh] sm:bottom-[8vh] md:bottom-[10vh] lg:bottom-[50px] -translate-x-1/2">
+          <div className="absolute left-[60%] sm:left-[65%] md:left-[50%] lg:left-[45%] xl:left-[570px] 2xl:left-[600px] bottom-[4vh] sm:bottom-[8vh] md:bottom-[10vh] lg:bottom-[50px] -translate-x-1/2">
             <img
               src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059220/public_assets_shop2/public_assets_shop2_accessories3.svg"
               alt="Right Model"
