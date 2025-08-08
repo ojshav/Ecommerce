@@ -1,12 +1,56 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Heart } from 'lucide-react';
+import { useAuth } from '../../../context/AuthContext';
+import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
+import { toast } from 'react-hot-toast';
 import shop3ApiService, { Product } from '../../../services/shop3ApiService';
+
+const SHOP_ID = 3;
 
 const AoinCatalog: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Wishlist functionality
+  const { isAuthenticated, user } = useAuth();
+  const {
+    toggleProductInWishlist,
+    isProductInWishlist,
+    isLoading: wishlistLoading
+  } = useShopWishlistOperations(SHOP_ID);
+
+  // Handle wishlist click
+  const handleWishlistClick = async (e: React.MouseEvent, productId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      toast.error('Please sign in to manage your wishlist');
+      navigate('/sign-in');
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error('Only customers can manage wishlists');
+      return;
+    }
+
+    try {
+      const wasInWishlist = isProductInWishlist(productId);
+      await toggleProductInWishlist(productId);
+      
+      if (wasInWishlist) {
+        toast.success('Removed from wishlist');
+      } else {
+        toast.success('Added to wishlist');
+      }
+    } catch (error) {
+      console.error('Wishlist operation failed:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -51,10 +95,10 @@ const AoinCatalog: React.FC = () => {
           {products.map((product) => (
             <div
               key={product.product_id}
-              className="rounded-3xl flex flex-col justify-between shadow-lg overflow-hidden w-full md:w-[429px] max-w-[95vw] mx-auto md:h-[549px] cursor-pointer"
+              className="rounded-3xl flex flex-col justify-between shadow-lg overflow-hidden w-full md:w-[429px] max-w-[95vw] mx-auto md:h-[549px] cursor-pointer relative group"
               onClick={() => handleProductClick(product.product_id)}
             >
-              <div className="block">
+              <div className="block relative">
                 <img
                   src={product.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component5_Image1.svg"}
                   alt={product.product_name}
@@ -62,6 +106,27 @@ const AoinCatalog: React.FC = () => {
                   height={500}
                   className="object-cover w-full h-[55vw] sm:h-[300px] md:h-[500px] max-h-[500px] hover:opacity-90 transition-opacity duration-200"
                 />
+                
+                {/* Wishlist button */}
+                <button
+                  onClick={(e) => handleWishlistClick(e, product.product_id)}
+                  disabled={wishlistLoading}
+                  className={`absolute top-3 right-3 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
+                    isProductInWishlist(product.product_id) 
+                      ? 'bg-red-500 text-white shadow-lg' 
+                      : 'bg-white/80 hover:bg-white text-gray-600 hover:text-red-500'
+                  } ${wishlistLoading ? 'opacity-50 cursor-not-allowed' : ''} shadow-md hover:shadow-lg`}
+                  title={isProductInWishlist(product.product_id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  {wishlistLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                  ) : (
+                    <Heart 
+                      size={16} 
+                      className={isProductInWishlist(product.product_id) ? 'fill-current' : ''} 
+                    />
+                  )}
+                </button>
               </div>
               <div className="flex justify-between items-center py-3 sm:py-5 px-1 sm:px-1">
                 <span className="text-white font-bold font-alexandria text-base sm:text-lg md:text-[19px] tracking-wide ">
@@ -88,10 +153,10 @@ const AoinCatalog: React.FC = () => {
             {products.map((product) => (
               <div
                 key={product.product_id}
-                className="rounded-3xl flex flex-col justify-between shadow-lg overflow-hidden w-[429px] h-[549px] flex-shrink-0 cursor-pointer"
+                className="rounded-3xl flex flex-col justify-between shadow-lg overflow-hidden w-[429px] h-[549px] flex-shrink-0 cursor-pointer relative group"
                 onClick={() => handleProductClick(product.product_id)}
               >
-                <div className="block">
+                <div className="block relative">
                   <img
                     src={product.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component5_Image1.svg"}
                     alt={product.product_name}
@@ -99,6 +164,27 @@ const AoinCatalog: React.FC = () => {
                     height={500}
                     className="object-cover w-full h-[500px] hover:opacity-90 transition-opacity duration-200"
                   />
+                  
+                  {/* Wishlist button */}
+                  <button
+                    onClick={(e) => handleWishlistClick(e, product.product_id)}
+                    disabled={wishlistLoading}
+                    className={`absolute top-3 right-3 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
+                      isProductInWishlist(product.product_id) 
+                        ? 'bg-red-500 text-white shadow-lg' 
+                        : 'bg-white/80 hover:bg-white text-gray-600 hover:text-red-500'
+                    } ${wishlistLoading ? 'opacity-50 cursor-not-allowed' : ''} shadow-md hover:shadow-lg`}
+                    title={isProductInWishlist(product.product_id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                  >
+                    {wishlistLoading ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                    ) : (
+                      <Heart 
+                        size={16} 
+                        className={isProductInWishlist(product.product_id) ? 'fill-current' : ''} 
+                      />
+                    )}
+                  </button>
                 </div>
                 <div className="flex justify-between items-center py-3 sm:py-5 px-1 sm:px-1">
                   <span className="text-white font-bold font-alexandria text-base sm:text-lg md:text-[19px] tracking-wide ">

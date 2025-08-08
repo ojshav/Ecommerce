@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Plus, Minus } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useShopCartOperations } from '../../../context/ShopCartContext';
+import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
 import { useAuth } from '../../../context/AuthContext';
 import { toast } from 'react-hot-toast';
-
-const SHOP_ID = 4;
 
 export interface Product {
   id: number;
@@ -22,49 +20,73 @@ interface ProductCardProps {
   onAddToCart?: (product: Product, quantity: number, selectedColor: number) => void;
   showColorOptions?: boolean;
   showQuantitySelector?: boolean;
+  showWishlist?: boolean;
   className?: string;
 }
 
-const Shop4ProductCard: React.FC<ProductCardProps> = ({ 
+const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({ 
   product, 
   onAddToCart,
   showColorOptions = true,
   showQuantitySelector = true,
+  showWishlist = true,
   className = ""
 }) => {
+  const SHOP_ID = 4; // Shop 4 - Footwear Store
+  
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(1);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const navigate = useNavigate();
-  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  
+  const {
+    addToWishlist,
+    removeFromWishlist,
+    toggleProductInWishlist,
+    isProductInWishlist,
+    getWishlistItemByProductId,
+    isLoading: wishlistLoading
+  } = useShopWishlistOperations(SHOP_ID);
 
   const handleQuantityChange = (change: number) => {
     setQuantity(Math.max(1, quantity + change));
   };
 
-  const handleAddToCart = async () => {
-    if (!canPerformShopCartOperations()) {
-      toast.error('Please sign in to add items to cart');
+  const handleAddToCart = () => {
+    if (onAddToCart) {
+      onAddToCart(product, quantity, selectedColor);
+    } else {
+      console.log(`Added ${product.name} to cart with quantity ${quantity} and color ${selectedColor}`);
+    }
+  };
+
+  const handleWishlistClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      toast.error('Please sign in to manage your wishlist');
       navigate('/sign-in');
       return;
     }
 
+    if (user?.role !== 'customer') {
+      toast.error('Only customers can manage wishlists');
+      return;
+    }
+
     try {
-      setIsAddingToCart(true);
+      const wasInWishlist = isProductInWishlist(product.id);
+      await toggleProductInWishlist(product.id);
       
-      // If custom onAddToCart is provided, use it, otherwise use our shop cart
-      if (onAddToCart) {
-        onAddToCart(product, quantity, selectedColor);
+      if (wasInWishlist) {
+        toast.success('Removed from wishlist');
       } else {
-        await addToShopCart(SHOP_ID, product.id, quantity);
-        toast.success('Added to cart successfully!');
+        toast.success('Added to wishlist');
       }
     } catch (error) {
-      console.error('Error adding to cart:', error);
-      toast.error('Failed to add to cart');
-    } finally {
-      setIsAddingToCart(false);
+      console.error('Wishlist operation failed:', error);
+      // Error is already handled by the hook with toast, so we don't need to show another one
     }
   };
 
@@ -72,8 +94,33 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
     navigate('/shop4-productpage');
   };
 
+  const isInWishlist = isProductInWishlist(product.id);
+
   return (
     <div className={`relative group cursor-pointer ${className}`}>
+      {/* Wishlist button - positioned at top right */}
+      {showWishlist && (
+        <button
+          onClick={handleWishlistClick}
+          disabled={wishlistLoading}
+          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+            isInWishlist 
+              ? 'bg-red-500 text-white shadow-lg' 
+              : 'bg-white/80 hover:bg-white text-gray-600 hover:text-red-500'
+          } ${wishlistLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+        >
+          {wishlistLoading ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+          ) : (
+            <Heart 
+              size={16} 
+              className={isInWishlist ? 'fill-current' : ''} 
+            />
+          )}
+        </button>
+      )}
+
       {/* Product Image Container */}
       <div 
         className={`w-full h-[450px] rounded-lg overflow-hidden flex items-center justify-center ${product.background || ''} transition-all duration-300 group-hover:border-4 group-hover:border-white cursor-pointer`}
@@ -125,7 +172,7 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
             </div>
           )}
           
-          {/* Quantity Selector and Add to Cart */}
+          {/* Quantity Selector and Actions */}
           <div className="flex items-center justify-center gap-4">
             {/* Quantity Selector */}
             {showQuantitySelector && (
@@ -149,15 +196,34 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
             {/* Add to Cart Button */}
             <button 
               onClick={handleAddToCart}
-              disabled={isAddingToCart}
-              className="w-12 h-12 rounded-full bg-[#BB9D7B] flex items-center justify-center hover:bg-[#A08B6A] transition-colors drop-shadow-[0_6.413px_17.013px_#7E7061] disabled:opacity-50"
+              className="w-12 h-12 rounded-full bg-[#BB9D7B] flex items-center justify-center hover:bg-[#A08B6A] transition-colors drop-shadow-[0_6.413px_17.013px_#7E7061]"
+              title="Add to cart"
             >
-              {isAddingToCart ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent text-white" />
-              ) : (
-                <ShoppingCart size={20} className="text-white" />
-              )}
+              <ShoppingCart size={20} className="text-white" />
             </button>
+
+            {/* Wishlist Button (in hover card) */}
+            {showWishlist && (
+              <button
+                onClick={handleWishlistClick}
+                disabled={wishlistLoading}
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 ${
+                  isInWishlist 
+                    ? 'bg-red-500 text-white shadow-lg' 
+                    : 'bg-white/20 border border-white text-white hover:bg-white hover:text-red-500'
+                } ${wishlistLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+              >
+                {wishlistLoading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                ) : (
+                  <Heart 
+                    size={18} 
+                    className={isInWishlist ? 'fill-current' : ''} 
+                  />
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -165,4 +231,4 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
   );
 };
 
-export default Shop4ProductCard;
+export default Shop4ProductCardWithWishlist;

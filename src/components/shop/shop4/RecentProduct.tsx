@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import Shop4ProductCard, { Product } from './Shop4ProductCard';
+import Shop4ProductCardWithWishlist, { Product } from './Shop4ProductCardWithWishlist';
 import shop4ApiService, { Product as ApiProduct } from '../../../services/shop4ApiService';
 
 // Convert API product to local Product interface
@@ -191,7 +191,7 @@ function Recentproduct() {
                   navigate(`/shop4-productpage?id=${product.id}`);
                 }}
               >
-                <Shop4ProductCard 
+                <Shop4ProductCardWithWishlist 
                   product={product}
                   onAddToCart={handleAddToCart}
                   showColorOptions={true}

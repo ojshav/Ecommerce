@@ -690,11 +690,12 @@ const ProductPage = () => {
                 products.map((product) => (
                   <Shop2ProductCard
                     key={product.product_id}
+                    id={product.product_id}
                     image={product.primary_image || "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80"}
                     name={product.product_name}
                     price={product.selling_price}
                     discount={product.special_price ? Math.round(((product.selling_price - product.special_price) / product.selling_price) * 100) : undefined}
-                    overlay={product.product_id}
+                    shopProductId={product.product_id}
                     onClick={() => handleProductClick(product.product_id)}
                   />
                 ))

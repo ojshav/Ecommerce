@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import shop3ApiService, { Product } from '../../../../services/shop3ApiService';
 import SimilarProducts from './SimilarProducts';
+import { useShopCartOperations } from '../../../../context/ShopCartContext';
+import { toast } from 'react-hot-toast';
 
 const ProductPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -16,8 +18,7 @@ const ProductPage: React.FC = () => {
   const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState<boolean>(false);
 
   // Cart functionality
-  const { addToShopCart } = useShopCart();
-  const { accessToken, user } = useAuth();
+  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   
   // Shop3 has a fixed shop ID of 3
@@ -400,6 +401,47 @@ const ProductPage: React.FC = () => {
       ...prev,
       [attributeName]: value
     }));
+  };
+
+  // Handle add to cart
+  const handleAddToCart = async () => {
+    if (!canPerformShopCartOperations()) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+
+    if (!product) {
+      toast.error("Product not available");
+      return;
+    }
+
+    // Check if product is in stock
+    const currentProduct = currentVariant || product;
+    const stockQty = currentProduct.stock?.stock_qty || 0;
+    if (stockQty <= 0) {
+      toast.error("Product is out of stock");
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      
+      // Create selected attributes object from current selections
+      const cartAttributes: Record<string, string[]> = {};
+      Object.entries(selectedAttributes).forEach(([key, value]) => {
+        if (value) {
+          cartAttributes[key] = [value];
+        }
+      });
+      
+      await addToShopCart(SHOP_ID, product.product_id, 1, cartAttributes);
+      toast.success("Product added to cart");
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error("Failed to add product to cart");
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   // Simple markdown parser for basic formatting with Shop3 styling

@@ -1,7 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useShopWishlist } from '../../../../context/ShopWishlistContext';
+import { useShopCartOperations } from '../../../../context/ShopCartContext';
+
+const SHOP_ID = 3;
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const { getShopWishlistCount } = useShopWishlist();
+  const { getShopCartCount } = useShopCartOperations();
+  
+  const wishlistCount = getShopWishlistCount(SHOP_ID);
+
+  const loadCartCount = async () => {
+    try {
+      const count = await getShopCartCount(SHOP_ID);
+      setCartCount(count);
+    } catch (error) {
+      setCartCount(0);
+    }
+  };
+
+  useEffect(() => {
+    loadCartCount();
+    // Refresh cart count periodically
+    const interval = setInterval(loadCartCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <header className="bg-black w-full  text-white px-4 sm:px-8 2xl:px-6 py-4">
@@ -60,18 +86,35 @@ const Header: React.FC = () => {
             En | USD
           </span>
           
+          {/* Wishlist with badge */}
+          <Link to="/shop3/wishlist" className="relative">
+            <button className="text-white hover:text-gray-300 transition-colors mr-4">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
+            {/* Wishlist badge */}
+            {wishlistCount > 0 && (
+              <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-orange-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+                {wishlistCount > 99 ? '99+' : wishlistCount}
+              </div>
+            )}
+          </Link>
+          
           {/* Shopping cart with badge */}
-          <div className="relative">
+          <Link to="/shop3/cart" className="relative">
             <button className="text-white hover:text-gray-300 transition-colors">
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
             </button>
             {/* Cart badge */}
-            <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-gray-700 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
-              1
-            </div>
-          </div>
+            {cartCount > 0 && (
+              <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-orange-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+                {cartCount > 99 ? '99+' : cartCount}
+              </div>
+            )}
+          </Link>
         </div>
       </div>
 
