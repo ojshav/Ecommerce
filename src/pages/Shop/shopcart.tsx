@@ -1,31 +1,42 @@
-import React, { useState } from 'react';
-import CartItem from '../../components/CartItem';
-import CartSummary from '../../components/CartSummary';
+import React, { useState, useEffect } from 'react';
+import ShopCartItem from '../../components/ShopCartItem';
+import ShopCartSummary from '../../components/ShopCartSummary';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../../context/CartContext';
+import { useShopCartOperations } from '../../context/ShopCartContext';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { ShoppingCart } from 'lucide-react';
-import { CartItem as CartItemType } from '../../types';
+import { ShopCartItem as ShopCartItemType } from '../../services/shopCartService';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 
 const Shopcart: React.FC = () => {
   const navigate = useNavigate();
+  const location = window.location.pathname;
+  
+  // Extract shopId from URL path (e.g., /shop1/cart -> 1)
+  const getShopIdFromPath = () => {
+    const match = location.match(/\/shop(\d+)/);
+    return match ? parseInt(match[1], 10) : 1;
+  };
+  
+  const currentShopId = getShopIdFromPath();
+  
   const {
-    cart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    totalPrice,
-    loading,
-  } = useCart();
+    getShopCartItems,
+    updateShopCartItem,
+    removeFromShopCart,
+    clearShopCart,
+    canPerformShopCartOperations
+  } = useShopCartOperations();
   const { accessToken } = useAuth();
 
+  // Local state for cart items
+  const [cartItems, setCartItems] = useState<ShopCartItemType[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // --- Promotion State ---
-
   const [promoCodeInput, setPromoCodeInput] = useState("");
-
   const [discount, setDiscount] = useState(0);
   const [promoLoading, setPromoLoading] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState<{
@@ -40,14 +51,35 @@ const Shopcart: React.FC = () => {
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+  // Load cart items
+  const loadCartItems = async () => {
+    setLoading(true);
+    try {
+      const items = await getShopCartItems(currentShopId);
+      setCartItems(items);
+    } catch (error) {
+      console.error('Error loading cart items:', error);
+      toast.error('Failed to load cart items');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCartItems();
+  }, [currentShopId]);
+
+  // Calculate totals
+  const totalPrice = cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0);
+
   const handleCheckout = () => {
     if (!accessToken) {
       toast.error("Please sign in to proceed with checkout");
-      navigate("/signin", { state: { returnUrl: "/cart" } });
+      navigate("/sign-in", { state: { returnUrl: `/shop${currentShopId}/cart` } });
       return;
     }
-    // Pass the calculated discount and applied promo code to the payment page
-    navigate("/payment", { state: { discount, appliedPromo, itemDiscounts } });
+    // Navigate to shop-specific order page
+    navigate(`/shop${currentShopId}/order`, { state: { discount, appliedPromo, itemDiscounts } });
   };
 
   const handleApplyPromo = async (promoCode: string) => {
@@ -60,12 +92,13 @@ const Shopcart: React.FC = () => {
     setAppliedPromo(null);
 
     try {
-      const cartItemsPayload = cart.map((item: CartItemType) => ({
-        product_id: item.product_id,
+      const cartItemsPayload = cartItems.map((item: ShopCartItemType) => ({
+        product_id: item.shop_product_id,
         quantity: item.quantity,
         price: item.product.price,
       }));
 
+      // Note: This may need to be updated to use shop-specific promo codes
       const response = await fetch(`${API_BASE_URL}/api/promo-code/apply`, {
         method: "POST",
         headers: {
@@ -104,21 +137,54 @@ const Shopcart: React.FC = () => {
 
   const removePromo = () => {
     setDiscount(0);
-
     setPromoCodeInput("");
-
     setAppliedPromo(null);
     setItemDiscounts({});
     toast.success("Promotion removed.");
   };
 
   const handleContinueShopping = () => {
-    navigate("/all-products");
+    navigate(`/shop${currentShopId}`);
   };
 
   const handleClearCart = async () => {
     setClearCartModalOpen(true);
   };
+
+  const handleRemoveItem = async (cartItemId: number) => {
+    try {
+      await removeFromShopCart(currentShopId, cartItemId);
+      await loadCartItems(); // Refresh cart items
+    } catch (error) {
+      console.error('Error removing item:', error);
+    }
+  };
+
+  const handleUpdateQuantity = async (cartItemId: number, quantity: number) => {
+    try {
+      await updateShopCartItem(currentShopId, cartItemId, quantity);
+      await loadCartItems(); // Refresh cart items
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+    }
+  };
+
+  if (!canPerformShopCartOperations()) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-8">
+        <div className="text-center py-12">
+          <ShoppingCart className="w-16 h-16 text-gray-400 mb-4 mx-auto" />
+          <p className="text-gray-600 mb-4 text-lg">Please sign in to view your cart</p>
+          <button
+            onClick={() => navigate("/signin", { state: { returnUrl: `/shop${currentShopId}/cart` } })}
+            className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors"
+          >
+            Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -130,14 +196,14 @@ const Shopcart: React.FC = () => {
     );
   }
 
-  const activeCartItems = cart.filter(
-    (item: CartItemType) => !item.product.is_deleted
+  const activeCartItems = cartItems.filter(
+    (item: ShopCartItemType) => !item.product.is_deleted
   );
   const finalTotal = totalPrice - discount;
 
   return (
     <div className="max-w-7xl mx-auto px-6 sm:px-8 py-8">
-      <h1 className="text-2xl font-bold mb-8">Your Cart</h1>
+      <h1 className="text-2xl font-bold mb-8">Shop {currentShopId} Cart</h1>
 
       {activeCartItems.length === 0 ? (
         <div className="text-center py-12 flex flex-col items-center justify-center">
@@ -164,18 +230,12 @@ const Shopcart: React.FC = () => {
                 <div className="w-24 text-right">Sub Total</div>
               </div>
 
-              {activeCartItems.map((item: CartItemType) => (
-                <CartItem
+              {activeCartItems.map((item: ShopCartItemType) => (
+                <ShopCartItem
                   key={item.cart_item_id}
-                  id={item.cart_item_id}
-                  name={item.product.name}
-                  image={item.product.image_url}
-                  price={item.product.price}
-                  quantity={item.quantity}
-                  stock={item.product.stock}
-                  selectedAttributes={item.selected_attributes}
-                  onRemove={removeFromCart}
-                  onUpdateQuantity={updateQuantity}
+                  item={item}
+                  onRemove={handleRemoveItem}
+                  onUpdateQuantity={handleUpdateQuantity}
                 />
               ))}
 
@@ -199,7 +259,7 @@ const Shopcart: React.FC = () => {
 
           {/* Cart summary section integrated here */}
           <div className="lg:col-span-1 sticky top-4">
-            <CartSummary
+            <ShopCartSummary
               cartItems={activeCartItems}
               totalPrice={totalPrice}
               discount={discount}
@@ -221,7 +281,8 @@ const Shopcart: React.FC = () => {
         message="Are you sure you want to clear your entire cart? This action cannot be undone."
         onConfirm={async () => {
           try {
-            await clearCart();
+            await clearShopCart(currentShopId);
+            await loadCartItems(); // Refresh cart items
             toast.success("Cart cleared successfully");
           } catch (error) {
             toast.error("Failed to clear cart");

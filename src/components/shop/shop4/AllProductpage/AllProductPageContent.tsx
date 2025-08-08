@@ -1,17 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, X, Filter, Search } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import Shop4ProductCard, { Product } from '../Shop4ProductCard';
+import Shop4ProductCardWithWishlist, { Product } from '../Shop4ProductCardWithWishlist';
 import shop4ApiService, { Product as ApiProduct } from '../../../../services/shop4ApiService';
 
 // Convert API product to local Product interface
 const mapApiProductToLocal = (apiProduct: ApiProduct): Product => ({
   id: apiProduct.product_id,
-  title: apiProduct.product_name,
+  name: apiProduct.product_name,
   price: apiProduct.special_price || apiProduct.price,
   discount: apiProduct.special_price ? 
-    `${Math.round(((apiProduct.price - apiProduct.special_price) / apiProduct.price) * 100)}%` : 
-    '0%',
+    Math.round(((apiProduct.price - apiProduct.special_price) / apiProduct.price) * 100) : 
+    0,
   image: apiProduct.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463036/public_assets_shop4/public_assets_shop4_Rectangle%205.png"
 });
 
@@ -785,7 +785,7 @@ const ProductGrid: React.FC = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-x-8 sm:gap-x-12 2xl:gap-x-20 gap-y-28 sm:gap-y-28 lg:gap-y-40">
                         {products.map((product) => (
                             <div key={product.id} onClick={() => handleProductClick(product.id)} className="cursor-pointer">
-                                <Shop4ProductCard product={product} />
+                                <Shop4ProductCardWithWishlist product={product} />
                             </div>
                         ))}
                     </div>

@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Minus, Plus, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useShopCartOperations } from '../../../../context/ShopCartContext';
+import { toast } from 'react-hot-toast';
 import { Product as ApiProduct } from '../../../../services/shop1ApiService';
+
+const SHOP_ID = 1;
 
 interface Product extends ApiProduct {
   // Keeping the original interface structure for backward compatibility
@@ -11,11 +15,13 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ productData }) => {
+  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentVariant, setCurrentVariant] = useState<Product | null>(null);
   const [stockError, setStockError] = useState<string>('');
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   // Extract and combine attributes from both parent product attributes and variant attributes
   const availableAttributes = useMemo(() => {
@@ -342,6 +348,52 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
       return currentVariant.stock?.stock_qty || 0;
     }
     return productData?.stock?.stock_qty || 0;
+  };
+
+  // Handle add to cart
+  const handleAddToCart = async () => {
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to add items to cart');
+      return;
+    }
+
+    if (!productData) {
+      toast.error('Product not available');
+      return;
+    }
+
+    if (!isInStock()) {
+      toast.error('Product is out of stock');
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      
+      // Determine which product to add (variant or parent)
+      const productToAdd = currentVariant || productData;
+      
+      // Convert selectedAttributes to the format expected by the API
+      const attributesForApi: { [key: number]: string | string[] } = {};
+      Object.entries(selectedAttributes).forEach(([, value], index) => {
+        attributesForApi[index + 1] = value; // API expects numbered keys
+      });
+
+      await addToShopCart(SHOP_ID, productToAdd.product_id, quantity, attributesForApi);
+      toast.success('Added to cart successfully!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
+  // Handle buy now (for future implementation)
+  const handleBuyNow = async () => {
+    // For now, just add to cart and redirect to cart page
+    await handleAddToCart();
+    // TODO: Add redirect to checkout page
   };
 
   // Helper function to get color style for color attributes
@@ -864,26 +916,26 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-row gap-3 sm:gap-4 lg:gap-6 w-full mt-4 lg:mt-6 sm:justify-center xl:justify-start">
-            <button 
-              className={`flex-1 sm:flex-none px-6 sm:px-12 lg:px-20 py-3 rounded-full font-semibold text-base sm:text-lg lg:text-xl transition-all duration-150 shadow-md border-2 ${
-                isInStock()
+          <div className="flex items-center space-x-6 w-full mt-6">
+            <button
+              onClick={handleAddToCart}
+              className={`px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 ${isInStock() && !isAddingToCart
                   ? 'bg-[#FEEBD8] hover:bg-[#fdd7b9] border-[#FEEBD8] text-black'
                   : 'bg-gray-300 border-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
-              disabled={!isInStock()}
+              disabled={!isInStock() || isAddingToCart}
             >
-              {!isInStock() ? 'OUT OF STOCK' : 'ADD TO CART'}
+              {isAddingToCart ? 'ADDING...' : (!isInStock() ? 'OUT OF STOCK' : 'ADD TO CART')}
             </button>
-            <button 
-              className={`flex-1 sm:flex-none px-6 sm:px-12 lg:px-20 py-3 rounded-full font-semibold text-base sm:text-lg lg:text-xl transition-all duration-150 shadow-md border-2 ${
-                isInStock()
+            <button
+              onClick={handleBuyNow}
+              className={`px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 ${isInStock()
                   ? 'bg-black hover:bg-[#222] text-white border-black'
                   : 'bg-gray-400 border-gray-400 text-gray-600 cursor-not-allowed'
                 }`}
-              disabled={!isInStock()}
+              disabled={!isInStock() || isAddingToCart}
             >
-              {!isInStock() ? 'OUT OF STOCK' : 'BUY IT NOW'}
+              {isAddingToCart ? 'ADDING...' : (!isInStock() ? 'OUT OF STOCK' : 'BUY IT NOW')}
             </button>
           </div>
         </div>

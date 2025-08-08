@@ -151,6 +151,11 @@ export const dashboardSections: MenuSection[] = [
         icon: ShoppingBag,
         description: "Manage inventory for each shop",
       },
+      {
+        title: "Shop GST Management",
+        icon: Percent,
+        description: "Manage GST rules for shop products and orders",
+      },
     ],
   },
   {
@@ -414,6 +419,9 @@ const SuperAdminLayout = () => {
     if (itemTitle === "Shop Reviews" && path.includes("/superadmin/shop/reviews")) {
       return true;
     }
+    if (itemTitle === "Shop GST Management" && path.includes("/superadmin/shop/gst-management")) {
+      return true;
+    }
     if (itemTitle === "Order Management" && path.includes("/superadmin/order-management")) {
       return true;
     }
@@ -451,6 +459,9 @@ const SuperAdminLayout = () => {
         if (item.title === "Shop Reviews" && path.includes("/superadmin/shop/reviews")) {
           return true;
         }
+        if (item.title === "Shop GST Management" && path.includes("/superadmin/shop/gst-management")) {
+          return true;
+        }
         if (item.title === "Order Management" && path.includes("/superadmin/order-management")) {
           return true;
         }
@@ -484,6 +495,7 @@ const SuperAdminLayout = () => {
     let route = `/superadmin/${section.toLowerCase().replace(/\s+/g, "-")}`;
     if (section === "Order Management") route = "/superadmin/order-management";
     if (section === "Shop Reviews") route = "/superadmin/shop/reviews/1";
+    if (section === "Shop GST Management") route = "/superadmin/shop/gst-management";
     if (section === "Payments") route = "/superadmin/payments";
     navigate(route);
     

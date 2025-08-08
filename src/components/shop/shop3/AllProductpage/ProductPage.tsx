@@ -96,6 +96,7 @@ const ProductPage = () => {
             return (
               <Shop3ProductCard
                 key={card.id}
+                id={card.id}
                 image={card.image}
                 name={card.name}
                 price={card.price}

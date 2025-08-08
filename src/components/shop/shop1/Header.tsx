@@ -1,9 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {  ShoppingBag, Heart, User, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useShopWishlist } from '../../../context/ShopWishlistContext';
+import { useShopCartOperations } from '../../../context/ShopCartContext';
+
+const SHOP_ID = 1;
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { getShopWishlistCount } = useShopWishlist();
+  const { getShopCartCount, canPerformShopCartOperations } = useShopCartOperations();
+  
+  const [cartCount, setCartCount] = useState(0);
+  const wishlistCount = getShopWishlistCount(SHOP_ID);
+
+  useEffect(() => {
+    const loadCartCount = async () => {
+      if (canPerformShopCartOperations()) {
+        try {
+          const count = await getShopCartCount(SHOP_ID);
+          setCartCount(count);
+        } catch (error) {
+          console.error('Error loading cart count:', error);
+        }
+      } else {
+        setCartCount(0);
+      }
+    };
+
+    loadCartCount();
+    
+    // Refresh cart count periodically
+    const interval = setInterval(loadCartCount, 30000); // 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [getShopCartCount, canPerformShopCartOperations]);
 
   return (
     <header className="bg-white top-0 z-50 relative">
@@ -30,17 +61,26 @@ const Header = () => {
             </Link>
           </div>
 
-
           {/* Right Actions */}
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/profile" className="text-gray-900 hover:text-gray-600 transition-colors">
               <User className="w-6 h-6" />
             </Link>
-            <Link to="/shop1/wishlist" className="text-gray-900 hover:text-gray-600 transition-colors">
+            <Link to="/shop1/wishlist" className="text-gray-900 hover:text-gray-600 transition-colors relative">
               <Heart className="w-6 h-6" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {wishlistCount > 99 ? '99+' : wishlistCount}
+                </span>
+              )}
             </Link>
-            <Link to="/shop1/cart" className="text-gray-900 hover:text-gray-600 transition-colors">
+            <Link to="/shop1/cart" className="text-gray-900 hover:text-gray-600 transition-colors relative">
               <ShoppingBag className="w-6 h-6" />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              )}
             </Link>
           </div>
 
@@ -64,13 +104,22 @@ const Header = () => {
               <Link to="/profile" className="hover:text-gray-600 transition-colors">
                 <User className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
               </Link>
-              <Link to="/shop1/wishlist" className="hover:text-gray-600 transition-colors">
-                <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
+              <Link to="/shop1/wishlist" className="relative">
+                <Heart className="w-5 h-5 text-gray-900" />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {wishlistCount > 99 ? '99+' : wishlistCount}
+                  </span>
+                )}
               </Link>
-              <Link to="/shop1/cart" className="hover:text-gray-600 transition-colors">
-                <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-gray-900" />
+              <Link to="/shop1/cart" className="relative">
+                <ShoppingBag className="w-5 h-5 text-gray-900" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
               </Link>
-              
             </div>
           </div>
         )}
