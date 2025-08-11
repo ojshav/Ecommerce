@@ -1,73 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { FunnelIcon, EyeIcon, MagnifyingGlassPlusIcon, MagnifyingGlassMinusIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
-// Dummy shops
-const DUMMY_SHOPS = [
-  { shop_id: 1, name: 'Luxe Hub' },
-  { shop_id: 2, name: 'Prime Store' },
-  { shop_id: 3, name: 'Vault Fashion' },
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
+
+// Shops mapping for display names
+const SHOPS = [
+  { shop_id: 1, name: 'Shop 1' },
+  { shop_id: 2, name: 'Shop 2' },
+  { shop_id: 3, name: 'Shop 3' },
+  { shop_id: 4, name: 'Shop 4' },
 ];
 
-// Dummy orders
-const DUMMY_ORDERS = [
-  {
-    order_id: 'ORD-20250715054041-76C63D',
-    order_date: '2025-07-15T05:40:41Z',
-    shop_id: 1,
-    shop_name: 'Luxe Hub',
-    shipping_address_details: { address_line1: '102 B mahalaxmi nagar indore MP', city: 'Gwalior' },
-    items: [{}, {}],
-    total_amount: '59999.99',
-    currency: 'INR',
-    order_status: 'PENDING_PAYMENT',
-    payment_status: 'PENDING',
-  },
-  {
-    order_id: 'ORD-20250710061653-9FA59F',
-    order_date: '2025-07-10T06:16:53Z',
-    shop_id: 2,
-    shop_name: 'Prime Store',
-    shipping_address_details: { address_line1: '102 B mahalaxmi nagar indore MP', city: 'Gwalior' },
-    items: [{}],
-    total_amount: '7513.99',
-    currency: 'INR',
-    order_status: 'PENDING_PAYMENT',
-    payment_status: 'PENDING',
-  },
-  {
-    order_id: 'ORD-20250710061559-59E3BD',
-    order_date: '2025-07-10T06:15:59Z',
-    shop_id: 3,
-    shop_name: 'Vault Fashion',
-    shipping_address_details: { address_line1: '102 B mahalaxmi nagar indore MP', city: 'Gwalior' },
-    items: [{}],
-    total_amount: '93414.97',
-    currency: 'INR',
-    order_status: 'PENDING_PAYMENT',
-    payment_status: 'PENDING',
-  },
-  {
-    order_id: 'ORD-20250710061242-34ED48',
-    order_date: '2025-07-10T06:12:42Z',
-    shop_id: 1,
-    shop_name: 'Luxe Hub',
-    shipping_address_details: { address_line1: '102 B mahalaxmi nagar indore MP', city: 'Gwalior' },
-    items: [{}, {}, {}],
-    total_amount: '556439.94',
-    currency: 'INR',
-    order_status: 'PENDING_PAYMENT',
-    payment_status: 'PENDING',
-  },
-];
-
-const STATUS_OPTIONS = [
-  'All',
-  'PENDING_PAYMENT',
-  'PROCESSING',
-  'SHIPPED',
-  'DELIVERED',
-  'CANCELLED',
+// Backend expects OrderStatusEnum values (lowercase)
+const STATUS_OPTIONS: { value: string; label: string }[] = [
+  { value: 'All', label: 'All Status' },
+  { value: 'pending_payment', label: 'Pending payment' },
+  { value: 'processing', label: 'Processing' },
+  { value: 'shipped', label: 'Shipped' },
+  { value: 'delivered', label: 'Delivered' },
+  { value: 'cancelled_by_customer', label: 'Cancelled by customer' },
+  { value: 'cancelled_by_merchant', label: 'Cancelled by merchant' },
+  { value: 'cancelled_by_admin', label: 'Cancelled by admin' },
+  { value: 'refunded', label: 'Refunded' },
 ];
 const PAYMENT_OPTIONS = [
   'All',
@@ -80,12 +37,16 @@ const PAYMENT_OPTIONS = [
 const StatusBadge = ({ status }: { status: string }) => {
   let bgColor = '';
   let textColor = '';
-  switch (status) {
+  const s = (status || '').toString().toUpperCase();
+  switch (s) {
     case 'DELIVERED': bgColor = 'bg-emerald-100'; textColor = 'text-emerald-800'; break;
     case 'SHIPPED': bgColor = 'bg-sky-100'; textColor = 'text-sky-800'; break;
     case 'PROCESSING': bgColor = 'bg-amber-100'; textColor = 'text-amber-800'; break;
     case 'PENDING_PAYMENT': bgColor = 'bg-orange-100'; textColor = 'text-orange-800'; break;
-    case 'CANCELLED': bgColor = 'bg-rose-100'; textColor = 'text-rose-800'; break;
+    case 'CANCELLED':
+    case 'CANCELLED_BY_CUSTOMER':
+    case 'CANCELLED_BY_MERCHANT':
+    case 'CANCELLED_BY_ADMIN': bgColor = 'bg-rose-100'; textColor = 'text-rose-800'; break;
     case 'SUCCESSFUL': bgColor = 'bg-emerald-100'; textColor = 'text-emerald-800'; break;
     case 'FAILED': bgColor = 'bg-rose-100'; textColor = 'text-rose-800'; break;
     case 'REFUNDED': bgColor = 'bg-purple-100'; textColor = 'text-purple-800'; break;
@@ -94,7 +55,7 @@ const StatusBadge = ({ status }: { status: string }) => {
   }
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor}`}>
-      {status.split('_').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
+      {s.split('_').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
     </span>
   );
 };
@@ -143,28 +104,72 @@ const MobileOrderCard = ({ order, onView }: { order: any, onView: (orderId: stri
 
 const ShopOrders: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
-  const [shops] = useState(DUMMY_SHOPS);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedShop, setSelectedShop] = useState('All');
-  const [selectedStatus, setSelectedStatus] = useState('All');
+  const [selectedShop, setSelectedShop] = useState<string>('All');
+  const [selectedStatus, setSelectedStatus] = useState<string>('All');
   const [selectedPayment, setSelectedPayment] = useState('All');
   const [zoom, setZoom] = useState(1);
+  const [page, setPage] = useState(1);
+  const [perPage] = useState(20);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const { accessToken } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const shopNameById = useMemo(() => new Map(SHOPS.map(s => [s.shop_id, s.name])), []);
+
+  const fetchOrders = async () => {
+    if (!API_BASE_URL) return;
     setLoading(true);
-    setTimeout(() => {
-      setOrders(DUMMY_ORDERS);
+    try {
+      const params = new URLSearchParams();
+      params.set('page', String(page));
+      params.set('per_page', String(perPage));
+      if (selectedShop !== 'All') params.set('shop_id', String(selectedShop));
+      if (selectedStatus !== 'All') params.set('status', selectedStatus); // expects lowercase enum value
+
+      const res = await fetch(`${API_BASE_URL}/api/admin/shop-orders?${params.toString()}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
+      });
+      const data = await res.json();
+      if (!res.ok || data?.success === false) {
+        throw new Error(data?.message || 'Failed to load orders');
+      }
+
+      const received = (data?.data?.orders || []).map((o: any) => ({
+        ...o,
+        // Normalize fields for UI
+        order_status: o.order_status,
+        payment_status: o.payment_status,
+        currency: o.currency || 'INR',
+        shop_name: shopNameById.get(o.shop_id) || `Shop ${o.shop_id}`,
+        items: Array.isArray(o.items) ? o.items : [],
+      }));
+      setOrders(received);
+      const pg = data?.data?.pagination || {};
+      setTotalPages(pg.pages || 1);
+      setTotal(pg.total || received.length);
+    } catch (err: any) {
+      toast.error(err.message || 'Unable to fetch shop orders');
+    } finally {
       setLoading(false);
-    }, 500);
-  }, []);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedShop, selectedStatus, page]);
 
   // Filtering logic
   const filteredOrders = orders.filter(order => {
     const matchesShop = selectedShop === 'All' || String(order.shop_id) === String(selectedShop);
-    const matchesStatus = selectedStatus === 'All' || order.order_status === selectedStatus;
-    const matchesPayment = selectedPayment === 'All' || order.payment_status === selectedPayment;
+    const matchesStatus = selectedStatus === 'All' || (order.order_status || '').toString().toLowerCase() === selectedStatus.toLowerCase();
+    const matchesPayment = selectedPayment === 'All' || (order.payment_status || '').toString().toUpperCase() === selectedPayment.toUpperCase();
     const matchesSearch = !searchTerm || order.order_id.toLowerCase().includes(searchTerm.toLowerCase()) || (order.shipping_address_details?.address_line1 || '').toLowerCase().includes(searchTerm.toLowerCase());
     return matchesShop && matchesStatus && matchesPayment && matchesSearch;
   });
@@ -173,7 +178,8 @@ const ShopOrders: React.FC = () => {
   const cellPadding = `${Math.max(0.5, 1 * zoom)}rem`;
 
   const handleView = (orderId: string) => {
-    navigate(`/superadmin/order-management/${orderId}`);
+    const order = orders.find(o => o.order_id === orderId);
+    navigate(`/superadmin/order-management/${orderId}`, { state: { order } });
   };
 
   if (loading) return (<div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div></div>);
@@ -188,13 +194,12 @@ const ShopOrders: React.FC = () => {
           <div className="relative">
             <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search orders..." className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm" />
           </div>
-          <select value={selectedShop} onChange={e => setSelectedShop(e.target.value)} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
+          <select value={selectedShop} onChange={e => { setSelectedShop(e.target.value); setPage(1); }} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
             <option value="All">All Shops</option>
-            {shops.map(shop => <option key={shop.shop_id} value={shop.shop_id}>{shop.name}</option>)}
+            {SHOPS.map(shop => <option key={shop.shop_id} value={shop.shop_id}>{shop.name}</option>)}
           </select>
-          <select value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
-            <option value="All">All Status</option>
-            {STATUS_OPTIONS.map(status => <option key={status} value={status}>{status.replace('_', ' ')}</option>)}
+          <select value={selectedStatus} onChange={e => { setSelectedStatus(e.target.value); setPage(1); }} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
+            {STATUS_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
           </select>
           <select value={selectedPayment} onChange={e => setSelectedPayment(e.target.value)} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm">
             <option value="All">All Payment Status</option>
@@ -205,7 +210,24 @@ const ShopOrders: React.FC = () => {
       </div>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 relative">
         <div className="block lg:hidden"><div className="p-4">{filteredOrders.length === 0 ? (<div className="text-center py-8"><p className="text-gray-500">No orders found</p></div>) : (<div className="space-y-4">{filteredOrders.map(order => (<MobileOrderCard key={order.order_id} order={order} onView={handleView} />))}</div>)}</div></div>
-        <div className="hidden lg:block"><div className="overflow-x-auto"><table className="min-w-full divide-y divide-gray-200" style={tableZoomStyle}><thead className="bg-gray-50"><tr>{['Order ID', 'Date', 'Shop', 'Customer', 'Items', 'Total', 'Status', 'Payment', 'Actions'].map(header => (<th key={header} className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ padding: cellPadding }}><div className="flex items-center space-x-1"><span>{header}</span></div></th>))}</tr></thead><tbody className="bg-white divide-y divide-gray-200">{filteredOrders.map(order => (<tr key={order.order_id} className="hover:bg-orange-50"><td className="text-sm font-medium text-gray-900" style={{ padding: cellPadding }}>{order.order_id}</td><td className="text-sm text-gray-500" style={{ padding: cellPadding }}>{new Date(order.order_date).toLocaleDateString()}</td><td className="text-sm text-gray-900" style={{ padding: cellPadding }}>{order.shop_name || 'N/A'}</td><td className="whitespace-normal text-sm text-gray-900 max-w-xs" style={{ padding: cellPadding }}><div>{order.shipping_address_details?.address_line1 || 'N/A'}</div><div className="text-gray-500">{order.shipping_address_details?.city || 'N/A'}</div></td><td className="text-sm text-gray-500" style={{ padding: cellPadding }}>{order.items.length}</td><td className="text-sm text-gray-900" style={{ padding: cellPadding }}>{order.currency} {parseFloat(order.total_amount).toFixed(2)}</td><td style={{ padding: cellPadding }}><StatusBadge status={order.order_status} /></td><td style={{ padding: cellPadding }}><StatusBadge status={order.payment_status} /></td><td className="text-sm text-gray-500" style={{ padding: cellPadding }}><div className="flex space-x-2"><button onClick={() => handleView(order.order_id)} className="text-orange-600 hover:text-orange-900"><EyeIcon className="h-5 w-5" /></button></div></td></tr>))}</tbody></table></div></div>
+        <div className="hidden lg:block"><div className="overflow-x-auto"><table className="min-w-full divide-y divide-gray-200" style={tableZoomStyle}><thead className="bg-gray-50"><tr>{['Order ID', 'Date', 'Shop', 'Customer', 'Items', 'Total', 'Status', 'Payment', 'Actions'].map(header => (<th key={header} className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style={{ padding: cellPadding }}><div className="flex items-center space-x-1"><span>{header}</span></div></th>))}</tr></thead><tbody className="bg-white divide-y divide-gray-200">{filteredOrders.map(order => (<tr key={order.order_id} className="hover:bg-orange-50"><td className="text-sm font-medium text-gray-900" style={{ padding: cellPadding }}>{order.order_id}</td><td className="text-sm text-gray-500" style={{ padding: cellPadding }}>{new Date(order.order_date).toLocaleDateString()}</td><td className="text-sm text-gray-900" style={{ padding: cellPadding }}>{order.shop_name || shopNameById.get(order.shop_id) || 'N/A'}</td><td className="whitespace-normal text-sm text-gray-900 max-w-xs" style={{ padding: cellPadding }}><div>{order.shipping_address_details?.address_line1 || 'N/A'}</div><div className="text-gray-500">{order.shipping_address_details?.city || 'N/A'}</div></td><td className="text-sm text-gray-500" style={{ padding: cellPadding }}>{order.items.length}</td><td className="text-sm text-gray-900" style={{ padding: cellPadding }}>{order.currency} {parseFloat(order.total_amount).toFixed(2)}</td><td style={{ padding: cellPadding }}><StatusBadge status={order.order_status} /></td><td style={{ padding: cellPadding }}><StatusBadge status={order.payment_status} /></td><td className="text-sm text-gray-500" style={{ padding: cellPadding }}><div className="flex space-x-2"><button onClick={() => handleView(order.order_id)} className="text-orange-600 hover:text-orange-900"><EyeIcon className="h-5 w-5" /></button></div></td></tr>))}</tbody></table></div></div>
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-white">
+          <div className="text-sm text-gray-600">Total: {total}</div>
+          <div className="flex items-center space-x-2">
+            <button
+              className="px-3 py-1 rounded border text-sm disabled:opacity-50"
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page <= 1}
+            >Prev</button>
+            <span className="text-sm">Page {page} of {totalPages}</span>
+            <button
+              className="px-3 py-1 rounded border text-sm disabled:opacity-50"
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+            >Next</button>
+          </div>
+        </div>
         <div className="hidden lg:block fixed z-50 bottom-20 right-4 flex flex-col space-y-3"><button className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-lg border border-gray-200 hover:bg-orange-100 transition" onClick={() => setZoom(z => Math.min(2, z + 0.1))} title="Zoom In" type="button"><MagnifyingGlassPlusIcon className="w-7 h-7 text-orange-600" /></button><button className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-lg border border-gray-200 hover:bg-orange-100 transition" onClick={() => setZoom(z => Math.max(0.5, z - 0.1))} title="Zoom Out" type="button"><MagnifyingGlassMinusIcon className="w-7 h-7 text-orange-600" /></button></div>
       </div>
     </div>
