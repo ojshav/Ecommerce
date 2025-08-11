@@ -55,33 +55,41 @@ const Footer = () => {
             </a>
           </div>
         </div>
-        
-        {/* Information and My Account - Responsive Grid */}
-        <div className="flex flex-col sm:flex-row gap-8 sm:gap-12 lg:gap-16 xl:gap-32 2xl:gap-40 mt-8 lg:mt-8">
-          {/* Information */}
-          <div className="flex-1 font-segoe min-w-[140px] lg:min-w-[180px]">
-            <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">Information</h3>
-            <div className="w-8 sm:w-10 h-[1px] bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
-            <ul className="space-y-2 sm:space-y-4 text-base sm:text-[18px]">
-              <li><Link to="/about">About Us</Link></li>
-              <li><Link to="/payment">Checkout</Link></li>
-              <li><Link to="/contact">Contact</Link></li>
-              <li><Link to="/services">Services</Link></li>
+
+        {/* Information */}
+        <div className="flex-1 font-segoe min-w-[140px] md:min-w-[180px] mb-8 md:mb-0">
+          <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">Information</h3>
+          <div className="w-8 sm:w-10 h-[1px]  bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
+                      <ul className="space-y-2 sm:space-y-4 text-base sm:text-[18px]">
+              <li><Link to="/shop1/about" className="hover:underline">About Us</Link></li>
+              <li><Link to="/shop1/cart" className="hover:underline">Checkout</Link></li>
+              <li><Link to="/contact" className="hover:underline">Contact</Link></li>
+              <li><Link to="/shop1/services" className="hover:underline">Services</Link></li>
             </ul>
-          </div>
-          
-          {/* My Account */}
-          <div className="flex-1 font-segoe min-w-[140px] lg:min-w-[180px]">
-            <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">My Account</h3>
-            <div className="w-8 sm:w-10 h-[1px] bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
-            <ul className="space-y-2 sm:space-y-4 text-base sm:text-[18px]">
-              <li><Link to="/account">My Account</Link></li>
-              <li><Link to="/contact">Contact</Link></li>
-              <li><Link to="/cart">Shopping Cart</Link></li>
-              <li><Link to="/shop">Shop</Link></li>
-            </ul>
-          </div>
         </div>
+        {/* My Account */}
+        <div className="flex-1 font-segoe min-w-[140px] md:min-w-[180px] mb-8 md:mb-0">
+          <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">My Account</h3>
+          <div className="w-8 sm:w-10 h-[1px]  bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
+          <ul className="space-y-2 sm:space-y-4  text-base sm:text-[18px]">
+            <li><a href="#" className="hover:underline">My Account</a></li>
+            <li><Link to="/contact" className="hover:underline">Contact</Link></li>
+            <li><a href="#" className="hover:underline">Shopping Cart</a></li>
+            <li><a href="#" className="hover:underline">Shop</a></li>
+          </ul>
+        </div>
+        {/* Categories 
+        <div className="flex-1 font-segoe min-w-[140px] md:min-w-[180px]">
+          <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">Categories</h3>
+          <div className="w-8 sm:w-10 h-[1px]  bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
+          <ul className="space-y-2 sm:space-y-4 text-base sm:text-lg">
+            <li><a href="#" className="hover:underline">Clothes</a></li>
+            <li><a href="#" className="hover:underline">Dress</a></li>
+            <li><a href="#" className="hover:underline">Shirt</a></li>
+            <li><a href="#" className="hover:underline">Shoes</a></li>
+          </ul>
+        </div> */}
+
       </div>
       <div className="border-t border-white/30 mt-10 sm:mt-20 lg:mt-32" />
     </footer>
