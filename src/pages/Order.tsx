@@ -88,6 +88,16 @@ const Order: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
+  // Shop Orders view state (isolated, does not affect merchant flow)
+  const [shopView, setShopView] = useState<boolean>(false);
+  const [selectedShopId, setSelectedShopId] = useState<number | null>(null);
+  const [shopOrders, setShopOrders] = useState<any[]>([]);
+  const [shopLoading, setShopLoading] = useState<boolean>(false);
+  const [shopError, setShopError] = useState<string | null>(null);
+  const [shopCurrentPage, setShopCurrentPage] = useState<number>(1);
+  const [shopTotalPages, setShopTotalPages] = useState<number>(1);
+  const shopPerPage = 10;
+
   const getCurrencySymbol = (currencyCode: string): string => {
     return CURRENCY_SYMBOLS[currencyCode] || currencyCode;
   };
@@ -153,6 +163,43 @@ const Order: React.FC = () => {
       toast.error('Failed to load orders');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch user's shop orders for a selected shop (separate from merchant orders)
+  const fetchShopOrders = async (shopId: number) => {
+    try {
+      setShopLoading(true);
+      setShopError(null);
+      const token = localStorage.getItem('access_token');
+      if (!token) throw new Error('No authentication token found');
+
+      const params = new URLSearchParams({
+        page: shopCurrentPage.toString(),
+        per_page: shopPerPage.toString(),
+      });
+      const baseUrl = API_BASE_URL.replace(/\/+$/, '');
+      const res = await fetch(`${baseUrl}/api/shops/${shopId}/orders?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || 'Failed to fetch shop orders');
+
+      // Accept success_response shape or direct
+      const payload = data?.data || data;
+      const orders = payload?.orders || payload?.data || [];
+      const pagination = payload?.pagination || {};
+      setShopOrders(orders);
+      setShopTotalPages(pagination.pages || 1);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Failed to fetch shop orders';
+      setShopError(msg);
+      toast.error(msg);
+    } finally {
+      setShopLoading(false);
     }
   };
 
@@ -293,8 +340,18 @@ const Order: React.FC = () => {
       navigate('/sign-in');
       return;
     }
-    fetchOrders();
-  }, [isAuthenticated, navigate, currentPage, selectedFilter]);
+    if (!shopView) {
+      fetchOrders(); // merchant orders as-is
+    }
+  }, [isAuthenticated, navigate, currentPage, selectedFilter, shopView]);
+
+  // When in shop view, fetch for selected shop
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    if (shopView && selectedShopId) {
+      fetchShopOrders(selectedShopId);
+    }
+  }, [isAuthenticated, shopView, selectedShopId, shopCurrentPage]);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -451,7 +508,124 @@ const Order: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Segment control: Marketplace vs Shop Orders */}
+      <div className="mb-6">
+        <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
+          <button
+            className={`px-4 py-2 text-sm font-medium ${!shopView ? 'bg-orange-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+            onClick={() => setShopView(false)}
+          >
+            Marketplace Orders
+          </button>
+          <button
+            className={`px-4 py-2 text-sm font-medium ${shopView ? 'bg-orange-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+            onClick={() => setShopView(true)}
+          >
+            Shop Orders
+          </button>
+        </div>
+      </div>
+
+      {/* Shop Orders View */}
+      {shopView && (
+        <div className="space-y-6">
+          {/* Shop selector */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[1,2,3,4].map(id => (
+              <button
+                key={id}
+                onClick={() => { setSelectedShopId(id); setShopCurrentPage(1); }}
+                className={`p-3 rounded-lg border text-sm font-medium transition-colors ${selectedShopId === id ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200 hover:border-orange-300'}`}
+              >
+                Shop {id}
+              </button>
+            ))}
+          </div>
+
+          {/* Content for selected shop */}
+          {!selectedShopId ? (
+            <div className="text-center text-gray-500 py-12">Select a shop to view your orders</div>
+          ) : shopLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-orange-500"></div>
+            </div>
+          ) : shopError ? (
+            <div className="text-center text-red-600 py-12">{shopError}</div>
+          ) : (
+            <>
+              {(!shopOrders || shopOrders.length === 0) ? (
+                <div className="text-center text-gray-500 py-12">No orders found for this shop</div>
+              ) : (
+                <div className="space-y-4">
+                  {shopOrders.map((o: any) => (
+                    <div key={o.order_id} className="border rounded-lg p-4 bg-white">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div>
+                          <p className="text-sm text-gray-600">Order ID</p>
+                          <p className="font-semibold">{o.order_id}</p>
+                          <p className="text-xs text-gray-500">Placed on {new Date(o.order_date).toLocaleDateString()}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-600">Total</p>
+                          <p className="font-semibold">{(o.currency === 'INR' ? '₹' : o.currency)} {o.total_amount}</p>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <span className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-700">{String(o.order_status || '').replace('_', ' ')}</span>
+                        <span className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-700">{(o.items?.length || 0)} items</span>
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <button
+                          onClick={() => navigate(`/shop${selectedShopId}/order/${o.order_id}`, { state: { from: '/orders', shopView: true, selectedShopId } })}
+                          className="px-3 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
+                        >
+                          View details
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Shop pagination */}
+              {shopTotalPages > 1 && (
+                <div className="flex justify-center items-center gap-1 my-6 overflow-x-auto">
+                  <button 
+                    onClick={() => setShopCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={shopCurrentPage === 1}
+                    className="w-8 h-8 flex items-center justify-center border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:border-orange-500 flex-shrink-0"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  {[...Array(shopTotalPages)].map((_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => setShopCurrentPage(i + 1)}
+                      className={`w-8 h-8 flex items-center justify-center border rounded-lg flex-shrink-0 text-sm ${
+                        shopCurrentPage === i + 1 ? 'bg-orange-500 text-white' : 'hover:border-orange-500'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button 
+                    onClick={() => setShopCurrentPage(prev => Math.min(prev + 1, shopTotalPages))}
+                    disabled={shopCurrentPage === shopTotalPages}
+                    className="w-8 h-8 flex items-center justify-center border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:border-orange-500 flex-shrink-0"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
       
+      {/* Merchant Orders View (original) */}
+      {!shopView && (
+      <>
       {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="flex-1 relative">
@@ -495,7 +669,7 @@ const Order: React.FC = () => {
         </div>
       </div>
 
-      {/* Orders List */}
+  {/* Orders List */}
       <div className="space-y-4 sm:space-y-6">
         {filteredOrders.length === 0 ? (
           <div className="text-center py-8">
@@ -607,7 +781,7 @@ const Order: React.FC = () => {
         )}
       </div>
 
-      {/* Pagination */}
+  {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-1 my-6 overflow-x-auto">
           <button 
@@ -641,6 +815,8 @@ const Order: React.FC = () => {
           </button>
         </div>
       )}
+  </>
+  )}
     </div>
   );
 };
