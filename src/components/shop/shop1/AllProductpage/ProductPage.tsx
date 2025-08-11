@@ -487,7 +487,7 @@ const ProductPage = () => {
               <option value="product_name-asc">Name: A to Z</option>
               <option value="product_name-desc">Name: Z to A</option>
             </select>
-            <select
+            {/*<select
               className="border rounded px-2 py-1 text-[16px] md:text-[18px] font-poppins w-full md:w-auto"
               value={itemsPerPage}
               onChange={(e) => setItemsPerPage(Number(e.target.value))}
@@ -495,7 +495,8 @@ const ProductPage = () => {
               <option value={9}> Shop: 09</option>
               <option value={18}>Shop: 18</option>
               <option value={36}>Shop: 36</option>
-            </select>
+            </select>*/}
+
           </div>
           <div className="text-[16px] md:text-[18px] font-poppins md:mr-10 text-black w-full md:w-auto">
             Show {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalProducts)} Of {totalProducts} Product{totalProducts !== 1 ? 's' : ''}
