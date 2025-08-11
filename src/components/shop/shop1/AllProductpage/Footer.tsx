@@ -59,12 +59,12 @@ const Footer = () => {
         <div className="flex-1 font-segoe min-w-[140px] md:min-w-[180px] mb-8 md:mb-0">
           <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">Information</h3>
           <div className="w-8 sm:w-10 h-[1px]  bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
-          <ul className="space-y-2 sm:space-y-4 text-base sm:text-[18px]">
-            <li><Link to="/shop1/about" className="hover:underline">About Us</Link></li>
-            <li><a href="#" className="hover:underline">Checkout</a></li>
-            <li><Link to="/contact" className="hover:underline">Contact</Link></li>
-            <li><a href="#" className="hover:underline">Services</a></li>
-          </ul>
+                      <ul className="space-y-2 sm:space-y-4 text-base sm:text-[18px]">
+              <li><Link to="/shop1/about" className="hover:underline">About Us</Link></li>
+              <li><Link to="/shop1/cart" className="hover:underline">Checkout</Link></li>
+              <li><Link to="/contact" className="hover:underline">Contact</Link></li>
+              <li><Link to="/shop1/services" className="hover:underline">Services</Link></li>
+            </ul>
         </div>
         {/* My Account */}
         <div className="flex-1 font-segoe min-w-[140px] md:min-w-[180px] mb-8 md:mb-0">

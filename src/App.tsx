@@ -14,6 +14,7 @@ import SignUp from './pages/auth/SignUp';
 import ShippingMethods from './pages/ShippingMethods';
 import Shop1LandingPage from './pages/Shop1LandingPage';
 import Shop1About from './pages/shop1/About';
+import Shop1Services from './pages/shop1/Services';
 import Shop2LandingPage from './pages/Shop2LandingPage';
 import Shop3LandingPage from './pages/Shop3LandingPage';
 import Shop4LandingPage from './pages/Shop4LandingPage';
@@ -74,7 +75,7 @@ import Shop2AllProductpage from './pages/Shop2AllProductpage';
 import Shop3AllProductpage from './pages/Shop3AllProductpage';
 import Shop4AllProductpage from './pages/Shop4AllProductpage';
 import FAQ from './pages/FAQ';
-import About from './pages/About';
+
 import Contact from './pages/Contact';
 import ShippingPolicy from './pages/ShippingPolicy';
 import Returns from './pages/Returns';
@@ -226,10 +227,11 @@ const App: React.FC = () => {
               <VisitTracker>
                 <ScrollToTop />
                 <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
-                  <Routes>
-                    <Route path="/shop1" element={<Shop1LandingPage />} />
-                    <Route path="/shop1/about" element={<Shop1About />} />
-                    <Route path="/shop1/product/:id" element={<Shop1Productpage />} />
+                                      <Routes>
+                      <Route path="/shop1" element={<Shop1LandingPage />} />
+                      <Route path="/shop1/about" element={<Shop1About />} />
+                      <Route path="/shop1/services" element={<Shop1Services />} />
+                      <Route path="/shop1/product/:id" element={<Shop1Productpage />} />
                     <Route path="/shop2" element={<Shop2LandingPage />} />
                     <Route path="/shop2/product/:productId" element={<Shop2Productpage />} />
                     <Route path="/shop3" element={<Shop3LandingPage />} />
@@ -589,7 +591,7 @@ const App: React.FC = () => {
                                 element={<Products />}
                               />
                               <Route path="/faq" element={<FAQ />} />
-                              <Route path="/about" element={<About />} />
+              
                               <Route path="/contact" element={<Contact />} />
                               <Route
                                 path="/shipping"

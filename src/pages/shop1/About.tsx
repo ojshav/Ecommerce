@@ -198,7 +198,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Contact CTA Section */}
+      {/* Contact CTA Section 
       <section className="py-20 bg-gradient-to-r from-[#e18a4b] to-orange-400">
         <div className="w-[1280px] max-w-full mx-auto px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-playfair font-bold text-white mb-6">
@@ -228,7 +228,7 @@ const About: React.FC = () => {
             </a>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <Footer />
     </div>
