@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell, PieLabelRenderProps
@@ -6,6 +6,7 @@ import {
 import { Download } from 'lucide-react';
 import ExportModal from '../../../components/business/reports/ExportModal';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../../context/AuthContext';
 
 const CHART_COLORS = {
   primary: '#FF5733',
@@ -28,120 +29,19 @@ const PIE_COLORS = [
   '#3B82F6', // blue
 ];
 
-const STATIC_ANALYTICS: Record<string, {
-  revenue: number;
-  totalSold: number;
-  topProduct: string;
-  topCategory: string;
-  averageOrderValue: number;
-  conversionRate: number;
-  returningCustomers: number;
-  revenueTrend: { month: string; revenue: number }[];
-  productSales: { name: string; sold: number }[];
-  categoryDist: Array<{ name: string; value: number }>;
-}> = {
-  shop1: {
-    revenue: 1200000,
-    totalSold: 3500,
-    topProduct: "Apple Watch Series 9",
-    topCategory: "Wearables",
-    averageOrderValue: 3428,
-    conversionRate: 3.2,
-    returningCustomers: 41,
-    revenueTrend: [
-      { month: 'Jan', revenue: 120000 },
-      { month: 'Feb', revenue: 140000 },
-      { month: 'Mar', revenue: 160000 },
-      { month: 'Apr', revenue: 180000 },
-      { month: 'May', revenue: 200000 },
-      { month: 'Jun', revenue: 220000 },
-    ],
-    productSales: [
-      { name: 'Apple Watch Series 9', sold: 1200 },
-      { name: 'Apple Watch SE', sold: 900 },
-      { name: 'Apple Watch Ultra', sold: 800 },
-      { name: 'Apple Watch Series 8', sold: 600 },
-    ],
-    categoryDist: [
-      { name: "Women Fashion", value: 2 },
-      { name: "Men's Fashion", value: 1 },
-      { name: "SportsWear", value: 1 },
-      { name: "Laptop", value: 1 },
-      { name: "Smartphone", value: 1 },
-      { name: "Tablet's", value: 1 },
-      { name: "Bluetooth H", value: 1 },
-    ],
-  },
-  shop2: {
-    revenue: 850000,
-    totalSold: 2100,
-    topProduct: "MacBook Pro 16",
-    topCategory: "Laptops",
-    averageOrderValue: 4047,
-    conversionRate: 2.7,
-    returningCustomers: 33,
-    revenueTrend: [
-      { month: 'Jan', revenue: 90000 },
-      { month: 'Feb', revenue: 110000 },
-      { month: 'Mar', revenue: 120000 },
-      { month: 'Apr', revenue: 140000 },
-      { month: 'May', revenue: 180000 },
-      { month: 'Jun', revenue: 210000 },
-    ],
-    productSales: [
-      { name: 'MacBook Pro 16', sold: 700 },
-      { name: 'MacBook Air', sold: 600 },
-      { name: 'MacBook Pro 14', sold: 500 },
-      { name: 'MacBook Air M2', sold: 300 },
-    ],
-    categoryDist: [
-      { name: 'Laptops', value: 3 },
-      { name: 'Accessories', value: 2 },
-      { name: 'Electronics', value: 1 },
-    ],
-  },
-  shop3: {
-    revenue: 430000,
-    totalSold: 900,
-    topProduct: "Nike Air Max",
-    topCategory: "Footwear",
-    averageOrderValue: 2150,
-    conversionRate: 1.9,
-    returningCustomers: 19,
-    revenueTrend: [
-      { month: 'Jan', revenue: 40000 },
-      { month: 'Feb', revenue: 50000 },
-      { month: 'Mar', revenue: 60000 },
-      { month: 'Apr', revenue: 70000 },
-      { month: 'May', revenue: 90000 },
-      { month: 'Jun', revenue: 120000 },
-    ],
-    productSales: [
-      { name: 'Nike Air Max', sold: 400 },
-      { name: 'Nike Revolution', sold: 250 },
-      { name: 'Nike Pegasus', sold: 150 },
-      { name: 'Nike Downshifter', sold: 100 },
-    ],
-    categoryDist: [
-      { name: 'Footwear', value: 2 },
-      { name: 'Accessories', value: 1 },
-      { name: 'Sportswear', value: 1 },
-    ],
-  },
-};
+// Real data will be fetched from backend; remove static demo.
 
 const SHOP_LIST = [
-  { id: "shop1", name: "Shop 1" },
-  { id: "shop2", name: "Shop 2" },
-  { id: "shop3", name: "Shop 3" },
+  { id: '1', name: 'Shop 1' },
+  { id: '2', name: 'Shop 2' },
+  { id: '3', name: 'Shop 3' },
+  { id: '4', name: 'Shop 4' },
 ];
 
-const PRODUCT_SALES_FILTERS = [
-  { year: 2024, months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'] },
-  { year: 2023, months: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] },
-];
+// Dynamic year/month filters up to the current month of the current year
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
 
-function renderPieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }: PieLabelRenderProps & { name: string }) {
+function renderPieLabel({ cx, cy, midAngle, innerRadius: _innerRadius, outerRadius, percent, index, name }: PieLabelRenderProps & { name: string }) {
   // Fallbacks for undefined values
   const safeCx = typeof cx === 'number' ? cx : 0;
   const safeCy = typeof cy === 'number' ? cy : 0;
@@ -168,25 +68,106 @@ function renderPieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent, i
 }
 
 const ShopAnalytics: React.FC = () => {
+  const { accessToken } = useAuth();
   const [selectedShop, setSelectedShop] = useState<string>("");
-  const [selectedYear, setSelectedYear] = useState<number>(2024);
-  const [selectedMonth, setSelectedMonth] = useState<string>('Jan');
+  // Defaults to current year and month
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonthIdx = now.getMonth(); // 0-based
+  const [selectedYear, setSelectedYear] = useState<number>(currentYear);
+  const [selectedMonth, setSelectedMonth] = useState<string>(MONTH_NAMES[currentMonthIdx]);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const analytics = selectedShop ? STATIC_ANALYTICS[selectedShop] : null;
+  const [loading, setLoading] = useState(false);
+  const [summary, setSummary] = useState<{ revenue: number; total_sold: number; top_product: string | null; top_category: string | null; average_order_value: number; } | null>(null);
+  const [trend, setTrend] = useState<Array<{ month: string; revenue: number }>>([]);
+  const [productSales, setProductSales] = useState<Array<{ name: string; sold: number }>>([]);
+  const [categoryDist, setCategoryDist] = useState<Array<{ name: string; value: number }>>([]);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
+
+  const monthNameToNumber = (name: string): number => {
+    const idx = MONTH_NAMES.findIndex(m => m === name);
+    return idx >= 0 ? idx + 1 : 1;
+  };
+
+  // Build dynamic options
+  const yearOptions = useMemo(() => {
+    // Allow selection from year 2000 up to current year (desc)
+    const startYear = 2000;
+    const years: number[] = [];
+    for (let y = currentYear; y >= startYear; y--) years.push(y);
+    return years;
+  }, [currentYear]);
+
+  const monthOptions = useMemo(() => {
+    // If current year selected, limit months up to current month (inclusive)
+    if (selectedYear === currentYear) return MONTH_NAMES.slice(0, currentMonthIdx + 1);
+    return MONTH_NAMES;
+  }, [selectedYear, currentYear, currentMonthIdx]);
+
+  const authHeaders = useMemo(() => (
+    {
+      'Accept': 'application/json',
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    }
+  ), [accessToken]);
+
+  useEffect(() => {
+    if (!selectedShop) {
+      setSummary(null);
+      setTrend([]);
+      setCategoryDist([]);
+      setProductSales([]);
+      return;
+    }
+    const controller = new AbortController();
+    const shop_id = Number(selectedShop);
+    setLoading(true);
+    Promise.all([
+      fetch(`${API_BASE_URL}/api/superadmin/shop-analytics/summary?shop_id=${shop_id}&months=6`, { headers: authHeaders, credentials: 'include', signal: controller.signal }).then(r => r.json()),
+      fetch(`${API_BASE_URL}/api/superadmin/shop-analytics/revenue-trend?shop_id=${shop_id}&months=6`, { headers: authHeaders, credentials: 'include', signal: controller.signal }).then(r => r.json()),
+      fetch(`${API_BASE_URL}/api/superadmin/shop-analytics/category-distribution?shop_id=${shop_id}&months=6`, { headers: authHeaders, credentials: 'include', signal: controller.signal }).then(r => r.json()),
+    ]).then(([summaryRes, trendRes, catRes]) => {
+      if (summaryRes.status !== 'success') throw new Error('Failed to load summary');
+      if (trendRes.status !== 'success') throw new Error('Failed to load trend');
+      if (catRes.status !== 'success') throw new Error('Failed to load categories');
+      setSummary(summaryRes.data);
+      const trendData = (trendRes.data?.trend || []).map((d: any) => ({ month: d.month, revenue: d.revenue }));
+      setTrend(trendData);
+      const cats = (catRes.data?.categories || []).map((c: any) => ({ name: c.name, value: c.value }));
+      setCategoryDist(cats);
+    }).catch((e) => {
+      console.error(e);
+      toast.error(e?.message || 'Failed to load analytics');
+    }).finally(() => setLoading(false));
+    return () => controller.abort();
+  }, [selectedShop, API_BASE_URL, authHeaders]);
+
+  useEffect(() => {
+    if (!selectedShop) return;
+    const controller = new AbortController();
+    const shop_id = Number(selectedShop);
+    const year = selectedYear;
+    const month = monthNameToNumber(selectedMonth);
+    fetch(`${API_BASE_URL}/api/superadmin/shop-analytics/product-sales?shop_id=${shop_id}&year=${year}&month=${month}&limit=10`, { headers: authHeaders, credentials: 'include', signal: controller.signal })
+      .then(r => r.json())
+      .then(res => {
+        if (res.status !== 'success') throw new Error('Failed to load product sales');
+        setProductSales(res.data || []);
+      })
+      .catch(e => {
+        console.error(e);
+        toast.error(e?.message || 'Failed to load product sales');
+      });
+    return () => controller.abort();
+  }, [selectedShop, selectedYear, selectedMonth, API_BASE_URL, authHeaders]);
 
   // Calculate total for categoryDist for percentage
-  const totalCategories = analytics ? analytics.categoryDist.reduce((sum: number, c: { name: string; value: number }) => sum + c.value, 0) : 0;
+  const totalCategories = categoryDist.reduce((sum: number, c: { name: string; value: number }) => sum + c.value, 0);
 
   // For demo: filter productSales by selected year/month (static, so just show all or a subset)
-  let filteredProductSales = analytics ? analytics.productSales : [];
-  if (selectedYear === 2024 && selectedMonth === 'Jan') {
-    filteredProductSales = analytics ? analytics.productSales : [];
-  } else if (selectedYear === 2024 && selectedMonth === 'Feb') {
-    filteredProductSales = analytics ? analytics.productSales.slice(0, 2) : [];
-  } else if (selectedYear === 2023) {
-    filteredProductSales = analytics ? analytics.productSales.slice(2) : [];
-  }
+  const filteredProductSales = productSales;
 
   const handleExportReport = async (format: string) => {
     if (!selectedShop) {
@@ -197,11 +178,12 @@ const ShopAnalytics: React.FC = () => {
     try {
       setIsExporting(true);
       
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-      const response = await fetch(`${API_BASE_URL}/api/superadmin/shop/export-analytics?shop=${selectedShop}&year=${selectedYear}&month=${selectedMonth}&format=${format}`, {
+      const month = monthNameToNumber(selectedMonth);
+      const response = await fetch(`${API_BASE_URL}/api/superadmin/shop-analytics/export?shop_id=${Number(selectedShop)}&year=${selectedYear}&month=${month}&format=${format}`, {
         method: 'GET',
         headers: {
-          'Accept': '*/*'
+          'Accept': '*/*',
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
         credentials: 'include'
       });
@@ -213,7 +195,7 @@ const ShopAnalytics: React.FC = () => {
 
       // Get filename from Content-Disposition header or create default
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = `${selectedShop}_analytics_${selectedYear}_${selectedMonth}_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+  let filename = `shop_${selectedShop}_analytics_${selectedYear}_${selectedMonth}_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
       
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
@@ -233,7 +215,7 @@ const ShopAnalytics: React.FC = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      toast.success(`${selectedShop} analytics exported successfully as ${format.toUpperCase()}`);
+  toast.success(`Shop ${selectedShop} analytics exported as ${format.toUpperCase()}`);
       setIsExportModalOpen(false);
       
     } catch (error) {
@@ -277,37 +259,37 @@ const ShopAnalytics: React.FC = () => {
         </select>
       </div>
 
-      {/* Key Metrics Card */}
-      {selectedShop && analytics && (
+  {/* Key Metrics Card */}
+  {selectedShop && summary && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
           <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-            <span className="text-2xl font-bold text-orange-600 mb-1">{analytics.topProduct}</span>
+    <span className="text-2xl font-bold text-orange-600 mb-1">{summary.top_product || '-'}</span>
             <span className="text-gray-700">Top Selling Product</span>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-            <span className="text-2xl font-bold text-orange-600 mb-1">₹{analytics.revenue.toLocaleString()}</span>
+    <span className="text-2xl font-bold text-orange-600 mb-1">₹{(summary.revenue || 0).toLocaleString()}</span>
             <span className="text-gray-700">Total Revenue</span>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-            <span className="text-2xl font-bold text-orange-600 mb-1">{analytics.topCategory}</span>
+    <span className="text-2xl font-bold text-orange-600 mb-1">{summary.top_category || '-'}</span>
             <span className="text-gray-700">Top Selling Category</span>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-            <span className="text-2xl font-bold text-orange-600 mb-1">{analytics.totalSold}</span>
+    <span className="text-2xl font-bold text-orange-600 mb-1">{summary.total_sold || 0}</span>
             <span className="text-gray-700">Total Products Sold</span>
           </div>
         </div>
       )}
 
       {/* Analytics Content */}
-      {selectedShop && analytics ? (
+  {selectedShop && summary ? (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
             {/* Revenue Trend Line Chart */}
             <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center min-h-[350px]">
               <h3 className="text-lg font-semibold mb-4 text-orange-700 self-start">Revenue Trend</h3>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={analytics.revenueTrend} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+        <LineChart data={trend} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -326,12 +308,20 @@ const ShopAnalytics: React.FC = () => {
                     className="p-1 rounded border border-orange-300 focus:ring-2 focus:ring-orange-400"
                     value={selectedYear}
                     onChange={e => {
-                      setSelectedYear(Number(e.target.value));
-                      setSelectedMonth(PRODUCT_SALES_FILTERS.find(f => f.year === Number(e.target.value))?.months[0] || 'Jan');
+                      const newYear = Number(e.target.value);
+                      setSelectedYear(newYear);
+                      // If switching to current year and selected month is beyond now, clamp to current month
+                      if (newYear === currentYear) {
+                        const selIdx = MONTH_NAMES.findIndex(m => m === selectedMonth);
+                        if (selIdx > currentMonthIdx || selIdx === -1) setSelectedMonth(MONTH_NAMES[currentMonthIdx]);
+                      } else {
+                        // For past years, ensure selectedMonth is valid option
+                        if (!MONTH_NAMES.includes(selectedMonth as any)) setSelectedMonth('Jan');
+                      }
                     }}
                   >
-                    {PRODUCT_SALES_FILTERS.map(f => (
-                      <option key={f.year} value={f.year}>{f.year}</option>
+                    {yearOptions.map(y => (
+                      <option key={y} value={y}>{y}</option>
                     ))}
                   </select>
                   <select
@@ -339,14 +329,14 @@ const ShopAnalytics: React.FC = () => {
                     value={selectedMonth}
                     onChange={e => setSelectedMonth(e.target.value)}
                   >
-                    {(PRODUCT_SALES_FILTERS.find(f => f.year === selectedYear)?.months || []).map(m => (
+                    {monthOptions.map(m => (
                       <option key={m} value={m}>{m}</option>
                     ))}
                   </select>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={filteredProductSales} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+        <BarChart data={filteredProductSales} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" tick={false} />
                   <YAxis />
@@ -365,7 +355,7 @@ const ShopAnalytics: React.FC = () => {
               <ResponsiveContainer width={320} height={240}>
                 <PieChart>
                   <Pie
-                    data={analytics.categoryDist}
+        data={categoryDist}
                     cx={120}
                     cy={120}
                     labelLine
@@ -375,7 +365,7 @@ const ShopAnalytics: React.FC = () => {
                     dataKey="value"
                     nameKey="name"
                   >
-                    {analytics.categoryDist.map((entry: { name: string; value: number }, index: number) => (
+                    {categoryDist.map((_: { name: string; value: number }, index: number) => (
                       <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                     ))}
                   </Pie>
@@ -385,7 +375,7 @@ const ShopAnalytics: React.FC = () => {
             </div>
             {/* Legend with scroll */}
             <div className="flex-1 flex flex-col items-start justify-center pl-8 max-h-[260px] overflow-y-auto w-full">
-              {analytics.categoryDist.map((cat: { name: string; value: number }, idx: number) => {
+      {categoryDist.map((cat: { name: string; value: number }, idx: number) => {
                 const percent = totalCategories ? ((cat.value / totalCategories) * 100) : 0;
                 return (
                   <div key={cat.name} className="flex items-center mb-4 bg-gray-50 rounded-lg px-4 py-2 w-full">
@@ -400,7 +390,7 @@ const ShopAnalytics: React.FC = () => {
           </div>
         </>
       ) : (
-        <div className="text-center text-orange-400">Please select a shop to view analytics.</div>
+    <div className="text-center text-orange-400">{loading ? 'Loading analytics…' : 'Please select a shop to view analytics.'}</div>
       )}
 
       {/* Export Modal */}
