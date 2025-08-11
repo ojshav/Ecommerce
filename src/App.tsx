@@ -24,6 +24,7 @@ import Shop3Wishlist from './pages/Shop/Shop3Wishlist';
 import Shop4Wishlist from './pages/Shop/Shop4Wishlist';
 import { Shop1Cart, Shop2Cart, Shop3Cart, Shop4Cart } from './pages/Shop/ShopCartWrapper';
 import { Shop1Order, Shop2Order, Shop3Order, Shop4Order } from './pages/Shop/ShopOrderWrapper';
+import { Shop1OrderConfirmation, Shop2OrderConfirmation, Shop3OrderConfirmation, Shop4OrderConfirmation } from './pages/Shop/ShopOrderConfirmationWrapper';
 import PasswordReset from './pages/auth/PasswordReset';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import RequestPasswordReset from './pages/auth/RequestPasswordReset';
@@ -265,6 +266,10 @@ const App: React.FC = () => {
                     <Route path="/shop2/order" element={<Shop2Order />} />
                     <Route path="/shop3/order" element={<Shop3Order />} />
                     <Route path="/shop4/order" element={<Shop4Order />} />
+                    <Route path="/shop1/order-confirmation" element={<Shop1OrderConfirmation />} />
+                    <Route path="/shop2/order-confirmation" element={<Shop2OrderConfirmation />} />
+                    <Route path="/shop3/order-confirmation" element={<Shop3OrderConfirmation />} />
+                    <Route path="/shop4/order-confirmation" element={<Shop4OrderConfirmation />} />
                     
                     <Route
                       path="/business/login"
