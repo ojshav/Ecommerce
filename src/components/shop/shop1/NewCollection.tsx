@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 const NewCollection = () => {
@@ -29,10 +30,10 @@ const NewCollection = () => {
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </p>
           </div>
-          <div className="flex items-center gap-2 text-sm font-medium cursor-pointer mt-2 sm:mt-0">
+          <Link to="/shop1-allproductpage" className="flex items-center gap-2 text-sm font-medium cursor-pointer mt-2 sm:mt-0 hover:opacity-80 transition-opacity">
             <span>See more</span>
             <ArrowRight size={18} />
-          </div>
+          </Link>
         </div>
 
         {/* Grid of Looks */}
