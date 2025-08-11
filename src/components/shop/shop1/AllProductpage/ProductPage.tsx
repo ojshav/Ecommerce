@@ -312,7 +312,7 @@ const ProductPage = () => {
             <div className={`${priceOpen ? 'block' : 'hidden'} md:block`}>
               <div className="flex items-center justify-between mb-4">
                 <div className="relative">
-                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">$</span>
+                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">₹</span>
                   <input
                     type="text"
                     value={price[0]}
@@ -324,7 +324,7 @@ const ProductPage = () => {
                 </div>
                 <div className="flex-1 h-px bg-gray-300 mx-2 md:mx-4"></div>
                 <div className="relative">
-                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">$</span>
+                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">₹</span>
                   <input
                     type="text"
                     value={price[1]}
@@ -487,7 +487,7 @@ const ProductPage = () => {
               <option value="product_name-asc">Name: A to Z</option>
               <option value="product_name-desc">Name: Z to A</option>
             </select>
-            <select
+            {/*<select
               className="border rounded px-2 py-1 text-[16px] md:text-[18px] font-poppins w-full md:w-auto"
               value={itemsPerPage}
               onChange={(e) => setItemsPerPage(Number(e.target.value))}
@@ -495,7 +495,8 @@ const ProductPage = () => {
               <option value={9}> Shop: 09</option>
               <option value={18}>Shop: 18</option>
               <option value={36}>Shop: 36</option>
-            </select>
+            </select>*/}
+
           </div>
           <div className="text-[16px] md:text-[18px] font-poppins md:mr-10 text-black w-full md:w-auto">
             Show {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalProducts)} Of {totalProducts} Product{totalProducts !== 1 ? 's' : ''}

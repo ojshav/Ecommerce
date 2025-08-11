@@ -72,10 +72,10 @@ const Footer = () => {
           <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">My Account</h3>
           <div className="w-8 sm:w-10 h-[1px]  bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
           <ul className="space-y-2 sm:space-y-4  text-base sm:text-[18px]">
-            <li><a href="#" className="hover:underline">My Account</a></li>
+            <li><Link to="/profile" className="hover:underline">My Account</Link></li>
             <li><Link to="/contact" className="hover:underline">Contact</Link></li>
-            <li><a href="#" className="hover:underline">Shopping Cart</a></li>
-            <li><a href="#" className="hover:underline">Shop</a></li>
+            <li><Link to="/shop1/cart" className="hover:underline">Shopping Cart</Link></li>
+            <li><Link to="/shop1-allproductpage" className="hover:underline">Shop</Link></li>
           </ul>
         </div>
         {/* Categories 
