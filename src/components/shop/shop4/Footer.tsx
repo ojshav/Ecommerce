@@ -5,41 +5,41 @@ const Footer = () => {
     <footer className="text-white" style={{ background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.40) 0%, rgba(0, 0, 0, 0.40) 100%), #222121' }}>
       {/* Top section with service features */}
       <div className="border-b border-gray-800">
-        <div className="max-w-[1920px] mx-auto px-8 py-24">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 justify-items-center">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-2 justify-items-center">
             {/* Free Delivery */}
-            <div className="flex items-end space-x-6">
-                <img className="w-30 h-16" src='https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463004/public_assets_shop4/public_assets_shop4_Layer_4.png' alt=''/>
-              <div className="font-futura mb-2 ">
-                <h3 className="font-normal text-[16px] uppercase tracking-wide">FREE DELIVERY</h3>
-                <p className="text-[16px]">PRODUCTS</p>
+            <div className="flex items-end space-x-4 lg:space-x-6">
+                <img className="w-20 h-12 lg:w-30 lg:h-16" src='https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463004/public_assets_shop4/public_assets_shop4_Layer_4.png' alt=''/>
+              <div className="font-futura mb-2">
+                <h3 className="font-normal text-sm lg:text-[16px] uppercase tracking-wide">FREE DELIVERY</h3>
+                <p className="text-sm lg:text-[16px]">PRODUCTS</p>
               </div>
             </div>
 
             {/* Free & Easy Returns */}
-            <div className="flex items-center space-x-6">
-               <img className="w-17 h-18" src='https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463001/public_assets_shop4/public_assets_shop4_Layer_4%20%281%29.png' alt=''/>
+            <div className="flex items-center space-x-4 lg:space-x-6">
+               <img className="w-14 h-15 lg:w-17 lg:h-18" src='https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463001/public_assets_shop4/public_assets_shop4_Layer_4%20%281%29.png' alt=''/>
               <div>
-                <h3 className="font-normal font-futura text-sm uppercase tracking-wide">FREE & EASY</h3>
-                <p className="text-[16px] font-futura">RETURNS</p>
+                <h3 className="font-normal font-futura text-xs lg:text-sm uppercase tracking-wide">FREE & EASY</h3>
+                <p className="text-sm lg:text-[16px] font-futura">RETURNS</p>
               </div>
             </div>
 
             {/* 24/7 Service */}
-            <div className="flex items-center space-x-6">
-                <img className="w-17 h-18" src='https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463002/public_assets_shop4/public_assets_shop4_Layer_4%20%282%29.png' alt=''/>
+            <div className="flex items-center space-x-4 lg:space-x-6">
+                <img className="w-14 h-15 lg:w-17 lg:h-18" src='https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463002/public_assets_shop4/public_assets_shop4_Layer_4%20%282%29.png' alt=''/>
               <div>
-                <h3 className="font-normal font-futura text-[16px] uppercase tracking-wide">24/7 NON-STOP</h3>
-                <p className="text-[16px] font-futura">SERVICE</p>
+                <h3 className="font-normal font-futura text-xs lg:text-[16px] uppercase tracking-wide">24/7 NON-STOP</h3>
+                <p className="text-sm lg:text-[16px] font-futura">SERVICE</p>
               </div>
             </div>
 
             {/* Secure Checkout */}
-            <div className="flex items-center space-x-6">
-                <img className="w-20 h-18" src='https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463003/public_assets_shop4/public_assets_shop4_Layer_4%20%283%29.png' alt=''/>
+            <div className="flex items-center space-x-4 lg:space-x-6">
+                <img className="w-16 h-15 lg:w-20 lg:h-18" src='https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463003/public_assets_shop4/public_assets_shop4_Layer_4%20%283%29.png' alt=''/>
               <div>
-                <h3 className="font-normal font-futura text-sm uppercase tracking-wide">100% SECURE</h3>
-                <p className="text-[16px] font-futura">CHECKOUT</p>
+                <h3 className="font-normal font-futura text-xs lg:text-sm uppercase tracking-wide">100% SECURE</h3>
+                <p className="text-sm lg:text-[16px] font-futura">CHECKOUT</p>
               </div>
             </div>
           </div>
@@ -47,17 +47,17 @@ const Footer = () => {
       </div>
 
       {/* Main footer content */}
-      <div className="max-w-[1920px] mx-auto px-32 py-20">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-32 py-12 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
           {/* Company Info Container */}
           <div className="lg:col-span-3">
-            <div className="text-white font-junge text-[22px] font-normal tracking-[3.3px] uppercase bg-gradient-to-r from-[#383838] to-[#9e9e9e] bg-clip-text text-transparent" style={{ WebkitTextStroke: '1px', WebkitTextStrokeColor: '#aea8a8' }}>
+            <div className="text-white font-junge text-lg sm:text-xl lg:text-[22px] font-normal tracking-[3.3px] uppercase bg-gradient-to-r from-[#383838] to-[#9e9e9e] bg-clip-text text-transparent" style={{ WebkitTextStroke: '1px', WebkitTextStrokeColor: '#aea8a8' }}>
               AOIN POOJA STORE
             </div>
-            <p className="font-poppins text-[16px] mt-3 mb-10">The Essence Of Every Pooja, In One Place</p>
+            <p className="font-poppins text-sm lg:text-[16px] mt-3 mb-6 lg:mb-10">The Essence Of Every Pooja, In One Place</p>
             
             <button
-              className="w-[163px] h-[50px] bg-[#BB9D7B] text-[#FFFFFF] font-[400] text-[14px] leading-normal tracking-[3px] text-center capitalize flex-shrink-0"
+              className="w-full sm:w-[163px] h-[50px] bg-[#BB9D7B] text-[#FFFFFF] font-[400] text-[14px] leading-normal tracking-[3px] text-center capitalize flex-shrink-0"
               style={{ fontFamily: '"Futura Md BT"' }}
             >
               Sign Up Now
@@ -88,53 +88,53 @@ const Footer = () => {
           </div>
 
           {/* Links Container */}
-          <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-4 justify-items-end">
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 sm:gap-4 justify-items-start sm:justify-items-end">
             {/* Order Assistance */}
             <div>
-              <h3 className="mb-4 text-white font-futura text-base font-normal leading-[30px] tracking-[4px] uppercase">ORDER ASSISTANCE</h3>
-              <ul className="space-y-3">
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Book An Appointment</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Shipping & Delivery</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Return & Refunds</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Gift Wrapping</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Follow Your Order</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Stores</a></li>
+              <h3 className="mb-4 text-white font-futura text-sm lg:text-base font-normal leading-[30px] tracking-[4px] uppercase">ORDER ASSISTANCE</h3>
+              <ul className="space-y-2 lg:space-y-3">
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Book An Appointment</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Shipping & Delivery</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Return & Refunds</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Gift Wrapping</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Follow Your Order</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Stores</a></li>
               </ul>
             </div>
 
             {/* Company */}
             <div>
-              <h3 className="mb-4 text-white font-futura text-base font-normal leading-[30px] tracking-[4px] uppercase">COMPANY</h3>
-              <ul className="space-y-3">
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">About Us</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Made To Last</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Our Mission</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Core Values</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">The Essentials Blog</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Hire Me</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Affiliates And Creators</a></li>
+              <h3 className="mb-4 text-white font-futura text-sm lg:text-base font-normal leading-[30px] tracking-[4px] uppercase">COMPANY</h3>
+              <ul className="space-y-2 lg:space-y-3">
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">About Us</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Made To Last</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Our Mission</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Core Values</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">The Essentials Blog</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Hire Me</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Affiliates And Creators</a></li>
               </ul>
             </div>
 
             {/* Support */}
             <div>
-              <h3 className="mb-4 text-white font-futura text-base font-normal leading-[30px] tracking-[4px] uppercase">SUPPORT</h3>
-              <ul className="space-y-3">
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">FAQ</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Shipping And Returns</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Tracking</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Size Charts</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Gift Cards</a></li>
+              <h3 className="mb-4 text-white font-futura text-sm lg:text-base font-normal leading-[30px] tracking-[4px] uppercase">SUPPORT</h3>
+              <ul className="space-y-2 lg:space-y-3">
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">FAQ</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Shipping And Returns</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Tracking</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Size Charts</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Gift Cards</a></li>
               </ul>
             </div>
 
             {/* Contact Us */}
             <div>
-              <h3 className="mb-4 text-white font-futura text-base font-normal leading-[30px] tracking-[4px] uppercase">CONTACT US</h3>
-              <ul className="space-y-3">
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Shops</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">General Inquiries</a></li>
-                <li className="text-white font-futura text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Returns</a></li>
+              <h3 className="mb-4 text-white font-futura text-sm lg:text-base font-normal leading-[30px] tracking-[4px] uppercase">CONTACT US</h3>
+              <ul className="space-y-2 lg:space-y-3">
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Shops</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">General Inquiries</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Returns</a></li>
               </ul>
             </div>
           </div>
@@ -143,13 +143,13 @@ const Footer = () => {
 
       {/* Bottom section */}
       <div className="border-t border-gray-800">
-        <div className="max-w-[1920px] mx-auto px-32 py-6">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-32 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className=" text-sm font-poppins ">© 2023 Aoin Pooja Store, All Rights Reserved</p>
-            <div className="flex font-futura space-x-6">
-              <a href="#" className=" text-sm hover:text-white transition-colors">Cookies Settings</a>
-              <a href="#" className=" text-sm hover:text-white transition-colors">Terms & Privacy</a>
-              <a href="#" className=" text-sm hover:text-white transition-colors">Accessibility Statement</a>
+            <p className="text-xs sm:text-sm font-poppins text-center md:text-left">© 2023 Aoin Pooja Store, All Rights Reserved</p>
+            <div className="flex flex-col sm:flex-row font-futura space-y-2 sm:space-y-0 sm:space-x-6 text-center">
+              <a href="#" className="text-xs sm:text-sm hover:text-white transition-colors">Cookies Settings</a>
+              <a href="#" className="text-xs sm:text-sm hover:text-white transition-colors">Terms & Privacy</a>
+              <a href="#" className="text-xs sm:text-sm hover:text-white transition-colors">Accessibility Statement</a>
             </div>
           </div>
         </div>
