@@ -61,6 +61,7 @@ const languages = [
 ];
 const navLinks = [
   { label: 'HOME', href: '/shop1' },
+  { label: 'ABOUT', href: '/shop1/about' },
   { label: 'PRODUCTS', href: '#', active: true },
   { label: 'BLOG', href: '#' },
   { label: 'CONTACT', href: '#' },

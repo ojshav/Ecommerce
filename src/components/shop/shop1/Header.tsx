@@ -14,9 +14,9 @@ const Header = () => {
             <a href="#" className="text-sm font-medium font-poppins text-gray-900 hover:text-gray-600 transition-colors tracking-[0.1em]">
               SHOP
             </a>
-            <a href="#" className="text-sm font-medium font-poppins text-gray-900 hover:text-gray-600 transition-colors tracking-[0.1em]">
+            <Link to="/shop1/about" className="text-sm font-medium font-poppins text-gray-900 hover:text-gray-600 transition-colors tracking-[0.1em]">
               ABOUT
-            </a>
+            </Link>
           </nav>
 
           {/* Logo */}
@@ -58,7 +58,7 @@ const Header = () => {
           <div className="md:hidden py-6 border-t border-gray-100">
             <nav className="flex flex-col space-y-6">
               <a href="#" className="text-sm font-medium text-gray-900 tracking-[0.1em]">SHOP</a>
-              <a href="#" className="text-sm font-medium text-gray-900 tracking-[0.1em]">ABOUT</a>
+              <Link to="/shop1/about" className="text-sm font-medium text-gray-900 tracking-[0.1em]">ABOUT</Link>
             </nav>
             <div className="flex items-center space-x-6 mt-6 pt-6 border-t border-gray-100">
               <Link to="/profile">

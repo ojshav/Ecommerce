@@ -13,6 +13,7 @@ import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import ShippingMethods from './pages/ShippingMethods';
 import Shop1LandingPage from './pages/Shop1LandingPage';
+import Shop1About from './pages/shop1/About';
 import Shop2LandingPage from './pages/Shop2LandingPage';
 import Shop3LandingPage from './pages/Shop3LandingPage';
 import Shop4LandingPage from './pages/Shop4LandingPage';
@@ -227,6 +228,7 @@ const App: React.FC = () => {
                 <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                   <Routes>
                     <Route path="/shop1" element={<Shop1LandingPage />} />
+                    <Route path="/shop1/about" element={<Shop1About />} />
                     <Route path="/shop1/product/:id" element={<Shop1Productpage />} />
                     <Route path="/shop2" element={<Shop2LandingPage />} />
                     <Route path="/shop2/product/:productId" element={<Shop2Productpage />} />
