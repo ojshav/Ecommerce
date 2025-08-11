@@ -90,7 +90,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
 
   if (loading) {
     return (
-      <section className="relative w-full max-w-[1428px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-16 lg:ml-20 2xl:pl-10 text-black">
+      <section className="relative w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-16 text-black">
         <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-[47px] font-normal font-bebas mb-4 sm:mb-6 lg:mb-12">SIMILAR PRODUCTS</h2>
         <div className="flex justify-center items-center h-48">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-black"></div>
@@ -103,21 +103,21 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
     return null; // Don't render if no similar products
   }
   return (
-    <section className="relative w-full max-w-[1428px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-16 lg:ml-20 2xl:pl-10 text-black">
-      <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-[47px] font-normal font-bebas mb-4 sm:mb-6 lg:mb-12">SIMILAR PRODUCT</h2>
+    <section className="relative w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-16 text-black">
+      <h2 className="text-3xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-[47px] font-normal font-bebas mb-4 sm:mb-6 lg:mb-12">SIMILAR PRODUCT</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 xl:gap-7">
+      <div className="flex overflow-x-auto xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 xl:gap-7 pb-4 sm:pb-0 scrollbar-hide snap-x snap-mandatory">
         {products.map((product, idx) => (
           <div 
             key={product.product_id} 
-            className="relative rounded-xl overflow-hidden cursor-pointer group"
+            className="relative rounded-xl overflow-hidden cursor-pointer group flex-shrink-0 w-full sm:w-auto snap-start"
             onClick={() => handleProductClick(product.product_id)}
           >
             <div className="relative">
               <img
                 src={product.primary_image || '/assets/shop2/ProductPage/pd1.svg'}
                 alt={product.product_name}
-                className="w-full h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] xl:h-[401px] object-cover rounded-xl group-hover:scale-105 transition-transform duration-200"
+                className="w-full h-[400px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[450px] object-cover rounded-xl  transition-transform duration-200"
               />
               <div 
                 className="absolute top-2 sm:top-4 right-2 sm:right-4 text-lg sm:text-xl z-10 cursor-pointer"
@@ -130,17 +130,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
                 )}
               </div>
               
-              {/* Show navigation arrows only on first product for carousel effect */}
-              {idx === 0 && products.length > 1 && (
-                <>
-                  <div className="absolute top-1/2 left-2 sm:left-4 transform -translate-y-1/2 bg-white rounded-full shadow w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                    <span className="text-xs sm:text-sm md:text-base">←</span>
-                  </div>
-                  <div className="absolute top-1/2 right-2 sm:right-4 transform -translate-y-1/2 bg-white rounded-full shadow w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                    <span className="text-xs sm:text-sm md:text-base">→</span>
-                  </div>
-                </>
-              )}
+
               
               {/* Action buttons - show on hover */}
               <div className="absolute bottom-0 font-bebas left-0 w-full flex flex-col sm:flex-row justify-between items-center px-2 sm:px-3 lg:px-4 py-2 sm:py-3 bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity">

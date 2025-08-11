@@ -1,5 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Heart } from 'lucide-react';
+import { useAuth } from '../../../../context/AuthContext';
+import { useShopWishlistOperations } from '../../../../hooks/useShopWishlist';
+import { toast } from 'react-hot-toast';
+
+const SHOP_ID = 3;
 
 interface Product {
   product_id: number;
@@ -15,6 +21,45 @@ interface SimilarProductsProps {
 }
 
 const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] }) => {
+  // Wishlist functionality
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const {
+    toggleProductInWishlist,
+    isProductInWishlist,
+    isLoading: wishlistLoading
+  } = useShopWishlistOperations(SHOP_ID);
+
+  // Handle wishlist click
+  const handleWishlistClick = async (e: React.MouseEvent, productId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      toast.error('Please sign in to manage your wishlist');
+      navigate('/sign-in');
+      return;
+    }
+
+    if (user?.role !== 'customer') {
+      toast.error('Only customers can manage wishlists');
+      return;
+    }
+
+    try {
+      const wasInWishlist = isProductInWishlist(productId);
+      await toggleProductInWishlist(productId);
+      
+      if (wasInWishlist) {
+        toast.success('Removed from wishlist');
+      } else {
+        toast.success('Added to wishlist');
+      }
+    } catch (error) {
+      console.error('Wishlist operation failed:', error);
+    }
+  };
+
   // Don't render the section if there are no related products
   if (!relatedProducts || relatedProducts.length === 0) {
     return null;
@@ -62,6 +107,28 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
                       alt={product.product_name}
                       className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-300"
                     />
+                    
+                    {/* Wishlist button */}
+                    <button
+                      onClick={(e) => handleWishlistClick(e, product.product_id)}
+                      disabled={wishlistLoading}
+                      className={`absolute top-3 right-3 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
+                        isProductInWishlist(product.product_id) 
+                          ? 'bg-red-500 text-white shadow-lg' 
+                          : 'bg-white/80 hover:bg-white text-gray-600 hover:text-red-500'
+                      } ${wishlistLoading ? 'opacity-50 cursor-not-allowed' : ''} shadow-md hover:shadow-lg`}
+                      title={isProductInWishlist(product.product_id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                    >
+                      {wishlistLoading ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                      ) : (
+                        <Heart 
+                          size={16} 
+                          className={isProductInWishlist(product.product_id) ? 'fill-current' : ''} 
+                        />
+                      )}
+                    </button>
+
                     {/* Special Price Badge */}
                     {product.special_price && product.special_price < product.price && (
                       <span className="absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-semibold bg-lime-400 text-black">

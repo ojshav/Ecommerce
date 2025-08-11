@@ -5,7 +5,7 @@ const EthnicWear = () => {
     <section className="relative w-full max-w-[1340px] mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-[1340px] mx-auto">
         {/* Section Title */}
-        <div className="mb-12">
+        <div className="mb-6 sm:mb-12 ">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-poppins font-normal text-gray-900 tracking-wide">
             ETHNIC WEAR
           </h2>
@@ -42,7 +42,7 @@ const EthnicWear = () => {
           </div>
 
           {/* Center Image */}
-          <div className="w-full lg:w-[351px] aspect-[351/635] overflow-hidden">
+          <div className="hidden md:block w-full lg:w-[351px] aspect-[351/635] overflow-hidden">
             <img
               src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745147/public_assets_shop1_LP/public_assets_images_ethnic2.svg"
               alt="Center Ethnic Wear"
@@ -52,7 +52,7 @@ const EthnicWear = () => {
           </div>
 
           {/* Right Images */}
-          <div className="flex flex-col gap-4 w-full lg:w-[312px]">
+          <div className="hidden md:flex flex-col gap-4 w-full lg:w-[312px]">
             <div className="aspect-square overflow-hidden">
               <img
                 src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752751674/public_assets_shop1_LP/public_assets_images_ethnic4.svg"

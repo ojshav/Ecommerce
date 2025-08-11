@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import shop3ApiService, { Product } from '../../../../services/shop3ApiService';
 import SimilarProducts from './SimilarProducts';
+import { useShopCartOperations } from '../../../../context/ShopCartContext';
+import { toast } from 'react-hot-toast';
 
 const ProductPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -12,6 +14,15 @@ const ProductPage: React.FC = () => {
   const [currentVariant, setCurrentVariant] = useState<Product | null>(null);
   const [stockError, setStockError] = useState<string>('');
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [selectedMainImage, setSelectedMainImage] = useState<number>(0);
+  const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState<boolean>(false);
+
+  // Cart functionality
+  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  
+  // Shop3 has a fixed shop ID of 3
+  const SHOP_ID = 3;
 
   // Helper function to get color style for color attributes (same as Shop1)
   const getColorStyleForValue = (value: string) => {
@@ -392,6 +403,47 @@ const ProductPage: React.FC = () => {
     }));
   };
 
+  // Handle add to cart
+  const handleAddToCart = async () => {
+    if (!canPerformShopCartOperations()) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
+
+    if (!product) {
+      toast.error("Product not available");
+      return;
+    }
+
+    // Check if product is in stock
+    const currentProduct = currentVariant || product;
+    const stockQty = currentProduct.stock?.stock_qty || 0;
+    if (stockQty <= 0) {
+      toast.error("Product is out of stock");
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      
+      // Create selected attributes object from current selections
+      const cartAttributes: Record<string, string[]> = {};
+      Object.entries(selectedAttributes).forEach(([key, value]) => {
+        if (value) {
+          cartAttributes[key] = [value];
+        }
+      });
+      
+      await addToShopCart(SHOP_ID, product.product_id, 1, cartAttributes);
+      toast.success("Product added to cart");
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error("Failed to add product to cart");
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   // Simple markdown parser for basic formatting with Shop3 styling
   const parseMarkdown = (text: string): JSX.Element[] => {
     if (!text) return [];
@@ -500,28 +552,104 @@ const ProductPage: React.FC = () => {
   return (
     <div className="w-full mx-auto min-h-screen bg-black">
       {/* Header Navigation */}
-      <header className="bg-black max-w-[1920px] w-full mx-auto text-white px-6 py-3 border-b border-gray-800">
-        <div className=" mx-auto">
-          <nav className="text-[22px] font-bebas">
+      <header className="bg-black max-w-[1920px] w-full mx-auto text-white px-4 sm:px-6 py-3 border-b border-gray-800">
+        <div className="mx-auto">
+          <nav className="text-sm sm:text-base md:text-lg lg:text-[22px] font-bebas overflow-x-auto">
             <span className="text-gray-400">HOME</span>
-            <span className="mx-2 text-gray-400">{'>'}</span>
+            <span className="mx-1 sm:mx-2 text-gray-400">{'>'}</span>
             <span className="text-gray-400">MEN</span>
-            <span className="mx-2 text-gray-400">{'>'}</span>
+            <span className="mx-1 sm:mx-2 text-gray-400">{'>'}</span>
             <span className="text-gray-400">{product.category_name?.toUpperCase() || 'PRODUCT'}</span>
-            <span className="mx-2 text-gray-400">{'>'}</span>
+            <span className="mx-1 sm:mx-2 text-gray-400">{'>'}</span>
             <span className="text-white">{product.product_name?.toUpperCase()}</span>
           </nav>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex max-w-[1920px] w-full mx-auto">
+      <div className="flex flex-col lg:flex-row max-w-[1920px] w-full mx-auto">
         {/* Left Section - Product Images */}
-        <div className="w-[1332px] ">
-          <div className=" px-6 rounded-lg">
-            <div className="grid grid-cols-2 gap-4">
+        <div className="w-full lg:w-[1332px]">
+          <div className="px-4 sm:px-6 rounded-lg">
+            {/* Mobile/Tablet Layout (up to lg): One main image on top, others below */}
+            <div className="lg:hidden">
+              {/* Main Image on Top */}
+              <div className="border border-black mb-2 rounded-lg overflow-hidden">
+                <img 
+                  src={
+                    currentVariant?.media?.images?.[selectedMainImage]?.url || 
+                    currentVariant?.primary_image ||
+                    product.media?.images?.[selectedMainImage]?.url || 
+                    product.primary_image || 
+                    "assets/shop3/ProductPage/pd1.svg"
+                  } 
+                  alt="Product main view"
+                  className="w-full h-64 sm:h-96 md:h-[448px] object-contain"
+                />
+              </div>
+              
+              {/* Other Images Below in Single Row */}
+              <div className="flex gap-2 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                {/* Dynamically render all available images */}
+                {(() => {
+                  // Get all available images from both variant and product
+                  const variantImages = currentVariant?.media?.images || [];
+                  const productImages = product?.media?.images || [];
+                  const allImages = [...variantImages, ...productImages];
+                  
+                  // Create unique array of image URLs
+                  const imageUrls = allImages
+                    .map(img => img?.url)
+                    .filter(url => url) // Remove undefined/null
+                    .filter((url, index, arr) => arr.indexOf(url) === index); // Remove duplicates
+                  
+                  // If no images from backend, use fallback images
+                  if (imageUrls.length === 0) {
+                    return [1, 2, 3, 4].map((index) => (
+                      <div 
+                        key={index}
+                        className={`border border-black flex-1 rounded-lg overflow-hidden cursor-pointer transition-all flex-shrink-0 ${
+                          selectedMainImage === index ? 'ring-2 ring-[#CCFF00]' : ''
+                        }`}
+                        onClick={() => setSelectedMainImage(index)}
+                      >
+                        <img 
+                          src={`assets/shop3/ProductPage/pd${index}.svg`}
+                          alt={`Product view ${index}`}
+                          className="w-full h-32 sm:h-48 md:h-64 object-cover"
+                        />
+                      </div>
+                    ));
+                  }
+                  
+                  // Render actual images from backend
+                  return imageUrls.map((imageUrl, index) => (
+                    <div 
+                      key={index}
+                      className={`border border-black rounded-lg overflow-hidden cursor-pointer transition-all flex-shrink-0 ${
+                        selectedMainImage === index ? 'ring-2 ring-[#CCFF00]' : ''
+                      }`}
+                      onClick={() => setSelectedMainImage(index)}
+                      style={{ 
+                        width: imageUrls.length <= 4 ? '25%' : '120px',
+                        minWidth: imageUrls.length <= 4 ? 'auto' : '120px'
+                      }}
+                    >
+                      <img 
+                        src={imageUrl}
+                        alt={`Product view ${index + 1}`}
+                        className="w-full h-32 sm:h-48 md:h-64 object-cover"
+                      />
+                    </div>
+                  ));
+                })()}
+              </div>
+            </div>
+            
+            {/* Desktop Layout (lg and above): Original 2x2 grid */}
+            <div className="hidden lg:grid grid-cols-2 gap-4">
               {/* Top Left Image */}
-              <div className="border border-black">
+              <div className="border border-black rounded-lg overflow-hidden">
                 <img 
                   src={
                     currentVariant?.media?.images?.[0]?.url || 
@@ -531,12 +659,12 @@ const ProductPage: React.FC = () => {
                     "assets/shop3/ProductPage/pd1.svg"
                   } 
                   alt="Product front view"
-                  className="w-[720px] h-[896px] object-cover"
+                  className="w-full h-[896px] object-cover"
                 />
               </div>
               
               {/* Top Right Image */}
-              <div className="border border-black">
+              <div className="border border-black rounded-lg overflow-hidden">
                 <img 
                   src={
                     currentVariant?.media?.images?.[1]?.url || 
@@ -546,12 +674,12 @@ const ProductPage: React.FC = () => {
                     "assets/shop3/ProductPage/pd2.svg"
                   } 
                   alt="Product side view"
-                  className="w-[720px] h-[896px] object-cover"
+                  className="w-full h-[896px] object-cover"
                 />
               </div>
               
               {/* Bottom Left Image */}
-              <div className="border border-black">
+              <div className="border border-black rounded-lg overflow-hidden">
                 <img 
                   src={
                     currentVariant?.media?.images?.[2]?.url || 
@@ -561,12 +689,12 @@ const ProductPage: React.FC = () => {
                     "assets/shop3/ProductPage/pd3.svg"
                   } 
                   alt="Product back view"
-                  className="w-[720px] h-[896px] object-cover"
+                  className="w-full h-[896px] object-cover"
                 />
               </div>
               
               {/* Bottom Right Image */}
-              <div className="border border-black">
+              <div className="border border-black rounded-lg overflow-hidden">
                 <img 
                   src={
                     currentVariant?.media?.images?.[3]?.url || 
@@ -576,7 +704,7 @@ const ProductPage: React.FC = () => {
                     "assets/shop3/ProductPage/pd4.svg"
                   } 
                   alt="Product angled view"
-                  className="w-[720px] h-[896px] object-cover"
+                  className="w-full h-[896px] object-cover"
                 />
               </div>
             </div>
@@ -584,34 +712,34 @@ const ProductPage: React.FC = () => {
         </div>
 
         {/* Right Section - Product Details */}
-        <div className="w-[546px] px-4 text-white">
+        <div className="w-full lg:w-[546px] mt-2 px-4 sm:px-6 lg:px-4 text-white">
           {/* Reference Number */}
           <div className="text-left mb-4">
             <span className="text-sm text-[#FFFFFF] font-sans">Ref.{product.sku || product.product_id}</span>
           </div>
 
           {/* Product Title */}
-          <h1 className="text-[24px] font-bold mb-6 font-alexandria text-[#CCFF00]">
+          <h1 className="text-lg sm:text-xl md:text-2xl lg:text-[24px] font-bold mb-4 sm:mb-6 font-alexandria text-[#CCFF00]">
             {product.product_name}
           </h1>
 
           {/* Price Information */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <div className="flex items-center space-x-2 mb-2">
               {(() => {
                 const currentProduct = currentVariant || product;
                 const hasSpecialPrice = currentProduct.special_price && currentProduct.special_price < currentProduct.price;
                 return hasSpecialPrice ? (
                   <>
-                    <span className="text-white line-through text-[20px] font-sans">${currentProduct.price}</span>
-                    <span className="text-[20px] font-bold text-[#FE5335] font-sans">${currentProduct.special_price}</span>
+                    <span className="text-white line-through text-base sm:text-lg lg:text-[20px] font-sans">${currentProduct.price}</span>
+                    <span className="text-base sm:text-lg lg:text-[20px] font-bold text-[#FE5335] font-sans">${currentProduct.special_price}</span>
                   </>
                 ) : (
-                  <span className="text-[20px] font-bold text-white font-sans">${currentProduct.price}</span>
+                  <span className="text-base sm:text-lg lg:text-[20px] font-bold text-white font-sans">${currentProduct.price}</span>
                 );
               })()}
             </div>
-            <p className="text-[14px] text-[#EDEAEA] font-sans">Tax free (21%) outside US</p>
+            <p className="text-xs sm:text-sm lg:text-[14px] text-[#EDEAEA] font-sans">Tax free (21%) outside US</p>
             {/* Stock indicators similar to Shop1 */}
             {(() => {
               const currentProduct = currentVariant || product;
@@ -633,26 +761,26 @@ const ProductPage: React.FC = () => {
           </div>
 
           {/* Product Description */}
-          <div className="text-[#F4EDED] mb-8 text-[16px] leading-relaxed font-alexandria ">
+          <div className="text-[#F4EDED] mb-6 sm:mb-8 text-sm sm:text-base lg:text-[16px] leading-relaxed font-alexandria">
             {product.short_description ? parseMarkdown(product.short_description) : 
              product.product_description ? parseMarkdown(product.product_description) :
              <p>A stunning product featuring modern design and exceptional quality.</p>}
           </div>
 
           {/* Product Links */}
-          <div className="flex font-[14px] space-x-8 mb-8">
-            <button className="text-white font-openSans underline">
+          <div className="flex flex-col sm:flex-row font-[14px] space-y-2 sm:space-y-0 sm:space-x-8 mb-6 sm:mb-8">
+            <button className="text-white font-openSans underline text-left">
               Product details
             </button>
-            <button className="text-white font-openSans underline">
+            <button className="text-white font-openSans underline text-left">
               Size guide
             </button>
           </div>
 
           {/* Color Selection */}
           <div className="mb-6">
-            <div className="flex items-center justify-between mb-16">
-              <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-16">
+              <div className="flex items-center space-x-4 mb-4 sm:mb-0">
                 {availableAttributes
                   .filter(attr => attr.name.toLowerCase().includes('color') || attr.name.toLowerCase().includes('colour'))
                   .map(colorAttr => (
@@ -664,7 +792,7 @@ const ProductPage: React.FC = () => {
                         <button
                           key={colorValue}
                           onClick={() => handleAttributeSelect(colorAttr.name, colorValue)}
-                          className={`w-8 h-8 rounded border-2 ${
+                          className={`w-6 h-6 sm:w-8 sm:h-8 rounded border-2 ${
                             selectedAttributes[colorAttr.name] === colorValue ? 'border-white' : 'border-transparent'
                           }`}
                           style={{ 
@@ -676,7 +804,7 @@ const ProductPage: React.FC = () => {
                     })
                   )).flat()}
               </div>
-              <span className="text-[14px] text-[#757575] font-sans">
+              <span className="text-xs sm:text-sm lg:text-[14px] text-[#757575] font-sans">
                 {(() => {
                   const colorAttr = availableAttributes.find(attr => attr.name.toLowerCase().includes('color') || attr.name.toLowerCase().includes('colour'));
                   const selectedColorValue = colorAttr ? selectedAttributes[colorAttr.name] : '';
@@ -687,31 +815,50 @@ const ProductPage: React.FC = () => {
           </div>
 
           {/* Size Selection */}
-          <div className="mb-4">
-            <select
-              value={(() => {
-                const sizeAttr = availableAttributes.find(attr => attr.name.toLowerCase().includes('size'));
-                return sizeAttr ? selectedAttributes[sizeAttr.name] || '' : '';
-              })()}
-              onChange={(e) => {
-                const sizeAttr = availableAttributes.find(attr => attr.name.toLowerCase().includes('size'));
-                if (sizeAttr) {
-                  handleAttributeSelect(sizeAttr.name, e.target.value);
-                }
-              }}
-              className="w-full bg-[#CCFF00] text-black font-medium py-2 px-4 rounded appearance-none cursor-pointer font-sans"
-            >
-              <option value="">Choose youre size</option>
-              {availableAttributes
-                .filter(attr => attr.name.toLowerCase().includes('size'))
-                .map(sizeAttr => 
-                  sizeAttr.values.map((sizeValue: string) => (
-                    <option key={sizeValue} value={sizeValue} className="bg-white text-black">
-                      {sizeValue}
-                    </option>
-                  ))
-                ).flat()}
-            </select>
+          <div className="mb-4 flex justify-center">
+            <div className="relative w-full sm:w-3/4 lg:w-full">
+              <button
+                onClick={() => setIsSizeDropdownOpen(!isSizeDropdownOpen)}
+                className="w-full bg-[#CCFF00] text-black font-medium py-2 px-4 rounded cursor-pointer font-sans text-sm sm:text-base flex items-center justify-between"
+              >
+                <span>
+                  {(() => {
+                    const sizeAttr = availableAttributes.find(attr => attr.name.toLowerCase().includes('size'));
+                    const selectedSize = sizeAttr ? selectedAttributes[sizeAttr.name] : '';
+                    return selectedSize || 'Choose your size';
+                  })()}
+                </span>
+                <svg 
+                  className={`w-4 h-4 transition-transform ${isSizeDropdownOpen ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {isSizeDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded shadow-lg z-50 max-h-48 overflow-y-auto">
+                  {availableAttributes
+                    .filter(attr => attr.name.toLowerCase().includes('size'))
+                    .map(sizeAttr => 
+                      sizeAttr.values.map((sizeValue: string) => (
+                        <button
+                          key={sizeValue}
+                          onClick={() => {
+                            handleAttributeSelect(sizeAttr.name, sizeValue);
+                            setIsSizeDropdownOpen(false);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-black text-sm sm:text-base block"
+                        >
+                          {sizeValue}
+                        </button>
+                      ))
+                    ).flat()}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Combination Error Message */}
@@ -726,61 +873,82 @@ const ProductPage: React.FC = () => {
           )}
 
           {/* Add to Bag Button */}
-          <button className="w-full bg-black  border-white text-white py-3 px-6 font-medium font-openSans mb-4">
-            Add to bag
+          <button 
+            onClick={handleAddToCart}
+            disabled={isAddingToCart || (() => {
+              const currentProduct = currentVariant || product;
+              const stockQty = currentProduct.stock?.stock_qty || 0;
+              return stockQty <= 0;
+            })()}
+            className={`w-full py-3 px-6 font-medium font-openSans mb-4 transition-all text-sm sm:text-base ${
+              isAddingToCart || (() => {
+                const currentProduct = currentVariant || product;
+                const stockQty = currentProduct.stock?.stock_qty || 0;
+                return stockQty <= 0;
+              })()
+                ? 'bg-gray-600 border-gray-400 text-gray-300 cursor-not-allowed'
+                : 'bg-black border-white text-white hover:bg-gray-800'
+            }`}
+          >
+            {isAddingToCart ? 'Adding...' : (() => {
+              const currentProduct = currentVariant || product;
+              const stockQty = currentProduct.stock?.stock_qty || 0;
+              return stockQty <= 0 ? 'Out of Stock' : 'Add to bag';
+            })()}
           </button>
 
           {/* Bottom Section */}
-          <div className="flex justify-between items-center pt-6">
-            <span className="text-white font-openSans underline">Product details</span>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-6 space-y-4 sm:space-y-0">
+            <span className="text-white font-openSans underline text-sm sm:text-base">Product details</span>
             <div className="flex items-center space-x-2 text-white">
-              <span className="font-sans">Share</span>
-              <svg className="w-5 h-5 text-[#CCFF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="font-sans text-sm sm:text-base">Share</span>
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#CCFF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
               </svg>
             </div>
           </div>
         </div>
       </div>
+      
       {/* Bottom Product Details Section */}
-      <div className="w-full flex justify-center items-start bg-black py-14">
-        <div className="max-w-6xl w-full flex flex-row gap-16">
+      <div className="w-full flex justify-center items-start bg-black py-8 sm:py-10 lg:py-14">
+        <div className="max-w-6xl w-full flex flex-col lg:flex-row gap-8 lg:gap-16 px-4 sm:px-6">
           {/* Left: Product Details */}
           <div className="flex-1">
-            <h2 className="text-[18px] font-bold mb-6 font-alexandria text-white">Product details</h2>
-            <div className="text-[#FAF8F8] font-openSans text-[16px] font-normal leading-[30px]">
+            <h2 className="text-base sm:text-lg lg:text-[18px] font-bold mb-4 sm:mb-6 font-alexandria text-white">Product details</h2>
+            <div className="text-[#FAF8F8] font-openSans text-sm sm:text-base lg:text-[16px] font-normal leading-relaxed lg:leading-[30px]">
               {product.full_description ? parseMarkdown(product.full_description) :
                product.product_description ? parseMarkdown(product.product_description) :
                <p>Detailed product information will be displayed here.</p>}
             </div>
-            <ul className="list-disc ml-5 mt-8 text-[#FAF8F8] mb-8 text-[16px] font-openSans font-normal leading-[26px] space-y-1">
+            <ul className="list-disc ml-5 mt-6 sm:mt-8 text-[#FAF8F8] mb-6 sm:mb-8 text-sm sm:text-base lg:text-[16px] font-openSans font-normal leading-relaxed lg:leading-[26px] space-y-1">
               <li>Premium quality materials</li>
               <li>Exceptional craftsmanship</li>
               <li>Perfect fit and comfort</li>
             </ul>
-            <div className="flex gap-4 font-montserrat mt-4">
-              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-3 rounded shadow-md font-sans whitespace-nowrap">Material &amp; Care</button>
-              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-3 rounded shadow-md font-sans whitespace-nowrap">Fit &amp; Style</button>
-              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-2 rounded shadow-md font-sans whitespace-nowrap">Design</button>
-              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-4 rounded shadow-md font-sans whitespace-nowrap">Premium quality</button>
+            <div className="flex flex-wrap gap-2 sm:gap-4 font-montserrat mt-4">
+              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-3 rounded shadow-md font-sans whitespace-nowrap text-xs sm:text-sm">Material &amp; Care</button>
+              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-3 rounded shadow-md font-sans whitespace-nowrap text-xs sm:text-sm">Fit &amp; Style</button>
+              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-2 rounded shadow-md font-sans whitespace-nowrap text-xs sm:text-sm">Design</button>
+              <button className="bg-[#CCFF00] bg-opacity-70 text-[#F9F9F9] font-bold py-2 px-4 rounded shadow-md font-sans whitespace-nowrap text-xs sm:text-sm">Premium quality</button>
             </div>
           </div>
           {/* Right: Information */}
           <div className="flex-1">
-            <h2 className="text-[18px] font-bold mb-6 font-alexandria text-white">Information</h2>
-            <ul className="list-disc ml-4 mt-6 text-[#FAF8F8] mb-6 text-[16px] font-openSans font-normal leading-[26px] space-y-1">
+            <h2 className="text-base sm:text-lg lg:text-[18px] font-bold mb-4 sm:mb-6 font-alexandria text-white">Information</h2>
+            <ul className="list-disc ml-4 mt-4 sm:mt-6 text-[#FAF8F8] mb-4 sm:mb-6 text-sm sm:text-base lg:text-[16px] font-openSans font-normal leading-relaxed lg:leading-[26px] space-y-1">
               <li>Brand: {product.brand_name || 'Premium Brand'}</li>
               <li>Category: {product.category_name}</li>
               <li>SKU: {product.sku}</li>
               <li>Stock: {product.is_in_stock ? 'In Stock' : 'Out of Stock'}</li>
             </ul>
-            <p className="text-white mb-8 text-[16px] font-openSans">
-              High-quality product with excellent features <br /> and modern design for the perfect look.
+            <p className="text-white mb-6 sm:mb-8 text-sm sm:text-base lg:text-[16px] font-openSans">
+              High-quality product with excellent features <br className="hidden sm:block" /> and modern design for the perfect look.
             </p>
-            <div className="flex font-montserrat gap-8 mt-8">
-              <a href="#" className="underline text-white  text-[14px]">Delivery</a>
-              <a href="#" className="underline text-white text-[14px]">Return</a>
-              <a href="#" className="underline text-white text-[14px]">Help</a>
+            <div className="flex flex-col sm:flex-row font-montserrat gap-4 sm:gap-8 mt-6 sm:mt-8">
+              <a href="#" className="underline text-white text-xs sm:text-sm">Delivery</a>
+              <a href="#" className="underline text-white text-xs sm:text-sm">Return</a>
+              <a href="#" className="underline text-white text-xs sm:text-sm">Help</a>
             </div>
           </div>
         </div>

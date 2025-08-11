@@ -24,7 +24,7 @@ const AoinFashion: React.FC = () => {
         </h1>
 
         {/* Images Row */}
-        <div className="relative flex flex-col md:flex-row items-center md:items-end justify-center gap-4 mb-8 sm:mb-10 md:mb-12 w-full max-w-full md:max-w-5xl">
+        <div className="relative flex flex-col lg:flex-row items-center lg:items-end justify-center gap-4 mb-8 sm:mb-10 md:mb-12 w-full max-w-full md:max-w-5xl">
           {/* Ellipse Background (optional) */}
           <div
             className="absolute left-[75%] top-[100%] -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none"
@@ -42,7 +42,7 @@ const AoinFashion: React.FC = () => {
           <img
             src={UNION_URL}
             alt="Union Background"
-            className="absolute left-[800px] top-[390px] -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none"
+            className="absolute left-[700px] lg:left-[800px] top-[1290px] lg:top-[390px] -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none"
             style={{ width: 581, height: 581, opacity: 1 }}
           />
 

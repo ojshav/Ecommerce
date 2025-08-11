@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
   return (
     <footer className="bg-[#e18a4b] text-white w-full mx-auto py-8 px-4 sm:px-8 md:px-14 md:py-16">
-      <div className="max-w-[1340px] mx-auto flex flex-col md:flex-row justify-between gap-8 md:gap-16 lg:gap-32">
+      <div className="max-w-[1340px] mx-auto flex flex-col lg:flex-row justify-between">
         {/* Brand Info */}
-        <div className="flex-1 min-w-[200px] md:min-w-[310px] mb-10 md:mb-0">
+        <div className="flex-1 min-w-[200px] lg:min-w-[310px] mb-8 lg:mb-0">
           <h2 className="text-3xl sm:text-4xl font-playfair font-bold mb-6 sm:mb-8 text-white">AOIN</h2>
           <div className="mb-4 sm:mb-6 font-poppins text-base sm:text-[18px]">
             <p className="font-semibold mb-1">Address : <span className="font-normal">Anjis Overseas Pvt. Ltd.</span></p>
@@ -55,6 +55,7 @@ const Footer = () => {
             </a>
           </div>
         </div>
+
         {/* Information */}
         <div className="flex-1 font-segoe min-w-[140px] md:min-w-[180px] mb-8 md:mb-0">
           <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">Information</h3>
@@ -88,8 +89,9 @@ const Footer = () => {
             <li><a href="#" className="hover:underline">Shoes</a></li>
           </ul>
         </div> */}
+
       </div>
-      <div className="border-t border-white/30 mt-10 sm:mt-20 md:mt-32" />
+      <div className="border-t border-white/30 mt-10 sm:mt-20 lg:mt-32" />
     </footer>
   );
 };
