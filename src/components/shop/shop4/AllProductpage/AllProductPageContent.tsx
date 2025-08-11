@@ -644,8 +644,8 @@ const SearchBar: React.FC = () => {
 
     return (
         <div className="bg-black max-w-[1078px] mx-auto mb-8 px-4 2xl:px-0">
-            <form onSubmit={handleSearchSubmit} className="relative">
-                <div className="relative w-full lg:w-3/4">
+            <form onSubmit={handleSearchSubmit} className="flex gap-4">
+                <div className="relative flex-1 lg:w-4/5">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                        
                     </div>
@@ -668,6 +668,13 @@ const SearchBar: React.FC = () => {
                         )}
                     </div>
                 </div>
+                                <button
+                    type="submit"
+                    className="bg-[#161616] text-white px-6 py-3 rounded-lg transition-colors duration-200 hidden lg:flex items-center justify-center gap-2 lg:w-1/5"
+                >
+                   
+                    <span className="hidden sm:inline font-medium">Search</span>
+                </button>
                 {isSearching && (
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#A06020]"></div>
@@ -890,7 +897,7 @@ const AllProductPageContent: React.FC = () => {
             <main className="container max-w-[1740px] mx-auto px-4 py-20">
                 <div className="flex flex-col lg:flex-row ">
                     {/* Desktop Sidebar */}
-                    <aside className="hidden lg:block lg:w-96 xl:w-[450px] 2xl:w-[500px] order-2 lg:order-1">
+                    <aside className="hidden lg:block lg:w-96  2xl:w-[455px] order-2 lg:order-1">
                         <div className="sticky top-8">
                             <Sidebar />
                         </div>
