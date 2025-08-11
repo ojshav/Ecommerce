@@ -312,7 +312,7 @@ const ProductPage = () => {
             <div className={`${priceOpen ? 'block' : 'hidden'} md:block`}>
               <div className="flex items-center justify-between mb-4">
                 <div className="relative">
-                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">$</span>
+                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">₹</span>
                   <input
                     type="text"
                     value={price[0]}
@@ -324,7 +324,7 @@ const ProductPage = () => {
                 </div>
                 <div className="flex-1 h-px bg-gray-300 mx-2 md:mx-4"></div>
                 <div className="relative">
-                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">$</span>
+                  <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">₹</span>
                   <input
                     type="text"
                     value={price[1]}
