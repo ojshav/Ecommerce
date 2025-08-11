@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -59,9 +60,9 @@ const Footer = () => {
           <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">Information</h3>
           <div className="w-8 sm:w-10 h-[1px]  bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
           <ul className="space-y-2 sm:space-y-4 text-base sm:text-[18px]">
-            <li><a href="#" className="hover:underline">About Us</a></li>
+            <li><Link to="/shop1/about" className="hover:underline">About Us</Link></li>
             <li><a href="#" className="hover:underline">Checkout</a></li>
-            <li><a href="#" className="hover:underline">Contact</a></li>
+            <li><Link to="/contact" className="hover:underline">Contact</Link></li>
             <li><a href="#" className="hover:underline">Services</a></li>
           </ul>
         </div>
@@ -71,12 +72,12 @@ const Footer = () => {
           <div className="w-8 sm:w-10 h-[1px]  bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
           <ul className="space-y-2 sm:space-y-4  text-base sm:text-[18px]">
             <li><a href="#" className="hover:underline">My Account</a></li>
-            <li><a href="#" className="hover:underline">Contact</a></li>
+            <li><Link to="/contact" className="hover:underline">Contact</Link></li>
             <li><a href="#" className="hover:underline">Shopping Cart</a></li>
             <li><a href="#" className="hover:underline">Shop</a></li>
           </ul>
         </div>
-        {/* Categories */}
+        {/* Categories 
         <div className="flex-1 font-segoe min-w-[140px] md:min-w-[180px]">
           <h3 className="text-lg sm:text-[24px] font-semibold mb-2 text-white">Categories</h3>
           <div className="w-8 sm:w-10 h-[1px]  bg-white mt-2 sm:mt-4 mb-4 sm:mb-6" />
@@ -86,7 +87,7 @@ const Footer = () => {
             <li><a href="#" className="hover:underline">Shirt</a></li>
             <li><a href="#" className="hover:underline">Shoes</a></li>
           </ul>
-        </div>
+        </div> */}
       </div>
       <div className="border-t border-white/30 mt-10 sm:mt-20 md:mt-32" />
     </footer>

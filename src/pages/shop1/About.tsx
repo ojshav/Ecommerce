@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../../components/shop/shop1/Header';
 import Footer from '../../components/shop/shop1/AllProductpage/Footer';
 
@@ -17,6 +18,28 @@ const About: React.FC = () => {
             <p className="text-lg md:text-xl font-poppins text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Discover the story behind AOIN - where fashion meets innovation, and every piece tells a unique story of style, quality, and craftsmanship.
             </p>
+          </div>
+          
+          {/* Navigation Links */}
+          <div className="mt-12 flex flex-wrap justify-center gap-4">
+            <Link 
+              to="/shop1" 
+              className="bg-[#e18a4b] text-white px-6 py-3 rounded-lg font-poppins font-semibold hover:bg-orange-600 transition-colors"
+            >
+              Back to Home
+            </Link>
+            <Link 
+              to="/shop1-allproductpage" 
+              className="bg-white text-[#e18a4b] border-2 border-[#e18a4b] px-6 py-3 rounded-lg font-poppins font-semibold hover:bg-[#e18a4b] hover:text-white transition-colors"
+            >
+              Shop Products
+            </Link>
+            <Link 
+              to="/contact" 
+              className="bg-white text-[#e18a4b] border-2 border-[#e18a4b] px-6 py-3 rounded-lg font-poppins font-semibold hover:bg-[#e18a4b] hover:text-white transition-colors"
+            >
+              Contact Us
+            </Link>
           </div>
         </div>
       </section>
@@ -175,7 +198,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Contact CTA Section 
+      {/* Contact CTA Section */}
       <section className="py-20 bg-gradient-to-r from-[#e18a4b] to-orange-400">
         <div className="w-[1280px] max-w-full mx-auto px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-playfair font-bold text-white mb-6">
@@ -185,9 +208,15 @@ const About: React.FC = () => {
             Have questions about AOIN? We'd love to hear from you. Reach out to our team and let's start a conversation.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              to="/contact"
+              className="bg-white text-[#e18a4b] px-8 py-3 rounded-lg font-poppins font-semibold hover:bg-gray-100 transition-colors"
+            >
+              Contact Us
+            </Link>
             <a 
               href="mailto:auoinstore@gmail.com" 
-              className="bg-white text-[#e18a4b] px-8 py-3 rounded-lg font-poppins font-semibold hover:bg-gray-100 transition-colors"
+              className="border-2 border-white text-white px-8 py-3 rounded-lg font-poppins font-semibold hover:bg-white hover:text-[#e18a4b] transition-colors"
             >
               Email Us
             </a>
@@ -199,7 +228,7 @@ const About: React.FC = () => {
             </a>
           </div>
         </div>
-      </section> */}
+      </section>
 
       <Footer />
     </div>
