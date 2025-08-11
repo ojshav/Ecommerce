@@ -285,89 +285,26 @@
 
 /* Print Styles for Invoice */
 @media print {
-  body * {
-    visibility: hidden !important;
-  }
-  .print-invoice, .print-invoice * {
-    visibility: visible !important;
-    display: block !important;
-  }
-  .print-invoice {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100vw !important;
-    background: white !important;
-    color: black !important;
-    padding: 2rem !important;
-    z-index: 9999 !important;
-    box-shadow: none !important;
-    display: block !important;
-  }
-  
-  /* Show only print content */
-  .print-only {
-    display: block !important;
-    position: static !important;
-    width: 100% !important;
-    height: auto !important;
-    visibility: visible !important;
-  }
-  
-  /* Reset margins and padding for print */
-  body {
-    margin: 0 !important;
-    padding: 0 !important;
-    font-size: 12pt !important;
-    line-height: 1.4 !important;
-    color: black !important;
-    background: white !important;
-  }
-  
   /* Page setup */
-  @page {
-    margin: 0.5in;
-    size: A4;
-  }
-  
-  /* Remove any transforms or positioning that might interfere */
-  * {
-    transform: none !important;
-    position: static !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-  
-  /* Ensure tables display properly */
-  table {
-    border-collapse: collapse !important;
-    width: 100% !important;
-  }
-  
-  table, th, td {
-    border: 1px solid black !important;
-  }
-  
-  th, td {
-    padding: 8pt !important;
-    text-align: left !important;
-  }
-  
-  th {
-    background: #e5e5e5 !important;
-    font-weight: bold !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  
-  /* Page break controls */
-  .print-page-break {
-    page-break-before: always;
-  }
-  
-  .print-no-break {
-    page-break-inside: avoid;
-  }
+  @page { size: A4; margin: 14mm 12mm; }
+
+  /* High-fidelity colors */
+  body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0 !important; padding: 0 !important; }
+
+  /* Hide everything except the invoice (works even when nested) */
+  body * { visibility: hidden !important; }
+  .print-invoice, .print-invoice * { visibility: visible !important; }
+
+  /* Ensure invoice fits page and remains flow-based */
+  .print-invoice { display: block !important; position: static !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; background: white !important; color: black !important; box-shadow: none !important; }
+
+  /* Tables inside invoice */
+  .print-invoice .invoice-table { border-collapse: collapse !important; width: 100% !important; page-break-inside: auto; }
+  .print-invoice .invoice-table thead { display: table-header-group; }
+  .print-invoice .invoice-table tfoot { display: table-footer-group; }
+  .print-invoice .invoice-table tr { page-break-inside: avoid; page-break-after: auto; }
+  .print-page-break { page-break-before: always; }
+  .print-no-break { page-break-inside: avoid; }
 }
 
 /* Screen-only styles - hide print content on screen */
@@ -390,25 +327,7 @@ body.printing-active .print-only {
   display: none;
 }
 @media print {
-  .screen-hidden {
-    display: block !important;
-  }
-  .print-invoice, .print-invoice * {
-    visibility: visible !important;
-    display: block !important;
-  }
-  .print-invoice {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100vw !important;
-    background: white !important;
-    color: black !important;
-    padding: 2rem !important;
-    z-index: 9999 !important;
-    box-shadow: none !important;
-    display: block !important;
-  }
+  .screen-hidden { display: block !important; }
 }
 
 .watermark-bg {
