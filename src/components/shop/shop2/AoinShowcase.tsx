@@ -126,10 +126,10 @@ const AoinShowcase = () => {
 
         {/* Right: Social Links */}
         <div className="text-white text-base sm:text-lg md:text-xl lg:text-2xl font-archivio font-semibold space-y-3 sm:space-y-4 text-center lg:text-right">
-          <a href="#" className="block hover:underline transition-all duration-200 hover:text-purple-300">MARKETPLACE ↗</a>
-          <a href="#" className="block hover:underline transition-all duration-200 hover:text-purple-300">INSTAGRAM ↗</a>
-          <a href="#" className="block hover:underline transition-all duration-200 hover:text-purple-300">YOUTUBE ↗</a>
-          <a href="#" className="block hover:underline transition-all duration-200 hover:text-purple-300">FACEBOOK ↗</a>
+         {/* <a href="#" className="block hover:underline transition-all duration-200 hover:text-purple-300">MARKETPLACE ↗</a> */}
+          <a href="https://www.instagram.com/aoin.in?igsh=NGk3dml2ZHk2cjM4" target="_blank" rel="noopener noreferrer" className="block hover:underline transition-all duration-200 hover:text-purple-300">INSTAGRAM ↗</a>
+          <a href="https://www.youtube.com/@aoin.in" target="_blank" rel="noopener noreferrer" className="block hover:underline transition-all duration-200 hover:text-purple-300">YOUTUBE ↗</a>
+          <a href="https://www.facebook.com/profile.php?id=61578809217780" target="_blank" rel="noopener noreferrer" className="block hover:underline transition-all duration-200 hover:text-purple-300">FACEBOOK ↗</a>
         </div>
       </div>
     </section>
