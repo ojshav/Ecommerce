@@ -55,34 +55,50 @@ interface Product {
 }
 
 // --- ReviewCard ---
-interface Review {
-  id: number;
-  userName: string;
-  userInfo: string;
+interface ShopReviewImage {
+  image_id: number;
+  image_url: string;
+  sort_order: number;
+  type: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface ShopReview {
+  review_id: number;
+  shop_product_id: number;
+  user_id: number;
+  shop_order_id: string;
   rating: number;
-  comment: string;
-  helpful: number;
-  notHelpful: number;
-  timeAgo: string;
-  initials: string;
+  title: string;
+  body: string;
+  created_at: string;
+  updated_at: string;
+  images: ShopReviewImage[];
+  user?: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+  } | null;
 }
 
 interface ReviewCardProps {
-  review: Review;
+  review: ShopReview;
 }
 
 const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
-  const [helpfulCount, setHelpfulCount] = useState(review.helpful);
-  const [notHelpfulCount, setNotHelpfulCount] = useState(review.notHelpful);
+  const [helpfulCount, setHelpfulCount] = useState<number>(0);
+  const [notHelpfulCount, setNotHelpfulCount] = useState<number>(0);
   const [voted, setVoted] = useState<'helpful' | 'not-helpful' | null>(null);
 
   const handleVote = (type: 'helpful' | 'not-helpful') => {
     if (voted) return; // Prevent multiple votes
     
     if (type === 'helpful') {
-      setHelpfulCount(prev => prev + 1);
+  setHelpfulCount((prev: number) => prev + 1);
     } else {
-      setNotHelpfulCount(prev => prev + 1);
+  setNotHelpfulCount((prev: number) => prev + 1);
     }
     setVoted(type);
   };
@@ -101,12 +117,12 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
             {/* Reviewer Info */}
             <div className="flex flex-col">
               <h4 className="text-white font-medium text-sm sm:text-base">
-                <span className="text-[#FFF] text-base sm:text-[18px] font-[450] leading-normal font-futura ">Sabina F.</span> <span className="text-[#FFF] text-sm sm:text-[16px] font-normal leading-normal font-futura">Verified Buyer</span>
+                <span className="text-[#FFF] text-base sm:text[18px] font-[450] leading-normal font-futura ">{review.user?.first_name || 'User'}</span>
               </h4>
               <p className="text-[#FFF] text-sm sm:text-[16px] font-[450] leading-normal font-futura">Germany</p>
               <div className="flex mt-1">
                 <div className="w-[79.806px] h-[11.897px] flex-shrink-0">
-                  <StarRating rating={5} size="sm" />
+                  <StarRating rating={review.rating} size="sm" />
                 </div>
               </div>
             </div>
@@ -120,7 +136,8 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
           
           <div className="lg:pl-4 mt-2">
             {/* Review Headline */}
-            <p className="text-[#FFF] text-sm sm:text-[14px] font-normal leading-normal font-poppins mb-4">{review.comment}</p>
+            <h4 className="text-white font-semibold text-sm sm:text-base">{review.title}</h4>
+            <p className="text-[#FFF] text-sm sm:text-[14px] font-normal leading-normal font-poppins mb-4">{review.body}</p>
             
             {/* Helpfulness Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
@@ -162,7 +179,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
 
         {/* Right Column - Timestamp */}
         <div className="lg:col-span-1">
-          <span className="text-white text-xs sm:text-sm">{review.timeAgo}</span>
+          <span className="text-white text-xs sm:text-sm">{new Date(review.created_at).toLocaleDateString()}</span>
         </div>
       </div>
     </div>
@@ -170,149 +187,241 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
 };
 
 // --- ReviewsSection ---
-const reviewsData: Review[] = [
-    {
-      id: 1,
-      userName: 'Sabina F.',
-      userInfo: 'Verified Buyer • Germany',
-      rating: 5,
-      comment: 'Awesome Product. The Products is Excellent',
-      helpful: 1,
-      notHelpful: 0,
-      timeAgo: '8 months ago',
-      initials: 'SF'
+const reviewsData: ShopReview[] = [];
+
+const ReviewsSection: React.FC<{ productId: number; allowedProductIds?: number[] }> = ({ productId, allowedProductIds }) => {
+  const [activeTab, setActiveTab] = useState('reviews');
+  const [showWriteReview, setShowWriteReview] = useState(false);
+  const [newReview, setNewReview] = useState({ rating: 5, title: '', comment: '', orderId: '' });
+  const [reviews, setReviews] = useState<ShopReview[]>(reviewsData);
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [eligibilityChecked, setEligibilityChecked] = useState(false);
+  const [eligibilityError, setEligibilityError] = useState<string | null>(null);
+  const averageRating = reviews.length > 0 ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length) : 0;
+  const totalReviews = reviews.length;
+
+  const fetchReviews = async (p: number = 1) => {
+    try {
+      setLoading(true);
+      const res = await shop4ApiService.getShopProductReviews(productId, p, 5);
+      if (res.status === 'success') {
+        setReviews(res.data.reviews);
+        setPages(res.data.pages);
+        setPage(res.data.current_page);
+      }
+    } catch (e) {
+      console.error('Failed to load reviews', e);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-const ReviewsSection: React.FC = () => {
-    const [activeTab, setActiveTab] = useState('reviews');
-    const [showWriteReview, setShowWriteReview] = useState(false);
-    const [newReview, setNewReview] = useState({
-      rating: 5,
-      comment: ''
-    });
-    const averageRating = 4.9;
-    const totalReviews = reviewsData.length;
+  useEffect(() => {
+    fetchReviews(1);
+  }, [productId]);
 
-    const handleSubmitReview = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Handle review submission logic here
-        console.log('Submitting review:', newReview);
-        setShowWriteReview(false);
-        setNewReview({ rating: 5, comment: '' });
-    };
+  // On-click eligibility like other shops
+  const handleOpenReview = async () => {
+    setEligibilityChecked(false);
+    setEligibilityError(null);
+    try {
+      const jwt = localStorage.getItem('access_token') || '';
+      if (!jwt) {
+        setEligibilityError('Please sign in to review.');
+        setEligibilityChecked(true);
+        return;
+      }
+      let page = 1;
+      let hasNext = true;
+      let foundOrderId = '';
+      while (hasNext && page <= 5 && !foundOrderId) {
+        const res = await shop4ApiService.getMyShopOrders(page, 50, jwt);
+        if (res.success) {
+          const ids = (allowedProductIds && allowedProductIds.length > 0) ? allowedProductIds : [Number(productId)];
+          const match = (res.data.orders || []).find((o: any) =>
+            String(o.order_status).toLowerCase() === 'delivered' &&
+            Array.isArray(o.items) && o.items.some((it: any) => ids.includes(Number(it.product_id)))
+          );
+          if (match) {
+            foundOrderId = match.order_id;
+            break;
+          }
+          hasNext = Boolean(res.data?.pagination?.has_next);
+          page += 1;
+        } else {
+          hasNext = false;
+        }
+      }
+      if (foundOrderId) {
+        setNewReview(prev => ({ ...prev, orderId: foundOrderId }));
+        setShowWriteReview(true);
+      } else {
+        setEligibilityError("Not allowed: either this product wasn't ordered, or the order isn't delivered yet.");
+      }
+    } catch (e: any) {
+      console.error('Failed to check eligibility', e);
+      setEligibilityError(e?.message || 'Failed to check eligibility');
+    } finally {
+      setEligibilityChecked(true);
+    }
+  };
 
-    return (
-        <div className="bg-black text-white min-h-screen px-4 sm:px-6 lg:px-16 py-8">
-            <div className="max-w-[1640px] mx-auto">
-                <div className="border-b border-gray-700 mb-8">
-                    <nav className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-0">
-                        <button
-                            onClick={() => setActiveTab('reviews')}
-                            className={`py-2 sm:py-4 px-4 sm:px-6 border-b-[3px] sm:border-b-[5px] font-medium text-sm sm:text-base transition-colors duration-200 ${activeTab === 'reviews' ? 'border-white text-white ' : 'border-transparent text-gray-400 hover:text-gray-300'}`}
-                        >
-                            <span className="text-white font-futura text-lg sm:text-xl lg:text-[30px] font-normal leading-normal">Reviews</span>
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('questions')}
-                            className={`py-2 sm:py-4 px-4 sm:px-6 border-b-[3px] sm:border-b-[5px] font-medium text-sm sm:text-base transition-colors duration-200 ${activeTab === 'questions' ? 'border-white text-white ' : 'border-transparent text-gray-400 hover:text-gray-300'}`}
-                        >
-                            <span className="text-white font-futura text-lg sm:text-xl lg:text-[30px] font-normal leading-normal">Questions (1)</span>
-                        </button>
-                    </nav>
-                </div>
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const jwt = localStorage.getItem('access_token') || '';
+      const payload = {
+        shop_order_id: newReview.orderId.trim(),
+        shop_product_id: productId,
+        rating: newReview.rating,
+        title: newReview.title.trim() || 'Review',
+        body: newReview.comment.trim(),
+        images: [],
+      };
+      await shop4ApiService.createShopReview(payload, jwt);
+      setShowWriteReview(false);
+      setNewReview({ rating: 5, title: '', comment: '', orderId: '' });
+      fetchReviews(1);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || 'Failed to submit review');
+    }
+  };
 
-                <div className="min-h-[500px]">
-                    {activeTab === 'reviews' && (
-                        <div>
-                            <div className="text-center mb-8 sm:mb-12 py-6 sm:py-10">
-                                <div className="flex items-center justify-center mb-2 relative">
-                                    <span className="text-white font-normal leading-[52px] text-xl sm:text-[30px] capitalize mr-4 font-futura " >{averageRating}</span>
-                                    
-                                    <StarRating rating={averageRating} size="lg" />
-                                </div>
-                                <p className="text-white font-normal leading-[30px] text-sm sm:text-[16px] capitalize mb-4 sm:mb-6 font-futura">
-                                    Based On {totalReviews} Review{totalReviews !== 1 ? 's' : ''}, Rating Is Calculated
-                                </p>
-                                <button 
-                                    onClick={() => setShowWriteReview(!showWriteReview)}
-                                    className="bg-[#B19D7F] hover:bg-[#A08F75] text-white leading-normal uppercase font-futura flex-shrink-0 w-full sm:w-[205px] h-[40px] sm:h-[50.15px] text-xs sm:text-[14px] font-[450] tracking-[2.1px]">
-                                    WRITE A REVIEW
-                                </button>
-                            </div>
-                            
-                            {showWriteReview && (
-                                <div className="bg-gray-800 p-4 sm:p-6 rounded-lg mb-8">
-                                <h3 className="text-white text-base sm:text-lg font-medium mb-4">Write Your Review</h3>
-                                <form onSubmit={handleSubmitReview} className="space-y-4">
-                                    <div>
-                                    <label className="block text-gray-300 text-sm mb-2">Rating</label>
-                                    <div className="flex gap-1">
-                                        {[1, 2, 3, 4, 5].map((star) => (
-                                        <button
-                                            key={star}
-                                            type="button"
-                                            onClick={() => setNewReview(prev => ({ ...prev, rating: star }))}
-                                            className="p-1"
-                                        >
-                                            <StarRating rating={star <= newReview.rating ? 5 : 0} size="lg" />
-                                        </button>
-                                        ))}
-                                    </div>
-                                    </div>
-                                    <div>
-                                    <label className="block text-gray-300 text-sm mb-2">Your Review</label>
-                                    <textarea
-                                        value={newReview.comment}
-                                        onChange={(e) => setNewReview(prev => ({ ...prev, comment: e.target.value }))}
-                                        className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 focus:border-amber-500 focus:outline-none resize-vertical min-h-[120px]"
-                                        placeholder="Share your thoughts about this product..."
-                                        required
-                                    />
-                                    </div>
-                                    
-                                    <div className="flex flex-col sm:flex-row gap-3">
-                                    <button
-                                        type="submit"
-                                        className="bg-amber-700 hover:bg-amber-600 text-white px-4 sm:px-6 py-2 rounded font-medium transition-colors"
-                                    >
-                                        Submit Review
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowWriteReview(false)}
-                                        className="bg-gray-600 hover:bg-gray-500 text-white px-4 sm:px-6 py-2 rounded font-medium transition-colors"
-                                    >
-                                        Cancel
-                                    </button>
-                                    </div>
-                                </form>
-                                </div>
-                            )}
-
-                            <div className="space-y-6">
-                                {reviewsData.map((review) => (
-                                    <ReviewCard key={review.id} review={review} />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'questions' && (
-                        <div className="text-center py-8 sm:py-16">
-                            <h3 className="text-white text-lg sm:text-xl mb-4">Questions & Answers</h3>
-                            <p className="text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base">
-                                No questions have been asked about this product yet.
-                            </p>
-                            <button className="bg-[#C4A57B] hover:bg-[#B8965F] text-white px-6 sm:px-8 py-2 sm:py-3 rounded font-medium tracking-wide transition-colors duration-200 uppercase text-xs sm:text-sm">
-                                Ask a Question
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
+  return (
+    <div className="bg-black text-white min-h-screen px-4 sm:px-6 lg:px-16 py-8">
+      <div className="max-w-[1640px] mx-auto">
+        <div className="border-b border-gray-700 mb-8">
+          <nav className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-0">
+            <button
+              onClick={() => setActiveTab('reviews')}
+              className={`py-2 sm:py-4 px-4 sm:px-6 border-b-[3px] sm:border-b-[5px] font-medium text-sm sm:text-base transition-colors duration-200 ${activeTab === 'reviews' ? 'border-white text-white ' : 'border-transparent text-gray-400 hover:text-gray-300'}`}
+            >
+              <span className="text-white font-futura text-lg sm:text-xl lg:text-[30px] font-normal leading-normal">Reviews</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('questions')}
+              className={`py-2 sm:py-4 px-4 sm:px-6 border-b-[3px] sm:border-b-[5px] font-medium text-sm sm:text-base transition-colors duration-200 ${activeTab === 'questions' ? 'border-white text-white ' : 'border-transparent text-gray-400 hover:text-gray-300'}`}
+            >
+              <span className="text-white font-futura text-lg sm:text-xl lg:text-[30px] font-normal leading-normal">Questions (1)</span>
+            </button>
+          </nav>
         </div>
-    );
+
+        <div className="min-h-[500px]">
+          {activeTab === 'reviews' && (
+            <div>
+              <div className="text-center mb-8 sm:mb-12 py-6 sm:py-10">
+                <div className="flex items-center justify-center mb-2 relative">
+                  <span className="text-white font-normal leading-[52px] text-xl sm:text-[30px] capitalize mr-4 font-futura ">{averageRating}</span>
+                  
+                  <StarRating rating={averageRating} size="lg" />
+                </div>
+                <p className="text-white font-normal leading-[30px] text-sm sm:text-[16px] capitalize mb-4 sm:mb-6 font-futura">
+                  Based On {totalReviews} Review{totalReviews !== 1 ? 's' : ''}, Rating Is Calculated
+                </p>
+                <button onClick={handleOpenReview} className="bg-[#B19D7F] hover:bg-[#A08F75] text-white leading-normal uppercase font-futura flex-shrink-0 w-full sm:w-[205px] h-[40px] sm:h-[50.15px] text-xs sm:text-[14px] font-[450] tracking-[2.1px]">WRITE A REVIEW</button>
+                {eligibilityChecked && eligibilityError && (
+                  <p className="text-red-400 text-xs mt-3">{eligibilityError}</p>
+                )}
+              </div>
+              
+              {showWriteReview && (
+                <div className="bg-gray-800 p-4 sm:p-6 rounded-lg mb-8">
+                  <h3 className="text-white text-base sm:text-lg font-medium mb-4">Write Your Review</h3>
+                  <form onSubmit={handleSubmitReview} className="space-y-4">
+                    <div>
+                      <label className="block text-gray-300 text-sm mb-2">Order</label>
+                      <input value={newReview.orderId} readOnly className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 focus:border-amber-500 focus:outline-none" placeholder="Verified after eligibility check" />
+                    </div>
+                    <div>
+                      <label className="block text-gray-300 text-sm mb-2">Rating</label>
+                      <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                              key={star}
+                              type="button"
+                              onClick={() => setNewReview(prev => ({ ...prev, rating: star }))}
+                              className="p-1"
+                          >
+                              <StarRating rating={star <= newReview.rating ? 5 : 0} size="lg" />
+                          </button>
+                          ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-gray-300 text-sm mb-2">Title</label>
+                      <input value={newReview.title} onChange={(e)=>setNewReview(prev=>({...prev, title: e.target.value}))} className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 focus:border-amber-500 focus:outline-none" placeholder="Great product!" required />
+                    </div>
+                    <div>
+                    <label className="block text-gray-300 text-sm mb-2">Your Review</label>
+                    <textarea
+                        value={newReview.comment}
+                        onChange={(e) => setNewReview(prev => ({ ...prev, comment: e.target.value }))}
+                        className="w-full p-3 bg-gray-700 text-white rounded border border-gray-600 focus:border-amber-500 focus:outline-none resize-vertical min-h-[120px]"
+                        placeholder="Share your thoughts about this product..."
+                        required
+                    />
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                        type="submit"
+                        disabled={!eligibilityChecked || !newReview.orderId}
+                        className={`px-4 sm:px-6 py-2 rounded font-medium transition-colors ${(!eligibilityChecked || !newReview.orderId) ? 'bg-gray-600 text-gray-300 cursor-not-allowed' : 'bg-amber-700 hover:bg-amber-600 text-white'}`}
+                    >
+                        Submit Review
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setShowWriteReview(false)}
+                        className="px-4 sm:px-6 py-2 rounded border border-gray-600 text-white hover:bg-gray-700"
+                    >
+                        Cancel
+                    </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {loading ? (
+                <div className="text-center text-gray-400">Loading reviews...</div>
+              ) : reviews.length > 0 ? (
+                <div className="space-y-6">
+                  {reviews.map((review) => (
+                    <ReviewCard key={review.review_id} review={review} />
+                  ))}
+                  {pages > 1 && (
+                    <div className="flex items-center justify-center gap-3 pt-4">
+                      <button disabled={page===1} onClick={()=>fetchReviews(page-1)} className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50">Prev</button>
+                      <span className="text-gray-300">Page {page} of {pages}</span>
+                      <button disabled={page===pages} onClick={()=>fetchReviews(page+1)} className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50">Next</button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-gray-400">No reviews yet.</div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'questions' && (
+            <div className="text-center py-8 sm:py-16">
+              <h3 className="text-white text-lg sm:text-xl mb-4">Questions & Answers</h3>
+              <p className="text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base">
+                No questions have been asked about this product yet.
+              </p>
+              <button className="bg-[#C4A57B] hover:bg-[#B8965F] text-white px-6 sm:px-8 py-2 sm:py-3 rounded font-medium tracking-wide transition-colors duration-200 uppercase text-xs sm:text-sm">
+                Ask a Question
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 // --- Main ProductDetail Component ---
@@ -1434,7 +1543,15 @@ const ProductDetail: React.FC = () => {
       </div>
 
       {/* Reviews Section */}
-      <ReviewsSection/>
+  <ReviewsSection 
+    productId={product.product_id} 
+    allowedProductIds={[
+      product.product_id,
+      ...((product.variants as any[] | undefined) || [])
+        .map((p: any) => p?.variant_product_id ?? p?.product_id)
+        .filter((v: any) => typeof v === 'number')
+    ]}
+  />
     </div>
   );
 };
