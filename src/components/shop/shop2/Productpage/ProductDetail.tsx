@@ -31,33 +31,134 @@ const ProductDetail = () => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  // Placeholder reviews and sections (can be replaced with API data if available)
+  // Placeholder sections (reviews replaced with real API)
   const sections = [
     { title: "Overview", content: product?.full_description || product?.product_description || "No description available." },
     { title: "Materials", content: "Made from eco-friendly materials." },
     { title: "Return Policy", content: "Returns accepted within 30 days." },
   ];
 
-  const reviews = [
-    {
-      name: "Marvin McKinney",
-      rating: 4,
-      content: "I love this store's shirt! It's so comfortable and easy to wear with anything. I ended up buying one in every color during their sale. The quality is great too. Thank you!",
-      daysAgo: "2 days ago"
-    },
-    {
-      name: "Savannah Nguyen",
-      rating: 5,
-      content: "I'm so impressed with the customer service at this store! The staff was friendly and helpful, and I found the perfect shirt. It looks and feels amazing. I'll definitely be shopping here again!",
-      daysAgo: "19 days ago"
-    },
-    {
-      name: "Wade Warren",
-      rating: 2,
-      content: "Unfortunately, I didn't have a great experience with this store's product. The quality wasn't what I expected and it didn't fit well. I wouldn't recommend it.",
-      daysAgo: "22 days ago"
-    },
-  ];
+  // --- Shop Reviews (real data) ---
+  interface ShopReviewImage { image_id: number; image_url: string; }
+  interface ShopReview {
+    review_id: number;
+    shop_product_id: number;
+    user_id: number;
+    shop_order_id: string;
+    rating: number;
+    title: string;
+    body: string;
+    created_at: string;
+    images?: ShopReviewImage[];
+    user?: { first_name?: string; last_name?: string } | null;
+  }
+
+  const [shopReviews, setShopReviews] = useState<ShopReview[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [reviewsPages, setReviewsPages] = useState(1);
+  const [showWriteReview, setShowWriteReview] = useState(false);
+  const [newReview, setNewReview] = useState({ rating: 5, title: '', comment: '', orderId: '' });
+  const [eligibilityChecked, setEligibilityChecked] = useState(false);
+  const [eligibilityError, setEligibilityError] = useState<string | null>(null);
+
+  const fetchShopReviews = async (p: number = 1) => {
+    if (!productId) return;
+    try {
+      setReviewsLoading(true);
+      const res = await shop2ApiService.getShopProductReviews(Number(productId), p, 5);
+      if (res.status === 'success') {
+        setShopReviews(res.data.reviews as ShopReview[]);
+        setReviewsPage(res.data.current_page);
+        setReviewsPages(res.data.pages);
+      }
+    } catch (e) {
+      console.error('Failed to load reviews', e);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchShopReviews(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productId]);
+
+  // Eligibility is checked when user clicks "Write Review"
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+  const jwt = localStorage.getItem('access_token') || '';
+      const payload = {
+        shop_order_id: newReview.orderId.trim(),
+        shop_product_id: Number(productId),
+        rating: newReview.rating,
+        title: newReview.title.trim() || 'Review',
+        body: newReview.comment.trim(),
+        images: [],
+      };
+      await shop2ApiService.createShopReview(payload, jwt);
+      setShowWriteReview(false);
+      setNewReview({ rating: 5, title: '', comment: '', orderId: '' });
+      fetchShopReviews(1);
+    } catch (err: any) {
+      alert(err.message || 'Failed to submit review');
+    }
+  };
+
+  // Check eligibility when opening the review form
+  const handleOpenReview = async () => {
+    setEligibilityChecked(false);
+    setEligibilityError(null);
+    try {
+  const jwt = localStorage.getItem('access_token') || '';
+      if (!jwt) {
+        setEligibilityError('Please sign in to review.');
+        setEligibilityChecked(true);
+        return;
+      }
+      let page = 1;
+      let hasNext = true;
+      // Build candidate product IDs (parent + variants)
+      const candidateIds = new Set<number>([Number(productId)]);
+      if (product && Array.isArray((product as any).variants)) {
+        (product as any).variants.forEach((v: any) => {
+          if (typeof v?.product_id === 'number') candidateIds.add(Number(v.product_id));
+          if (typeof v?.variant_product_id === 'number') candidateIds.add(Number(v.variant_product_id));
+        });
+      }
+      let latestMatch: any = null;
+      while (hasNext && page <= 5) {
+        const res = await shop2ApiService.getMyShopOrders(page, 50, jwt);
+        if (res.success) {
+          (res.data.orders || []).forEach((o: any) => {
+            const isDelivered = String(o.order_status).toLowerCase() === 'delivered';
+            const hasProduct = Array.isArray(o.items) && o.items.some((it: any) => candidateIds.has(Number(it.product_id)));
+            if (isDelivered && hasProduct) {
+              if (!latestMatch || new Date(o.order_date) > new Date(latestMatch.order_date)) {
+                latestMatch = o;
+              }
+            }
+          });
+          hasNext = Boolean(res.data?.pagination?.has_next);
+          page += 1;
+        } else {
+          hasNext = false;
+        }
+      }
+      if (latestMatch) {
+        setNewReview(prev => ({ ...prev, orderId: latestMatch.order_id }));
+        setShowWriteReview(true);
+      } else {
+        setEligibilityError("Not allowed: either this product wasn't ordered, or the order isn't delivered yet.");
+      }
+    } catch (e: any) {
+      setEligibilityError(e?.message || 'Failed to check eligibility');
+    } finally {
+      setEligibilityChecked(true);
+    }
+  };
 
 
 
@@ -147,6 +248,16 @@ const ProductDetail = () => {
 
   // State for selected attributes (supports both single and multi-select)
   const [selectedAttributes, setSelectedAttributes] = useState<Record<number, string | string[]>>({});
+
+  // Quantity and cart handlers (basic stubs to satisfy existing UI references)
+  const [quantity, setQuantity] = useState<number>(1);
+  const handleQuantityChange = (increase: boolean) => {
+    setQuantity((prev) => Math.max(1, prev + (increase ? 1 : -1)));
+  };
+  const handleAddToCart = () => {
+    // TODO: Integrate with Shop2 cart when available
+    console.log('Add to cart clicked (Shop2)', { productId, quantity, selectedAttributes });
+  };
 
   // Helper to determine if an attribute should be multi-select
   function isMultiSelectAttribute(attrName: string): boolean {
@@ -675,38 +786,87 @@ const ProductDetail = () => {
             ))}
           </div>
         </div>
-        {/* Reviews Section */}
+        {/* Reviews Section (real data with delivered-order gating) */}
         <div className="max-w-3xl w-full mt-8 sm:mt-12 lg:mt-16 pl-0 pt-6 sm:pt-8 lg:pt-9 text-left self-start">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-8">
               <h2 className="text-2xl sm:text-3xl lg:text-[42px] font-normal text-left font-bebas">REVIEWS</h2>
-              <p className="underline text-xs sm:text-sm">Showing {reviews.length} review{reviews.length > 1 ? "s" : ""}</p>
+              <p className="underline text-xs sm:text-sm">Showing {shopReviews.length} review{shopReviews.length !== 1 ? 's' : ''}</p>
             </div>
-            <button className="px-4 sm:px-6 py-4 my-4 bg-black text-white rounded-full font-gilroy text-sm sm:text-lg font-semibold w-full sm:w-auto">Write Review</button>
+            <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
+              <button onClick={handleOpenReview} className="px-4 sm:px-6 py-3 bg-black text-white rounded-full font-gilroy text-sm sm:text-base font-semibold w-full sm:w-auto">Write Review</button>
+              {eligibilityChecked && eligibilityError && (
+                <p className="text-red-500 text-xs">{eligibilityError}</p>
+              )}
+            </div>
           </div>
-          {reviews.map((review, index) => (
-            <div key={index} className="mb-6 sm:mb-8">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-2">
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-300 rounded-full flex-shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-bold font-bebas text-lg sm:text-xl uppercase truncate text-left">{review.name}</h3>
-                    <div className="flex items-center mt-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-3 h-3 sm:w-4 sm:h-4 ${i < review.rating ? "fill-yellow-400 stroke-yellow-400" : "stroke-gray-300"}`}
-                        />
-                      ))}
-                    </div>
+
+          {showWriteReview && (
+            <div className="bg-gray-50 border rounded-lg p-4 sm:p-5 mb-6">
+              <h3 className="text-base sm:text-lg font-semibold mb-3">Write your review</h3>
+              <form onSubmit={handleSubmitReview} className="space-y-3">
+                {/* orderId is pre-filled after eligibility check */}
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Rating</label>
+                  <div className="flex items-center gap-1">
+                    {[1,2,3,4,5].map(star=> (
+                      <button type="button" key={star} onClick={()=>setNewReview(prev=>({...prev, rating: star}))}>
+                        <Star className={`w-4 h-4 ${star <= newReview.rating ? 'fill-yellow-400 stroke-yellow-400' : 'stroke-gray-300'}`} />
+                      </button>
+                    ))}
                   </div>
                 </div>
-                <p className="text-xs sm:text-base text-gray-400 font-gilroy whitespace-nowrap self-start sm:self-auto text-left">{review.daysAgo}</p>
-              </div>
-              <p className="text-xs sm:text-sm text-black font-gilroy leading-relaxed text-left">{review.content}</p>
-              <hr className="mt-3 sm:mt-4" />
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Title</label>
+                  <input value={newReview.title} onChange={(e)=>setNewReview(prev=>({...prev, title: e.target.value}))} className="w-full p-2 border rounded" placeholder="Great product!" required />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Your review</label>
+                  <textarea value={newReview.comment} onChange={(e)=>setNewReview(prev=>({...prev, comment: e.target.value}))} className="w-full p-2 border rounded min-h-[100px]" placeholder="Share your thoughts…" required />
+                </div>
+                <div className="flex gap-2">
+                  <button type="submit" disabled={!eligibilityChecked || !newReview.orderId} className={`px-4 py-2 rounded text-white ${(!eligibilityChecked || !newReview.orderId) ? 'bg-gray-400 cursor-not-allowed' : 'bg-black'}`}>Submit</button>
+                  <button type="button" onClick={()=>setShowWriteReview(false)} className="px-4 py-2 rounded border">Cancel</button>
+                </div>
+              </form>
             </div>
-          ))}
+          )}
+
+          {reviewsLoading ? (
+            <div className="text-gray-500">Loading reviews…</div>
+          ) : shopReviews.length > 0 ? (
+            <div>
+              {shopReviews.map((review)=> (
+                <div key={review.review_id} className="mb-6 sm:mb-8">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-2">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-300 rounded-full flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-bold font-bebas text-lg sm:text-xl uppercase truncate text-left">{review.user?.first_name || 'User'}</h3>
+                        <div className="flex items-center mt-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`w-3 h-3 sm:w-4 sm:h-4 ${i < review.rating ? 'fill-yellow-400 stroke-yellow-400' : 'stroke-gray-300'}`} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-xs sm:text-base text-gray-400 font-gilroy whitespace-nowrap self-start sm:self-auto text-left">{new Date(review.created_at).toLocaleDateString()}</p>
+                  </div>
+                  <p className="text-xs sm:text-sm text-black font-gilroy leading-relaxed text-left">{review.title ? `${review.title} — ` : ''}{review.body}</p>
+                  <hr className="mt-3 sm:mt-4" />
+                </div>
+              ))}
+              {reviewsPages > 1 && (
+                <div className="flex items-center justify-center gap-3 pt-2">
+                  <button disabled={reviewsPage===1} onClick={()=>fetchShopReviews(reviewsPage-1)} className="px-3 py-1 border rounded disabled:opacity-50">Prev</button>
+                  <span className="text-gray-500">Page {reviewsPage} of {reviewsPages}</span>
+                  <button disabled={reviewsPage===reviewsPages} onClick={()=>fetchShopReviews(reviewsPage+1)} className="px-3 py-1 border rounded disabled:opacity-50">Next</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-gray-500">No reviews yet.</div>
+          )}
         </div>
       </div>
     </div>
