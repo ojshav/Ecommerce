@@ -42,12 +42,12 @@ const Header = () => {
         <div className="flex items-center justify-between h-24">
           {/* Left Navigation */}
           <nav className="hidden md:flex items-center space-x-16">
-            <a href="#" className="text-sm font-medium font-poppins text-gray-900 hover:text-gray-600 transition-colors tracking-[0.1em]">
+            <Link to="/shop1-allproductpage" className="text-sm font-medium font-poppins text-gray-900 hover:text-gray-600 transition-colors tracking-[0.1em]">
               SHOP
-            </a>
-            <a href="#" className="text-sm font-medium font-poppins text-gray-900 hover:text-gray-600 transition-colors tracking-[0.1em]">
+            </Link>
+            <Link to="/shop1/about" className="text-sm font-medium font-poppins text-gray-900 hover:text-gray-600 transition-colors tracking-[0.1em]">
               ABOUT
-            </a>
+            </Link>
           </nav>
 
           {/* Logo */}
@@ -95,10 +95,11 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
+
           <div className="md:hidden absolute top-full left-0 right-0 z-50 bg-white py-4 sm:py-6 border-t border-gray-100 shadow-lg px-4 sm:px-6">
             <nav className="flex flex-col space-y-4 sm:space-y-6">
-              <a href="#" className="text-sm sm:text-base font-medium text-gray-900 tracking-[0.1em] hover:text-gray-600 transition-colors">SHOP</a>
-              <a href="#" className="text-sm sm:text-base font-medium text-gray-900 tracking-[0.1em] hover:text-gray-600 transition-colors">ABOUT</a>
+             <Link to="/shop1-allproductpage" className="text-sm font-medium text-gray-900 tracking-[0.1em]">SHOP</Link>
+              <Link to="/shop1/about" className="text-sm font-medium text-gray-900 tracking-[0.1em]">ABOUT</Link>
             </nav>
             <div className="flex items-center justify-center sm:justify-start space-x-4 sm:space-x-6 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-100">
               <Link to="/profile" className="hover:text-gray-600 transition-colors">

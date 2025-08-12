@@ -17,7 +17,7 @@ const QualityShowcase = () => {
     }
     setNewsletterLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/public/newsletter/subscribe`, {
+      const response = await fetch(`${API_BASE_URL}/api/newsletter/subscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,15 +25,19 @@ const QualityShowcase = () => {
         },
         body: JSON.stringify({ email: newsletterEmail }),
       });
-      const data = await response.json();
-      if (response.ok && data.status === 'success') {
-        setNewsletterMessage({ type: 'success', text: 'You have been subscribed to our newsletter.' });
-        setNewsletterEmail('');
-      } else {
-        setNewsletterMessage({ type: 'error', text: data.message || 'Could not subscribe.' });
+      console.log('[DEBUG] Newsletter subscribe response status:', response.status);
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('[DEBUG] Newsletter subscribe response not ok:', text);
+        throw new Error('Failed to subscribe to newsletter');
       }
-    } catch (err) {
-      setNewsletterMessage({ type: 'error', text: 'Could not connect to the server.' });
+      const data = await response.json();
+      console.log('[DEBUG] Newsletter subscribe data received:', data);
+      setNewsletterMessage({ type: 'success', text: 'You have been subscribed to our newsletter.' });
+      setNewsletterEmail('');
+    } catch (err: any) {
+      console.error('[DEBUG] Error subscribing to newsletter:', err);
+      setNewsletterMessage({ type: 'error', text: err.message || 'Could not subscribe to newsletter.' });
     } finally {
       setNewsletterLoading(false);
     }

@@ -51,18 +51,13 @@ const HomeIcon = () => (
 
 const categories = [
   'All Categories',
-  'Electronics',
-  'Fashion',
-  'Home & Garden',
-  'Beauty',
-  'Toys',
 ];
 
 const navLinks = [
   { label: 'HOME', href: '/shop1' },
+  { label: 'ABOUT', href: '/shop1/about' },
   { label: 'PRODUCTS', href: '#', active: true },
-  { label: 'BLOG', href: '#' },
-  { label: 'CONTACT', href: '#' },
+  { label: 'CONTACT', href: '/contact' },
 ];
 
 const Header: React.FC = () => {
@@ -130,12 +125,12 @@ const Header: React.FC = () => {
           <div className="flex flex-col sm:flex-row justify-between items-center text-sm max-w-[1440px] mx-auto px-4 sm:px-8 md:px-14 lg:px-16 py-2 border-b bg-white gap-2 sm:gap-0">
             <div className="flex items-center max-w-[1080px] gap-2 md:gap-10 lg:gap-32">
               <a href="mailto:auoinstore@gmail.com" className="hover:underline"><MailIcon />auoinstore@gmail.com</a>
-              <a href="tel:+6511188888" className="hover:underline"><PhoneIcon />+65 11.188.8888</a>
+              <a href="tel:+7879702202" className="hover:underline"><PhoneIcon />+91 7879702202</a>
             </div>
             <div className="flex items-center gap-4 md:gap-8 lg:gap-16 sm:mr-20 md:mr-10 lg:mr-40">
               <div className="flex items-center gap-2 sm:gap-4 mr-0">
-                <a href="#" aria-label="Facebook" className="text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="21" viewBox="0 0 10 21" fill="none"><path d="M6.49636 20.1386V11.3597H9.45801L9.89824 7.92243H6.49636V5.73306C6.49636 4.7412 6.77271 4.06211 8.19623 4.06211H10V0.997625C9.12242 0.902826 8.24021 0.857411 7.35754 0.861593C4.73972 0.861593 2.94237 2.45971 2.94237 5.39351V7.91601H0V11.3532H2.9488V20.1386H6.49636Z" fill="#0066FF"/></svg></a>
-                <a href="#" aria-label="Instagram" className="text-pink-500"><svg width="22" height="23" viewBox="0 0 22 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <a href="https://www.facebook.com/profile.php?id=61578809217780" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-blue-600 hover:opacity-80 transition-opacity"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="21" viewBox="0 0 10 21" fill="none"><path d="M6.49636 20.1386V11.3597H9.45801L9.89824 7.92243H6.49636V5.73306C6.49636 4.7412 6.77271 4.06211 8.19623 4.06211H10V0.997625C9.12242 0.902826 8.24021 0.857411 7.35754 0.861593C4.73972 0.861593 2.94237 2.45971 2.94237 5.39351V7.91601H0V11.3532H2.9488V20.1386H6.49636Z" fill="#0066FF"/></svg></a>
+                <a href="https://www.instagram.com/aoin.in?igsh=NGk3dml2ZHk2cjM4" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-pink-500 hover:opacity-80 transition-opacity"><svg width="22" height="23" viewBox="0 0 22 23" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M7.14992 2.33325H14.8499C17.7833 2.33325 20.1666 4.71659 20.1666 7.64992V15.3499C20.1666 16.76 19.6064 18.1123 18.6094 19.1094C17.6123 20.1064 16.26 20.6666 14.8499 20.6666H7.14992C4.21659 20.6666 1.83325 18.2833 1.83325 15.3499V7.64992C1.83325 6.23985 2.3934 4.88754 3.39047 3.89047C4.38754 2.8934 5.73985 2.33325 7.14992 2.33325ZM6.96659 4.16659C6.09137 4.16659 5.252 4.51426 4.63313 5.13313C4.01426 5.752 3.66659 6.59137 3.66659 7.46659V15.5333C3.66659 17.3574 5.14242 18.8333 6.96659 18.8333H15.0333C15.9085 18.8333 16.7478 18.4856 17.3667 17.8667C17.9856 17.2478 18.3333 16.4085 18.3333 15.5333V7.46659C18.3333 5.64242 16.8574 4.16659 15.0333 4.16659H6.96659ZM15.8124 5.54159C16.1163 5.54159 16.4078 5.66231 16.6226 5.87719C16.8375 6.09208 16.9583 6.38352 16.9583 6.68742C16.9583 6.99131 16.8375 7.28276 16.6226 7.49765C16.4078 7.71253 16.1163 7.83325 15.8124 7.83325C15.5085 7.83325 15.2171 7.71253 15.0022 7.49765C14.7873 7.28276 14.6666 6.99131 14.6666 6.68742C14.6666 6.38352 14.7873 6.09208 15.0022 5.87719C15.2171 5.66231 15.5085 5.54159 15.8124 5.54159ZM10.9999 6.91659C12.2155 6.91659 13.3813 7.39947 14.2408 8.25901C15.1004 9.11855 15.5833 10.2843 15.5833 11.4999C15.5833 12.7155 15.1004 13.8813 14.2408 14.7408C13.3813 15.6004 12.2155 16.0833 10.9999 16.0833C9.78434 16.0833 8.61855 15.6004 7.75901 14.7408C6.89947 13.8813 6.41659 12.7155 6.41659 11.4999C6.41659 10.2843 6.89947 9.11855 7.75901 8.25901C8.61855 7.39947 9.78434 6.91659 10.9999 6.91659ZM10.9999 8.74992C10.2706 8.74992 9.5711 9.03965 9.05537 9.55537C8.53965 10.0711 8.24992 10.7706 8.24992 11.4999C8.24992 12.2293 8.53965 12.9287 9.05537 13.4445C9.5711 13.9602 10.2706 14.2499 10.9999 14.2499C11.7293 14.2499 12.4287 13.9602 12.9445 13.4445C13.4602 12.9287 13.7499 12.2293 13.7499 11.4999C13.7499 10.7706 13.4602 10.0711 12.9445 9.55537C12.4287 9.03965 11.7293 8.74992 10.9999 8.74992Z" fill="url(#paint0_linear_1395_293)"/>
 <defs>
 <linearGradient id="paint0_linear_1395_293" x1="10.9999" y1="2.33325" x2="10.9999" y2="20.6666" gradientUnits="userSpaceOnUse">
@@ -145,8 +140,12 @@ const Header: React.FC = () => {
 </defs>
 </svg>
 </a>
-                <a href="#" aria-label="Twitter" className="text-blue-400"><svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <a href="https://x.com/AOIN111111" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="text-blue-400 hover:opacity-80 transition-opacity"><svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M23.3959 6.25008C22.5938 6.61466 21.7292 6.85425 20.8334 6.96883C21.7501 6.41675 22.4584 5.54175 22.7917 4.48966C21.9272 5.0105 20.9688 5.37508 19.9584 5.58341C19.1355 4.68758 17.9792 4.16675 16.6667 4.16675C14.2188 4.16675 12.2188 6.16675 12.2188 8.6355C12.2188 8.98967 12.2605 9.33342 12.3334 9.65633C8.62508 9.46883 5.323 7.68758 3.12508 4.98966C2.73966 5.64591 2.52091 6.41675 2.52091 7.22925C2.52091 8.78133 3.30216 10.1563 4.5105 10.9376C3.77091 10.9376 3.08341 10.7292 2.47925 10.4167V10.448C2.47925 12.6147 4.02091 14.4272 6.06258 14.8334C5.4072 15.0136 4.71887 15.0385 4.05216 14.9063C4.33509 15.7943 4.88918 16.5713 5.63656 17.1281C6.38393 17.6849 7.287 17.9935 8.21883 18.0105C6.63932 19.261 4.68134 19.937 2.66675 19.9272C2.31258 19.9272 1.95841 19.9063 1.60425 19.8647C3.58341 21.1355 5.93758 21.8751 8.45841 21.8751C16.6667 21.8751 21.1772 15.0626 21.1772 9.15633C21.1772 8.95842 21.1772 8.77091 21.1667 8.573C22.0417 7.948 22.7917 7.15633 23.3959 6.25008Z" fill="#2D88FF"/>
+</svg>
+</a>
+                <a href="https://www.linkedin.com/company/aoinstore" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-blue-700 hover:opacity-80 transition-opacity"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M20.447 20.452H16.893V14.883C16.893 13.555 16.866 11.846 15.041 11.846C13.188 11.846 12.822 13.291 12.822 14.785V20.452H9.351V9H12.694V10.561H12.732C13.297 9.448 14.507 8.207 16.492 8.207C20.523 8.207 20.447 11.348 20.447 13.994V20.452ZM5.337 7.433C4.193 7.433 3.274 6.507 3.274 5.368C3.274 4.23 4.194 3.305 5.337 3.305C6.477 3.305 7.397 4.23 7.397 5.368C7.397 6.507 6.476 7.433 5.337 7.433ZM7.119 20.452H3.555V9H7.119V20.452ZM22.225 0H1.771C0.792 0 0 0.774 0 1.729V22.271C0 23.227 0.792 24 1.771 24H22.222C23.2 24 24 23.227 24 22.271V1.729C24 0.774 23.2 0 22.222 0H22.225Z" fill="#0077B5"/>
 </svg>
 </a>
               </div>
@@ -187,7 +186,7 @@ const Header: React.FC = () => {
           </div>
 
           {/* Desktop Logo */}
-          <div className="hidden md:block text-[36px] font-playfair font-bold tracking-wide">AOIN</div>
+          <Link to="/shop1" className="hidden md:block text-[36px] font-playfair font-bold tracking-wide hover:opacity-80 transition-opacity">AOIN</Link>
 
           {/* Search Bar */}
           <div className="w-full md:flex-1 flex items-center md:mx-10 lg:ml-20 nav2:ml-48 max-w-full md:max-w-2xl lg:max-w-2xl">
@@ -248,7 +247,7 @@ const Header: React.FC = () => {
                 </span>
               )}
             </Link>
-            <span className="text-base font-archivo font-medium">$150.00</span>
+            <span className="text-base font-archivo font-medium"></span>
           </div>
 
           {/* Mobile Price */}

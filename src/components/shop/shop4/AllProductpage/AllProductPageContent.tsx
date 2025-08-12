@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, X, Filter, Search } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Shop4ProductCardWithWishlist, { Product } from '../Shop4ProductCardWithWishlist';
 import shop4ApiService, { Product as ApiProduct } from '../../../../services/shop4ApiService';
@@ -15,9 +15,7 @@ const mapApiProductToLocal = (apiProduct: ApiProduct): Product => ({
   image: apiProduct.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753463036/public_assets_shop4/public_assets_shop4_Rectangle%205.png"
 });
 
-
-
-// --- Sidebar ---
+// --- Sidebar Component (Desktop) ---
 const Sidebar: React.FC = () => {
     const [priceRange, setPriceRange] = useState([0, 7500]);
     const [inStock, setInStock] = useState(false);
@@ -109,15 +107,15 @@ const Sidebar: React.FC = () => {
     };
 
     return (
-        <div className="bg-[#161616] text-white w-[455px] h-[638px] rounded-[5px]">
-            <div className="p-10">
+        <div className="bg-[#161616] text-white w-full max-w-[350px] 2xl:max-w-[455px] h-[638px] rounded-[5px]">
+            <div className="p-6 lg:p-10">
                 {/* Top Section - Breadcrumbs and Clear Filters */}
                 <div className="mb-6">
                     <div className="flex items-center justify-between mb-8">
-                        <span className="text-white font-poppins text-base font-normal leading-[30px] tracking-[2.4px] capitalize">Home/Pooja Items</span>
+                        <span className="text-white font-poppins text-[12px] 2xl:text-[16px] font-normal leading-[30px] tracking-[2.4px] capitalize">Home/Pooja Items</span>
                         <button 
                             onClick={handleClearFilters}
-                            className="w-[168px] h-[50px] flex-shrink-0 border border-white text-[#895200] font-poppins text-[14px] font-normal leading-normal tracking-[2.1px] capitalize hover:bg-white hover:text-black transition-colors duration-300"
+                            className="w-[110px] 2xl:w-[168px] h-[40px] 2xl:h-[50px] flex-shrink-0 border border-white text-[#895200] font-poppins text-[12px] 2xl:text-[14px] font-normal leading-normal tracking-[2.1px] capitalize hover:bg-white hover:text-black transition-colors duration-300"
                         >
                             Clear Filters
                         </button>
@@ -285,6 +283,408 @@ const Sidebar: React.FC = () => {
     );
 };
 
+// --- Mobile Filter Modal ---
+const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+    const [priceRange, setPriceRange] = useState([0, 7500]);
+    const [inStock, setInStock] = useState(false);
+    const [outOfStock, setOutOfStock] = useState(false);
+    const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
+    const sliderRef = useRef<HTMLDivElement>(null);
+
+    const minPrice = 0;
+    const maxPrice = 7500;
+
+    const handleMouseDown = (e: React.MouseEvent, handle: 'min' | 'max') => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(handle);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+        if (!isDragging || !sliderRef.current) return;
+        e.preventDefault();
+
+        const rect = sliderRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const width = rect.width;
+        const percentage = Math.max(0, Math.min(1, x / width));
+        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+
+        if (isDragging === 'min') {
+            const newMin = Math.min(value, priceRange[1] - 100);
+            setPriceRange([newMin, priceRange[1]]);
+        } else {
+            const newMax = Math.max(value, priceRange[0] + 100);
+            setPriceRange([priceRange[0], newMax]);
+        }
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(null);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    const handleTouchStart = (e: React.TouchEvent, handle: 'min' | 'max') => {
+        e.preventDefault();
+        setIsDragging(handle);
+        document.addEventListener('touchmove', handleTouchMove);
+        document.addEventListener('touchend', handleTouchEnd);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+        if (!isDragging || !sliderRef.current) return;
+        e.preventDefault();
+
+        const rect = sliderRef.current.getBoundingClientRect();
+        const x = e.touches[0].clientX - rect.left;
+        const width = rect.width;
+        const percentage = Math.max(0, Math.min(1, x / width));
+        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+
+        if (isDragging === 'min') {
+            const newMin = Math.min(value, priceRange[1] - 100);
+            setPriceRange([newMin, priceRange[1]]);
+        } else {
+            const newMax = Math.max(value, priceRange[0] + 100);
+            setPriceRange([priceRange[0], newMax]);
+        }
+    };
+
+    const handleTouchEnd = () => {
+        setIsDragging(null);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+    };
+
+    const getMinPosition = () => ((priceRange[0] - minPrice) / (maxPrice - minPrice)) * 100;
+    const getMaxPosition = () => ((priceRange[1] - minPrice) / (maxPrice - minPrice)) * 100;
+
+    const handleClearFilters = () => {
+        setPriceRange([0, 7500]);
+        setInStock(false);
+        setOutOfStock(false);
+    };
+
+    const handleApplyFilters = () => {
+        // Apply filters logic here
+        onClose();
+    };
+
+    return (
+        <>
+            {/* Backdrop */}
+            <div 
+                className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ${
+                    isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                onClick={onClose}
+            />
+            
+            {/* Modal */}
+            <div 
+                className={`fixed bottom-0 left-0 right-0 bg-[#161616] text-white z-50 transform transition-transform duration-300 ease-out ${
+                    isOpen ? 'translate-y-0' : 'translate-y-full'
+                }`}
+                style={{ maxHeight: '90vh' }}
+            >
+                <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 2rem)' }}>
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-semibold">Filters</h2>
+                        <button 
+                            onClick={onClose}
+                            className="p-2 hover:bg-gray-800 rounded-full transition-colors"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
+
+                    {/* Filter By Price Section */}
+                    <div className="mb-6">
+                        <h3 className="text-white font-futura text-[20px] font-[450] leading-[30px] capitalize mb-4">Filter By Price</h3>
+                        <div className="mb-4">
+                            <div className="relative" ref={sliderRef}>
+                                {/* Track */}
+                                <div 
+                                    className="w-full h-2 bg-[#374151] rounded-lg relative cursor-pointer"
+                                    onClick={(e) => {
+                                        if ((e.target as HTMLElement).closest('[data-handle]')) return;
+                                        
+                                        if (!sliderRef.current) return;
+                                        const rect = sliderRef.current.getBoundingClientRect();
+                                        const x = e.clientX - rect.left;
+                                        const width = rect.width;
+                                        const percentage = Math.max(0, Math.min(1, x / width));
+                                        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+                                        
+                                        const minDistance = Math.abs(value - priceRange[0]);
+                                        const maxDistance = Math.abs(value - priceRange[1]);
+                                        
+                                        if (minDistance < maxDistance) {
+                                            const newMin = Math.min(value, priceRange[1] - 100);
+                                            setPriceRange([newMin, priceRange[1]]);
+                                        } else {
+                                            const newMax = Math.max(value, priceRange[0] + 100);
+                                            setPriceRange([priceRange[0], newMax]);
+                                        }
+                                    }}
+                                >
+                                    {/* Active track */}
+                                    <div 
+                                        className="absolute h-2 bg-[#A06020] rounded-lg"
+                                        style={{
+                                            left: `${getMinPosition()}%`,
+                                            width: `${getMaxPosition() - getMinPosition()}%`,
+                                            transition: isDragging ? 'none' : 'left 0.3s ease-out, width 0.3s ease-out'
+                                        }}
+                                    />
+                                </div>
+                                
+                                {/* Min Handle */}
+                                <div
+                                    data-handle="min"
+                                    className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-[#A06020] border-2 border-white rounded-full cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl transition-all duration-300 ease-out z-10 select-none"
+                                    style={{ 
+                                        left: `calc(${getMinPosition()}% - 12px)`,
+                                        transition: isDragging ? 'none' : 'left 0.3s ease-out'
+                                    }}
+                                    onMouseDown={(e) => handleMouseDown(e, 'min')}
+                                    onTouchStart={(e) => handleTouchStart(e, 'min')}
+                                />
+                                
+                                {/* Max Handle */}
+                                <div
+                                    data-handle="max"
+                                    className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-[#A06020] border-2 border-white rounded-full cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl transition-all duration-300 ease-out z-10 select-none"
+                                    style={{ 
+                                        left: `calc(${getMaxPosition()}% - 12px)`,
+                                        transition: isDragging ? 'none' : 'left 0.3s ease-out'
+                                    }}
+                                    onMouseDown={(e) => handleMouseDown(e, 'max')}
+                                    onTouchStart={(e) => handleTouchStart(e, 'max')}
+                                />
+                            </div>
+                        </div>
+                        <div className="text-[#E0E0E0] text-sm mb-4">
+                            Price: ${priceRange[0]} – ${priceRange[1]}
+                        </div>
+                    </div>
+
+                    {/* Separator */}
+                    <div className="w-full h-px bg-[#E0E0E0] mb-6"></div>
+
+                    {/* Availability Section */}
+                    <div className="mb-6">
+                        <h3 className="text-white font-poppins text-[20px] font-normal leading-[30px] capitalize mb-4">Availability</h3>
+                        
+                        {/* In Stock Option */}
+                        <div className="flex items-center mb-3">
+                            <input
+                                type="checkbox"
+                                id="mobileInStock"
+                                checked={inStock}
+                                onChange={(e) => setInStock(e.target.checked)}
+                                className="w-4 h-4 border border-white bg-transparent rounded-none focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                            />
+                            <label htmlFor="mobileInStock" className="ml-3 !font-poppins !text-base !font-medium !leading-[30px] !capitalize !cursor-pointer !text-white">
+                                In Stock
+                            </label>
+                        </div>
+                        
+                        {/* Separator Line */}
+                        <div className="w-full h-px bg-[#CCCCCC] mb-3"></div>
+                        
+                        {/* Out Of Stock Option */}
+                        <div className="flex items-center">
+                            <input
+                                type="checkbox"
+                                id="mobileOutOfStock"
+                                checked={outOfStock}
+                                onChange={(e) => setOutOfStock(e.target.checked)}
+                                className="w-4 h-4 border border-white bg-transparent rounded-none focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                            />
+                            <label htmlFor="mobileOutOfStock" className="ml-3 !font-poppins !text-base !font-normal !leading-normal !cursor-pointer !text-white">
+                                Out Of Stock
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-4 pt-6 border-t border-gray-700">
+                        <button 
+                            onClick={handleClearFilters}
+                            className="flex-1 h-12 border border-white text-white font-medium rounded transition-colors hover:bg-white hover:text-black"
+                        >
+                            Clear Filters
+                        </button>
+                        <button 
+                            onClick={handleApplyFilters}
+                            className="flex-1 h-12 bg-[#A06020] text-white font-medium rounded transition-colors hover:bg-[#895200]"
+                        >
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <style>{`
+                /* Custom checkbox styling for mobile modal */
+                #mobileInStock, #mobileOutOfStock {
+                    appearance: none;
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid white;
+                    background: transparent;
+                    cursor: pointer;
+                    position: relative;
+                }
+
+                #mobileInStock:checked, #mobileOutOfStock:checked {
+                    background: #A06020;
+                    border-color: #A06020;
+                }
+
+                #mobileInStock:checked::after, #mobileOutOfStock:checked::after {
+                    content: '';
+                    position: absolute;
+                    left: 4px;
+                    top: 1px;
+                    width: 4px;
+                    height: 8px;
+                    border: solid white;
+                    border-width: 0 2px 2px 0;
+                    transform: rotate(45deg);
+                }
+
+                /* Ensure label text is white */
+                label[for="mobileInStock"], label[for="mobileOutOfStock"] {
+                    color: white !important;
+                }
+            `}</style>
+        </>
+    );
+};
+
+// --- Search Bar Component ---
+const SearchBar: React.FC = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+    const [isSearching, setIsSearching] = useState(false);
+    const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        
+        // Clear existing timeout
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+        
+        // Set a new timeout to debounce the search
+        searchTimeoutRef.current = setTimeout(() => {
+            setIsSearching(true);
+            
+            // Update URL parameters
+            const newSearchParams = new URLSearchParams(searchParams);
+            if (value.trim()) {
+                newSearchParams.set('search', value.trim());
+            } else {
+                newSearchParams.delete('search');
+            }
+            // Reset to first page when searching
+            newSearchParams.set('page', '1');
+            setSearchParams(newSearchParams);
+            
+            setIsSearching(false);
+        }, 500); // 500ms debounce
+    };
+
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // Clear the timeout and execute search immediately
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+        
+        setIsSearching(true);
+        
+        // Update URL parameters
+        const newSearchParams = new URLSearchParams(searchParams);
+        if (searchTerm.trim()) {
+            newSearchParams.set('search', searchTerm.trim());
+        } else {
+            newSearchParams.delete('search');
+        }
+        // Reset to first page when searching
+        newSearchParams.set('page', '1');
+        setSearchParams(newSearchParams);
+        
+        setIsSearching(false);
+    };
+
+    const handleClearSearch = () => {
+        setSearchTerm('');
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete('search');
+        newSearchParams.set('page', '1');
+        setSearchParams(newSearchParams);
+    };
+
+    // Update search term when URL changes
+    useEffect(() => {
+        const urlSearchTerm = searchParams.get('search') || '';
+        setSearchTerm(urlSearchTerm);
+    }, [searchParams]);
+
+    return (
+        <div className="bg-black max-w-[1078px] mx-auto mb-8 px-4 2xl:px-0">
+            <form onSubmit={handleSearchSubmit} className="flex gap-4">
+                <div className="relative flex-1 lg:w-4/5">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                       
+                    </div>
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        placeholder="Search for products..."
+                        className="w-full pl-10 pr-12 py-3 bg-[#161616] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A06020] focus:border-transparent transition-all duration-200"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                        {searchTerm && (
+                            <button
+                                type="button"
+                                onClick={handleClearSearch}
+                                className="text-gray-400 hover:text-white transition-colors duration-200"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+                                <button
+                    type="submit"
+                    className="bg-[#161616] text-white px-6 py-3 rounded-lg transition-colors duration-200 hidden lg:flex items-center justify-center gap-2 lg:w-1/5"
+                >
+                   
+                    <span className="hidden sm:inline font-medium">Search</span>
+                </button>
+                {isSearching && (
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#A06020]"></div>
+                    </div>
+                )}
+            </form>
+        </div>
+    );
+};
+
 // --- ProductGrid ---
 const ProductGrid: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -366,8 +766,17 @@ const ProductGrid: React.FC = () => {
     const endIndex = Math.min(startIndex + productsPerPage, totalProducts);
 
     return (
-        <div className="bg-black max-w-[1078px] mx-auto min-h-screen px-4 sm:px-6 lg:px-8 py-8">
-            <div className="max-w-[1078px] mx-auto mb-6">
+        <div className="bg-black max-w-[1078px] mx-auto min-h-screen px-4 sm:px-6 lg:px-4 2xl:px-0 py-8">
+            {/* Search Results Header */}
+            {search && (
+                <div className="mb-6">
+                    <p className="text-white text-sm opacity-80">
+                        Search results for "{search}" - {totalProducts} product{totalProducts !== 1 ? 's' : ''} found
+                    </p>
+                </div>
+            )}
+            
+            <div className=" mx-auto mb-6">
                 <p className="text-white text-sm opacity-80">
                     Showing {startIndex + 1}–{endIndex} of {totalProducts} Results
                 </p>
@@ -375,10 +784,12 @@ const ProductGrid: React.FC = () => {
             <div className="max-w-[1078px] mx-auto">
                 {products.length === 0 ? (
                     <div className="flex justify-center items-center h-64">
-                        <div className="text-white text-xl">No products found</div>
+                        <div className="text-white text-xl">
+                            {search ? `No products found for "${search}"` : 'No products found'}
+                        </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 sm:gap-x-12 lg:gap-x-20 gap-y-12 sm:gap-y-16 lg:gap-y-28">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-x-8 sm:gap-x-12 2xl:gap-x-20 gap-y-28 sm:gap-y-28 lg:gap-y-40">
                         {products.map((product) => (
                             <div key={product.id} onClick={() => handleProductClick(product.id)} className="cursor-pointer">
                                 <Shop4ProductCardWithWishlist product={product} />
@@ -478,20 +889,44 @@ const Hero: React.FC = () => {
 
 // --- Combined Page Component ---
 const AllProductPageContent: React.FC = () => {
+    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
     return (
         <>
             <Hero />
             <main className="container max-w-[1740px] mx-auto px-4 py-20">
-                <div className="flex flex-col lg:flex-row gap-16 lg:gap-20">
-                    <aside className="lg:w-80 order-2 lg:order-1">
+                <div className="flex flex-col lg:flex-row ">
+                    {/* Desktop Sidebar */}
+                    <aside className="hidden lg:block lg:w-96  2xl:w-[455px] order-2 lg:order-1">
                         <div className="sticky top-8">
                             <Sidebar />
                         </div>
                     </aside>
+                    
+                    {/* Product Grid with Search */}
                     <div className="flex-1 order-1 lg:order-2">
+                        <SearchBar />
+                        
+                        {/* Mobile Filter Button - Centered below search bar */}
+                        <div className="lg:hidden flex justify-center mb-6">
+                            <button
+                                onClick={() => setIsMobileFilterOpen(true)}
+                                className="flex items-center gap-2 bg-[#161616] text-white px-6 py-3 rounded-lg hover:bg-[#2a2a2a] transition-colors"
+                            >
+                                <Filter size={20} />
+                                <span className="font-medium">Filters</span>
+                            </button>
+                        </div>
+                        
                         <ProductGrid />
                     </div>
                 </div>
+                
+                {/* Mobile Filter Modal */}
+                <MobileFilterModal 
+                    isOpen={isMobileFilterOpen} 
+                    onClose={() => setIsMobileFilterOpen(false)} 
+                />
             </main>
         </>
     );

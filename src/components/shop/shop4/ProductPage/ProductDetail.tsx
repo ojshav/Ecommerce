@@ -203,7 +203,7 @@ const ReviewsSection: React.FC = () => {
     };
 
     return (
-        <div className="bg-black text-white min-h-screen px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-black text-white min-h-screen px-4 sm:px-6 lg:px-16 py-8">
             <div className="max-w-[1640px] mx-auto">
                 <div className="border-b border-gray-700 mb-8">
                     <nav className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-0">
@@ -336,6 +336,8 @@ const ProductDetail: React.FC = () => {
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [currentVariant, setCurrentVariant] = useState<ProductVariant | null>(null);
   const [stockError, setStockError] = useState<string>('');
+  const [selectedMainImage, setSelectedMainImage] = useState<string>('');
+  const [showImagePopup, setShowImagePopup] = useState<boolean>(false);
 
   const productId = searchParams.get('id');
 
@@ -891,7 +893,7 @@ const ProductDetail: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full mx-auto bg-black text-white">
-      <div className="border-b border-gray-800 max-w-[1640px] mx-auto px-4 py-3 md:px-6 md:py-4">
+      <div className="border-b border-gray-800 max-w-[1640px] mx-auto px-6 py-3 md:px-8 md:py-4">
         <button className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors text-sm md:text-base">
          
           <span className="text-white font-poppins text-lg sm:text-xl lg:text-[30px] font-normal leading-normal">Back to: Diya Collection</span>
@@ -899,45 +901,210 @@ const ProductDetail: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-col mx-auto max-w-[1640px] gap-8 sm:gap-12 lg:gap-20 lg:flex-row">
+      <div className="flex flex-col mx-auto px-2 max-w-[1640px]  lg:flex-row">
         {/* Left Side - Image Gallery */}
         <div className="w-full lg:w-1/2 bg-black">
           <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-            {/* Main Product Images */}
-            <div className="flex flex-col space-y-8 sm:space-y-12 lg:space-y-20 justify-center items-center">
-              <img
-                src={
-                  currentVariant?.media?.images?.[0]?.url || 
-                  currentVariant?.primary_image ||
-                  product.media?.images?.[0]?.url || 
-                  product.primary_image || 
-                  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753462984/public_assets_shop4/public_assets_shop4_13.png"
+            {/* Main Product Image Gallery */}
+            <div className="space-y-4 md:space-y-6">
+                             {/* Get all available images dynamically */}
+               {(() => {
+                 const allImages: string[] = [];
+                
+                // Get images from current variant if available
+                if (currentVariant?.media?.images && currentVariant.media.images.length > 0) {
+                  allImages.push(...currentVariant.media.images.map(img => img.url));
+                } else if (currentVariant?.primary_image) {
+                  allImages.push(currentVariant.primary_image);
                 }
-                alt={product.product_name}
-                className="w-full h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[707px] object-cover rounded-lg"
-              />
-              <img
-                src={
-                  currentVariant?.media?.images?.[1]?.url || 
-                  product.media?.images?.[1]?.url || 
-                  currentVariant?.primary_image ||
-                  product.primary_image || 
-                  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753462986/public_assets_shop4/public_assets_shop4_14.png"
+                
+                // If no variant images, get from product
+                if (allImages.length === 0) {
+                  if (product.media?.images && product.media.images.length > 0) {
+                    allImages.push(...product.media.images.map(img => img.url));
+                  } else if (product.primary_image) {
+                    allImages.push(product.primary_image);
+                  }
                 }
-                alt={product.product_name}
-                className="w-full h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[707px] object-cover rounded-lg"
-              />
-              <img
-                src={
-                  currentVariant?.media?.images?.[2]?.url || 
-                  product.media?.images?.[2]?.url || 
-                  currentVariant?.primary_image ||
-                  product.primary_image || 
-                  "https://res.cloudinary.com/do3vxz4gw/image/upload/v1753462987/public_assets_shop4/public_assets_shop4_15.png"
-                }
-                alt={product.product_name}
-                className="w-full h-48 sm:h-64 md:h-80 lg:h-96 xl:h-[707px] object-cover rounded-lg"
-              />
+                
+                // No fallback images - will show "No images available" message
+                
+                return (
+                  <>
+                    {/* Main Large Image - Selected or first image */}
+                    {allImages.length > 0 ? (
+                      <>
+                        <div className="w-full">
+                          <img
+                            src={selectedMainImage || allImages[0]}
+                            alt={product.product_name}
+                            className="w-full h-64 sm:h-80 md:h-96 lg:h-[500px] xl:h-[600px] object-cover rounded-lg"
+                          />
+                        </div>
+                        
+                        {/* Additional Product Images - Responsive Layout */}
+                        {allImages.length > 1 && (
+                          <>
+                            {/* Mobile/Tablet Layout (up to lg): Thumbnail row below main image */}
+                            <div className="block lg:hidden">
+                              <div className="flex gap-2 md:gap-3 pb-2">
+                                {/* Show only first 3 images */}
+                                {allImages.slice(0, 3).map((imageUrl, index) => (
+                                  <div 
+                                    key={index}
+                                    className="flex-1 cursor-pointer transition-transform hover:scale-105 relative"
+                                    onClick={() => setSelectedMainImage(imageUrl)}
+                                  >
+                                    <img
+                                      src={imageUrl}
+                                      alt={`${product.product_name} - View ${index + 1}`}
+                                      className={`w-full h-20 sm:h-36 md:h-36 lg:h-28 object-cover rounded-lg border-2 transition-colors ${
+                                        (!selectedMainImage && index === 0) || selectedMainImage === imageUrl 
+                                          ? 'border-[#BB9D7B]' 
+                                          : 'border-gray-600 hover:border-[#BB9D7B]'
+                                      }`}
+                                    />
+                                    
+                                    {/* "more images" overlay on 3rd image if more than 3 images */}
+                                    {index === 2 && allImages.length > 3 && (
+                                      <div 
+                                        className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center cursor-pointer"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setShowImagePopup(true);
+                                        }}
+                                      >
+                                        <span className="text-white text-sm sm:text-base font-bold text-center px-2">
+                                          MORE IMAGES
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* Desktop Layout (lg and up): Show only 3 images with "more images" overlay */}
+                            <div className="hidden lg:block space-y-4">
+                              {allImages.slice(1, 2).map((imageUrl, index) => (
+                                <img
+                                  key={index}
+                                  src={imageUrl}
+                                  alt={`${product.product_name} - View ${index + 2}`}
+                                  className="w-full h-[500px] xl:h-[600px] object-cover rounded-lg"
+                                />
+                              ))}
+                              
+                              {/* Show 3rd image with "more images" overlay if more than 3 images */}
+                              {allImages.length > 3 ? (
+                                <div className="relative">
+                                  <img
+                                    src={allImages[2]}
+                                    alt={`${product.product_name} - View 3`}
+                                    className="w-full h-[500px] xl:h-[600px] object-cover rounded-lg"
+                                  />
+                                  <div 
+                                    className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center cursor-pointer"
+                                    onClick={() => setShowImagePopup(true)}
+                                  >
+                                    <span className="text-white text-lg xl:text-xl font-bold text-center px-4">
+                                      MORE IMAGES
+                                    </span>
+                                  </div>
+                                </div>
+                              ) : (
+                                /* Show 3rd image normally if 3 or fewer images total */
+                                allImages.length === 3 && (
+                                  <img
+                                    src={allImages[2]}
+                                    alt={`${product.product_name} - View 3`}
+                                    className="w-full h-[500px] xl:h-[600px] object-cover rounded-lg"
+                                  />
+                                )
+                              )}
+                            </div>
+                          </>
+                        )}
+
+                        {/* Image Popup Modal */}
+                        {showImagePopup && (
+                          <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+                            <div className="bg-gray-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                              {/* Header */}
+                              <div className="flex items-center justify-between p-4 border-b border-gray-700">
+                                <h3 className="text-white text-lg font-medium">All Product Images</h3>
+                                <button
+                                  onClick={() => setShowImagePopup(false)}
+                                  className="text-gray-400 hover:text-white transition-colors"
+                                >
+                                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
+                              
+                              {/* Image Grid */}
+                              <div className="p-4 overflow-y-auto max-h-[calc(90vh-80px)]">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                  {allImages.map((imageUrl: string, index: number) => (
+                                    <div 
+                                      key={index}
+                                      className="cursor-pointer transition-transform hover:scale-105"
+                                      onClick={() => {
+                                        setSelectedMainImage(imageUrl);
+                                        setShowImagePopup(false);
+                                      }}
+                                    >
+                                      <img
+                                        src={imageUrl}
+                                        alt={`${product.product_name} - View ${index + 1}`}
+                                        className={`w-full h-32 sm:h-40 object-cover rounded-lg border-2 transition-colors ${
+                                          selectedMainImage === imageUrl 
+                                            ? 'border-[#BB9D7B]' 
+                                            : 'border-gray-600 hover:border-[#BB9D7B]'
+                                        }`}
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      /* No Images Available - Professional Message */
+                      <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[500px] xl:h-[600px] bg-gray-800 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-600">
+                        <div className="text-center space-y-3">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-700 rounded-full flex items-center justify-center">
+                            <svg 
+                              className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={2} 
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                              />
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 className="text-white text-lg sm:text-xl font-medium mb-1">
+                              No Images Available
+                            </h3>
+                            <p className="text-gray-400 text-sm sm:text-base">
+                              Product images will be displayed here
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -950,7 +1117,7 @@ const ProductDetail: React.FC = () => {
           </div>
 
           {/* Product Title */}
-          <h1 className="text-white text-lg sm:text-xl md:text-[26px] font-normal leading-3 font-poppins">
+          <h1 className="text-white text-lg sm:text-xl md:text-[26px] font-normal leading-6 sm:leading-3 lg:leading-8 xl:leading-10 font-poppins min-h-[1rem] sm:min-h-0 lg:min-h-[2rem] xl:min-h-[2rem] mb-2 sm:mb-0">
             {product.product_name}
           </h1>
 
@@ -1213,7 +1380,35 @@ const ProductDetail: React.FC = () => {
             Related Products
           </h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
+          {/* Mobile: Horizontal scrolling, Desktop: Grid layout */}
+          <div className="block sm:hidden">
+            {/* Mobile horizontal scroll container */}
+            <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide -mx-4 px-4">
+              {relatedProducts.slice(0, 3).map((relatedProduct) => (
+                <div 
+                  key={relatedProduct.id} 
+                  className="flex-shrink-0 w-[calc(100vw-2rem)] cursor-pointer transition-transform hover:scale-105" 
+                  onClick={() => {
+                    // Navigate to the related product's detail page
+                    navigate(`?id=${relatedProduct.id}`);
+                  }}
+                >
+                  <Shop4ProductCardWithWishlist 
+                    product={{
+                      id: relatedProduct.id,
+                      name: relatedProduct.name,
+                      price: typeof relatedProduct.price === 'string' ? parseFloat(relatedProduct.price) : relatedProduct.price,
+                      discount: relatedProduct.discount,
+                      image: relatedProduct.image
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Desktop grid layout */}
+          <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
             {relatedProducts.slice(0, 3).map((relatedProduct) => (
               <div 
                 key={relatedProduct.id} 
@@ -1226,9 +1421,9 @@ const ProductDetail: React.FC = () => {
                 <Shop4ProductCardWithWishlist 
                   product={{
                     id: relatedProduct.id,
-                    name: relatedProduct.name,  // Use 'name' not 'title' for Shop4ProductCard
+                    name: relatedProduct.name,
                     price: typeof relatedProduct.price === 'string' ? parseFloat(relatedProduct.price) : relatedProduct.price,
-                    discount: relatedProduct.discount,  // Keep as number for Shop4ProductCard
+                    discount: relatedProduct.discount,
                     image: relatedProduct.image
                   }}
                 />
