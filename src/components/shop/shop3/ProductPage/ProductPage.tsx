@@ -4,6 +4,7 @@ import shop3ApiService, { Product } from '../../../../services/shop3ApiService';
 import SimilarProducts from './SimilarProducts';
 import { useShopCartOperations } from '../../../../context/ShopCartContext';
 import { toast } from 'react-hot-toast';
+import { Star } from 'lucide-react';
 
 const ProductPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -956,8 +957,210 @@ const ProductPage: React.FC = () => {
       
       {/* Similar Products Section */}
       <SimilarProducts relatedProducts={relatedProducts} />
+
+      {/* Reviews Section (real data with delivered-order gating) */}
+      <Shop3ReviewsSection shopProductId={product.product_id} />
     </div>
   );
 };
 
 export default ProductPage;
+
+// --- Reviews Section Component for Shop3 ---
+interface ShopReviewImage { image_id: number; image_url: string }
+interface ShopReview {
+  review_id: number;
+  shop_product_id: number;
+  user_id: number;
+  shop_order_id: string;
+  rating: number;
+  title: string;
+  body: string;
+  created_at: string;
+  images?: ShopReviewImage[];
+  user?: { first_name?: string; last_name?: string } | null;
+}
+
+const Shop3ReviewsSection: React.FC<{ shopProductId: number }> = ({ shopProductId }) => {
+  const [shopReviews, setShopReviews] = useState<ShopReview[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [reviewsPages, setReviewsPages] = useState(1);
+  const [showWriteReview, setShowWriteReview] = useState(false);
+  const [newReview, setNewReview] = useState({ rating: 5, title: '', comment: '', orderId: '' });
+  const [eligibilityChecked, setEligibilityChecked] = useState(false);
+  const [eligibilityError, setEligibilityError] = useState<string | null>(null);
+
+  const fetchShopReviews = async (p: number = 1) => {
+    try {
+      setReviewsLoading(true);
+      const res = await shop3ApiService.getShopProductReviews(Number(shopProductId), p, 5);
+      if (res.status === 'success') {
+        setShopReviews(res.data.reviews as ShopReview[]);
+        setReviewsPage(res.data.current_page);
+        setReviewsPages(res.data.pages);
+      }
+    } catch (e) {
+      console.error('Failed to load reviews', e);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchShopReviews(1); }, [shopProductId]);
+
+  // Eligibility will be checked on clicking Write Review
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+  const jwt = localStorage.getItem('access_token') || '';
+      const payload = {
+        shop_order_id: newReview.orderId.trim(),
+        shop_product_id: Number(shopProductId),
+        rating: newReview.rating,
+        title: newReview.title.trim() || 'Review',
+        body: newReview.comment.trim(),
+        images: [],
+      };
+      await shop3ApiService.createShopReview(payload, jwt);
+      setShowWriteReview(false);
+      setNewReview({ rating: 5, title: '', comment: '', orderId: '' });
+      fetchShopReviews(1);
+    } catch (err: any) {
+      alert(err.message || 'Failed to submit review');
+    }
+  };
+
+  const handleOpenReview = async () => {
+    setEligibilityChecked(false);
+    setEligibilityError(null);
+    try {
+  const jwt = localStorage.getItem('access_token') || '';
+      if (!jwt) {
+        setEligibilityError('Please sign in to review.');
+        setEligibilityChecked(true);
+        return;
+      }
+      let page = 1;
+      let hasNext = true;
+  // Candidate product IDs (current product only in this scoped component)
+  const candidateIds = new Set<number>([Number(shopProductId)]);
+      let latestMatch: any = null;
+      while (hasNext && page <= 5) {
+        const res = await shop3ApiService.getMyShopOrders(page, 50, jwt);
+        if (res.success) {
+          (res.data.orders || []).forEach((o: any) => {
+            const isDelivered = String(o.order_status).toLowerCase() === 'delivered';
+            const hasProduct = Array.isArray(o.items) && o.items.some((it: any) => candidateIds.has(Number(it.product_id)));
+            if (isDelivered && hasProduct) {
+              if (!latestMatch || new Date(o.order_date) > new Date(latestMatch.order_date)) {
+                latestMatch = o;
+              }
+            }
+          });
+          hasNext = Boolean(res.data?.pagination?.has_next);
+          page += 1;
+        } else {
+          hasNext = false;
+        }
+      }
+      if (latestMatch) {
+        setNewReview(prev => ({ ...prev, orderId: latestMatch.order_id }));
+        setShowWriteReview(true);
+      } else {
+        setEligibilityError("Not allowed: either this product wasn't ordered, or the order isn't delivered yet.");
+      }
+    } catch (e: any) {
+      setEligibilityError(e?.message || 'Failed to check eligibility');
+    } finally {
+      setEligibilityChecked(true);
+    }
+  };
+
+  return (
+    <div className="w-full bg-black py-8 sm:py-12">
+      <div className="max-w-6xl w-full mx-auto px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-8">
+            <h2 className="text-2xl sm:text-3xl lg:text-[42px] font-normal font-bebas text-white">REVIEWS</h2>
+            <p className="underline text-xs sm:text-sm text-gray-300">Showing {shopReviews.length} review{shopReviews.length !== 1 ? 's' : ''}</p>
+          </div>
+          <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
+            <button onClick={handleOpenReview} className="px-4 sm:px-6 py-3 bg-[#CCFF00] text-black rounded-full font-gilroy text-sm sm:text-base font-semibold w-full sm:w-auto">Write Review</button>
+            {eligibilityChecked && eligibilityError && (
+              <p className="text-red-400 text-xs">{eligibilityError}</p>
+            )}
+          </div>
+        </div>
+
+        {showWriteReview && (
+          <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-5 mb-6">
+            <h3 className="text-base sm:text-lg font-semibold mb-3 text-white">Write your review</h3>
+            <form onSubmit={handleSubmitReview} className="space-y-3">
+              {/* orderId is set after eligibility check */}
+              <div>
+                <label className="block text-sm text-gray-300 mb-1">Rating</label>
+                <div className="flex items-center gap-1">
+                  {[1,2,3,4,5].map(star=> (
+                    <button type="button" key={star} onClick={()=>setNewReview(prev=>({...prev, rating: star}))}>
+                      <Star className={`w-4 h-4 ${star <= newReview.rating ? 'fill-yellow-400 stroke-yellow-400' : 'stroke-gray-600'}`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-300 mb-1">Title</label>
+                <input value={newReview.title} onChange={(e)=>setNewReview(prev=>({...prev, title: e.target.value}))} className="w-full p-2 border rounded bg-black text-white border-gray-700" placeholder="Great product!" required />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-300 mb-1">Your review</label>
+                <textarea value={newReview.comment} onChange={(e)=>setNewReview(prev=>({...prev, comment: e.target.value}))} className="w-full p-2 border rounded min-h-[100px] bg-black text-white border-gray-700" placeholder="Share your thoughts…" required />
+              </div>
+              <div className="flex gap-2">
+                <button type="submit" disabled={!eligibilityChecked || !newReview.orderId} className={`px-4 py-2 rounded text-black ${(!eligibilityChecked || !newReview.orderId) ? 'bg-gray-600 text-white cursor-not-allowed' : 'bg-[#CCFF00]'}`}>Submit</button>
+                <button type="button" onClick={()=>setShowWriteReview(false)} className="px-4 py-2 rounded border border-gray-700 text-white">Cancel</button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {reviewsLoading ? (
+          <div className="text-gray-400">Loading reviews…</div>
+        ) : shopReviews.length > 0 ? (
+          <div>
+            {shopReviews.map((review)=> (
+              <div key={review.review_id} className="mb-6 sm:mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-2">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 rounded-full flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold font-bebas text-lg sm:text-xl uppercase truncate text-left text-white">{review.user?.first_name || 'User'}</h3>
+                      <div className="flex items-center mt-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-3 h-3 sm:w-4 sm:h-4 ${i < review.rating ? 'fill-yellow-400 stroke-yellow-400' : 'stroke-gray-600'}`} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs sm:text-base text-gray-400 font-gilroy whitespace-nowrap self-start sm:self-auto text-left">{new Date(review.created_at).toLocaleDateString()}</p>
+                </div>
+                <p className="text-xs sm:text-sm text-gray-200 font-gilroy leading-relaxed text-left">{review.title ? `${review.title} — ` : ''}{review.body}</p>
+                <hr className="mt-3 sm:mt-4 border-gray-800" />
+              </div>
+            ))}
+            {reviewsPages > 1 && (
+                <div className="flex items-center justify-center gap-3 pt-2">
+                  <button disabled={reviewsPage===1} onClick={()=>fetchShopReviews(reviewsPage-1)} className="px-3 py-1 border rounded disabled:opacity-50 border-gray-700 text-white">Prev</button>
+                  <span className="text-gray-400">Page {reviewsPage} of {reviewsPages}</span>
+                  <button disabled={reviewsPage===reviewsPages} onClick={()=>fetchShopReviews(reviewsPage+1)} className="px-3 py-1 border rounded disabled:opacity-50 border-gray-700 text-white">Next</button>
+                </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-gray-400">No reviews yet.</div>
+        )}
+      </div>
+    </div>
+  );
+};
