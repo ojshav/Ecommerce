@@ -88,7 +88,7 @@ const Footer = () => {
           </div>
 
           {/* Links Container */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 sm:gap-4 justify-items-start sm:justify-items-end">
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-4 gap-10 sm:gap-4 justify-items-start sm:justify-items-end">
             {/* Order Assistance */}
             <div>
               <h3 className="mb-4 text-white font-futura text-sm lg:text-base font-normal leading-[30px] tracking-[4px] uppercase">ORDER ASSISTANCE</h3>

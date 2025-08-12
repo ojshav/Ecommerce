@@ -97,7 +97,7 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
   const isInWishlist = isProductInWishlist(product.id);
 
   return (
-    <div className={`relative group cursor-pointer ${className}`}>
+    <div className={`relative group cursor-pointer overflow-visible ${className}`}>
       {/* Wishlist button - positioned at top right */}
       {showWishlist && (
         <button
@@ -135,15 +135,15 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
       
       {/* Always visible product name and price - hidden on hover */}
       <div className="mt-12 text-center opacity-100 group-hover:opacity-0 transition-opacity duration-300">
-        <h3 className="text-white text-center font-abeezee text-[30px] font-normal leading-normal mb-1">{product.name}</h3>
+        <h3 className="text-white text-center font-abeezee text-[30px] font-normal leading-[1.2] mb-1 break-words hyphens-auto">{product.name}</h3>
         <p className="mt-4 text-white text-center font-futura text-[25px] font-[450] leading-normal">${product.price}</p>
       </div>
       
       {/* Hover card that replaces the name and price */}
-      <div className="absolute top-[calc(100%-200px)] left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <div className="rounded-[20px] border-2 border-[#BB9D7B] bg-[#212121] p-6 w-[427px] h-[270px]">
+      <div className="absolute bottom-0 left-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+        <div className="rounded-[20px] border-2 border-[#BB9D7B] bg-[#212121] p-6 w-full min-h-[270px] max-h-[400px] overflow-y-auto">
           {/* Product Name */}
-          <h3 className="text-white text-center font-abeezee text-[30px] font-normal leading-normal mb-1">{product.name}</h3>
+          <h3 className="text-white text-center font-abeezee text-[30px] font-normal leading-[1.2] mb-1 break-words hyphens-auto">{product.name}</h3>
           
           {/* Product Price */}
           <p className="mt-4 text-white text-center font-futura text-[25px] font-[450] leading-normal mb-4">${product.price}</p>

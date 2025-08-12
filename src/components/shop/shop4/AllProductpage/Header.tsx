@@ -82,10 +82,6 @@ const Header: React.FC = () => {
                 </span>
               )}
             </Link>
-            <Menu 
-              className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
-              strokeWidth={1.5}
-            />
           </div>
 
           {/* Mobile Menu Button */}

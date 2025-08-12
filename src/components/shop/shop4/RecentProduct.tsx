@@ -23,8 +23,8 @@ function Recentproduct() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  // Maximum products to show is 3
-  const maxVisibleProducts = 3;
+  // Maximum products to show is 4
+  const maxVisibleProducts = 4;
   const canScrollLeft = currentScrollIndex > 0;
   const canScrollRight = currentScrollIndex < products.length - maxVisibleProducts;
 
@@ -144,7 +144,7 @@ function Recentproduct() {
 
       {/* Product Carousel */}
       <div className="relative px-4 md:px-8 lg:px-16 max-w-[1920px] mx-auto">
-        {/* Navigation Arrows - Show only when there are more than 3 products */}
+        {/* Navigation Arrows - Show only when there are more than 4 products */}
         {products.length > maxVisibleProducts && (
           <>
             <button 
@@ -180,7 +180,7 @@ function Recentproduct() {
         ) : (
           <div 
             ref={scrollContainerRef}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-[1640px] mx-auto"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 max-w-[1640px] mx-auto"
           >
             {visibleProducts.map((product) => (
               <div 
@@ -202,7 +202,7 @@ function Recentproduct() {
           </div>
         )}
 
-        {/* Scroll Indicators - Show dots when there are more than 3 products */}
+        {/* Scroll Indicators - Show dots when there are more than 4 products */}
         {products.length > maxVisibleProducts && (
           <div className="flex justify-center mt-8 space-x-2">
             {Array.from({ length: products.length - maxVisibleProducts + 1 }, (_, index) => (
