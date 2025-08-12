@@ -90,12 +90,12 @@ const AoinCatalog: React.FC = () => {
       ) : products.length === 0 ? (
         <div className="text-white text-xl">No products found.</div>
       ) : products.length <= 3 ? (
-        // Grid layout for 3 or fewer products (original layout)
+        // Grid layout for 3 or fewer products - mobile first with one full width
         <div className="flex flex-col md:flex-row md:gap-6 gap-4 w-full max-w-[1329px] justify-center items-stretch pb-4 md:pb-0">
           {products.map((product) => (
             <div
               key={product.product_id}
-              className="rounded-3xl flex flex-col justify-between shadow-lg overflow-hidden w-full md:w-[429px] max-w-[95vw] mx-auto md:h-[549px] cursor-pointer relative group"
+              className="rounded-3xl flex flex-col justify-between shadow-lg overflow-hidden w-full md:w-[429px] max-w-full mx-auto md:h-[549px] cursor-pointer relative group"
               onClick={() => handleProductClick(product.product_id)}
             >
               <div className="block relative">
@@ -104,7 +104,7 @@ const AoinCatalog: React.FC = () => {
                   alt={product.product_name}
                   width={427}
                   height={500}
-                  className="object-cover w-full h-[55vw] sm:h-[300px] md:h-[500px] max-h-[500px] hover:opacity-90 transition-opacity duration-200"
+                  className="object-cover w-full h-[70vw] sm:h-[400px] md:h-[500px] max-h-[500px] hover:opacity-90 transition-opacity duration-200 rounded-3xl"
                 />
                 
                 {/* Wishlist button */}
@@ -140,7 +140,7 @@ const AoinCatalog: React.FC = () => {
           ))}
         </div>
       ) : (
-        // Horizontal scroll layout for more than 3 products
+        // Horizontal scroll layout for more than 3 products - mobile first with one full width
         <div className="w-full max-w-[1920px] overflow-hidden">
           <div 
             ref={scrollContainerRef}
@@ -153,7 +153,7 @@ const AoinCatalog: React.FC = () => {
             {products.map((product) => (
               <div
                 key={product.product_id}
-                className="rounded-3xl flex flex-col justify-between shadow-lg overflow-hidden w-[429px] h-[549px] flex-shrink-0 cursor-pointer relative group"
+                className="rounded-3xl flex flex-col justify-between shadow-lg overflow-hidden w-full sm:w-[429px] h-auto sm:h-[549px] flex-shrink-0 cursor-pointer relative group"
                 onClick={() => handleProductClick(product.product_id)}
               >
                 <div className="block relative">
@@ -162,7 +162,7 @@ const AoinCatalog: React.FC = () => {
                     alt={product.product_name}
                     width={427}
                     height={500}
-                    className="object-cover w-full h-[500px] hover:opacity-90 transition-opacity duration-200"
+                    className="object-cover w-full h-[500px] hover:opacity-90 transition-opacity duration-200 rounded-3xl"
                   />
                   
                   {/* Wishlist button */}
