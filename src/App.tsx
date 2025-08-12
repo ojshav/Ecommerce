@@ -27,6 +27,7 @@ import Shop4Wishlist from './pages/Shop/Shop4Wishlist';
 import { Shop1Cart, Shop2Cart, Shop3Cart, Shop4Cart } from './pages/Shop/ShopCartWrapper';
 import { Shop1Order, Shop2Order, Shop3Order, Shop4Order } from './pages/Shop/ShopOrderWrapper';
 import { Shop1OrderConfirmation, Shop2OrderConfirmation, Shop3OrderConfirmation, Shop4OrderConfirmation } from './pages/Shop/ShopOrderConfirmationWrapper';
+import { Shop1OrderDetail, Shop2OrderDetail, Shop3OrderDetail, Shop4OrderDetail } from './pages/Shop/ShopOrderDetailWrapper';
 import PasswordReset from './pages/auth/PasswordReset';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import RequestPasswordReset from './pages/auth/RequestPasswordReset';
@@ -574,6 +575,11 @@ const App: React.FC = () => {
                               <Route path="/cart" element={<Cart />} />
                               <Route path="/payment" element={<PaymentPage />} />
                               <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+                              {/* Shop order details (public) */}
+                              <Route path="/shop1/order/:orderId" element={<Shop1OrderDetail />} />
+                              <Route path="/shop2/order/:orderId" element={<Shop2OrderDetail />} />
+                              <Route path="/shop3/order/:orderId" element={<Shop3OrderDetail />} />
+                              <Route path="/shop4/order/:orderId" element={<Shop4OrderDetail />} />
                               <Route path="/search" element={<SearchResultsPage />} />
                               <Route path="/search/:query" element={<Products />} />
 
