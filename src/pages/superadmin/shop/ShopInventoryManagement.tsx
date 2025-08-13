@@ -48,16 +48,7 @@ type InventoryResponse = {
   pagination: Pagination;
 };
 
-type StockSummary = {
-  shop: {
-    id: number;
-    name: string;
-    description: string;
-  };
-  inventory_stats: InventoryStats;
-  low_stock_products: any[];
-  low_stock_count: number;
-};
+// Removed unused StockSummary type
 
 // Service layer for shop inventory management
 class ShopInventoryService {
@@ -158,11 +149,12 @@ const ShopInventoryManagement: React.FC = () => {
   const [brand, setBrand] = useState<string>('All Brands');
   const [stockStatus, setStockStatus] = useState<string>('All Stock Status');
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage] = useState(10); // setter unused
   
   // Edit modal
   const [editModal, setEditModal] = useState<{ open: boolean; product: InventoryItem } | null>(null);
   const [updating, setUpdating] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
 
   // Fetch shops
   useEffect(() => {
@@ -292,6 +284,86 @@ const ShopInventoryManagement: React.FC = () => {
     }
   };
 
+  // --- Export helpers ---
+  const buildFilename = (ext: string) => {
+    const shop = shops.find(s => s.shop_id === selectedShopId);
+    const name = shop?.name ? shop.name.replace(/[^a-z0-9_-]+/gi, '_') : `shop_${selectedShopId ?? ''}`;
+    const ts = new Date().toISOString().replace(/[:.]/g, '-');
+    return `${name}_inventory_${ts}.${ext}`;
+  };
+
+  const exportCSV = () => {
+    if (!inventory || inventory.length === 0) {
+      alert('No data to export');
+      return;
+    }
+    const headers = ['PRODUCT NAME','SKU','CATEGORY','BRAND','STOCK QTY','AVAILABLE','STATUS'];
+    const rows = inventory.map(item => [
+      item.name,
+      item.sku,
+      item.category?.name ?? '',
+      item.brand?.name ?? '',
+      String(item.stock_qty ?? ''),
+      String(item.available ?? ''),
+      getStockStatus(item),
+    ]);
+
+    // Escape CSV values
+    const escapeCSV = (val: string) => {
+      const needsQuotes = /[",\n]/.test(val);
+      const v = val.replace(/"/g, '""');
+      return needsQuotes ? `"${v}"` : v;
+    };
+
+    const lines = [headers, ...rows].map(r => r.map(c => escapeCSV(String(c ?? ''))).join(','));
+    const csvContent = '\uFEFF' + lines.join('\n'); // add BOM for UTF-8
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = buildFilename('csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setExportOpen(false);
+  };
+
+  const exportExcel = () => {
+    if (!inventory || inventory.length === 0) {
+      alert('No data to export');
+      return;
+    }
+    // Build simple HTML table compatible with Excel (.xls)
+    const headers = ['PRODUCT NAME','SKU','CATEGORY','BRAND','STOCK QTY','AVAILABLE','STATUS'];
+    const th = headers.map(h => `<th style="text-align:left;border:1px solid #ccc;padding:4px;">${h}</th>`).join('');
+    const trs = inventory.map(item => {
+      const tds = [
+        item.name,
+        item.sku,
+        item.category?.name ?? '',
+        item.brand?.name ?? '',
+        String(item.stock_qty ?? ''),
+        String(item.available ?? ''),
+        getStockStatus(item),
+      ].map(v => `<td style="border:1px solid #ccc;padding:4px;">${String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</td>`).join('');
+      return `<tr>${tds}</tr>`;
+    }).join('');
+
+    const html = `\n      <html xmlns:x=\"urn:schemas-microsoft-com:office:excel\">\n      <head>\n        <meta charset=\"utf-8\" />\n      </head>\n      <body>\n        <table border=\"1\" style=\"border-collapse:collapse;\">\n          <thead><tr>${th}</tr></thead>\n          <tbody>${trs}</tbody>\n        </table>\n      </body>\n      </html>`;
+
+    const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = buildFilename('xls');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setExportOpen(false);
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Inventory Management</h1>
@@ -399,9 +471,23 @@ const ShopInventoryManagement: React.FC = () => {
                 </option>
               ))}
             </select>
-            <button className="ml-auto border px-4 py-2 rounded bg-white hover:bg-gray-100">
-              Export
-            </button>
+            <div className="ml-auto relative">
+              <button
+                type="button"
+                className="border px-4 py-2 rounded bg-white hover:bg-gray-100"
+                onClick={() => setExportOpen(o => !o)}
+                aria-haspopup="menu"
+                aria-expanded={exportOpen}
+              >
+                Export
+              </button>
+              {exportOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow z-10" role="menu">
+                  <button className="w-full text-left px-4 py-2 hover:bg-gray-50" onClick={exportCSV} role="menuitem">Export CSV</button>
+                  <button className="w-full text-left px-4 py-2 hover:bg-gray-50" onClick={exportExcel} role="menuitem">Export Excel (.xls)</button>
+                </div>
+              )}
+            </div>
             <button className="ml-2 px-4 py-2 rounded bg-orange-500 text-white font-semibold hover:bg-orange-600">
               + Add Product
             </button>
