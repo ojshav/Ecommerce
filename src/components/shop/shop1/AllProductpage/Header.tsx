@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useShopWishlistOperations } from '../../../../hooks/useShopWishlist';
 import { useShopCartOperations } from '../../../../context/ShopCartContext';
+import shop1ApiService, { Product } from '../../../../services/shop1ApiService';
 
 // Heroicons SVGs (inline for simplicity)
 const MailIcon = () => (
@@ -61,12 +62,19 @@ const navLinks = [
 ];
 
 const Header: React.FC = () => {
+  const navigate = useNavigate();
   const [category, setCategory] = useState(categories[0]);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [departmentsOpen, setDepartmentsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileDeptOpen, setMobileDeptOpen] = useState(false);
+  
+  // Search functionality
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   // Wishlist functionality
   const { wishlistCount } = useShopWishlistOperations(1);
@@ -98,6 +106,60 @@ const Header: React.FC = () => {
     return () => clearInterval(interval);
   }, [getShopCartCount, canPerformShopCartOperations]);
 
+  // Search functionality
+  const performSearch = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+
+    try {
+      setSearchLoading(true);
+      const response = await shop1ApiService.searchProducts(query, {
+        page: 1,
+        per_page: 5 // Limit results for dropdown
+      });
+      
+      if (response.success) {
+        setSearchResults(response.products);
+        setShowSearchResults(true);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  // Debounced search
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      performSearch(search);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [search]);
+
+  // Handle search result click
+  const handleSearchResultClick = (product: Product) => {
+    setSearch('');
+    setShowSearchResults(false);
+    navigate(`/shop1/product/${product.product_id}`);
+  };
+
+  // Handle search form submit
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (search.trim()) {
+      setShowSearchResults(false);
+      navigate(`/shop1-allproductpage?search=${encodeURIComponent(search.trim())}`);
+    }
+  };
+
   // Close dropdowns on outside click
   const catRef = useRef<HTMLDivElement>(null);
   const deptRef = useRef<HTMLDivElement>(null);
@@ -105,6 +167,7 @@ const Header: React.FC = () => {
     function handleClick(e: MouseEvent) {
       if (catRef.current && !catRef.current.contains(e.target as Node)) setCategoryOpen(false);
       if (deptRef.current && !deptRef.current.contains(e.target as Node)) setDepartmentsOpen(false);
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowSearchResults(false);
       // Close mobile nav/dept on outside click
       if (mobileNavOpen || mobileDeptOpen) {
         const navMenu = document.getElementById('mobile-nav-menu');
@@ -189,10 +252,11 @@ const Header: React.FC = () => {
           <Link to="/shop1" className="hidden md:block text-[36px] font-playfair font-bold tracking-wide hover:opacity-80 transition-opacity">AOIN</Link>
 
           {/* Search Bar */}
-          <div className="w-full md:flex-1 flex items-center md:mx-10 lg:ml-20 nav2:ml-48 max-w-full md:max-w-2xl lg:max-w-2xl">
-            <div className="flex w-full md:w-[600px] nav2:w-[600px] h-14 md:h-[44px] nav:h-[48px] lg:h-[59px] rounded-2xl border border-gray-300 min-w-0">
+          <div className="w-full md:flex-1 flex items-center md:mx-10 lg:ml-20 nav2:ml-48 max-w-full md:max-w-2xl lg:max-w-2xl" ref={searchRef}>
+            <form onSubmit={handleSearchSubmit} className="flex w-full md:w-[600px] nav2:w-[600px] h-14 md:h-[44px] nav:h-[48px] lg:h-[59px] rounded-2xl border border-gray-300 min-w-0 relative">
               <div className="relative hidden md:block" ref={catRef}>
                 <button
+                  type="button"
                   onClick={() => setCategoryOpen((v) => !v)}
                   className="flex items-center justify-between font-poppins px-5 h-full text-[14px] lg:text-[16px] min-w-[160px] focus:outline-none"
                   style={{ border: 'none' }}
@@ -219,10 +283,63 @@ const Header: React.FC = () => {
                 onChange={e => setSearch(e.target.value)}
                 style={{ border: 'none', boxShadow: 'none' }}
               />
-              <button className="px-4 py-3 md:py-2 transition-colors rounded-r-2xl md:rounded-xl flex items-center justify-center bg-[#FFB998]" style={{ border: 'none', boxShadow: 'none' }}>
+              <button type="submit" className="px-4 py-3 md:py-2 transition-colors rounded-r-2xl md:rounded-xl flex items-center justify-center bg-[#FFB998]" style={{ border: 'none', boxShadow: 'none' }}>
                 <SearchIcon />
               </button>
-            </div>
+              
+              {/* Search Results Dropdown */}
+              {showSearchResults && (searchResults.length > 0 || searchLoading) && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                  {searchLoading ? (
+                    <div className="p-4 text-center text-gray-500">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-400 mx-auto"></div>
+                      <p className="mt-2 text-sm">Searching...</p>
+                    </div>
+                  ) : (
+                    <>
+                      {searchResults.map((product) => (
+                        <div
+                          key={product.product_id}
+                          onClick={() => handleSearchResultClick(product)}
+                          className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        >
+                          <img
+                            src={product.primary_image}
+                            alt={product.product_name}
+                            className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/assets/shop1/ProductPage/pd1.svg';
+                            }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-medium text-gray-900 truncate">
+                              {product.product_name}
+                            </h4>
+                            <p className="text-xs text-gray-500 truncate">
+                              {product.category_name}
+                            </p>
+                            <p className="text-sm font-semibold text-orange-600">
+                              ₹{Number(product.price).toLocaleString('en-IN')}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                      {searchResults.length > 0 && (
+                        <div className="p-3 border-t border-gray-100">
+                          <button
+                            type="submit"
+                            className="w-full text-center text-sm text-orange-600 hover:text-orange-700 font-medium"
+                          >
+                            View all results for "{search}"
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </form>
           </div>
 
           {/* Desktop Wishlist, Cart, Price */}
