@@ -56,9 +56,7 @@ const Header = () => {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center space-x-8">
-            <button className="text-gray-900 hover:text-gray-600 transition-colors">
-              <Search className="w-6 h-6" />
-            </button>
+            
             <Link to="/shop2/wishlist" className="text-gray-900 hover:text-gray-600 transition-colors relative">
               <Heart className="w-6 h-6" />
               {wishlistCount > 0 && (
@@ -75,9 +73,9 @@ const Header = () => {
                 </span>
               )}
             </Link>
-            <button className="text-gray-900 hover:text-gray-600 transition-colors">
+            <Link to="/profile" className="text-gray-900 hover:text-gray-600 transition-colors">
               <User className="w-6 h-6" />
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -97,7 +95,7 @@ const Header = () => {
               <Link to="/contact" className="text-sm font-medium text-gray-900 tracking-[0.1em]">CONTACT US</Link>
             </nav>
             <div className="flex items-center space-x-6 mt-6 pt-6 border-t border-gray-100">
-              <Search className="w-5 h-5 text-gray-900" />
+            
               <Link to="/shop2/wishlist" className="relative">
                 <Heart className="w-5 h-5 text-gray-900" />
                 {wishlistCount > 0 && (
@@ -114,7 +112,9 @@ const Header = () => {
                   </span>
                 )}
               </Link>
-              <User className="w-5 h-5 text-gray-900" />
+              <Link to="/profile">
+                <User className="w-5 h-5 text-gray-900" />
+              </Link>
             </div>
           </div>
         )}
