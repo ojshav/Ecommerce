@@ -79,12 +79,7 @@ const ProductPage = () => {
         if (categoryParam) {
           setSelectedCategory(parseInt(categoryParam));
         }
-        
-        // Check for search term from URL
-        const searchParam = searchParams.get('search');
-        if (searchParam) {
-          setSearchTerm(searchParam);
-        }
+
 
         // Apply discount filter from URL if present (e.g., ?discount=30+ or ?discount=50+)
         const discountParam = searchParams.get('discount');
@@ -93,6 +88,12 @@ const ProductPage = () => {
         if (normalized && allowed.has(normalized)) {
           setDiscountChip(normalized);
           setCurrentPage(1);
+        }
+
+        // Check for search term from URL
+        const searchParam = searchParams.get('search');
+        if (searchParam) {
+          setSearchTerm(searchParam);
         }
       } catch (error) {
         console.error('Error loading initial data:', error);
@@ -141,9 +142,12 @@ const ProductPage = () => {
           brand_id: selectedBrand || undefined,
           min_price: priceRange[0] > 0 ? priceRange[0] : undefined,
           max_price: priceRange[1] < 100000 ? priceRange[1] : undefined,
-          search: searchTerm || undefined,
+
           discount_min,
           discount_max,
+
+          search: searchTerm || undefined,
+
           sort_by: sortBy,
           order: sortOrder
         });
@@ -162,7 +166,9 @@ const ProductPage = () => {
     };
 
     loadProducts();
-  }, [currentPage, itemsPerPage, selectedCategory, selectedBrand, searchTerm, priceRange, sortBy, sortOrder, discountChip]);
+
+  }, [currentPage, itemsPerPage, selectedCategory, selectedBrand, searchTerm,priceRange, sortBy, sortOrder, discountChip]);
+
 
   // Calculate dynamic price range when products change
   useEffect(() => {
