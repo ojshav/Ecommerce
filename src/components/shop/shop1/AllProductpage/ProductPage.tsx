@@ -39,8 +39,8 @@ const ProductPage = () => {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [brandOpen, setBrandOpen] = useState(false);
   const [priceOpen, setPriceOpen] = useState(false);
-  const [colorsOpen, setColorsOpen] = useState(false);
-  const [sizeOpen, setSizeOpen] = useState(false);
+  // const [colorsOpen, setColorsOpen] = useState(false); // hidden section
+  // const [sizeOpen, setSizeOpen] = useState(false); // hidden section
 
   // Calculate price range from products
   const calculatePriceRange = (productList: Product[]) => {
@@ -439,7 +439,8 @@ const ProductPage = () => {
               <button className="px-3 bg-black text-white py-1.5 rounded text-[14px] md:text-[16px] font-bold tracking-wide w-full md:w-auto">FILTER</button>
             </div>
           </div>
-          {/* Colors */}
+          {/* Colors - hidden as requested */}
+          {/**
           <div className="mb-12">
             <div
               className="flex items-center justify-between md:block cursor-pointer md:cursor-default"
@@ -479,7 +480,9 @@ const ProductPage = () => {
               </div>
             </div>
           </div>
-          {/* Size */}
+          */}
+          {/* Size - hidden as requested */}
+          {/**
           <div className="mb-12">
             <div
               className="flex items-center justify-between md:block cursor-pointer md:cursor-default"
@@ -503,6 +506,7 @@ const ProductPage = () => {
               </div>
             </div>
           </div>
+          */}
         </div>
       </aside>
       {/* Main Content */}
