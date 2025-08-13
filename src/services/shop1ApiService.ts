@@ -1,5 +1,5 @@
 // Shop1 API Service - Centralized API calls for Shop1
-const API_BASE_URL = 'http://localhost:5110/api/public/shops/1'; // Public catalog endpoints
+const API_BASE_URL = 'https://api.aoin11.com/api/public/shops/1'; // Public catalog endpoints
 // Derive API host (e.g., http://localhost:5110) for cross-scope endpoints (reviews, private shop routes)
 const API_HOST = API_BASE_URL.replace(/\/api\/public\/shops\/\d+$/, '');
 // Private shop base (JWT-protected) for things like orders lives under /api/shops/:id

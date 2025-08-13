@@ -1,5 +1,5 @@
 // Shop3 API Service - Centralized API calls for Shop3
-const API_BASE_URL = 'http://localhost:5110/api/public/shops/3'; // Public catalog endpoints
+const API_BASE_URL = 'https://api.aoin11.com/api/public/shops/3'; // Public catalog endpoints
 const API_HOST = API_BASE_URL.replace(/\/api\/public\/shops\/\d+$/, '');
 const PRIVATE_SHOP_BASE = `${API_HOST}/api/shops/3`;
 
