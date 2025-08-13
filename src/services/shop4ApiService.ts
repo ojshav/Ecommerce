@@ -191,6 +191,8 @@ export interface ProductQueryParams {
   brand_id?: number;
   min_price?: number;
   max_price?: number;
+  discount_min?: number;
+  discount_max?: number;
   search?: string;
   sort_by?: 'name' | 'price' | 'created_at' | 'popularity';
   sort_order?: 'asc' | 'desc';

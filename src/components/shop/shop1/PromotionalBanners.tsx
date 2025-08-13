@@ -1,12 +1,17 @@
-import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const PromotionalBanners = () => {
+  const navigate = useNavigate();
+  const goThirtyPlus = () => {
+    const sp = new URLSearchParams({ discount: '30+' });
+    navigate(`/shop1-allproductpage?${sp.toString()}`);
+  };
   return (
     <section className="py-8 md:py-12 lg:py-16 w-full  mx-auto px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-[1280px] mx-auto">
         <div className="flex flex-col lg:flex-row gap-3 lg:gap-3 justify-center items-center lg:items-start">
           {/* Video Block */}
-          <div className="relative w-full lg:w-[522px] h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden">
+          <div className="relative w-full lg:w-[522px] h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden cursor-pointer" onClick={goThirtyPlus}>
             <div className="relative h-full">
               <video
                 src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691077/public_assets_videos/promo-video.mp4"
@@ -41,8 +46,15 @@ const PromotionalBanners = () => {
             </div>
           </div>
 
-          {/* Image Block */}
-          <div className="relative w-full lg:w-[738px] h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden bg-white mt-6 lg:mt-0">
+          {/* Image Block (Elegant scarf series) */}
+          <div
+            className="relative w-full lg:w-[738px] h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden bg-white mt-6 lg:mt-0 cursor-pointer"
+            onClick={() => {
+              const sp = new URLSearchParams({ discount: '50+' });
+              navigate(`/shop1-allproductpage?${sp.toString()}`);
+            }}
+            title="Shop 50% or more"
+          >
             <div className="relative h-full">
               <img
                 src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745165/public_assets_shop1_LP/public_assets_images_promo1.svg"

@@ -1,6 +1,7 @@
-import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const EthnicWear = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative w-full max-w-[1340px] mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-[1340px] mx-auto">
@@ -14,7 +15,14 @@ const EthnicWear = () => {
         {/* Responsive Layout */}
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Left Video Panel */}
-          <div className="relative w-full lg:w-[596px] aspect-[3/3.2] lg:aspect-[596/634.26] overflow-hidden">
+          <div
+            className="relative w-full lg:w-[596px] aspect-[3/3.2] lg:aspect-[596/634.26] overflow-hidden cursor-pointer"
+            onClick={() => {
+              const sp = new URLSearchParams({ discount: '50+' });
+              navigate(`/shop1-allproductpage?${sp.toString()}`);
+            }}
+            title="Shop 50% or more"
+          >
             <video
               src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691061/public_assets_videos/ethnic1.mp4"
               className="w-full h-full object-cover"
@@ -34,10 +42,7 @@ const EthnicWear = () => {
                   50%
                 </span>
               </div>
-              <p className="ml-1 sm:ml-2 text-xs sm:text-sm font-light font-inter mt-2 max-w-[90%]">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam eu nunc ac purus
-                dapibus iaculis. Integer vel mattis ante. Praesent posuere dapibus lacus eu...
-              </p>
+              {/* Removed placeholder text; clicking the block goes to 50%+ deals */}
             </div>
           </div>
 
