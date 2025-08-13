@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useHorizontalScroll } from "../../../../hooks/useHorizontalScroll";
 
 
 const products = [
@@ -34,9 +35,35 @@ const products = [
 const Finishing: React.FC = () => {
   const [current, setCurrent] = useState(0);
 
+  // Use the horizontal scroll hook
+  const {
+    containerRef,
+    isDragging,
+    handleMouseDown,
+    handleMouseUp,
+    handleMouseMove,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    scroll
+  } = useHorizontalScroll({
+    snapToItems: true,
+    itemWidth: window.innerWidth < 640 ? 260 : // mobile
+               window.innerWidth < 768 ? 320 : // xs
+               window.innerWidth < 1024 ? 340 : // sm
+               373, // md and up
+    gap: 16
+  });
+
   // Carousel navigation (for 3 cards, but can be extended)
-  const prev = () => setCurrent((prev) => (prev === 0 ? products.length - 1 : prev - 1));
-  const next = () => setCurrent((prev) => (prev === products.length - 1 ? 0 : prev + 1));
+  const prev = () => {
+    scroll('left');
+    setCurrent((prev) => (prev === 0 ? products.length - 1 : prev - 1));
+  };
+  const next = () => {
+    scroll('right');
+    setCurrent((prev) => (prev === products.length - 1 ? 0 : prev + 1));
+  };
 
   return (
     <>
@@ -59,7 +86,7 @@ const Finishing: React.FC = () => {
               THE PERFECT FINISHING TOUCH
             </h2>
           </div>
-          <div className="relative w-full flex items-center justify-center">
+          <div className="relative w-full flex items-center justify-start">
             {/* Left Arrow */}
             <button
               aria-label="Previous"
@@ -69,11 +96,22 @@ const Finishing: React.FC = () => {
               <span className="text-2xl md:text-3xl font-bold">&#8592;</span>
             </button>
             {/* Cards */}
-            <div className="flex gap-4 md:gap-6 w-full justify-center overflow-x-auto md:overflow-visible px-1 scrollbar-thin scrollbar-thumb-lime-400 scrollbar-track-black">
+            <div 
+              ref={containerRef}
+              className="flex gap-4 md:gap-6 w-full justify-start overflow-x-auto px-1 scrollbar-hide scroll-smooth snap-x"
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onMouseMove={handleMouseMove}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+            >
               {products.map((product, idx) => (
                 <div
                   key={product.id}
-                  className={`rounded-2xl shadow-lg flex flex-col w-[260px] xs:w-[320px] sm:w-[340px] md:w-[373px] min-w-[260px] xs:min-w-[320px] sm:min-w-[340px] md:min-w-[380px] max-w-[380px] transition-transform duration-300 ${
+                  className={`rounded-2xl shadow-lg flex flex-col w-[260px] xs:w-[320px] sm:w-[340px] md:w-[373px] min-w-[260px] xs:min-w-[320px] sm:min-w-[340px] md:min-w-[380px] max-w-[380px] transition-transform duration-300 flex-shrink-0 snap-start ${
                     idx === current ? "scale-100" : "scale-100 "
                   }`}
                 >

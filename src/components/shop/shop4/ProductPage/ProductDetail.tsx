@@ -952,7 +952,7 @@ const ProductDetail: React.FC = () => {
                                 {allImages.slice(0, 3).map((imageUrl, index) => (
                                   <div 
                                     key={index}
-                                    className="flex-1 cursor-pointer transition-transform hover:scale-105 relative"
+                                    className="flex-1 cursor-pointer transition-transform relative"
                                     onClick={() => setSelectedMainImage(imageUrl)}
                                   >
                                     <img
@@ -1049,7 +1049,7 @@ const ProductDetail: React.FC = () => {
                                   {allImages.map((imageUrl: string, index: number) => (
                                     <div 
                                       key={index}
-                                      className="cursor-pointer transition-transform hover:scale-105"
+                                      className="cursor-pointer transition-transform"
                                       onClick={() => {
                                         setSelectedMainImage(imageUrl);
                                         setShowImagePopup(false);
@@ -1387,7 +1387,7 @@ const ProductDetail: React.FC = () => {
               {relatedProducts.slice(0, 3).map((relatedProduct) => (
                 <div 
                   key={relatedProduct.id} 
-                  className="flex-shrink-0 w-[calc(100vw-2rem)] cursor-pointer transition-transform hover:scale-105" 
+                  className="flex-shrink-0 w-[calc(100vw-2rem)] cursor-pointer transition-transform" 
                   onClick={() => {
                     // Navigate to the related product's detail page
                     navigate(`?id=${relatedProduct.id}`);
@@ -1412,7 +1412,7 @@ const ProductDetail: React.FC = () => {
             {relatedProducts.slice(0, 3).map((relatedProduct) => (
               <div 
                 key={relatedProduct.id} 
-                className="w-full h-auto cursor-pointer transition-transform hover:scale-105" 
+                className="w-full h-auto cursor-pointer transition-transform" 
                 onClick={() => {
                   // Navigate to the related product's detail page
                   navigate(`?id=${relatedProduct.id}`);
