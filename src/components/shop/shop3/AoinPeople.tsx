@@ -25,7 +25,7 @@ const AoinPeople: React.FC = () => {
             <Link to="/shop3" className="text-white font-bold font-bebas text-[24px] sm:text-[28px] lg:text-[31px] hover:text-[#CF0] transition-colors">AOIN</Link>
           </div>
           {/* Nav Links - Right side on mobile, center on larger screens */}
-          <div className="flex flex-wrap justify-end sm:justify-start space-x-4 sm:space-x-6 lg:space-x-8 font-bebas text-white text-[14px] sm:text-[16px] lg:text-[21px] uppercase font-semibold">
+          <div className="flex flex-wrap justify-end  sm:justify-start space-x-4 sm:space-x-6 lg:space-x-8 font-bebas text-white text-[14px] sm:text-[16px] lg:text-[21px] uppercase font-semibold">
             <Link to="/shop3-allproductpage" className="hover:text-[#CF0] transition-colors">Shop</Link>
             <Link to="/shop3/about" className="hover:text-[#CF0] transition-colors">About</Link>
           </div>
