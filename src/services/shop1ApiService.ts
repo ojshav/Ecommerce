@@ -197,6 +197,8 @@ export interface ProductListResponse {
     brand_id?: number;
     min_price?: number;
     max_price?: number;
+  discount_min?: number;
+  discount_max?: number;
     search?: string;
     sort_by: string;
     order: string;
@@ -334,6 +336,8 @@ class Shop1ApiService {
     brand_id?: number;
     min_price?: number;
     max_price?: number;
+  discount_min?: number;
+  discount_max?: number;
     search?: string;
     sort_by?: string;
     order?: string;
@@ -347,6 +351,8 @@ class Shop1ApiService {
       if (options.brand_id) params.append('brand_id', options.brand_id.toString());
       if (options.min_price) params.append('min_price', options.min_price.toString());
       if (options.max_price) params.append('max_price', options.max_price.toString());
+  if (options.discount_min !== undefined) params.append('discount_min', options.discount_min.toString());
+  if (options.discount_max !== undefined) params.append('discount_max', options.discount_max.toString());
       if (options.search) params.append('search', options.search);
       if (options.sort_by) params.append('sort_by', options.sort_by);
       if (options.order) params.append('order', options.order);

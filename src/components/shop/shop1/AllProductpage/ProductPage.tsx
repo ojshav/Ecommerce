@@ -27,10 +27,12 @@ const ProductPage = () => {
   const [selectedBrand, setSelectedBrand] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [itemsPerPage, setItemsPerPage] = useState(9);
+  const itemsPerPage = 9;
 
   // UI States (keeping original behavior)
   const [price, setPrice] = useState([0, 100000]);
+  // Discount filter (single-select chip)
+  const [discountChip, setDiscountChip] = useState<string | null>(null);
 
   // Sidebar section toggles for mobile
   const [allFiltersOpen, setAllFiltersOpen] = useState(false);
@@ -91,6 +93,31 @@ const ProductPage = () => {
     const loadProducts = async () => {
       try {
         setLoading(true);
+        // Map discount chip to discount_min/discount_max
+        let discount_min: number | undefined = undefined;
+        let discount_max: number | undefined = undefined;
+        switch (discountChip) {
+          case 'lt10':
+            discount_min = 0;
+            discount_max = 9.99;
+            break;
+          case '10+':
+            discount_min = 10;
+            break;
+          case '20+':
+            discount_min = 20;
+            break;
+          case '30+':
+            discount_min = 30;
+            break;
+          case '40+':
+            discount_min = 40;
+            break;
+          case '50+':
+            discount_min = 50;
+            break;
+        }
+
         const response = await shop1ApiService.getProducts({
           page: currentPage,
           per_page: itemsPerPage,
@@ -98,6 +125,8 @@ const ProductPage = () => {
           brand_id: selectedBrand || undefined,
           min_price: priceRange[0] > 0 ? priceRange[0] : undefined,
           max_price: priceRange[1] < 100000 ? priceRange[1] : undefined,
+          discount_min,
+          discount_max,
           sort_by: sortBy,
           order: sortOrder
         });
@@ -116,7 +145,7 @@ const ProductPage = () => {
     };
 
     loadProducts();
-  }, [currentPage, itemsPerPage, selectedCategory, selectedBrand, priceRange, sortBy, sortOrder]);
+  }, [currentPage, itemsPerPage, selectedCategory, selectedBrand, priceRange, sortBy, sortOrder, discountChip]);
 
   // Calculate dynamic price range when products change
   useEffect(() => {
@@ -501,6 +530,25 @@ const ProductPage = () => {
           <div className="text-[16px] md:text-[18px] font-poppins md:mr-10 text-black w-full md:w-auto">
             Show {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalProducts)} Of {totalProducts} Product{totalProducts !== 1 ? 's' : ''}
           </div>
+        </div>
+        {/* Discount chips */}
+        <div className="flex flex-wrap gap-2 mb-4 md:ml-7">
+          {[
+            { key: 'lt10', label: 'Less than 10%' },
+            { key: '10+', label: '10% or more' },
+            { key: '20+', label: '20% or more' },
+            { key: '30+', label: '30% or more' },
+            { key: '40+', label: '40% or more' },
+            { key: '50+', label: '50% or more' },
+          ].map(opt => (
+            <button
+              key={opt.key}
+              onClick={() => { setDiscountChip(discountChip === opt.key ? null : opt.key); setCurrentPage(1); }}
+              className={`px-3 py-1 rounded-full border ${discountChip === opt.key ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-300'} text-sm`}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
         {/* Product Grid */}
         {loading ? (
