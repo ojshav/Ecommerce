@@ -81,6 +81,38 @@ import Shop2AllProductpage from './pages/Shop2AllProductpage';
 import Shop3AllProductpage from './pages/Shop3AllProductpage';
 import Shop4AllProductpage from './pages/Shop4AllProductpage';
 import FAQ from './pages/FAQ';
+  // Shop4 Footer Pages
+  import Shop4ShippingDelivery from './pages/shop4/ShippingDelivery';
+  import Shop4ReturnsRefunds from './pages/shop4/ReturnsRefunds';
+  import Shop4GiftWrapping from './pages/shop4/GiftWrapping';
+  import Shop4FollowYourOrder from './pages/shop4/FollowYourOrder';
+  import Shop4Stores from './pages/shop4/Stores';
+  import Shop4AboutUs from './pages/shop4/AboutUs';
+  import Shop4FAQ from './pages/shop4/FAQ';
+  import Shop4SizeCharts from './pages/shop4/SizeCharts';
+  import Shop4GiftCards from './pages/shop4/GiftCards';
+  import Shop4GeneralInquiries from './pages/shop4/GeneralInquiries';
+  // Shop3 Footer Pages
+  import ManCollection from './pages/shop3/ManCollection';
+  import WomanCollection from './pages/shop3/WomanCollection';
+  import KidsCollection from './pages/shop3/KidsCollection';
+  import RefundShop3 from './pages/shop3/Refund';
+  import SizeChart from './pages/shop3/SizeChart';
+  import Blog from './pages/shop3/Blog';
+  import AboutShop3 from './pages/shop3/About';
+
+// Shop2 Footer Pages
+import Shop2ShippingDelivery from './pages/shop2/ShippingDelivery';
+import ReturnsRefunds from './pages/shop2/ReturnsRefunds';
+import GiftWrapping from './pages/shop2/GiftWrapping';
+import FollowYourOrder from './pages/shop2/FollowYourOrder';
+import Stores from './pages/shop2/Stores';
+import AboutUs from './pages/shop2/AboutUs';
+import FAQShop2 from './pages/shop2/FAQ';
+import SizeCharts from './pages/shop2/SizeCharts';
+import GiftCards from './pages/shop2/GiftCards';
+import TermsPrivacy from './pages/shop2/TermsPrivacy';
+import GeneralInquiries from './pages/shop2/GeneralInquiries';
 
 import Contact from './pages/Contact';
 import ShippingPolicy from './pages/ShippingPolicy';
@@ -247,8 +279,29 @@ const App: React.FC = () => {
                     <Route path="/shop2" element={<Shop2LandingPage />} />
                     <Route path="/shop2/product/:productId" element={<Shop2Productpage />} />
                     <Route path="/shop2/wishlist" element={<Shop2Wishlist />} />
+                    
+                    {/* Shop2 Footer Pages */}
+                    <Route path="/shop2/shipping-delivery" element={<Shop2ShippingDelivery />} />
+                    <Route path="/shop2/returns-refunds" element={<ReturnsRefunds />} />
+                    <Route path="/shop2/gift-wrapping" element={<GiftWrapping />} />
+                    <Route path="/shop2/follow-your-order" element={<FollowYourOrder />} />
+                    <Route path="/shop2/stores" element={<Stores />} />
+                    <Route path="/shop2/about-us" element={<AboutUs />} />
+                    <Route path="/shop2/faq" element={<FAQShop2 />} />
+                    <Route path="/shop2/size-charts" element={<SizeCharts />} />
+                    <Route path="/shop2/gift-cards" element={<GiftCards />} />
+                    <Route path="/shop2/terms-privacy" element={<TermsPrivacy />} />
+                    <Route path="/shop2/general-inquiries" element={<GeneralInquiries />} />
                     <Route path="/shop3" element={<Shop3LandingPage />} />
                     <Route path="/shop3/wishlist" element={<Shop3Wishlist />} />
+                    {/* Shop3 Footer Pages */}
+                    <Route path="/shop3/man" element={<ManCollection />} />
+                    <Route path="/shop3/woman" element={<WomanCollection />} />
+                    <Route path="/shop3/kids" element={<KidsCollection />} />
+                    <Route path="/shop3/refund" element={<RefundShop3 />} />
+                    <Route path="/shop3/size-chart" element={<SizeChart />} />
+                    <Route path="/shop3/blog" element={<Blog />} />
+                    <Route path="/shop3/about" element={<AboutShop3 />} />
                     <Route path="/shop1-productpage" element={<Shop1Productpage />} />
                     <Route path="/shop2-productpage" element={<Shop2Productpage />} />
                     <Route path="/shop3-productpage" element={<Shop3ProductPage />} />
@@ -259,6 +312,17 @@ const App: React.FC = () => {
                     <Route path="/shop4-productpage" element={<Shop4Productpage />} />
                     <Route path="/shop4-allproductpage" element={<Shop4AllProductpage />} />
                     <Route path="/shop4/wishlist" element={<Shop4Wishlist />} />
+                    {/* Shop4 Footer Pages */}
+                    <Route path="/shop4/shipping-delivery" element={<Shop4ShippingDelivery />} />
+                    <Route path="/shop4/returns-refunds" element={<Shop4ReturnsRefunds />} />
+                    <Route path="/shop4/gift-wrapping" element={<Shop4GiftWrapping />} />
+                    <Route path="/shop4/follow-your-order" element={<Shop4FollowYourOrder />} />
+                    <Route path="/shop4/stores" element={<Shop4Stores />} />
+                    <Route path="/shop4/about-us" element={<Shop4AboutUs />} />
+                    <Route path="/shop4/faq" element={<Shop4FAQ />} />
+                    <Route path="/shop4/size-charts" element={<Shop4SizeCharts />} />
+                    <Route path="/shop4/gift-cards" element={<Shop4GiftCards />} />
+                    <Route path="/shop4/general-inquiries" element={<Shop4GeneralInquiries />} />
                     
                     {/* Shop Cart Routes */}
                     <Route path="/shop1/cart" element={<Shop1Cart />} />

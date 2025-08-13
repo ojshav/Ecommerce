@@ -89,23 +89,23 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
             THE PERFECT FINISHING TOUCH
           </h2>
         </div>
-        <div className="relative w-full flex items-center justify-center">
+        <div className="relative w-full flex items-center">
           {/* Cards */}
-          <div className="flex gap-4 md:gap-6 w-full justify-center overflow-x-auto md:overflow-visible px-1 scrollbar-thin scrollbar-thumb-lime-400 scrollbar-track-black">
+          <div className="flex gap-4 md:gap-6 w-full justify-start nav2:justify-center overflow-x-auto md:overflow-visible px-1 scrollbar-thin scrollbar-thumb-lime-400 scrollbar-track-black snap-x snap-mandatory">
             {relatedProducts.slice(0, 3).map((product) => (
               <Link 
                 key={product.product_id} 
                 to={`/shop3-productpage?id=${product.product_id}`}
-                className="group"
+                className="group flex-shrink-0"
               >
                 <div
-                  className={`rounded-2xl shadow-lg flex flex-col w-[260px] xs:w-[320px] sm:w-[340px] md:w-[373px] min-w-[260px] xs:min-w-[320px] sm:min-w-[340px] md:min-w-[380px] max-w-[380px] transition-transform duration-300 hover:scale-105`}
+                  className={`rounded-2xl shadow-lg flex flex-col w-[calc(100vw-2rem)] sm:w-[340px] md:w-[373px] min-w-[calc(100vw-2rem)] sm:min-w-[340px] md:min-w-[380px] max-w-[380px] transition-transform duration-300 hover:scale-105 snap-center`}
                 >
-                  <div className="relative w-[260px] xs:w-[320px] sm:w-[340px] md:w-[373px] h-[300px] xs:h-[380px] sm:h-[420px] md:h-[461px] rounded-2xl overflow-hidden mb-4">
+                  <div className="relative w-full h-[400px] xs:h-[380px] sm:h-[420px] md:h-[461px] rounded-2xl overflow-hidden mb-4">
                     <img
                       src={product.primary_image || "/assets/images/Productcard/hero3.jpg"}
                       alt={product.product_name}
-                      className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-contain sm:object-cover rounded-2xl group-hover:scale-105 transition-transform duration-300"
                     />
                     
                     {/* Wishlist button */}

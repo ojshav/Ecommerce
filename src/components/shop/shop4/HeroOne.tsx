@@ -1,16 +1,7 @@
-// const Hero = () => {
-//   return (
-//     <>
-//      <img src="/Sliders (1).png" alt=""/> 
-//     </>
-//   )
-// }
-
-// export default Hero
-
 
 
 import { Search, ShoppingCart, Menu } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const HeroOne = () => {
   return (
@@ -19,26 +10,7 @@ const HeroOne = () => {
       <div className="absolute inset-0"></div>
       
       {/* Navigation Bar */}
-      <nav className="relative z-10 max-w-[1920px] mx-auto flex justify-between items-center px-6 sm:px-6 md:px-12 lg:px-16 xl:px-18 py-6 md:py-12">
-      <div className="text-white font-junge text-[12px] sm:text-[16px] md:text-[20px] lg:text-[22px] font-normal tracking-[3.3px] uppercase bg-gradient-to-r from-[#383838] to-[#9e9e9e] bg-clip-text text-transparent" style={{ WebkitTextStroke: '1px', WebkitTextStrokeColor: '#aea8a8' }}>
-          AOIN POOJA STORE
-        </div>
-        
-        <div className="flex items-center gap-4 md:gap-6 lg:gap-8">
-          <Search 
-            className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
-            strokeWidth={1.5}
-          />
-          <ShoppingCart 
-            className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
-            strokeWidth={1.5}
-          />
-          <Menu 
-            className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
-            strokeWidth={1.5}
-          />
-        </div>
-      </nav>
+     
 
       {/* Hero Content */}
       <div className="relative z-10 flex-1 flex flex-col justify-center items-center text-center py-0 sm:py-6 md:py-8 lg:py-12 px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12 min-h-[calc(100vh-340px)] sm:min-h-[calc(100vh-220px)] md:min-h-[calc(100vh-200px)] lg:min-h-[calc(100vh-120px)] animate-fade-in-up">
@@ -71,9 +43,12 @@ const HeroOne = () => {
               alt="Festive Table with Sweets and Flowers" 
               className="w-full h-auto aspect-[650/446] object-cover rounded-[6px] sm:rounded-[8px] md:rounded-[12px]" 
             />
-            <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#BB9D7B] text-white font-futurapt transition-all duration-300 hover:scale-105 shadow-lg text-[12px] font-medium tracking-[2px] uppercase w-[120px] sm:w-[120px] md:w-[140px] h-[40px] sm:h-[40px] md:h-[45px] flex-shrink-0 rounded-[20px] sm:rounded-[25px] md:rounded-[30px]">
+            <Link 
+              to="/shop4-Allproductpage"
+              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#BB9D7B] text-white font-futurapt transition-all duration-300 hover:scale-105 shadow-lg text-[12px] font-medium tracking-[2px] uppercase w-[120px] sm:w-[120px] md:w-[140px] h-[40px] sm:h-[40px] md:h-[45px] flex-shrink-0 rounded-[20px] sm:rounded-[25px] md:rounded-[30px] text-center flex items-center justify-center"
+            >
               SHOP NOW
-            </button>
+            </Link>
           </div>
 
           {/* Large and above - Grid Layout */}
@@ -109,9 +84,12 @@ const HeroOne = () => {
                   alt="Evil Eye Charms and Jewelry" 
                   className="w-full max-w-[400px] xl:max-w-[500px] 2xl:max-w-[550px] h-auto aspect-[550/386] object-cover rounded-[16px]" 
                 />
-                <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#BB9D7B] text-white font-futurapt transition-all duration-300 hover:scale-105 shadow-lg text-[12px] font-medium tracking-[2px] lg:tracking-[2.5px] xl:tracking-[3px] uppercase w-[100px] lg:w-[120px] xl:w-[140px] 2xl:w-[156px] h-[36px] lg:h-[40px] xl:h-[45px] 2xl:h-[50px] flex-shrink-0 rounded-[20px] lg:rounded-[25px] xl:rounded-[30px]">
+                <Link 
+                  to="/shop4-Allproductpage"
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#BB9D7B] text-white font-futurapt transition-all duration-300 hover:scale-105 shadow-lg text-[12px] font-medium tracking-[2px] lg:tracking-[2.5px] xl:tracking-[3px] uppercase w-[100px] lg:w-[120px] xl:w-[140px] 2xl:w-[156px] h-[36px] lg:h-[40px] xl:h-[45px] 2xl:h-[50px] flex-shrink-0 rounded-[20px] lg:rounded-[25px] xl:rounded-[30px] text-center flex items-center justify-center"
+                >
                   SHOP NOW
-                </button>
+                </Link>
               </div>
             </div>
           </div>
