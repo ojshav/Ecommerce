@@ -108,56 +108,54 @@ const ProductPage = () => {
           </div>
         </div>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-8 xl:gap-10 2xl:gap-12 lg:gap-y-20 xl:gap-y-24 2xl:gap-y-24 mt-8 justify-center mx-auto items-center">
-          {loading ? (
-            <div className="col-span-full text-center py-10">Loading products...</div>
-          ) : products.length === 0 ? (
-            <div className="col-span-full text-center py-10">
-              {searchTerm ? `No products found for "${searchTerm}".` : "No products found."}
-            </div>
-          ) : (
-            products.map((product) => {
-              const card = mapProductToCard(product);
-              return (
-                <Shop3ProductCard
-                  key={card.id}
-                  id={card.id}
-                  image={card.image}
-                  name={card.name}
-                  price={card.price}
-                  originalPrice={card.originalPrice}
-                  badge={card.badge}
-                  badgeColor={card.badgeColor}
-                  isNew={card.isNew}
-                  discount={card.discount}
-                  onClick={() => handleProductClick(product.product_id)}
-                />
-              );
-            })
-          )}
+      {/* Product Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-8 sm:gap-6 md:gap-8 lg:gap-8 xl:gap-10 2xl:gap-12 gap-y-12 sm:gap-y-6 md:gap-y-8 lg:gap-y-20 xl:gap-y-24 2xl:gap-y-24 mt-8 justify-center mx-auto items-center">
+        {loading ? (
+          <div className="col-span-full text-center py-10">Loading products...</div>
+        ) : products.length === 0 ? (
+          <div className="col-span-full text-center py-10">No products found.</div>
+        ) : (
+          products.map((product) => {
+            const card = mapProductToCard(product);
+            return (
+              <Shop3ProductCard
+                key={card.id}
+                id={card.id}
+                image={card.image}
+                name={card.name}
+                price={card.price}
+                originalPrice={card.originalPrice}
+                badge={card.badge}
+                badgeColor={card.badgeColor}
+                isNew={card.isNew}
+                discount={card.discount}
+                onClick={() => handleProductClick(product.product_id)}
+              />
+            );
+          })
+        )}
+      </div>
+      {/* Section below product cards */}
+      <div className="flex flex-col items-center w-full pt-24 py-12">
+        <span className="text-[14px] font-alexandria text-gray-200 mb-6">15 of 234 items was view</span>
+        <button className="bg-[#CCFF00] text-black font-semibold text-[16px] px-20 py-3 font-alexandria mb-8 shadow-lg  transition-all">Load More</button>
+        {/* Full-width horizontal line below product cards */}
+        <div className="w-screen mb-8 relative -mx-[50vw]">
+          <svg className="block" width="100%" height="3" viewBox="0 0 1920 1" fill="none">
+            <path fillRule="evenodd" clipRule="evenodd" d="M0 1V0H1920V1H0Z" fill="#E0E0E0" />
+          </svg>
         </div>
-        {/* Section below product cards */}
-        <div className="flex flex-col items-center w-full pt-24 py-12">
-          <span className="text-[14px] font-alexandria text-gray-200 mb-6">{products.length} of {totalProducts} items was view</span>
-          <button className="bg-[#CCFF00] text-black font-semibold text-[16px] px-20 py-3 font-alexandria mb-8 shadow-lg  transition-all">Load More</button>
-          {/* Full-width horizontal line below product cards */}
-          <div className="w-screen mb-8 relative -mx-[50vw]">
-            <svg className="block" width="100%" height="3" viewBox="0 0 1920 1" fill="none">
-              <path fillRule="evenodd" clipRule="evenodd" d="M0 1V0H1920V1H0Z" fill="#E0E0E0" />
-            </svg>
-          </div>
-          <div className="flex flex-wrap justify-center font-alexandria  gap-4 w-full">
-            {['Sneakers', 'Puffer', 'Boots', 'Sunglasses', 'Co-Ord Set', 'Casual', 'T-shirt', 'Clothing', 'Shoe', 'Collection', 'Sale', 'Exclusive'].map((cat) => (
-              <button
-                key={cat}
-                className="bg-[rgba(204,255,0,0.7)] text-white font-bold font-alexandria text-[12px] leading-[30px] px-4 py-1 mb-2  transition-all shadow text-center"
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+        <div className="flex flex-wrap justify-center font-alexandria  gap-4 w-full">
+          {['Sneakers', 'Puffer', 'Boots', 'Sunglasses', 'Co-Ord Set', 'Casual', 'T-shirt', 'Clothing', 'Shoe', 'Collection', 'Sale', 'Exclusive'].map((cat) => (
+            <button
+              key={cat}
+              className="bg-[rgba(204,255,0,0.7)] text-white font-bold font-alexandria text-[12px] leading-[30px] px-4 py-1 mb-2  transition-all shadow text-center"
+            >
+              {cat}
+            </button>
+          ))}
         </div>
+      </div>
       </div>
     </div>
   );
