@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Shop3ProductCard from '../Shop3ProductCard';
-import shop3ApiService, { Product } from '../../../../services/shop3ApiService';
+import shop3ApiService, { Product, Category } from '../../../../services/shop3ApiService';
 
 const mapProductToCard = (product: Product) => ({
   id: product.product_id,
@@ -20,6 +20,8 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [totalProducts, setTotalProducts] = useState(0);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -27,19 +29,40 @@ const ProductPage = () => {
     navigate(`/shop3-productpage?id=${productId}`);
   };
 
+  // Load categories once
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const cats = await shop3ApiService.getCategories();
+        setCategories(cats);
+      } catch (e) {
+        setCategories([]);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  // Load products whenever URL params (search/category) change
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        // Check for search term from URL
+        // Read params from URL
         const searchParam = searchParams.get('search');
-        if (searchParam) {
-          setSearchTerm(searchParam);
+        const categoryParam = searchParams.get('category');
+        const parsedCategory = categoryParam ? parseInt(categoryParam, 10) : NaN;
+
+        if (searchParam) setSearchTerm(searchParam);
+        const effectiveCategoryId = !isNaN(parsedCategory) ? parsedCategory : selectedCategory ?? undefined;
+        if (!isNaN(parsedCategory)) {
+          // keep local state in sync for active chip styling
+          setSelectedCategory(parsedCategory);
         }
 
-        const res = await shop3ApiService.getProducts({ 
+        const res = await shop3ApiService.getProducts({
           per_page: 20,
-          search: searchParam || undefined
+          search: searchParam || undefined,
+          category_id: effectiveCategoryId
         });
         if (res && res.success) {
           setProducts(res.products);
@@ -55,7 +78,16 @@ const ProductPage = () => {
       setLoading(false);
     };
     fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
+
+  const handleCategoryClick = (catId: number) => {
+    setSelectedCategory(catId);
+    const params = new URLSearchParams(searchParams);
+    params.set('category', String(catId));
+    const qs = params.toString();
+    navigate(qs ? `?${qs}` : '?');
+  };
 
   return (
     <div className="min-h-screen bg-black text-white font-sans pb-12 px-4 sm:px-8 2xl:px-6">
@@ -145,15 +177,25 @@ const ProductPage = () => {
             <path fillRule="evenodd" clipRule="evenodd" d="M0 1V0H1920V1H0Z" fill="#E0E0E0" />
           </svg>
         </div>
-        <div className="flex flex-wrap justify-center font-alexandria  gap-4 w-full">
-          {['Sneakers', 'Puffer', 'Boots', 'Sunglasses', 'Co-Ord Set', 'Casual', 'T-shirt', 'Clothing', 'Shoe', 'Collection', 'Sale', 'Exclusive'].map((cat) => (
-            <button
-              key={cat}
-              className="bg-[rgba(204,255,0,0.7)] text-white font-bold font-alexandria text-[12px] leading-[30px] px-4 py-1 mb-2  transition-all shadow text-center"
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="flex flex-wrap justify-center font-alexandria gap-4 w-full">
+          {categories.length === 0 ? (
+            <span className="text-gray-300 text-sm">No categories</span>
+          ) : (
+            categories.map((cat) => (
+              <button
+                key={cat.category_id}
+                onClick={() => handleCategoryClick(cat.category_id)}
+                className={`font-bold font-alexandria text-[12px] leading-[30px] px-4 py-1 mb-2 transition-all shadow text-center border border-transparent ${
+                  selectedCategory === cat.category_id
+                    ? 'bg-[#CCFF00] text-black'
+                    : 'bg-[rgba(204,255,0,0.7)] text-white hover:bg-[#CCFF00] hover:text-black'
+                }`}
+                aria-pressed={selectedCategory === cat.category_id}
+              >
+                {cat.name}
+              </button>
+            ))
+          )}
         </div>
       </div>
       </div>
