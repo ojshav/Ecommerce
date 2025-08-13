@@ -61,6 +61,36 @@ const ProductDetail = () => {
   const [newReview, setNewReview] = useState({ rating: 5, title: '', comment: '', orderId: '' });
   const [eligibilityChecked, setEligibilityChecked] = useState(false);
   const [eligibilityError, setEligibilityError] = useState<string | null>(null);
+  // Review images state
+  type SelectedImage = { file: File; preview: string };
+  const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const MAX_IMAGES = 5;
+  const MAX_BYTES = 5 * 1024 * 1024;
+  const readFileAsDataURL = (file: File) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+  const handleImagesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setImageError(null);
+    const availableSlots = Math.max(0, MAX_IMAGES - selectedImages.length);
+    const toAdd = files.slice(0, availableSlots);
+    if (files.length > availableSlots) setImageError(`You can upload up to ${MAX_IMAGES} images`);
+    const valid: File[] = [];
+    for (const f of toAdd) {
+      if (f.size > MAX_BYTES) { setImageError('Each image must be smaller than 5 MB'); continue; }
+      valid.push(f);
+    }
+    const newSel: SelectedImage[] = [];
+    for (const f of valid) { const preview = await readFileAsDataURL(f); newSel.push({ file: f, preview }); }
+    setSelectedImages(prev => [...prev, ...newSel]);
+    e.currentTarget.value = '';
+  };
+  const removeImageAt = (idx: number) => setSelectedImages(prev => prev.filter((_, i) => i !== idx));
 
   const fetchShopReviews = async (p: number = 1) => {
     if (!productId) return;
@@ -96,11 +126,12 @@ const ProductDetail = () => {
         rating: newReview.rating,
         title: newReview.title.trim() || 'Review',
         body: newReview.comment.trim(),
-        images: [],
+        images: selectedImages.map(si => si.preview),
       };
       await shop2ApiService.createShopReview(payload, jwt);
       setShowWriteReview(false);
       setNewReview({ rating: 5, title: '', comment: '', orderId: '' });
+      setSelectedImages([]);
       fetchShopReviews(1);
     } catch (err: any) {
       alert(err.message || 'Failed to submit review');
@@ -412,6 +443,7 @@ const ProductDetail = () => {
   ];
 
   return (
+    <>
     <div className="max-w-[1280px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-1 pb-6 sm:pb-8 lg:pb-10 flex flex-col gap-0">
       {/* Photos Modal */}
       {showPhotosModal && (
@@ -824,9 +856,26 @@ const ProductDetail = () => {
                   <label className="block text-sm text-gray-700 mb-1">Your review</label>
                   <textarea value={newReview.comment} onChange={(e)=>setNewReview(prev=>({...prev, comment: e.target.value}))} className="w-full p-2 border rounded min-h-[100px]" placeholder="Share your thoughts…" required />
                 </div>
+                {/* Images uploader */}
+                <div>
+                  <label className="block text-sm text-gray-700 mb-1">Add photos (optional)</label>
+                  <input type="file" accept="image/*" multiple onChange={handleImagesChange} className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800" />
+                  <p className="text-xs text-gray-500 mt-1">Up to 5 images, each less than 5 MB.</p>
+                  {imageError && <p className="text-xs text-red-500 mt-1">{imageError}</p>}
+                  {selectedImages.length > 0 && (
+                    <div className="mt-3 grid grid-cols-5 gap-2">
+                      {selectedImages.map((si, idx) => (
+                        <div key={idx} className="relative group">
+                          <img src={si.preview} alt={`preview-${idx}`} className="h-16 w-16 object-cover rounded border" />
+                          <button type="button" onClick={() => removeImageAt(idx)} className="absolute -top-2 -right-2 bg-white border rounded-full w-6 h-6 text-xs font-bold hidden group-hover:flex items-center justify-center" aria-label="Remove image">×</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   <button type="submit" disabled={!eligibilityChecked || !newReview.orderId} className={`px-4 py-2 rounded text-white ${(!eligibilityChecked || !newReview.orderId) ? 'bg-gray-400 cursor-not-allowed' : 'bg-black'}`}>Submit</button>
-                  <button type="button" onClick={()=>setShowWriteReview(false)} className="px-4 py-2 rounded border">Cancel</button>
+                  <button type="button" onClick={()=>{setShowWriteReview(false); setSelectedImages([]);}} className="px-4 py-2 rounded border">Cancel</button>
                 </div>
               </form>
             </div>
@@ -853,6 +902,26 @@ const ProductDetail = () => {
                     <p className="text-xs sm:text-base text-gray-400 font-gilroy whitespace-nowrap self-start sm:self-auto text-left">{new Date(review.created_at).toLocaleDateString()}</p>
                   </div>
                   <p className="text-xs sm:text-sm text-black font-gilroy leading-relaxed text-left">{review.title ? `${review.title} — ` : ''}{review.body}</p>
+                  {Array.isArray(review.images) && review.images.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {review.images.slice(0,5).map((img, idx) => (
+                        <button
+                          key={img.image_id ?? idx}
+                          type="button"
+                          className="group relative"
+                          onClick={() => {
+                            try {
+                              const urls = (review.images || []).map((ri: any) => ri.image_url).filter(Boolean);
+                              (window as any).__shop2_setViewer({ urls, index: idx });
+                            } catch {}
+                          }}
+                          aria-label="View image"
+                        >
+                          <img src={img.image_url} alt={`review image ${idx + 1}`} className="h-16 w-16 object-cover rounded border" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <hr className="mt-3 sm:mt-4" />
                 </div>
               ))}
@@ -870,7 +939,42 @@ const ProductDetail = () => {
         </div>
       </div>
     </div>
+    {/* Review images lightbox */}
+    <ReviewImageViewerShop2 />
+    </>
   );
 };
 
 export default ProductDetail;
+
+// Lightweight viewer for review images (Shop2)
+import React from 'react';
+function ReviewImageViewerShop2() {
+  const [state, setState] = React.useState<{ urls: string[]; index: number } | null>(null);
+  React.useEffect(() => {
+    (window as any).__shop2_setViewer = (payload: any) => setState(payload);
+    return () => { delete (window as any).__shop2_setViewer; };
+  }, []);
+  if (!state) return null;
+  const { urls, index } = state;
+  const close = () => setState(null);
+  const prev = () => setState({ urls, index: (index - 1 + urls.length) % urls.length });
+  const next = () => setState({ urls, index: (index + 1) % urls.length });
+  return (
+    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center" onClick={close}>
+      <div className="relative max-w-3xl w-[90%]" onClick={(e) => e.stopPropagation()}>
+        <button className="absolute -top-10 right-0 text-white text-2xl" onClick={close} aria-label="Close">×</button>
+        <div className="relative flex items-center justify-center bg-black rounded">
+          <button className="absolute left-0 p-3 text-white" onClick={prev} aria-label="Previous">‹</button>
+          <img src={urls[index]} alt="review" className="max-h-[80vh] w-auto object-contain" />
+          <button className="absolute right-0 p-3 text-white" onClick={next} aria-label="Next">›</button>
+        </div>
+        <div className="mt-3 flex gap-2 overflow-x-auto">
+          {urls.map((u, i) => (
+            <img key={i} src={u} alt={`thumb-${i}`} className={`h-12 w-12 object-cover rounded border ${i===index?'border-black':'border-gray-300'}`} onClick={() => setState({ urls, index: i })} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
