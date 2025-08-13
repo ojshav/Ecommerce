@@ -138,6 +138,27 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
             {/* Review Headline */}
             <h4 className="text-white font-semibold text-sm sm:text-base">{review.title}</h4>
             <p className="text-[#FFF] text-sm sm:text-[14px] font-normal leading-normal font-poppins mb-4">{review.body}</p>
+            {/* Review Images Thumbnails */}
+            {Array.isArray(review.images) && review.images.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {review.images.slice(0,5).map((img, idx) => (
+                  <button
+                    key={img.image_id ?? idx}
+                    type="button"
+                    className="group relative"
+                    onClick={() => {
+                      try {
+                        const urls = (review.images || []).map((ri: any) => ri.image_url).filter(Boolean);
+                        (window as any).__shop4_setViewer({ urls, index: idx });
+                      } catch {}
+                    }}
+                    aria-label="View image"
+                  >
+                    <img src={img.image_url} alt={`review image ${idx + 1}`} className="h-16 w-16 object-cover rounded border border-gray-700" />
+                  </button>
+                ))}
+              </div>
+            )}
             
             {/* Helpfulness Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
@@ -189,7 +210,12 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
 // --- ReviewsSection ---
 const reviewsData: ShopReview[] = [];
 
-const ReviewsSection: React.FC<{ productId: number; allowedProductIds?: number[] }> = ({ productId, allowedProductIds }) => {
+interface ReviewsSectionProps {
+  productId: number;
+  allowedProductIds?: number[];
+  onSummaryChange?: (avg: number, count: number) => void;
+}
+const ReviewsSection: React.FC<ReviewsSectionProps> = ({ productId, allowedProductIds, onSummaryChange }) => {
   const [activeTab, setActiveTab] = useState('reviews');
   const [showWriteReview, setShowWriteReview] = useState(false);
   const [newReview, setNewReview] = useState({ rating: 5, title: '', comment: '', orderId: '' });
@@ -199,8 +225,34 @@ const ReviewsSection: React.FC<{ productId: number; allowedProductIds?: number[]
   const [loading, setLoading] = useState(false);
   const [eligibilityChecked, setEligibilityChecked] = useState(false);
   const [eligibilityError, setEligibilityError] = useState<string | null>(null);
-  const averageRating = reviews.length > 0 ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length) : 0;
-  const totalReviews = reviews.length;
+  // Review images state
+  type SelectedImage = { file: File; preview: string };
+  const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
+  const [imageError, setImageError] = useState<string | null>(null);
+  // Ratings summary
+  const [avgRating, setAvgRating] = useState<number>(0);
+  const [reviewCount, setReviewCount] = useState<number>(0);
+  const MAX_IMAGES = 5;
+  const MAX_BYTES = 5 * 1024 * 1024;
+  const readFileAsDataURL = (file: File) => new Promise<string>((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result as string); r.onerror = reject; r.readAsDataURL(file); });
+  const handleImagesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setImageError(null);
+    const available = Math.max(0, MAX_IMAGES - selectedImages.length);
+    const toAdd = files.slice(0, available);
+    if (files.length > available) setImageError(`You can upload up to ${MAX_IMAGES} images`);
+    const valid: File[] = [];
+    for (const f of toAdd) { if (f.size > MAX_BYTES) { setImageError('Each image must be smaller than 5 MB'); continue; } valid.push(f); }
+    const newSel: SelectedImage[] = [];
+    for (const f of valid) { const preview = await readFileAsDataURL(f); newSel.push({ file: f, preview }); }
+    setSelectedImages(prev => [...prev, ...newSel]);
+    e.currentTarget.value = '';
+  };
+  const removeImageAt = (idx: number) => setSelectedImages(prev => prev.filter((_, i) => i !== idx));
+  // Derived fallbacks in case server doesn't provide summary
+  const derivedAvg = reviews.length > 0 ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length) : 0;
+  const derivedCount = reviews.length;
 
   const fetchReviews = async (p: number = 1) => {
     try {
@@ -210,6 +262,11 @@ const ReviewsSection: React.FC<{ productId: number; allowedProductIds?: number[]
         setReviews(res.data.reviews);
         setPages(res.data.pages);
         setPage(res.data.current_page);
+        const avg = typeof res.data.average_rating === 'number' ? res.data.average_rating : derivedAvg;
+        const cnt = typeof res.data.review_count === 'number' ? res.data.review_count : (res.data.total ?? derivedCount);
+        setAvgRating(avg);
+        setReviewCount(cnt);
+        if (onSummaryChange) onSummaryChange(avg, cnt);
       }
     } catch (e) {
       console.error('Failed to load reviews', e);
@@ -278,11 +335,12 @@ const ReviewsSection: React.FC<{ productId: number; allowedProductIds?: number[]
         rating: newReview.rating,
         title: newReview.title.trim() || 'Review',
         body: newReview.comment.trim(),
-        images: [],
+        images: selectedImages.map(si => si.preview),
       };
       await shop4ApiService.createShopReview(payload, jwt);
       setShowWriteReview(false);
       setNewReview({ rating: 5, title: '', comment: '', orderId: '' });
+      setSelectedImages([]);
       fetchReviews(1);
     } catch (err: any) {
       console.error(err);
@@ -315,12 +373,12 @@ const ReviewsSection: React.FC<{ productId: number; allowedProductIds?: number[]
             <div>
               <div className="text-center mb-8 sm:mb-12 py-6 sm:py-10">
                 <div className="flex items-center justify-center mb-2 relative">
-                  <span className="text-white font-normal leading-[52px] text-xl sm:text-[30px] capitalize mr-4 font-futura ">{averageRating}</span>
+                  <span className="text-white font-normal leading-[52px] text-xl sm:text-[30px] capitalize mr-4 font-futura ">{avgRating.toFixed(1)}</span>
                   
-                  <StarRating rating={averageRating} size="lg" />
+                  <StarRating rating={avgRating} size="lg" />
                 </div>
                 <p className="text-white font-normal leading-[30px] text-sm sm:text-[16px] capitalize mb-4 sm:mb-6 font-futura">
-                  Based On {totalReviews} Review{totalReviews !== 1 ? 's' : ''}, Rating Is Calculated
+                  Based On {reviewCount} Review{reviewCount !== 1 ? 's' : ''}, Rating Is Calculated
                 </p>
                 <button onClick={handleOpenReview} className="bg-[#B19D7F] hover:bg-[#A08F75] text-white leading-normal uppercase font-futura flex-shrink-0 w-full sm:w-[205px] h-[40px] sm:h-[50.15px] text-xs sm:text-[14px] font-[450] tracking-[2.1px]">WRITE A REVIEW</button>
                 {eligibilityChecked && eligibilityError && (
@@ -365,6 +423,23 @@ const ReviewsSection: React.FC<{ productId: number; allowedProductIds?: number[]
                         required
                     />
                     </div>
+                    {/* Images uploader */}
+                    <div>
+                      <label className="block text-gray-300 text-sm mb-2">Add photos (optional)</label>
+                      <input type="file" accept="image/*" multiple onChange={handleImagesChange} className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#BB9D7B] file:text-white hover:file:bg-[#a8896a]" />
+                      <p className="text-xs text-gray-400 mt-1">Up to 5 images, each less than 5 MB.</p>
+                      {imageError && <p className="text-xs text-red-400 mt-1">{imageError}</p>}
+                      {selectedImages.length > 0 && (
+                        <div className="mt-3 grid grid-cols-5 gap-2">
+                          {selectedImages.map((si, idx) => (
+                            <div key={idx} className="relative group">
+                              <img src={si.preview} alt={`preview-${idx}`} className="h-16 w-16 object-cover rounded border border-gray-700" />
+                              <button type="button" onClick={() => removeImageAt(idx)} className="absolute -top-2 -right-2 bg-black border border-gray-600 rounded-full w-6 h-6 text-xs font-bold hidden group-hover:flex items-center justify-center text-white" aria-label="Remove image">×</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                     
                     <div className="flex flex-col sm:flex-row gap-3">
                     <button
@@ -374,11 +449,11 @@ const ReviewsSection: React.FC<{ productId: number; allowedProductIds?: number[]
                     >
                         Submit Review
                     </button>
-                    <button
-                        type="button"
-                        onClick={() => setShowWriteReview(false)}
-                        className="px-4 sm:px-6 py-2 rounded border border-gray-600 text-white hover:bg-gray-700"
-                    >
+          <button
+            type="button"
+            onClick={() => { setShowWriteReview(false); setSelectedImages([]); }}
+            className="px-4 sm:px-6 py-2 rounded border border-gray-600 text-white hover:bg-gray-700"
+          >
                         Cancel
                     </button>
                     </div>
@@ -419,10 +494,43 @@ const ReviewsSection: React.FC<{ productId: number; allowedProductIds?: number[]
             </div>
           )}
         </div>
+        {/* Mount viewer overlay for review images */}
+        <ReviewImageViewerShop4 />
       </div>
     </div>
   );
 };
+
+// Lightweight viewer for review images (Shop4)
+function ReviewImageViewerShop4() {
+  const [state, setState] = React.useState<{ urls: string[]; index: number } | null>(null);
+  React.useEffect(() => {
+    (window as any).__shop4_setViewer = (payload: any) => setState(payload);
+    return () => { delete (window as any).__shop4_setViewer; };
+  }, []);
+  if (!state) return null;
+  const { urls, index } = state;
+  const close = () => setState(null);
+  const prev = () => setState({ urls, index: (index - 1 + urls.length) % urls.length });
+  const next = () => setState({ urls, index: (index + 1) % urls.length });
+  return (
+    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center" onClick={close}>
+      <div className="relative max-w-3xl w-[90%]" onClick={(e) => e.stopPropagation()}>
+        <button className="absolute -top-10 right-0 text-white text-2xl" onClick={close} aria-label="Close">×</button>
+        <div className="relative flex items-center justify-center bg-black rounded">
+          <button className="absolute left-0 p-3 text-white" onClick={prev} aria-label="Previous">‹</button>
+          <img src={urls[index]} alt="review" className="max-h-[80vh] w-auto object-contain" />
+          <button className="absolute right-0 p-3 text-white" onClick={next} aria-label="Next">›</button>
+        </div>
+        <div className="mt-3 flex gap-2 overflow-x-auto">
+          {urls.map((u, i) => (
+            <img key={i} src={u} alt={`thumb-${i}`} className={`h-12 w-12 object-cover rounded border ${i===index?'border-[#BB9D7B]':'border-gray-700'}`} onClick={() => setState({ urls, index: i })} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // --- Main ProductDetail Component ---
 const ProductDetail: React.FC = () => {
@@ -447,6 +555,9 @@ const ProductDetail: React.FC = () => {
   const [stockError, setStockError] = useState<string>('');
   const [selectedMainImage, setSelectedMainImage] = useState<string>('');
   const [showImagePopup, setShowImagePopup] = useState<boolean>(false);
+  // Ratings summary for header
+  const [avgRatingTop, setAvgRatingTop] = useState<number>(0);
+  const [reviewCountTop, setReviewCountTop] = useState<number>(0);
 
   const productId = searchParams.get('id');
 
@@ -1261,12 +1372,10 @@ const ProductDetail: React.FC = () => {
             })()}
           </div>
 
-          {/* Rating */}
+          {/* Rating (real) */}
           <div className="flex items-center gap-2">
-            <div className="flex text-yellow-400 text-xs sm:text-sm md:text-base">
-              ★★★★★
-            </div>
-            <span className="text-gray-400 text-xs md:text-sm">( 1 Customer review )</span>
+            <StarRating rating={avgRatingTop} size="md" />
+            <span className="text-gray-400 text-xs md:text-sm">( {reviewCountTop} Customer review{reviewCountTop!==1?'s':''} )</span>
           </div>
 
           {/* Divider */}
@@ -1551,6 +1660,7 @@ const ProductDetail: React.FC = () => {
         .map((p: any) => p?.variant_product_id ?? p?.product_id)
         .filter((v: any) => typeof v === 'number')
     ]}
+    onSummaryChange={(avg, cnt) => { setAvgRatingTop(avg); setReviewCountTop(cnt); }}
   />
     </div>
   );
