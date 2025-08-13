@@ -895,7 +895,7 @@ const AllProductPageContent: React.FC = () => {
         <>
             <Hero />
             <main className="container max-w-[1740px] mx-auto px-4 py-20">
-                <div className="flex flex-col lg:flex-row ">
+                <div className="flex flex-col lg:flex-row gap-0 2xl:gap-8 ">
                     {/* Desktop Sidebar */}
                     <aside className="hidden lg:block lg:w-96  2xl:w-[455px] order-2 lg:order-1">
                         <div className="sticky top-8">
