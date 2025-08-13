@@ -1,5 +1,7 @@
 // Shop4 API Service - Centralized API calls for Shop4
-const API_BASE_URL = 'http://localhost:5110/api/public/shops/4'; // Shop ID 4 for Shop4 (Religious/Spiritual Store)
+const API_BASE_URL = 'http://localhost:5110/api/public/shops/4'; // Public catalog endpoints
+const API_HOST = API_BASE_URL.replace(/\/api\/public\/shops\/\d+$/, '');
+const PRIVATE_SHOP_BASE = `${API_HOST}/api/shops/4`;
 
 // All interfaces are copied from shop1ApiService for consistency
 export interface Product {
@@ -236,6 +238,61 @@ class Shop4ApiService {
     }
   }
 
+  // Shop Reviews Methods
+  async getShopProductReviews(productId: number, page: number = 1, perPage: number = 5): Promise<{
+    status: string;
+    data: { reviews: any[]; total: number; pages: number; current_page: number };
+  }> {
+    // Shop reviews are not under public routes; they live at backend root
+  const res = await fetch(`${API_HOST}/api/shop-reviews/product/${productId}?page=${page}&per_page=${perPage}`);
+    if (!res.ok) throw new Error(`Failed to fetch shop reviews (${res.status})`);
+    return res.json();
+  }
+
+  async createShopReview(payload: {
+    shop_order_id: string;
+    shop_product_id: number;
+    rating: number;
+    title: string;
+    body: string;
+    images?: string[];
+  }, jwt: string): Promise<{ status: string; data: any }> {
+  const res = await fetch(`${API_HOST}/api/shop-reviews`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwt}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: 'Unknown error' }));
+      throw new Error(err.message || `Failed to create review (${res.status})`);
+    }
+    return res.json();
+  }
+
+  // User Shop Orders (for gating reviews)
+  async getMyShopOrders(page: number = 1, perPage: number = 20, jwt?: string): Promise<{
+    success: boolean;
+    message: string;
+    data: { orders: any[]; pagination: { page: number; per_page: number; total: number; pages: number; has_next: boolean; has_prev: boolean } };
+  }> {
+  const url = `${PRIVATE_SHOP_BASE}/orders?page=${page}&per_page=${perPage}`;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (jwt) headers['Authorization'] = `Bearer ${jwt}`;
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: 'Failed to fetch orders' }));
+      throw new Error(err.message || `Failed to fetch orders (${res.status})`);
+    }
+    const body = await res.json();
+    if (typeof body?.success === 'undefined' && body?.data) {
+      return { success: true, message: body.message || 'ok', data: body.data } as any;
+    }
+    return body;
+  }
+
   // Product Methods
   async getProducts(params: ProductQueryParams = {}): Promise<ProductsResponse> {
     const queryParams = new URLSearchParams();
@@ -378,7 +435,7 @@ class Shop4ApiService {
   getImageUrl(imagePath: string): string {
     if (!imagePath) return '';
     if (imagePath.startsWith('http')) return imagePath;
-    return `${API_BASE_URL.replace('/api/public/shops/4', '')}/uploads/${imagePath}`;
+  return `${API_HOST}/uploads/${imagePath}`;
   }
 
   formatPrice(price: number): string {

@@ -1,5 +1,9 @@
 // Shop1 API Service - Centralized API calls for Shop1
-const API_BASE_URL = 'http://localhost:5110/api/public/shops/1'; // Shop ID 1 for Fashion Store
+const API_BASE_URL = 'http://localhost:5110/api/public/shops/1'; // Public catalog endpoints
+// Derive API host (e.g., http://localhost:5110) for cross-scope endpoints (reviews, private shop routes)
+const API_HOST = API_BASE_URL.replace(/\/api\/public\/shops\/\d+$/, '');
+// Private shop base (JWT-protected) for things like orders lives under /api/shops/:id
+const PRIVATE_SHOP_BASE = `${API_HOST}/api/shops/1`;
 
 export interface Product {
   product_id: number;
@@ -230,6 +234,63 @@ class Shop1ApiService {
       console.error('API Error:', error);
       throw error;
     }
+  }
+
+  // --- Shop Reviews (shared backend, not under public shop routes) ---
+  async getShopProductReviews(productId: number, page: number = 1, perPage: number = 5): Promise<{
+    status: string;
+    data: { reviews: any[]; total: number; pages: number; current_page: number };
+  }> {
+  // Shop reviews live at backend root (/api/shop-reviews)
+  const res = await fetch(`${API_HOST}/api/shop-reviews/product/${productId}?page=${page}&per_page=${perPage}`);
+    if (!res.ok) throw new Error(`Failed to fetch shop reviews (${res.status})`);
+    return res.json();
+  }
+
+  async createShopReview(payload: {
+    shop_order_id: string;
+    shop_product_id: number;
+    rating: number;
+    title: string;
+    body: string;
+    images?: string[];
+  }, jwt: string): Promise<{ status: string; data: any }> {
+  const res = await fetch(`${API_HOST}/api/shop-reviews`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwt}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: 'Unknown error' }));
+      throw new Error(err.message || `Failed to create review (${res.status})`);
+    }
+    return res.json();
+  }
+
+  // --- User Shop Orders (for review eligibility) ---
+  async getMyShopOrders(page: number = 1, perPage: number = 20, jwt?: string): Promise<{
+    success: boolean;
+    message: string;
+    data: { orders: any[]; pagination: { page: number; per_page: number; total: number; pages: number; has_next: boolean; has_prev: boolean } };
+  }> {
+  // Orders endpoint is NOT under /api/public; it is under /api/shops/:id
+  const url = `${PRIVATE_SHOP_BASE}/orders?page=${page}&per_page=${perPage}`;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (jwt) headers['Authorization'] = `Bearer ${jwt}`;
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: 'Failed to fetch orders' }));
+      throw new Error(err.message || `Failed to fetch orders (${res.status})`);
+    }
+    const body = await res.json();
+    // Backend may omit `success`; treat 200 as success and return normalized shape
+    if (typeof body?.success === 'undefined' && body?.data) {
+      return { success: true, message: body.message || 'ok', data: body.data } as any;
+    }
+    return body;
   }
 
   // Get all categories for Shop1
