@@ -17,9 +17,9 @@ const Footer = () => (
         {/* Column 1 */}
         <div className="flex flex-col gap-2 sm:gap-4">
           <span className="text-white font-bold text-[16px] mb-1">COLLECTION</span>
-          <Link to="/shop3/man" className="text-white font-bold  text-[16px] hover:text-[#CCFF00]">MAN</Link>
+          {/*<Link to="/shop3/man" className="text-white font-bold  text-[16px] hover:text-[#CCFF00]">MAN</Link>
           <Link to="/shop3/woman" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">WOMAN</Link>
-          <Link to="/shop3/kids" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">KIDS</Link>
+          <Link to="/shop3/kids" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">KIDS</Link>*/}
           <Link to="/shop3" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">SHOP</Link>
         </div>
         
