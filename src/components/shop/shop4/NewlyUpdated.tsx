@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const NewlyUpdated = () => {
   return (
     <div className="w-full py-10">
@@ -29,9 +31,12 @@ const NewlyUpdated = () => {
               <p className="text-[#960B0B] text-[16px] font-normal leading-[30px] mb-4 sm:mb-12 max-w-xl " style={{ fontFamily: 'ABeeZee' }}>
                 often carries a sense of mystery, drama, or alternative sensibility. It's a fashion
               </p>
-              <button className="w-[156px] h-[50px] rounded-[30px] border border-white bg-transparent font-bold  transition-colors duration-300 text-[#960B0B] text-xs font-futura  tracking-[3px] uppercase" >
+              <Link 
+                to="/shop4-Allproductpage"
+                className="inline-block w-[156px] h-[50px] rounded-[30px] border border-white bg-transparent font-bold transition-colors duration-300 text-[#960B0B] text-xs font-futura tracking-[3px] uppercase hover:bg-[#960B0B] hover:text-white text-center leading-[50px]"
+              >
                 SHOP NOW
-              </button>
+              </Link>
             </div>
           </div>
         </div>

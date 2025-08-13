@@ -1,4 +1,4 @@
-import React from "react";
+import { Link } from 'react-router-dom';
 
 const Footer = () => (
   <footer className="w-full bg-black flex justify-center items-start py-10 md:py-16 px-2 sm:px-4 md:px-8">
@@ -17,25 +17,52 @@ const Footer = () => (
         {/* Column 1 */}
         <div className="flex flex-col gap-2 sm:gap-4">
           <span className="text-white font-bold text-[16px] mb-1">COLLECTION</span>
-          <span className="text-white font-bold  text-[16px]">MAN</span>
-          <span className="text-white font-bold text-base text-[16px]">WOMAN</span>
-          <span className="text-white font-bold text-base text-[16px]">KIDS</span>
-          <span className="text-white font-bold text-base text-[16px]">SHOP</span>
+          {/*<Link to="/shop3/man" className="text-white font-bold  text-[16px] hover:text-[#CCFF00]">MAN</Link>
+          <Link to="/shop3/woman" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">WOMAN</Link>
+          <Link to="/shop3/kids" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">KIDS</Link>*/}
+          <Link to="/shop3" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">SHOP</Link>
         </div>
+        
         {/* Column 2 */}
         <div className="flex flex-col gap-2 sm:gap-4">
-          <span className="text-white font-bold text-base mb-1 text-[16px]">REFUND</span>
-          <span className="text-white font-bold text-base text-[16px]">SHOP</span>
-          <span className="text-white font-bold text-base text-[16px]">SIZE CHART</span>
-          <span className="text-white font-bold text-base text-[16px]">BLOG</span>
-          <span className="text-white font-bold text-base text-[16px]">ABOUT</span>
+          <Link to="/shop3/refund" className="text-white font-bold text-base mb-1 text-[16px] hover:text-[#CCFF00]">REFUND</Link>
+          <Link to="/shop3" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">SHOP</Link>
+          <Link to="/shop3/size-chart" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">SIZE CHART</Link>
+          <Link to="/shop3/blog" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">BLOG</Link>
+          <Link to="/shop3/about" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">ABOUT</Link>
         </div>
         {/* Column 3 */}
         <div className="flex flex-col gap-2 sm:gap-4">
-          <span className="text-white font-bold text-base mb-1 text-[16px]">INSTAGRAM</span>
-          <span className="text-white font-bold text-base text-[16px]">FACEBOOK</span>
-          <span className="text-white font-bold text-base text-[16px]">TIKTOK</span>
-          <span className="text-white font-bold text-base text-[16px]">TWITTER</span>
+          <a
+            href="https://www.instagram.com/aoin.in?igsh=NGk3dml2ZHk2cjM4"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            className="text-white font-bold text-base mb-1 text-[16px] hover:text-[#CCFF00]"
+          >
+            INSTAGRAM
+          </a>
+          <a
+            href="https://www.facebook.com/profile.php?id=61578809217780"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
+            className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]"
+          >
+            FACEBOOK
+          </a>
+          <span className="text-white font-bold text-base text-[16px] opacity-70" title="TikTok link coming soon">
+            TIKTOK
+          </span>
+          <a
+            href="https://x.com/AOIN111111"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Twitter"
+            className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]"
+          >
+            TWITTER
+          </a>
         </div>
       </div>
     </div>

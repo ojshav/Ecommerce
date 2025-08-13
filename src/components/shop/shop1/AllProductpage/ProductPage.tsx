@@ -25,6 +25,7 @@ const ProductPage = () => {
   // Filter States
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
   const itemsPerPage = 9;
@@ -77,6 +78,12 @@ const ProductPage = () => {
         const categoryParam = searchParams.get('category');
         if (categoryParam) {
           setSelectedCategory(parseInt(categoryParam));
+        }
+        
+        // Check for search term from URL
+        const searchParam = searchParams.get('search');
+        if (searchParam) {
+          setSearchTerm(searchParam);
         }
 
         // Apply discount filter from URL if present (e.g., ?discount=30+ or ?discount=50+)
@@ -134,6 +141,7 @@ const ProductPage = () => {
           brand_id: selectedBrand || undefined,
           min_price: priceRange[0] > 0 ? priceRange[0] : undefined,
           max_price: priceRange[1] < 100000 ? priceRange[1] : undefined,
+          search: searchTerm || undefined,
           discount_min,
           discount_max,
           sort_by: sortBy,
@@ -154,7 +162,7 @@ const ProductPage = () => {
     };
 
     loadProducts();
-  }, [currentPage, itemsPerPage, selectedCategory, selectedBrand, priceRange, sortBy, sortOrder, discountChip]);
+  }, [currentPage, itemsPerPage, selectedCategory, selectedBrand, searchTerm, priceRange, sortBy, sortOrder, discountChip]);
 
   // Calculate dynamic price range when products change
   useEffect(() => {
@@ -511,6 +519,15 @@ const ProductPage = () => {
       </aside>
       {/* Main Content */}
       <main className="flex-1 w-full">
+        {/* Search Results Header */}
+        {searchTerm && (
+          <div className="mb-4 ml-0 md:ml-7">
+            <p className="text-lg text-gray-700">
+              Search results for "{searchTerm}" - {totalProducts} product{totalProducts !== 1 ? 's' : ''} found
+            </p>
+          </div>
+        )}
+        
         {/* Controls */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 ml-0 md:ml-7 gap-4 md:gap-0">
           <div className="flex items-center gap-2 w-full md:w-auto">

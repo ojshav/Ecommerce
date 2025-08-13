@@ -1172,7 +1172,7 @@ const ProductDetail: React.FC = () => {
                                 {allImages.slice(0, 3).map((imageUrl, index) => (
                                   <div 
                                     key={index}
-                                    className="flex-1 cursor-pointer transition-transform hover:scale-105 relative"
+                                    className="flex-1 cursor-pointer transition-transform relative"
                                     onClick={() => setSelectedMainImage(imageUrl)}
                                   >
                                     <img
@@ -1269,7 +1269,7 @@ const ProductDetail: React.FC = () => {
                                   {allImages.map((imageUrl: string, index: number) => (
                                     <div 
                                       key={index}
-                                      className="cursor-pointer transition-transform hover:scale-105"
+                                      className="cursor-pointer transition-transform"
                                       onClick={() => {
                                         setSelectedMainImage(imageUrl);
                                         setShowImagePopup(false);
@@ -1350,7 +1350,7 @@ const ProductDetail: React.FC = () => {
                 return (
                   <>
                     <span className="text-xs sm:text-sm md:text-base text-white">Price</span>
-                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">${variantPrice}</span>
+                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">₹{variantPrice}</span>
                   </>
                 );
               } else {
@@ -1358,14 +1358,14 @@ const ProductDetail: React.FC = () => {
                 const hasSpecialPrice = product.special_price && product.special_price < product.price;
                 return hasSpecialPrice ? (
                   <>
-                    <span className="text-gray-400 line-through text-xs sm:text-sm md:text-base">Actual Price ${product.price}</span>
+                    <span className="text-gray-400 line-through text-xs sm:text-sm md:text-base">Actual Price ₹{product.price}</span>
                     <span className="text-xs sm:text-sm md:text-base text-white">Our price</span>
-                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">${product.special_price}</span>
+                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">₹{product.special_price}</span>
                   </>
                 ) : (
                   <>
                     <span className="text-xs sm:text-sm md:text-base text-white">Price</span>
-                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">${product.price}</span>
+                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">₹{product.price}</span>
                   </>
                 );
               }
@@ -1542,7 +1542,7 @@ const ProductDetail: React.FC = () => {
 
           {/* Shipping Info */}
           <div className="text-xs md:text-sm text-gray-300 space-y-1">
-            <p>Worldwide Shipping in all order $200, Delivery in 2-5 working days</p>
+            <p>Worldwide Shipping in all order ₹200, Delivery in 2-5 working days</p>
             <button className="text-white hover:text-gray-300 transition-colors underline">
               Shipping & Return
             </button>
@@ -1605,7 +1605,7 @@ const ProductDetail: React.FC = () => {
               {relatedProducts.slice(0, 3).map((relatedProduct) => (
                 <div 
                   key={relatedProduct.id} 
-                  className="flex-shrink-0 w-[calc(100vw-2rem)] cursor-pointer transition-transform hover:scale-105" 
+                  className="flex-shrink-0 w-[calc(100vw-2rem)] cursor-pointer transition-transform" 
                   onClick={() => {
                     // Navigate to the related product's detail page
                     navigate(`?id=${relatedProduct.id}`);
@@ -1630,7 +1630,7 @@ const ProductDetail: React.FC = () => {
             {relatedProducts.slice(0, 3).map((relatedProduct) => (
               <div 
                 key={relatedProduct.id} 
-                className="w-full h-auto cursor-pointer transition-transform hover:scale-105" 
+                className="w-full h-auto cursor-pointer transition-transform" 
                 onClick={() => {
                   // Navigate to the related product's detail page
                   navigate(`?id=${relatedProduct.id}`);

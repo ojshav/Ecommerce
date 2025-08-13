@@ -39,10 +39,10 @@ export const ShopWishlistProvider: React.FC<{ children: ReactNode }> = ({ childr
    * Check if user can perform wishlist operations
    */
   const canPerformWishlistOperations = useCallback(() => {
-    if (!accessToken || !user) {
-      toast.error('Please sign in to manage your wishlist');
-      return false;
-    }
+    // if (!accessToken || !user) {
+    //   toast.error('Please sign in to manage your wishlist');
+    //   return false;
+    // }
 
     if (user.role !== 'customer') {
       toast.error('Only customers can manage wishlists');

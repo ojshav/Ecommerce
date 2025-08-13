@@ -30,36 +30,43 @@ const Header: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const navItems = ['HOME', 'PAGES', 'ACCESSORIES', 'PORTFOLIO', 'SHOP', 'ABOUT', 'CONTACT'];
+  const navItems = ['HOME', /* 'PAGES', 'ACCESSORIES', 'PORTFOLIO', 'SHOP', */ 'ABOUT', 'CONTACT'];
 
   return (
-    <header className="bg-black text-white relative">
+    <header className=" bg-black text-white relative">
       <div className="container max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 pt-4 sm:pt-6 lg:pt-8">
         <div className="flex items-center justify-between h-12 sm:h-14 lg:h-16">
           {/* Logo */}
-          <div className="text-white font-junge text-[12px] sm:text-[14px] md:text-[16px] lg:text-[18px] xl:text-[20px] 2xl:text-[22px] font-normal tracking-[1.5px] sm:tracking-[2px] md:tracking-[2.5px] lg:tracking-[3px] xl:tracking-[3.3px] uppercase bg-gradient-to-r from-[#383838] to-[#9e9e9e] bg-clip-text text-transparent" style={{ WebkitTextStroke: '0.5px', WebkitTextStrokeColor: '#aea8a8' }}>
+          <Link to="/shop4" className="text-white font-junge text-[12px] sm:text-[14px] md:text-[16px] lg:text-[18px] xl:text-[20px] 2xl:text-[22px] font-normal tracking-[1.5px] sm:tracking-[2px] md:tracking-[2.5px] lg:tracking-[3px] xl:tracking-[3.3px] uppercase bg-gradient-to-r from-[#383838] to-[#9e9e9e] bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-200 cursor-pointer" style={{ WebkitTextStroke: '0.5px', WebkitTextStrokeColor: '#aea8a8' }}>
             AOIN POOJA STORE
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex px-4 xl:px-10 space-x-4 xl:space-x-8 2xl:space-x-16">
+          <nav className="hidden lg:flex px-2 xl:px-0 mr-6 space-x-4 xl:space-x-8 2xl:space-x-28">
             {navItems.map((item) => (
-              <a
-                key={item}
-                href="#"
-                className="text-white font-poppins text-[12px] xl:text-[14px] font-normal leading-normal tracking-[1.5px] xl:tracking-[2.1px] uppercase hover:text-yellow-400 transition-colors duration-200 whitespace-nowrap"
-              >
-                {item}
-              </a>
+              item === 'HOME' ? (
+                <Link
+                  key={item}
+                  to="/shop4"
+                  className="text-white font-poppins text-[12px] xl:text-[14px] font-normal leading-normal tracking-[1.5px] xl:tracking-[2.1px] uppercase hover:text-yellow-400 transition-colors duration-200 whitespace-nowrap"
+                >
+                  {item}
+                </Link>
+              ) : (
+                <a
+                  key={item}
+                  href="#"
+                  className="text-white font-poppins text-[12px] xl:text-[14px] font-normal leading-normal tracking-[1.5px] xl:tracking-[2.1px] uppercase hover:text-yellow-400 transition-colors duration-200 whitespace-nowrap"
+                >
+                  {item}
+                </a>
+              )
             ))}
           </nav>
 
           {/* Desktop Icons */}
           <div className="hidden lg:flex items-center gap-4 md:gap-6 lg:gap-8">
-            <Search 
-              className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
-              strokeWidth={1.5}
-            />
+            
             <Link to="/shop4/wishlist" className="relative">
               <Heart 
                 className="w-5 h-5 md:w-6 md:h-6 text-white/80 hover:text-white hover:scale-110 transition-all duration-300 cursor-pointer" 
@@ -98,14 +105,25 @@ const Header: React.FC = () => {
           <div className="lg:hidden absolute top-full left-0 right-0 bg-black z-50 border-t border-gray-800 shadow-lg">
             <nav className="flex flex-col py-2">
               {navItems.map((item) => (
-                <a
-                  key={item}
-                  href="#"
-                  className="px-4 py-3 text-white font-poppins text-[14px] sm:text-[16px] font-normal leading-normal tracking-[1.5px] sm:tracking-[2px] uppercase hover:bg-gray-900 hover:text-yellow-400 transition-colors duration-200 border-b border-gray-800 last:border-b-0"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item}
-                </a>
+                item === 'HOME' ? (
+                  <Link
+                    key={item}
+                    to="/shop4"
+                    className="px-4 py-3 text-white font-poppins text-[14px] sm:text-[16px] font-normal leading-normal tracking-[1.5px] sm:tracking-[2px] uppercase hover:bg-gray-900 hover:text-yellow-400 transition-colors duration-200 border-b border-gray-800 last:border-b-0"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item}
+                  </Link>
+                ) : (
+                  <a
+                    key={item}
+                    href="#"
+                    className="px-4 py-3 text-white font-poppins text-[14px] sm:text-[16px] font-normal leading-normal tracking-[1.5px] sm:tracking-[2px] uppercase hover:bg-gray-900 hover:text-yellow-400 transition-colors duration-200 border-b border-gray-800 last:border-b-0"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item}
+                  </a>
+                )
               ))}
               <div className="flex items-center justify-center space-x-6 py-4 border-t border-gray-800 mt-2">
                 <Search className="w-5 h-5 cursor-pointer hover:text-yellow-400 transition-colors" />
