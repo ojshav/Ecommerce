@@ -1350,7 +1350,7 @@ const ProductDetail: React.FC = () => {
                 return (
                   <>
                     <span className="text-xs sm:text-sm md:text-base text-white">Price</span>
-                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">${variantPrice}</span>
+                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">₹{variantPrice}</span>
                   </>
                 );
               } else {
@@ -1358,14 +1358,14 @@ const ProductDetail: React.FC = () => {
                 const hasSpecialPrice = product.special_price && product.special_price < product.price;
                 return hasSpecialPrice ? (
                   <>
-                    <span className="text-gray-400 line-through text-xs sm:text-sm md:text-base">Actual Price ${product.price}</span>
+                    <span className="text-gray-400 line-through text-xs sm:text-sm md:text-base">Actual Price ₹{product.price}</span>
                     <span className="text-xs sm:text-sm md:text-base text-white">Our price</span>
-                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">${product.special_price}</span>
+                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">₹{product.special_price}</span>
                   </>
                 ) : (
                   <>
                     <span className="text-xs sm:text-sm md:text-base text-white">Price</span>
-                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">${product.price}</span>
+                    <span className="text-base sm:text-lg md:text-xl font-medium text-[#00FF2F]">₹{product.price}</span>
                   </>
                 );
               }
@@ -1542,7 +1542,7 @@ const ProductDetail: React.FC = () => {
 
           {/* Shipping Info */}
           <div className="text-xs md:text-sm text-gray-300 space-y-1">
-            <p>Worldwide Shipping in all order $200, Delivery in 2-5 working days</p>
+            <p>Worldwide Shipping in all order ₹200, Delivery in 2-5 working days</p>
             <button className="text-white hover:text-gray-300 transition-colors underline">
               Shipping & Return
             </button>

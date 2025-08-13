@@ -136,7 +136,7 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
       {/* Always visible product name and price - hidden on hover */}
       <div className="mt-12 text-center opacity-100 group-hover:opacity-0 transition-opacity duration-300">
         <h3 className="text-white text-center font-abeezee text-[30px] font-normal leading-[1.2] mb-1 break-words hyphens-auto">{product.name}</h3>
-        <p className="mt-4 text-white text-center font-futura text-[25px] font-[450] leading-normal">${product.price}</p>
+        <p className="mt-4 text-white text-center font-futura text-[25px] font-[450] leading-normal">₹{product.price}</p>
       </div>
       
       {/* Hover card that replaces the name and price */}
@@ -146,7 +146,7 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
           <h3 className="text-white text-center font-abeezee text-[30px] font-normal leading-[1.2] mb-1 break-words hyphens-auto">{product.name}</h3>
           
           {/* Product Price */}
-          <p className="mt-4 text-white text-center font-futura text-[25px] font-[450] leading-normal mb-4">${product.price}</p>
+          <p className="mt-4 text-white text-center font-futura text-[25px] font-[450] leading-normal mb-4">₹{product.price}</p>
           
           {/* Color Options */}
           {showColorOptions && (
