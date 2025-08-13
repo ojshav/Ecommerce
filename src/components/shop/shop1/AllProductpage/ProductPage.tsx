@@ -78,6 +78,15 @@ const ProductPage = () => {
         if (categoryParam) {
           setSelectedCategory(parseInt(categoryParam));
         }
+
+        // Apply discount filter from URL if present (e.g., ?discount=30+ or ?discount=50+)
+        const discountParam = searchParams.get('discount');
+        const allowed = new Set(['lt10','10+','20+','30+','40+','50+']);
+        const normalized = discountParam ? discountParam.replace(/\s/g, '+') : null; // handle '+' decoded as space
+        if (normalized && allowed.has(normalized)) {
+          setDiscountChip(normalized);
+          setCurrentPage(1);
+        }
       } catch (error) {
         console.error('Error loading initial data:', error);
       } finally {
