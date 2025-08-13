@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const CelebrateFestival = () => {
   return (
     <div className="relative w-full h-[250px] xs:h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[750px] mt-6 xs:mt-8 sm:mt-12 md:mt-16 lg:mt-24 xl:mt-56 mb-6 xs:mb-8 sm:mb-12 md:mb-16 lg:mb-20 xl:mb-24 overflow-hidden">
@@ -57,9 +59,12 @@ const CelebrateFestival = () => {
         </p>
         
         {/* VIEW ALL Button */}
-        <button className="w-[60px] h-[24px] xs:w-[70px] xs:h-[28px] sm:w-[80px] sm:h-[32px] md:w-[90px] md:h-[36px] lg:w-[100px] lg:h-[40px] xl:w-[136px] xl:h-[50px] rounded-[190px] bg-[#BB9D7B] text-white text-[6px] xs:text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] xl:text-[12px] font-medium tracking-[0.8px] xs:tracking-[1px] sm:tracking-[1.2px] md:tracking-[1.5px] lg:tracking-[1.8px] xl:tracking-[3px] uppercase font-futura leading-normal transition-colors hover:bg-[#A88A6A]">
+        <Link 
+          to="/shop4-Allproductpage"
+          className="inline-block w-[60px] h-[24px] xs:w-[70px] xs:h-[28px] sm:w-[80px] sm:h-[32px] md:w-[90px] md:h-[36px] lg:w-[100px] lg:h-[40px] xl:w-[136px] xl:h-[50px] rounded-[190px] bg-[#BB9D7B] text-white text-[6px] xs:text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] xl:text-[12px] font-medium tracking-[0.8px] xs:tracking-[1px] sm:tracking-[1.2px] md:tracking-[1.5px] lg:tracking-[1.8px] xl:tracking-[3px] uppercase font-futura transition-colors hover:bg-[#A88A6A] text-center flex items-center justify-center"
+        >
           VIEW ALL
-        </button>
+        </Link>
       </div>
 
       {/* Small text box on first image - centered */}

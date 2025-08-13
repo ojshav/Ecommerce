@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const NewCollection = () => {
   return (
     <div className="bg-black min-h-screen flex px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 pb-20 sm:pb-32 md:pb-40 lg:pb-60 xl:pb-80 pt-16 sm:pt-20 md:pt-24 lg:pt-28 mx-auto justify-center">
@@ -14,9 +16,12 @@ const NewCollection = () => {
               Crafted For The Devoted. Designed For The Divine. Each Pooja Thali Reflects The Purity Of Tradition And The Elegance Of Craftsmanship.
             </p>
           </div>
-          <button className="w-full sm:w-auto px-6 sm:px-8 md:px-10 h-12 sm:h-[50px] flex-shrink-0 rounded-[190px] bg-[#BB9D7B] text-white font-futura text-xs sm:text-[12px] md:text-sm font-medium leading-normal tracking-[1.5px] sm:tracking-[2px] md:tracking-[3px] uppercase transition-colors duration-300 hover:bg-[#A88A6A]">
+          <Link 
+            to="/shop4-Allproductpage"
+            className="w-full sm:w-auto px-6 sm:px-8 md:px-10 py-4 h-12 sm:h-[50px] flex-shrink-0 rounded-[190px] bg-[#BB9D7B] text-white font-futura text-xs sm:text-[12px] md:text-sm font-medium leading-normal tracking-[1.5px] sm:tracking-[2px] md:tracking-[3px] uppercase transition-colors duration-300 hover:bg-[#A88A6A]"
+          >
             BUY NOW
-          </button>
+          </Link>
         </div>
 
         {/* Central Section - Image */}

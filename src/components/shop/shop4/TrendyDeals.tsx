@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const TrendyDeals = () => {
   return (
     <div className="relative w-full h-[300px] xs:h-[350px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px] 2xl:h-[750px] mt-6 xs:mt-8 sm:mt-10 md:mt-0 lg:mt-0 xl:mt-0 2xl:mt-0 mb-6 xs:mb-8 sm:mb-10 md:mb-16 lg:mb-20 xl:mb-24 2xl:mb-24 overflow-hidden">
@@ -76,9 +78,12 @@ const TrendyDeals = () => {
         </p>
         
         {/* VIEW ALL Button */}
-        <button className="w-[80px] h-[28px] xs:w-[85px] xs:h-[30px] sm:w-[90px] sm:h-[32px] md:w-[100px] md:h-[35px] lg:w-[110px] lg:h-[40px] xl:w-[120px] xl:h-[45px] 2xl:w-[136px] 2xl:h-[50px] rounded-[190px] bg-[#BB9D7B] text-white text-[7px] xs:text-[8px] sm:text-[9px] md:text-[10px] lg:text-[11px] xl:text-[11px] 2xl:text-[12px] font-medium tracking-[1px] xs:tracking-[1.2px] sm:tracking-[1.5px] md:tracking-[2px] lg:tracking-[2.5px] xl:tracking-[2.5px] 2xl:tracking-[3px] uppercase font-futura leading-normal transition-colors hover:bg-[#A88A6A]">
+        <Link 
+          to="/shop4-Allproductpage"
+          className="inline-block w-[80px] h-[28px] xs:w-[85px] xs:h-[30px] sm:w-[90px] sm:h-[32px] md:w-[100px] md:h-[35px] lg:w-[110px] lg:h-[40px] xl:w-[120px] xl:h-[45px] 2xl:w-[136px] 2xl:h-[50px] rounded-[190px] bg-[#BB9D7B] text-white text-[7px] xs:text-[8px] sm:text-[9px] md:text-[10px] lg:text-[11px] xl:text-[11px] 2xl:text-[12px] font-medium tracking-[1px] xs:tracking-[1.2px] sm:tracking-[1.5px] md:tracking-[2px] lg:tracking-[2.5px] xl:tracking-[2.5px] 2xl:tracking-[3px] uppercase font-futura transition-colors hover:bg-[#A88A6A] text-center flex items-center justify-center"
+        >
           VIEW ALL
-        </button>
+        </Link>
       </div>
 
       {/* Small text box on first image - centered */}

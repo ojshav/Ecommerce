@@ -46,86 +46,86 @@ const AwesomeCollection = () => {
 
                  {/* Container for Cards 2, 3, 4 - With horizontal scroll */}
          <div className="flex gap-3 sm:gap-4 md:gap-6 lg:gap-8 overflow-x-auto max-w-full lg:max-w-[600px] xl:max-w-[800px] 2xl:max-w-[1000px] pb-2 sm:pb-3 md:pb-4">
-           {/* Card 2: Luxury Collection's */}
-           <div className="relative w-[200px] sm:w-[220px] md:w-[250px] lg:w-[300px] xl:w-[433px] h-[150px] sm:h-[180px] md:h-[220px] lg:h-[450px] xl:h-[577px] rounded-lg overflow-hidden group cursor-pointer flex-shrink-0">
-            <img 
-              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144737/public_assets_shop4/public_assets_shop4_Awesome3.svg" 
-              alt="Luxury collection" 
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-            
-            {/* Hover overlay */}
-            <div className="absolute inset-0 flex items-end justify-center">
-              <div className="w-full h-[60px] sm:h-[80px] md:h-[100px] lg:h-[205px] xl:h-[205px] flex-shrink-0 rounded-[8px] sm:rounded-[10px] md:rounded-[12px] lg:rounded-[15px] border-2 border-[#BB9D7B] bg-[rgba(33,33,33,0.90)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-2 sm:p-3 md:p-4">
-                <div className="text-white text-center mb-2 sm:mb-3 md:mb-4">
-                  <div className="text-[14px] sm:text-[18px] md:text-[22px] lg:text-[26px] xl:text-[32px] font-futura font-bold leading-tight mb-1 sm:mb-2">
-                    Luxury Collection's
-                  </div>
-                </div>
-                <button className="bg-[#BB9D7B] text-white font-poppins text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-semibold tracking-[1px] sm:tracking-[1.5px] md:tracking-[2px] uppercase px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-[15px] sm:rounded-[18px] md:rounded-[20px] lg:rounded-[25px] hover:bg-[#A88A6A] transition-colors duration-200">
-                  SHOP NOW
-                </button>
-              </div>
-            </div>
-            
-            <div className="absolute bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 left-1/2 transform -translate-x-1/2 text-white group-hover:opacity-0 transition-opacity duration-300">
-              <div className="text-[16px] sm:text-[20px] md:text-[24px] lg:text-[28px] xl:text-[30px] font-futura font-bold text-white leading-normal whitespace-nowrap">Luxury Collection's</div>
-            </div>
-          </div>
+                       {/* Card 2: Luxury Collection's */}
+            <Link to="/shop4-Allproductpage" className="relative w-[200px] sm:w-[220px] md:w-[250px] lg:w-[300px] xl:w-[433px] h-[150px] sm:h-[180px] md:h-[220px] lg:h-[450px] xl:h-[577px] rounded-lg overflow-hidden group cursor-pointer flex-shrink-0 block">
+             <img 
+               src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144737/public_assets_shop4/public_assets_shop4_Awesome3.svg" 
+               alt="Luxury collection" 
+               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+             />
+             
+             {/* Hover overlay */}
+             <div className="absolute inset-0 flex items-end justify-center">
+               <div className="w-full h-[60px] sm:h-[80px] md:h-[100px] lg:h-[205px] xl:h-[205px] flex-shrink-0 rounded-[8px] sm:rounded-[10px] md:rounded-[12px] lg:rounded-[15px] border-2 border-[#BB9D7B] bg-[rgba(33,33,33,0.90)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-2 sm:p-3 md:p-4">
+                 <div className="text-white text-center mb-2 sm:mb-3 md:mb-4">
+                   <div className="text-[14px] sm:text-[18px] md:text-[22px] lg:text-[26px] xl:text-[32px] font-futura font-bold leading-tight mb-1 sm:mb-2">
+                     Luxury Collection's
+                   </div>
+                 </div>
+                 <div className="bg-[#BB9D7B] text-white font-poppins text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-semibold tracking-[1px] sm:tracking-[1.5px] md:tracking-[2px] uppercase px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-[15px] sm:rounded-[18px] md:rounded-[20px] lg:rounded-[25px] hover:bg-[#A88A6A] transition-colors duration-200">
+                   SHOP NOW
+                 </div>
+               </div>
+             </div>
+             
+             <div className="absolute bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 left-1/2 transform -translate-x-1/2 text-white group-hover:opacity-0 transition-opacity duration-300">
+               <div className="text-[16px] sm:text-[20px] md:text-[24px] lg:text-[28px] xl:text-[30px] font-futura font-bold text-white leading-normal whitespace-nowrap">Luxury Collection's</div>
+             </div>
+           </Link>
 
-                     {/* Card 3: Smart Collection's */}
-           <div className="relative w-[200px] sm:w-[220px] md:w-[250px] lg:w-[300px] xl:w-[433px] h-[150px] sm:h-[180px] md:h-[220px] lg:h-[450px] xl:h-[577px] rounded-lg overflow-hidden group cursor-pointer flex-shrink-0">
-            <img 
-              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144737/public_assets_shop4/public_assets_shop4_Awesome4.svg" 
-              alt="Smart collection" 
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+                                           {/* Card 3: Smart Collection's */}
+            <Link to="/shop4-Allproductpage" className="relative w-[200px] sm:w-[220px] md:w-[250px] lg:w-[300px] xl:w-[433px] h-[150px] sm:h-[180px] md:h-[220px] lg:h-[450px] xl:h-[577px] rounded-lg overflow-hidden group cursor-pointer flex-shrink-0 block">
+             <img 
+               src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144737/public_assets_shop4/public_assets_shop4_Awesome4.svg" 
+               alt="Smart collection" 
+               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+             />
+             
+             {/* Hover overlay */}
+             <div className="absolute inset-0 flex items-end justify-center">
+               <div className="w-full h-[60px] sm:h-[80px] md:h-[100px] lg:h-[205px] xl:h-[205px] flex-shrink-0 rounded-[8px] sm:rounded-[10px] md:rounded-[12px] lg:rounded-[15px] border-2 border-[#BB9D7B] bg-[rgba(33,33,33,0.90)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-2 sm:p-3 md:p-4">
+                 <div className="text-white text-center mb-2 sm:mb-3 md:mb-4">
+                   <div className="text-[14px] sm:text-[18px] md:text-[22px] lg:text-[26px] xl:text-[32px] font-futura font-bold leading-tight mb-1 sm:mb-2">
+                     Smart Collection's
+                   </div>
+                 </div>
+                 <div className="bg-[#BB9D7B] text-white font-poppins text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-semibold tracking-[1px] sm:tracking-[1.5px] md:tracking-[2px] uppercase px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-[15px] sm:rounded-[18px] md:rounded-[20px] lg:rounded-[25px] hover:bg-[#A88A6A] transition-colors duration-200">
+                   SHOP NOW
+                 </div>
+               </div>
+             </div>
             
-            {/* Hover overlay */}
-            <div className="absolute inset-0 flex items-end justify-center">
-              <div className="w-full h-[60px] sm:h-[80px] md:h-[100px] lg:h-[205px] xl:h-[205px] flex-shrink-0 rounded-[8px] sm:rounded-[10px] md:rounded-[12px] lg:rounded-[15px] border-2 border-[#BB9D7B] bg-[rgba(33,33,33,0.90)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-2 sm:p-3 md:p-4">
-                <div className="text-white text-center mb-2 sm:mb-3 md:mb-4">
-                  <div className="text-[14px] sm:text-[18px] md:text-[22px] lg:text-[26px] xl:text-[32px] font-futura font-bold leading-tight mb-1 sm:mb-2">
-                    Smart Collection's
-                  </div>
-                </div>
-                <button className="bg-[#BB9D7B] text-white font-poppins text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-semibold tracking-[1px] sm:tracking-[1.5px] md:tracking-[2px] uppercase px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-[15px] sm:rounded-[18px] md:rounded-[20px] lg:rounded-[25px] hover:bg-[#A88A6A] transition-colors duration-200">
-                  SHOP NOW
-                </button>
-              </div>
-            </div>
-           
-            <div className="absolute bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 left-1/2 transform -translate-x-1/2 text-white group-hover:opacity-0 transition-opacity duration-300">
-              <div className="text-[16px] sm:text-[20px] md:text-[24px] lg:text-[28px] xl:text-[30px] font-futura font-bold text-white leading-normal whitespace-nowrap">Smart Collection's</div>
-            </div>
-          </div>
+             <div className="absolute bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 left-1/2 transform -translate-x-1/2 text-white group-hover:opacity-0 transition-opacity duration-300">
+               <div className="text-[16px] sm:text-[20px] md:text-[24px] lg:text-[28px] xl:text-[30px] font-futura font-bold text-white leading-normal whitespace-nowrap">Smart Collection's</div>
+             </div>
+           </Link>
 
-                     {/* Card 4: Hybrid Collection's */}
-           <div className="relative w-[200px] sm:w-[220px] md:w-[250px] lg:w-[300px] xl:w-[433px] h-[150px] sm:h-[180px] md:h-[220px] lg:h-[450px] xl:h-[577px] rounded-lg overflow-hidden group cursor-pointer flex-shrink-0">
-            <img 
-              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144737/public_assets_shop4/public_assets_shop4_Awesome5.svg" 
-              alt="Hybrid collection" 
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-100"
-            />
+                                           {/* Card 4: Hybrid Collection's */}
+            <Link to="/shop4-Allproductpage" className="relative w-[200px] sm:w-[220px] md:w-[250px] lg:w-[300px] xl:w-[433px] h-[150px] sm:h-[180px] md:h-[220px] lg:h-[450px] xl:h-[577px] rounded-lg overflow-hidden group cursor-pointer flex-shrink-0 block">
+             <img 
+               src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1754144737/public_assets_shop4/public_assets_shop4_Awesome5.svg" 
+               alt="Hybrid collection" 
+               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-100"
+             />
+             
+             {/* Hover overlay */}
+             <div className="absolute inset-0 flex items-end justify-center">
+               <div className="w-full h-[60px] sm:h-[80px] md:h-[100px] lg:h-[205px] xl:h-[205px] flex-shrink-0 rounded-[8px] sm:rounded-[10px] md:rounded-[12px] lg:rounded-[15px] border-2 border-[#BB9D7B] bg-[rgba(33,33,33,0.90)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-2 sm:p-3 md:p-4">
+                 <div className="text-white text-center mb-2 sm:mb-3 md:mb-4">
+                   <div className="text-[14px] sm:text-[18px] md:text-[22px] lg:text-[26px] xl:text-[32px] font-futura font-bold leading-tight mb-1 sm:mb-2">
+                     Hybrid Collection's
+                   </div>
+                 </div>
+                 <div className="bg-[#BB9D7B] text-white font-poppins text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-semibold tracking-[1px] sm:tracking-[1.5px] md:tracking-[2px] uppercase px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-[15px] sm:rounded-[18px] md:rounded-[20px] lg:rounded-[25px] hover:bg-[#A88A6A] transition-colors duration-200">
+                   SHOP NOW
+                 </div>
+               </div>
+             </div>
             
-            {/* Hover overlay */}
-            <div className="absolute inset-0 flex items-end justify-center">
-              <div className="w-full h-[60px] sm:h-[80px] md:h-[100px] lg:h-[205px] xl:h-[205px] flex-shrink-0 rounded-[8px] sm:rounded-[10px] md:rounded-[12px] lg:rounded-[15px] border-2 border-[#BB9D7B] bg-[rgba(33,33,33,0.90)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-2 sm:p-3 md:p-4">
-                <div className="text-white text-center mb-2 sm:mb-3 md:mb-4">
-                  <div className="text-[14px] sm:text-[18px] md:text-[22px] lg:text-[26px] xl:text-[32px] font-futura font-bold leading-tight mb-1 sm:mb-2">
-                    Hybrid Collection's
-                  </div>
-                </div>
-                <button className="bg-[#BB9D7B] text-white font-poppins text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-semibold tracking-[1px] sm:tracking-[1.5px] md:tracking-[2px] uppercase px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-[15px] sm:rounded-[18px] md:rounded-[20px] lg:rounded-[25px] hover:bg-[#A88A6A] transition-colors duration-200">
-                  SHOP NOW
-                </button>
-              </div>
-            </div>
-           
            <div className="absolute bottom-2 sm:bottom-4 md:bottom-6 lg:bottom-8 xl:bottom-10 left-1/2 transform -translate-x-1/2 text-white group-hover:opacity-0 transition-opacity duration-300">
               <div className="text-[16px] sm:text-[20px] md:text-[24px] lg:text-[28px] xl:text-[30px] font-futura font-bold text-white leading-normal whitespace-nowrap">Hybrid Collection's</div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>
