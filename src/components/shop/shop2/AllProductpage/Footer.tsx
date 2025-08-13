@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const Footer = () => {
   return (
     <footer className="bg-[#181818] text-white py-8 sm:py-12 lg:py-20 pb-4 px-4 sm:px-6 md:px-16 lg:px-10 2xl:px-28">
@@ -35,12 +37,12 @@ const Footer = () => {
             <div className="flex-1 min-w-[180px] lg:min-w-[205px]">
               <h3 className="text-sm sm:text-base font-[450] leading-[30px] tracking-[2px] sm:tracking-[4px] mb-4 sm:mb-6 capitalize text-white font-futura">Order Assistance</h3>
               <ul className="text-white font-futura text-sm sm:text-base font-normal capitalize space-y-2">
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Book An Appointment</a></li>
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Shipping & Delivery</a></li>
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Returns & Refunds</a></li>
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Gift Wrapping</a></li>
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Follow Your Order</a></li>
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Stores</a></li>
+                {/*<li><a href="#" className="hover:text-[#C7A17A] transition-colors">Book An Appointment</a></li>*/}
+                <li><Link to="/shop2/shipping-delivery" className="hover:text-[#C7A17A] transition-colors">Shipping & Delivery</Link></li>
+                <li><Link to="/shop2/returns-refunds" className="hover:text-[#C7A17A] transition-colors">Returns & Refunds</Link></li>
+                <li><Link to="/shop2/gift-wrapping" className="hover:text-[#C7A17A] transition-colors">Gift Wrapping</Link></li>
+                <li><Link to="/shop2/follow-your-order" className="hover:text-[#C7A17A] transition-colors">Follow Your Order</Link></li>
+                <li><Link to="/shop2/stores" className="hover:text-[#C7A17A] transition-colors">Stores</Link></li>
               </ul>
             </div>
 
@@ -48,7 +50,7 @@ const Footer = () => {
             <div className="flex-1 min-w-[140px] lg:min-w-[165px]">
               <h3 className="text-sm sm:text-base font-[450] leading-[30px] tracking-[2px] sm:tracking-[4px] mb-4 sm:mb-6 capitalize text-white font-['Futura PT']">Company</h3>
               <ul className="text-white font-futura text-sm sm:text-base font-normal capitalize space-y-2">
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">About Us</a></li>
+                <li><Link to="/shop2/about-us" className="hover:text-[#C7A17A] transition-colors">About Us</Link></li>
                 <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Made To Last</a></li>
                 <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Our Mission</a></li>
                 <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Core Values</a></li>
@@ -62,11 +64,11 @@ const Footer = () => {
             <div className="flex-1 min-w-[130px] lg:min-w-[155px]">
               <h3 className="text-sm sm:text-base font-[450] leading-[30px] tracking-[2px] sm:tracking-[4px] mb-4 sm:mb-6 capitalize text-white font-['Futura PT']">Support</h3>
               <ul className="text-white font-futura text-sm sm:text-base font-normal capitalize space-y-2">
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">FAQ</a></li>
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Shipping And Returns</a></li>
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Tracking</a></li>
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Size Charts</a></li>
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Gift Cards</a></li>
+                <li><Link to="/shop2/faq" className="hover:text-[#C7A17A] transition-colors">FAQ</Link></li>
+                <li><Link to="/shop2/returns-refunds" className="hover:text-[#C7A17A] transition-colors">Shipping And Returns</Link></li>
+                <li><Link to="/shop2/follow-your-order" className="hover:text-[#C7A17A] transition-colors">Tracking</Link></li>
+                <li><Link to="/shop2/size-charts" className="hover:text-[#C7A17A] transition-colors">Size Charts</Link></li>
+                <li><Link to="/shop2/gift-cards" className="hover:text-[#C7A17A] transition-colors">Gift Cards</Link></li>
               </ul>
             </div>
 
@@ -74,9 +76,9 @@ const Footer = () => {
             <div className="flex-1 min-w-[110px] lg:min-w-[130px]">
               <h3 className="text-sm sm:text-base font-[450] leading-[30px] tracking-[2px] sm:tracking-[4px] mb-4 sm:mb-6 capitalize text-white font-['Futura PT']">Contact Us</h3>
               <ul className="text-white font-futura text-sm sm:text-base font-normal capitalize space-y-2">
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Shops</a></li>
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">General Inquiries</a></li>
-                <li><a href="#" className="hover:text-[#C7A17A] transition-colors">Returns</a></li>
+                <li><Link to="/shop2" className="hover:text-[#C7A17A] transition-colors">Shops</Link></li>
+                <li><Link to="/shop2/general-inquiries" className="hover:text-[#C7A17A] transition-colors">General Inquiries</Link></li>
+                <li><Link to="/shop2/returns-refunds" className="hover:text-[#C7A17A] transition-colors">Returns</Link></li>
               </ul>
             </div>
           </div>
@@ -85,8 +87,8 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-8 sm:mt-12 pt-4 flex flex-col sm:flex-row items-center justify-center sm:justify-end text-gray-400 gap-2">
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-6 lg:space-x-10 text-sm sm:text-base text-white font-futura text-center sm:text-left">
-            <a href="#" className="hover:text-[#C7A17A] transition-colors">Cookies Settings</a>
-            <a href="#" className="hover:text-[#C7A17A] transition-colors">Terms & Privacy</a>
+            <Link to="/cookies" className="hover:text-[#C7A17A] transition-colors">Cookies Settings</Link>
+            <Link to="/shop2/terms-privacy" className="hover:text-[#C7A17A] transition-colors">Terms & Privacy</Link>
             <a href="#" className="hover:text-[#C7A17A] transition-colors">Accessibility Statement</a>
           </div>
         </div>

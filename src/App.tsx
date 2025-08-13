@@ -82,6 +82,19 @@ import Shop3AllProductpage from './pages/Shop3AllProductpage';
 import Shop4AllProductpage from './pages/Shop4AllProductpage';
 import FAQ from './pages/FAQ';
 
+// Shop2 Footer Pages
+import Shop2ShippingDelivery from './pages/shop2/ShippingDelivery';
+import ReturnsRefunds from './pages/shop2/ReturnsRefunds';
+import GiftWrapping from './pages/shop2/GiftWrapping';
+import FollowYourOrder from './pages/shop2/FollowYourOrder';
+import Stores from './pages/shop2/Stores';
+import AboutUs from './pages/shop2/AboutUs';
+import FAQShop2 from './pages/shop2/FAQ';
+import SizeCharts from './pages/shop2/SizeCharts';
+import GiftCards from './pages/shop2/GiftCards';
+import TermsPrivacy from './pages/shop2/TermsPrivacy';
+import GeneralInquiries from './pages/shop2/GeneralInquiries';
+
 import Contact from './pages/Contact';
 import ShippingPolicy from './pages/ShippingPolicy';
 import Returns from './pages/Returns';
@@ -247,6 +260,19 @@ const App: React.FC = () => {
                     <Route path="/shop2" element={<Shop2LandingPage />} />
                     <Route path="/shop2/product/:productId" element={<Shop2Productpage />} />
                     <Route path="/shop2/wishlist" element={<Shop2Wishlist />} />
+                    
+                    {/* Shop2 Footer Pages */}
+                    <Route path="/shop2/shipping-delivery" element={<Shop2ShippingDelivery />} />
+                    <Route path="/shop2/returns-refunds" element={<ReturnsRefunds />} />
+                    <Route path="/shop2/gift-wrapping" element={<GiftWrapping />} />
+                    <Route path="/shop2/follow-your-order" element={<FollowYourOrder />} />
+                    <Route path="/shop2/stores" element={<Stores />} />
+                    <Route path="/shop2/about-us" element={<AboutUs />} />
+                    <Route path="/shop2/faq" element={<FAQShop2 />} />
+                    <Route path="/shop2/size-charts" element={<SizeCharts />} />
+                    <Route path="/shop2/gift-cards" element={<GiftCards />} />
+                    <Route path="/shop2/terms-privacy" element={<TermsPrivacy />} />
+                    <Route path="/shop2/general-inquiries" element={<GeneralInquiries />} />
                     <Route path="/shop3" element={<Shop3LandingPage />} />
                     <Route path="/shop3/wishlist" element={<Shop3Wishlist />} />
                     <Route path="/shop1-productpage" element={<Shop1Productpage />} />
