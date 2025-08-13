@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, X, Filter, Search } from 'lucide-react';
+import { ChevronRight, X, Filter } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Shop4ProductCardWithWishlist, { Product } from '../Shop4ProductCardWithWishlist';
 import shop4ApiService, { Product as ApiProduct } from '../../../../services/shop4ApiService';
@@ -685,6 +685,48 @@ const SearchBar: React.FC = () => {
     );
 };
 
+// --- Discount Chips ---
+const DiscountChips: React.FC = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const current = searchParams.get('discount'); // lt10 | 10+ | 20+ | 30+ | 40+ | 50+
+
+    const setDiscount = (key: string) => {
+        const next = new URLSearchParams(searchParams);
+        if (current === key) {
+            next.delete('discount');
+        } else {
+            next.set('discount', key);
+        }
+        next.set('page', '1');
+        setSearchParams(next);
+    };
+
+    const options = [
+        { key: 'lt10', label: 'Less than 10%' },
+        { key: '10+', label: '10% or more' },
+        { key: '20+', label: '20% or more' },
+        { key: '30+', label: '30% or more' },
+        { key: '40+', label: '40% or more' },
+        { key: '50+', label: '50% or more' },
+    ];
+
+    return (
+        <div className="bg-black max-w-[1078px] mx-auto px-4 2xl:px-0 mb-4">
+            <div className="flex flex-wrap gap-2">
+                {options.map(opt => (
+                    <button
+                        key={opt.key}
+                        onClick={() => setDiscount(opt.key)}
+                        className={`px-3 py-1 rounded-full border text-sm transition-colors ${current === opt.key ? 'bg-[#A06020] text-white border-[#A06020]' : 'bg-transparent text-white border-gray-600 hover:border-white'}`}
+                    >
+                        {opt.label}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 // --- ProductGrid ---
 const ProductGrid: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -702,6 +744,26 @@ const ProductGrid: React.FC = () => {
     const search = searchParams.get('search');
     const minPrice = searchParams.get('min_price');
     const maxPrice = searchParams.get('max_price');
+    const discount = searchParams.get('discount'); // one of lt10, 10+, 20+, 30+, 40+, 50+
+
+    const discountToParams = (chip: string | null | undefined): { discount_min?: number; discount_max?: number } => {
+        switch (chip) {
+            case 'lt10':
+                return { discount_min: 0, discount_max: 9.99 };
+            case '10+':
+                return { discount_min: 10 };
+            case '20+':
+                return { discount_min: 20 };
+            case '30+':
+                return { discount_min: 30 };
+            case '40+':
+                return { discount_min: 40 };
+            case '50+':
+                return { discount_min: 50 };
+            default:
+                return {};
+        }
+    };
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -720,7 +782,10 @@ const ProductGrid: React.FC = () => {
                 if (minPrice) params.min_price = parseFloat(minPrice);
                 if (maxPrice) params.max_price = parseFloat(maxPrice);
 
-                const response = await shop4ApiService.getProducts(params);
+                const response = await shop4ApiService.getProducts({
+                    ...params,
+                    ...discountToParams(discount ?? undefined),
+                });
                 
                 if (response && response.success) {
                     const mappedProducts = response.products.map(mapApiProductToLocal);
@@ -742,7 +807,12 @@ const ProductGrid: React.FC = () => {
         };
 
         fetchProducts();
-    }, [currentPage, categoryId, brandId, search, minPrice, maxPrice]);
+    }, [currentPage, categoryId, brandId, search, minPrice, maxPrice, discount]);
+
+    // Reset pagination when discount filter changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [discount]);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -906,6 +976,8 @@ const AllProductPageContent: React.FC = () => {
                     {/* Product Grid with Search */}
                     <div className="flex-1 order-1 lg:order-2">
                         <SearchBar />
+                        {/* Discount chips */}
+                        <DiscountChips />
                         
                         {/* Mobile Filter Button - Centered below search bar */}
                         <div className="lg:hidden flex justify-center mb-6">
