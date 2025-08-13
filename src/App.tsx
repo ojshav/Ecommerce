@@ -81,6 +81,14 @@ import Shop2AllProductpage from './pages/Shop2AllProductpage';
 import Shop3AllProductpage from './pages/Shop3AllProductpage';
 import Shop4AllProductpage from './pages/Shop4AllProductpage';
 import FAQ from './pages/FAQ';
+  // Shop3 Footer Pages
+  import ManCollection from './pages/shop3/ManCollection';
+  import WomanCollection from './pages/shop3/WomanCollection';
+  import KidsCollection from './pages/shop3/KidsCollection';
+  import RefundShop3 from './pages/shop3/Refund';
+  import SizeChart from './pages/shop3/SizeChart';
+  import Blog from './pages/shop3/Blog';
+  import AboutShop3 from './pages/shop3/About';
 
 // Shop2 Footer Pages
 import Shop2ShippingDelivery from './pages/shop2/ShippingDelivery';
@@ -275,6 +283,14 @@ const App: React.FC = () => {
                     <Route path="/shop2/general-inquiries" element={<GeneralInquiries />} />
                     <Route path="/shop3" element={<Shop3LandingPage />} />
                     <Route path="/shop3/wishlist" element={<Shop3Wishlist />} />
+                    {/* Shop3 Footer Pages */}
+                    <Route path="/shop3/man" element={<ManCollection />} />
+                    <Route path="/shop3/woman" element={<WomanCollection />} />
+                    <Route path="/shop3/kids" element={<KidsCollection />} />
+                    <Route path="/shop3/refund" element={<RefundShop3 />} />
+                    <Route path="/shop3/size-chart" element={<SizeChart />} />
+                    <Route path="/shop3/blog" element={<Blog />} />
+                    <Route path="/shop3/about" element={<AboutShop3 />} />
                     <Route path="/shop1-productpage" element={<Shop1Productpage />} />
                     <Route path="/shop2-productpage" element={<Shop2Productpage />} />
                     <Route path="/shop3-productpage" element={<Shop3ProductPage />} />
