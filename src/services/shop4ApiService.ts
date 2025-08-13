@@ -241,7 +241,7 @@ class Shop4ApiService {
   // Shop Reviews Methods
   async getShopProductReviews(productId: number, page: number = 1, perPage: number = 5): Promise<{
     status: string;
-    data: { reviews: any[]; total: number; pages: number; current_page: number };
+  data: { reviews: any[]; total: number; pages: number; current_page: number; average_rating?: number; review_count?: number };
   }> {
     // Shop reviews are not under public routes; they live at backend root
   const res = await fetch(`${API_HOST}/api/shop-reviews/product/${productId}?page=${page}&per_page=${perPage}`);
