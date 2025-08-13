@@ -88,13 +88,12 @@ const ProductPage = () => {
         if (normalized && allowed.has(normalized)) {
           setDiscountChip(normalized);
           setCurrentPage(1);
+        }
 
-        
         // Check for search term from URL
         const searchParam = searchParams.get('search');
         if (searchParam) {
           setSearchTerm(searchParam);
-
         }
       } catch (error) {
         console.error('Error loading initial data:', error);
