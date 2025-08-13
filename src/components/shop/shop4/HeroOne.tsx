@@ -1,13 +1,3 @@
-// const Hero = () => {
-//   return (
-//     <>
-//      <img src="/Sliders (1).png" alt=""/> 
-//     </>
-//   )
-// }
-
-// export default Hero
-
 
 
 import { Search, ShoppingCart, Menu } from 'lucide-react';

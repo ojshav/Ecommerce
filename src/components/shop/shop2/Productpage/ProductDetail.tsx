@@ -193,82 +193,67 @@ const ProductDetail = () => {
 
 
 
-  // Helper to get current product's attributes, including from variants data
-  function getCurrentProductAttributes(): Array<{name: string, value: string, attribute_id: number}> {
+  // Helper function to extract available attributes from product data (similar to Shop4)
+  const extractAvailableAttributes = (product: Product): Array<{name: string, value: string, attribute_id: number}> => {
     const attributes: Array<{name: string, value: string, attribute_id: number}> = [];
-
-    // For parent products, show parent attributes
-    if (product?.is_parent_product && product?.attributes) {
-      product.attributes.forEach(attr => {
-        attributes.push({
-          name: attr.attribute?.name || 'Unknown',
-          value: attr.value || 'N/A',
-          attribute_id: attr.attribute_id
-        });
-      });
-      return attributes;
-    }
-
-    // For variant products, first try to find current variant in variants array
-    if (isVariantProduct(product) && variants.length > 0) {
-      const currentVariant = variants.find(v => v.variant_product_id === Number(productId));
-      if (currentVariant && currentVariant.attribute_combination) {
-        // Use attribute_combination from current variant
-        Object.entries(currentVariant.attribute_combination).forEach(([key, value], index) => {
-          attributes.push({
-            name: key,
-            value: String(value),
-            attribute_id: index // Use index as ID for variant attributes
-          });
-        });
-        return attributes;
+    
+    // Get parent product attributes first
+    const parentAttrs = product.attributes || [];
+    const variantAttrs = product.variant_attributes || [];
+    
+    // Build parent defaults map
+    const parentDefaults: Record<string, string> = {};
+    parentAttrs.forEach(attr => {
+      const attrName = attr.attribute?.name;
+      const attrValue = attr.value;
+      if (attrName && attrValue) {
+        parentDefaults[attrName] = attrValue;
       }
-    }
+    });
 
-    // Fallback to variant_attributes if available
-    if (isVariantProduct(product) && product?.variant_attributes && Array.isArray(product.variant_attributes)) {
-      product.variant_attributes.forEach((variantAttr, index) => {
-        if (variantAttr.values && Array.isArray(variantAttr.values)) {
+    if (product.has_variants) {
+      // For variant products: Use variant attributes as the primary source
+      // This prevents duplicates by only using variant attributes
+      variantAttrs.forEach(attr => {
+        if (attr.name && attr.values && Array.isArray(attr.values)) {
+          const allValues = new Set<string>();
+
+          // Add parent value if it exists for this attribute
+          if (parentDefaults[attr.name]) {
+            allValues.add(parentDefaults[attr.name]);
+          }
+
+          // Add all variant values
+          attr.values.forEach(value => allValues.add(value));
+
           attributes.push({
-            name: variantAttr.name || 'Unknown',
-            value: variantAttr.values.join(', '),
-            attribute_id: index
+            name: attr.name,
+            value: Array.from(allValues).sort().join(', '),
+            attribute_id: 0 // Use 0 as default since VariantAttribute doesn't have attribute_id
           });
         }
       });
-      return attributes;
-    }
+    } else {
+      // For non-variant products: Show parent product attributes (read-only)
+      console.log('Product does not have variants, showing parent product attributes');
+      parentAttrs.forEach(attr => {
+        const attrName = attr.attribute?.name;
+        const attrValue = attr.value;
 
-    // Final fallback to regular attributes
-    if (product?.attributes) {
-      product.attributes.forEach(attr => {
-        attributes.push({
-          name: attr.attribute?.name || 'Unknown',
-          value: attr.value || 'N/A',
-          attribute_id: attr.attribute_id
-        });
+        if (attrName && attrValue) {
+          attributes.push({
+            name: attrName,
+            value: attrValue, // Single value, non-selectable
+            attribute_id: attr.attribute_id
+          });
+        }
       });
     }
 
     return attributes;
-  }
+  };
 
-  // Helper to get current variant's available attribute values
-  function getCurrentVariantAttributeValues(attrName: string): string[] {
-    // Find current variant in variants array
-    const currentVariant = variants.find(v => v.variant_product_id === Number(productId));
-    
-    if (currentVariant && currentVariant.attribute_combination && currentVariant.attribute_combination[attrName]) {
-      const value = currentVariant.attribute_combination[attrName];
-      if (typeof value === 'string') {
-        return value.split(',').map(v => v.trim()).filter(Boolean).sort();
-      } else {
-        return [String(value)];
-      }
-    }
-
-    return [];
-  }
+  // Removed helper functions for available variants filtering
 
 
 
@@ -277,47 +262,45 @@ const ProductDetail = () => {
     return !!(product?.has_variants && !product?.is_parent_product);
   }
 
-  // State for selected attributes (supports both single and multi-select)
-  const [selectedAttributes, setSelectedAttributes] = useState<Record<number, string | string[]>>({});
+  // State for selected attributes (simplified like Shop4)
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
+  
+  // Variant selection state
+  const [currentVariant, setCurrentVariant] = useState<ProductVariant | null>(null);
+  const [stockError, setStockError] = useState<string>('');
 
-  // Quantity and cart handlers (basic stubs to satisfy existing UI references)
+  // Quantity and cart handlers
   const [quantity, setQuantity] = useState<number>(1);
   const handleQuantityChange = (increase: boolean) => {
     setQuantity((prev) => Math.max(1, prev + (increase ? 1 : -1)));
   };
+  
   const handleAddToCart = () => {
+    if (stockError) {
+      alert(stockError);
+      return;
+    }
     // TODO: Integrate with Shop2 cart when available
-    console.log('Add to cart clicked (Shop2)', { productId, quantity, selectedAttributes });
+    console.log('Add to cart clicked (Shop2)', { 
+      productId, 
+      quantity, 
+      selectedAttributes, 
+      variantId: currentVariant?.variant_id 
+    });
   };
 
-  // Helper to determine if an attribute should be multi-select
-  function isMultiSelectAttribute(attrName: string): boolean {
-    const name = attrName.toLowerCase();
-    return name.includes('color') || 
-           name.includes('size') || 
-           name.includes('style') || 
-           name.includes('ram') || 
-           name.includes('storage') || 
-           name.includes('memory') || 
-           name.includes('capacity');
-  }
 
-  // Handle attribute selection for both single and multi-select
-  const handleAttributeSelect = (
-    attributeId: number,
-    value: string,
-    isMultiSelect: boolean
-  ) => {
-    setSelectedAttributes((prev) => {
-      if (isMultiSelect) {
-        const currentValues = (prev[attributeId] as string[]) || [];
-        const newValues = currentValues.includes(value)
-          ? currentValues.filter((v) => v !== value)
-          : [...currentValues, value];
-        return { ...prev, [attributeId]: newValues };
-      } else {
-        return { ...prev, [attributeId]: value };
-      }
+
+  // Handle attribute selection (simplified like Shop4)
+  const handleAttributeSelect = (attributeName: string, value: string) => {
+    console.log(`Selecting attribute: ${attributeName} = ${value}`);
+    setSelectedAttributes(prev => {
+      const newAttrs = {
+        ...prev,
+        [attributeName]: value
+      };
+      console.log('New selected attributes:', newAttrs);
+      return newAttrs;
     });
   };
 
@@ -399,28 +382,125 @@ const ProductDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
-  // Initialize selected attributes when product changes
+  // Initialize selected attributes when product changes (like Shop4)
   useEffect(() => {
     if (product) {
-      const initialAttributes: Record<number, string | string[]> = {};
+      const initialAttributes: Record<string, string> = {};
       
-      // Initialize with current variant attributes if available
-      if (product.current_variant_attributes) {
-        Object.entries(product.current_variant_attributes).forEach(([key, value]) => {
-          // Find the attribute ID for this attribute name
-          const attr = product.attributes?.find(a => 
-            a.attribute?.name?.toLowerCase() === key.toLowerCase()
-          );
-          if (attr) {
-            initialAttributes[attr.attribute_id] = value;
-          }
-        });
-      }
+      // Extract available attributes and set defaults
+      const availableAttrs = extractAvailableAttributes(product);
       
+      // Get parent product attributes first
+      const parentAttrs = product.attributes || [];
+      const parentDefaults: Record<string, string> = {};
+      parentAttrs.forEach(attr => {
+        const attrName = attr.attribute?.name;
+        const attrValue = attr.value;
+        if (attrName && attrValue) {
+          parentDefaults[attrName] = attrValue;
+        }
+      });
+      
+      // Set default attributes based on parent product (like Shop4)
+      availableAttrs.forEach(attr => {
+        if (parentDefaults[attr.name]) {
+          // Use parent product value as default
+          initialAttributes[attr.name] = parentDefaults[attr.name];
+        } else if (attr.value.split(',').length > 0) {
+          // Fallback to first available value
+          initialAttributes[attr.name] = attr.value.split(',')[0].trim();
+        }
+      });
+      
+      console.log('Default selected attributes (from parent product):', initialAttributes);
       setSelectedAttributes(initialAttributes);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
+
+  // Find matching variant when attributes change
+  useEffect(() => {
+    if (variants.length === 0 || Object.keys(selectedAttributes).length === 0) {
+      setCurrentVariant(null);
+      setStockError('');
+      return;
+    }
+
+    console.log('Finding variant with selected attributes:', selectedAttributes);
+    console.log('Available variants:', variants);
+
+    const findMatchingVariant = () => {
+      // First check if selected attributes match parent product (like Shop4)
+      if (product) {
+        const parentAttrs = product.attributes || [];
+        const parentDefaults: Record<string, string> = {};
+        parentAttrs.forEach(attr => {
+          const attrName = attr.attribute?.name;
+          const attrValue = attr.value;
+          if (attrName && attrValue) {
+            parentDefaults[attrName] = attrValue;
+          }
+        });
+
+        // Check if selected attributes match parent product attributes
+        const matchesParent = Object.entries(selectedAttributes).every(([attrName, attrValue]) => {
+          return parentDefaults[attrName] === attrValue;
+        });
+
+        if (matchesParent && Object.keys(parentDefaults).length === Object.keys(selectedAttributes).length) {
+          console.log('Selected attributes match parent product - showing parent');
+          setCurrentVariant(null);
+          setStockError('');
+          return;
+        }
+      }
+
+      // Try to find variant by matching attribute combination
+      const matchingVariant = variants.find(variant => {
+        console.log('Checking variant:', variant.variant_id, 'with attributes:', variant.attribute_combination);
+        
+        if (!variant.attribute_combination) {
+          console.log('Variant has no attribute_combination');
+          return false;
+        }
+        
+        // Check if all selected attributes match the variant's attribute combination
+        const matches = Object.entries(selectedAttributes).every(([attrName, attrValue]) => {
+          const variantValue = variant.attribute_combination[attrName];
+          const isMatch = variantValue === attrValue;
+          console.log(`Attribute ${attrName}: selected="${attrValue}", variant="${variantValue}", match=${isMatch}`);
+          return isMatch;
+        });
+        
+        console.log(`Variant ${variant.variant_id} matches: ${matches}`);
+        return matches;
+      });
+
+      if (matchingVariant) {
+        console.log('Found matching variant:', matchingVariant);
+        setCurrentVariant(matchingVariant);
+        // Reset image carousel to first image when variant changes
+        setCurrentImageIndex(0);
+        
+        // Check stock status
+        if (!matchingVariant.is_in_stock || matchingVariant.stock_qty <= 0) {
+          setStockError('This variant is out of stock');
+        } else if (matchingVariant.stock_qty <= 5) {
+          setStockError(`Only ${matchingVariant.stock_qty} left in stock!`);
+        } else {
+          setStockError('');
+        }
+      } else {
+        console.log('No matching variant found');
+        setCurrentVariant(null);
+        // Reset to parent media when no variant is selected
+        setCurrentImageIndex(0);
+        setStockError('This combination is not available. Please choose a different combination.');
+      }
+    };
+
+    findMatchingVariant();
+  }, [selectedAttributes, variants, product]);
 
   // Fetch parent product when variants are available and this is a variant product
   useEffect(() => {
@@ -437,10 +517,36 @@ const ProductDetail = () => {
   if (error) return <div className="flex justify-center items-center h-96 text-red-500 text-lg">{error}</div>;
   if (!product) return <div className="flex justify-center items-center h-96 text-lg">No product data.</div>;
 
-  // Use product.media?.images for gallery if available, else fallback to primary_image
-  const images = product.media?.images?.length ? product.media.images : [
-    { url: product.primary_image, type: 'image', is_primary: true }
+  // Get all media (images and videos) for the carousel - prioritize variant media
+  const allMedia = (() => {
+    // If we have a current variant with media, use that
+    if (currentVariant?.media) {
+      return [
+        ...currentVariant.media.images || [],
+        ...currentVariant.media.videos || []
+      ];
+    }
+
+    // Otherwise, use product media
+    if (product.media) {
+      return [
+        ...product.media.images || [],
+        ...product.media.videos || []
+      ];
+    }
+
+    return [];
+  })();
+
+  // Fallback images if no media
+  const fallbackImages = [
+    "/assets/shop2/ProductPage/pd1.svg",
+    "/assets/shop2/ProductPage/pd2.svg", 
+    "/assets/shop2/ProductPage/pd3.svg",
+    "/assets/shop2/ProductPage/pd4.svg"
   ];
+
+  const images = allMedia.length > 0 ? allMedia : fallbackImages.map(url => ({ url, type: 'image', is_primary: true }));
 
   return (
     <>
@@ -587,27 +693,28 @@ const ProductDetail = () => {
           <div className="text-xs sm:text-sm uppercase text-gray-400 mb-2 sm:mb-4 font-bebas font-semibold tracking-wide">{product.category_name || 'CATEGORY'}</div>
           <p className="text-2xl sm:text-3xl lg:text-[42px] font-normal font-bebas leading-tight mb-2 sm:mb-3">{product.product_name}</p>
           <p className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6">
-            ₹{Number(product.price).toLocaleString('en-IN')}
+            ₹{Number(currentVariant?.effective_price || product.price).toLocaleString('en-IN')}
           </p>
+          {/* Stock Error Display */}
+          {stockError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm font-medium">{stockError}</p>
+            </div>
+          )}
                      {/* Dynamic Attribute Selection */}
            {(() => {
-             const currentAttributes = getCurrentProductAttributes();
+             const currentAttributes = extractAvailableAttributes(product);
              
              if (currentAttributes.length === 0) return null;
 
              return (
                <div className="mb-4 sm:mb-6">
-                 {currentAttributes.map((attr) => {
-                   const attrName = attr.name;
-                   const isMultiSelect = isMultiSelectAttribute(attrName);
-                   const selectedValues = selectedAttributes[attr.attribute_id];
+                                   {currentAttributes.map((attr) => {
+                    const attrName = attr.name;
+                    const selectedValues = selectedAttributes[attrName];
 
-                   // Get current variant's specific values for this attribute
-                   const currentVariantValues = getCurrentVariantAttributeValues(attrName);
-                   // If no variant values found, use current attribute values
-                   const valuesToShow = currentVariantValues.length > 0 
-                     ? currentVariantValues 
-                     : attr.value.split(',').map(v => v.trim()).filter(Boolean);
+                   // Get all available values for this attribute from variants
+                   const valuesToShow = attr.value.split(',').map((v: string) => v.trim()).filter(Boolean);
 
                    return (
                      <div key={`${attrName.toLowerCase()}-${attr.attribute_id}`} className="mb-3 sm:mb-4">
@@ -623,23 +730,20 @@ const ProductDetail = () => {
                        </div>
                        <div className="flex items-center justify-between">
                          <div className="flex flex-wrap gap-1 sm:gap-2 flex-1">
-                           {valuesToShow.map((value, index) => {
-                             const isSelected = isMultiSelect
-                               ? (selectedValues as string[])?.includes(value)
-                               : selectedValues === value;
+                                                       {valuesToShow.map((value: string, index: number) => {
+                              const isSelected = selectedValues === value;
 
                              return (
                                <button
                                  key={`${attr.attribute_id}-${index}`}
-                                 onClick={() => handleAttributeSelect(
-                                   attr.attribute_id,
-                                   value,
-                                   isMultiSelect
-                                 )}
+                                                                   onClick={() => handleAttributeSelect(
+                                    attr.name,
+                                    value
+                                  )}
                                  className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border text-[10px] sm:text-[12px] font-semibold shadow-sm transition-all focus:outline-none ${
                                    isSelected 
                                      ? 'bg-orange-100 border-orange-400 shadow-md text-black' 
-                                     : 'bg-white border-gray-300 text-gray-700'
+                                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                                  }`}
                                  style={{ 
                                    boxShadow: isSelected ? '0 2px 8px rgba(255, 165, 0, 0.15)' : undefined 
@@ -684,8 +788,13 @@ const ProductDetail = () => {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
             <button 
-              className="w-full sm:flex-1 bg-black text-[16px] font-gilroy text-white px-3 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-base shadow hover:bg-gray-900 transition-all"
+              className={`w-full sm:flex-1 text-[16px] font-gilroy px-3 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-base shadow transition-all ${
+                stockError 
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                  : 'bg-black text-white hover:bg-gray-900'
+              }`}
               onClick={handleAddToCart}
+              disabled={!!stockError}
             >
               <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" /> Add to Cart
             </button>
@@ -717,74 +826,7 @@ const ProductDetail = () => {
           </button>
         </div>
       </div>
-             {/* Product Variants Section - Small Thumbnails */}
-       {(variants.length > 0 || product?.is_parent_product) && (
-         <div className="max-w-[1310px] w-full mx-auto mt-6 sm:mt-8">
-                       <div className="flex items-center justify-between mb-3 sm:mb-4">
-              <h3 className="text-lg sm:text-xl font-bold font-bebas">
-                {product?.is_parent_product ? 'Available Variants' : 'Related Products'}
-              </h3>
-              <span className="text-xs text-gray-600 font-gilroy">
-                {(variants.length + (isVariantProduct(product) && variants.length > 0 ? 1 : 0))} available
-              </span>
-            </div>
-           
-           {variantsLoading ? (
-             <div className="flex justify-center items-center h-16">
-               <div className="text-gray-500 text-sm">Loading...</div>
-             </div>
-           ) : (
-                                                       <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
-                {/* Show parent product first if this is a variant product */}
-                {isVariantProduct(product) && variants.length > 0 && variants[0]?.parent_product_id && (
-                  <div
-                    onClick={handleParentProductClick}
-                    className={`group cursor-pointer bg-white rounded-lg border transition-all duration-200 flex-shrink-0 ${
-                      Number(productId) === variants[0]?.parent_product_id
-                        ? 'border-orange-400 shadow-md'
-                        : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
-                    }`}
-                    style={{ width: '60px', height: '60px' }}
-                  >
-                    <img
-                      src={parentProduct?.primary_image || '/assets/shop2/ProductPage/pd1.svg'}
-                      alt="Parent Product"
-                      className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-200"
-                    />
-                  </div>
-                )}
-                
-                {/* Sort variants to show parent product first, then other variants */}
-                {variants
-                  .sort((a, b) => {
-                    // Sort parent product first (if it exists in variants)
-                    if (a.parent_product_id === null) return -1;
-                    if (b.parent_product_id === null) return 1;
-                    return 0;
-                  })
-                  .map((variant) => (
-                    <div
-                      key={variant.variant_id}
-                      onClick={() => handleVariantClick(variant)}
-                      className={`group cursor-pointer bg-white rounded-lg border transition-all duration-200 flex-shrink-0 ${
-                        variant.variant_product_id === Number(productId)
-                          ? 'border-orange-400 shadow-md'
-                          : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
-                      }`}
-                      style={{ width: '60px', height: '60px' }}
-                    >
-                      {/* Small Variant Image Only */}
-                      <img
-                        src={variant.primary_image || variant.media?.primary_image || '/assets/shop2/ProductPage/pd1.svg'}
-                        alt={variant.variant_name || `Variant ${variant.variant_id}`}
-                        className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-200"
-                      />
-                    </div>
-                  ))}
-              </div>
-           )}
-         </div>
-       )}
+             
 
       {/* Description & Reviews Section */}
       <div className="max-w-[1310px]  pt-8 sm:pt-10 lg:pt-12 flex flex-col items-start">
