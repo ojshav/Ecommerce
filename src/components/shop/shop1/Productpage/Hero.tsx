@@ -12,9 +12,11 @@ interface Product extends ApiProduct {
 
 interface HeroProps {
   productData?: Product | null;
+  avgRating?: number;
+  reviewCount?: number;
 }
 
-const Hero: React.FC<HeroProps> = ({ productData }) => {
+const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0 }) => {
   const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
@@ -709,15 +711,14 @@ const Hero: React.FC<HeroProps> = ({ productData }) => {
             </div>
           )}
 
-          {/* Rating */}
+          {/* Rating (real) */}
           <div className="flex flex-col sm:flex-row sm:items-center mb-4 lg:mb-6 gap-2 sm:gap-0">
             <div className="flex space-x-1 text-[#FFB800] text-lg">
-              {[...Array(4)].map((_, i) => (
-                <Star key={i} fill="#FFB800" stroke="#FFB800" size={18} className="sm:w-5 sm:h-5" />
+              {[1,2,3,4,5].map((s) => (
+                <Star key={s} fill={s <= Math.round(avgRating) ? "#FFB800" : "none"} stroke="#FFB800" size={18} className="sm:w-5 sm:h-5" />
               ))}
-              <Star fill="none" stroke="#FFB800" size={18} className="sm:w-5 sm:h-5" />
             </div>
-            <p className="text-gray-600 text-sm sm:text-base lg:text-lg sm:ml-2">(4.8 from 328 Reviews)</p>
+            <p className="text-gray-600 text-sm sm:text-base lg:text-lg sm:ml-2">({avgRating.toFixed(1)} from {reviewCount} Review{reviewCount!==1?'s':''})</p>
           </div>
 
           {/* Dynamic Attribute Selection */}
