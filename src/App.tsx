@@ -81,6 +81,17 @@ import Shop2AllProductpage from './pages/Shop2AllProductpage';
 import Shop3AllProductpage from './pages/Shop3AllProductpage';
 import Shop4AllProductpage from './pages/Shop4AllProductpage';
 import FAQ from './pages/FAQ';
+  // Shop4 Footer Pages
+  import Shop4ShippingDelivery from './pages/shop4/ShippingDelivery';
+  import Shop4ReturnsRefunds from './pages/shop4/ReturnsRefunds';
+  import Shop4GiftWrapping from './pages/shop4/GiftWrapping';
+  import Shop4FollowYourOrder from './pages/shop4/FollowYourOrder';
+  import Shop4Stores from './pages/shop4/Stores';
+  import Shop4AboutUs from './pages/shop4/AboutUs';
+  import Shop4FAQ from './pages/shop4/FAQ';
+  import Shop4SizeCharts from './pages/shop4/SizeCharts';
+  import Shop4GiftCards from './pages/shop4/GiftCards';
+  import Shop4GeneralInquiries from './pages/shop4/GeneralInquiries';
   // Shop3 Footer Pages
   import ManCollection from './pages/shop3/ManCollection';
   import WomanCollection from './pages/shop3/WomanCollection';
@@ -301,6 +312,17 @@ const App: React.FC = () => {
                     <Route path="/shop4-productpage" element={<Shop4Productpage />} />
                     <Route path="/shop4-allproductpage" element={<Shop4AllProductpage />} />
                     <Route path="/shop4/wishlist" element={<Shop4Wishlist />} />
+                    {/* Shop4 Footer Pages */}
+                    <Route path="/shop4/shipping-delivery" element={<Shop4ShippingDelivery />} />
+                    <Route path="/shop4/returns-refunds" element={<Shop4ReturnsRefunds />} />
+                    <Route path="/shop4/gift-wrapping" element={<Shop4GiftWrapping />} />
+                    <Route path="/shop4/follow-your-order" element={<Shop4FollowYourOrder />} />
+                    <Route path="/shop4/stores" element={<Shop4Stores />} />
+                    <Route path="/shop4/about-us" element={<Shop4AboutUs />} />
+                    <Route path="/shop4/faq" element={<Shop4FAQ />} />
+                    <Route path="/shop4/size-charts" element={<Shop4SizeCharts />} />
+                    <Route path="/shop4/gift-cards" element={<Shop4GiftCards />} />
+                    <Route path="/shop4/general-inquiries" element={<Shop4GeneralInquiries />} />
                     
                     {/* Shop Cart Routes */}
                     <Route path="/shop1/cart" element={<Shop1Cart />} />

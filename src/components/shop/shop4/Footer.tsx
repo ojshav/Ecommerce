@@ -56,7 +56,7 @@ const Footer = () => {
             </div>
             <p className="font-poppins text-sm lg:text-[16px] mt-3 mb-6 lg:mb-10">The Essence Of Every Pooja, In One Place</p>
             
-            <button
+            {/*<button
               className="w-full sm:w-[163px] h-[50px] bg-[#BB9D7B] text-[#FFFFFF] font-[400] text-[14px] leading-normal tracking-[3px] text-center capitalize flex-shrink-0"
               style={{ fontFamily: '"Futura Md BT"' }}
             >
@@ -93,12 +93,12 @@ const Footer = () => {
             <div>
               <h3 className="mb-4 text-white font-futura text-sm lg:text-base font-normal leading-[30px] tracking-[4px] uppercase">ORDER ASSISTANCE</h3>
               <ul className="space-y-2 lg:space-y-3">
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Book An Appointment</a></li>
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Shipping & Delivery</a></li>
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Return & Refunds</a></li>
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Gift Wrapping</a></li>
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Follow Your Order</a></li>
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Stores</a></li>
+               {/* <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Book An Appointment</a></li>*/}
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/shipping-delivery" className="hover:text-gray-300 transition-colors">Shipping & Delivery</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/returns-refunds" className="hover:text-gray-300 transition-colors">Return & Refunds</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/gift-wrapping" className="hover:text-gray-300 transition-colors">Gift Wrapping</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/follow-your-order" className="hover:text-gray-300 transition-colors">Follow Your Order</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/stores" className="hover:text-gray-300 transition-colors">Stores</a></li>
               </ul>
             </div>
 
@@ -106,7 +106,7 @@ const Footer = () => {
             <div>
               <h3 className="mb-4 text-white font-futura text-sm lg:text-base font-normal leading-[30px] tracking-[4px] uppercase">COMPANY</h3>
               <ul className="space-y-2 lg:space-y-3">
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">About Us</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/about-us" className="hover:text-gray-300 transition-colors">About Us</a></li>
                 <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Made To Last</a></li>
                 <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Our Mission</a></li>
                 <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Core Values</a></li>
@@ -120,11 +120,11 @@ const Footer = () => {
             <div>
               <h3 className="mb-4 text-white font-futura text-sm lg:text-base font-normal leading-[30px] tracking-[4px] uppercase">SUPPORT</h3>
               <ul className="space-y-2 lg:space-y-3">
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">FAQ</a></li>
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Shipping And Returns</a></li>
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Tracking</a></li>
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Size Charts</a></li>
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Gift Cards</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/faq" className="hover:text-gray-300 transition-colors">FAQ</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/returns-refunds" className="hover:text-gray-300 transition-colors">Shipping And Returns</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/follow-your-order" className="hover:text-gray-300 transition-colors">Tracking</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/size-charts" className="hover:text-gray-300 transition-colors">Size Charts</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/gift-cards" className="hover:text-gray-300 transition-colors">Gift Cards</a></li>
               </ul>
             </div>
 
@@ -132,9 +132,9 @@ const Footer = () => {
             <div>
               <h3 className="mb-4 text-white font-futura text-sm lg:text-base font-normal leading-[30px] tracking-[4px] uppercase">CONTACT US</h3>
               <ul className="space-y-2 lg:space-y-3">
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Shops</a></li>
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">General Inquiries</a></li>
-                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="#" className="hover:text-gray-300 transition-colors">Returns</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4" className="hover:text-gray-300 transition-colors">Shops</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/general-inquiries" className="hover:text-gray-300 transition-colors">General Inquiries</a></li>
+                <li className="text-white font-futura text-sm lg:text-base font-normal leading-[30px] capitalize"><a href="/shop4/returns-refunds" className="hover:text-gray-300 transition-colors">Returns</a></li>
               </ul>
             </div>
           </div>
