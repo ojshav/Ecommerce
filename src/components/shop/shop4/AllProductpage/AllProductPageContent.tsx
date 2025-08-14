@@ -64,7 +64,7 @@ const Sidebar: React.FC = () => {
         const x = e.clientX - rect.left;
         const width = rect.width;
         const percentage = Math.max(0, Math.min(1, x / width));
-        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+        const value = minPrice + percentage * (maxPrice - minPrice);
 
         if (isDragging === 'min') {
             const newMin = Math.min(value, priceRange[1] - 100);
@@ -129,8 +129,11 @@ const Sidebar: React.FC = () => {
 
     const applyPriceFilter = () => {
         const next = new URLSearchParams(searchParams);
-        if (priceRange[0] > minPrice) next.set('min_price', String(priceRange[0])); else next.delete('min_price');
-        if (priceRange[1] < maxPrice) next.set('max_price', String(priceRange[1])); else next.delete('max_price');
+        const roundedMin = Math.round(priceRange[0]);
+        const roundedMax = Math.round(priceRange[1]);
+        
+        if (roundedMin > minPrice) next.set('min_price', String(roundedMin)); else next.delete('min_price');
+        if (roundedMax < maxPrice) next.set('max_price', String(roundedMax)); else next.delete('max_price');
         next.set('page', '1');
         setSearchParams(next);
     };
@@ -169,7 +172,7 @@ const Sidebar: React.FC = () => {
                                     const x = e.clientX - rect.left;
                                     const width = rect.width;
                                     const percentage = Math.max(0, Math.min(1, x / width));
-                                    const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+                                    const value = minPrice + percentage * (maxPrice - minPrice);
                                     
                                     // Determine which handle to move based on which is closer
                                     const minDistance = Math.abs(value - priceRange[0]);
@@ -223,7 +226,7 @@ const Sidebar: React.FC = () => {
                         </div>
                     </div>
                     <div className="text-[#E0E0E0] text-sm mb-6">
-                        Price: ${priceRange[0]} – ${priceRange[1]}
+                        Price: ${Math.round(priceRange[0])} – ${Math.round(priceRange[1])}
                     </div>
                     <button onClick={applyPriceFilter} className="flex w-[197px] h-[50px] px-[31px] py-[21px] justify-center items-center gap-[11px] flex-shrink-0 bg-black text-white font-futura text-[14px] font-normal leading-normal tracking-[3.5px] uppercase hover:bg-gray-900 transition-colors">
                         FILTER
@@ -355,7 +358,7 @@ const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         const x = e.clientX - rect.left;
         const width = rect.width;
         const percentage = Math.max(0, Math.min(1, x / width));
-        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+        const value = minPrice + percentage * (maxPrice - minPrice);
 
         if (isDragging === 'min') {
             const newMin = Math.min(value, priceRange[1] - 100);
@@ -420,8 +423,11 @@ const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
 
     const handleApplyFilters = () => {
         const next = new URLSearchParams(searchParams);
-        if (priceRange[0] > minPrice) next.set('min_price', String(priceRange[0])); else next.delete('min_price');
-        if (priceRange[1] < maxPrice) next.set('max_price', String(priceRange[1])); else next.delete('max_price');
+        const roundedMin = Math.round(priceRange[0]);
+        const roundedMax = Math.round(priceRange[1]);
+        
+        if (roundedMin > minPrice) next.set('min_price', String(roundedMin)); else next.delete('min_price');
+        if (roundedMax < maxPrice) next.set('max_price', String(roundedMax)); else next.delete('max_price');
         next.set('page', '1');
         setSearchParams(next);
         onClose();
@@ -523,7 +529,7 @@ const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                             </div>
                         </div>
                         <div className="text-[#E0E0E0] text-sm mb-4">
-                            Price: ${priceRange[0]} – ${priceRange[1]}
+                            Price: ${Math.round(priceRange[0])} – ${Math.round(priceRange[1])}
                         </div>
                     </div>
 
