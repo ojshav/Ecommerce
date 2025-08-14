@@ -26,14 +26,14 @@ const QualityShowcase = () => {
         },
         body: JSON.stringify({ email: newsletterEmail }),
       });
-      console.log('[DEBUG] Newsletter subscribe response status:', response.status);
+      // console.log('[DEBUG] Newsletter subscribe response status:', response.status);
       if (!response.ok) {
         const text = await response.text();
         console.error('[DEBUG] Newsletter subscribe response not ok:', text);
         throw new Error('Failed to subscribe to newsletter');
       }
       const data = await response.json();
-      console.log('[DEBUG] Newsletter subscribe data received:', data);
+      // console.log('[DEBUG] Newsletter subscribe data received:', data);
       setNewsletterMessage({ type: 'success', text: 'You have been subscribed to our newsletter.' });
       setNewsletterEmail('');
     } catch (err: any) {
