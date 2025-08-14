@@ -729,7 +729,7 @@ const DiscountChips: React.FC = () => {
 
 // --- ProductGrid ---
 const ProductGrid: React.FC = () => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     // Navigation handled within cards; no local navigate needed here
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -765,6 +765,16 @@ const ProductGrid: React.FC = () => {
         }
     };
 
+    // Keep current page in sync with URL (?page=)
+    useEffect(() => {
+        const pageFromUrl = parseInt(searchParams.get('page') || '1', 10);
+        if (!Number.isFinite(pageFromUrl) || pageFromUrl < 1) return;
+        if (pageFromUrl !== currentPage) {
+            setCurrentPage(pageFromUrl);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams.get('page')]);
+
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
@@ -787,11 +797,28 @@ const ProductGrid: React.FC = () => {
                     ...discountToParams(discount ?? undefined),
                 });
                 
-                if (response && response.success) {
-                    const mappedProducts = response.products.map(mapApiProductToLocal);
+                if (response && (response as any).success) {
+                    const mappedProducts = (response as any).products?.map(mapApiProductToLocal) ?? [];
                     setProducts(mappedProducts);
-                    setTotalProducts(response.total);
-                    setTotalPages(response.total_pages);
+
+                    // Handle both legacy and new pagination shapes
+                    const pagination = (response as any).pagination;
+                    if (pagination) {
+                        const totalItems = Number(pagination.total_items) || 0;
+                        const totalPagesFromApi = Number(pagination.total_pages) || Math.ceil(totalItems / productsPerPage) || 0;
+                        setTotalProducts(totalItems);
+                        setTotalPages(totalPagesFromApi);
+                        // If API adjusts the page, reflect it
+                        const apiPage = Number(pagination.page) || currentPage;
+                        if (apiPage !== currentPage) setCurrentPage(apiPage);
+                    } else {
+                        const total = Number((response as any).total) || 0;
+                        const totalPagesTop = Number((response as any).total_pages) || (total ? Math.ceil(total / productsPerPage) : 0);
+                        setTotalProducts(total);
+                        setTotalPages(totalPagesTop);
+                        const apiPageTop = Number((response as any).page) || currentPage;
+                        if (apiPageTop !== currentPage) setCurrentPage(apiPageTop);
+                    }
                 } else {
                     setProducts([]);
                     setTotalProducts(0);
@@ -815,7 +842,16 @@ const ProductGrid: React.FC = () => {
     }, [discount]);
 
     const handlePageChange = (page: number) => {
+        if (page < 1 || (totalPages && page > totalPages)) return;
+        // Update URL param so refresh/back works and other widgets can reset to page 1
+        const next = new URLSearchParams(searchParams);
+        next.set('page', String(page));
+        setSearchParams(next);
         setCurrentPage(page);
+        // Optionally scroll to top of grid
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch {}
     };
 
     // Navigation is handled inside the product card to avoid hijacking add-to-cart clicks
@@ -830,8 +866,9 @@ const ProductGrid: React.FC = () => {
         );
     }
 
-    const startIndex = (currentPage - 1) * productsPerPage;
-    const endIndex = Math.min(startIndex + productsPerPage, totalProducts);
+    const safeTotal = Number.isFinite(totalProducts) ? totalProducts : 0;
+    const startIndex = safeTotal === 0 ? 0 : (currentPage - 1) * productsPerPage;
+    const endIndex = safeTotal === 0 ? 0 : Math.min(startIndex + productsPerPage, safeTotal);
 
     return (
         <div className="bg-black max-w-[1078px] mx-auto min-h-screen px-4 sm:px-6 lg:px-4 2xl:px-0 py-8">
@@ -846,7 +883,9 @@ const ProductGrid: React.FC = () => {
             
             <div className=" mx-auto mb-6">
                 <p className="text-white text-sm opacity-80">
-                    Showing {startIndex + 1}–{endIndex} of {totalProducts} Results
+                    {safeTotal > 0
+                        ? <>Showing {startIndex + 1}–{endIndex} of {safeTotal} Results</>
+                        : <>0 Results</>}
                 </p>
             </div>
             <div className="max-w-[1078px] mx-auto">
