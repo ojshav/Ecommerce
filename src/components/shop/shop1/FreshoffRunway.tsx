@@ -144,9 +144,9 @@ const FreshOffRunway = () => {
   // Format price display
   const formatPrice = (product: Product) => {
     if (product.is_on_special_offer && product.special_price) {
-      return `$${product.special_price}`;
+      return `₹${product.special_price}`;
     }
-    return `$${product.selling_price || product.price}`;
+    return `₹${product.selling_price || product.price}`;
   };
 
   if (loading) {
