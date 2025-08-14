@@ -43,7 +43,7 @@ const AoinLive: React.FC<AoinLiveProps> = ({ layout = 'row' }) => {
       setLoading(true);
       setError(null);
       try {
-        console.log('Fetching streams from:', `${API_BASE_URL}/api/live-streams`);
+        // console.log('Fetching streams from:', `${API_BASE_URL}/api/live-streams`);
         const response = await fetch(`${API_BASE_URL}/api/live-streams`, {
           method: 'GET',
           headers: {
@@ -55,7 +55,7 @@ const AoinLive: React.FC<AoinLiveProps> = ({ layout = 'row' }) => {
           throw new Error('Failed to fetch live streams');
         }
         const data = await response.json();
-        console.log('Received streams data:', data);
+        // console.log('Received streams data:', data);
         setLiveContent(data);
       } catch (err) {
         console.error('Error fetching streams:', err);
@@ -81,8 +81,8 @@ const AoinLive: React.FC<AoinLiveProps> = ({ layout = 'row' }) => {
   };
 
   const handleStreamClick = (streamId: number) => {
-    console.log('Selected stream:', streamId);
-    console.log('Stream details:', liveContent.find(stream => stream.stream_id === streamId));
+    // console.log('Selected stream:', streamId);
+    // console.log('Stream details:', liveContent.find(stream => stream.stream_id === streamId));
     navigate(`/live-shop/product/${streamId}`);
   };
 

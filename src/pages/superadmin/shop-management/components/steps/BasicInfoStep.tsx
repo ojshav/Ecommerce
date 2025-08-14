@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Store, Tag, DollarSign } from 'lucide-react';
+import { Store, Tag } from 'lucide-react';
 import { Shop, ShopCategory, ShopBrand, shopManagementService } from '../../../../../services/shopManagementService';
 
 interface BasicInfoStepProps {
@@ -206,7 +206,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                 }`}
                 placeholder="0.00"
               />
-              <DollarSign className="absolute left-2 top-2.5 text-gray-400" size={16} />
+              <span className="absolute left-2 top-2.5 text-gray-400 text-sm">₹</span>
             </div>
             {errors.cost_price && <p className="text-red-500 text-xs mt-1">{errors.cost_price}</p>}
           </div>
@@ -227,7 +227,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                 }`}
                 placeholder="0.00"
               />
-              <DollarSign className="absolute left-2 top-2.5 text-gray-400" size={16} />
+              <span className="absolute left-2 top-2.5 text-gray-400 text-sm">₹</span>
             </div>
             {errors.selling_price && <p className="text-red-500 text-xs mt-1">{errors.selling_price}</p>}
           </div>

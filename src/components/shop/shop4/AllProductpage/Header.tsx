@@ -43,25 +43,49 @@ const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex px-2 xl:px-0 mr-6 space-x-4 xl:space-x-8 2xl:space-x-28">
-            {navItems.map((item) => (
-              item === 'HOME' ? (
-                <Link
+            {navItems.map((item) => {
+              if (item === 'HOME') {
+                return (
+                  <Link
+                    key={item}
+                    to="/shop4"
+                    className="text-white font-poppins text-[12px] xl:text-[14px] font-normal leading-normal tracking-[1.5px] xl:tracking-[2.1px] uppercase hover:text-yellow-400 transition-colors duration-200 whitespace-nowrap"
+                  >
+                    {item}
+                  </Link>
+                );
+              }
+              if (item === 'ABOUT') {
+                return (
+                  <Link
+                    key={item}
+                    to="/shop4/about-us"
+                    className="text-white font-poppins text-[12px] xl:text-[14px] font-normal leading-normal tracking-[1.5px] xl:tracking-[2.1px] uppercase hover:text-yellow-400 transition-colors duration-200 whitespace-nowrap"
+                  >
+                    {item}
+                  </Link>
+                );
+              }
+              if (item === 'CONTACT') {
+                return (
+                  <Link
+                    key={item}
+                    to="/contact"
+                    className="text-white font-poppins text-[12px] xl:text-[14px] font-normal leading-normal tracking-[1.5px] xl:tracking-[2.1px] uppercase hover:text-yellow-400 transition-colors duration-200 whitespace-nowrap"
+                  >
+                    {item}
+                  </Link>
+                );
+              }
+              return (
+                <span
                   key={item}
-                  to="/shop4"
-                  className="text-white font-poppins text-[12px] xl:text-[14px] font-normal leading-normal tracking-[1.5px] xl:tracking-[2.1px] uppercase hover:text-yellow-400 transition-colors duration-200 whitespace-nowrap"
+                  className="text-white font-poppins text-[12px] xl:text-[14px] font-normal leading-normal tracking-[1.5px] xl:tracking-[2.1px] uppercase whitespace-nowrap"
                 >
                   {item}
-                </Link>
-              ) : (
-                <a
-                  key={item}
-                  href="#"
-                  className="text-white font-poppins text-[12px] xl:text-[14px] font-normal leading-normal tracking-[1.5px] xl:tracking-[2.1px] uppercase hover:text-yellow-400 transition-colors duration-200 whitespace-nowrap"
-                >
-                  {item}
-                </a>
-              )
-            ))}
+                </span>
+              );
+            })}
           </nav>
 
           {/* Desktop Icons */}
@@ -104,27 +128,52 @@ const Header: React.FC = () => {
         {isMobileMenuOpen && (
           <div className="lg:hidden absolute top-full left-0 right-0 bg-black z-50 border-t border-gray-800 shadow-lg">
             <nav className="flex flex-col py-2">
-              {navItems.map((item) => (
-                item === 'HOME' ? (
-                  <Link
+              {navItems.map((item) => {
+                if (item === 'HOME') {
+                  return (
+                    <Link
+                      key={item}
+                      to="/shop4"
+                      className="px-4 py-3 text-white font-poppins text-[14px] sm:text-[16px] font-normal leading-normal tracking-[1.5px] sm:tracking-[2px] uppercase hover:bg-gray-900 hover:text-yellow-400 transition-colors duration-200 border-b border-gray-800 last:border-b-0"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item}
+                    </Link>
+                  );
+                }
+                if (item === 'ABOUT') {
+                  return (
+                    <Link
+                      key={item}
+                      to="/shop4/about-us"
+                      className="px-4 py-3 text-white font-poppins text-[14px] sm:text-[16px] font-normal leading-normal tracking-[1.5px] sm:tracking-[2px] uppercase hover:bg-gray-900 hover:text-yellow-400 transition-colors duration-200 border-b border-gray-800 last:border-b-0"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item}
+                    </Link>
+                  );
+                }
+                if (item === 'CONTACT') {
+                  return (
+                    <Link
+                      key={item}
+                      to="/contact"
+                      className="px-4 py-3 text-white font-poppins text-[14px] sm:text-[16px] font-normal leading-normal tracking-[1.5px] sm:tracking-[2px] uppercase hover:bg-gray-900 hover:text-yellow-400 transition-colors duration-200 border-b border-gray-800 last:border-b-0"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item}
+                    </Link>
+                  );
+                }
+                return (
+                  <span
                     key={item}
-                    to="/shop4"
-                    className="px-4 py-3 text-white font-poppins text-[14px] sm:text-[16px] font-normal leading-normal tracking-[1.5px] sm:tracking-[2px] uppercase hover:bg-gray-900 hover:text-yellow-400 transition-colors duration-200 border-b border-gray-800 last:border-b-0"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="px-4 py-3 text-white font-poppins text-[14px] sm:text-[16px] font-normal leading-normal tracking-[1.5px] sm:tracking-[2px] uppercase border-b border-gray-800 last:border-b-0"
                   >
                     {item}
-                  </Link>
-                ) : (
-                  <a
-                    key={item}
-                    href="#"
-                    className="px-4 py-3 text-white font-poppins text-[14px] sm:text-[16px] font-normal leading-normal tracking-[1.5px] sm:tracking-[2px] uppercase hover:bg-gray-900 hover:text-yellow-400 transition-colors duration-200 border-b border-gray-800 last:border-b-0"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {item}
-                  </a>
-                )
-              ))}
+                  </span>
+                );
+              })}
               <div className="flex items-center justify-center space-x-6 py-4 border-t border-gray-800 mt-2">
                 <Search className="w-5 h-5 cursor-pointer hover:text-yellow-400 transition-colors" />
                 <Link to="/shop4/wishlist" className="relative">
