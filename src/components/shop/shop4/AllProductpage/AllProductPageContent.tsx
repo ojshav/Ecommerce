@@ -17,7 +17,8 @@ const mapApiProductToLocal = (apiProduct: ApiProduct): Product => ({
 
 // --- Sidebar Component (Desktop) ---
 const Sidebar: React.FC = () => {
-    const [priceRange, setPriceRange] = useState([0, 7500]);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [priceRange, setPriceRange] = useState<[number, number]>([0, 7500]);
     const [inStock, setInStock] = useState(false);
     const [outOfStock, setOutOfStock] = useState(false);
     const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
@@ -25,6 +26,21 @@ const Sidebar: React.FC = () => {
 
     const minPrice = 0;
     const maxPrice = 7500;
+
+    // Initialize price range from URL params
+    useEffect(() => {
+        const urlMin = Number(searchParams.get('min_price'));
+        const urlMax = Number(searchParams.get('max_price'));
+        const hasUrlMin = !Number.isNaN(urlMin);
+        const hasUrlMax = !Number.isNaN(urlMax);
+        
+        if (hasUrlMin || hasUrlMax) {
+            setPriceRange([
+                hasUrlMin ? Math.max(minPrice, urlMin) : minPrice,
+                hasUrlMax ? Math.min(maxPrice, urlMax) : maxPrice,
+            ]);
+        }
+    }, [searchParams]);
 
     const handleMouseDown = (e: React.MouseEvent, handle: 'min' | 'max') => {
         e.preventDefault();
@@ -48,7 +64,7 @@ const Sidebar: React.FC = () => {
         const x = e.clientX - rect.left;
         const width = rect.width;
         const percentage = Math.max(0, Math.min(1, x / width));
-        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+        const value = minPrice + percentage * (maxPrice - minPrice);
 
         if (isDragging === 'min') {
             const newMin = Math.min(value, priceRange[1] - 100);
@@ -101,9 +117,25 @@ const Sidebar: React.FC = () => {
     const getMaxPosition = () => ((priceRange[1] - minPrice) / (maxPrice - minPrice)) * 100;
 
     const handleClearFilters = () => {
-        setPriceRange([0, 7500]);
+        setPriceRange([minPrice, maxPrice]);
         setInStock(false);
         setOutOfStock(false);
+        const next = new URLSearchParams(searchParams);
+        next.delete('min_price');
+        next.delete('max_price');
+        next.set('page', '1');
+        setSearchParams(next);
+    };
+
+    const applyPriceFilter = () => {
+        const next = new URLSearchParams(searchParams);
+        const roundedMin = Math.round(priceRange[0]);
+        const roundedMax = Math.round(priceRange[1]);
+        
+        if (roundedMin > minPrice) next.set('min_price', String(roundedMin)); else next.delete('min_price');
+        if (roundedMax < maxPrice) next.set('max_price', String(roundedMax)); else next.delete('max_price');
+        next.set('page', '1');
+        setSearchParams(next);
     };
 
     return (
@@ -140,7 +172,7 @@ const Sidebar: React.FC = () => {
                                     const x = e.clientX - rect.left;
                                     const width = rect.width;
                                     const percentage = Math.max(0, Math.min(1, x / width));
-                                    const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+                                    const value = minPrice + percentage * (maxPrice - minPrice);
                                     
                                     // Determine which handle to move based on which is closer
                                     const minDistance = Math.abs(value - priceRange[0]);
@@ -194,9 +226,9 @@ const Sidebar: React.FC = () => {
                         </div>
                     </div>
                     <div className="text-[#E0E0E0] text-sm mb-6">
-                        Price: ${priceRange[0]} – ${priceRange[1]}
+                        Price: ${Math.round(priceRange[0])} – ${Math.round(priceRange[1])}
                     </div>
-                    <button className="flex w-[197px] h-[50px] px-[31px] py-[21px] justify-center items-center gap-[11px] flex-shrink-0 bg-black text-white font-futura text-[14px] font-normal leading-normal tracking-[3.5px] uppercase hover:bg-gray-900 transition-colors">
+                    <button onClick={applyPriceFilter} className="flex w-[197px] h-[50px] px-[31px] py-[21px] justify-center items-center gap-[11px] flex-shrink-0 bg-black text-white font-futura text-[14px] font-normal leading-normal tracking-[3.5px] uppercase hover:bg-gray-900 transition-colors">
                         FILTER
                     </button>
                 </div>
@@ -285,7 +317,8 @@ const Sidebar: React.FC = () => {
 
 // --- Mobile Filter Modal ---
 const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
-    const [priceRange, setPriceRange] = useState([0, 7500]);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [priceRange, setPriceRange] = useState<[number, number]>([0, 7500]);
     const [inStock, setInStock] = useState(false);
     const [outOfStock, setOutOfStock] = useState(false);
     const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
@@ -293,6 +326,21 @@ const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
 
     const minPrice = 0;
     const maxPrice = 7500;
+
+    // Initialize price range from URL params
+    useEffect(() => {
+        const urlMin = Number(searchParams.get('min_price'));
+        const urlMax = Number(searchParams.get('max_price'));
+        const hasUrlMin = !Number.isNaN(urlMin);
+        const hasUrlMax = !Number.isNaN(urlMax);
+        
+        if (hasUrlMin || hasUrlMax) {
+            setPriceRange([
+                hasUrlMin ? Math.max(minPrice, urlMin) : minPrice,
+                hasUrlMax ? Math.min(maxPrice, urlMax) : maxPrice,
+            ]);
+        }
+    }, [searchParams, isOpen]);
 
     const handleMouseDown = (e: React.MouseEvent, handle: 'min' | 'max') => {
         e.preventDefault();
@@ -310,7 +358,7 @@ const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         const x = e.clientX - rect.left;
         const width = rect.width;
         const percentage = Math.max(0, Math.min(1, x / width));
-        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+        const value = minPrice + percentage * (maxPrice - minPrice);
 
         if (isDragging === 'min') {
             const newMin = Math.min(value, priceRange[1] - 100);
@@ -363,13 +411,25 @@ const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
     const getMaxPosition = () => ((priceRange[1] - minPrice) / (maxPrice - minPrice)) * 100;
 
     const handleClearFilters = () => {
-        setPriceRange([0, 7500]);
+        setPriceRange([minPrice, maxPrice]);
         setInStock(false);
         setOutOfStock(false);
+        const next = new URLSearchParams(searchParams);
+        next.delete('min_price');
+        next.delete('max_price');
+        next.set('page', '1');
+        setSearchParams(next);
     };
 
     const handleApplyFilters = () => {
-        // Apply filters logic here
+        const next = new URLSearchParams(searchParams);
+        const roundedMin = Math.round(priceRange[0]);
+        const roundedMax = Math.round(priceRange[1]);
+        
+        if (roundedMin > minPrice) next.set('min_price', String(roundedMin)); else next.delete('min_price');
+        if (roundedMax < maxPrice) next.set('max_price', String(roundedMax)); else next.delete('max_price');
+        next.set('page', '1');
+        setSearchParams(next);
         onClose();
     };
 
@@ -469,7 +529,7 @@ const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                             </div>
                         </div>
                         <div className="text-[#E0E0E0] text-sm mb-4">
-                            Price: ${priceRange[0]} – ${priceRange[1]}
+                            Price: ${Math.round(priceRange[0])} – ${Math.round(priceRange[1])}
                         </div>
                     </div>
 
@@ -729,7 +789,7 @@ const DiscountChips: React.FC = () => {
 
 // --- ProductGrid ---
 const ProductGrid: React.FC = () => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     // Navigation handled within cards; no local navigate needed here
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -765,6 +825,16 @@ const ProductGrid: React.FC = () => {
         }
     };
 
+    // Keep current page in sync with URL (?page=)
+    useEffect(() => {
+        const pageFromUrl = parseInt(searchParams.get('page') || '1', 10);
+        if (!Number.isFinite(pageFromUrl) || pageFromUrl < 1) return;
+        if (pageFromUrl !== currentPage) {
+            setCurrentPage(pageFromUrl);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams.get('page')]);
+
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
@@ -787,11 +857,28 @@ const ProductGrid: React.FC = () => {
                     ...discountToParams(discount ?? undefined),
                 });
                 
-                if (response && response.success) {
-                    const mappedProducts = response.products.map(mapApiProductToLocal);
+                if (response && (response as any).success) {
+                    const mappedProducts = (response as any).products?.map(mapApiProductToLocal) ?? [];
                     setProducts(mappedProducts);
-                    setTotalProducts(response.total);
-                    setTotalPages(response.total_pages);
+
+                    // Handle both legacy and new pagination shapes
+                    const pagination = (response as any).pagination;
+                    if (pagination) {
+                        const totalItems = Number(pagination.total_items) || 0;
+                        const totalPagesFromApi = Number(pagination.total_pages) || Math.ceil(totalItems / productsPerPage) || 0;
+                        setTotalProducts(totalItems);
+                        setTotalPages(totalPagesFromApi);
+                        // If API adjusts the page, reflect it
+                        const apiPage = Number(pagination.page) || currentPage;
+                        if (apiPage !== currentPage) setCurrentPage(apiPage);
+                    } else {
+                        const total = Number((response as any).total) || 0;
+                        const totalPagesTop = Number((response as any).total_pages) || (total ? Math.ceil(total / productsPerPage) : 0);
+                        setTotalProducts(total);
+                        setTotalPages(totalPagesTop);
+                        const apiPageTop = Number((response as any).page) || currentPage;
+                        if (apiPageTop !== currentPage) setCurrentPage(apiPageTop);
+                    }
                 } else {
                     setProducts([]);
                     setTotalProducts(0);
@@ -815,7 +902,16 @@ const ProductGrid: React.FC = () => {
     }, [discount]);
 
     const handlePageChange = (page: number) => {
+        if (page < 1 || (totalPages && page > totalPages)) return;
+        // Update URL param so refresh/back works and other widgets can reset to page 1
+        const next = new URLSearchParams(searchParams);
+        next.set('page', String(page));
+        setSearchParams(next);
         setCurrentPage(page);
+        // Optionally scroll to top of grid
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch {}
     };
 
     // Navigation is handled inside the product card to avoid hijacking add-to-cart clicks
@@ -830,8 +926,9 @@ const ProductGrid: React.FC = () => {
         );
     }
 
-    const startIndex = (currentPage - 1) * productsPerPage;
-    const endIndex = Math.min(startIndex + productsPerPage, totalProducts);
+    const safeTotal = Number.isFinite(totalProducts) ? totalProducts : 0;
+    const startIndex = safeTotal === 0 ? 0 : (currentPage - 1) * productsPerPage;
+    const endIndex = safeTotal === 0 ? 0 : Math.min(startIndex + productsPerPage, safeTotal);
 
     return (
         <div className="bg-black max-w-[1078px] mx-auto min-h-screen px-4 sm:px-6 lg:px-4 2xl:px-0 py-8">
@@ -846,7 +943,9 @@ const ProductGrid: React.FC = () => {
             
             <div className=" mx-auto mb-6">
                 <p className="text-white text-sm opacity-80">
-                    Showing {startIndex + 1}–{endIndex} of {totalProducts} Results
+                    {safeTotal > 0
+                        ? <>Showing {startIndex + 1}–{endIndex} of {safeTotal} Results</>
+                        : <>0 Results</>}
                 </p>
             </div>
             <div className="max-w-[1078px] mx-auto">
@@ -857,7 +956,7 @@ const ProductGrid: React.FC = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-x-8 sm:gap-x-12 2xl:gap-x-20 gap-y-28 sm:gap-y-28 lg:gap-y-40">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-x-8 sm:gap-x-12 2xl:gap-x-20 gap-y-14 sm:gap-y-14 lg:gap-y-20">
                         {products.map((product) => (
                             <div key={product.id} className="cursor-pointer">
                                 {/* Let the card control its own internal clicks; wrap a small overlay for image/title nav if needed in the card itself */}
