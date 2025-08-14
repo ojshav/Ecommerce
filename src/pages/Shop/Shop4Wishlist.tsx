@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import Shop4ProductCardWithWishlist from '../../components/shop/shop4/Shop4ProductCardWithWishlist';
-import { useShopWishlist } from '../../context/ShopWishlistContext';
+import { useShopWishlistOperations } from '../../hooks/useShopWishlist';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Loader2, ShoppingBag, ArrowRight } from 'lucide-react';
@@ -8,12 +8,10 @@ import { Heart, Loader2, ShoppingBag, ArrowRight } from 'lucide-react';
 const SHOP_ID = 4;
 
 const Shop4Wishlist: React.FC = () => {
-  const { wishlistItemsByShop, loadingByShop } = useShopWishlist();
+  const { wishlistItems: shop4WishlistItems, isLoading: loading } = useShopWishlistOperations(SHOP_ID);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const shop4WishlistItems = wishlistItemsByShop[SHOP_ID] || [];
-  const loading = loadingByShop[SHOP_ID] || false;
 
   useEffect(() => {
     if (!isAuthenticated) {
