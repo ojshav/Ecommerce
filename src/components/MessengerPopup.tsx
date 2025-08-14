@@ -118,7 +118,7 @@ const MessengerPopup: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-50 max-w-[100vw]">
       {/* Messenger Button */}
       <button
         onClick={() => setIsOpen(true)}
@@ -131,7 +131,7 @@ const MessengerPopup: React.FC = () => {
 
       {/* Popup Dialog */}
       {isOpen && (
-        <div className="absolute bottom-16 right-0 w-96 bg-white rounded-lg shadow-xl max-h-[500px] flex flex-col">
+        <div className="absolute bottom-16 right-0 w-[92vw] sm:w-96 bg-white rounded-lg shadow-xl max-h-[70vh] sm:max-h-[500px] flex flex-col">
           <div className="bg-orange-500 p-4 rounded-t-lg">
             <div className="flex justify-between items-center">
               <h3 className="text-white text-lg font-semibold">AOIN Chat Assistant</h3>
@@ -147,7 +147,7 @@ const MessengerPopup: React.FC = () => {
           <div className="flex-1 overflow-hidden flex flex-col">
             {showUserForm ? (
               // User Information Form
-              <div className="p-4 space-y-4">
+              <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
                 <div className="bg-gray-100 p-3 rounded-lg mb-4">
                   <p className="font-semibold">AOIN</p>
                   <p className="text-sm text-gray-600">
@@ -187,7 +187,7 @@ const MessengerPopup: React.FC = () => {
               <>
                 <div 
                   ref={chatContainerRef}
-                  className="flex-1 overflow-y-auto p-4 space-y-4"
+                  className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4"
                 >
                   {messages.map((message) => (
                     <div
@@ -219,7 +219,7 @@ const MessengerPopup: React.FC = () => {
                 </div>
 
                 {/* Message Input */}
-                <div className="p-4 border-t">
+                <div className="p-3 sm:p-4 border-t">
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
