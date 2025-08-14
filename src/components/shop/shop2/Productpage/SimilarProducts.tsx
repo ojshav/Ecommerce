@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import shop2ApiService, { Product } from '../../../../services/shop2ApiService';
+import { useShopCartOperations } from '../../../../context/ShopCartContext';
 
 interface SimilarProductsProps {
   currentProductId?: number;
@@ -12,9 +14,14 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
   relatedProducts 
 }) => {
   const navigate = useNavigate();
+  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [likedProducts, setLikedProducts] = useState<Set<number>>(new Set());
+  const [addingToCart, setAddingToCart] = useState<Set<number>>(new Set());
+  const [quantities, setQuantities] = useState<Record<number, number>>({});
+  
+  const SHOP_ID = 2; // Shop2 ID
 
   // Fetch similar products if not provided via props
   useEffect(() => {
@@ -88,6 +95,80 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
     });
   };
 
+  // Initialize quantity for a product
+  const getQuantity = (productId: number) => {
+    return quantities[productId] || 1;
+  };
+
+  // Handle quantity change
+  const handleQuantityChange = (productId: number, change: number) => {
+    setQuantities(prev => {
+      const currentQty = prev[productId] || 1;
+      const newQty = Math.max(1, currentQty + change);
+      return { ...prev, [productId]: newQty };
+    });
+  };
+
+  // Handle add to cart
+  const handleAddToCart = async (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to add items to cart');
+      navigate('/sign-in');
+      return;
+    }
+
+    const productId = product.product_id;
+    const quantity = getQuantity(productId);
+
+    try {
+      setAddingToCart(prev => new Set(prev).add(productId));
+      await addToShopCart(SHOP_ID, productId, quantity);
+      toast.success('Added to cart successfully!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setAddingToCart(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }
+  };
+
+  // Handle buy now
+  const handleBuyNow = async (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to purchase items');
+      navigate('/sign-in');
+      return;
+    }
+
+    const productId = product.product_id;
+    const quantity = getQuantity(productId);
+
+    try {
+      setAddingToCart(prev => new Set(prev).add(productId));
+      await addToShopCart(SHOP_ID, productId, quantity);
+      toast.success('Added to cart successfully!');
+      // Navigate to cart page
+      navigate('/shop2/cart');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setAddingToCart(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }
+  };
+
   if (loading) {
     return (
       <section className="relative w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-16 text-black">
@@ -135,16 +216,34 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
               {/* Action buttons - show on hover */}
               <div className="absolute bottom-0 font-bebas left-0 w-full flex flex-col sm:flex-row justify-between items-center px-2 sm:px-3 lg:px-4 py-2 sm:py-3 bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
-                  className="bg-black text-white px-5 sm:px-4 lg:px-10 xl:px-10 py-1.5 sm:py-2 lg:py-3 rounded-full text-xs sm:text-sm font-semibold mb-2 sm:mb-0 sm:mr-2 w-full sm:w-auto hover:bg-gray-800 transition-colors"
-                  onClick={(e) => e.stopPropagation()}
+                  className={`px-5 sm:px-4 lg:px-10 xl:px-10 py-1.5 sm:py-2 lg:py-3 rounded-full text-xs sm:text-sm font-semibold mb-2 sm:mb-0 sm:mr-2 w-full sm:w-auto transition-colors ${
+                    addingToCart.has(product.product_id)
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      : 'bg-black text-white hover:bg-gray-800'
+                  }`}
+                  onClick={(e) => handleAddToCart(product, e)}
+                  disabled={addingToCart.has(product.product_id)}
                 >
-                  ADD TO CART
+                  {addingToCart.has(product.product_id) ? (
+                    <div className="animate-spin rounded-full h-3 w-3 border-2 border-current border-t-transparent mx-auto" />
+                  ) : (
+                    'ADD TO CART'
+                  )}
                 </button>
                 <button 
-                  className="border-2 border-white text-white px-5 sm:px-4 lg:px-10 xl:px-10 py-1.5 sm:py-2 lg:py-3 rounded-full text-xs sm:text-sm font-semibold w-full sm:w-auto hover:bg-white hover:text-black transition-colors"
-                  onClick={(e) => e.stopPropagation()}
+                  className={`border-2 border-white text-white px-5 sm:px-4 lg:px-10 xl:px-10 py-1.5 sm:py-2 lg:py-3 rounded-full text-xs sm:text-sm font-semibold w-full sm:w-auto transition-colors ${
+                    addingToCart.has(product.product_id)
+                      ? 'border-gray-400 text-gray-400 cursor-not-allowed'
+                      : 'hover:bg-white hover:text-black'
+                  }`}
+                  onClick={(e) => handleBuyNow(product, e)}
+                  disabled={addingToCart.has(product.product_id)}
                 >
-                  BUY NOW
+                  {addingToCart.has(product.product_id) ? (
+                    <div className="animate-spin rounded-full h-3 w-3 border-2 border-current border-t-transparent mx-auto" />
+                  ) : (
+                    'BUY NOW'
+                  )}
                 </button>
               </div>
               
@@ -182,10 +281,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
                 </div>
               </div>
               
-              {/* Stock status */}
-              {!product.is_in_stock && (
-                <p className="text-xs text-red-500 mt-1">Out of Stock</p>
-              )}
+             
             </div>
           </div>
         ))}

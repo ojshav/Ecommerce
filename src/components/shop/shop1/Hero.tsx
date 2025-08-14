@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import { useRef, useState } from 'react';
 import styles from './Hero.module.css';
 
 const Hero = () => {
   const [leftHovered, setLeftHovered] = useState(false);
   const [rightHovered, setRightHovered] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   const leftArrow = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745143/public_assets_shop1_LP/public_assets_images_arrow-left.svg";
   const leftArrowHover = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752822752/public_assets_shop1_LP/public_assets_images_arrow-left1.svg";
@@ -14,6 +16,16 @@ const Hero = () => {
     "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752746041/public_assets_shop1_LP/public_assets_images_hero-image2.png",
     "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745156/public_assets_shop1_LP/public_assets_images_hero-image3.svg"
   ];
+
+  const handleArrow = (direction: 'left' | 'right') => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    setPaused(true);
+    const distance = el.clientWidth; // one full slide
+    el.scrollBy({ left: direction === 'left' ? -distance : distance, behavior: 'smooth' });
+    // resume auto animation after scroll finishes
+    window.setTimeout(() => setPaused(false), 1200);
+  };
 
   return (
     <section className="relative bg-white">
@@ -35,6 +47,7 @@ const Hero = () => {
               className="group rounded-full flex items-center justify-center w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 transition-all duration-300 hover:scale-110"
               onMouseEnter={() => setLeftHovered(true)}
               onMouseLeave={() => setLeftHovered(false)}
+              onClick={() => handleArrow('left')}
             >
               <img 
                 src={leftHovered ? leftArrowHover : leftArrow}
@@ -46,6 +59,7 @@ const Hero = () => {
               className="group rounded-full flex items-center justify-center w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 transition-all duration-300 hover:scale-110"
               onMouseEnter={() => setRightHovered(true)}
               onMouseLeave={() => setRightHovered(false)}
+              onClick={() => handleArrow('right')}
             >
               <img 
                 src={rightHovered ? rightArrowHover : rightArrow}
@@ -57,8 +71,8 @@ const Hero = () => {
         </div>
 
         {/* Image & Video Carousel */}
-        <div className="overflow-hidden rounded-md shadow-md relative">
-          <div className={styles.scrollContainer}>
+        <div className="overflow-hidden rounded-md shadow-md relative" ref={wrapperRef}>
+          <div className={styles.scrollContainer} style={{ animationPlayState: paused ? 'paused' as const : 'running' as const }}>
             {/* 🔥 First Slide = Video */}
             <div className="relative flex-shrink-0 w-full">
               <video

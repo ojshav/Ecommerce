@@ -224,23 +224,23 @@ This will be displayed on the product page with proper formatting."
           </div>
         </div>
 
-        {/* SEO Preview */}
-        {(data.meta_title || data.meta_desc) && (
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="font-medium text-gray-900 mb-3">Search Engine Preview</h4>
-            <div className="bg-white p-3 rounded border">
-              <div className="text-blue-600 text-lg hover:underline cursor-pointer">
-                {data.meta_title || 'Product Title'}
-              </div>
-              <div className="text-green-600 text-sm">
-                {window.location.origin}/product/{data.meta_title?.toLowerCase().replace(/\s+/g, '-') || 'product-name'}
-              </div>
-              <div className="text-gray-600 text-sm mt-1">
-                {data.meta_desc || data.short_desc || 'Product description will appear here...'}
+          {/* SEO Preview
+          {(data.meta_title || data.meta_desc) && (
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium text-gray-900 mb-3">Search Engine Preview</h4>
+              <div className="bg-white p-3 rounded border">
+                <div className="text-blue-600 text-lg hover:underline cursor-pointer">
+                  {data.meta_title || 'Product Title'}
+                </div>
+                <div className="text-green-600 text-sm">
+                  {window.location.origin}/product/{data.meta_title?.toLowerCase().replace(/\s+/g, '-') || 'product-name'}
+                </div>
+                <div className="text-gray-600 text-sm mt-1">
+                  {data.meta_desc || data.short_desc || 'Product description will appear here...'}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )} */}
 
         {/* Content Guidelines */}
         <div className="bg-blue-50 p-4 rounded-lg">

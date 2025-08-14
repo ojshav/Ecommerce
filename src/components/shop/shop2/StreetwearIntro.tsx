@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const StreetwearIntro = () => {
+  const navigate = useNavigate();
   return (
     <section className=" relative w-full mx-auto min-h-screen bg-[url('https://res.cloudinary.com/do3vxz4gw/image/upload/v1752059234/public_assets_shop2/public_assets_shop2_bg-image.png')] bg-cover bg-center overflow-hidden flex items-center justify-center">
       {/* Left Content */}
@@ -23,7 +25,10 @@ const StreetwearIntro = () => {
                 <p className="text-sm sm:text-base text-[#F8BEBE] mt-1">Customer Satisfaction Rate</p>
             </div>
 
-            <button className="mt-2 bg-[#D86342] text-white font-bold text-[14px] sm:text-[16px] w-3/5 py-2 sm:py-3 rounded-md uppercase tracking-wide">
+            <button 
+              onClick={() => navigate('/shop2-allproductpage')}
+              className="mt-2 bg-[#D86342] text-white font-bold text-[14px] sm:text-[16px] w-3/5 py-2 sm:py-3 rounded-md uppercase tracking-wide hover:bg-[#C55A3A] transition-colors cursor-pointer"
+            >
                 See More
             </button>
         </div>
