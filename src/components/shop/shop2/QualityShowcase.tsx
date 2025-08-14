@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const QualityShowcase = () => {
+  const navigate = useNavigate();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterLoading, setNewsletterLoading] = useState(false);
   const [newsletterMessage, setNewsletterMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -87,7 +88,10 @@ const QualityShowcase = () => {
 
       {/* Button */}
       <div className="max-w-4xl mx-auto mb-8 sm:mb-10 flex justify-center lg:justify-end -mt-6 sm:-mt-8 lg:-mt-12 xl:-mt-20">
-        <button className="flex items-center gap-3 sm:gap-6 bg-transparent border border-[#D4FF00] text-white px-4 sm:px-5 pr-2 py-2 rounded-full text-xs sm:text-sm hover:bg-[#D4FF00]/10 transition">
+        <button 
+          onClick={() => navigate('/shop2/about-us')}
+          className="flex items-center gap-3 sm:gap-6 bg-transparent border border-[#D4FF00] text-white px-4 sm:px-5 pr-2 py-2 rounded-full text-xs sm:text-sm hover:bg-[#D4FF00]/10 transition cursor-pointer"
+        >
           <span className="-ml-1">MORE ABOUT US</span>
           <span className="bg-[#D4FF00] w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center">
             <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-black rotate-45" />
