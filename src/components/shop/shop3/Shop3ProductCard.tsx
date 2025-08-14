@@ -142,16 +142,16 @@ const Shop3ProductCard: React.FC<Shop3ProductCardProps> = ({
       </div>
       {/* Info: show by default, hide on hover */}
       <div className="w-full flex flex-col items-start font-alexandria mt-6 group-hover:hidden">
-        <div className="text-[16px] font-semibold mb-1 truncate">
+        <div className="text-[16px] font-semibold mb-1 truncate w-full text-white">
           {name}
         </div>
         <div className="flex items-center gap-2">
           <span className="text-lime-400 text-base font-bold">
-            ${price}
+            ₹{price}
           </span>
           {originalPrice && (
             <span className="text-pink-400 text-sm line-through">
-              ${originalPrice}
+              ₹{originalPrice}
             </span>
           )}
         </div>

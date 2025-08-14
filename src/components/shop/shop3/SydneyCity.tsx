@@ -21,17 +21,17 @@ const SydneyCity: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-b z-10" />
 
         {/* Coordinates and Location Overlay on Image */}
-        <span className="absolute left-4 sm:left-6 lg:left-10 top-[-60px] sm:top-[-80px] lg:top-[-40px] bg-opacity-60 text-white text-[10px] sm:text-xs font-bold tracking-wide px-2 sm:px-3 lg:px-4 py-1 sm:py-2 rounded-full z-20 pointer-events-none">
+        <span className="absolute left-4 sm:left-6 lg:left-10 top-[-90px] sm:top-[-80px] lg:top-[-40px] bg-opacity-60 text-white text-[10px] sm:text-xs font-bold tracking-wide px-2 sm:px-3 lg:px-4 py-1 sm:py-2 rounded-full z-20 pointer-events-none">
           WE ARE READY TO HELP YOU, FIND OUR LOCATION HERE
         </span>
-        <span className="absolute right-4 sm:right-6 lg:right-10 top-[-60px] sm:top-[-80px] lg:top-[-40px] bg-opacity-60 text-white text-[10px] sm:text-xs font-bold tracking-wide px-2 sm:px-3 lg:px-4 py-1 sm:py-2 rounded-full z-20 pointer-events-none">
+        <span className="absolute right-4 sm:right-6 lg:right-10 top-[-80px] sm:top-[-80px] lg:top-[-40px] bg-opacity-60 text-white text-[10px] sm:text-xs font-bold tracking-wide px-2 sm:px-3 lg:px-4 py-1 sm:py-2 rounded-full z-20 pointer-events-none">
           -19.8723854 - 2112 + 0408248
         </span>
         <div className="relative z-20 flex justify-between items-start px-4 sm:px-6 lg:px-10 pt-6">
         </div>
 
         {/* Main Content */}
-        <div className="relative z-20 flex flex-1 flex-col lg:flex-row items-center justify-between mt-20 sm:mt-28 lg:mt-64 px-4 sm:px-6 lg:px-10 h-full">
+        <div className="relative z-20 flex flex-1 flex-col lg:flex-row items-center justify-between mt-64 sm:mt-64 md:mt-56 lg:mt-64 px-4 sm:px-6 lg:px-10 h-full">
           {/* Left: Big Heading */}
           <div className="flex-1 flex w-full lg:w-[592px] flex-col lg:ml-8 justify-center">
             <h1 className="text-white font-normal font-bebas text-[60px] sm:text-[80px] md:text-[100px] lg:text-[120px] leading-[80%] hover:text-[#CCFF00] tracking-tight uppercase text-center lg:text-left" >
