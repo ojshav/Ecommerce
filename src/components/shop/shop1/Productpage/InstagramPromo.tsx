@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowUpRight } from 'lucide-react';
 
 const InstagramPromo = () => {
@@ -20,10 +19,15 @@ const InstagramPromo = () => {
           <p className="text-white font-archivio text-base sm:text-lg md:text-xl mb-6 sm:mb-8">
             There's something for every taste and occasion
           </p>
-          <button className="inline-flex font-poppins items-center gap-2 border border-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-white text-lg sm:text-xl md:text-[22px] font-semibold hover:bg-white hover:text-black transition duration-300">
+          <a
+            href="https://www.instagram.com/aoin_store/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex font-poppins items-center gap-2 border border-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-white text-lg sm:text-xl md:text-[22px] font-semibold hover:bg-white hover:text-black transition duration-300"
+          >
             SEE OUR INSTAGRAM
             <ArrowUpRight className="w-5 h-5" />
-          </button>
+          </a>
         </div>
       </div>
     </section>
