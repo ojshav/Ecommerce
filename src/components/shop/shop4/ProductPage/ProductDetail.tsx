@@ -1605,11 +1605,7 @@ const ProductDetail: React.FC = () => {
               {relatedProducts.slice(0, 3).map((relatedProduct) => (
                 <div 
                   key={relatedProduct.id} 
-                  className="flex-shrink-0 w-[calc(100vw-2rem)] cursor-pointer transition-transform" 
-                  onClick={() => {
-                    // Navigate to the related product's detail page
-                    navigate(`?id=${relatedProduct.id}`);
-                  }}
+                  className="flex-shrink-0 w-[calc(100vw-2rem)] transition-transform"
                 >
                   <Shop4ProductCardWithWishlist 
                     product={{
@@ -1630,11 +1626,7 @@ const ProductDetail: React.FC = () => {
             {relatedProducts.slice(0, 3).map((relatedProduct) => (
               <div 
                 key={relatedProduct.id} 
-                className="w-full h-auto cursor-pointer transition-transform" 
-                onClick={() => {
-                  // Navigate to the related product's detail page
-                  navigate(`?id=${relatedProduct.id}`);
-                }}
+                className="w-full h-auto transition-transform"
               >
                 <Shop4ProductCardWithWishlist 
                   product={{

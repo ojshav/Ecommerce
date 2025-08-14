@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { ShoppingCart, Plus, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useShopCartOperations } from '../../../context/ShopCartContext';
-import { useAuth } from '../../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
 const SHOP_ID = 4;
@@ -37,13 +36,18 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const navigate = useNavigate();
   const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
-  const { isAuthenticated } = useAuth();
+  // Auth state not used directly here; cart operations handle auth checks
+  // const { isAuthenticated } = useAuth();
 
   const handleQuantityChange = (change: number) => {
     setQuantity(Math.max(1, quantity + change));
   };
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (!canPerformShopCartOperations()) {
       toast.error('Please sign in to add items to cart');
       navigate('/sign-in');
@@ -69,7 +73,7 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const handleImageClick = () => {
-    navigate('/shop4-productpage');
+    navigate(`/shop4-productpage?id=${product.id}`);
   };
 
   return (
@@ -131,14 +135,14 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
             {showQuantitySelector && (
               <div className="flex items-center border border-white rounded-full px-3 py-1">
                 <button
-                  onClick={() => handleQuantityChange(-1)}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(-1); }}
                   className="text-white hover:text-gray-300 transition-colors"
                 >
                   <Minus size={16} />
                 </button>
                 <span className="text-white mx-3 font-medium">{quantity}</span>
                 <button
-                  onClick={() => handleQuantityChange(1)}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(1); }}
                   className="text-white hover:text-gray-300 transition-colors"
                 >
                   <Plus size={16} />
@@ -148,7 +152,7 @@ const Shop4ProductCard: React.FC<ProductCardProps> = ({
             
             {/* Add to Cart Button */}
             <button 
-              onClick={handleAddToCart}
+              onClick={(e) => handleAddToCart(e)}
               disabled={isAddingToCart}
               className="w-12 h-12 rounded-full bg-[#BB9D7B] flex items-center justify-center hover:bg-[#A08B6A] transition-colors drop-shadow-[0_6.413px_17.013px_#7E7061] disabled:opacity-50"
             >

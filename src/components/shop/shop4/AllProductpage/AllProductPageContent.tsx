@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, X, Filter } from 'lucide-react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Shop4ProductCardWithWishlist, { Product } from '../Shop4ProductCardWithWishlist';
 import shop4ApiService, { Product as ApiProduct } from '../../../../services/shop4ApiService';
 
@@ -730,7 +730,7 @@ const DiscountChips: React.FC = () => {
 // --- ProductGrid ---
 const ProductGrid: React.FC = () => {
     const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+    // Navigation handled within cards; no local navigate needed here
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -818,9 +818,7 @@ const ProductGrid: React.FC = () => {
         setCurrentPage(page);
     };
 
-    const handleProductClick = (productId: number) => {
-        navigate(`/shop4-productpage?id=${productId}`);
-    };
+    // Navigation is handled inside the product card to avoid hijacking add-to-cart clicks
 
     if (loading) {
         return (
@@ -861,7 +859,8 @@ const ProductGrid: React.FC = () => {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-x-8 sm:gap-x-12 2xl:gap-x-20 gap-y-28 sm:gap-y-28 lg:gap-y-40">
                         {products.map((product) => (
-                            <div key={product.id} onClick={() => handleProductClick(product.id)} className="cursor-pointer">
+                            <div key={product.id} className="cursor-pointer">
+                                {/* Let the card control its own internal clicks; wrap a small overlay for image/title nav if needed in the card itself */}
                                 <Shop4ProductCardWithWishlist product={product} />
                             </div>
                         ))}

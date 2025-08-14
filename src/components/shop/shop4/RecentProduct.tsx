@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import Shop4ProductCardWithWishlist, { Product } from './Shop4ProductCardWithWishlist';
 import shop4ApiService, { Product as ApiProduct } from '../../../services/shop4ApiService';
 
@@ -19,37 +19,28 @@ function Recentproduct() {
   const [activeTab, setActiveTab] = useState('RITUAL KITS');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentScrollIndex, setCurrentScrollIndex] = useState(0);
-  const [scrollPosition, setScrollPosition] = useState(0);
+  // const [currentScrollIndex, setCurrentScrollIndex] = useState(0);
+  // const [scrollPosition, setScrollPosition] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
+  // Navigation handled inside product card; no local navigate needed here
 
   // Responsive product display logic
-  const getMaxVisibleProducts = () => {
-    if (typeof window !== 'undefined') {
-      if (window.innerWidth < 640) return 1; // Small mobile: 1 product
-      if (window.innerWidth < 768) return 1.5; // Mobile: 1.5 products (for partial visibility)
-      if (window.innerWidth < 1024) return 2; // Tablet: 2 products
-      return 4; // Desktop: 4 products
-    }
-    return 4; // Default fallback
-  };
+  // Previously used to adjust how many products are visible; no longer needed here
 
   // Horizontal scroll functionality for mobile
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [mobileScrollLeft, setMobileScrollLeft] = useState(0);
 
-  const [maxVisibleProducts, setMaxVisibleProducts] = useState(getMaxVisibleProducts());
+  // const [maxVisibleProducts, setMaxVisibleProducts] = useState(getMaxVisibleProducts());
 
-  // Update maxVisibleProducts on window resize
+  // Update maxVisibleProducts on window resize (no-op after removal)
   useEffect(() => {
     const handleResize = () => {
-      setMaxVisibleProducts(getMaxVisibleProducts());
+      /* no-op */
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -62,12 +53,12 @@ function Recentproduct() {
         const containerWidth = scrollContainerRef.current.offsetWidth;
         const scrollWidth = scrollContainerRef.current.scrollWidth;
         
-        setScrollPosition(scrollLeft);
+  // setScrollPosition(scrollLeft);
         setCanScrollLeft(scrollLeft > 0);
         setCanScrollRight(scrollLeft < (scrollWidth - containerWidth));
         
-        const newIndex = Math.floor(scrollLeft / containerWidth);
-        setCurrentScrollIndex(newIndex);
+  // const newIndex = Math.floor(scrollLeft / containerWidth);
+  // setCurrentScrollIndex(newIndex);
       }
     };
 
@@ -177,7 +168,7 @@ function Recentproduct() {
   };
 
   // Get visible products based on current screen size
-  const visibleProducts = products.slice(currentScrollIndex, currentScrollIndex + maxVisibleProducts);
+  // const visibleProducts = products.slice(currentScrollIndex, currentScrollIndex + maxVisibleProducts);
 
   const handleAddToCart = (product: Product, quantity: number, selectedColor: number) => {
     console.log(`Added ${product.name} to cart:`, {
@@ -349,10 +340,6 @@ function Recentproduct() {
               <div 
                 key={product.id} 
                 className="relative flex flex-col cursor-pointer transition-transform flex-shrink-0 w-full sm:w-[320px] md:w-[400px] lg:w-[380px] h-auto"
-                onClick={() => {
-                  // Navigate to the product detail page
-                  navigate(`/shop4-productpage?id=${product.id}`);
-                }}
               >
                 <Shop4ProductCardWithWishlist 
                   product={product}
