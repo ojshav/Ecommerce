@@ -24,6 +24,7 @@ function Recentproduct() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollHint, setShowScrollHint] = useState(true);
   // Navigation handled inside product card; no local navigate needed here
 
   // Responsive product display logic
@@ -56,6 +57,7 @@ function Recentproduct() {
   // setScrollPosition(scrollLeft);
         setCanScrollLeft(scrollLeft > 0);
         setCanScrollRight(scrollLeft < (scrollWidth - containerWidth));
+  if (scrollLeft > 0 && showScrollHint) setShowScrollHint(false);
         
   // const newIndex = Math.floor(scrollLeft / containerWidth);
   // setCurrentScrollIndex(newIndex);
@@ -69,7 +71,7 @@ function Recentproduct() {
       handleScroll();
       return () => scrollContainer.removeEventListener('scroll', handleScroll);
     }
-  }, []);
+  }, [showScrollHint]);
 
 
 
@@ -78,6 +80,7 @@ function Recentproduct() {
     setIsDragging(true);
     setStartX(e.pageX - scrollContainerRef.current!.offsetLeft);
     setMobileScrollLeft(scrollContainerRef.current!.scrollLeft);
+  if (showScrollHint) setShowScrollHint(false);
   };
 
   const handleMouseLeave = () => {
@@ -101,6 +104,7 @@ function Recentproduct() {
     setIsDragging(true);
     setStartX(e.touches[0].pageX - scrollContainerRef.current!.offsetLeft);
     setMobileScrollLeft(scrollContainerRef.current!.scrollLeft);
+  if (showScrollHint) setShowScrollHint(false);
   };
 
   const handleTouchEnd = () => {
@@ -141,6 +145,20 @@ function Recentproduct() {
 
     fetchProducts();
   }, []);
+
+  // Hide scroll hint if there's no overflow or after a short delay
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    if (el.scrollWidth <= el.clientWidth) {
+      setShowScrollHint(false);
+      return;
+    }
+
+    const t = setTimeout(() => setShowScrollHint(false), 4500);
+    return () => clearTimeout(t);
+  }, [products.length, loading]);
 
   const handleScrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -290,6 +308,18 @@ function Recentproduct() {
 
       {/* Product Carousel */}
       <div className="relative px-4 sm:px-6 md:px-8 lg:px-16 max-w-[1920px] mx-auto pb-20 min-h-[800px]">
+        {/* Mobile scroll hint overlay */}
+        {showScrollHint && (
+          <>
+            <div className="md:hidden pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-black to-transparent z-20 transition-opacity duration-300" />
+            <div className="md:hidden pointer-events-none absolute bottom-6 right-6 z-30">
+              <div className="bg-white/10 text-white text-[10px] px-2 py-1 rounded-full backdrop-blur-sm flex items-center gap-1 animate-pulse">
+                <span>Swipe</span>
+                <span aria-hidden>→</span>
+              </div>
+            </div>
+          </>
+        )}
         {/* Navigation Arrows - Show when there are more products than visible */}
         {products.length > 1 && (
           <>
