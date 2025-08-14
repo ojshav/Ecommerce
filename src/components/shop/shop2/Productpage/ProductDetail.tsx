@@ -521,10 +521,15 @@ const ProductDetail = () => {
   const allMedia = (() => {
     // If we have a current variant with media, use that
     if (currentVariant?.media) {
-      return [
+      const variantMedia = [
         ...currentVariant.media.images || [],
         ...currentVariant.media.videos || []
       ];
+      
+      // If variant has media, use it
+      if (variantMedia.length > 0) {
+        return variantMedia;
+      }
     }
 
     // Otherwise, use product media
@@ -538,21 +543,16 @@ const ProductDetail = () => {
     return [];
   })();
 
-  // Fallback images if no media
-  const fallbackImages = [
-    "/assets/shop2/ProductPage/pd1.svg",
-    "/assets/shop2/ProductPage/pd2.svg", 
-    "/assets/shop2/ProductPage/pd3.svg",
-    "/assets/shop2/ProductPage/pd4.svg"
-  ];
-
-  const images = allMedia.length > 0 ? allMedia : fallbackImages.map(url => ({ url, type: 'image', is_primary: true }));
+  const images = allMedia;
+  
+  // Handle case when no images are available
+  const hasImages = images.length > 0;
 
   return (
     <>
     <div className="max-w-[1280px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-1 pb-6 sm:pb-8 lg:pb-10 flex flex-col gap-0">
       {/* Photos Modal */}
-      {showPhotosModal && (
+      {showPhotosModal && hasImages && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60" onClick={() => setShowPhotosModal(false)}>
           <div
             className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-4 relative flex flex-col items-center"
@@ -612,11 +612,17 @@ const ProductDetail = () => {
         {/* Mobile/Tablet Carousel - Hidden on large desktop */}
         <div className="lg:hidden relative order-1">
           <div className="relative w-full h-[300px] sm:h-[380px] rounded-2xl overflow-hidden">
-            <img 
-              src={images[currentImageIndex]?.url || '/assets/shop2/ProductPage/pd1.svg'} 
-              alt={`Product image ${currentImageIndex + 1}`} 
-              className="w-full h-full object-contain" 
-            />
+            {hasImages ? (
+              <img 
+                src={images[currentImageIndex]?.url} 
+                alt={`Product image ${currentImageIndex + 1}`} 
+                className="w-full h-full object-contain" 
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-500 text-sm">No image available</span>
+              </div>
+            )}
             {/* Navigation arrows */}
             {images.length > 1 && (
               <>
@@ -648,42 +654,56 @@ const ProductDetail = () => {
           </div>
           
           {/* Mobile Photo Gallery Section */}
-          <div className="mt-4 grid grid-cols-4 gap-2 w-full">
-            {images.slice(0, 4).map((img, idx) => (
-              <div
-                key={idx}
-                onClick={() => setCurrentImageIndex(idx)}
-                className={`aspect-square cursor-pointer rounded-lg border-2 transition-all ${
-                  currentImageIndex === idx 
-                    ? 'border-orange-400 shadow-md' 
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <img
-                  src={img.url}
-                  alt={`Thumbnail ${idx + 1}`}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              </div>
-            ))}
-          </div>
+          {hasImages && (
+            <div className="mt-4 grid grid-cols-4 gap-2 w-full">
+              {images.slice(0, 4).map((img, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => setCurrentImageIndex(idx)}
+                  className={`aspect-square cursor-pointer rounded-lg border-2 transition-all ${
+                    currentImageIndex === idx 
+                      ? 'border-orange-400 shadow-md' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <img
+                    src={img.url}
+                    alt={`Thumbnail ${idx + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         
         {/* Desktop First image - Hidden on mobile/tablet */}
         <div className="hidden lg:flex justify-center order-1 md:order-1 lg:order-1">
-          <img 
-            src={images[0]?.url || '/assets/shop2/ProductPage/pd1.svg'} 
-            alt="Front View" 
-            className="rounded-2xl w-full max-w-[320px] sm:max-w-[390px] lg:w-[390px] h-[300px] sm:h-[380px] lg:h-[456px] object-cover" 
-          />
+          {hasImages ? (
+            <img 
+              src={images[0]?.url} 
+              alt="Front View" 
+              className="rounded-2xl w-full max-w-[320px] sm:max-w-[390px] lg:w-[390px] h-[300px] sm:h-[380px] lg:h-[456px] object-cover" 
+            />
+          ) : (
+            <div className="rounded-2xl w-full max-w-[320px] sm:max-w-[390px] lg:w-[390px] h-[300px] sm:h-[380px] lg:h-[456px] bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-500 text-sm">No image available</span>
+            </div>
+          )}
         </div>
         {/* Desktop Second image with Heart Icon - Hidden on mobile/tablet */}
         <div className="hidden lg:relative lg:flex justify-center order-2 md:order-2 lg:order-2">
-          <img 
-            src={images[1]?.url || images[0]?.url || '/assets/shop2/ProductPage/pd1.svg'} 
-            alt="Back View" 
-            className="rounded-2xl w-full max-w-[320px] sm:max-w-[360px] lg:w-[390px] h-[300px] sm:h-[380px] lg:h-[456px] object-cover" 
-          />
+          {hasImages ? (
+            <img 
+              src={images[1]?.url || images[0]?.url} 
+              alt="Back View" 
+              className="rounded-2xl w-full max-w-[320px] sm:max-w-[360px] lg:w-[390px] h-[300px] sm:h-[380px] lg:h-[456px] object-cover" 
+            />
+          ) : (
+            <div className="rounded-2xl w-full max-w-[320px] sm:max-w-[360px] lg:w-[390px] h-[300px] sm:h-[380px] lg:h-[456px] bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-500 text-sm">No image available</span>
+            </div>
+          )}
           <button className="absolute top-4 right-4 sm:right-8 p-2 rounded-full transition-all">
             <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </button>
@@ -806,26 +826,28 @@ const ProductDetail = () => {
       </div>
 
       {/* Bottom Container: Next two images - Hidden on mobile/tablet since we have carousel */}
-      <div className="hidden lg:flex flex-col lg:flex-row w-full max-w-[1230px] mx-auto items-center mt-4 sm:mt-6 lg:mt-1 gap-4">
-        <img 
-          src={images[2]?.url || images[0]?.url || '/assets/shop2/ProductPage/pd3.svg'} 
-          alt="Side View" 
-          className="rounded-xl w-full lg:w-[486px] h-[250px] sm:h-[300px] lg:h-[412px] object-cover" 
-        />
-        <div className="relative rounded-xl overflow-hidden flex-1 h-[250px] sm:h-[300px] lg:h-[412px] w-full lg:ml-0">
+      {hasImages && (
+        <div className="hidden lg:flex flex-col lg:flex-row w-full max-w-[1230px] mx-auto items-center mt-4 sm:mt-6 lg:mt-1 gap-4">
           <img 
-            src={images[3]?.url || images[1]?.url || images[0]?.url || '/assets/shop2/ProductPage/pd4.svg'} 
-            alt="Closeup" 
-            className="rounded-xl w-full h-full object-cover" 
+            src={images[2]?.url || images[0]?.url} 
+            alt="Side View" 
+            className="rounded-xl w-full lg:w-[486px] h-[250px] sm:h-[300px] lg:h-[412px] object-cover" 
           />
-          <button
-            className="absolute bottom-8 sm:bottom-14 left-6 sm:left-12 bg-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 shadow-lg border border-gray-200"
-            onClick={() => { setShowPhotosModal(true); setCurrentPhotoIdx(0); }}
-          >
-            <ImageIcon className="w-3 h-3 sm:w-4 sm:h-4" /> See All Photos
-          </button>
+          <div className="relative rounded-xl overflow-hidden flex-1 h-[250px] sm:h-[300px] lg:h-[412px] w-full lg:ml-0">
+            <img 
+              src={images[3]?.url || images[1]?.url || images[0]?.url} 
+              alt="Closeup" 
+              className="rounded-xl w-full h-full object-cover" 
+            />
+            <button
+              className="absolute bottom-8 sm:bottom-14 left-6 sm:left-12 bg-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 shadow-lg border border-gray-200"
+              onClick={() => { setShowPhotosModal(true); setCurrentPhotoIdx(0); }}
+            >
+              <ImageIcon className="w-3 h-3 sm:w-4 sm:h-4" /> See All Photos
+            </button>
+          </div>
         </div>
-      </div>
+      )}
              
 
       {/* Description & Reviews Section */}
