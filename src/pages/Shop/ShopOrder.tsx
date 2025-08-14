@@ -164,7 +164,7 @@ const ShopOrder: React.FC<ShopOrderProps> = ({ shopId, shopName }) => {
 
       if (response.ok) {
         const data = await response.json();
-        // console.log('Address API response:', data); // Debug log
+        console.log('Address API response:', data); // Debug log
         if (data.addresses) {
           setAddresses(data.addresses);
           // Auto-select default shipping address
@@ -948,14 +948,14 @@ const ShopOrder: React.FC<ShopOrderProps> = ({ shopId, shopName }) => {
                           <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                         </div>
                       </div>
-                      <p className="font-semibold">₹{(item.product.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold">${(item.product.price * item.quantity).toFixed(2)}</p>
                     </div>
                   ))}
                   
                   <div className="mt-4 pt-4 border-t border-gray-200">
                     <div className="flex justify-between items-center text-lg font-bold">
                       <span>Total:</span>
-                      <span>₹{calculateTotal().toFixed(2)}</span>
+                      <span>${calculateTotal().toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

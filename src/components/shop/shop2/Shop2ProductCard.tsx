@@ -138,7 +138,7 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({
       {/* Product Info and Hover Add-to-Cart, with hover bg color */}
       <div className="w-full flex flex-col pt-10 items-center rounded-b-xl transition-colors duration-300 group-hover:bg-[#DFD1C6]">
         <span className="font-medium text-[30px] font-bebas text-center tracking-wider">{name}</span>
-        <span className="font-semibold text-[25px] font-bebas mt-3 mb-4">₹{price}</span>
+        <span className="font-semibold text-[25px] font-bebas mt-3 mb-4">${price}</span>
         {/* Hover Block: Add-to-cart only */}
         <div className="w-full flex flex-col items-center transition-all duration-300 max-h-0 opacity-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100">
           <div className="flex items-center gap-2 w-full justify-center p-6">

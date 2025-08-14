@@ -222,10 +222,10 @@ export interface ProductDetailResponse {
 class Shop2ApiService {
   private async fetchApi<T>(endpoint: string): Promise<T> {
     try {
-      // console.log('🌐 Making API request to:', `${API_BASE_URL}${endpoint}`);
+      console.log('🌐 Making API request to:', `${API_BASE_URL}${endpoint}`);
       const response = await fetch(`${API_BASE_URL}${endpoint}`);
       
-      // console.log('📡 HTTP Response Status:', response.status, response.statusText);
+      console.log('📡 HTTP Response Status:', response.status, response.statusText);
       
       if (!response.ok) {
         console.error('❌ HTTP Error:', response.status, response.statusText);
@@ -233,14 +233,14 @@ class Shop2ApiService {
       }
       
       const data = await response.json();
-      // console.log('📡 Raw API Response Data:', data);
+      console.log('📡 Raw API Response Data:', data);
       
       if (!data.success) {
         console.error('❌ API Error:', data.message);
         throw new Error(data.message || 'API request failed');
       }
       
-      // console.log('✅ API request successful');
+      console.log('✅ API request successful');
       return data;
     } catch (error) {
       console.error('❌ API Error:', error);
@@ -394,9 +394,9 @@ class Shop2ApiService {
   // Get product by ID
   async getProductById(productId: number): Promise<ProductDetailResponse | null> {
     try {
-      // console.log('🌐 API Call: getProductById', { productId });
+      console.log('🌐 API Call: getProductById', { productId });
       const response = await this.fetchApi<ProductDetailResponse>(`/products/${productId}`);
-      // console.log('📡 Raw Product API Response:', response);
+      console.log('📡 Raw Product API Response:', response);
       return response;
     } catch (error) {
       console.error('❌ Error fetching product details:', error);
@@ -407,7 +407,7 @@ class Shop2ApiService {
   // Get product media gallery
   async getProductMedia(productId: number): Promise<{images: Media[], videos: Media[], primary_image: string}> {
     try {
-      // console.log('🌐 API Call: getProductMedia', { productId });
+      console.log('🌐 API Call: getProductMedia', { productId });
       const response = await this.fetchApi<{
         media: {
           images: Media[];
@@ -417,7 +417,7 @@ class Shop2ApiService {
         }
       }>(`/products/${productId}/media`);
       
-      // console.log('📡 Raw Media API Response:', response);
+      console.log('📡 Raw Media API Response:', response);
       
       const result = {
         images: response.media.images,
@@ -425,7 +425,7 @@ class Shop2ApiService {
         primary_image: response.media.primary_image
       };
       
-      // console.log('🖼️ Processed Media Result:', result);
+      console.log('🖼️ Processed Media Result:', result);
       return result;
     } catch (error) {
       console.error('❌ Error fetching product media:', error);
@@ -466,9 +466,9 @@ class Shop2ApiService {
   // Get all variants for a product
   async getProductVariants(productId: number): Promise<VariantListResponse | null> {
     try {
-      // console.log('🌐 API Call: getProductVariants', { productId });
+      console.log('🌐 API Call: getProductVariants', { productId });
       const response = await this.fetchApi<VariantListResponse>(`/products/${productId}/variants`);
-      // console.log('📡 Raw Variants API Response:', response);
+      console.log('📡 Raw Variants API Response:', response);
       return response;
     } catch (error) {
       console.error('❌ Error fetching product variants:', error);
@@ -479,7 +479,7 @@ class Shop2ApiService {
   // Get variant by attribute combination
   async getVariantByAttributes(productId: number, attributes: Record<string, string>): Promise<VariantByAttributesResponse | null> {
     try {
-      // console.log('🌐 API Call: getVariantByAttributes', { productId, attributes });
+      console.log('🌐 API Call: getVariantByAttributes', { productId, attributes });
       const response = await fetch(`${API_BASE_URL}/products/${productId}/variants/by-attributes`, {
         method: 'POST',
         headers: {
@@ -493,7 +493,7 @@ class Shop2ApiService {
       }
 
       const data = await response.json();
-      // console.log('📡 Raw Variant by Attributes API Response:', data);
+      console.log('📡 Raw Variant by Attributes API Response:', data);
       
       if (!data.success) {
         throw new Error(data.message || 'API request failed');
@@ -509,9 +509,9 @@ class Shop2ApiService {
   // Get available attributes for a product's variants
   async getAvailableAttributes(productId: number): Promise<AvailableAttributesResponse | null> {
     try {
-      // console.log('🌐 API Call: getAvailableAttributes', { productId });
+      console.log('🌐 API Call: getAvailableAttributes', { productId });
       const response = await this.fetchApi<AvailableAttributesResponse>(`/products/${productId}/attributes`);
-      // console.log('📡 Raw Available Attributes API Response:', response);
+      console.log('📡 Raw Available Attributes API Response:', response);
       return response;
     } catch (error) {
       console.error('❌ Error fetching available attributes:', error);

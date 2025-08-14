@@ -196,7 +196,9 @@ export interface ProductQueryParams {
   discount_min?: number;
   discount_max?: number;
   search?: string;
-  sort_by?: 'name' | 'price' | 'created_at' | 'popularity';
+  // Backend supports created_at, product_name, selling_price, special_price
+  // Keep 'price' for backward compatibility in older code paths
+  sort_by?: 'created_at' | 'product_name' | 'selling_price' | 'special_price' | 'price';
   sort_order?: 'asc' | 'desc';
   in_stock_only?: boolean;
 }
@@ -314,6 +316,45 @@ class Shop4ApiService {
     return this.makeRequest<ProductsResponse>(endpoint);
   }
 
+  /**
+   * Compute dynamic price bounds for current filter context by querying
+   * the cheapest and most expensive product using server-side sort.
+   * Falls back to 0 when unavailable.
+   */
+  async getPriceBounds(params: Omit<ProductQueryParams, 'page' | 'per_page' | 'sort_by' | 'sort_order'>): Promise<{ min: number; max: number }> {
+    // Helper to extract an effective price (special -> selling -> price)
+    const getEffectivePrice = (p: Product | undefined): number => {
+      if (!p) return 0;
+      const sp = (p as any).special_price as number | undefined;
+      const sell = (p as any).selling_price as number | undefined;
+      const price = (p as any).price as number | undefined;
+      return typeof sp === 'number' && sp > 0 ? sp : (typeof sell === 'number' && sell > 0 ? sell : (typeof price === 'number' ? price : 0));
+    };
+
+    try {
+      const common: ProductQueryParams = { ...params, in_stock_only: params.in_stock_only };
+      // Min price
+      const minRes = await this.getProducts({ ...common, page: 1, per_page: 1, sort_by: 'selling_price', sort_order: 'asc' });
+      const minProd = (minRes as any).products?.[0] as Product | undefined;
+      let minVal = getEffectivePrice(minProd);
+
+      // Max price
+      const maxRes = await this.getProducts({ ...common, page: 1, per_page: 1, sort_by: 'selling_price', sort_order: 'desc' });
+      const maxProd = (maxRes as any).products?.[0] as Product | undefined;
+      let maxVal = getEffectivePrice(maxProd);
+
+      // Ensure sensible ordering
+      if (!Number.isFinite(minVal)) minVal = 0;
+      if (!Number.isFinite(maxVal)) maxVal = minVal;
+      if (maxVal < minVal) [minVal, maxVal] = [maxVal, minVal];
+
+      return { min: Math.floor(minVal), max: Math.ceil(maxVal) };
+    } catch (e) {
+      console.warn('Failed to compute price bounds for Shop4:', e);
+      return { min: 0, max: 0 };
+    }
+  }
+
   async getProductById(productId: number): Promise<ProductDetailResponse> {
     return this.makeRequest<ProductDetailResponse>(`/products/${productId}`);
   }
@@ -419,7 +460,8 @@ class Shop4ApiService {
 
   // Featured/Special Methods
   async getFeaturedProducts(limit: number = 10): Promise<ProductsResponse> {
-    return this.getProducts({ per_page: limit, sort_by: 'popularity', sort_order: 'desc' });
+  // Use created_at as proxy for popularity since backend supports created_at
+  return this.getProducts({ per_page: limit, sort_by: 'created_at', sort_order: 'desc' });
   }
 
   async getNewArrivals(limit: number = 10): Promise<ProductsResponse> {

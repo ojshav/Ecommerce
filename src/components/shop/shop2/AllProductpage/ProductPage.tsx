@@ -28,10 +28,9 @@ const ProductPage = () => {
   // Price filter state
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(1000000);
-  const [tempMinPrice, setTempMinPrice] = useState(0);
-  const [tempMaxPrice, setTempMaxPrice] = useState(1000000);
   const minLimit = 0;
   const maxLimit = 1000000;
+  const priceGap = 0;
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,13 +82,13 @@ const ProductPage = () => {
 
   // Mobile sidebar handlers
   const openMobileSidebar = () => {
-    // console.log('Opening mobile sidebar');
+    console.log('Opening mobile sidebar');
     setIsMobileSidebarOpen(true);
     document.body.style.overflow = 'hidden';
   };
 
   const closeMobileSidebar = () => {
-    // console.log('Closing mobile sidebar');
+    console.log('Closing mobile sidebar');
     setIsMobileSidebarOpen(false);
     document.body.style.overflow = 'unset';
   };
@@ -101,19 +100,19 @@ const ProductPage = () => {
 
   // Debug mobile sidebar state
   useEffect(() => {
-    // console.log('Mobile sidebar state changed:', isMobileSidebarOpen);
+    console.log('Mobile sidebar state changed:', isMobileSidebarOpen);
   }, [isMobileSidebarOpen]);
 
   // Update URL with current filter state
   const updateURL = useCallback(() => {
-    // console.log('updateURL called with:', {
-    //   searchTerm,
-    //   selectedCategoryIds,
-    //   selectedBrandIds,
-    //   minPrice,
-    //   maxPrice,
-    //   sortOption
-    // });
+    console.log('updateURL called with:', {
+      searchTerm,
+      selectedCategoryIds,
+      selectedBrandIds,
+      minPrice,
+      maxPrice,
+      sortOption
+    });
 
     const params = new URLSearchParams();
     
@@ -125,7 +124,7 @@ const ProductPage = () => {
     if (sortOption !== "Sort By List") params.set('sort', sortOption);
     
     const newURL = params.toString() ? `/shop2-allproductpage?${params.toString()}` : '/shop2-allproductpage';
-    // console.log('Navigating to:', newURL);
+    console.log('Navigating to:', newURL);
     navigate(newURL, { replace: true });
   }, [searchTerm, selectedCategoryIds, selectedBrandIds, minPrice, maxPrice, sortOption, navigate]);
 
@@ -178,7 +177,6 @@ const ProductPage = () => {
           const minPriceValue = parseInt(minPriceParam);
           if (!isNaN(minPriceValue)) {
             setMinPrice(minPriceValue);
-            setTempMinPrice(minPriceValue);
           }
         }
 
@@ -186,7 +184,6 @@ const ProductPage = () => {
           const maxPriceValue = parseInt(maxPriceParam);
           if (!isNaN(maxPriceValue)) {
             setMaxPrice(maxPriceValue);
-            setTempMaxPrice(maxPriceValue);
           }
         }
 
@@ -214,10 +211,10 @@ const ProductPage = () => {
 
   // Update URL when filters change (but not on initial load)
   useEffect(() => {
-    // console.log('URL update useEffect triggered, initialLoadComplete:', initialLoadComplete);
+    console.log('URL update useEffect triggered, initialLoadComplete:', initialLoadComplete);
     // Only update URL after initial load is complete
     if (initialLoadComplete) {
-      // console.log('Calling updateURL because initialLoadComplete is true');
+      console.log('Calling updateURL because initialLoadComplete is true');
       updateURL();
     }
   }, [searchTerm, selectedCategoryIds, selectedBrandIds, minPrice, maxPrice, sortOption, updateURL, initialLoadComplete]);
@@ -282,26 +279,13 @@ const ProductPage = () => {
 
   // Handle price filter
   const handlePriceFilter = () => {
-    setMinPrice(tempMinPrice);
-    setMaxPrice(tempMaxPrice);
     setCurrentPage(1); // Reset to first page when filter changes
-  };
-
-  // Reset price filter
-  const resetPriceFilter = () => {
-    setTempMinPrice(0);
-    setTempMaxPrice(1000000);
-    setMinPrice(0);
-    setMaxPrice(1000000);
-    setCurrentPage(1);
   };
 
   // Clear all filters
   const clearFilters = () => {
     setMinPrice(0);
     setMaxPrice(1000000);
-    setTempMinPrice(0);
-    setTempMaxPrice(1000000);
     setSelectedCategoryIds([]);
     setSelectedBrandIds([]);
     setSearchTerm('');
@@ -377,117 +361,87 @@ const ProductPage = () => {
             <hr className="border-t mb-8" style={{ background: '#888181', height: '1px', border: 'none' }} />
             <div className="mb-8">
               <div className="font-bold text-[25px] font-bebas mb-6 tracking-tight">FILTER BY PRICE</div>
-              
-              {/* Current Price Range Display */}
-              <div className="mb-4 p-3 bg-white rounded-lg border border-gray-200">
-                <div className="text-center text-sm font-medium text-gray-700 mb-2">
-                  Current Range: ₹{minPrice.toLocaleString()} - ₹{maxPrice.toLocaleString()}
+              <div className="relative w-[85%] mx-auto flex items-center justify-center h-10 mb-2">
+                {/* Permanent white track behind everything */}
+                <div
+                  className="absolute left-0 right-0 rounded-full"
+                  style={{
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    height: '2px', // adjust thickness as needed
+                    background: '#fff',
+                    zIndex: 0,
+                  }}
+                />
+                {/* Track (existing, can be removed if redundant) */}
+                <div className="absolute  left-0 right-0 h-0 bg-[#bfa16a] rounded-full" style={{top: '50%', transform: 'translateY(-50%)'}}></div>
+                {/* Selected Range */}
+                <div
+                  className="absolute h-1 bg-[#B19D7F] rounded-full"
+                  style={{
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    left: `${((minPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                    right: `${100 - ((maxPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                    zIndex: 1,
+                  }}
+                ></div>
+                {/* Min Handle */}
+                <input
+                  type="range"
+                  min={minLimit}
+                  max={maxPrice - priceGap}
+                  value={minPrice}
+                  onChange={e => setMinPrice(Math.min(Number(e.target.value), maxPrice - priceGap))}
+                  className="absolute w-full accent-[#bfa16a] pointer-events-auto z-10"
+                  style={{ WebkitAppearance: 'none', background: 'transparent', height: '40px' }}
+                />
+                {/* Max Handle */}
+                <input
+                  type="range"
+                  min={minPrice + priceGap}
+                  max={maxLimit}
+                  value={maxPrice}
+                  onChange={e => setMaxPrice(Math.max(Number(e.target.value), minPrice + priceGap))}
+                  className="absolute w-full accent-[#bfa16a] pointer-events-auto z-10"
+                  style={{ WebkitAppearance: 'none', background: 'transparent', height: '40px' }}
+                />
+                {/* Custom handles */}
+                <div
+                  className="absolute"
+                  style={{
+                    left: `${((minPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 20,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <div className="w-10 h-10 bg-[#bfa16a] rounded-full border-4 border-white shadow" />
+                </div>
+                <div
+                  className="absolute"
+                  style={{
+                    left: `${((maxPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 20,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <div className="w-10 h-10 bg-[#bfa16a] rounded-full border-4 border-white shadow" />
                 </div>
               </div>
-
-              {/* Quick Price Buttons */}
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                <button
-                  onClick={() => {
-                    setTempMinPrice(0);
-                    setTempMaxPrice(1000);
-                  }}
-                  className={`text-xs px-3 py-2 border rounded-lg transition-colors ${
-                    tempMinPrice === 0 && tempMaxPrice === 1000 
-                      ? 'bg-[#B19D7F] text-white border-[#B19D7F]' 
-                      : 'border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  Under ₹1,000
-                </button>
-                <button
-                  onClick={() => {
-                    setTempMinPrice(1000);
-                    setTempMaxPrice(5000);
-                  }}
-                  className={`text-xs px-3 py-2 border rounded-lg transition-colors ${
-                    tempMinPrice === 1000 && tempMaxPrice === 5000 
-                      ? 'bg-[#B19D7F] text-white border-[#B19D7F]' 
-                      : 'border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  ₹1,000 - ₹5,000
-                </button>
-                <button
-                  onClick={() => {
-                    setTempMinPrice(5000);
-                    setTempMaxPrice(10000);
-                  }}
-                  className={`text-xs px-3 py-2 border rounded-lg transition-colors ${
-                    tempMinPrice === 5000 && tempMaxPrice === 10000 
-                      ? 'bg-[#B19D7F] text-white border-[#B19D7F]' 
-                      : 'border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  ₹5,000 - ₹10,000
-                </button>
-                <button
-                  onClick={() => {
-                    setTempMinPrice(10000);
-                    setTempMaxPrice(1000000);
-                  }}
-                  className={`text-xs px-3 py-2 border rounded-lg transition-colors ${
-                    tempMinPrice === 10000 && tempMaxPrice === 1000000 
-                      ? 'bg-[#B19D7F] text-white border-[#B19D7F]' 
-                      : 'border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  Above ₹10,000
-                </button>
+              <div className="flex justify-start text-xl font-bold text-black mt-4 mb-8">
+                <span>Price: ₹{minPrice.toLocaleString()} — ₹{maxPrice.toLocaleString()}</span>
               </div>
-
-              {/* Manual Input Fields */}
-              <div className="flex gap-2 mb-4">
-                <div className="flex-1">
-                  <label className="block text-xs text-gray-600 mb-1">Min Price</label>
-                  <input
-                    type="number"
-                    value={tempMinPrice}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value) || 0;
-                      setTempMinPrice(value);
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#B19D7F] focus:border-transparent"
-                    placeholder="0"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-xs text-gray-600 mb-1">Max Price</label>
-                  <input
-                    type="number"
-                    value={tempMaxPrice}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value) || 1000000;
-                      setTempMaxPrice(value);
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#B19D7F] focus:border-transparent"
-                    placeholder="1000000"
-                  />
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <button 
-                  onClick={resetPriceFilter}
-                  className="flex-1 bg-gray-200 text-black text-[14px] font-poppins px-4 py-2 rounded-full font-semibold tracking-[0.2em] hover:bg-gray-300 transition-colors" 
-                  style={{letterSpacing:'0.2em'}}
-                >
-                  RESET
-                </button>
-                <button 
-                  onClick={handlePriceFilter}
-                  className="flex-1 bg-black text-white text-[14px] font-poppins px-4 py-2 rounded-full font-semibold tracking-[0.2em] hover:bg-gray-800 transition-colors" 
-                  style={{letterSpacing:'0.2em'}}
-                >
-                  APPLY
-                </button>
-              </div>
+              <button 
+                onClick={handlePriceFilter}
+                className="bg-black text-white text-[14px] font-poppins px-4 py-2 rounded-full font-semibold w-1/2 tracking-[0.2em]" 
+                style={{letterSpacing:'0.2em'}}
+              >
+                FILTER
+              </button>
             </div>
             {/* Search */}
             
@@ -833,114 +787,56 @@ const ProductPage = () => {
           {activeFilterTab === 'price' && (
             <div className="space-y-6">
               <div className="font-bold text-xl font-bebas tracking-tight">FILTER BY PRICE</div>
-              
-              {/* Current Price Range Display */}
-              <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="text-center text-sm font-medium text-gray-700">
-                  Current Range: ₹{minPrice.toLocaleString()} - ₹{maxPrice.toLocaleString()}
-                </div>
+              <div className="relative w-full flex items-center justify-center h-10 mb-4">
+                <div className="absolute left-0 right-0 rounded-full h-1 bg-gray-200" style={{top: '50%', transform: 'translateY(-50%)'}}></div>
+                <div
+                  className="absolute h-1 bg-[#B19D7F] rounded-full"
+                  style={{
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    left: `${((minPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                    right: `${100 - ((maxPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                  }}
+                ></div>
+                <input
+                  type="range"
+                  min={minLimit}
+                  max={maxPrice - priceGap}
+                  value={minPrice}
+                  onChange={e => setMinPrice(Math.min(Number(e.target.value), maxPrice - priceGap))}
+                  className="absolute w-full accent-[#B19D7F] pointer-events-auto z-10"
+                  style={{ WebkitAppearance: 'none', background: 'transparent', height: '40px' }}
+                />
+                <input
+                  type="range"
+                  min={minPrice + priceGap}
+                  max={maxLimit}
+                  value={maxPrice}
+                  onChange={e => setMaxPrice(Math.max(Number(e.target.value), minPrice + priceGap))}
+                  className="absolute w-full accent-[#B19D7F] pointer-events-auto z-10"
+                  style={{ WebkitAppearance: 'none', background: 'transparent', height: '40px' }}
+                />
+                <div
+                  className="absolute w-6 h-6 bg-[#B19D7F] rounded-full border-2 border-white shadow"
+                  style={{
+                    left: `${((minPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 20,
+                  }}
+                />
+                <div
+                  className="absolute w-6 h-6 bg-[#B19D7F] rounded-full border-2 border-white shadow"
+                  style={{
+                    left: `${((maxPrice - minLimit) / (maxLimit - minLimit)) * 100}%`,
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 20,
+                  }}
+                />
               </div>
-
-              {/* Quick Price Buttons */}
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => {
-                    setTempMinPrice(0);
-                    setTempMaxPrice(1000);
-                  }}
-                  className={`text-xs px-3 py-2 border rounded-lg transition-colors ${
-                    tempMinPrice === 0 && tempMaxPrice === 1000 
-                      ? 'bg-[#B19D7F] text-white border-[#B19D7F]' 
-                      : 'border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  Under ₹1,000
-                </button>
-                <button
-                  onClick={() => {
-                    setTempMinPrice(1000);
-                    setTempMaxPrice(5000);
-                  }}
-                  className={`text-xs px-3 py-2 border rounded-lg transition-colors ${
-                    tempMinPrice === 1000 && tempMaxPrice === 5000 
-                      ? 'bg-[#B19D7F] text-white border-[#B19D7F]' 
-                      : 'border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  ₹1,000 - ₹5,000
-                </button>
-                <button
-                  onClick={() => {
-                    setTempMinPrice(5000);
-                    setTempMaxPrice(10000);
-                  }}
-                  className={`text-xs px-3 py-2 border rounded-lg transition-colors ${
-                    tempMinPrice === 5000 && tempMaxPrice === 10000 
-                      ? 'bg-[#B19D7F] text-white border-[#B19D7F]' 
-                      : 'border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  ₹5,000 - ₹10,000
-                </button>
-                <button
-                  onClick={() => {
-                    setTempMinPrice(10000);
-                    setTempMaxPrice(1000000);
-                  }}
-                  className={`text-xs px-3 py-2 border rounded-lg transition-colors ${
-                    tempMinPrice === 10000 && tempMaxPrice === 1000000 
-                      ? 'bg-[#B19D7F] text-white border-[#B19D7F]' 
-                      : 'border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  Above ₹10,000
-                </button>
-              </div>
-
-              {/* Manual Input Fields */}
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="block text-xs text-gray-600 mb-1">Min Price</label>
-                  <input
-                    type="number"
-                    value={tempMinPrice}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value) || 0;
-                      setTempMinPrice(value);
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#B19D7F] focus:border-transparent"
-                    placeholder="0"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-xs text-gray-600 mb-1">Max Price</label>
-                  <input
-                    type="number"
-                    value={tempMaxPrice}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value) || 1000000;
-                      setTempMaxPrice(value);
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#B19D7F] focus:border-transparent"
-                    placeholder="1000000"
-                  />
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
-                <button 
-                  onClick={resetPriceFilter}
-                  className="flex-1 bg-gray-200 text-black text-sm font-poppins px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
-                >
-                  RESET
-                </button>
-                <button 
-                  onClick={handlePriceFilter}
-                  className="flex-1 bg-black text-white text-sm font-poppins px-4 py-2 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
-                >
-                  APPLY
-                </button>
+              <div className="text-center text-lg font-bold text-black">
+                Price: ₹{minPrice.toLocaleString()} — ₹{maxPrice.toLocaleString()}
               </div>
             </div>
           )}

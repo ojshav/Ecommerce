@@ -64,24 +64,13 @@ const VariantsStep: React.FC<VariantsStepProps> = ({
   const [uploadProgress, setUploadProgress] = useState<UploadProgress[]>([]);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const [previewModal, setPreviewModal] = useState<{ type: 'image' | 'video'; url: string } | null>(null);
-  const [hasLoadedExistingData, setHasLoadedExistingData] = useState(false);
-  const [deletedVariantIds, setDeletedVariantIds] = useState<Set<string>>(new Set());
 
-  // Reset state when switching between create/edit modes
+  // Load existing variant data in edit mode, but only after attributes are loaded
   useEffect(() => {
-    if (!editMode) {
-      setHasLoadedExistingData(false);
-      setVariants(data.variants || []);
-      setDeletedVariantIds(new Set());
-    }
-  }, [editMode, data.variants]);
-
-  // Load existing variant data in edit mode, but only after attributes are loaded and only once
-  useEffect(() => {
-    if (editMode && parentProductId && availableAttributes.length > 0 && !hasLoadedExistingData) {
+    if (editMode && parentProductId && availableAttributes.length > 0) {
       loadExistingVariantData();
     }
-  }, [editMode, parentProductId, availableAttributes, hasLoadedExistingData]);
+  }, [editMode, parentProductId, availableAttributes]);
 
   const loadExistingVariantData = async () => {
     try {
@@ -89,58 +78,54 @@ const VariantsStep: React.FC<VariantsStepProps> = ({
       
       // Handle the actual API response structure: response.message.variants
       if (response?.message?.variants && Array.isArray(response.message.variants)) {
-        const existingVariants = response.message.variants
-          .filter((variant: any) => !deletedVariantIds.has(variant.variant_id?.toString() || ''))
-          .map((variant: any) => {
-            // Convert attribute_combination object to attribute array format
-            const attributeArray = variant.attribute_combination ? 
-              Object.entries(variant.attribute_combination).map(([name, value]) => {
-                // Find attribute by name to get the ID
-                const attribute = availableAttributes.find(attr => 
-                  attr.name.toLowerCase() === name.toLowerCase()
-                );
-                return {
-                  attribute_id: attribute?.attribute_id || 0,
-                  value: value as string
-                };
-              }).filter(attr => attr.attribute_id > 0) : [];
+        const existingVariants = response.message.variants.map((variant: any) => {
+          // Convert attribute_combination object to attribute array format
+          const attributeArray = variant.attribute_combination ? 
+            Object.entries(variant.attribute_combination).map(([name, value]) => {
+              // Find attribute by name to get the ID
+              const attribute = availableAttributes.find(attr => 
+                attr.name.toLowerCase() === name.toLowerCase()
+              );
+              return {
+                attribute_id: attribute?.attribute_id || 0,
+                value: value as string
+              };
+            }).filter(attr => attr.attribute_id > 0) : [];
 
-            // Use media directly from the variant response (no need for separate API call)
-            let variantMedia: VariantMedia[] = [];
-            if (variant.media && Array.isArray(variant.media)) {
-              variantMedia = variant.media.map((media: any) => ({
-                type: media.type?.toLowerCase() === 'image' ? 'image' : 'video',
-                file: undefined,
-                url: media.url || '',
-                public_id: media.public_id || '',
-                is_primary: media.is_primary || false,
-                isExisting: true,
-                media_id: media.media_id
-              }));
-            }
+          // Use media directly from the variant response (no need for separate API call)
+          let variantMedia: VariantMedia[] = [];
+          if (variant.media && Array.isArray(variant.media)) {
+            variantMedia = variant.media.map((media: any) => ({
+              type: media.type?.toLowerCase() === 'image' ? 'image' : 'video',
+              file: undefined,
+              url: media.url || '',
+              public_id: media.public_id || '',
+              is_primary: media.is_primary || false,
+              isExisting: true,
+              media_id: media.media_id
+            }));
+          }
 
-            return {
-              id: variant.variant_id?.toString() || '',
-              sku: variant.variant_sku || '',
-              selling_price: parseFloat(variant.effective_price) || 0,
-              cost_price: parseFloat(variant.effective_cost) || 0,
-              stock_qty: variant.stock?.stock_qty || 0,
-              low_stock_threshold: variant.stock?.low_stock_threshold || 5,
-              attributes: attributeArray,
-              media: variantMedia,
-              is_default: variant.is_default || false,
-              sort_order: variant.sort_order || 0,
-              variant_product_id: variant.variant_product_id // Store this for media operations
-            };
-          });
+          return {
+            id: variant.variant_id?.toString() || '',
+            sku: variant.variant_sku || '',
+            selling_price: parseFloat(variant.effective_price) || 0,
+            cost_price: parseFloat(variant.effective_cost) || 0,
+            stock_qty: variant.stock?.stock_qty || 0,
+            low_stock_threshold: variant.stock?.low_stock_threshold || 5,
+            attributes: attributeArray,
+            media: variantMedia,
+            is_default: variant.is_default || false,
+            sort_order: variant.sort_order || 0,
+            variant_product_id: variant.variant_product_id // Store this for media operations
+          };
+        });
 
         setVariants(existingVariants);
         onUpdate('variants', existingVariants);
-        setHasLoadedExistingData(true);
       }
     } catch (error) {
       console.error('Error loading existing variant data:', error);
-      setHasLoadedExistingData(true); // Set flag even on error to prevent infinite retries
     }
   };
 
@@ -242,18 +227,9 @@ const VariantsStep: React.FC<VariantsStepProps> = ({
   };
 
   const removeVariant = (variantId: string) => {
-    console.log('Removing variant with ID:', variantId);
-    console.log('Current variants before removal:', variants);
-    
-    // Add to deleted variants set to prevent reappearance
-    setDeletedVariantIds(prev => new Set([...prev, variantId]));
-    
     const updatedVariants = variants.filter(v => v.id !== variantId);
-    console.log('Variants after removal:', updatedVariants);
-    
     setVariants(updatedVariants);
     onUpdate('variants', updatedVariants);
-    
     if (expandedVariant === variantId) {
       setExpandedVariant(null);
     }
