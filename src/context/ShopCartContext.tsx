@@ -141,7 +141,7 @@ export const ShopCartProvider: React.FC<{ children: ReactNode }> = ({ children }
       if (data.status === 'success') {
         // Clear cache to force refresh
         clearCacheForShop(shopId);
-        toast.success('Item added to cart');
+        // toast.success('Item added to cart');
       }
     } catch (error) {
       console.error(`Error adding item to shop ${shopId} cart:`, error);
