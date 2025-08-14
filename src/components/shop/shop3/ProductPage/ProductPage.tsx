@@ -4,7 +4,7 @@ import shop3ApiService, { Product } from '../../../../services/shop3ApiService';
 import SimilarProducts from './SimilarProducts';
 import { useShopCartOperations } from '../../../../context/ShopCartContext';
 import { toast } from 'react-hot-toast';
-import { Star } from 'lucide-react';
+import { Star, X, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 
 const ProductPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -17,6 +17,10 @@ const ProductPage: React.FC = () => {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedMainImage, setSelectedMainImage] = useState<number>(0);
   const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState<boolean>(false);
+  
+  // Image gallery modal state
+  const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
+  const [currentGalleryIndex, setCurrentGalleryIndex] = useState<number>(0);
 
   // Cart functionality
   const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
@@ -623,26 +627,59 @@ const ProductPage: React.FC = () => {
                     ));
                   }
                   
-                  // Render actual images from backend
-                  return imageUrls.map((imageUrl, index) => (
-                    <div 
-                      key={index}
-                      className={`border border-black rounded-lg overflow-hidden cursor-pointer transition-all flex-shrink-0 ${
-                        selectedMainImage === index ? 'ring-2 ring-[#CCFF00]' : ''
-                      }`}
-                      onClick={() => setSelectedMainImage(index)}
-                      style={{ 
-                        width: imageUrls.length <= 4 ? '25%' : '120px',
-                        minWidth: imageUrls.length <= 4 ? 'auto' : '120px'
-                      }}
-                    >
-                      <img 
-                        src={imageUrl}
-                        alt={`Product view ${index + 1}`}
-                        className="w-full h-32 sm:h-48 md:h-64 object-cover"
-                      />
-                    </div>
-                  ));
+                  // Render actual images from backend (show first 4)
+                  const imagesToShow = imageUrls.slice(0, 4);
+                  const hasMoreImages = imageUrls.length > 4;
+                  const hasVideos = (currentVariant?.media?.videos && currentVariant.media.videos.length > 0) || 
+                                   (product?.media?.videos && product.media.videos.length > 0);
+                  
+                  return (
+                    <>
+                      {imagesToShow.map((imageUrl, index) => {
+                        const isFourthImage = index === 3;
+                        const shouldShowMoreOverlay = isFourthImage && (hasMoreImages || hasVideos);
+                        
+                        return (
+                          <div 
+                            key={index}
+                            className={`border border-black rounded-lg overflow-hidden cursor-pointer transition-all flex-shrink-0 relative group ${
+                              selectedMainImage === index ? 'ring-2 ring-[#CCFF00]' : ''
+                            }`}
+                            onClick={() => {
+                              if (shouldShowMoreOverlay) {
+                                setCurrentGalleryIndex(0);
+                                setIsGalleryOpen(true);
+                              } else {
+                                setSelectedMainImage(index);
+                              }
+                            }}
+                            style={{ 
+                              width: '25%',
+                              minWidth: 'auto'
+                            }}
+                          >
+                            <img 
+                              src={imageUrl}
+                              alt={`Product view ${index + 1}`}
+                              className="w-full h-32 sm:h-48 md:h-64 object-cover"
+                            />
+                            {shouldShowMoreOverlay && (
+                              <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                                <div className="text-center">
+                                  <div className="text-white text-lg sm:text-xl font-bold mb-1">
+                                    +{Math.max(0, imageUrls.length - 4) + (hasVideos ? (currentVariant?.media?.videos?.length || 0) + (product?.media?.videos?.length || 0) : 0)}
+                                  </div>
+                                  <div className="text-gray-300 text-xs sm:text-sm">
+                                    More
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </>
+                  );
                 })()}
               </div>
             </div>
@@ -694,8 +731,11 @@ const ProductPage: React.FC = () => {
                 />
               </div>
               
-              {/* Bottom Right Image */}
-              <div className="border border-black rounded-lg overflow-hidden">
+              {/* Bottom Right Image - Only this one opens gallery */}
+              <div className="border border-black rounded-lg overflow-hidden relative group cursor-pointer" onClick={() => {
+                setCurrentGalleryIndex(0);
+                setIsGalleryOpen(true);
+              }}>
                 <img 
                   src={
                     currentVariant?.media?.images?.[3]?.url || 
@@ -707,7 +747,31 @@ const ProductPage: React.FC = () => {
                   alt="Product angled view"
                   className="w-full h-[896px] object-cover"
                 />
+                <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                  <div className="text-white text-lg font-semibold">
+                    MORE IMAGES
+                  </div>
+                </div>
               </div>
+              
+              {/* More Images Button - Show if there are more than 4 images (hidden on desktop) */}
+              {(() => {
+                const variantImages = currentVariant?.media?.images || [];
+                const productImages = product?.media?.images || [];
+                const allImages = [...variantImages, ...productImages];
+                const imageUrls = allImages
+                  .map(img => img?.url)
+                  .filter(url => url)
+                  .filter((url, index, arr) => arr.indexOf(url) === index);
+                
+                // Show if there are more than 4 images or if we have videos (but not on desktop)
+                const hasMoreImages = imageUrls.length > 4;
+                const hasVideos = (currentVariant?.media?.videos && currentVariant.media.videos.length > 0) || 
+                                 (product?.media?.videos && product.media.videos.length > 0);
+                
+                // Don't show this section on desktop since there's already a more comprehensive image section
+                return null;
+              })()}
             </div>
           </div>
         </div>
@@ -732,11 +796,11 @@ const ProductPage: React.FC = () => {
                 const hasSpecialPrice = currentProduct.special_price && currentProduct.special_price < currentProduct.price;
                 return hasSpecialPrice ? (
                   <>
-                    <span className="text-white line-through text-base sm:text-lg lg:text-[20px] font-sans">${currentProduct.price}</span>
-                    <span className="text-base sm:text-lg lg:text-[20px] font-bold text-[#FE5335] font-sans">${currentProduct.special_price}</span>
+                    <span className="text-white line-through text-base sm:text-lg lg:text-[20px] font-sans">₹{currentProduct.price}</span>
+                    <span className="text-base sm:text-lg lg:text-[20px] font-bold text-[#FE5335] font-sans">₹{currentProduct.special_price}</span>
                   </>
                 ) : (
-                  <span className="text-base sm:text-lg lg:text-[20px] font-bold text-white font-sans">${currentProduct.price}</span>
+                  <span className="text-base sm:text-lg lg:text-[20px] font-bold text-white font-sans">₹{currentProduct.price}</span>
                 );
               })()}
             </div>
@@ -960,6 +1024,201 @@ const ProductPage: React.FC = () => {
 
       {/* Reviews Section (real data with delivered-order gating) */}
       <Shop3ReviewsSection shopProductId={product.product_id} />
+      
+      {/* Image Gallery Modal */}
+      {isGalleryOpen && (
+        <ImageGalleryModal
+          product={product}
+          currentVariant={currentVariant}
+          currentIndex={currentGalleryIndex}
+          onClose={() => setIsGalleryOpen(false)}
+          onIndexChange={setCurrentGalleryIndex}
+        />
+      )}
+    </div>
+  );
+};
+
+// Image Gallery Modal Component
+interface ImageGalleryModalProps {
+  product: Product;
+  currentVariant: Product | null;
+  currentIndex: number;
+  onClose: () => void;
+  onIndexChange: (index: number) => void;
+}
+
+const ImageGalleryModal: React.FC<ImageGalleryModalProps> = ({
+  product,
+  currentVariant,
+  currentIndex,
+  onClose,
+  onIndexChange
+}) => {
+  // Get all media (images and videos)
+  const getAllMedia = () => {
+    const variantImages = currentVariant?.media?.images || [];
+    const productImages = product?.media?.images || [];
+    const variantVideos = currentVariant?.media?.videos || [];
+    const productVideos = product?.media?.videos || [];
+    
+    // Combine all images
+    const allImages = [...variantImages, ...productImages]
+      .map(img => ({ type: 'image' as const, url: img?.url, alt: 'Product image' }))
+      .filter(item => item.url);
+    
+    // Combine all videos
+    const allVideos = [...variantVideos, ...productVideos]
+      .map(video => ({ type: 'video' as const, url: video?.url, alt: 'Product video' }))
+      .filter(item => item.url);
+    
+    // Remove duplicates
+    const allMedia = [...allImages, ...allVideos];
+    const uniqueMedia = allMedia.filter((item, index, arr) => 
+      arr.findIndex(m => m.url === item.url) === index
+    );
+    
+    return uniqueMedia;
+  };
+
+  const allMedia = getAllMedia();
+  const currentMedia = allMedia[currentIndex];
+
+  const handlePrevious = () => {
+    const newIndex = currentIndex === 0 ? allMedia.length - 1 : currentIndex - 1;
+    onIndexChange(newIndex);
+  };
+
+  const handleNext = () => {
+    const newIndex = currentIndex === allMedia.length - 1 ? 0 : currentIndex + 1;
+    onIndexChange(newIndex);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    } else if (e.key === 'ArrowLeft') {
+      handlePrevious();
+    } else if (e.key === 'ArrowRight') {
+      handleNext();
+    }
+  };
+
+  // Close modal when clicking outside
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4"
+      onClick={handleBackdropClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+    >
+      {/* Close Button */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors"
+        aria-label="Close gallery"
+      >
+        <X size={32} />
+      </button>
+
+      {/* Navigation Buttons */}
+      {allMedia.length > 1 && (
+        <>
+          <button
+            onClick={handlePrevious}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-2"
+            aria-label="Previous image"
+          >
+            <ChevronLeft size={32} />
+          </button>
+          <button
+            onClick={handleNext}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-2"
+            aria-label="Next image"
+          >
+            <ChevronRight size={32} />
+          </button>
+        </>
+      )}
+
+      {/* Main Content */}
+      <div className="relative max-w-4xl w-full max-h-[90vh] flex flex-col">
+        {/* Media Display */}
+        <div className="flex-1 flex items-center justify-center">
+          {currentMedia?.type === 'video' ? (
+            <div className="relative">
+              <video
+                src={currentMedia.url}
+                controls
+                className="max-w-full max-h-[70vh] object-contain"
+                autoPlay
+                muted
+              />
+              <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm flex items-center gap-1">
+                <Play size={16} />
+                Video
+              </div>
+            </div>
+          ) : (
+            <img
+              src={currentMedia?.url || "assets/shop3/ProductPage/pd1.svg"}
+              alt={currentMedia?.alt || "Product image"}
+              className="max-w-full max-h-[70vh] object-contain"
+            />
+          )}
+        </div>
+
+        {/* Thumbnail Navigation */}
+        {allMedia.length > 1 && (
+          <div className="mt-4 flex justify-center">
+            <div className="flex gap-2 overflow-x-auto max-w-full pb-2">
+              {allMedia.map((media, index) => (
+                <button
+                  key={index}
+                  onClick={() => onIndexChange(index)}
+                  className={`flex-shrink-0 border-2 rounded-lg overflow-hidden transition-all ${
+                    index === currentIndex 
+                      ? 'border-[#CCFF00] scale-110' 
+                      : 'border-gray-600 hover:border-gray-400'
+                  }`}
+                >
+                  {media.type === 'video' ? (
+                    <div className="relative">
+                      <video
+                        src={media.url}
+                        className="w-16 h-16 object-cover"
+                        muted
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                        <Play size={16} className="text-white" />
+                      </div>
+                    </div>
+                  ) : (
+                    <img
+                      src={media.url}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-16 h-16 object-cover"
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Counter */}
+        {allMedia.length > 1 && (
+          <div className="text-center text-white text-sm mt-2">
+            {currentIndex + 1} of {allMedia.length}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

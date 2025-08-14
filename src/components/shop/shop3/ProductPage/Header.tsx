@@ -52,10 +52,10 @@ const Header: React.FC = () => {
           
           {/* Desktop Navigation links */}
           <nav className="hidden sm:flex space-x-4 lg:space-x-8">
-            <Link to="/shop3" className="text-white uppercase font-sans font-semibold text-sm hover:text-gray-300 transition-colors">
+            <Link to="/shop3" className="text-white uppercase font-bebas font-semibold text-[20px]  hover:text-[#CF0] transition-colors">
               HOME
             </Link>
-            <Link to="/shop3/about" className="text-white uppercase font-sans text-sm font-semibold  border-white pb-1">
+            <Link to="/shop3/about" className="text-white uppercase font-bebas text-[20px] font-semibold  border-white pb-1 hover:text-[#CF0] transition-colors">
               ABOUT
             </Link>
            
@@ -88,7 +88,7 @@ const Header: React.FC = () => {
             </button>
             {/* Wishlist badge */}
             {wishlistCount > 0 && (
-              <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-orange-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+              <div className="absolute -top-1 right-2 sm:-top-2 sm:-right-0 bg-orange-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
                 {wishlistCount > 99 ? '99+' : wishlistCount}
               </div>
             )}
@@ -103,7 +103,7 @@ const Header: React.FC = () => {
             </button>
             {/* Cart badge */}
             {cartCount > 0 && (
-              <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-orange-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+              <div className="absolute -top-1 -right-2 sm:-top-2 sm:-right-2 bg-orange-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
                 {cartCount > 99 ? '99+' : cartCount}
               </div>
             )}
@@ -115,10 +115,10 @@ const Header: React.FC = () => {
       {isMobileMenuOpen && (
         <div className="sm:hidden mt-4 pb-4 border-t border-gray-700">
           <nav className="flex flex-col space-y-4 pt-4">
-          <Link to="/shop3" className="text-white uppercase font-sans font-semibold text-sm hover:text-gray-300 transition-colors">
+          <Link to="/shop3" className="text-white uppercase font-bebas font-semibold text-sm hover:text-[#CF0] transition-colors">
               HOME
             </Link>
-            <Link to="/shop3/about" className="text-white uppercase font-sans text-sm font-semibold  border-white pb-1">
+            <Link to="/shop3/about" className="text-white uppercase font-bebas text-sm font-semibold  border-white pb-1 hover:text-[#CF0] transition-colors">
               ABOUT
             </Link>
           </nav>

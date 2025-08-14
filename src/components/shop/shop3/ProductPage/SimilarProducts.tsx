@@ -66,7 +66,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
   }
 
   const formatPrice = (price: number): string => {
-    return `$${price}`;
+    return `₹${price}`;
   };
 
   return (
@@ -99,13 +99,13 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
                 className="group flex-shrink-0"
               >
                 <div
-                  className={`rounded-2xl shadow-lg flex flex-col w-[calc(100vw-2rem)] sm:w-[340px] md:w-[373px] min-w-[calc(100vw-2rem)] sm:min-w-[340px] md:min-w-[380px] max-w-[380px] transition-transform duration-300 hover:scale-105 snap-center`}
+                  className={`rounded-2xl shadow-lg flex flex-col w-[calc(100vw-2rem)] sm:w-[340px] md:w-[373px] min-w-[calc(100vw-2rem)] sm:min-w-[340px] md:min-w-[380px] max-w-[380px] transition-transform duration-300  snap-center`}
                 >
                   <div className="relative w-full h-[400px] xs:h-[380px] sm:h-[420px] md:h-[461px] rounded-2xl overflow-hidden mb-4">
                     <img
                       src={product.primary_image || "/assets/images/Productcard/hero3.jpg"}
                       alt={product.product_name}
-                      className="w-full h-full object-contain sm:object-cover rounded-2xl group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-contain sm:object-cover rounded-2xl transition-transform duration-300"
                     />
                     
                     {/* Wishlist button */}
