@@ -3,6 +3,9 @@ import { Heart, ShoppingCart, Image as ImageIcon, ChevronDown, ChevronUp, Star, 
 import { useParams, useNavigate } from 'react-router-dom';
 import shop2ApiService, { Product, ProductVariant } from '../../../../services/shop2ApiService';
 import chroma from 'chroma-js';
+import SizeGuide from './SizeGuide';
+import { useShopCartOperations } from '../../../../context/ShopCartContext';
+import { toast } from 'react-hot-toast';
 
 const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
@@ -12,6 +15,9 @@ const ProductDetail = () => {
   const [variantsLoading, setVariantsLoading] = useState(false);
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
+  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
+  const [addingToCart, setAddingToCart] = useState(false);
+  const SHOP_ID = 2; // Shop2 ID
 
   // For accordion
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -275,18 +281,54 @@ const ProductDetail = () => {
     setQuantity((prev) => Math.max(1, prev + (increase ? 1 : -1)));
   };
   
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (stockError) {
-      alert(stockError);
+      toast.error(stockError);
       return;
     }
-    // TODO: Integrate with Shop2 cart when available
-    console.log('Add to cart clicked (Shop2)', { 
-      productId, 
-      quantity, 
-      selectedAttributes, 
-      variantId: currentVariant?.variant_id 
-    });
+
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to add items to cart');
+      navigate('/sign-in');
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      await addToShopCart(SHOP_ID, Number(productId), quantity);
+      toast.success('Added to cart successfully!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (stockError) {
+      toast.error(stockError);
+      return;
+    }
+
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to purchase items');
+      navigate('/sign-in');
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      await addToShopCart(SHOP_ID, Number(productId), quantity);
+      toast.success('Added to cart successfully!');
+      // Navigate to cart page
+      navigate('/shop2/cart');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
 
@@ -306,6 +348,7 @@ const ProductDetail = () => {
 
   const [showPhotosModal, setShowPhotosModal] = useState(false);
   const [currentPhotoIdx, setCurrentPhotoIdx] = useState(0);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
 
   // Fetch product variants
   const fetchVariants = async (productId: number) => {
@@ -743,7 +786,10 @@ const ProductDetail = () => {
                            {attrName.toUpperCase()}
                          </span>
                          {attrName.toLowerCase() === 'size' && (
-                           <span className="text-xs sm:text-[13px] text-black underline cursor-pointer font-medium">
+                           <span 
+                             className="text-xs sm:text-[13px] text-black underline cursor-pointer font-medium hover:text-gray-600 transition-colors"
+                             onClick={() => setShowSizeGuide(true)}
+                           >
                              Size Guide
                            </span>
                          )}
@@ -805,23 +851,40 @@ const ProductDetail = () => {
              );
            })()}
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
-            <button 
-              className={`w-full sm:flex-1 text-[16px] font-gilroy px-3 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-base shadow transition-all ${
-                stockError 
-                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-                  : 'bg-black text-white hover:bg-gray-900'
-              }`}
-              onClick={handleAddToCart}
-              disabled={!!stockError}
-            >
-              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" /> Add to Cart
-            </button>
-            <button className="w-full sm:flex-1 border-2 border-black text-black px-3 py-3 sm:py-4 rounded-full font-bold text-base  hover:bg-gray-100 transition-all">
-              Buy Now
-            </button>
-          </div>
+                     {/* Action Buttons */}
+           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
+             <button 
+               className={`w-full sm:flex-1 text-[16px] font-gilroy px-3 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-base shadow transition-all ${
+                 stockError || addingToCart
+                   ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                   : 'bg-black text-white hover:bg-gray-900'
+               }`}
+               onClick={handleAddToCart}
+               disabled={!!stockError || addingToCart}
+             >
+               {addingToCart ? (
+                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
+               ) : (
+                 <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+               )}
+               {addingToCart ? 'Adding...' : 'Add to Cart'}
+             </button>
+             <button 
+               className={`w-full sm:flex-1 border-2 border-black text-black px-3 py-3 sm:py-4 rounded-full font-bold text-base transition-all ${
+                 stockError || addingToCart
+                   ? 'border-gray-400 text-gray-400 cursor-not-allowed'
+                   : 'hover:bg-gray-100'
+               }`}
+               onClick={handleBuyNow}
+               disabled={!!stockError || addingToCart}
+             >
+               {addingToCart ? (
+                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mx-auto" />
+               ) : (
+                 'Buy Now'
+               )}
+             </button>
+           </div>
         </div>
       </div>
 
@@ -1005,6 +1068,12 @@ const ProductDetail = () => {
     </div>
     {/* Review images lightbox */}
     <ReviewImageViewerShop2 />
+    
+    {/* Size Guide Modal */}
+    <SizeGuide 
+      isOpen={showSizeGuide} 
+      onClose={() => setShowSizeGuide(false)} 
+    />
     </>
   );
 };
