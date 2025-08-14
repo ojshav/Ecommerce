@@ -17,8 +17,7 @@ const mapApiProductToLocal = (apiProduct: ApiProduct): Product => ({
 
 // --- Sidebar Component (Desktop) ---
 const Sidebar: React.FC = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [priceRange, setPriceRange] = useState<[number, number]>([0, 7500]);
+    const [priceRange, setPriceRange] = useState([0, 7500]);
     const [inStock, setInStock] = useState(false);
     const [outOfStock, setOutOfStock] = useState(false);
     const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
@@ -26,21 +25,6 @@ const Sidebar: React.FC = () => {
 
     const minPrice = 0;
     const maxPrice = 7500;
-
-    // Initialize price range from URL params
-    useEffect(() => {
-        const urlMin = Number(searchParams.get('min_price'));
-        const urlMax = Number(searchParams.get('max_price'));
-        const hasUrlMin = !Number.isNaN(urlMin);
-        const hasUrlMax = !Number.isNaN(urlMax);
-        
-        if (hasUrlMin || hasUrlMax) {
-            setPriceRange([
-                hasUrlMin ? Math.max(minPrice, urlMin) : minPrice,
-                hasUrlMax ? Math.min(maxPrice, urlMax) : maxPrice,
-            ]);
-        }
-    }, [searchParams]);
 
     const handleMouseDown = (e: React.MouseEvent, handle: 'min' | 'max') => {
         e.preventDefault();
@@ -117,7 +101,7 @@ const Sidebar: React.FC = () => {
     const getMaxPosition = () => ((priceRange[1] - minPrice) / (maxPrice - minPrice)) * 100;
 
     const handleClearFilters = () => {
-        setPriceRange([minPrice, maxPrice]);
+        setPriceRange([0, 7500]);
         setInStock(false);
         setOutOfStock(false);
         const next = new URLSearchParams(searchParams);
@@ -228,7 +212,7 @@ const Sidebar: React.FC = () => {
                     <div className="text-[#E0E0E0] text-sm mb-6">
                         Price: ${Math.round(priceRange[0])} – ${Math.round(priceRange[1])}
                     </div>
-                    <button onClick={applyPriceFilter} className="flex w-[197px] h-[50px] px-[31px] py-[21px] justify-center items-center gap-[11px] flex-shrink-0 bg-black text-white font-futura text-[14px] font-normal leading-normal tracking-[3.5px] uppercase hover:bg-gray-900 transition-colors">
+                    <button className="flex w-[197px] h-[50px] px-[31px] py-[21px] justify-center items-center gap-[11px] flex-shrink-0 bg-black text-white font-futura text-[14px] font-normal leading-normal tracking-[3.5px] uppercase hover:bg-gray-900 transition-colors">
                         FILTER
                     </button>
                 </div>
@@ -317,8 +301,7 @@ const Sidebar: React.FC = () => {
 
 // --- Mobile Filter Modal ---
 const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [priceRange, setPriceRange] = useState<[number, number]>([0, 7500]);
+    const [priceRange, setPriceRange] = useState([0, 7500]);
     const [inStock, setInStock] = useState(false);
     const [outOfStock, setOutOfStock] = useState(false);
     const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
@@ -326,21 +309,6 @@ const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
 
     const minPrice = 0;
     const maxPrice = 7500;
-
-    // Initialize price range from URL params
-    useEffect(() => {
-        const urlMin = Number(searchParams.get('min_price'));
-        const urlMax = Number(searchParams.get('max_price'));
-        const hasUrlMin = !Number.isNaN(urlMin);
-        const hasUrlMax = !Number.isNaN(urlMax);
-        
-        if (hasUrlMin || hasUrlMax) {
-            setPriceRange([
-                hasUrlMin ? Math.max(minPrice, urlMin) : minPrice,
-                hasUrlMax ? Math.min(maxPrice, urlMax) : maxPrice,
-            ]);
-        }
-    }, [searchParams, isOpen]);
 
     const handleMouseDown = (e: React.MouseEvent, handle: 'min' | 'max') => {
         e.preventDefault();
@@ -411,14 +379,9 @@ const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
     const getMaxPosition = () => ((priceRange[1] - minPrice) / (maxPrice - minPrice)) * 100;
 
     const handleClearFilters = () => {
-        setPriceRange([minPrice, maxPrice]);
+        setPriceRange([0, 7500]);
         setInStock(false);
         setOutOfStock(false);
-        const next = new URLSearchParams(searchParams);
-        next.delete('min_price');
-        next.delete('max_price');
-        next.set('page', '1');
-        setSearchParams(next);
     };
 
     const handleApplyFilters = () => {
@@ -956,7 +919,7 @@ const ProductGrid: React.FC = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-x-8 sm:gap-x-12 2xl:gap-x-20 gap-y-14 sm:gap-y-14 lg:gap-y-20">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-x-8 sm:gap-x-12 2xl:gap-x-20 gap-y-28 sm:gap-y-28 lg:gap-y-40">
                         {products.map((product) => (
                             <div key={product.id} className="cursor-pointer">
                                 {/* Let the card control its own internal clicks; wrap a small overlay for image/title nav if needed in the card itself */}

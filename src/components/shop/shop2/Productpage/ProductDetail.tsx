@@ -3,6 +3,9 @@ import { Heart, ShoppingCart, Image as ImageIcon, ChevronDown, ChevronUp, Star, 
 import { useParams, useNavigate } from 'react-router-dom';
 import shop2ApiService, { Product, ProductVariant } from '../../../../services/shop2ApiService';
 import chroma from 'chroma-js';
+import SizeGuide from './SizeGuide';
+import { useShopCartOperations } from '../../../../context/ShopCartContext';
+import { toast } from 'react-hot-toast';
 
 const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
@@ -12,6 +15,9 @@ const ProductDetail = () => {
   const [variantsLoading, setVariantsLoading] = useState(false);
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
+  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
+  const [addingToCart, setAddingToCart] = useState(false);
+  const SHOP_ID = 2; // Shop2 ID
 
   // For accordion
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -235,7 +241,7 @@ const ProductDetail = () => {
       });
     } else {
       // For non-variant products: Show parent product attributes (read-only)
-      console.log('Product does not have variants, showing parent product attributes');
+      // console.log('Product does not have variants, showing parent product attributes');
       parentAttrs.forEach(attr => {
         const attrName = attr.attribute?.name;
         const attrValue = attr.value;
@@ -274,38 +280,129 @@ const ProductDetail = () => {
   const handleQuantityChange = (increase: boolean) => {
     setQuantity((prev) => Math.max(1, prev + (increase ? 1 : -1)));
   };
+
+  // Check if current selection is in stock (like Hero.tsx)
+  const isInStock = () => {
+    if (currentVariant) {
+      return (currentVariant.stock_qty || 0) > 0;
+    }
+    return product?.is_in_stock !== false;
+  };
+
+  // Get stock quantity for display (like Hero.tsx)
+  const getStockQuantity = () => {
+    if (currentVariant) {
+      return currentVariant.stock_qty || 0;
+    }
+    return product?.stock?.stock_qty || 0;
+  };
   
-  const handleAddToCart = () => {
-    if (stockError) {
-      alert(stockError);
+  const handleAddToCart = async () => {
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to add items to cart');
+      navigate('/sign-in');
       return;
     }
-    // TODO: Integrate with Shop2 cart when available
-    console.log('Add to cart clicked (Shop2)', { 
-      productId, 
-      quantity, 
-      selectedAttributes, 
-      variantId: currentVariant?.variant_id 
-    });
+
+    if (!product) {
+      toast.error('Product not available');
+      return;
+    }
+
+    if (stockError) {
+      toast.error(stockError);
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      
+      // Determine which product to add (variant or parent)
+      const productToAdd = currentVariant || product;
+      
+      // Convert selectedAttributes to the format expected by the API (like Hero.tsx)
+      const attributesForApi: { [key: number]: string | string[] } = {};
+      Object.entries(selectedAttributes).forEach(([, value], index) => {
+        if (value) {
+          attributesForApi[index + 1] = [value]; // API expects numbered keys
+        }
+      });
+
+      // Use variant_product_id for variants, or product_id for parent product
+      const productIdToAdd = currentVariant ? currentVariant.variant_product_id : product.product_id;
+      await addToShopCart(SHOP_ID, productIdToAdd, quantity, attributesForApi);
+      toast.success('Added to cart successfully!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to purchase items');
+      navigate('/sign-in');
+      return;
+    }
+
+    if (!product) {
+      toast.error('Product not available');
+      return;
+    }
+
+    if (stockError) {
+      toast.error(stockError);
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      
+      // Determine which product to add (variant or parent)
+      const productToAdd = currentVariant || product;
+      
+      // Convert selectedAttributes to the format expected by the API (like Hero.tsx)
+      const attributesForApi: { [key: number]: string | string[] } = {};
+      Object.entries(selectedAttributes).forEach(([, value], index) => {
+        if (value) {
+          attributesForApi[index + 1] = [value]; // API expects numbered keys
+        }
+      });
+
+      // Use variant_product_id for variants, or product_id for parent product
+      const productIdToAdd = currentVariant ? currentVariant.variant_product_id : product.product_id;
+      await addToShopCart(SHOP_ID, productIdToAdd, quantity, attributesForApi);
+      toast.success('Added to cart successfully!');
+      // Navigate to cart page
+      navigate('/shop2/cart');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
 
 
   // Handle attribute selection (simplified like Shop4)
   const handleAttributeSelect = (attributeName: string, value: string) => {
-    console.log(`Selecting attribute: ${attributeName} = ${value}`);
+    // console.log(`Selecting attribute: ${attributeName} = ${value}`);
     setSelectedAttributes(prev => {
       const newAttrs = {
         ...prev,
         [attributeName]: value
       };
-      console.log('New selected attributes:', newAttrs);
+      // console.log('New selected attributes:', newAttrs);
       return newAttrs;
     });
   };
 
   const [showPhotosModal, setShowPhotosModal] = useState(false);
   const [currentPhotoIdx, setCurrentPhotoIdx] = useState(0);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
 
   // Fetch product variants
   const fetchVariants = async (productId: number) => {
@@ -412,7 +509,7 @@ const ProductDetail = () => {
         }
       });
       
-      console.log('Default selected attributes (from parent product):', initialAttributes);
+      // console.log('Default selected attributes (from parent product):', initialAttributes);
       setSelectedAttributes(initialAttributes);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -426,8 +523,8 @@ const ProductDetail = () => {
       return;
     }
 
-    console.log('Finding variant with selected attributes:', selectedAttributes);
-    console.log('Available variants:', variants);
+    // console.log('Finding variant with selected attributes:', selectedAttributes);
+    // console.log('Available variants:', variants);
 
     const findMatchingVariant = () => {
       // First check if selected attributes match parent product (like Shop4)
@@ -448,7 +545,7 @@ const ProductDetail = () => {
         });
 
         if (matchesParent && Object.keys(parentDefaults).length === Object.keys(selectedAttributes).length) {
-          console.log('Selected attributes match parent product - showing parent');
+          // console.log('Selected attributes match parent product - showing parent');
           setCurrentVariant(null);
           setStockError('');
           return;
@@ -457,10 +554,10 @@ const ProductDetail = () => {
 
       // Try to find variant by matching attribute combination
       const matchingVariant = variants.find(variant => {
-        console.log('Checking variant:', variant.variant_id, 'with attributes:', variant.attribute_combination);
+        // console.log('Checking variant:', variant.variant_id, 'with attributes:', variant.attribute_combination);
         
         if (!variant.attribute_combination) {
-          console.log('Variant has no attribute_combination');
+          // console.log('Variant has no attribute_combination');
           return false;
         }
         
@@ -468,16 +565,16 @@ const ProductDetail = () => {
         const matches = Object.entries(selectedAttributes).every(([attrName, attrValue]) => {
           const variantValue = variant.attribute_combination[attrName];
           const isMatch = variantValue === attrValue;
-          console.log(`Attribute ${attrName}: selected="${attrValue}", variant="${variantValue}", match=${isMatch}`);
+          // console.log(`Attribute ${attrName}: selected="${attrValue}", variant="${variantValue}", match=${isMatch}`);
           return isMatch;
         });
         
-        console.log(`Variant ${variant.variant_id} matches: ${matches}`);
+        // console.log(`Variant ${variant.variant_id} matches: ${matches}`);
         return matches;
       });
 
       if (matchingVariant) {
-        console.log('Found matching variant:', matchingVariant);
+        // console.log('Found matching variant:', matchingVariant);
         setCurrentVariant(matchingVariant);
         // Reset image carousel to first image when variant changes
         setCurrentImageIndex(0);
@@ -491,7 +588,7 @@ const ProductDetail = () => {
           setStockError('');
         }
       } else {
-        console.log('No matching variant found');
+        //  console.log('No matching variant found');
         setCurrentVariant(null);
         // Reset to parent media when no variant is selected
         setCurrentImageIndex(0);
@@ -715,11 +812,23 @@ const ProductDetail = () => {
           <p className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6">
             ₹{Number(currentVariant?.effective_price || product.price).toLocaleString('en-IN')}
           </p>
-          {/* Stock Error Display */}
+          {/* Stock Warning */}
           {stockError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm font-medium">{stockError}</p>
+            <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${stockError.includes('out of stock')
+                ? 'bg-red-100 text-red-800'
+                : 'bg-yellow-100 text-yellow-800'
+              }`}>
+              {stockError}
             </div>
+          )}
+          {/* Stock indicator */}
+          {!isInStock() && !stockError && (
+            <p className="text-red-600 text-sm font-medium mb-4">Out of Stock</p>
+          )}
+          {isInStock() && getStockQuantity() <= 5 && getStockQuantity() > 0 && !stockError && (
+            <p className="text-yellow-600 text-sm font-medium mb-4">
+              Only {getStockQuantity()} left!
+            </p>
           )}
                      {/* Dynamic Attribute Selection */}
            {(() => {
@@ -743,7 +852,10 @@ const ProductDetail = () => {
                            {attrName.toUpperCase()}
                          </span>
                          {attrName.toLowerCase() === 'size' && (
-                           <span className="text-xs sm:text-[13px] text-black underline cursor-pointer font-medium">
+                           <span 
+                             className="text-xs sm:text-[13px] text-black underline cursor-pointer font-medium hover:text-gray-600 transition-colors"
+                             onClick={() => setShowSizeGuide(true)}
+                           >
                              Size Guide
                            </span>
                          )}
@@ -805,23 +917,40 @@ const ProductDetail = () => {
              );
            })()}
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
-            <button 
-              className={`w-full sm:flex-1 text-[16px] font-gilroy px-3 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-base shadow transition-all ${
-                stockError 
-                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-                  : 'bg-black text-white hover:bg-gray-900'
-              }`}
-              onClick={handleAddToCart}
-              disabled={!!stockError}
-            >
-              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" /> Add to Cart
-            </button>
-            <button className="w-full sm:flex-1 border-2 border-black text-black px-3 py-3 sm:py-4 rounded-full font-bold text-base  hover:bg-gray-100 transition-all">
-              Buy Now
-            </button>
-          </div>
+                     {/* Action Buttons */}
+           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
+             <button 
+               className={`w-full sm:flex-1 text-[16px] font-gilroy px-3 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-base shadow transition-all ${
+                 isInStock() && !addingToCart
+                   ? 'bg-black text-white hover:bg-gray-900' 
+                   : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+               }`}
+               onClick={handleAddToCart}
+               disabled={!isInStock() || addingToCart}
+             >
+               {addingToCart ? (
+                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
+               ) : (
+                 <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+               )}
+               {addingToCart ? 'Adding...' : (!isInStock() ? 'Out of Stock' : 'Add to Cart')}
+             </button>
+             <button 
+               className={`w-full sm:flex-1 border-2 border-black text-black px-3 py-3 sm:py-4 rounded-full font-bold text-base transition-all ${
+                 isInStock() && !addingToCart
+                   ? 'hover:bg-gray-100'
+                   : 'border-gray-400 text-gray-400 cursor-not-allowed'
+               }`}
+               onClick={handleBuyNow}
+               disabled={!isInStock() || addingToCart}
+             >
+               {addingToCart ? (
+                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mx-auto" />
+               ) : (
+                 !isInStock() ? 'Out of Stock' : 'Buy Now'
+               )}
+             </button>
+           </div>
         </div>
       </div>
 
@@ -1005,6 +1134,12 @@ const ProductDetail = () => {
     </div>
     {/* Review images lightbox */}
     <ReviewImageViewerShop2 />
+    
+    {/* Size Guide Modal */}
+    <SizeGuide 
+      isOpen={showSizeGuide} 
+      onClose={() => setShowSizeGuide(false)} 
+    />
     </>
   );
 };
