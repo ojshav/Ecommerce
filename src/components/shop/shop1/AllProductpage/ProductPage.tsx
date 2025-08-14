@@ -18,8 +18,9 @@ const ProductPage = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   // Dynamic Price Range States
-  const [priceRange, setPriceRange] = useState([0, 100000]);
-  const [minPrice, setMinPrice] = useState(0);
+  // priceRange is the FILTER value; only set when user presses FILTER
+  const [priceRange, setPriceRange] = useState<number[] | null>(null);
+  const minPrice = 0;
   const [maxPrice, setMaxPrice] = useState(100000);
 
   // Filter States
@@ -34,32 +35,23 @@ const ProductPage = () => {
   const [price, setPrice] = useState([0, 100000]);
   // Discount filter (single-select chip)
   const [discountChip, setDiscountChip] = useState<string | null>(null);
+  // Mobile UI controls
+  // Mobile UI controls
+  // Sort select is rendered directly on mobile; no extra toggle state
+  const [discountOpen, setDiscountOpen] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [mobileFilterTab, setMobileFilterTab] = useState<'price' | 'categories' | 'brands' | 'discount'>('price');
+  
 
   // Sidebar section toggles for mobile
-  const [allFiltersOpen, setAllFiltersOpen] = useState(false);
+  const [allFiltersOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [brandOpen, setBrandOpen] = useState(false);
   const [priceOpen, setPriceOpen] = useState(false);
   // const [colorsOpen, setColorsOpen] = useState(false); // hidden section
   // const [sizeOpen, setSizeOpen] = useState(false); // hidden section
 
-  // Calculate price range from products
-  const calculatePriceRange = (productList: Product[]) => {
-    if (productList.length === 0) {
-      return { min: 0, max: 100000 };
-    }
-
-    const prices = productList.map(product => product.price).filter(price => price > 0);
-    
-    if (prices.length === 0) {
-      return { min: 0, max: 100000 };
-    }
-
-    const min = Math.floor(Math.min(...prices));
-    const max = Math.ceil(Math.max(...prices));
-    
-    return { min, max };
-  };
+  // Price slider is fixed to [0, maxPrice]; dynamic min/max not used for now.
 
   // Load initial data
   useEffect(() => {
@@ -140,8 +132,8 @@ const ProductPage = () => {
           per_page: itemsPerPage,
           category_id: selectedCategory || undefined,
           brand_id: selectedBrand || undefined,
-          min_price: priceRange[0] > 0 ? priceRange[0] : undefined,
-          max_price: priceRange[1] < 100000 ? priceRange[1] : undefined,
+          min_price: priceRange ? priceRange[0] : undefined,
+          max_price: priceRange ? priceRange[1] : undefined,
 
           discount_min,
           discount_max,
@@ -170,22 +162,33 @@ const ProductPage = () => {
   }, [currentPage, itemsPerPage, selectedCategory, selectedBrand, searchTerm,priceRange, sortBy, sortOrder, discountChip]);
 
 
-  // Calculate dynamic price range when products change
+  // Ensure left bound is always 0 and initialize UI range
   useEffect(() => {
-    if (products.length > 0) {
-      const { min, max } = calculatePriceRange(products);
-      setMinPrice(min);
-      setMaxPrice(max);
-      
-      // Only update price range on initial load (when priceRange is at default values)
-      const isInitialLoad = priceRange[0] === 0 && priceRange[1] === 100000;
-      
-      if (isInitialLoad) {
-        setPriceRange([min, max]);
-        setPrice([min, max]);
-      }
+    // Force min to 0 in UI
+    if (price[0] !== 0) setPrice([0, price[1]]);
+    if (priceRange === null) {
+      setPrice([0, maxPrice]);
     }
-  }, [products]);
+  }, [priceRange, maxPrice]);
+
+  // Fetch global maximum product price once
+  useEffect(() => {
+    const fetchMaxPrice = async () => {
+      try {
+        const res = await shop1ApiService.getProducts({ page: 1, per_page: 1, sort_by: 'selling_price', order: 'desc' });
+        if (res?.success && res.products?.length > 0) {
+          const top = res.products[0];
+          const highest = Math.ceil((top.selling_price ?? top.price) || 0);
+          if (highest > 0) {
+            setMaxPrice(highest);
+          }
+        }
+      } catch (e) {
+        // keep default
+      }
+    };
+    fetchMaxPrice();
+  }, []);
 
   // Handle category selection
   const handleCategoryChange = (categoryId: number | null) => {
@@ -199,33 +202,13 @@ const ProductPage = () => {
     setCurrentPage(1);
   };
 
-  // Slider handlers for price range
-  const handleMinSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.min(Number(e.target.value), price[1] - 1);
-    const newPrice = [value, price[1]];
-    setPrice(newPrice);
-    setPriceRange(newPrice); // Update filter state
-  };
-
   const handleMaxSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.max(Number(e.target.value), price[0] + 1);
     const newPrice = [price[0], value];
     setPrice(newPrice);
-    setPriceRange(newPrice); // Update filter state
   };
 
   // Input handlers for price inputs
-  const handleMinInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
-    const value = Number(inputValue);
-    
-    if (value >= minPrice && value < price[1]) {
-      const newPrice = [value, price[1]];
-      setPrice(newPrice);
-      setPriceRange(newPrice);
-    }
-  };
-
   const handleMaxInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
     const value = Number(inputValue);
@@ -233,16 +216,7 @@ const ProductPage = () => {
     if (value > price[0] && value <= maxPrice) {
       const newPrice = [price[0], value];
       setPrice(newPrice);
-      setPriceRange(newPrice);
     }
-  };
-
-  const handleMinInputBlur = () => {
-    // Ensure the value is within valid range
-    const value = Math.max(minPrice, Math.min(price[0], price[1] - 1));
-    const newPrice = [value, price[1]];
-    setPrice(newPrice);
-    setPriceRange(newPrice);
   };
 
   const handleMaxInputBlur = () => {
@@ -250,30 +224,11 @@ const ProductPage = () => {
     const value = Math.min(maxPrice, Math.max(price[1], price[0] + 1));
     const newPrice = [price[0], value];
     setPrice(newPrice);
-    setPriceRange(newPrice);
   };
 
   return (
     <div className="flex flex-col md:flex-row bg-white mx-auto min-h-screen px-2 sm:px-4 md:px-8 lg:px-16 py-6 md:py-20 max-w-full md:max-w-[1440px]">
-      {/* Mobile Filter Menu Icon */}
-      <div className="md:hidden flex justify-end mb-0">
-        <button
-          className="p-2 rounded border border-gray-300 bg-white shadow"
-          onClick={() => setAllFiltersOpen((open) => !open)}
-          aria-label="Toggle Filters"
-        >
-          {/* Hamburger menu icon */}
-          {allFiltersOpen ? (
-            <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
-        </button>
-      </div>
+      {/* Mobile Filter Menu Icon moved into Controls for better alignment */}
       {/* Sidebar */}
       <aside className="w-full md:w-64 pr-0 md:pr-8 mb-8 md:mb-0">
         {/* All filter sections: show on desktop, or on mobile if allFiltersOpen is true */}
@@ -367,11 +322,11 @@ const ProductPage = () => {
                   <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">₹</span>
                   <input
                     type="text"
-                    value={price[0]}
-                    onChange={handleMinInput}
-                    onBlur={handleMinInputBlur}
-                    className="w-[50px] md:w-[63px] h-[33px] text-center border border-gray-300 rounded-xl text-[14px] font-normal font-poppins bg-white shadow-sm focus:border-blue-500 focus:outline-none pl-4"
+                    value={0}
+                    readOnly
+                    className="w-[50px] md:w-[63px] h-[33px] text-center border border-gray-300 rounded-xl text-[14px] font-normal font-poppins bg-gray-100 text-gray-500 pl-4"
                     placeholder="Min"
+                    aria-label="Minimum price fixed at 0"
                   />
                 </div>
                 <div className="flex-1 h-px bg-gray-300 mx-2 md:mx-4"></div>
@@ -397,39 +352,23 @@ const ProductPage = () => {
                 <div 
                   className="absolute top-1/2 transform -translate-y-1/2 h-2 bg-yellow-400 rounded-full"
                   style={{
-                    left: `${((price[0] - minPrice) / (maxPrice - minPrice)) * 100}%`,
-                    right: `${100 - ((price[1] - minPrice) / (maxPrice - minPrice)) * 100}%`
+                    left: `${((0 - minPrice) / Math.max(1, (maxPrice - minPrice))) * 100}%`,
+                    right: `${100 - ((price[1] - minPrice) / Math.max(1, (maxPrice - minPrice))) * 100}%`
                   }}
                 ></div>
-                
-                {/* Min slider - covers left half */}
-                <input
-                  type="range"
-                  min={minPrice}
-                  max={maxPrice}
-                  value={price[0]}
-                  onChange={handleMinSlider}
-                  className="absolute opacity-0 cursor-pointer"
-                  style={{ 
-                    zIndex: 3,
-                    left: 0,
-                    width: '50%',
-                    height: '100%'
-                  }}
-                />
                 
                 {/* Max slider - covers right half */}
                 <input
                   type="range"
-                  min={minPrice}
+                  min={0}
                   max={maxPrice}
                   value={price[1]}
                   onChange={handleMaxSlider}
                   className="absolute opacity-0 cursor-pointer"
                   style={{ 
                     zIndex: 2,
-                    left: '50%',
-                    width: '50%',
+                    left: 0,
+                    width: '100%',
                     height: '100%'
                   }}
                 />
@@ -438,19 +377,50 @@ const ProductPage = () => {
                 <div 
                   className="absolute w-4 h-4 bg-yellow-400 rounded-full border-2 border-white shadow-md transform -translate-x-1/2 -translate-y-1/2"
                   style={{
-                    left: `${((price[0] - minPrice) / (maxPrice - minPrice)) * 100}%`,
-                    top: '50%'
-                  }}
-                ></div>
-                <div 
-                  className="absolute w-4 h-4 bg-yellow-400 rounded-full border-2 border-white shadow-md transform -translate-x-1/2 -translate-y-1/2"
-                  style={{
-                    left: `${((price[1] - minPrice) / (maxPrice - minPrice)) * 100}%`,
+                    left: `${((price[1] - minPrice) / Math.max(1, (maxPrice - minPrice))) * 100}%`,
                     top: '50%'
                   }}
                 ></div>
               </div>
-              <button className="px-3 bg-black text-white py-1.5 rounded text-[14px] md:text-[16px] font-bold tracking-wide w-full md:w-auto">FILTER</button>
+              <button
+                className="px-3 bg-black text-white py-1.5 rounded text-[14px] md:text-[16px] font-bold tracking-wide w-full md:w-auto"
+                onClick={() => { setPriceRange(price); setCurrentPage(1); }}
+              >
+                FILTER
+              </button>
+            </div>
+          </div>
+
+          {/* Discount (mobile only) */}
+          <div className="mb-8 md:hidden">
+            <div
+              className="flex items-center justify-between md:block cursor-pointer md:cursor-default"
+              onClick={() => setDiscountOpen((open) => !open)}
+            >
+              <h2 className="font-playfair font-medium text-[20px] md:text-[24px] mb-6">Discount</h2>
+              <button type="button" className="md:hidden text-xl focus:outline-none" aria-label="Toggle Discount">
+                {discountOpen ? '−' : '+'}
+              </button>
+            </div>
+            <div className={`${discountOpen ? 'block' : 'hidden'} md:hidden`}>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { key: 'lt10', label: 'Less than 10%' },
+                  { key: '10+', label: '10% or more' },
+                  { key: '20+', label: '20% or more' },
+                  { key: '30+', label: '30% or more' },
+                  { key: '40+', label: '40% or more' },
+                  { key: '50+', label: '50% or more' },
+                ].map(opt => (
+                  <button
+                    key={opt.key}
+                    onClick={() => { setDiscountChip(discountChip === opt.key ? null : opt.key); setCurrentPage(1); }}
+                    className={`px-3 py-1 rounded-full border ${discountChip === opt.key ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-300'} text-sm`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           {/* Colors - hidden as requested */}
@@ -535,10 +505,19 @@ const ProductPage = () => {
         )}
         
         {/* Controls */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 ml-0 md:ml-7 gap-4 md:gap-0">
-          <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="ml-0 md:ml-7 mb-4">
+          {/* Mobile: two buttons (Filters, Sort) and search */}
+          <div className="md:hidden grid grid-cols-2 gap-3 mb-3">
+            <button
+              type="button"
+              onClick={() => setShowMobileFilters((v) => !v)}
+              className="flex items-center justify-center gap-2 py-2 rounded-xl border bg-white shadow-sm"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12 10 19 14 21 14 12 22 3"></polygon></svg>
+              <span className="font-medium">Filters</span>
+            </button>
             <select
-              className="border rounded px-2 py-1 text-[16px] md:text-[18px] font-poppins w-full md:w-auto"
+              className="w-full border rounded-xl px-3 py-2 text-[16px] font-poppins"
               value={`${sortBy}-${sortOrder}`}
               onChange={(e) => {
                 const [newSortBy, newSortOrder] = e.target.value.split('-');
@@ -552,23 +531,148 @@ const ProductPage = () => {
               <option value="product_name-asc">Name: A to Z</option>
               <option value="product_name-desc">Name: Z to A</option>
             </select>
-            {/*<select
-              className="border rounded px-2 py-1 text-[16px] md:text-[18px] font-poppins w-full md:w-auto"
-              value={itemsPerPage}
-              onChange={(e) => setItemsPerPage(Number(e.target.value))}
-            >
-              <option value={9}> Shop: 09</option>
-              <option value={18}>Shop: 18</option>
-              <option value={36}>Shop: 36</option>
-            </select>*/}
-
           </div>
+          {showMobileFilters && (
+            <div className="fixed inset-0 z-50 md:hidden">
+              {/* Backdrop */}
+              <div className="absolute inset-0 bg-black/40" onClick={() => setShowMobileFilters(false)}></div>
+              {/* Bottom sheet */}
+              <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl max-h-[80vh] overflow-y-auto">
+                {/* Header */}
+                <div className="flex items-center justify-between px-4 py-3 border-b">
+                  <h3 className="text-lg font-semibold">Filters</h3>
+                  <button onClick={() => setShowMobileFilters(false)} aria-label="Close" className="p-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
+                </div>
+                {/* Tabs */}
+                <div className="px-4 pt-3">
+                  <div className="flex gap-4 border-b">
+                    {(
+                      [
+                        { k: 'price', t: 'Price' },
+                        { k: 'categories', t: 'Categories' },
+                        { k: 'brands', t: 'Brands' },
+                        { k: 'discount', t: 'Discount' },
+                      ] as const
+                    ).map(tab => (
+                      <button key={tab.k} onClick={() => setMobileFilterTab(tab.k)} className={`pb-2 text-sm font-semibold uppercase tracking-wide ${mobileFilterTab === tab.k ? 'border-b-2 border-black text-black' : 'text-gray-500'}`}>
+                        {tab.t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Content */}
+                <div className="px-4 py-3">
+                  {mobileFilterTab === 'price' && (
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="relative">
+                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">₹</span>
+                          <input type="text" value={0} readOnly className="w-[60px] h-[33px] text-center border border-gray-300 rounded-xl text-[14px] font-normal font-poppins bg-gray-100 text-gray-500 pl-4"/>
+                        </div>
+                        <div className="flex-1 h-px bg-gray-300 mx-2"></div>
+                        <div className="relative">
+                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-[12px]">₹</span>
+                          <input type="text" value={price[1]} onChange={handleMaxInput} onBlur={handleMaxInputBlur} className="w-[60px] h-[33px] text-center border border-gray-300 rounded-xl text-[14px] font-normal bg-white shadow-sm focus:border-blue-500 focus:outline-none pl-4"/>
+                        </div>
+                      </div>
+                      <div className="relative mb-3" style={{ height: 20 }}>
+                        <div className="absolute left-0 right-0 top-1/2 transform -translate-y-1/2 h-2 bg-gray-200 rounded-full"></div>
+                        <div className="absolute top-1/2 transform -translate-y-1/2 h-2 bg-yellow-400 rounded-full" style={{ left: `${((0 - minPrice) / Math.max(1, (maxPrice - minPrice))) * 100}%`, right: `${100 - ((price[1] - minPrice) / Math.max(1, (maxPrice - minPrice))) * 100}%` }}></div>
+                        <input type="range" min={0} max={maxPrice} value={price[1]} onChange={handleMaxSlider} className="absolute opacity-0 cursor-pointer" style={{ zIndex: 2, left: 0, width: '100%', height: '100%' }} />
+                        <div className="absolute w-4 h-4 bg-yellow-400 rounded-full border-2 border-white shadow-md transform -translate-x-1/2 -translate-y-1/2" style={{ left: `${((price[1] - minPrice) / Math.max(1, (maxPrice - minPrice))) * 100}%`, top: '50%' }}></div>
+                      </div>
+                    </div>
+                  )}
+                  {mobileFilterTab === 'categories' && (
+                    <div className="space-y-2">
+                      {categories.map((cat) => (
+                        <label key={cat.category_id} className="flex items-center gap-2">
+                          <input type="radio" name="m_category" checked={selectedCategory === cat.category_id} onChange={() => handleCategoryChange(cat.category_id)} />
+                          <span>{cat.name}</span>
+                        </label>
+                      ))}
+                      <label className="flex items-center gap-2">
+                        <input type="radio" name="m_category" checked={selectedCategory === null} onChange={() => handleCategoryChange(null)} />
+                        <span>All Categories</span>
+                      </label>
+                    </div>
+                  )}
+                  {mobileFilterTab === 'brands' && (
+                    <div className="space-y-2">
+                      {brands.map((brand) => (
+                        <label key={brand.brand_id} className="flex items-center gap-2">
+                          <input type="radio" name="m_brand" checked={selectedBrand === brand.brand_id} onChange={() => handleBrandChange(brand.brand_id)} />
+                          <span>{brand.name}</span>
+                        </label>
+                      ))}
+                      <label className="flex items-center gap-2">
+                        <input type="radio" name="m_brand" checked={selectedBrand === null} onChange={() => handleBrandChange(null)} />
+                        <span>All Brands</span>
+                      </label>
+                    </div>
+                  )}
+                  {mobileFilterTab === 'discount' && (
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { key: 'lt10', label: 'Less than 10%' },
+                        { key: '10+', label: '10% or more' },
+                        { key: '20+', label: '20% or more' },
+                        { key: '30+', label: '30% or more' },
+                        { key: '40+', label: '40% or more' },
+                        { key: '50+', label: '50% or more' },
+                      ].map(opt => (
+                        <button key={opt.key} onClick={() => { setDiscountChip(discountChip === opt.key ? null : opt.key); setCurrentPage(1); }} className={`px-3 py-1 rounded-full border ${discountChip === opt.key ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-300'} text-sm`}>
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* Actions */}
+                <div className="sticky bottom-0 bg-white border-t px-4 py-3 flex items-center justify-between gap-3">
+                  <button
+                    onClick={() => { setSelectedCategory(null); setSelectedBrand(null); setDiscountChip(null); setPrice([0, maxPrice]); setPriceRange(null); setCurrentPage(1); setShowMobileFilters(false); }}
+                    className="px-4 py-2 rounded-xl border w-1/2"
+                  >
+                    Clear All
+                  </button>
+                  <button
+                    onClick={() => { setPriceRange(price); setShowMobileFilters(false); setCurrentPage(1); }}
+                    className="px-4 py-2 rounded-xl bg-black text-white w-1/2"
+                  >
+                    Apply Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* sort panel removed; select is inline above */}
+          <div className="hidden md:flex items-center gap-2 w-full md:w-auto">
+            <select
+              className="border rounded px-2 py-1 text-[16px] md:text-[18px] font-poppins w-full md:w-auto flex-1"
+              value={`${sortBy}-${sortOrder}`}
+              onChange={(e) => {
+                const [newSortBy, newSortOrder] = e.target.value.split('-');
+                setSortBy(newSortBy);
+                setSortOrder(newSortOrder);
+              }}
+            >
+              <option value="created_at-desc">Default Sorting</option>
+              <option value="selling_price-asc">Price: Low to High</option>
+              <option value="selling_price-desc">Price: High to Low</option>
+              <option value="product_name-asc">Name: A to Z</option>
+              <option value="product_name-desc">Name: Z to A</option>
+            </select>
+            {/*<select ... items per page ... />*/}
           <div className="text-[16px] md:text-[18px] font-poppins md:mr-10 text-black w-full md:w-auto">
             Show {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalProducts)} Of {totalProducts} Product{totalProducts !== 1 ? 's' : ''}
+            </div>
           </div>
         </div>
-        {/* Discount chips */}
-        <div className="flex flex-wrap gap-2 mb-4 md:ml-7">
+        {/* Discount chips: only on desktop, mobile moved under Filters */}
+        <div className="hidden md:flex flex-wrap gap-2 mb-4 md:ml-7">
           {[
             { key: 'lt10', label: 'Less than 10%' },
             { key: '10+', label: '10% or more' },

@@ -874,7 +874,7 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
               <p className="text-gray-600 text-base sm:text-lg lg:text-xl font-medium mb-1">Total Price</p>
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#FF6A3A]">
-                  ${getDisplayPrice()}
+                ₹{getDisplayPrice()}
                 </span>
                 {/* Show original price only if there's a special price discount */}
                 {(currentVariant?.special_price || productData?.special_price) && (
@@ -917,10 +917,10 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
           </div>
 
           {/* Buttons */}
-          <div className="flex items-center space-x-6 w-full mt-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6 w-full mt-6">
             <button
               onClick={handleAddToCart}
-              className={`px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 ${isInStock() && !isAddingToCart
+              className={`w-full sm:w-auto px-6 sm:px-20 py-3 rounded-full font-semibold text-lg sm:text-xl transition-all duration-150 shadow-md border-2 whitespace-nowrap ${isInStock() && !isAddingToCart
                   ? 'bg-[#FEEBD8] hover:bg-[#fdd7b9] border-[#FEEBD8] text-black'
                   : 'bg-gray-300 border-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
@@ -930,7 +930,7 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
             </button>
             <button
               onClick={handleBuyNow}
-              className={`px-20 py-3 rounded-full font-semibold text-xl transition-all duration-150 shadow-md border-2 ${isInStock()
+              className={`w-full sm:w-auto px-6 sm:px-20 py-3 rounded-full font-semibold text-lg sm:text-xl transition-all duration-150 shadow-md border-2 whitespace-nowrap ${isInStock()
                   ? 'bg-black hover:bg-[#222] text-white border-black'
                   : 'bg-gray-400 border-gray-400 text-gray-600 cursor-not-allowed'
                 }`}
