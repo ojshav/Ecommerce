@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import shop1ApiService, { Category } from '../../../services/shop1ApiService';
 
@@ -67,18 +67,31 @@ const Categories = () => {
   // If loading, show skeleton or existing mock data temporarily
   if (loading) {
     return (
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-10">
-            {[...Array(6)].map((_, index) => (
-              <div key={index} className="flex flex-col items-center">
-                <div className="h-4 bg-gray-200 rounded w-16 mb-4 animate-pulse"></div>
-                <div className="w-32 h-32 sm:w-[140px] sm:h-[140px] md:w-[151px] md:h-[151px] bg-gray-200 rounded-full animate-pulse"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+			<section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+				<div className="max-w-7xl mx-auto">
+					{/* Mobile: horizontal scroll skeleton */}
+					<div className="sm:hidden -mx-4 px-4 overflow-x-auto">
+						<div className="flex space-x-4">
+							{[...Array(8)].map((_, index) => (
+								<div key={index} className="flex-shrink-0 w-28 flex flex-col items-center">
+									<div className="h-4 bg-gray-200 rounded w-16 mb-4 animate-pulse"></div>
+									<div className="w-28 h-28 bg-gray-200 rounded-full animate-pulse"></div>
+								</div>
+							))}
+						</div>
+					</div>
+
+					{/* Tablet/Desktop: grid skeleton */}
+					<div className="hidden sm:grid grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-10">
+						{[...Array(6)].map((_, index) => (
+							<div key={index} className="flex flex-col items-center">
+								<div className="h-4 bg-gray-200 rounded w-16 mb-4 animate-pulse"></div>
+								<div className="w-[140px] h-[140px] md:w-[151px] md:h-[151px] bg-gray-200 rounded-full animate-pulse"></div>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
     );
   }
 
@@ -88,47 +101,67 @@ const Categories = () => {
     ...categoryStyles[index % categoryStyles.length], // Cycle through styles
   }));
 
-  return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="max-w-[1280px] mx-auto">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-10">
-          {categoriesWithStyles.map((category, index) => (
-            <div
-              key={category.category_id || index}
-              className="flex flex-col items-center group cursor-pointer"
-              onClick={() => handleCategoryClick(category)}
-            >
-              {/* Label */}
-              <h3 className="text-sm text-[#000000] mb-4 tracking-wide text-center font-platypi">
-                {category.name}
-              </h3>
+	return (
+		<section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+			<div className="max-w-[1280px] mx-auto">
+				{/* Mobile: horizontal scroll list */}
+				<div className="sm:hidden -mx-4 px-4 overflow-x-auto">
+					<div className="flex space-x-4 snap-x snap-mandatory">
+						{categoriesWithStyles.map((category, index) => (
+							<div
+								key={category.category_id || index}
+								className="flex-shrink-0 w-28 flex flex-col items-center group cursor-pointer snap-start"
+								onClick={() => handleCategoryClick(category)}
+							>
+								<h3 className="text-sm text-[#000000] mb-4 tracking-wide text-center font-platypi">
+									{category.name}
+								</h3>
+								<div className="relative w-28 h-28">
+									<div
+										className="absolute left-1 top-0.5 w-full h-full rounded-full z-0"
+										style={{ backgroundColor: category.shadowColor }}
+									/>
+									<div
+										className="w-full h-full rounded-full transition-transform left-3 duration-500 group-hover:scale-110 overflow-hidden relative flex items-center justify-center z-10"
+										style={{ backgroundColor: category.bgColor }}
+									>
+										<img src={category.image} alt={category.name} className="w-[90%] h-[90%] object-contain" />
+									</div>
+								</div>
+							</div>
+						))}
+					</div>
+				</div>
 
-              {/* Responsive circle wrapper */}
-              <div className="relative w-32 h-32 md:top-6 sm:w-[140px] sm:h-[140px] md:w-[151px] md:h-[151px]">
-                {/* Shadow */}
-                <div
-                  className="absolute left-1 top-0.5 w-full h-full rounded-full z-0"
-                  style={{ backgroundColor: category.shadowColor }}
-                />
-
-                {/* Main Circle */}
-                <div
-                  className="w-full h-full rounded-full transition-transform left-3 duration-500 group-hover:scale-110 overflow-hidden relative flex items-center justify-center z-10"
-                  style={{ backgroundColor: category.bgColor }}
-                >
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="w-[90%] h-[90%] object-contain"
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+				{/* Tablet/Desktop: grid */}
+				<div className="hidden sm:grid grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-10">
+					{categoriesWithStyles.map((category, index) => (
+						<div
+							key={category.category_id || index}
+							className="flex flex-col items-center group cursor-pointer"
+							onClick={() => handleCategoryClick(category)}
+						>
+							<h3 className="text-sm text-[#000000] mb-4 tracking-wide text-center font-platypi">
+								{category.name}
+							</h3>
+							<div className="relative w-[140px] h-[140px] md:top-6 md:w-[151px] md:h-[151px]">
+								<div
+									className="absolute left-1 top-0.5 w-full h-full rounded-full z-0"
+									style={{ backgroundColor: category.shadowColor }}
+								/>
+								<div
+									className="w-full h-full rounded-full transition-transform left-3 duration-500 group-hover:scale-110 overflow-hidden relative flex items-center justify-center z-10"
+									style={{ backgroundColor: category.bgColor }}
+								>
+									<img src={category.image} alt={category.name} className="w-[90%] h-[90%] object-contain" />
+								</div>
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
+		</section>
+	);
 };
 
 export default Categories;
