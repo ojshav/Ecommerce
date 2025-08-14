@@ -25,6 +25,11 @@ const ProductPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  // Resolve selected category name for breadcrumbs
+  const selectedCategoryName = selectedCategory
+    ? categories.find(c => c.category_id === selectedCategory)?.name
+    : undefined;
+
   const handleProductClick = (productId: number) => {
     navigate(`/shop3-productpage?id=${productId}`);
   };
@@ -96,7 +101,7 @@ const ProductPage = () => {
         <div className="flex items-center text-sm gap-2 text-white">
           <span className="text-[18px] font-alexandria font-semibold">Home</span>
           <span className="mx-1">&gt;</span>
-          <span className="text-lime-400 text-[18px] font-alexandria font-semibold">Men</span>
+          <span className="text-lime-400 text-[18px] font-alexandria font-semibold">{selectedCategoryName || 'All Products'}</span>
         </div>
       </div>
       {/* Full-width horizontal line */}
@@ -116,7 +121,7 @@ const ProductPage = () => {
           </div>
         )}
         
-                        {/* Controls: View and Sort by left, Search center, View filters right */}
+                        {/* Controls: Sort on left, Search center, View filters right */}
         <div className="mt-5">
           {/* Mobile: Search bar above filters */}
           <div className="mb-4 sm:hidden">
@@ -153,13 +158,7 @@ const ProductPage = () => {
           
           {/* Desktop: All controls in same line */}
           <div className="hidden sm:flex items-center justify-between">
-            <div className="flex gap-7 items-center">
-              <span className="text-white text-[16px] flex items-center font-alexandria font-semibold">
-                View:
-                <span className="ml-1 text-white text-[16px] font-semibold">2</span>
-                <span className="mx-1 text-white text-[16px] font-semibold">|</span>
-                <span className="text-[#CCFF00] text-[16px] font-semibold">4</span>
-              </span>
+            <div className="flex gap-4 items-center">
               <select className="bg-zinc-900 border border-zinc-700 text-white text-[14px] font-alexandria rounded px-2 py-1 ">
                 <option>Sort by</option>
               </select>
@@ -208,13 +207,7 @@ const ProductPage = () => {
           
           {/* Mobile: Filters row */}
           <div className="flex items-center justify-between sm:hidden">
-            <div className="flex gap-7 items-center">
-              <span className="text-white text-[16px] flex items-center font-alexandria font-semibold">
-                View:
-                <span className="ml-1 text-white text-[16px] font-semibold">2</span>
-                <span className="mx-1 text-white text-[16px] font-semibold">|</span>
-                <span className="text-[#CCFF00] text-[16px] font-semibold">4</span>
-              </span>
+            <div className="flex gap-4 items-center">
               <select className="bg-zinc-900 border border-zinc-700 text-white text-[14px] font-alexandria rounded px-2 py-1 ">
                 <option>Sort by</option>
               </select>
@@ -258,7 +251,11 @@ const ProductPage = () => {
       </div>
       {/* Section below product cards */}
       <div className="flex flex-col items-center w-full pt-24 py-12">
-        <span className="text-[14px] font-alexandria text-gray-200 mb-6">15 of 234 items was view</span>
+        {!loading && totalProducts > 0 && (
+          <span className="text-[14px] font-alexandria text-gray-200 mb-6">
+            Showing {products.length} of {totalProducts} items
+          </span>
+        )}
         <button className="bg-[#CCFF00] text-black font-semibold text-[16px] px-20 py-3 font-alexandria mb-8 shadow-lg  transition-all">Load More</button>
         {/* Full-width horizontal line below product cards */}
         <div className="w-screen mb-8 relative -mx-[50vw]">
