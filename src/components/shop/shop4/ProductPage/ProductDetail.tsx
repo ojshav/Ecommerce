@@ -1045,8 +1045,11 @@ const ProductDetail: React.FC = () => {
           cartAttributes[key] = [value];
         }
       });
-      
-      await addToShopCart(4, product.product_id, quantity, cartAttributes);
+
+      // Important: use variant product id when a variant is selected so cart gets the variant image
+      const productIdToAdd = (currentVariant as any)?.variant_product_id ?? product.product_id;
+
+      await addToShopCart(4, productIdToAdd, quantity, cartAttributes);
       toast.success('Added to cart successfully!');
     } catch (error) {
       console.error('Error adding to cart:', error);
