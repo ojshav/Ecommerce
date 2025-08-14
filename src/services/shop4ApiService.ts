@@ -1,6 +1,8 @@
 // Shop4 API Service - Centralized API calls for Shop4
-const API_BASE_URL = 'https://api.aoin11.com/api/public/shops/4'; // Public catalog endpoints
-const API_HOST = API_BASE_URL.replace(/\/api\/public\/shops\/\d+$/, '');
+// Dynamic host from .env (VITE_API_BASE_URL) with fallback to production host
+const RAW_API_HOST = (import.meta as any).env?.VITE_API_BASE_URL as string | undefined;
+const API_HOST = (RAW_API_HOST && typeof RAW_API_HOST === 'string' ? RAW_API_HOST : 'https://api.aoin11.com').replace(/\/+$/, '');
+const API_BASE_URL = `${API_HOST}/api/public/shops/4`; // Public catalog endpoints
 const PRIVATE_SHOP_BASE = `${API_HOST}/api/shops/4`;
 
 // All interfaces are copied from shop1ApiService for consistency
