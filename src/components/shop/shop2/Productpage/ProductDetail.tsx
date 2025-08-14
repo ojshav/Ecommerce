@@ -280,37 +280,57 @@ const ProductDetail = () => {
   const handleQuantityChange = (increase: boolean) => {
     setQuantity((prev) => Math.max(1, prev + (increase ? 1 : -1)));
   };
+
+  // Check if current selection is in stock (like Hero.tsx)
+  const isInStock = () => {
+    if (currentVariant) {
+      return (currentVariant.stock_qty || 0) > 0;
+    }
+    return product?.is_in_stock !== false;
+  };
+
+  // Get stock quantity for display (like Hero.tsx)
+  const getStockQuantity = () => {
+    if (currentVariant) {
+      return currentVariant.stock_qty || 0;
+    }
+    return product?.stock?.stock_qty || 0;
+  };
   
   const handleAddToCart = async () => {
-    if (stockError) {
-      toast.error(stockError);
-      return;
-    }
-
     if (!canPerformShopCartOperations()) {
       toast.error('Please sign in to add items to cart');
       navigate('/sign-in');
       return;
     }
 
+    if (!product) {
+      toast.error('Product not available');
+      return;
+    }
+
+    if (stockError) {
+      toast.error(stockError);
+      return;
+    }
+
     try {
       setAddingToCart(true);
       
-      // Create selected attributes object from current selections (like Shop4)
-      const cartAttributes: { [key: number]: string | string[] } = {};
-      if (product) {
-        Object.entries(selectedAttributes).forEach(([key, value]) => {
-          if (value) {
-            // Find the attribute_id for this attribute name
-            const availableAttrs = extractAvailableAttributes(product);
-            const attr = availableAttrs.find(a => a.name === key);
-            const attributeId = attr?.attribute_id || 0;
-            cartAttributes[attributeId] = [value];
-          }
-        });
-      }
+      // Determine which product to add (variant or parent)
+      const productToAdd = currentVariant || product;
       
-      await addToShopCart(SHOP_ID, Number(productId), quantity, cartAttributes);
+      // Convert selectedAttributes to the format expected by the API (like Hero.tsx)
+      const attributesForApi: { [key: number]: string | string[] } = {};
+      Object.entries(selectedAttributes).forEach(([, value], index) => {
+        if (value) {
+          attributesForApi[index + 1] = [value]; // API expects numbered keys
+        }
+      });
+
+      // Use variant_product_id for variants, or product_id for parent product
+      const productIdToAdd = currentVariant ? currentVariant.variant_product_id : product.product_id;
+      await addToShopCart(SHOP_ID, productIdToAdd, quantity, attributesForApi);
       toast.success('Added to cart successfully!');
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -321,35 +341,39 @@ const ProductDetail = () => {
   };
 
   const handleBuyNow = async () => {
-    if (stockError) {
-      toast.error(stockError);
-      return;
-    }
-
     if (!canPerformShopCartOperations()) {
       toast.error('Please sign in to purchase items');
       navigate('/sign-in');
       return;
     }
 
+    if (!product) {
+      toast.error('Product not available');
+      return;
+    }
+
+    if (stockError) {
+      toast.error(stockError);
+      return;
+    }
+
     try {
       setAddingToCart(true);
       
-      // Create selected attributes object from current selections (like Shop4)
-      const cartAttributes: { [key: number]: string | string[] } = {};
-      if (product) {
-        Object.entries(selectedAttributes).forEach(([key, value]) => {
-          if (value) {
-            // Find the attribute_id for this attribute name
-            const availableAttrs = extractAvailableAttributes(product);
-            const attr = availableAttrs.find(a => a.name === key);
-            const attributeId = attr?.attribute_id || 0;
-            cartAttributes[attributeId] = [value];
-          }
-        });
-      }
+      // Determine which product to add (variant or parent)
+      const productToAdd = currentVariant || product;
       
-      await addToShopCart(SHOP_ID, Number(productId), quantity, cartAttributes);
+      // Convert selectedAttributes to the format expected by the API (like Hero.tsx)
+      const attributesForApi: { [key: number]: string | string[] } = {};
+      Object.entries(selectedAttributes).forEach(([, value], index) => {
+        if (value) {
+          attributesForApi[index + 1] = [value]; // API expects numbered keys
+        }
+      });
+
+      // Use variant_product_id for variants, or product_id for parent product
+      const productIdToAdd = currentVariant ? currentVariant.variant_product_id : product.product_id;
+      await addToShopCart(SHOP_ID, productIdToAdd, quantity, attributesForApi);
       toast.success('Added to cart successfully!');
       // Navigate to cart page
       navigate('/shop2/cart');
@@ -788,11 +812,23 @@ const ProductDetail = () => {
           <p className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6">
             ₹{Number(currentVariant?.effective_price || product.price).toLocaleString('en-IN')}
           </p>
-          {/* Stock Error Display */}
+          {/* Stock Warning */}
           {stockError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm font-medium">{stockError}</p>
+            <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${stockError.includes('out of stock')
+                ? 'bg-red-100 text-red-800'
+                : 'bg-yellow-100 text-yellow-800'
+              }`}>
+              {stockError}
             </div>
+          )}
+          {/* Stock indicator */}
+          {!isInStock() && !stockError && (
+            <p className="text-red-600 text-sm font-medium mb-4">Out of Stock</p>
+          )}
+          {isInStock() && getStockQuantity() <= 5 && getStockQuantity() > 0 && !stockError && (
+            <p className="text-yellow-600 text-sm font-medium mb-4">
+              Only {getStockQuantity()} left!
+            </p>
           )}
                      {/* Dynamic Attribute Selection */}
            {(() => {
@@ -885,33 +921,33 @@ const ProductDetail = () => {
            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2">
              <button 
                className={`w-full sm:flex-1 text-[16px] font-gilroy px-3 py-4 rounded-full font-bold flex items-center justify-center gap-2 text-base shadow transition-all ${
-                 stockError || addingToCart
-                   ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
-                   : 'bg-black text-white hover:bg-gray-900'
+                 isInStock() && !addingToCart
+                   ? 'bg-black text-white hover:bg-gray-900' 
+                   : 'bg-gray-400 text-gray-600 cursor-not-allowed'
                }`}
                onClick={handleAddToCart}
-               disabled={!!stockError || addingToCart}
+               disabled={!isInStock() || addingToCart}
              >
                {addingToCart ? (
                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
                ) : (
                  <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
                )}
-               {addingToCart ? 'Adding...' : 'Add to Cart'}
+               {addingToCart ? 'Adding...' : (!isInStock() ? 'Out of Stock' : 'Add to Cart')}
              </button>
              <button 
                className={`w-full sm:flex-1 border-2 border-black text-black px-3 py-3 sm:py-4 rounded-full font-bold text-base transition-all ${
-                 stockError || addingToCart
-                   ? 'border-gray-400 text-gray-400 cursor-not-allowed'
-                   : 'hover:bg-gray-100'
+                 isInStock() && !addingToCart
+                   ? 'hover:bg-gray-100'
+                   : 'border-gray-400 text-gray-400 cursor-not-allowed'
                }`}
                onClick={handleBuyNow}
-               disabled={!!stockError || addingToCart}
+               disabled={!isInStock() || addingToCart}
              >
                {addingToCart ? (
                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mx-auto" />
                ) : (
-                 'Buy Now'
+                 !isInStock() ? 'Out of Stock' : 'Buy Now'
                )}
              </button>
            </div>
