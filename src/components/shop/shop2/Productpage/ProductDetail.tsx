@@ -295,7 +295,22 @@ const ProductDetail = () => {
 
     try {
       setAddingToCart(true);
-      await addToShopCart(SHOP_ID, Number(productId), quantity);
+      
+      // Create selected attributes object from current selections (like Shop4)
+      const cartAttributes: { [key: number]: string | string[] } = {};
+      if (product) {
+        Object.entries(selectedAttributes).forEach(([key, value]) => {
+          if (value) {
+            // Find the attribute_id for this attribute name
+            const availableAttrs = extractAvailableAttributes(product);
+            const attr = availableAttrs.find(a => a.name === key);
+            const attributeId = attr?.attribute_id || 0;
+            cartAttributes[attributeId] = [value];
+          }
+        });
+      }
+      
+      await addToShopCart(SHOP_ID, Number(productId), quantity, cartAttributes);
       toast.success('Added to cart successfully!');
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -319,7 +334,22 @@ const ProductDetail = () => {
 
     try {
       setAddingToCart(true);
-      await addToShopCart(SHOP_ID, Number(productId), quantity);
+      
+      // Create selected attributes object from current selections (like Shop4)
+      const cartAttributes: { [key: number]: string | string[] } = {};
+      if (product) {
+        Object.entries(selectedAttributes).forEach(([key, value]) => {
+          if (value) {
+            // Find the attribute_id for this attribute name
+            const availableAttrs = extractAvailableAttributes(product);
+            const attr = availableAttrs.find(a => a.name === key);
+            const attributeId = attr?.attribute_id || 0;
+            cartAttributes[attributeId] = [value];
+          }
+        });
+      }
+      
+      await addToShopCart(SHOP_ID, Number(productId), quantity, cartAttributes);
       toast.success('Added to cart successfully!');
       // Navigate to cart page
       navigate('/shop2/cart');
