@@ -1,5 +1,5 @@
 // Shop2 API Service - Centralized API calls for Shop2
-const API_BASE_URL = 'http://localhost:5110/api/public/shops/2'; // Public catalog endpoints
+const API_BASE_URL = 'https://api.aoin11.com/api/public/shops/2'; // Public catalog endpoints
 const API_HOST = API_BASE_URL.replace(/\/api\/public\/shops\/\d+$/, '');
 const PRIVATE_SHOP_BASE = `${API_HOST}/api/shops/2`;
 

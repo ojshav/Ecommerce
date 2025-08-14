@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  BarChart, Bar, PieChart, Pie, Cell, PieLabelRenderProps
+  BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts';
 import { Download } from 'lucide-react';
 import ExportModal from '../../../components/business/reports/ExportModal';
@@ -40,32 +40,6 @@ const SHOP_LIST = [
 
 // Dynamic year/month filters up to the current month of the current year
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;
-
-function renderPieLabel({ cx, cy, midAngle, innerRadius: _innerRadius, outerRadius, percent, index, name }: PieLabelRenderProps & { name: string }) {
-  // Fallbacks for undefined values
-  const safeCx = typeof cx === 'number' ? cx : 0;
-  const safeCy = typeof cy === 'number' ? cy : 0;
-  const safeOuterRadius = typeof outerRadius === 'number' ? outerRadius : 80;
-  const safePercent = typeof percent === 'number' ? percent : 0;
-  const safeIndex = typeof index === 'number' ? index : 0;
-  const RADIAN = Math.PI / 180;
-  const radius = safeOuterRadius + 18;
-  const x = safeCx + radius * Math.cos(-midAngle * RADIAN);
-  const y = safeCy + radius * Math.sin(-midAngle * RADIAN);
-  return (
-    <text
-      x={x}
-      y={y}
-      fill={PIE_COLORS[safeIndex % PIE_COLORS.length]}
-      textAnchor={x > safeCx ? 'start' : 'end'}
-      dominantBaseline="central"
-      fontSize={14}
-      fontWeight={500}
-    >
-      {name} {safePercent > 0 ? `${(safePercent * 100).toFixed(0)}%` : ''}
-    </text>
-  );
-}
 
 const ShopAnalytics: React.FC = () => {
   const { accessToken } = useAuth();
@@ -229,7 +203,7 @@ const ShopAnalytics: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="bg-[#FF4D00] text-white p-6 rounded-xl shadow flex items-center justify-between">
+    <div className="bg-[#F97316] text-white p-6 rounded-xl shadow flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Shop Analytics</h1>
           <span className="text-lg font-medium">Overview & Insights</span>
@@ -237,7 +211,7 @@ const ShopAnalytics: React.FC = () => {
         <button
           onClick={() => setIsExportModalOpen(true)}
           disabled={!selectedShop}
-          className="flex items-center gap-2 bg-white text-[#FF4D00] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex items-center gap-2 bg-white text-[#C2410C] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Download className="w-5 h-5" />
           Export Report
@@ -246,9 +220,9 @@ const ShopAnalytics: React.FC = () => {
 
       {/* Shop Selector */}
       <div className="flex items-center gap-4">
-        <label className="text-orange-900 font-semibold">Select Shop:</label>
+        <label className="text-gray-700 font-semibold">Select Shop:</label>
         <select
-          className="p-2 rounded border border-orange-300 focus:ring-2 focus:ring-orange-400"
+          className="p-2 rounded border border-gray-300 focus:ring-2 focus:ring-gray-400"
           value={selectedShop}
           onChange={e => setSelectedShop(e.target.value)}
         >
@@ -262,20 +236,20 @@ const ShopAnalytics: React.FC = () => {
   {/* Key Metrics Card */}
   {selectedShop && summary && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
-          <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-    <span className="text-2xl font-bold text-orange-600 mb-1">{summary.top_product || '-'}</span>
+      <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
+    <span className="text-2xl font-bold text-gray-900 mb-1">{summary.top_product || '-'}</span>
             <span className="text-gray-700">Top Selling Product</span>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-    <span className="text-2xl font-bold text-orange-600 mb-1">₹{(summary.revenue || 0).toLocaleString()}</span>
+      <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
+    <span className="text-2xl font-bold text-gray-900 mb-1">₹{(summary.revenue || 0).toLocaleString()}</span>
             <span className="text-gray-700">Total Revenue</span>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-    <span className="text-2xl font-bold text-orange-600 mb-1">{summary.top_category || '-'}</span>
+      <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
+    <span className="text-2xl font-bold text-gray-900 mb-1">{summary.top_category || '-'}</span>
             <span className="text-gray-700">Top Selling Category</span>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-    <span className="text-2xl font-bold text-orange-600 mb-1">{summary.total_sold || 0}</span>
+      <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
+    <span className="text-2xl font-bold text-gray-900 mb-1">{summary.total_sold || 0}</span>
             <span className="text-gray-700">Total Products Sold</span>
           </div>
         </div>
@@ -287,7 +261,7 @@ const ShopAnalytics: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
             {/* Revenue Trend Line Chart */}
             <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center min-h-[350px]">
-              <h3 className="text-lg font-semibold mb-4 text-orange-700 self-start">Revenue Trend</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900 self-start">Revenue Trend</h3>
               <ResponsiveContainer width="100%" height={220}>
         <LineChart data={trend} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -300,12 +274,12 @@ const ShopAnalytics: React.FC = () => {
               </ResponsiveContainer>
             </div>
             {/* Product Sales Bar Chart with filters */}
-            <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center min-h-[350px] w-full">
+      <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center min-h-[350px] w-full">
               <div className="flex flex-wrap gap-4 mb-2 w-full justify-between items-center">
-                <h3 className="text-lg font-semibold text-orange-700">Products Sold</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Products Sold</h3>
                 <div className="flex gap-2 items-center">
                   <select
-                    className="p-1 rounded border border-orange-300 focus:ring-2 focus:ring-orange-400"
+          className="p-1 rounded border border-gray-300 focus:ring-2 focus:ring-gray-400"
                     value={selectedYear}
                     onChange={e => {
                       const newYear = Number(e.target.value);
@@ -325,7 +299,7 @@ const ShopAnalytics: React.FC = () => {
                     ))}
                   </select>
                   <select
-                    className="p-1 rounded border border-orange-300 focus:ring-2 focus:ring-orange-400"
+                    className="p-1 rounded border border-gray-300 focus:ring-2 focus:ring-gray-400"
                     value={selectedMonth}
                     onChange={e => setSelectedMonth(e.target.value)}
                   >
@@ -349,17 +323,17 @@ const ShopAnalytics: React.FC = () => {
           </div>
 
           {/* Product Categories Pie Chart with Legend */}
-          <div className="bg-white p-6 rounded-xl shadow flex flex-col md:flex-row items-center mt-8">
+      <div className="bg-white p-6 rounded-xl shadow flex flex-col md:flex-row items-center mt-8">
             <div className="flex-1 flex flex-col items-center">
-              <h3 className="text-lg font-semibold mb-4 text-orange-700 self-start">Product Categories</h3>
+        <h3 className="text-lg font-semibold mb-4 text-gray-900 self-start">Product Categories</h3>
               <ResponsiveContainer width={320} height={240}>
                 <PieChart>
                   <Pie
-        data={categoryDist}
+                    data={categoryDist}
                     cx={120}
                     cy={120}
-                    labelLine
-                    label={renderPieLabel}
+                    labelLine={false}
+                    label={false}
                     outerRadius={90}
                     fill="#8884d8"
                     dataKey="value"
@@ -390,7 +364,7 @@ const ShopAnalytics: React.FC = () => {
           </div>
         </>
       ) : (
-    <div className="text-center text-orange-400">{loading ? 'Loading analytics…' : 'Please select a shop to view analytics.'}</div>
+    <div className="text-center text-gray-500">{loading ? 'Loading analytics…' : 'Please select a shop to view analytics.'}</div>
       )}
 
       {/* Export Modal */}
