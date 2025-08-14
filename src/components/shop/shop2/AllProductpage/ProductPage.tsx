@@ -83,13 +83,13 @@ const ProductPage = () => {
 
   // Mobile sidebar handlers
   const openMobileSidebar = () => {
-    console.log('Opening mobile sidebar');
+    // console.log('Opening mobile sidebar');
     setIsMobileSidebarOpen(true);
     document.body.style.overflow = 'hidden';
   };
 
   const closeMobileSidebar = () => {
-    console.log('Closing mobile sidebar');
+    // console.log('Closing mobile sidebar');
     setIsMobileSidebarOpen(false);
     document.body.style.overflow = 'unset';
   };
@@ -101,19 +101,19 @@ const ProductPage = () => {
 
   // Debug mobile sidebar state
   useEffect(() => {
-    console.log('Mobile sidebar state changed:', isMobileSidebarOpen);
+    // console.log('Mobile sidebar state changed:', isMobileSidebarOpen);
   }, [isMobileSidebarOpen]);
 
   // Update URL with current filter state
   const updateURL = useCallback(() => {
-    console.log('updateURL called with:', {
-      searchTerm,
-      selectedCategoryIds,
-      selectedBrandIds,
-      minPrice,
-      maxPrice,
-      sortOption
-    });
+    // console.log('updateURL called with:', {
+    //   searchTerm,
+    //   selectedCategoryIds,
+    //   selectedBrandIds,
+    //   minPrice,
+    //   maxPrice,
+    //   sortOption
+    // });
 
     const params = new URLSearchParams();
     
@@ -125,7 +125,7 @@ const ProductPage = () => {
     if (sortOption !== "Sort By List") params.set('sort', sortOption);
     
     const newURL = params.toString() ? `/shop2-allproductpage?${params.toString()}` : '/shop2-allproductpage';
-    console.log('Navigating to:', newURL);
+    // console.log('Navigating to:', newURL);
     navigate(newURL, { replace: true });
   }, [searchTerm, selectedCategoryIds, selectedBrandIds, minPrice, maxPrice, sortOption, navigate]);
 
@@ -214,10 +214,10 @@ const ProductPage = () => {
 
   // Update URL when filters change (but not on initial load)
   useEffect(() => {
-    console.log('URL update useEffect triggered, initialLoadComplete:', initialLoadComplete);
+    // console.log('URL update useEffect triggered, initialLoadComplete:', initialLoadComplete);
     // Only update URL after initial load is complete
     if (initialLoadComplete) {
-      console.log('Calling updateURL because initialLoadComplete is true');
+      // console.log('Calling updateURL because initialLoadComplete is true');
       updateURL();
     }
   }, [searchTerm, selectedCategoryIds, selectedBrandIds, minPrice, maxPrice, sortOption, updateURL, initialLoadComplete]);

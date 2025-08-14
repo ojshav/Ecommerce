@@ -241,7 +241,7 @@ const ProductDetail = () => {
       });
     } else {
       // For non-variant products: Show parent product attributes (read-only)
-      console.log('Product does not have variants, showing parent product attributes');
+      // console.log('Product does not have variants, showing parent product attributes');
       parentAttrs.forEach(attr => {
         const attrName = attr.attribute?.name;
         const attrValue = attr.value;
@@ -389,13 +389,13 @@ const ProductDetail = () => {
 
   // Handle attribute selection (simplified like Shop4)
   const handleAttributeSelect = (attributeName: string, value: string) => {
-    console.log(`Selecting attribute: ${attributeName} = ${value}`);
+    // console.log(`Selecting attribute: ${attributeName} = ${value}`);
     setSelectedAttributes(prev => {
       const newAttrs = {
         ...prev,
         [attributeName]: value
       };
-      console.log('New selected attributes:', newAttrs);
+      // console.log('New selected attributes:', newAttrs);
       return newAttrs;
     });
   };
@@ -509,7 +509,7 @@ const ProductDetail = () => {
         }
       });
       
-      console.log('Default selected attributes (from parent product):', initialAttributes);
+      // console.log('Default selected attributes (from parent product):', initialAttributes);
       setSelectedAttributes(initialAttributes);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -523,8 +523,8 @@ const ProductDetail = () => {
       return;
     }
 
-    console.log('Finding variant with selected attributes:', selectedAttributes);
-    console.log('Available variants:', variants);
+    // console.log('Finding variant with selected attributes:', selectedAttributes);
+    // console.log('Available variants:', variants);
 
     const findMatchingVariant = () => {
       // First check if selected attributes match parent product (like Shop4)
@@ -545,7 +545,7 @@ const ProductDetail = () => {
         });
 
         if (matchesParent && Object.keys(parentDefaults).length === Object.keys(selectedAttributes).length) {
-          console.log('Selected attributes match parent product - showing parent');
+          // console.log('Selected attributes match parent product - showing parent');
           setCurrentVariant(null);
           setStockError('');
           return;
@@ -554,10 +554,10 @@ const ProductDetail = () => {
 
       // Try to find variant by matching attribute combination
       const matchingVariant = variants.find(variant => {
-        console.log('Checking variant:', variant.variant_id, 'with attributes:', variant.attribute_combination);
+        // console.log('Checking variant:', variant.variant_id, 'with attributes:', variant.attribute_combination);
         
         if (!variant.attribute_combination) {
-          console.log('Variant has no attribute_combination');
+          // console.log('Variant has no attribute_combination');
           return false;
         }
         
@@ -565,16 +565,16 @@ const ProductDetail = () => {
         const matches = Object.entries(selectedAttributes).every(([attrName, attrValue]) => {
           const variantValue = variant.attribute_combination[attrName];
           const isMatch = variantValue === attrValue;
-          console.log(`Attribute ${attrName}: selected="${attrValue}", variant="${variantValue}", match=${isMatch}`);
+          // console.log(`Attribute ${attrName}: selected="${attrValue}", variant="${variantValue}", match=${isMatch}`);
           return isMatch;
         });
         
-        console.log(`Variant ${variant.variant_id} matches: ${matches}`);
+        // console.log(`Variant ${variant.variant_id} matches: ${matches}`);
         return matches;
       });
 
       if (matchingVariant) {
-        console.log('Found matching variant:', matchingVariant);
+        // console.log('Found matching variant:', matchingVariant);
         setCurrentVariant(matchingVariant);
         // Reset image carousel to first image when variant changes
         setCurrentImageIndex(0);
@@ -588,7 +588,7 @@ const ProductDetail = () => {
           setStockError('');
         }
       } else {
-        console.log('No matching variant found');
+        //  console.log('No matching variant found');
         setCurrentVariant(null);
         // Reset to parent media when no variant is selected
         setCurrentImageIndex(0);
