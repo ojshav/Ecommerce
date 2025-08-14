@@ -73,7 +73,7 @@ const Shop1ProductCard: React.FC<Shop1ProductCardProps> = ({ id, image, category
       <button
         onClick={handleWishlistClick}
         disabled={isLoading}
-        className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all duration-200  ₹{
+        className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all duration-200 ${
           isInWishlist
             ? 'bg-orange-500 text-white shadow-lg'
             : 'bg-white/80 hover:bg-white text-gray-600 hover:text-orange-500 shadow-md'
@@ -84,13 +84,13 @@ const Shop1ProductCard: React.FC<Shop1ProductCardProps> = ({ id, image, category
           <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
         ) : (
           <Heart 
-            className={`w-4 h-4  ₹{isInWishlist ? 'fill-current' : ''}`}
+            className={`w-4 h-4  ${isInWishlist ? 'fill-current' : ''}`}
           />
         )}
       </button>
 
       {/* Product Link - excludes buttons */}
-      <Link to={`/shop1/product/ ₹{id}`} className="w-full flex flex-col items-center" style={{ pointerEvents: 'auto' }}>
+      <Link to={`/shop1/product/ ${id}`} className="w-full flex flex-col items-center" style={{ pointerEvents: 'auto' }}>
         <img
           src={image}
           alt={name}
@@ -98,7 +98,7 @@ const Shop1ProductCard: React.FC<Shop1ProductCardProps> = ({ id, image, category
         />
         <div className="text-[12px] md:text-[14px] text-gray-400 mb-1.5 mt-2 uppercase font-poppins tracking-widest">{category}</div>
         <div className="font-semibold font-poppins text-center text-[16px] md:text-[18px]">{name}</div>
-        <div className="text-red-500 font-poppins font-semibold text-[18px] md:text-[20px]"> ₹{price.toFixed(2)}</div>
+        <div className="text-red-500 font-poppins font-semibold text-[18px] md:text-[20px]">  ₹{price.toFixed(2)}</div>
       </Link>
       
       {/* Add to Cart Button - visible on hover */}
