@@ -202,7 +202,7 @@ const Returns: React.FC = () => {
             </p>
             <div className="space-y-2">
               <p>
-                <strong>Email:</strong> <a href="mailto:returns@shopeasy.com" className="text-blue-300 hover:underline">returns@shopeasy.com</a>
+                <strong>Email:</strong> <a href="mailto:returns@Aoin.com" className="text-blue-300 hover:underline">returns@Aoin.com</a>
               </p>
               <p>
                 <strong>Phone:</strong> <a href="tel:+18001234567" className="text-blue-300 hover:underline">1-800-123-4567</a>

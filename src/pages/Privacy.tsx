@@ -12,7 +12,7 @@ const Privacy: React.FC = () => {
           
           <div className="prose prose-lg max-w-none">
             <p>
-              At ShopEasy, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website, including any other media form, media channel, mobile website, or mobile application related or connected to ShopEasy (collectively, the "Site").
+              At Aoin, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website, including any other media form, media channel, mobile website, or mobile application related or connected to Aoin (collectively, the "Site").
             </p>
             
             <p>
@@ -139,10 +139,10 @@ const Privacy: React.FC = () => {
               If you have questions or comments about this Privacy Policy, please contact us at:
             </p>
             <p>
-              <strong>ShopEasy, Inc.</strong><br />
+              <strong>Aoin, Inc.</strong><br />
               123 Commerce St, Suite 500<br />
               New York, NY 10001<br />
-              Email: privacy@shopeasy.com<br />
+              Email: privacy@Aoin.com<br />
               Phone: 1-800-123-4567
             </p>
           </div>
