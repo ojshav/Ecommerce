@@ -1045,8 +1045,11 @@ const ProductDetail: React.FC = () => {
           cartAttributes[key] = [value];
         }
       });
-      
-      await addToShopCart(4, product.product_id, quantity, cartAttributes);
+
+      // Important: use variant product id when a variant is selected so cart gets the variant image
+      const productIdToAdd = (currentVariant as any)?.variant_product_id ?? product.product_id;
+
+      await addToShopCart(4, productIdToAdd, quantity, cartAttributes);
       toast.success('Added to cart successfully!');
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -1605,11 +1608,7 @@ const ProductDetail: React.FC = () => {
               {relatedProducts.slice(0, 3).map((relatedProduct) => (
                 <div 
                   key={relatedProduct.id} 
-                  className="flex-shrink-0 w-[calc(100vw-2rem)] cursor-pointer transition-transform" 
-                  onClick={() => {
-                    // Navigate to the related product's detail page
-                    navigate(`?id=${relatedProduct.id}`);
-                  }}
+                  className="flex-shrink-0 w-[calc(100vw-2rem)] transition-transform"
                 >
                   <Shop4ProductCardWithWishlist 
                     product={{
@@ -1630,11 +1629,7 @@ const ProductDetail: React.FC = () => {
             {relatedProducts.slice(0, 3).map((relatedProduct) => (
               <div 
                 key={relatedProduct.id} 
-                className="w-full h-auto cursor-pointer transition-transform" 
-                onClick={() => {
-                  // Navigate to the related product's detail page
-                  navigate(`?id=${relatedProduct.id}`);
-                }}
+                className="w-full h-auto transition-transform"
               >
                 <Shop4ProductCardWithWishlist 
                   product={{

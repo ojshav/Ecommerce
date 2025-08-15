@@ -6,14 +6,14 @@ const UNION_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854
 
 const AoinMasteriece: React.FC = () => {
   return (
-    <div className="min-h-screen relative w-full mx-auto bg-black flex items-center justify-center pt-12 pb-32">
+    <div className="min-h-screen relative w-full mx-auto bg-black flex items-center justify-center pt-0 xs:pt-4 md:pt-12 pb-10 md:pb-32">
       <div className="mx-auto max-w-[1800px] w-full px-2 sm:px-4">
         <div className="flex flex-col md:flex-row items-center justify-center w-full gap-8 md:gap-12">
           {/* Left: Image with banners */}
           <div className="relative w-full max-w-[900px] sm:max-w-[600px] md:w-[765px] md:max-w-[765px] shadow-2xl aspect-[4/3] md:aspect-auto">
             {/* Ellipse and Union SVG Backgrounds (responsive position) */}
             <div
-              className="absolute left-1/2 top-[80px] sm:left-[100px] sm:top-[500px] -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none"
+              className="absolute left-1/2 top-[580px] sm:left-[100px] sm:top-[500px] -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none"
               style={{
                 width: 556,
                 height: 556,
@@ -58,7 +58,7 @@ const AoinMasteriece: React.FC = () => {
             </div>
           </div>
           {/* Right: Text Content */}
-          <div className="flex flex-col items-center md:items-start justify-center w-full max-w-full md:max-w-lg mt-8 md:mt-0 text-center md:text-left">
+          <div className="flex flex-col items-center md:items-start justify-center w-full max-w-full md:max-w-lg mt-2 md:mt-0 text-center md:text-left">
             <h1 className="aoin-animated-title text-white text-[36px] sm:text-[56px] md:text-[104px] font-normal font-bebas leading-none mb-8 sm:mb-16 md:mb-32 uppercase tracking-tight" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
               AOIN<br />MASTERIECE
             </h1>

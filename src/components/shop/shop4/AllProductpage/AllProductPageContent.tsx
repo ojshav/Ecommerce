@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, X, Filter } from 'lucide-react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Shop4ProductCardWithWishlist, { Product } from '../Shop4ProductCardWithWishlist';
 import shop4ApiService, { Product as ApiProduct } from '../../../../services/shop4ApiService';
 
@@ -17,93 +17,133 @@ const mapApiProductToLocal = (apiProduct: ApiProduct): Product => ({
 
 // --- Sidebar Component (Desktop) ---
 const Sidebar: React.FC = () => {
-    const [priceRange, setPriceRange] = useState([0, 7500]);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [priceRange, setPriceRange] = useState<[number, number]>([0, 7500]);
     const [inStock, setInStock] = useState(false);
     const [outOfStock, setOutOfStock] = useState(false);
-    const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
+    const [isDragging, setIsDragging] = useState<'max' | null>(null);
+    const isDraggingRef = useRef<'max' | null>(null);
     const sliderRef = useRef<HTMLDivElement>(null);
 
     const minPrice = 0;
     const maxPrice = 7500;
+    const priceRangeSpan = maxPrice - minPrice;
 
-    const handleMouseDown = (e: React.MouseEvent, handle: 'min' | 'max') => {
+    // Non-linear mapping helpers (quadratic) for better low-end precision
+    const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
+    const valueFromPointer = (p: number) => minPrice + Math.pow(clamp01(p), 2) * priceRangeSpan;
+    const positionFromValue = (value: number) => {
+        const ratio = priceRangeSpan === 0 ? 0 : (value - minPrice) / priceRangeSpan;
+        const p = Math.sqrt(Math.max(0, Math.min(1, ratio)));
+        return p * 100;
+    };
+
+    // Initialize price range from URL params (min fixed to 0)
+    useEffect(() => {
+        const urlMin = Number(searchParams.get('min_price'));
+        const urlMax = Number(searchParams.get('max_price'));
+        const hasUrlMin = !Number.isNaN(urlMin);
+        const hasUrlMax = !Number.isNaN(urlMax);
+        
+        if (hasUrlMin || hasUrlMax) {
+            setPriceRange([
+                minPrice,
+                hasUrlMax ? Math.min(maxPrice, urlMax) : maxPrice,
+            ]);
+        }
+    }, [searchParams]);
+
+    const handleMouseDown = (e: React.MouseEvent, handle: 'max') => {
         e.preventDefault();
         e.stopPropagation();
+        isDraggingRef.current = handle;
         setIsDragging(handle);
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
     };
 
-    const handleHandleClick = (e: React.MouseEvent, _handle: 'min' | 'max') => {
+    const handleHandleClick = (e: React.MouseEvent, _handle: 'max') => {
         e.preventDefault();
         e.stopPropagation();
         // Don't start dragging on click, just prevent the track click
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-        if (!isDragging || !sliderRef.current) return;
+        if (!isDraggingRef.current || !sliderRef.current) return;
         e.preventDefault();
 
         const rect = sliderRef.current.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const width = rect.width;
-        const percentage = Math.max(0, Math.min(1, x / width));
-        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+        const percentage = clamp01(x / width);
+        const value = valueFromPointer(percentage);
 
-        if (isDragging === 'min') {
-            const newMin = Math.min(value, priceRange[1] - 100);
-            setPriceRange([newMin, priceRange[1]]);
-        } else {
-            const newMax = Math.max(value, priceRange[0] + 100);
-            setPriceRange([priceRange[0], newMax]);
+        if (isDraggingRef.current === 'max') {
+            const newMax = Math.max(minPrice, Math.min(value, maxPrice));
+            setPriceRange([minPrice, newMax]);
         }
     };
 
     const handleMouseUp = () => {
+        isDraggingRef.current = null;
         setIsDragging(null);
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
     };
 
-    const handleTouchStart = (e: React.TouchEvent, handle: 'min' | 'max') => {
+    const handleTouchStart = (e: React.TouchEvent, handle: 'max') => {
         e.preventDefault();
+        isDraggingRef.current = handle;
         setIsDragging(handle);
-        document.addEventListener('touchmove', handleTouchMove);
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
         document.addEventListener('touchend', handleTouchEnd);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-        if (!isDragging || !sliderRef.current) return;
+        if (!isDraggingRef.current || !sliderRef.current) return;
         e.preventDefault();
 
         const rect = sliderRef.current.getBoundingClientRect();
         const x = e.touches[0].clientX - rect.left;
         const width = rect.width;
-        const percentage = Math.max(0, Math.min(1, x / width));
-        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+        const percentage = clamp01(x / width);
+        const value = Math.round(valueFromPointer(percentage));
 
-        if (isDragging === 'min') {
-            const newMin = Math.min(value, priceRange[1] - 100);
-            setPriceRange([newMin, priceRange[1]]);
-        } else {
-            const newMax = Math.max(value, priceRange[0] + 100);
-            setPriceRange([priceRange[0], newMax]);
+        if (isDraggingRef.current === 'max') {
+            const newMax = Math.max(minPrice, Math.min(value, maxPrice));
+            setPriceRange([minPrice, newMax]);
         }
     };
 
     const handleTouchEnd = () => {
+        isDraggingRef.current = null;
         setIsDragging(null);
         document.removeEventListener('touchmove', handleTouchMove);
         document.removeEventListener('touchend', handleTouchEnd);
     };
 
-    const getMinPosition = () => ((priceRange[0] - minPrice) / (maxPrice - minPrice)) * 100;
-    const getMaxPosition = () => ((priceRange[1] - minPrice) / (maxPrice - minPrice)) * 100;
+    const getMaxPosition = () => positionFromValue(priceRange[1]);
 
     const handleClearFilters = () => {
-        setPriceRange([0, 7500]);
+        setPriceRange([minPrice, maxPrice]);
         setInStock(false);
         setOutOfStock(false);
+        const next = new URLSearchParams(searchParams);
+        next.delete('min_price');
+        next.delete('max_price');
+        next.set('page', '1');
+        setSearchParams(next);
+    };
+
+    const applyPriceFilter = () => {
+        const next = new URLSearchParams(searchParams);
+        const roundedMax = Math.round(priceRange[1]);
+        
+        // Min is fixed at 0
+        next.set('min_price', String(minPrice));
+        if (roundedMax < maxPrice) next.set('max_price', String(roundedMax)); else next.delete('max_price');
+        next.set('page', '1');
+        setSearchParams(next);
     };
 
     return (
@@ -139,45 +179,23 @@ const Sidebar: React.FC = () => {
                                     const rect = sliderRef.current.getBoundingClientRect();
                                     const x = e.clientX - rect.left;
                                     const width = rect.width;
-                                    const percentage = Math.max(0, Math.min(1, x / width));
-                                    const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+                                    const percentage = clamp01(x / width);
+                                    const value = valueFromPointer(percentage);
                                     
-                                    // Determine which handle to move based on which is closer
-                                    const minDistance = Math.abs(value - priceRange[0]);
-                                    const maxDistance = Math.abs(value - priceRange[1]);
-                                    
-                                    if (minDistance < maxDistance) {
-                                        const newMin = Math.min(value, priceRange[1] - 100);
-                                        setPriceRange([newMin, priceRange[1]]);
-                                    } else {
-                                        const newMax = Math.max(value, priceRange[0] + 100);
-                                        setPriceRange([priceRange[0], newMax]);
-                                    }
+                                    const newMax = Math.max(minPrice, Math.min(value, maxPrice));
+                                    setPriceRange([minPrice, newMax]);
                                 }}
                             >
                                 {/* Active track */}
                                 <div 
                                     className="absolute h-2 bg-[#A06020] rounded-lg"
                                     style={{
-                                        left: `${getMinPosition()}%`,
-                                        width: `${getMaxPosition() - getMinPosition()}%`,
+                                        left: `0%`,
+                                        width: `${getMaxPosition()}%`,
                                         transition: isDragging ? 'none' : 'left 0.3s ease-out, width 0.3s ease-out'
                                     }}
                                 />
                             </div>
-                            
-                            {/* Min Handle */}
-                            <div
-                                data-handle="min"
-                                className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-[#A06020] border-2 border-white rounded-full cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl transition-all duration-300 ease-out z-10 select-none"
-                                style={{ 
-                                    left: `calc(${getMinPosition()}% - 12px)`,
-                                    transition: isDragging ? 'none' : 'left 0.3s ease-out'
-                                }}
-                                onMouseDown={(e) => handleMouseDown(e, 'min')}
-                                onClick={(e) => handleHandleClick(e, 'min')}
-                                onTouchStart={(e) => handleTouchStart(e, 'min')}
-                            />
                             
                             {/* Max Handle */}
                             <div
@@ -194,9 +212,9 @@ const Sidebar: React.FC = () => {
                         </div>
                     </div>
                     <div className="text-[#E0E0E0] text-sm mb-6">
-                        Price: ${priceRange[0]} – ${priceRange[1]}
+                        Price: ₹0 – ₹{Math.round(priceRange[1])}
                     </div>
-                    <button className="flex w-[197px] h-[50px] px-[31px] py-[21px] justify-center items-center gap-[11px] flex-shrink-0 bg-black text-white font-futura text-[14px] font-normal leading-normal tracking-[3.5px] uppercase hover:bg-gray-900 transition-colors">
+                    <button onClick={applyPriceFilter} className="flex w-[197px] h-[50px] px-[31px] py-[21px] justify-center items-center gap-[11px] flex-shrink-0 bg-black text-white font-futura text-[14px] font-normal leading-normal tracking-[3.5px] uppercase hover:bg-gray-900 transition-colors">
                         FILTER
                     </button>
                 </div>
@@ -285,91 +303,127 @@ const Sidebar: React.FC = () => {
 
 // --- Mobile Filter Modal ---
 const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
-    const [priceRange, setPriceRange] = useState([0, 7500]);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [priceRange, setPriceRange] = useState<[number, number]>([0, 7500]);
     const [inStock, setInStock] = useState(false);
     const [outOfStock, setOutOfStock] = useState(false);
-    const [isDragging, setIsDragging] = useState<'min' | 'max' | null>(null);
+    const [isDragging, setIsDragging] = useState<'max' | null>(null);
+    const isDraggingRef = useRef<'max' | null>(null);
     const sliderRef = useRef<HTMLDivElement>(null);
 
     const minPrice = 0;
     const maxPrice = 7500;
+    const priceRangeSpan = maxPrice - minPrice;
 
-    const handleMouseDown = (e: React.MouseEvent, handle: 'min' | 'max') => {
+    // Non-linear mapping helpers (quadratic) for better low-end precision
+    const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
+    const valueFromPointer = (p: number) => minPrice + Math.pow(clamp01(p), 2) * priceRangeSpan;
+    const positionFromValue = (value: number) => {
+        const ratio = priceRangeSpan === 0 ? 0 : (value - minPrice) / priceRangeSpan;
+        const p = Math.sqrt(Math.max(0, Math.min(1, ratio)));
+        return p * 100;
+    };
+
+    // Initialize price range from URL params (min fixed to 0)
+    useEffect(() => {
+        const urlMin = Number(searchParams.get('min_price'));
+        const urlMax = Number(searchParams.get('max_price'));
+        const hasUrlMin = !Number.isNaN(urlMin);
+        const hasUrlMax = !Number.isNaN(urlMax);
+        
+        if (hasUrlMin || hasUrlMax) {
+            setPriceRange([
+                minPrice,
+                hasUrlMax ? Math.min(maxPrice, urlMax) : maxPrice,
+            ]);
+        }
+    }, [searchParams, isOpen]);
+
+    const handleMouseDown = (e: React.MouseEvent, handle: 'max') => {
         e.preventDefault();
         e.stopPropagation();
+        isDraggingRef.current = handle;
         setIsDragging(handle);
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-        if (!isDragging || !sliderRef.current) return;
+        if (!isDraggingRef.current || !sliderRef.current) return;
         e.preventDefault();
 
         const rect = sliderRef.current.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const width = rect.width;
-        const percentage = Math.max(0, Math.min(1, x / width));
-        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+        const percentage = clamp01(x / width);
+        const value = valueFromPointer(percentage);
 
-        if (isDragging === 'min') {
-            const newMin = Math.min(value, priceRange[1] - 100);
-            setPriceRange([newMin, priceRange[1]]);
-        } else {
-            const newMax = Math.max(value, priceRange[0] + 100);
-            setPriceRange([priceRange[0], newMax]);
+        if (isDraggingRef.current === 'max') {
+            const newMax = Math.max(minPrice, Math.min(value, maxPrice));
+            setPriceRange([minPrice, newMax]);
         }
     };
 
     const handleMouseUp = () => {
+        isDraggingRef.current = null;
         setIsDragging(null);
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
     };
 
-    const handleTouchStart = (e: React.TouchEvent, handle: 'min' | 'max') => {
+    const handleTouchStart = (e: React.TouchEvent, handle: 'max') => {
         e.preventDefault();
+        isDraggingRef.current = handle;
         setIsDragging(handle);
-        document.addEventListener('touchmove', handleTouchMove);
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
         document.addEventListener('touchend', handleTouchEnd);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-        if (!isDragging || !sliderRef.current) return;
+        if (!isDraggingRef.current || !sliderRef.current) return;
         e.preventDefault();
 
         const rect = sliderRef.current.getBoundingClientRect();
         const x = e.touches[0].clientX - rect.left;
         const width = rect.width;
-        const percentage = Math.max(0, Math.min(1, x / width));
-        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+        const percentage = clamp01(x / width);
+        const value = Math.round(valueFromPointer(percentage));
 
-        if (isDragging === 'min') {
-            const newMin = Math.min(value, priceRange[1] - 100);
-            setPriceRange([newMin, priceRange[1]]);
-        } else {
-            const newMax = Math.max(value, priceRange[0] + 100);
-            setPriceRange([priceRange[0], newMax]);
+        if (isDraggingRef.current === 'max') {
+            const newMax = Math.max(minPrice, Math.min(value, maxPrice));
+            setPriceRange([minPrice, newMax]);
         }
     };
 
     const handleTouchEnd = () => {
+        isDraggingRef.current = null;
         setIsDragging(null);
         document.removeEventListener('touchmove', handleTouchMove);
         document.removeEventListener('touchend', handleTouchEnd);
     };
 
-    const getMinPosition = () => ((priceRange[0] - minPrice) / (maxPrice - minPrice)) * 100;
-    const getMaxPosition = () => ((priceRange[1] - minPrice) / (maxPrice - minPrice)) * 100;
+    const getMaxPosition = () => positionFromValue(priceRange[1]);
 
     const handleClearFilters = () => {
-        setPriceRange([0, 7500]);
+        setPriceRange([minPrice, maxPrice]);
         setInStock(false);
         setOutOfStock(false);
+        const next = new URLSearchParams(searchParams);
+        next.delete('min_price');
+        next.delete('max_price');
+        next.set('page', '1');
+        setSearchParams(next);
     };
 
     const handleApplyFilters = () => {
-        // Apply filters logic here
+        const next = new URLSearchParams(searchParams);
+        const roundedMax = Math.round(priceRange[1]);
+        
+        // Min fixed at 0
+        next.set('min_price', String(minPrice));
+        if (roundedMax < maxPrice) next.set('max_price', String(roundedMax)); else next.delete('max_price');
+        next.set('page', '1');
+        setSearchParams(next);
         onClose();
     };
 
@@ -417,50 +471,30 @@ const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                                         const rect = sliderRef.current.getBoundingClientRect();
                                         const x = e.clientX - rect.left;
                                         const width = rect.width;
-                                        const percentage = Math.max(0, Math.min(1, x / width));
-                                        const value = Math.round(minPrice + percentage * (maxPrice - minPrice));
+                                        const percentage = clamp01(x / width);
+                                        const value = Math.round(valueFromPointer(percentage));
                                         
-                                        const minDistance = Math.abs(value - priceRange[0]);
-                                        const maxDistance = Math.abs(value - priceRange[1]);
-                                        
-                                        if (minDistance < maxDistance) {
-                                            const newMin = Math.min(value, priceRange[1] - 100);
-                                            setPriceRange([newMin, priceRange[1]]);
-                                        } else {
-                                            const newMax = Math.max(value, priceRange[0] + 100);
-                                            setPriceRange([priceRange[0], newMax]);
-                                        }
+                                        const newMax = Math.max(minPrice, Math.min(value, maxPrice));
+                                        setPriceRange([minPrice, newMax]);
                                     }}
                                 >
                                     {/* Active track */}
                                     <div 
                                         className="absolute h-2 bg-[#A06020] rounded-lg"
                                         style={{
-                                            left: `${getMinPosition()}%`,
-                                            width: `${getMaxPosition() - getMinPosition()}%`,
+                                            left: `0%`,
+                                            width: `${getMaxPosition()}%`,
                                             transition: isDragging ? 'none' : 'left 0.3s ease-out, width 0.3s ease-out'
                                         }}
                                     />
                                 </div>
-                                
-                                {/* Min Handle */}
-                                <div
-                                    data-handle="min"
-                                    className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-[#A06020] border-2 border-white rounded-full cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl transition-all duration-300 ease-out z-10 select-none"
-                                    style={{ 
-                                        left: `calc(${getMinPosition()}% - 12px)`,
-                                        transition: isDragging ? 'none' : 'left 0.3s ease-out'
-                                    }}
-                                    onMouseDown={(e) => handleMouseDown(e, 'min')}
-                                    onTouchStart={(e) => handleTouchStart(e, 'min')}
-                                />
                                 
                                 {/* Max Handle */}
                                 <div
                                     data-handle="max"
                                     className="absolute top-1/2 transform -translate-y-1/2 w-6 h-6 bg-[#A06020] border-2 border-white rounded-full cursor-grab active:cursor-grabbing shadow-lg hover:shadow-xl transition-all duration-300 ease-out z-10 select-none"
                                     style={{ 
-                                        left: `calc(${getMaxPosition()}% - 12px)`,
+                                            left: `calc(${getMaxPosition()}% - 12px)`,
                                         transition: isDragging ? 'none' : 'left 0.3s ease-out'
                                     }}
                                     onMouseDown={(e) => handleMouseDown(e, 'max')}
@@ -469,7 +503,7 @@ const MobileFilterModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                             </div>
                         </div>
                         <div className="text-[#E0E0E0] text-sm mb-4">
-                            Price: ${priceRange[0]} – ${priceRange[1]}
+                        Price: ${Math.round(priceRange[0])} – ${Math.round(priceRange[1])}
                         </div>
                     </div>
 
@@ -729,8 +763,8 @@ const DiscountChips: React.FC = () => {
 
 // --- ProductGrid ---
 const ProductGrid: React.FC = () => {
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    // Navigation handled within cards; no local navigate needed here
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -765,6 +799,16 @@ const ProductGrid: React.FC = () => {
         }
     };
 
+    // Keep current page in sync with URL (?page=)
+    useEffect(() => {
+        const pageFromUrl = parseInt(searchParams.get('page') || '1', 10);
+        if (!Number.isFinite(pageFromUrl) || pageFromUrl < 1) return;
+        if (pageFromUrl !== currentPage) {
+            setCurrentPage(pageFromUrl);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams.get('page')]);
+
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
@@ -787,11 +831,28 @@ const ProductGrid: React.FC = () => {
                     ...discountToParams(discount ?? undefined),
                 });
                 
-                if (response && response.success) {
-                    const mappedProducts = response.products.map(mapApiProductToLocal);
+                if (response && (response as any).success) {
+                    const mappedProducts = (response as any).products?.map(mapApiProductToLocal) ?? [];
                     setProducts(mappedProducts);
-                    setTotalProducts(response.total);
-                    setTotalPages(response.total_pages);
+
+                    // Handle both legacy and new pagination shapes
+                    const pagination = (response as any).pagination;
+                    if (pagination) {
+                        const totalItems = Number(pagination.total_items) || 0;
+                        const totalPagesFromApi = Number(pagination.total_pages) || Math.ceil(totalItems / productsPerPage) || 0;
+                        setTotalProducts(totalItems);
+                        setTotalPages(totalPagesFromApi);
+                        // If API adjusts the page, reflect it
+                        const apiPage = Number(pagination.page) || currentPage;
+                        if (apiPage !== currentPage) setCurrentPage(apiPage);
+                    } else {
+                        const total = Number((response as any).total) || 0;
+                        const totalPagesTop = Number((response as any).total_pages) || (total ? Math.ceil(total / productsPerPage) : 0);
+                        setTotalProducts(total);
+                        setTotalPages(totalPagesTop);
+                        const apiPageTop = Number((response as any).page) || currentPage;
+                        if (apiPageTop !== currentPage) setCurrentPage(apiPageTop);
+                    }
                 } else {
                     setProducts([]);
                     setTotalProducts(0);
@@ -815,12 +876,19 @@ const ProductGrid: React.FC = () => {
     }, [discount]);
 
     const handlePageChange = (page: number) => {
+        if (page < 1 || (totalPages && page > totalPages)) return;
+        // Update URL param so refresh/back works and other widgets can reset to page 1
+        const next = new URLSearchParams(searchParams);
+        next.set('page', String(page));
+        setSearchParams(next);
         setCurrentPage(page);
+        // Optionally scroll to top of grid
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch {}
     };
 
-    const handleProductClick = (productId: number) => {
-        navigate(`/shop4-productpage?id=${productId}`);
-    };
+    // Navigation is handled inside the product card to avoid hijacking add-to-cart clicks
 
     if (loading) {
         return (
@@ -832,8 +900,9 @@ const ProductGrid: React.FC = () => {
         );
     }
 
-    const startIndex = (currentPage - 1) * productsPerPage;
-    const endIndex = Math.min(startIndex + productsPerPage, totalProducts);
+    const safeTotal = Number.isFinite(totalProducts) ? totalProducts : 0;
+    const startIndex = safeTotal === 0 ? 0 : (currentPage - 1) * productsPerPage;
+    const endIndex = safeTotal === 0 ? 0 : Math.min(startIndex + productsPerPage, safeTotal);
 
     return (
         <div className="bg-black max-w-[1078px] mx-auto min-h-screen px-4 sm:px-6 lg:px-4 2xl:px-0 py-8">
@@ -848,7 +917,9 @@ const ProductGrid: React.FC = () => {
             
             <div className=" mx-auto mb-6">
                 <p className="text-white text-sm opacity-80">
-                    Showing {startIndex + 1}–{endIndex} of {totalProducts} Results
+                    {safeTotal > 0
+                        ? <>Showing {startIndex + 1}–{endIndex} of {safeTotal} Results</>
+                        : <>0 Results</>}
                 </p>
             </div>
             <div className="max-w-[1078px] mx-auto">
@@ -859,9 +930,10 @@ const ProductGrid: React.FC = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-x-8 sm:gap-x-12 2xl:gap-x-20 gap-y-28 sm:gap-y-28 lg:gap-y-40">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-x-8 sm:gap-x-12 2xl:gap-x-20 gap-y-14 sm:gap-y-14 lg:gap-y-20">
                         {products.map((product) => (
-                            <div key={product.id} onClick={() => handleProductClick(product.id)} className="cursor-pointer">
+                            <div key={product.id} className="cursor-pointer">
+                                {/* Let the card control its own internal clicks; wrap a small overlay for image/title nav if needed in the card itself */}
                                 <Shop4ProductCardWithWishlist product={product} />
                             </div>
                         ))}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ShoppingCart, Plus, Minus, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
+import { useShopCartOperations } from '../../../context/ShopCartContext';
 import { useAuth } from '../../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
@@ -32,34 +33,44 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
   showWishlist = true,
   className = ""
 }) => {
-  const SHOP_ID = 4; // Shop 4 - Footwear Store
-  
+  const SHOP_ID = 4;
+
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  
-  const {
-    addToWishlist,
-    removeFromWishlist,
-    toggleProductInWishlist,
-    isProductInWishlist,
-    getWishlistItemByProductId,
-    isLoading: wishlistLoading
-  } = useShopWishlistOperations(SHOP_ID);
+  const { toggleProductInWishlist, isProductInWishlist, isLoading: wishlistLoading } = useShopWishlistOperations(SHOP_ID);
+  const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
 
   const handleQuantityChange = (change: number) => {
     setQuantity(Math.max(1, quantity + change));
   };
 
-  const handleAddToCart = () => {
-    if (onAddToCart) {
-      onAddToCart(product, quantity, selectedColor);
-    } else {
-      console.log(`Added ${product.name} to cart with quantity ${quantity} and color ${selectedColor}`);
+  const handleAddToCart = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    if (!canPerformShopCartOperations()) {
+      toast.error('Please sign in to add items to cart');
+      navigate('/sign-in');
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      await addToShopCart(SHOP_ID, product.id, quantity);
+      toast.success('Added to cart successfully!');
+      if (onAddToCart) onAddToCart(product, quantity, selectedColor);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    } finally {
+      setIsAddingToCart(false);
     }
   };
-
   const handleWishlistClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -76,8 +87,8 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
     }
 
     try {
-      const wasInWishlist = isProductInWishlist(product.id);
-      await toggleProductInWishlist(product.id);
+  const wasInWishlist = isProductInWishlist(product.id);
+  await toggleProductInWishlist(product.id);
       
       if (wasInWishlist) {
         toast.success('Removed from wishlist');
@@ -91,7 +102,7 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
   };
 
   const handleImageClick = () => {
-    navigate('/shop4-productpage');
+  navigate(`/shop4-productpage?id=${product.id}`);
   };
 
   const isInWishlist = isProductInWishlist(product.id);
@@ -152,19 +163,19 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
           {showColorOptions && (
             <div className="flex justify-center gap-3 mb-4">
               <button
-                onClick={() => setSelectedColor(0)}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedColor(0); }}
                 className={`w-6 h-6 rounded-full border-2 transition-all duration-200 ${
                   selectedColor === 0 ? 'border-white bg-black' : 'border-gray-400 bg-black'
                 }`}
               />
               <button
-                onClick={() => setSelectedColor(1)}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedColor(1); }}
                 className={`w-6 h-6 rounded-full border-2 transition-all duration-200 ${
                   selectedColor === 1 ? 'border-white bg-[#F5F5DC]' : 'border-gray-400 bg-[#F5F5DC]'
                 }`}
               />
               <button
-                onClick={() => setSelectedColor(2)}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedColor(2); }}
                 className={`w-6 h-6 rounded-full border-2 transition-all duration-200 ${
                   selectedColor === 2 ? 'border-white bg-gray-600' : 'border-gray-400 bg-gray-600'
                 }`}
@@ -178,14 +189,14 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
             {showQuantitySelector && (
               <div className="flex items-center border border-white rounded-full px-3 py-1">
                 <button
-                  onClick={() => handleQuantityChange(-1)}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(-1); }}
                   className="text-white hover:text-gray-300 transition-colors"
                 >
                   <Minus size={16} />
                 </button>
                 <span className="text-white mx-3 font-medium">{quantity}</span>
                 <button
-                  onClick={() => handleQuantityChange(1)}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantityChange(1); }}
                   className="text-white hover:text-gray-300 transition-colors"
                 >
                   <Plus size={16} />
@@ -195,11 +206,16 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
             
             {/* Add to Cart Button */}
             <button 
-              onClick={handleAddToCart}
-              className="w-12 h-12 rounded-full bg-[#BB9D7B] flex items-center justify-center hover:bg-[#A08B6A] transition-colors drop-shadow-[0_6.413px_17.013px_#7E7061]"
+              onClick={(e) => handleAddToCart(e)}
+              disabled={isAddingToCart}
+              className="w-12 h-12 rounded-full bg-[#BB9D7B] flex items-center justify-center hover:bg-[#A08B6A] transition-colors drop-shadow-[0_6.413px_17.013px_#7E7061] disabled:opacity-50"
               title="Add to cart"
             >
-              <ShoppingCart size={20} className="text-white" />
+              {isAddingToCart ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent text-white" />
+              ) : (
+                <ShoppingCart size={20} className="text-white" />
+              )}
             </button>
 
             {/* Wishlist Button (in hover card) */}

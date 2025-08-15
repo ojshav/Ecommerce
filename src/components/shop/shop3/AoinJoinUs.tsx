@@ -11,7 +11,7 @@ const AoinJoinUs: React.FC = () => {
   return (
     <div className="bg-black w-full mx-auto min-h-screen text-white font-sans pb-10">
       {/* Top Section */}
-      <div className="flex justify-center pb-80 w-full px-2 sm:px-4 md:px-0">
+      <div className="flex justify-center pb-10 lg:pb-80 w-full px-2 sm:px-4 lg:px-0 pt-6 lg:pt-10 ">
         <div className="relative w-full max-w-[1400px] h-[340px] sm:h-[420px] md:h-[600px] lg:h-[750px] rounded-3xl">
           {/* Ellipse and Union SVG Backgrounds (responsive position) */}
           <div

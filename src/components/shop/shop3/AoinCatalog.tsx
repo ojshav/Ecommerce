@@ -58,7 +58,9 @@ const AoinCatalog: React.FC = () => {
       try {
         const res = await shop3ApiService.getProducts({ per_page: 6 }); // Fetch 6 products for catalog
         if (res && res.success) {
-          setProducts(res.products);
+          // Filter to show only 1st, 3rd, and 4th products (remove 2nd product)
+          const filteredProducts = res.products.filter((_, index) => index === 0 || index === 2 || index === 3);
+          setProducts(filteredProducts);
         } else {
           setProducts([]);
         }
@@ -90,12 +92,12 @@ const AoinCatalog: React.FC = () => {
       ) : products.length === 0 ? (
         <div className="text-white text-xl">No products found.</div>
       ) : products.length <= 3 ? (
-        // Grid layout for 3 or fewer products - mobile first with one full width
-        <div className="flex flex-col md:flex-row md:gap-6 gap-4 w-full max-w-[1329px] justify-center items-stretch pb-4 md:pb-0">
+        // Grid layout for 3 or fewer products - mobile first with row layout
+        <div className="flex flex-row gap-4 md:gap-6 w-full max-w-[1329px] justify-start items-stretch pb-4 md:pb-0 overflow-x-auto px-4 md:px-0">
           {products.map((product) => (
             <div
               key={product.product_id}
-              className="rounded-3xl flex flex-col justify-between shadow-lg overflow-hidden w-full md:w-[429px] max-w-full mx-auto md:h-[549px] cursor-pointer relative group"
+              className="rounded-3xl flex flex-col shadow-lg overflow-hidden w-[calc(100vw-32px)] sm:w-[320px] md:w-[429px] flex-shrink-0 cursor-pointer relative group"
               onClick={() => handleProductClick(product.product_id)}
             >
               <div className="block relative">
@@ -104,7 +106,7 @@ const AoinCatalog: React.FC = () => {
                   alt={product.product_name}
                   width={427}
                   height={500}
-                  className="object-cover w-full h-[70vw] sm:h-[400px] md:h-[500px] max-h-[500px] hover:opacity-90 transition-opacity duration-200 rounded-3xl"
+                  className="object-cover w-full h-[500px] hover:opacity-90 transition-opacity duration-200 rounded-3xl"
                 />
                 
                 {/* Wishlist button */}
@@ -128,12 +130,12 @@ const AoinCatalog: React.FC = () => {
                   )}
                 </button>
               </div>
-              <div className="flex justify-between items-center py-3 sm:py-5 px-1 sm:px-1">
+              <div className="flex justify-between items-start py-4 px-2 sm:px-2 mt-2">
                 <span className="text-white font-bold font-alexandria text-base sm:text-lg md:text-[19px] tracking-wide ">
                   {product.product_name}
                 </span>
-                <span className="text-white font-extrabold text-base sm:text-lg md:text-[22px] font-clash">
-                  ${product.special_price || product.price}
+                <span className="text-white font-extrabold text-base sm:text-lg md:text-[22px] font-clash ">
+                  ₹{product.special_price || product.price}
                 </span>
               </div>
             </div>
@@ -141,10 +143,10 @@ const AoinCatalog: React.FC = () => {
         </div>
       ) : (
         // Horizontal scroll layout for more than 3 products - mobile first with one full width
-        <div className="w-full max-w-[1920px] overflow-hidden">
+        <div className="w-full max-w-[1920px] overflow-hidden mx-auto">
           <div 
             ref={scrollContainerRef}
-            className="flex gap-6 overflow-x-auto pb-4 px-4"
+            className="flex gap-6 overflow-x-auto pb-4 px-4 "
             style={{ 
               scrollbarWidth: 'none', 
               msOverflowStyle: 'none'
@@ -153,7 +155,7 @@ const AoinCatalog: React.FC = () => {
             {products.map((product) => (
               <div
                 key={product.product_id}
-                className="rounded-3xl flex flex-col justify-between shadow-lg overflow-hidden w-full sm:w-[429px] h-auto sm:h-[549px] flex-shrink-0 cursor-pointer relative group"
+                className="rounded-3xl flex flex-col shadow-lg overflow-hidden w-full sm:w-[429px] flex-shrink-0 cursor-pointer relative group"
                 onClick={() => handleProductClick(product.product_id)}
               >
                 <div className="block relative">
@@ -186,12 +188,12 @@ const AoinCatalog: React.FC = () => {
                     )}
                   </button>
                 </div>
-                <div className="flex justify-between items-center py-3 sm:py-5 px-1 sm:px-1">
-                  <span className="text-white font-bold font-alexandria text-base sm:text-lg md:text-[19px] tracking-wide ">
+                <div className="flex justify-between items-start gap-10 py-4 px-2 sm:px-2 mt-2">
+                  <span className="text-white  font-bold font-alexandria text-base sm:text-lg md:text-[19px] tracking-wide ">
                     {product.product_name}
                   </span>
-                  <span className="text-white font-extrabold text-base sm:text-lg md:text-[22px] font-clash">
-                    ${product.special_price || product.price}
+                  <span className="text-white font-extrabold text-base sm:text-lg md:text-[22px] font-clash ">
+                    ₹{product.special_price || product.price}
                   </span>
                 </div>
               </div>
@@ -201,7 +203,7 @@ const AoinCatalog: React.FC = () => {
       )}
 
       {/* Explore Collection Button */}
-      <div className="mt-8">
+      <div className="mt-2 sm:mt-8">
         <Link to="/shop3-allproductpage">
           <button className="bg-[#CCFF00] text-black font-bold py-3 px-8 rounded-full text-[16px] font-alexandria hover:bg-[#b3e600] transition-colors duration-300">
             EXPLORE COLLECTION

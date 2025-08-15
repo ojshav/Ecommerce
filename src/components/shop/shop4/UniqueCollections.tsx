@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import shop4ApiService, { Category } from '../../../services/shop4ApiService';
 
@@ -21,6 +21,8 @@ const categoryImageMap: Record<string, string> = {
 function UniqueCollections() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showScrollHint, setShowScrollHint] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,6 +61,31 @@ function UniqueCollections() {
 
     fetchCategories();
   }, []);
+
+  // Mobile scroll hint: hide on first interaction/scroll or after delay
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    // Hide hint if no overflow
+    if (el.scrollWidth <= el.clientWidth) {
+      setShowScrollHint(false);
+      return;
+    }
+
+    const hide = () => setShowScrollHint(false);
+    el.addEventListener('scroll', hide, { passive: true });
+    el.addEventListener('touchstart', hide, { passive: true });
+    el.addEventListener('mousedown', hide);
+
+    const t = setTimeout(() => setShowScrollHint(false), 4500);
+    return () => {
+      el.removeEventListener('scroll', hide as any);
+      el.removeEventListener('touchstart', hide as any);
+      el.removeEventListener('mousedown', hide as any);
+      clearTimeout(t);
+    };
+  }, [categories.length, loading]);
 
   const handleCategoryClick = (categoryId: number) => {
     navigate(`/shop4-allproductpage?category_id=${categoryId}`);
@@ -129,8 +156,22 @@ function UniqueCollections() {
             {/* Right endpoint circle - hidden on mobile, visible on larger screens */}
             <div className="hidden lg:block absolute top-1/2 right-0 w-2 h-2 bg-amber-200 rounded-full transform translate-x-1 -translate-y-1/2 z-0"></div>
             
+            {/* Mobile scroll hint overlays */}
+            {/* Right gradient and "Swipe" pill only on mobile and only while hint is visible */}
+            {showScrollHint && (
+              <>
+                <div className="md:hidden pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-black to-transparent z-20 transition-opacity duration-300" />
+                <div className="md:hidden pointer-events-none absolute bottom-2 right-3 z-30">
+                  <div className="bg-white/10 text-white text-[10px] px-2 py-1 rounded-full backdrop-blur-sm flex items-center gap-1 animate-pulse">
+                    <span>Swipe</span>
+                    <span aria-hidden>→</span>
+                  </div>
+                </div>
+              </>
+            )}
+
             {/* Collections Container - Responsive Grid */}
-            <div className="flex flex-row overflow-x-auto gap-4 sm:gap-6 md:grid md:grid-cols-3 lg:grid-cols-5 md:gap-6 lg:gap-4 xl:gap-8 relative z-10 items-center pt-4 sm:pt-6 md:pt-10 pb-4 md:pb-0">
+            <div ref={scrollContainerRef} className="flex flex-row overflow-x-auto gap-4 sm:gap-6 md:grid md:grid-cols-3 lg:grid-cols-5 md:gap-6 lg:gap-4 xl:gap-8 relative z-10 items-center pt-4 sm:pt-6 md:pt-10 pb-4 md:pb-0">
               {displayCategories.map((category, index) => (
                 <div 
                   key={category.category_id} 
