@@ -196,40 +196,40 @@ const ShopCategories: React.FC = () => {
     }
 
     return (
-      <div className="p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Shop Categories</h1>
-          <p className="text-gray-600">Select a shop to manage its categories</p>
+      <div className="p-3 sm:p-6">
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Shop Categories</h1>
+          <p className="text-sm sm:text-base text-gray-600">Select a shop to manage its categories</p>
         </div>
 
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
-            <AlertCircle size={20} className="mr-2" />
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center text-sm">
+            <AlertCircle size={18} className="mr-2 flex-shrink-0" />
             {error}
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {shops.map((shop) => (
             <button
               key={shop.shop_id}
               onClick={() => setSelectedShop(shop)}
-              className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow text-left"
+              className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6 hover:shadow-lg transition-shadow text-left"
             >
-              <div className="flex items-center space-x-3 mb-4">
+              <div className="flex items-center space-x-3 mb-3 sm:mb-4">
                 {shop.logo_url ? (
                   <img 
                     src={shop.logo_url} 
                     alt={shop.name}
-                    className="w-12 h-12 rounded-lg object-cover"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <Store className="text-orange-500" size={24} />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Store className="text-orange-500 sm:w-6 sm:h-6" size={20} />
                   </div>
                 )}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{shop.name}</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{shop.name}</h3>
                   <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                     shop.is_active 
                       ? 'bg-green-100 text-green-800' 
@@ -240,17 +240,17 @@ const ShopCategories: React.FC = () => {
                 </div>
               </div>
               {shop.description && (
-                <p className="text-gray-600 text-sm">{shop.description}</p>
+                <p className="text-gray-600 text-xs sm:text-sm line-clamp-2">{shop.description}</p>
               )}
             </button>
           ))}
         </div>
 
         {shops.length === 0 && (
-          <div className="text-center py-12">
-            <Store className="mx-auto h-12 w-12 text-gray-400" />
+          <div className="text-center py-8 sm:py-12">
+            <Store className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No shops found</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-xs sm:text-sm text-gray-500">
               Create shops first before managing categories
             </p>
           </div>
@@ -260,30 +260,30 @@ const ShopCategories: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           <button
             onClick={() => setSelectedShop(null)}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors w-fit"
           >
             <ArrowLeft size={20} />
-            <span>Back to Shops</span>
+            <span className="text-sm sm:text-base">Back to Shops</span>
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
               {selectedShop.name} - Categories
             </h1>
-            <p className="text-gray-600">Manage categories for this shop</p>
+            <p className="text-sm sm:text-base text-gray-600">Manage categories for this shop</p>
           </div>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+          className="bg-orange-500 hover:bg-orange-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center space-x-2 transition-colors w-full sm:w-auto"
         >
-          <Plus size={20} />
-          <span>Add Category</span>
+          <Plus size={18} className="sm:w-5 sm:h-5" />
+          <span className="text-sm sm:text-base">Add Category</span>
         </button>
       </div>
 
@@ -302,117 +302,124 @@ const ShopCategories: React.FC = () => {
       )}
 
       {/* Search */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <input
             type="text"
             placeholder="Search categories..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm sm:text-base"
           />
         </div>
       </div>
 
       {/* Categories List */}
       {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+        <div className="flex items-center justify-center h-48 sm:h-64">
+          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-orange-500"></div>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Slug
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Parent
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Sort Order
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredCategories.map((category) => (
-                <tr key={category.category_id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      {category.icon_url ? (
-                        <img 
-                          src={category.icon_url} 
-                          alt={category.name}
-                          className="w-8 h-8 rounded object-cover mr-3"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 bg-orange-100 rounded flex items-center justify-center mr-3">
-                          <FolderOpen className="text-orange-500" size={16} />
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{category.name}</div>
-                        {category.description && (
-                          <div className="text-sm text-gray-500">{category.description}</div>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {category.slug}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {category.parent_id ? 'Has Parent' : 'Root'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                      category.is_active 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {category.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {category.sort_order}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(category)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(category.category_id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
+          {/* Mobile responsive table container */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[180px] sm:min-w-[200px]">
+                    Category
+                  </th>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px] sm:min-w-[150px]">
+                    Slug
+                  </th>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px] sm:min-w-[100px]">
+                    Parent
+                  </th>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[70px] sm:min-w-[80px]">
+                    Status
+                  </th>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px] sm:min-w-[100px]">
+                    Sort Order
+                  </th>
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px] sm:min-w-[100px]">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredCategories.map((category) => (
+                  <tr key={category.category_id} className="hover:bg-gray-50">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {category.icon_url ? (
+                          <img 
+                            src={category.icon_url} 
+                            alt={category.name}
+                            className="w-6 h-6 sm:w-8 sm:h-8 rounded object-cover mr-2 sm:mr-3 flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-100 rounded flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                            <FolderOpen className="text-orange-500 sm:w-4 sm:h-4" size={14} />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">{category.name}</div>
+                          {category.description && (
+                            <div className="text-xs sm:text-sm text-gray-500 truncate">{category.description}</div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                      <div className="truncate max-w-[110px] sm:max-w-[140px] lg:max-w-none" title={category.slug}>
+                        {category.slug}
+                      </div>
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                      {category.parent_id ? 'Has Parent' : 'Root'}
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-medium rounded-full ${
+                        category.is_active 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {category.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                      {category.sort_order}
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
+                      <div className="flex space-x-1 sm:space-x-2">
+                        <button
+                          onClick={() => handleEdit(category)}
+                          className="text-blue-600 hover:text-blue-900 p-1"
+                          title="Edit category"
+                        >
+                          <Edit2 size={14} className="sm:w-4 sm:h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(category.category_id)}
+                          className="text-red-600 hover:text-red-900 p-1"
+                          title="Delete category"
+                        >
+                          <Trash2 size={14} className="sm:w-4 sm:h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {filteredCategories.length === 0 && (
-            <div className="text-center py-12">
-              <FolderOpen className="mx-auto h-12 w-12 text-gray-400" />
+            <div className="text-center py-8 sm:py-12">
+              <FolderOpen className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">No categories found</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-xs sm:text-sm text-gray-500">
                 {searchTerm ? 'Try adjusting your search criteria' : 'Get started by creating a new category'}
               </p>
             </div>
@@ -422,22 +429,22 @@ const ShopCategories: React.FC = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-2 sm:mx-6 max-h-screen overflow-y-auto">
-            <div className="flex justify-between items-center px-8 py-1 border-b">
-              <h2 className="text-xl font-semibold">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-6">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-screen overflow-y-auto">
+            <div className="flex justify-between items-center px-4 sm:px-8 py-3 sm:py-4 border-b">
+              <h2 className="text-lg sm:text-xl font-semibold">
                 {editingCategory ? 'Edit Category' : 'Add New Category'}
               </h2>
               <button
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 p-1"
               >
-                <X size={24} />
+                <X size={20} className="sm:w-6 sm:h-6" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="px-8 py-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <form onSubmit={handleSubmit} className="px-4 sm:px-8 py-4 sm:py-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Category Name *
@@ -447,7 +454,7 @@ const ShopCategories: React.FC = () => {
                     required
                     value={formData.name}
                     onChange={(e) => handleNameChange(e.target.value)}
-                    className="w-full px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     placeholder="Enter category name"
                   />
                 </div>
@@ -461,7 +468,7 @@ const ShopCategories: React.FC = () => {
                     required
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    className="w-full px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     placeholder="Enter category slug (URL-friendly)"
                   />
                 </div>
@@ -473,8 +480,8 @@ const ShopCategories: React.FC = () => {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={1}
-                    className="w-full px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     placeholder="Enter category description"
                   />
                 </div>
@@ -501,7 +508,7 @@ const ShopCategories: React.FC = () => {
                   <select
                     value={formData.parent_id || ''}
                     onChange={(e) => setFormData({ ...formData, parent_id: e.target.value ? parseInt(e.target.value) : null })}
-                    className="w-full px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                   >
                     <option value="">None (Root Category)</option>
                     {categories
@@ -522,12 +529,12 @@ const ShopCategories: React.FC = () => {
                     type="number"
                     value={formData.sort_order}
                     onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                     placeholder="Enter sort order"
                   />
                 </div>
 
-                <div className="flex items-center md:col-span-2 mt-0">
+                <div className="flex items-center md:col-span-2 mt-2">
                   <input
                     type="checkbox"
                     id="is_active"
@@ -542,23 +549,23 @@ const ShopCategories: React.FC = () => {
               </div>
 
               {error && (
-                <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                   {error}
                 </div>
               )}
 
-              <div className="flex justify-end space-x-4 mt-2">
+              <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-4">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center"
+                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center justify-center text-sm"
                 >
                   {submitting ? (
                     <>
