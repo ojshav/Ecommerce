@@ -125,6 +125,26 @@ const Shop = () => {
     }
   };
 
+  const handleTouchStart = (bannerId: number) => {
+    if (isShopOpen) {
+      setHoveredBanner(bannerId);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (isShopOpen) {
+      // Add a small delay to make the effect more visible on mobile
+      setTimeout(() => {
+        setHoveredBanner(null);
+      }, 500);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    // Prevent scrolling when touching the banner
+    e.preventDefault();
+  };
+
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', { 
       hour: '2-digit', 
@@ -525,11 +545,15 @@ const Shop = () => {
               <div key={shop.id} className="w-full">
                 {/* Banner */}
                 <div 
-                  className={`cursor-pointer transform transition-all duration-300 hover:shadow-2xl group ${isShopOpen ? 'hover:scale-[1.01]' : 'cursor-not-allowed'}`}
+                  className={`cursor-pointer transform transition-all duration-300 hover:shadow-2xl group select-none touch-manipulation ${isShopOpen ? 'hover:scale-[1.01]' : 'cursor-not-allowed'}`}
                   onClick={() => handleBannerClick(shop.id, shop.navigationPath)}
                   onMouseEnter={() => handleMouseEnter(shop.id)}
                   onMouseLeave={handleMouseLeave}
                   onMouseOut={handleMouseLeave}
+                  onTouchStart={() => handleTouchStart(shop.id)}
+                  onTouchEnd={handleTouchEnd}
+                  onTouchCancel={handleTouchEnd}
+                  onTouchMove={handleTouchMove}
                   role="button"
                   tabIndex={isShopOpen ? 0 : -1}
                   onKeyDown={(e) => {
