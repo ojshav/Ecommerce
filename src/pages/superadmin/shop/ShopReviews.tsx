@@ -28,7 +28,7 @@ const ShopReviewOverview: React.FC = () => {
   const [reviewPages, setReviewPages] = React.useState(1);
   const [reviewLoading, setReviewLoading] = React.useState(false);
 
-  const API_BASE = (window as any).API_BASE_URL || 'http://localhost:5110';
+  const API_BASE = (window as any).API_BASE_URL || 'https://api.aoin11.com';
 
   // Load shops
   React.useEffect(() => {
