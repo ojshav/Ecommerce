@@ -292,29 +292,37 @@ export default function SalesReport() {
         {/* Revenue and Sales Trend Chart */}
         <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
           <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Revenue & Sales Trend</h2>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis yAxisId="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <Tooltip formatter={(value, name) => [
-  name === 'revenue' ? formatCurrency(Number(value)) : value.toLocaleString(), 
-                  name === 'revenue' ? 'Revenue' : 'Orders'
-]} />
-                <Legend />
-                <Line yAxisId="left" type="monotone" dataKey="revenue" name="Revenue" stroke={CHART_COLORS.primary} strokeWidth={3} activeDot={{ r: 8, fill: CHART_COLORS.primary }} />
-                <Line yAxisId="right" type="monotone" dataKey="orders" name="Orders" stroke={CHART_COLORS.secondary} strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="overflow-x-auto">
+            <div className="h-72 min-w-[600px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip formatter={(value, name) => [
+    name === 'revenue' ? formatCurrency(Number(value)) : value.toLocaleString(), 
+                    name === 'revenue' ? 'Revenue' : 'Orders'
+  ]} />
+                  <Legend />
+                  <Line yAxisId="left" type="monotone" dataKey="revenue" name="Revenue" stroke={CHART_COLORS.primary} strokeWidth={3} activeDot={{ r: 8, fill: CHART_COLORS.primary }} />
+                  <Line yAxisId="right" type="monotone" dataKey="orders" name="Orders" stroke={CHART_COLORS.secondary} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
         {/* Category Distribution */}
         <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
             <h2 className="text-lg font-medium mb-4" style={{color: '#FF5733'}}>Revenue by Category</h2>
-            <div className="h-80">
+            <div className="h-80" style={{ 
+              WebkitTapHighlightColor: 'transparent',
+              WebkitTouchCallout: 'none',
+              WebkitUserSelect: 'none',
+              userSelect: 'none',
+              outline: 'none'
+            }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -325,13 +333,45 @@ export default function SalesReport() {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    style={{ 
+                      WebkitTapHighlightColor: 'transparent',
+                      outline: 'none'
+                    }}
                   >
                   {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={Object.values(CHART_COLORS)[index % 4]} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={Object.values(CHART_COLORS)[index % 4]}
+                        style={{ 
+                          WebkitTapHighlightColor: 'transparent',
+                          outline: 'none'
+                        }}
+                      />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Tooltip 
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0];
+                        const categoryIndex = categoryData.findIndex(item => item.name === data.name);
+                        const color = Object.values(CHART_COLORS)[categoryIndex % 4];
+                        const value = typeof data.value === 'number' ? data.value : 0;
+                        const percentage = (value / categoryData.reduce((sum, item) => sum + item.value, 0) * 100).toFixed(1);
+                        
+                        return (
+                          <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                            <p style={{ color: color, fontWeight: 'bold' }}>
+                              {data.name} ({percentage}%)
+                            </p>
+                            <p className="text-gray-600">
+                              Revenue: {formatCurrency(value)}
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>

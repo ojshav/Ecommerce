@@ -11,7 +11,8 @@ import {
   FolderOpen,
   Filter,
   ExternalLink,
-  Layers
+  Layers,
+  Menu
 } from 'lucide-react';
 import { shopManagementService, Shop, ShopCategory, ShopBrand, ShopProduct } from '../../../services/shopManagementService';
 import { useToastHelpers } from '../../../context/ToastContext';
@@ -217,24 +218,24 @@ const ShopProducts: React.FC = () => {
   // Shop Selection View
   if (!selectedShop) {
     return (
-      <div className="p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Shop Products</h1>
-          <p className="text-gray-600">Select a shop to manage its products</p>
+      <div className="p-4 sm:p-6">
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Shop Products</h1>
+          <p className="text-sm sm:text-base text-gray-600">Select a shop to manage its products</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {shops.map((shop) => (
             <button
               key={shop.shop_id}
               onClick={() => setSelectedShop(shop)}
-              className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow text-left"
+              className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6 hover:shadow-lg transition-shadow text-left"
             >
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <Store className="text-orange-500" size={24} />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Store className="text-orange-500" size={20} />
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{shop.name}</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{shop.name}</h3>
                   <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                     shop.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                   }`}>
@@ -252,35 +253,36 @@ const ShopProducts: React.FC = () => {
   // Category Selection View
   if (!selectedCategory) {
     return (
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
+      <div className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <button
               onClick={() => setSelectedShop(null)}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 text-sm sm:text-base"
             >
-              <ArrowLeft size={20} />
-              <span>Back to Shops</span>
+              <ArrowLeft size={18} />
+              <span className="hidden sm:inline">Back to Shops</span>
+              <span className="sm:hidden">Back</span>
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{selectedShop.name} - Categories</h1>
-              <p className="text-gray-600">Select a category to manage its products</p>
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{selectedShop.name} - Categories</h1>
+              <p className="text-sm sm:text-base text-gray-600">Select a category to manage its products</p>
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {categories.map((category) => (
             <button
               key={category.category_id}
               onClick={() => setSelectedCategory(category)}
-              className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow text-left"
+              className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6 hover:shadow-lg transition-shadow text-left"
             >
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <FolderOpen className="text-blue-500" size={24} />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FolderOpen className="text-blue-500" size={20} />
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{category.name}</h3>
                   <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                     category.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                   }`}>
@@ -297,49 +299,52 @@ const ShopProducts: React.FC = () => {
 
   // Products Management View
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 sm:mb-6 gap-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <button
             onClick={() => setSelectedCategory(null)}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 text-sm sm:text-base"
           >
-            <ArrowLeft size={20} />
-            <span>Back to Categories</span>
+            <ArrowLeft size={18} />
+            <span className="hidden sm:inline">Back to Categories</span>
+            <span className="sm:hidden">Back</span>
           </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">
               {selectedShop.name} {'>'} {selectedCategory.name} - Products
             </h1>
-            <p className="text-gray-600">Manage products for this category</p>
+            <p className="text-sm sm:text-base text-gray-600">Manage products for this category</p>
           </div>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
+            className="bg-gray-500 hover:bg-gray-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
           >
-            <Filter size={20} />
-            <span>Filters</span>
+            <Filter size={18} />
+            <span className="hidden sm:inline">Filters</span>
+            <span className="sm:hidden">Filter</span>
           </button>
           <button
             onClick={() => {
-              setEditingProduct(null); // <-- Reset editingProduct
+              setEditingProduct(null);
               setShowModal(true);
             }}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
+            className="bg-orange-500 hover:bg-orange-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center space-x-2 text-sm sm:text-base"
           >
-            <Plus size={20} />
-            <span>Add Product</span>
+            <Plus size={18} />
+            <span className="hidden sm:inline">Add Product</span>
+            <span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Brand</label>
               <select
@@ -348,7 +353,7 @@ const ShopProducts: React.FC = () => {
                   const brand = brands.find(b => b.brand_id === parseInt(e.target.value));
                   setSelectedBrand(brand || null);
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
               >
                 <option value="">All Brands</option>
                 {brands.map((brand) => (
@@ -365,7 +370,7 @@ const ShopProducts: React.FC = () => {
                 step="0.01"
                 value={filters.min_price}
                 onChange={(e) => setFilters({ ...filters, min_price: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                 placeholder="0.00"
               />
             </div>
@@ -376,7 +381,7 @@ const ShopProducts: React.FC = () => {
                 step="0.01"
                 value={filters.max_price}
                 onChange={(e) => setFilters({ ...filters, max_price: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                 placeholder="999.99"
               />
             </div>
@@ -385,7 +390,7 @@ const ShopProducts: React.FC = () => {
               <select
                 value={filters.is_published}
                 onChange={(e) => setFilters({ ...filters, is_published: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
               >
                 <option value="">All Status</option>
                 <option value="true">Published</option>
@@ -393,16 +398,16 @@ const ShopProducts: React.FC = () => {
               </select>
             </div>
           </div>
-          <div className="flex justify-between items-center mt-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-2">
             <button
               onClick={resetFilters}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-gray-600 hover:text-gray-900 text-sm"
             >
               Clear Filters
             </button>
             <button
               onClick={fetchProducts}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm"
             >
               Apply Filters
             </button>
@@ -411,7 +416,7 @@ const ShopProducts: React.FC = () => {
       )}
 
       {/* Search */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <input
@@ -419,7 +424,7 @@ const ShopProducts: React.FC = () => {
             placeholder="Search products by name or SKU..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
           />
         </div>
       </div>
@@ -431,11 +436,11 @@ const ShopProducts: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
             {filteredProducts.map((product) => (
               <div key={product.product_id} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
                
-                <div className="aspect-w-1 aspect-h-1 w-full h-48 bg-gray-200">
+                <div className="aspect-w-1 aspect-h-1 w-full h-40 sm:h-48 bg-gray-200">
                   {product.primary_image && !product.primary_image.startsWith('blob:') ? (
                     <img
                       src={product.primary_image}
@@ -468,24 +473,24 @@ const ShopProducts: React.FC = () => {
                   )}
                 </div>
                 
-                <div className="p-4">
+                <div className="p-3 sm:p-4">
                   
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 truncate">{product.product_name}</h3>
-                    <div className="flex space-x-1 ml-2">
+                    <h3 className="text-sm sm:text-lg font-semibold text-gray-900 truncate flex-1 mr-2">{product.product_name}</h3>
+                    <div className="flex space-x-1 flex-shrink-0">
                       <button
                         onClick={() => window.open(`/product/${product.product_id}`, '_blank')}
                         className="p-1 text-blue-600 hover:bg-blue-50 rounded"
                         title="View Product"
                       >
-                        <ExternalLink size={16} />
+                        <ExternalLink size={14} />
                       </button>
                       <button
                         onClick={() => handleEdit(product)}
                         className="p-1 text-blue-600 hover:bg-blue-50 rounded"
                         title="Edit Product"
                       >
-                        <Edit2 size={16} />
+                        <Edit2 size={14} />
                       </button>
                       {/* Only show Manage Variants button for parent products (not variant products) */}
                       {!product.parent_product_id && (
@@ -494,7 +499,7 @@ const ShopProducts: React.FC = () => {
                           className="p-1 text-green-600 hover:bg-green-50 rounded"
                           title="Manage Variants"
                         >
-                          <Layers size={16} />
+                          <Layers size={14} />
                         </button>
                       )}
                       <button
@@ -502,11 +507,11 @@ const ShopProducts: React.FC = () => {
                         className="p-1 text-red-600 hover:bg-red-50 rounded"
                         title="Delete Product"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">SKU: {product.sku}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2">SKU: {product.sku}</p>
                 
                   {(product.variant_count || 0) > 0 && (
                     <div className="mb-2">
@@ -527,23 +532,23 @@ const ShopProducts: React.FC = () => {
                       </span>
                     </div>
                   )}
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.product_description}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">{product.product_description}</p>
                   <div className="flex justify-between items-center mb-3">
                     <div>
-                      <span className="text-lg font-bold text-gray-900">₹{product.selling_price}</span>
+                      <span className="text-sm sm:text-lg font-bold text-gray-900">₹{product.selling_price}</span>
                       {product.is_on_special_offer && product.special_price && (
-                        <span className="text-sm text-red-500 line-through ml-2">₹{product.special_price}</span>
+                        <span className="text-xs sm:text-sm text-red-500 line-through ml-2">₹{product.special_price}</span>
                       )}
                     </div>
                     {product.brand_name && (
-                      <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">{product.brand_name}</span>
+                      <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full truncate max-w-20">{product.brand_name}</span>
                     )}
                   </div>
                   <div className="border-t pt-3 mt-3">
                     <div className="space-y-2">
                       {/* Active Status Toggle */}
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">Active</span>
+                        <span className="text-xs sm:text-sm font-medium text-gray-700">Active</span>
                         <button
                           onClick={() => toggleProductStatus(product.product_id, 'active_flag', product.active_flag)}
                           className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
@@ -559,7 +564,7 @@ const ShopProducts: React.FC = () => {
                       </div>
                       {/* Published Status Toggle */}
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">Published</span>
+                        <span className="text-xs sm:text-sm font-medium text-gray-700">Published</span>
                         <button
                           onClick={() => toggleProductStatus(product.product_id, 'is_published', product.is_published)}
                           className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
@@ -575,7 +580,7 @@ const ShopProducts: React.FC = () => {
                       </div>
                       {/* Special Offer Toggle */}
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">Special Offer</span>
+                        <span className="text-xs sm:text-sm font-medium text-gray-700">Special Offer</span>
                         <button
                           onClick={() => toggleProductStatus(product.product_id, 'is_on_special_offer', product.is_on_special_offer)}
                           className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
@@ -597,21 +602,21 @@ const ShopProducts: React.FC = () => {
           </div>
           {/* Pagination Controls */}
           {pagination.pages > 1 && (
-            <div className="flex justify-center items-center mt-8 space-x-4">
+            <div className="flex flex-col sm:flex-row justify-center items-center mt-6 sm:mt-8 gap-4">
               <button
                 onClick={handlePrevPage}
                 disabled={!pagination.has_prev}
-                className={`px-4 py-2 rounded-lg border ${pagination.has_prev ? 'bg-white hover:bg-gray-100 text-gray-900' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                className={`px-3 sm:px-4 py-2 rounded-lg border text-sm ${pagination.has_prev ? 'bg-white hover:bg-gray-100 text-gray-900' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
               >
                 Previous
               </button>
-              <span className="text-gray-700 font-medium">
+              <span className="text-sm sm:text-base text-gray-700 font-medium">
                 Page {pagination.current_page} of {pagination.pages}
               </span>
               <button
                 onClick={handleNextPage}
                 disabled={!pagination.has_next}
-                className={`px-4 py-2 rounded-lg border ${pagination.has_next ? 'bg-white hover:bg-gray-100 text-gray-900' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                className={`px-3 sm:px-4 py-2 rounded-lg border text-sm ${pagination.has_next ? 'bg-white hover:bg-gray-100 text-gray-900' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
               >
                 Next
               </button>
@@ -621,9 +626,9 @@ const ShopProducts: React.FC = () => {
       )}
 
       {filteredProducts.length === 0 && !loading && (
-        <div className="text-center py-12">
+        <div className="text-center py-8 sm:py-12">
           <Package className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No products found</h3>
+          <h3 className="mt-2 text-sm sm:text-base font-medium text-gray-900">No products found</h3>
           <p className="mt-1 text-sm text-gray-500">
             {searchTerm ? 'Try adjusting your search criteria' : 'Get started by creating a new product'}
           </p>
@@ -632,10 +637,10 @@ const ShopProducts: React.FC = () => {
 
       {/* Product Modal */}
       {showModal && selectedShop && selectedCategory && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl mx-4 max-h-screen overflow-y-auto">
-            <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-xl font-semibold">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl mx-auto max-h-screen overflow-y-auto">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b">
+              <h2 className="text-lg sm:text-xl font-semibold">
                 {editingProduct ? 'Edit Product' : 'Add New Product'}
               </h2>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">

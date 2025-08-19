@@ -491,25 +491,25 @@ const BrandCreation: React.FC = () => {
     };
 
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold mb-6">Brand Management</h1>
+        <div className="p-3 sm:p-6">
+            <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Brand Management</h1>
 
             {/* Search and Filter Section */}
-            <div className="mb-6 flex flex-wrap gap-4 items-center">
-                <div className="flex-1 min-w-[200px]">
+            <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+                <div className="flex-1 min-w-0">
                     <input
                         type="text"
                         placeholder="Search brands..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 sm:px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                     />
                 </div>
-                <div className="w-[200px]">
+                <div className="w-full sm:w-[200px]">
                     <select
                         value={selectedCategoryFilter}
                         onChange={(e) => setSelectedCategoryFilter(e.target.value ? Number(e.target.value) : '')}
-                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 sm:px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                     >
                         <option value="">All Categories</option>
                         {categories.map(category => (
@@ -521,14 +521,14 @@ const BrandCreation: React.FC = () => {
                 </div>
                 <button
                     onClick={() => setShowAddBrandForm(true)}
-                    className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors"
+                    className="bg-[#FF5733] text-white px-4 py-2 rounded hover:bg-[#FF4500] transition-colors text-sm sm:text-base whitespace-nowrap"
                 >
                     Add New Brand
                 </button>
             </div>
 
             {/* Brand Requests Section */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
                 <h2 className="text-lg font-semibold mb-4">Brand Requests</h2>
                 
                 {loadingRequests ? (
@@ -540,28 +540,28 @@ const BrandCreation: React.FC = () => {
                 ) : (
                     <div className="space-y-4">
                         {brandRequests.map((request) => (
-                            <div key={request.request_id} className="border rounded-lg p-4">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h3 className="font-medium">{request.name}</h3>
-                                        <p className="text-sm text-gray-500">
+                            <div key={request.request_id} className="border rounded-lg p-3 sm:p-4">
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-medium text-sm sm:text-base truncate">{request.name}</h3>
+                                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
                                             Category: {request.category?.name}
                                             {request.parent_category && ` > ${request.parent_category.name}`}
                                         </p>
-                                        <p className="text-sm text-gray-500">
+                                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
                                             Requested on: {new Date(request.created_at).toLocaleDateString()}
                                         </p>
                                     </div>
-                                    <div className="flex space-x-2">
+                                    <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
                                         <button
                                             onClick={() => handleApproveRequest(request.request_id)}
-                                            className="px-3 py-1 bg-[#FF5733] text-white rounded hover:bg-[#FF4500] transition-colors"
+                                            className="px-3 py-2 sm:py-1 bg-[#FF5733] text-white rounded hover:bg-[#FF4500] transition-colors text-sm whitespace-nowrap"
                                         >
                                             Approve
                                         </button>
                                         <button
                                             onClick={() => handleRejectRequest(request.request_id)}
-                                            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                                            className="px-3 py-2 sm:py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm whitespace-nowrap"
                                         >
                                             Reject
                                         </button>
@@ -573,12 +573,12 @@ const BrandCreation: React.FC = () => {
                 )}
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="mb-6">
-                    <div className="flex justify-between items-center mb-4">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                <div className="mb-4 sm:mb-6">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
                         <h2 className="text-lg font-semibold">Brands</h2>
                         <button
-                            className="flex items-center text-[#FF5733] hover:text-[#FF4500]"
+                            className="flex items-center text-[#FF5733] hover:text-[#FF4500] text-sm sm:text-base"
                             onClick={() => setShowAddBrandForm(!showAddBrandForm)}
                         >
                             <PlusCircle className="w-4 h-4 mr-1" />
@@ -588,7 +588,7 @@ const BrandCreation: React.FC = () => {
                     
                     {/* Brand Creation Form */}
                     {showAddBrandForm && (
-                        <div className="bg-gray-50 p-4 rounded-md mb-6 border border-gray-200">
+                        <div className="bg-gray-50 p-3 sm:p-4 rounded-md mb-4 sm:mb-6 border border-gray-200">
                             <h3 className="text-md font-medium mb-3">Create New Brand</h3>
                             
                             {submitSuccess && (
@@ -724,42 +724,42 @@ const BrandCreation: React.FC = () => {
                             {filteredBrands.length === 0 ? (
                                 <div className="text-center py-4 text-gray-500">No brands found</div>
                             ) : (
-                                filteredBrands.map((brand) => (
-                                    <div key={brand.brand_id} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between p-3 border-b hover:bg-gray-50">
-                                        <div className="flex items-center">
-                                            {brand.icon_url ? (
-                                                <img 
-                                                    src={brand.icon_url} 
-                                                    alt={brand.name} 
-                                                    className="w-8 h-8 mr-3 object-contain"
-                                                />
-                                            ) : (
-                                                <div className="w-8 h-8 mr-3 bg-gray-200 rounded-full flex items-center justify-center capitalize">
-                                                    <span className="text-xs font-medium">
-                                                        {brand.name.substring(0, 2)}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            <span className="font-medium">{brand.name}</span>
+                                                        filteredBrands.map((brand) => (
+                            <div key={brand.brand_id} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between p-3 border-b hover:bg-gray-50">
+                                <div className="flex items-center flex-1 min-w-0">
+                                    {brand.icon_url ? (
+                                        <img 
+                                            src={brand.icon_url} 
+                                            alt={brand.name} 
+                                            className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 object-contain flex-shrink-0"
+                                        />
+                                    ) : (
+                                        <div className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 bg-gray-200 rounded-full flex items-center justify-center capitalize flex-shrink-0">
+                                            <span className="text-xs font-medium">
+                                                {brand.name.substring(0, 2)}
+                                            </span>
                                         </div>
-                                        <div className="flex space-x-2">
-                                            <button 
-                                                onClick={() => startEdit(brand)}
-                                                className="text-[#FF5733] hover:text-[#FF4500] text-sm flex items-center"
-                                            >
-                                                <Edit2 className="w-4 h-4 mr-1" />
-                                                Edit
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDeleteBrand(brand.brand_id)}
-                                                className="text-red-500 hover:text-red-700 text-sm flex items-center"
-                                            >
-                                                <Trash2 className="w-4 h-4 mr-1" />
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))
+                                    )}
+                                    <span className="font-medium text-sm sm:text-base truncate">{brand.name}</span>
+                                </div>
+                                <div className="flex space-x-2 self-end sm:self-auto">
+                                    <button 
+                                        onClick={() => startEdit(brand)}
+                                        className="text-[#FF5733] hover:text-[#FF4500] text-xs sm:text-sm flex items-center px-2 py-1 rounded hover:bg-gray-100"
+                                    >
+                                        <Edit2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                                        Edit
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDeleteBrand(brand.brand_id)}
+                                        className="text-red-500 hover:text-red-700 text-xs sm:text-sm flex items-center px-2 py-1 rounded hover:bg-gray-100"
+                                    >
+                                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        ))
                             )}
                         </div>
                     )}
@@ -768,8 +768,8 @@ const BrandCreation: React.FC = () => {
 
             {/* Edit Brand Modal */}
             {isEditing && editingBrand && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center px-4 pb-4 pt-72 overflow-y-auto">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto">
+                    <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md mx-auto my-8">
                         <h3 className="text-lg font-medium mb-4">Edit Brand</h3>
                         <form onSubmit={handleEditBrand}>
                             <div className="mb-4">

@@ -114,7 +114,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bgColor} ${textColor}`}
+      className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 rounded-full text-xs font-medium ${bgColor} ${textColor} whitespace-nowrap`}
     >
       {status
         .split("_")
@@ -144,18 +144,18 @@ const formatSelectedAttributes = (
 
 // Helper component to render an address block
 const AddressBlock: React.FC<{ address: Address | null }> = ({ address }) => {
-  if (!address) return <p style={{ margin: "0" }}>N/A</p>;
+  if (!address) return <p className="text-sm text-gray-500">N/A</p>;
   return (
-    <>
-      <p style={{ margin: "2px 0" }}>{address.address_line1}</p>
+    <div className="space-y-1">
+      <p className="text-sm text-gray-900 break-words">{address.address_line1}</p>
       {address.address_line2 && (
-        <p style={{ margin: "2px 0" }}>{address.address_line2}</p>
+        <p className="text-sm text-gray-900 break-words">{address.address_line2}</p>
       )}
-      <p style={{ margin: "2px 0" }}>
+      <p className="text-sm text-gray-900">
         {address.city}, {address.state} {address.postal_code}
       </p>
-      <p style={{ margin: "2px 0" }}>{address.country}</p>
-    </>
+      <p className="text-sm text-gray-900">{address.country}</p>
+    </div>
   );
 };
 
@@ -562,18 +562,18 @@ const OrderDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 px-4">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
       </div>
     );
   }
   if (error) {
     return (
-      <div className="text-center py-8">
-        <p className="text-red-500 mb-4">{error}</p>
+      <div className="text-center py-8 px-4">
+        <p className="text-red-500 mb-4 break-words">{error}</p>
         <button
           onClick={() => window.location.reload()}
-          className="bg-orange-500 text-white px-4 py-2 rounded-md"
+          className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors"
         >
           Try Again
         </button>
@@ -582,7 +582,7 @@ const OrderDetail: React.FC = () => {
   }
   if (!order) {
     return (
-      <div className="text-center py-8">
+      <div className="text-center py-8 px-4">
         <p className="text-gray-500">Order not found.</p>
       </div>
     );
@@ -847,47 +847,51 @@ const OrderDetail: React.FC = () => {
 
       {/* --- ON-SCREEN DASHBOARD VIEW --- */}
       {/* This whole block will be hidden during printing by the global CSS */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between pb-4 border-b border-gray-200 mb-4">
-          <div className="flex items-center space-x-4">
+      <div className="space-y-4 sm:space-y-6">
+        {/* Header Section - Made responsive */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-gray-200 mb-4 space-y-4 sm:space-y-0">
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
             <Link
               to="/business/orders"
-              className="inline-flex items-center text-[#FF4D00] hover:text-white hover:bg-[#FF4D00] transition-colors px-3 py-1.5 rounded-md font-medium shadow-sm"
+              className="inline-flex items-center text-[#FF4D00] hover:text-white hover:bg-[#FF4D00] transition-colors px-3 py-1.5 rounded-md font-medium shadow-sm w-fit"
               style={{ fontWeight: 500 }}
             >
               <ArrowLeftIcon className="h-5 w-5 mr-2" /> Back to Orders
             </Link>
-            <h1 className="text-2xl font-semibold text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
               Order #{order.order_id}
             </h1>
           </div>
           <div className="flex space-x-2">
             <button
               onClick={handlePrint}
-              className="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium bg-[#FF4D00] text-white hover:bg-orange-600 transition-colors border border-[#FF4D00]"
+              className="inline-flex items-center px-3 sm:px-4 py-2 rounded-md shadow-sm text-sm font-medium bg-[#FF4D00] text-white hover:bg-orange-600 transition-colors border border-[#FF4D00]"
               style={{ fontWeight: 500 }}
             >
-              <PrinterIcon className="h-4 w-4 mr-2" /> Print Invoice
+              <PrinterIcon className="h-4 w-4 mr-2" /> 
+              <span className="hidden sm:inline">Print Invoice</span>
+              <span className="sm:hidden">Print</span>
             </button>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
+        {/* Order Status Section - Made responsive */}
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div>
-              <h2 className="text-lg font-medium text-gray-900">
+              <h2 className="text-base sm:text-lg font-medium text-gray-900">
                 Order Status
               </h2>
               <p className="text-sm text-gray-500">
                 Placed on {new Date(order.order_date).toLocaleDateString()}
               </p>
             </div>
-            <div className="flex space-x-4">
-              <div className="text-center">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+              <div className="text-center sm:text-left">
                 <StatusBadge status={order.order_status} />
                 <p className="text-xs text-gray-500 mt-1">Order Status</p>
               </div>
-              <div className="text-center">
+              <div className="text-center sm:text-left">
                 <StatusBadge status={order.payment_status} />
                 <p className="text-xs text-gray-500 mt-1">Payment Status</p>
               </div>
@@ -895,11 +899,14 @@ const OrderDetail: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        {/* Main Content Grid - Made responsive */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+          {/* Left Column - Order Items and History */}
+          <div className="xl:col-span-2 space-y-4 sm:space-y-6">
+            {/* Order Items Section */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+                <h3 className="text-base sm:text-lg font-medium text-gray-900 flex items-center">
                   <ShoppingBagIcon className="h-5 w-5 mr-2" />
                   Order Items ({order.items.length})
                 </h3>
@@ -908,7 +915,7 @@ const OrderDetail: React.FC = () => {
                 {order.items.map((item) => (
                   <div
                     key={item.order_item_id}
-                    className="p-6 flex items-start space-x-4"
+                    className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4"
                   >
                     <div className="flex-1">
                       <h4 className="text-sm font-medium text-gray-900">
@@ -924,7 +931,7 @@ const OrderDetail: React.FC = () => {
                         </p>
                       )}
                     </div>
-                    <div className="text-right flex-shrink-0">
+                    <div className="text-left sm:text-right flex-shrink-0">
                       <p className="text-sm font-medium text-gray-900">
                         {order.currency}{" "}
                         {parseFloat(item.final_price_for_item).toFixed(2)}
@@ -938,20 +945,22 @@ const OrderDetail: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            {/* Status History Section */}
             {order.status_history && order.status_history.length > 0 && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-medium text-gray-900">
+                <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+                  <h3 className="text-base sm:text-lg font-medium text-gray-900">
                     Status History
                   </h3>
                 </div>
-                <div className="p-6 space-y-4">
+                <div className="p-4 sm:p-6 space-y-4">
                   {order.status_history.map((history, index) => (
                     <div key={index} className="flex items-start space-x-3">
                       <div className="flex-shrink-0 pt-1.5">
                         <div className="w-2.5 h-2.5 bg-orange-500 rounded-full"></div>
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900">
                           {history.status
                             .split("_")
@@ -965,7 +974,7 @@ const OrderDetail: React.FC = () => {
                           {new Date(history.changed_at).toLocaleString()}
                         </p>
                         {history.notes && (
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-sm text-gray-600 mt-1 break-words">
                             {history.notes}
                           </p>
                         )}
@@ -976,14 +985,17 @@ const OrderDetail: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="space-y-6">
+
+          {/* Right Column - Summary and Customer Info */}
+          <div className="space-y-4 sm:space-y-6">
+            {/* Order Summary Section */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+                <h3 className="text-base sm:text-lg font-medium text-gray-900">
                   Order Summary
                 </h3>
               </div>
-              <div className="p-6 space-y-3">
+              <div className="p-4 sm:p-6 space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Subtotal</span>
                   <span className="text-sm font-medium">
@@ -1018,37 +1030,41 @@ const OrderDetail: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Customer Information Section */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+                <h3 className="text-base sm:text-lg font-medium text-gray-900 flex items-center">
                   <UserIcon className="h-5 w-5 mr-2" />
                   Customer Information
                 </h3>
               </div>
-              <div className="p-6 space-y-4">
+              <div className="p-4 sm:p-6 space-y-4">
                 <div>
                   <p className="text-sm font-medium text-gray-700">
                     Shipping Address
                   </p>
-                  <div className="text-sm text-gray-900">
+                  <div className="text-sm text-gray-900 mt-1">
                     <AddressBlock address={shippingAddress} />
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Payment Information Section */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+                <h3 className="text-base sm:text-lg font-medium text-gray-900 flex items-center">
                   <CreditCardIcon className="h-5 w-5 mr-2" />
                   Payment Information
                 </h3>
               </div>
-              <div className="p-6 space-y-4">
+              <div className="p-4 sm:p-6 space-y-4">
                 <div>
                   <p className="text-sm font-medium text-gray-700">
                     Payment Method
                   </p>
-                  <p className="text-sm text-gray-900">
+                  <p className="text-sm text-gray-900 mt-1">
                     {order.payment_method || "N/A"}
                   </p>
                 </div>
@@ -1057,7 +1073,7 @@ const OrderDetail: React.FC = () => {
                     <p className="text-sm font-medium text-gray-700">
                       Transaction ID
                     </p>
-                    <p className="text-sm text-gray-900 break-all">
+                    <p className="text-sm text-gray-900 break-all mt-1">
                       {order.payment_gateway_transaction_id}
                     </p>
                   </div>

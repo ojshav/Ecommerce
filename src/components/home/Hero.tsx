@@ -56,7 +56,7 @@ const Hero: React.FC = () => {
     return (
       <section className="w-full max-w-[1680px] mx-auto px-2 lg:px-4 pt-4">
         <div className="flex items-center justify-center h-[564px] bg-gray-200 rounded-lg animate-pulse">
-          <span className="text-gray-500">Loading Hero Section...</span>
+          <span className="text-gray-500"></span>
         </div>
       </section>
     );

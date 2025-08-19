@@ -273,24 +273,24 @@ const TrafficAnalytics: React.FC = () => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="bg-orange-500 p-3 rounded-lg shadow-lg">
             <TrendingUp className="text-white w-6 h-6" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Traffic Analytics</h2>
         </div>
-        <div className="flex space-x-4">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
           <button
             onClick={handleRefresh}
-            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 flex items-center gap-2"
+            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 flex items-center justify-center gap-2"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
           <button
             onClick={() => setIsExportModalOpen(true)}
-            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 flex items-center gap-2"
+            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 flex items-center justify-center gap-2"
           >
             <Download className="w-4 h-4" />
             Export Report
@@ -366,7 +366,9 @@ const TrafficAnalytics: React.FC = () => {
             <span>Hover over the chart for detailed metrics</span>
           </div>
         </div>
-        <ResponsiveContainer width="100%" height={400}>
+        <div className="overflow-x-auto">
+          <div className="min-w-[600px] md:min-w-full">
+            <ResponsiveContainer width="100%" height={400}>
           <LineChart data={hourlyData} margin={{ top: 5, right: 30, left: 20, bottom: 30 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis
@@ -419,7 +421,9 @@ const TrafficAnalytics: React.FC = () => {
               activeDot={{ r: 6, stroke: CHART_COLORS.quaternary, strokeWidth: 2, fill: CHART_COLORS.quaternary }}
             />
           </LineChart>
-        </ResponsiveContainer>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
 
       {/* Export Modal */}

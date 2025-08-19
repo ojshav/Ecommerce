@@ -287,6 +287,20 @@ const Sales = () => {
     return null;
   };
 
+  // Custom Tooltip for Pie Chart - shows category name and percentage on hover
+  const PieChartTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const item = payload[0].payload;
+      return (
+        <div className="bg-white p-3 rounded-lg shadow-lg border text-sm">
+          <p className="font-semibold text-gray-800 mb-1">{item.name}</p>
+          <p className="text-orange-600 font-medium">{Number(item.value).toFixed(1)}%</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -329,33 +343,35 @@ const Sales = () => {
       {/* Revenue & Sales Trend Chart */}
       <div className="bg-white p-6 rounded-xl shadow-sm">
         <h2 className="text-xl font-semibold text-[#FF4D00] mb-4">Revenue & Sales Trend</h2>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="month" />
-              <YAxis yAxisId="left" />
-              <YAxis yAxisId="right" orientation="right" />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="revenue"
-                stroke="#FF4D00"
-                name="Revenue"
-                dot={{ fill: '#FF4D00' }}
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="units"
-                stroke="#00E5BE"
-                name="Units Sold"
-                dot={{ fill: '#00E5BE' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+        <div className="h-80 overflow-x-auto">
+          <div className="min-w-[600px] h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="month" />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#FF4D00"
+                  name="Revenue"
+                  dot={{ fill: '#FF4D00' }}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="units"
+                  stroke="#00E5BE"
+                  name="Units Sold"
+                  dot={{ fill: '#00E5BE' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
@@ -400,23 +416,25 @@ const Sales = () => {
               <option>Sort by Revenue</option>
             </select>
           </div>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={productPerformance}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" tickFormatter={name => name.length > 18 ? name.slice(0, 15) + '...' : name} />
-                <YAxis />
-                <Tooltip content={<ProductPerformanceTooltip />} />
-                <Bar dataKey="revenue" fill="#FF4D00" />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-80 overflow-x-auto">
+            <div className="min-w-[600px] h-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={productPerformance}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="name" tickFormatter={name => name.length > 18 ? name.slice(0, 15) + '...' : name} />
+                  <YAxis />
+                  <Tooltip content={<ProductPerformanceTooltip />} />
+                  <Bar dataKey="revenue" fill="#FF4D00" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
         {/* Revenue by Category */}
         <div className="bg-white p-6 rounded-xl shadow-sm">
           <h2 className="text-xl font-semibold text-[#FF4D00] mb-4">Revenue by Category</h2>
-          <div className="h-80">
+          <div className="h-80 [&_.recharts-pie-sector]:outline-none [&_.recharts-pie-sector]:focus:outline-none [&_.recharts-pie-sector]:focus-visible:outline-none [&_.recharts-pie-sector]:active:outline-none">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -426,13 +444,20 @@ const Sales = () => {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  label={({ value }) => `${value.toFixed(1)}%`}
+                  innerRadius={0}
+                  paddingAngle={2}
+                  stroke="none"
                 >
                   {pieChartData.map((entry, index) => (
-                    <Cell key={index} fill={entry.fill} />
+                    <Cell 
+                      key={index} 
+                      fill={entry.fill}
+                      stroke="none"
+                      strokeWidth={0}
+                    />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `${Number(value).toFixed(1)}%`} />
+                <Tooltip content={<PieChartTooltip />} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>

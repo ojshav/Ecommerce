@@ -201,28 +201,28 @@ const ShopAnalytics: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 px-4 sm:px-6 lg:px-8">
       {/* Header */}
-    <div className="bg-[#F97316] text-white p-6 rounded-xl shadow flex items-center justify-between">
+      <div className="bg-[#F97316] text-white p-4 sm:p-6 rounded-xl shadow flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Shop Analytics</h1>
-          <span className="text-lg font-medium">Overview & Insights</span>
+          <h1 className="text-xl sm:text-2xl font-bold">Shop Analytics</h1>
+          <span className="text-base sm:text-lg font-medium">Overview & Insights</span>
         </div>
         <button
           onClick={() => setIsExportModalOpen(true)}
           disabled={!selectedShop}
-      className="flex items-center gap-2 bg-white text-[#C2410C] px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 bg-white text-[#C2410C] px-3 sm:px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base w-full sm:w-auto justify-center"
         >
-          <Download className="w-5 h-5" />
+          <Download className="w-4 h-4 sm:w-5 sm:h-5" />
           Export Report
         </button>
       </div>
 
       {/* Shop Selector */}
-      <div className="flex items-center gap-4">
-        <label className="text-gray-700 font-semibold">Select Shop:</label>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+        <label className="text-gray-700 font-semibold text-sm sm:text-base">Select Shop:</label>
         <select
-          className="p-2 rounded border border-gray-300 focus:ring-2 focus:ring-gray-400"
+          className="p-2 rounded border border-gray-300 focus:ring-2 focus:ring-gray-400 w-full sm:w-auto min-w-[200px]"
           value={selectedShop}
           onChange={e => setSelectedShop(e.target.value)}
         >
@@ -233,37 +233,37 @@ const ShopAnalytics: React.FC = () => {
         </select>
       </div>
 
-  {/* Key Metrics Card */}
-  {selectedShop && summary && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
-      <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-    <span className="text-2xl font-bold text-gray-900 mb-1">{summary.top_product || '-'}</span>
-            <span className="text-gray-700">Top Selling Product</span>
+      {/* Key Metrics Card */}
+      {selectedShop && summary && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-4">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center">
+            <span className="text-lg sm:text-2xl font-bold text-gray-900 mb-1 text-center">{summary.top_product || '-'}</span>
+            <span className="text-gray-700 text-sm sm:text-base text-center">Top Selling Product</span>
           </div>
-      <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-    <span className="text-2xl font-bold text-gray-900 mb-1">₹{(summary.revenue || 0).toLocaleString()}</span>
-            <span className="text-gray-700">Total Revenue</span>
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center">
+            <span className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">₹{(summary.revenue || 0).toLocaleString()}</span>
+            <span className="text-gray-700 text-sm sm:text-base text-center">Total Revenue</span>
           </div>
-      <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-    <span className="text-2xl font-bold text-gray-900 mb-1">{summary.top_category || '-'}</span>
-            <span className="text-gray-700">Top Selling Category</span>
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center">
+            <span className="text-lg sm:text-2xl font-bold text-gray-900 mb-1 text-center">{summary.top_category || '-'}</span>
+            <span className="text-gray-700 text-sm sm:text-base text-center">Top Selling Category</span>
           </div>
-      <div className="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-    <span className="text-2xl font-bold text-gray-900 mb-1">{summary.total_sold || 0}</span>
-            <span className="text-gray-700">Total Products Sold</span>
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center">
+            <span className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">{summary.total_sold || 0}</span>
+            <span className="text-gray-700 text-sm sm:text-base text-center">Total Products Sold</span>
           </div>
         </div>
       )}
 
       {/* Analytics Content */}
-  {selectedShop && summary ? (
+      {selectedShop && summary ? (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mt-6 sm:mt-8">
             {/* Revenue Trend Line Chart */}
-            <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center min-h-[350px]">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900 self-start">Revenue Trend</h3>
-              <ResponsiveContainer width="100%" height={220}>
-        <LineChart data={trend} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+            <div className="bg-white p-4 sm:p-6 rounded-xl shadow flex flex-col items-center min-h-[300px] sm:min-h-[350px]">
+              <h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 self-start">Revenue Trend</h3>
+              <ResponsiveContainer width="100%" height={200} className="sm:h-[220px]">
+                <LineChart data={trend} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -273,13 +273,14 @@ const ShopAnalytics: React.FC = () => {
                 </LineChart>
               </ResponsiveContainer>
             </div>
+            
             {/* Product Sales Bar Chart with filters */}
-      <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center min-h-[350px] w-full">
-              <div className="flex flex-wrap gap-4 mb-2 w-full justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Products Sold</h3>
-                <div className="flex gap-2 items-center">
+            <div className="bg-white p-4 sm:p-6 rounded-xl shadow flex flex-col items-center min-h-[300px] sm:min-h-[350px] w-full">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-2 w-full justify-between items-start sm:items-center">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">Products Sold</h3>
+                <div className="flex gap-2 items-center w-full sm:w-auto">
                   <select
-          className="p-1 rounded border border-gray-300 focus:ring-2 focus:ring-gray-400"
+                    className="p-1 rounded border border-gray-300 focus:ring-2 focus:ring-gray-400 text-sm flex-1 sm:flex-none"
                     value={selectedYear}
                     onChange={e => {
                       const newYear = Number(e.target.value);
@@ -299,7 +300,7 @@ const ShopAnalytics: React.FC = () => {
                     ))}
                   </select>
                   <select
-                    className="p-1 rounded border border-gray-300 focus:ring-2 focus:ring-gray-400"
+                    className="p-1 rounded border border-gray-300 focus:ring-2 focus:ring-gray-400 text-sm flex-1 sm:flex-none"
                     value={selectedMonth}
                     onChange={e => setSelectedMonth(e.target.value)}
                   >
@@ -309,8 +310,8 @@ const ShopAnalytics: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <ResponsiveContainer width="100%" height={220}>
-        <BarChart data={filteredProductSales} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+              <ResponsiveContainer width="100%" height={200} className="sm:h-[220px]">
+                <BarChart data={filteredProductSales} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" tick={false} />
                   <YAxis />
@@ -323,15 +324,15 @@ const ShopAnalytics: React.FC = () => {
           </div>
 
           {/* Product Categories Pie Chart with Legend */}
-      <div className="bg-white p-6 rounded-xl shadow flex flex-col md:flex-row items-center mt-8">
-            <div className="flex-1 flex flex-col items-center">
-        <h3 className="text-lg font-semibold mb-4 text-gray-900 self-start">Product Categories</h3>
-              <ResponsiveContainer width={320} height={240}>
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow flex flex-col lg:flex-row items-center mt-6 sm:mt-8 gap-6">
+            <div className="flex-1 flex flex-col items-center w-full">
+              <h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 self-start">Product Categories</h3>
+              <ResponsiveContainer width="100%" height={240} className="max-w-[320px]">
                 <PieChart>
                   <Pie
                     data={categoryDist}
-                    cx={120}
-                    cy={120}
+                    cx="50%"
+                    cy="50%"
                     labelLine={false}
                     label={false}
                     outerRadius={90}
@@ -347,16 +348,19 @@ const ShopAnalytics: React.FC = () => {
                 </PieChart>
               </ResponsiveContainer>
             </div>
+            
             {/* Legend with scroll */}
-            <div className="flex-1 flex flex-col items-start justify-center pl-8 max-h-[260px] overflow-y-auto w-full">
-      {categoryDist.map((cat: { name: string; value: number }, idx: number) => {
+            <div className="flex-1 flex flex-col items-start justify-center w-full lg:pl-8 max-h-[260px] overflow-y-auto">
+              {categoryDist.map((cat: { name: string; value: number }, idx: number) => {
                 const percent = totalCategories ? ((cat.value / totalCategories) * 100) : 0;
                 return (
-                  <div key={cat.name} className="flex items-center mb-4 bg-gray-50 rounded-lg px-4 py-2 w-full">
-                    <span className="inline-block w-3 h-3 rounded-full mr-3" style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }}></span>
-                    <span className="font-semibold text-gray-900 mr-2">{cat.name}</span>
-                    <span className="text-gray-500 mr-2">{cat.value} products</span>
-                    <span className="font-bold text-gray-800 ml-auto">{percent.toFixed(1)}%</span>
+                  <div key={cat.name} className="flex items-center mb-3 sm:mb-4 bg-gray-50 rounded-lg px-3 sm:px-4 py-2 w-full">
+                    <span className="inline-block w-3 h-3 rounded-full mr-3 flex-shrink-0" style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }}></span>
+                    <div className="flex flex-col sm:flex-row sm:items-center w-full min-w-0">
+                      <span className="font-semibold text-gray-900 mr-2 text-sm sm:text-base truncate">{cat.name}</span>
+                      <span className="text-gray-500 mr-2 text-xs sm:text-sm">{cat.value} products</span>
+                      <span className="font-bold text-gray-800 ml-auto text-sm sm:text-base">{percent.toFixed(1)}%</span>
+                    </div>
                   </div>
                 );
               })}
@@ -364,7 +368,7 @@ const ShopAnalytics: React.FC = () => {
           </div>
         </>
       ) : (
-    <div className="text-center text-gray-500">{loading ? 'Loading analytics…' : 'Please select a shop to view analytics.'}</div>
+        <div className="text-center text-gray-500 py-8">{loading ? 'Loading analytics…' : 'Please select a shop to view analytics.'}</div>
       )}
 
       {/* Export Modal */}
