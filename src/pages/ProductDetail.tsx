@@ -19,6 +19,8 @@ import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
 import { toast } from "react-hot-toast";
 import useClickOutside from "../hooks/useClickOutside";
+import { useTranslation } from "react-i18next";
+import { useAmazonTranslate } from "../hooks/useAmazonTranslate";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -184,6 +186,15 @@ const ProductDetail: React.FC = () => {
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [selectedAttributes, setSelectedAttributes] = useState<{
     [key: number]: string | string[];
+  }>({});
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate(API_BASE_URL);
+  const [translatedText, setTranslatedText] = useState<{
+    name?: string;
+    meta_title?: string;
+    short_desc?: string;
+    full_desc?: string;
+    description?: string;
   }>({});
   const shareDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(shareDropdownRef, () => {
@@ -416,6 +427,45 @@ const ProductDetail: React.FC = () => {
       fetchProductReviews();
     }
   }, [productId]);
+
+  // Translate dynamic content when language changes
+  useEffect(() => {
+    const doTranslate = async () => {
+      if (!product) return;
+      const lang = (i18n.language || 'en').split('-')[0];
+      if (lang === 'en') {
+        setTranslatedText({});
+        return;
+      }
+      try {
+        const plainItems: { id: string; text: string }[] = [];
+        if (product.product_name) plainItems.push({ id: 'name', text: product.product_name });
+        if (product.meta?.meta_title) plainItems.push({ id: 'meta_title', text: product.meta.meta_title });
+
+        const htmlItems: { id: string; text: string }[] = [];
+        if (product.meta?.short_desc) htmlItems.push({ id: 'short_desc', text: product.meta.short_desc });
+        if (product.meta?.full_desc) htmlItems.push({ id: 'full_desc', text: product.meta.full_desc });
+        if (!product.meta?.full_desc && product.description) htmlItems.push({ id: 'description', text: product.description });
+
+        const [plainMap, htmlMap] = await Promise.all([
+          plainItems.length ? translateBatch(plainItems, lang, 'text/plain') : Promise.resolve({} as Record<string, string>),
+          htmlItems.length ? translateBatch(htmlItems, lang, 'text/html') : Promise.resolve({} as Record<string, string>),
+        ]);
+
+        setTranslatedText({
+          name: plainMap['name'] || undefined,
+          meta_title: plainMap['meta_title'] || undefined,
+          short_desc: htmlMap['short_desc'] || undefined,
+          full_desc: htmlMap['full_desc'] || undefined,
+          description: htmlMap['description'] || undefined,
+        });
+      } catch (e) {
+        // Fail open: keep English
+        setTranslatedText((prev) => prev);
+      }
+    };
+    doTranslate();
+  }, [product, i18n.language]);
 
   if (loading) {
     return (
@@ -720,38 +770,38 @@ const ProductDetail: React.FC = () => {
         return (
           <div className="py-6">
             <h3 className="text-xl font-medium mb-4 text-gray-900">
-              {product.meta?.meta_title || product.product_name}
+              {translatedText.meta_title || product.meta?.meta_title || translatedText.name || product.product_name}
             </h3>
             {/* Short Description */}
-            {product.meta?.short_desc && (
+    {(translatedText.short_desc || product.meta?.short_desc) && (
               <div className="mb-4">
                 <div
                   className="prose prose-sm max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: product.meta.short_desc }}
+      dangerouslySetInnerHTML={{ __html: translatedText.short_desc || product.meta.short_desc }}
                 />
               </div>
             )}
             {/* Full Description */}
-            {product.meta?.full_desc && (
+    {(translatedText.full_desc || product.meta?.full_desc) && (
               <div className="mt-6">
                 <h4 className="text-lg font-medium mb-3 text-gray-900">
                   Full Description
                 </h4>
                 <div
                   className="prose prose-sm max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: product.meta.full_desc }}
+      dangerouslySetInnerHTML={{ __html: translatedText.full_desc || product.meta.full_desc }}
                 />
               </div>
             )}
             {/* Fallback to basic description if no meta description */}
-            {!product.meta?.full_desc && product.description && (
+    {!product.meta?.full_desc && (translatedText.description || product.description) && (
               <div className="mt-6">
                 <h4 className="text-lg font-medium mb-3 text-gray-900">
                   Description
                 </h4>
                 <div
                   className="prose prose-sm max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: product.description }}
+      dangerouslySetInnerHTML={{ __html: translatedText.description || product.description }}
                 />
               </div>
             )}
@@ -771,7 +821,7 @@ const ProductDetail: React.FC = () => {
                       Product
                     </td>
                     <td className="py-3 text-gray-800">
-                      {product.product_name}
+                      {translatedText.name || product.product_name}
                     </td>
                   </tr>
                   <tr className="border-b border-gray-200">
@@ -1292,7 +1342,7 @@ const ProductDetail: React.FC = () => {
             {/* Product Info */}
             <div className="flex flex-col mt-2 md:mt-0">
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-1">
-                {product.product_name}
+                {translatedText.name || product.product_name}
               </h1>
 
               <div className="mb-3">
@@ -1340,12 +1390,12 @@ const ProductDetail: React.FC = () => {
               </div>
 
               {/* Short Description */}
-              {product.meta?.short_desc && (
+        {(translatedText.short_desc || product.meta?.short_desc) && (
                 <div className="mb-4">
                   <div
                     className="text-sm text-gray-600 prose prose-sm max-w-none"
                     dangerouslySetInnerHTML={{
-                      __html: product.meta.short_desc,
+          __html: translatedText.short_desc || product.meta.short_desc,
                     }}
                   />
                 </div>
