@@ -1,25 +1,27 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Truck, Wallet, Headphones } from 'lucide-react';
 
-const services = [
-  {
-    icon: <Truck className="w-12 h-12 text-[#F2631F]" />,
-    title: 'Free Shipping',
-    description: 'For invoices over $1,500'
-  },
-  {
-    icon: <Wallet className="w-12 h-12 text-[#F2631F]" />,
-    title: 'Cash Back',
-    description: 'When paying for products via Dasun Wallet'
-  },
-  {
-    icon: <Headphones className="w-12 h-12 text-[#F2631F]" />,
-    title: '24/7 Support',
-    description: 'When something goes wrong'
-  }
-];
-
 const Services: React.FC = () => {
+  const { t } = useTranslation();
+
+  const services = [
+    {
+      icon: <Truck className="w-12 h-12 text-[#F2631F]" />,
+      title: t('services.freeShipping.title'),
+      description: t('services.freeShipping.description')
+    },
+    {
+      icon: <Wallet className="w-12 h-12 text-[#F2631F]" />,
+      title: t('services.cashBack.title'),
+      description: t('services.cashBack.description')
+    },
+    {
+      icon: <Headphones className="w-12 h-12 text-[#F2631F]" />,
+      title: t('services.support.title'),
+      description: t('services.support.description')
+    }
+  ];
   return (
     <div>
       <section className="pb-8">
