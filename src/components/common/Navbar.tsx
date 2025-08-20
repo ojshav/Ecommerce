@@ -9,11 +9,22 @@ import useClickOutside from '../../hooks/useClickOutside';
 import LogoutConfirmationPopup from '../LogoutConfirmationPopup';
 import toast from 'react-hot-toast';
 import '@fontsource/work-sans';
+import { useTranslation } from 'react-i18next';
 
 // Custom breakpoint for 968px
 // const customBreakpoint = '@media (max-width: 968px)'; // Removed as unused
 
 const Navbar: React.FC = () => {
+  const { t, i18n } = useTranslation('common');
+  
+  // Language options with flags
+  const languageOptions = [
+    { code: 'en', label: 'English', flag: '🇺🇸' },
+    { code: 'hi', label: 'हिंदी', flag: '🇮🇳' },
+    { code: 'ar', label: 'العربية', flag: '🇸🇦' },
+    { code: 'de', label: 'Deutsch', flag: '🇩🇪' }
+  ];
+  
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   // const [selectedCategory, setSelectedCategory] = useState('Category'); // Removed as unused
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -27,12 +38,14 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
   const [showPromoBar, setShowPromoBar] = useState(true);
+  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
 
   const desktopSearchRef = useRef<HTMLDivElement>(null);
   const mobileSearchRef = useRef<HTMLDivElement>(null);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const lowerMobileMenuRef = useRef<HTMLDivElement>(null);
+  const languageDropdownRef = useRef<HTMLDivElement>(null);
 
   // Refs for toggle buttons to exclude them from outside click detection
   const desktopCategoryButtonRef = useRef<HTMLButtonElement>(null);
@@ -66,6 +79,10 @@ const Navbar: React.FC = () => {
     }
   });
 
+  useClickOutside(languageDropdownRef, () => {
+    setIsLanguageDropdownOpen(false);
+  });
+
   useEffect(() => {
     setIsCategoryDropdownOpen(false);
     setMobileMenuOpen(false);
@@ -73,6 +90,14 @@ const Navbar: React.FC = () => {
     setIsMobileCategoryDropdownOpen(false);
     setShowSearchResults(false);
   }, [location.pathname]);
+
+  // Toggle document direction for Arabic
+  useEffect(() => {
+    const isRtl = i18n.language === 'ar' || i18n.language?.startsWith('ar');
+    if (typeof document !== 'undefined') {
+      document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+    }
+  }, [i18n.language]);
 
   const toggleCategoryDropdown = () => {
     setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
@@ -138,7 +163,7 @@ const Navbar: React.FC = () => {
         <div className="w-full xl:w-[680px] h-14  flex justify-between items-center rounded-lg  overflow-hidden">
           <input
             type="text"
-            placeholder="What are you looking for?"
+            placeholder={t('nav.searchPlaceholder')}
             className="w-full h-8 md:w-52 nav:w-64 mid:w-80 xl:w-96 border-0 py-3 px-4 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-normal text-sm leading-6 tracking-[0%] outline-none"
             value={searchQuery}
             onChange={handleSearchInputChange}
@@ -159,7 +184,7 @@ const Navbar: React.FC = () => {
                     className="w-24 h-11 ml-8 hover:bg-[#F2631F] hover:border-[#F2631F] hover:text-white xl:mr-12 text-[#692C2C] py-1.5 px-6 nav:px-3 mid:px-6 rounded-lg border border-[#692C2C] whitespace-nowrap font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] transition-colors"
                     
                   >
-                    Search
+                    {t('nav.search')}
                   </button>
         </div>
       </form>
@@ -183,7 +208,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center rounded-md overflow-hidden bg-white shadow-sm border border-gray-200 w-full">
           <input
             type="text"
-            placeholder="What are you looking for?"
+            placeholder={t('nav.searchPlaceholder')}
             className="flex-1 min-w-0 border-0 py-2.5 px-3 text-gray-900 focus:ring-0 focus:outline-none font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] bg-transparent"
             value={searchQuery}
             onChange={handleSearchInputChange}
@@ -194,7 +219,7 @@ const Navbar: React.FC = () => {
             className="h-full px-4 py-2 bg-[#F2631F] text-white font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] rounded-none focus:outline-none"
             style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
           >
-            Search
+            {t('nav.search')}
           </button>
         </div>
         </form>
@@ -296,6 +321,47 @@ const Navbar: React.FC = () => {
 
                   {/* Icons */}
                   <div className="flex items-center gap-2 nav:gap-3 mid:gap-4 xl:gap-8 xl:mr-6 mid:mr-4">
+                    {/* Language Switcher */}
+                    <div className="relative" ref={languageDropdownRef}>
+                      <button
+                        onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                        aria-label="Language Selector"
+                      >
+                        <span className="text-lg">
+                          {languageOptions.find(lang => lang.code === (i18n.language?.split('-')[0] || 'en'))?.flag || '🇺🇸'}
+                        </span>
+                        <span className="text-sm font-medium">
+                          {languageOptions.find(lang => lang.code === (i18n.language?.split('-')[0] || 'en'))?.code.toUpperCase() || 'EN'}
+                        </span>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      
+                      {isLanguageDropdownOpen && (
+                        <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                          {languageOptions.map((option) => (
+                            <button
+                              key={option.code}
+                              onClick={() => {
+                                i18n.changeLanguage(option.code);
+                                setIsLanguageDropdownOpen(false);
+                              }}
+                              className={`w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors ${
+                                (i18n.language?.split('-')[0] || 'en') === option.code 
+                                  ? 'bg-orange-50 text-orange-600 font-medium' 
+                                  : 'text-gray-700'
+                              }`}
+                            >
+                              <span className="text-lg">{option.flag}</span>
+                              <span>{option.label}</span>
+                              {(i18n.language?.split('-')[0] || 'en') === option.code && (
+                                <div className="ml-auto w-2 h-2 bg-orange-500 rounded-full"></div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
 
                     <Link to="/wishlist" className="text-[#692C2C] hover:text-[#F2631F] font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%]">
                       <Heart className="w-5 h-5" />
@@ -337,10 +403,31 @@ const Navbar: React.FC = () => {
           {mobileSearchBar}
 
           {/* Mobile action links */}
+          <div className="mb-3">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xs font-medium">Language:</span>
+              <div className="flex flex-wrap gap-2">
+                {languageOptions.map((option) => (
+                  <button
+                    key={option.code}
+                    onClick={() => i18n.changeLanguage(option.code)}
+                    className={`flex items-center gap-1 px-2 py-1 text-xs rounded-md transition-colors ${
+                      (i18n.language?.split('-')[0] || 'en') === option.code 
+                        ? 'bg-orange-500 text-white' 
+                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span className="text-sm">{option.flag}</span>
+                    <span>{option.code.toUpperCase()}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
           <div className="grid grid-cols-3 gap-3 mb-3">
             <Link to="/wishlist" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
               <Heart className="w-4 h-4 mb-1" />
-              <span>Wishlist</span>
+              <span>{t('nav.wishlist')}</span>
             </Link>
             <Link to="/cart" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F] relative" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
               <div className="relative">
@@ -351,11 +438,11 @@ const Navbar: React.FC = () => {
                   </span>
                 )}
               </div>
-              <span>Cart</span>
+              <span>{t('nav.cart')}</span>
             </Link>
             <Link to="/profile" className="flex flex-col items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
               <User className="w-4 h-4 mb-1" />
-              <span>Account</span>
+              <span>{t('nav.account')}</span>
             </Link>
           </div>
 
@@ -364,7 +451,7 @@ const Navbar: React.FC = () => {
             className="w-1/2 block text-center justify-center bg-[#F2631F] text-white rounded-md px-1 py-3 hover:bg-orange-600 mb-3 text-sm mx-auto"
             onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}
           >
-            Become a Merchant
+            {t('nav.becomeMerchant')}
           </Link>
 
           {/* Social icons in mobile menu */}
@@ -386,13 +473,13 @@ const Navbar: React.FC = () => {
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none">
                 <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <span>Menu</span>
+              <span>{t('nav.menu')}</span>
             </button>
 
             <div className="flex items-center space-x-2">
               <Link to="/track-order" className="hidden nav:flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                 <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687786/public_assets_images/public_assets_images_track-order.svg" alt="Track Order" className="w-4 h-4 mr-1" />
-                <span>Track Your Order</span>
+                <span>{t('nav.trackOrder')}</span>
               </Link>
               {isAuthenticated ? (
                 <button
@@ -405,7 +492,7 @@ const Navbar: React.FC = () => {
               ) : (
                 <Link to="/sign-in" className="flex items-center py-1.5 text-xs hover:text-[#F2631F]" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                   <User className="w-4 h-4 mr-1" />
-                  <span>Sign In</span>
+                  <span>{t('nav.signInRegister')}</span>
                 </Link>
               )}
               <Link
@@ -413,7 +500,7 @@ const Navbar: React.FC = () => {
                 style={aoinLiveButtonStyle}
                 className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2"
               >
-                Aoin Live
+                {t('nav.aoinLive')}
               </Link>
             </div>
           </div>
@@ -423,7 +510,7 @@ const Navbar: React.FC = () => {
             <div className="nav:hidden border-t border-gray-200 pt-2 pb-1 bg-white" ref={lowerMobileMenuRef}>
               <Link to="/track-order" className="flex items-center py-1.5 px-2 text-sm hover:text-[#F2631F] mb-2" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
                 <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687786/public_assets_images/public_assets_images_track-order.svg" alt="Track Order" className="w-4 h-4 mr-2" />
-                <span>Track Your Order</span>
+                <span>{t('nav.trackOrder')}</span>
               </Link>
 
               <div className="mb-2">
@@ -433,7 +520,7 @@ const Navbar: React.FC = () => {
                   ref={mobileCategoryButtonRef}
                 >
                   <span className="flex items-center font-medium">
-                    Categories
+                    {t('nav.category')}
                   </span>
                   <ChevronDown className={`ml-auto w-4 h-4 transition-transform duration-200 ${isMobileCategoryDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -448,16 +535,16 @@ const Navbar: React.FC = () => {
 
               <nav className="space-y-1.5">
                 <Link to="/" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
-                  Home
+                  {t('nav.home')}
                 </Link>
                 <Link to="/all-products" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
-                  All Products
+                  {t('nav.allProducts')}
                 </Link>
                 <Link to="/new-product" className="block py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
-                  New Product
+                  {t('nav.newProduct')}
                 </Link>
                 <Link to="/promo-products" className="flex items-center justify-between py-1.5 px-2 text-sm hover:bg-gray-50 rounded" onClick={() => { setMobileMenuOpen(false); setLowerMobileMenuOpen(false); }}>
-                  <span>Promotion</span>
+                  <span>{t('nav.promotion')}</span>
                   <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded-full ml-1">HOT</span>
                 </Link>
               </nav>
@@ -477,7 +564,7 @@ const Navbar: React.FC = () => {
                 aria-expanded={isCategoryDropdownOpen}
                 ref={desktopCategoryButtonRef}
               >
-                <span className="inline">Category</span>
+                <span className="inline">{t('nav.category')}</span>
                 <ChevronDown className={`ml-1 w-4 h-4 transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
             </div>
@@ -485,16 +572,16 @@ const Navbar: React.FC = () => {
             {/* Main Nav Links */}
             <nav className="flex items-center gap-4 nav:gap-1 nav2:gap-4 2xl:gap-12"> 
               <Link to="/" className="py-1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[12.5px] nav2:text-[14px]">
-                Home
+                {t('nav.home')}
               </Link>
               <Link to="/all-products" className="py-1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[12.5px] nav2:text-[14px]">
-                All Products
+                {t('nav.allProducts')}
               </Link>
               <Link to="/new-product" className="py-1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[12.5px] nav2:text-[14px]">
-                New Product
+                {t('nav.newProduct')}
               </Link>
               <Link to="/promo-products" className="py-F1.5 px-2 md:px-3 nav2:px-4 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] flex items-center nav:text-[12.5px] nav2:text-[14px]">
-                Promotion <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded-full ml-1">HOT</span>
+                {t('nav.promotion')} <span className="bg-[#F2631F] text-white text-xs px-2 py-0.5 rounded-full ml-1">HOT</span>
               </Link>
             </nav>
 
@@ -502,7 +589,7 @@ const Navbar: React.FC = () => {
             <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-6">
               <Link to="/orders" className="flex items-center py-1.5 font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F] nav:text-[11px] nav2:text-[14px]">
                 <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687786/public_assets_images/public_assets_images_track-order.svg" alt="Track Order" className="w-5 h-5 mr-1" />
-                <span>Track Your Order</span>
+                <span>{t('nav.trackOrder')}</span>
               </Link>
 
               {isAuthenticated ? (
@@ -529,14 +616,14 @@ const Navbar: React.FC = () => {
                 <div className="flex items-center md:space-x-2 nav:space-x-3 mid:space-x-4">
                   <Link to="/sign-in" className="flex items-center py-1.5 font-['Work_Sans'] font-medium nav:text-[12px] nav2:text-[14px] text-[14px] leading-6 tracking-[0%] hover:text-[#F2631F]">
                     <User className="w-4 h-4 mr-1" />
-                    <span>Sign In/Register</span>
+                    <span>{t('nav.signInRegister')}</span>
                   </Link>
                   <Link
                     to="/live-shop"
                     style={aoinLiveButtonStyle}
                     className="flex items-center text-white rounded-md px-3 py-1.5 hover:opacity-90 transition-opacity font-['Work_Sans'] font-medium text-[14px] leading-6 tracking-[0%] ml-2"
                   >
-                    Aoin Live
+                    {t('nav.aoinLive')}
                   </Link>
                 </div>
               )}
