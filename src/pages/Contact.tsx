@@ -1,25 +1,17 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { User, ShoppingBag, CreditCard, HelpCircle, FileText, UserCheck, MessageCircle, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
-
-const topics = [
-  { key: 'order', label: 'Order Related', icon: <ShoppingBag className="w-8 h-8 text-[#F2631F] mx-auto" /> },
-  { key: 'shopping', label: 'Shopping', icon: <FileText className="w-8 h-8 text-[#F2631F] mx-auto" /> },
-  { key: 'account', label: 'AOIN Account', icon: <User className="w-8 h-8 text-[#F2631F] mx-auto" /> },
-  { key: 'payments', label: 'Payments', icon: <CreditCard className="w-8 h-8 text-[#F2631F] mx-auto" /> },
-  { key: 'sell', label: 'Sell On AOIN', icon: <UserCheck className="w-8 h-8 text-[#F2631F] mx-auto" /> },
-  { key: 'others', label: 'Others', icon: <HelpCircle className="w-8 h-8 text-[#F2631F] mx-auto" /> },
-];
 
 const faqs = {
   order: [
     {
       q: 'How can I change address or phone number in Order?',
-      a: 'Go to your orders, select the order, and click on “Edit Address”. Update your details and save.'
+      a: 'Go to your orders, select the order, and click on "Edit Address". Update your details and save.'
     },
     {
       q: 'How do I check the current status of my order?',
-      a: 'Visit the “My Orders” section in your account to view real-time order status and tracking.'
+      a: 'Visit the "My Orders" section in your account to view real-time order status and tracking.'
     },
     {
       q: 'What do I do in cases of failed delivery?',
@@ -41,21 +33,21 @@ const faqs = {
     },
     {
       q: 'How do I apply a promo code?',
-      a: 'You can enter promo codes during checkout in the “Apply Promo Code” section.'
+      a: 'You can enter promo codes during checkout in the "Apply Promo Code" section.'
     },
   ],
   account: [
     {
       q: 'How do I create an AOIN account?',
-      a: 'Click “Sign Up” on the top right and fill in your details to create an account.'
+      a: 'Click "Sign Up" on the top right and fill in your details to create an account.'
     },
     {
       q: 'I forgot my password. What should I do?',
-      a: 'Click “Forgot Password” on the sign-in page and follow the instructions to reset your password.'
+      a: 'Click "Forgot Password" on the sign-in page and follow the instructions to reset your password.'
     },
     {
       q: 'How do I update my profile information?',
-      a: 'Go to “My Account” and click “Edit Profile” to update your information.'
+      a: 'Go to "My Account" and click "Edit Profile" to update your information.'
     },
   ],
   payments: [
@@ -69,13 +61,13 @@ const faqs = {
     },
     {
       q: 'How do I get a payment receipt?',
-      a: 'Receipts are available in the “My Orders” section after a successful payment.'
+      a: 'Receipts are available in the "My Orders" section after a successful payment.'
     },
   ],
   sell: [
     {
       q: 'How do I become a seller on AOIN?',
-      a: 'Go to “Sell On AOIN” and complete the registration form. Our team will review and contact you.'
+      a: 'Go to "Sell On AOIN" and complete the registration form. Our team will review and contact you.'
     },
     {
       q: 'What documents are required to sell?',
@@ -93,18 +85,28 @@ const faqs = {
     },
     {
       q: 'Where can I find your return policy?',
-      a: 'Our return policy is available at the bottom of every page under “Policies”.'
+      a: 'Our return policy is available at the bottom of every page under "Policies".'
     },
     {
       q: 'How do I unsubscribe from emails?',
-      a: 'Click “Unsubscribe” at the bottom of any promotional email you receive from us.'
+      a: 'Click "Unsubscribe" at the bottom of any promotional email you receive from us.'
     },
   ],
 };
 
 const Contact: React.FC = () => {
+  const { t } = useTranslation();
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
+
+  const topics = [
+    { key: 'order', label: t('contact.topics.order'), icon: <ShoppingBag className="w-8 h-8 text-[#F2631F] mx-auto" /> },
+    { key: 'shopping', label: t('contact.topics.shopping'), icon: <FileText className="w-8 h-8 text-[#F2631F] mx-auto" /> },
+    { key: 'account', label: t('contact.topics.account'), icon: <User className="w-8 h-8 text-[#F2631F] mx-auto" /> },
+    { key: 'payments', label: t('contact.topics.payments'), icon: <CreditCard className="w-8 h-8 text-[#F2631F] mx-auto" /> },
+    { key: 'sell', label: t('contact.topics.sell'), icon: <UserCheck className="w-8 h-8 text-[#F2631F] mx-auto" /> },
+    { key: 'others', label: t('contact.topics.others'), icon: <HelpCircle className="w-8 h-8 text-[#F2631F] mx-auto" /> },
+  ];
 
   return (
     <div className="min-h-screen bg-[#FFF7F1] py-10 px-2 font-worksans">
@@ -113,14 +115,14 @@ const Contact: React.FC = () => {
         <div className="max-w-2xl mx-auto bg-white rounded-xl shadow p-4 flex items-center gap-4 mb-8 border border-gray-100">
           <User className="w-8 h-8 text-[#F2631F]" />
           <div className="flex-1">
-            <div className="font-semibold text-black">Getting help is easy</div>
-            <div className="text-gray-500 text-sm">Sign in to get help with recent orders</div>
+            <div className="font-semibold text-black">{t('contact.gettingHelpEasy')}</div>
+            <div className="text-gray-500 text-sm">{t('contact.signInForHelp')}</div>
           </div>
           <button
             className="bg-[#F2631F] hover:bg-[#d44f12] text-white font-medium px-6 py-2 rounded-lg transition-colors"
             onClick={() => window.location.href = '/sign-in'}
           >
-            Sign in
+            {t('contact.signIn')}
           </button>
         </div>
       )}
@@ -129,7 +131,7 @@ const Contact: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         {!selectedTopic ? (
           <>
-            <h2 className="text-2xl font-semibold mb-6 text-black">Browse Topics</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-black">{t('contact.title')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
               {topics.map((topic) => (
                 <button
@@ -149,7 +151,7 @@ const Contact: React.FC = () => {
               className="flex items-center text-[#F2631F] mb-6 hover:underline"
               onClick={() => setSelectedTopic(null)}
             >
-              <ArrowLeft className="w-5 h-5 mr-2" /> Back to Topics
+              <ArrowLeft className="w-5 h-5 mr-2" /> {t('contact.backToTopics')}
             </button>
             <h2 className="text-xl font-semibold mb-4 text-black">{topics.find(t => t.key === selectedTopic)?.label} FAQs</h2>
             <div className="space-y-6">
@@ -166,20 +168,20 @@ const Contact: React.FC = () => {
 
       {/* Need more help? */}
       <div className="max-w-2xl mx-auto mt-10">
-        <h3 className="text-lg font-semibold mb-3 text-black">Need more help?</h3>
+        <h3 className="text-lg font-semibold mb-3 text-black">{t('contact.needMoreHelp')}</h3>
         <div className="bg-white rounded-xl border border-gray-100 shadow flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <MessageCircle className="w-6 h-6 text-[#F2631F]" />
             <div>
-              <div className="font-medium text-black">Chat with us</div>
-              <div className="text-gray-500 text-sm">Get instant query assistance</div>
+              <div className="font-medium text-black">{t('contact.chatWithUs')}</div>
+              <div className="text-gray-500 text-sm">{t('contact.getInstantHelp')}</div>
             </div>
           </div>
           <button
             className="ml-4 bg-[#F2631F] hover:bg-[#d44f12] text-white font-medium px-6 py-2 rounded-lg transition-colors"
             onClick={() => window.location.href = '/RaiseTicket'}
           >
-            Chat
+            {t('contact.chat')}
           </button>
         </div>
       </div>
@@ -187,4 +189,4 @@ const Contact: React.FC = () => {
   );
 };
 
-export default Contact; 
+export default Contact;
