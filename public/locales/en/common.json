@@ -1,0 +1,136 @@
+{
+  "nav": {
+    "home": "Home",
+    "allProducts": "All Products",
+    "newProduct": "New Product",
+    "promotion": "Promotion",
+    "trackOrder": "Track Your Order",
+    "signInRegister": "Sign In/Register",
+    "wishlist": "Wishlist",
+    "cart": "Cart",
+    "account": "Account",
+    "becomeMerchant": "Become a Merchant",
+    "category": "Category",
+    "searchPlaceholder": "What are you looking for?",
+    "search": "Search",
+    "menu": "Menu",
+    "aoinLive": "Aoin Live"
+  },
+  "home": {
+    "searchPlaceholder": "What are you looking for?",
+    "searchButton": "Search",
+    "searchCategories": {
+      "all": "All",
+      "products": "Products",
+      "categories": "Categories"
+    }
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "clearCart": "Clear Cart",
+    "checkout": "Checkout",
+    "product": "Product",
+    "price": "Price",
+    "quantity": "Qty",
+    "subTotal": "Sub Total",
+    "clearing": "Clearing...",
+    "clearCartModal": {
+      "title": "Clear Cart",
+      "message": "Are you sure you want to clear your entire cart? This action cannot be undone.",
+      "confirm": "Clear Cart",
+      "cancel": "Cancel"
+    }
+  },
+  "wishlist": {
+    "title": "My Wishlist",
+    "empty": "Your wishlist is empty",
+    "emptyDescription": "Save your favorite products to your wishlist to keep track of items you love and want to purchase later.",
+    "browseProducts": "Browse Products",
+    "continueShopping": "Continue Shopping",
+    "loading": "Loading your wishlist...",
+    "item": "Item",
+    "items": "Items"
+  },
+  "contact": {
+    "title": "Browse Topics",
+    "needMoreHelp": "Need more help?",
+    "chatWithUs": "Chat with us",
+    "getInstantHelp": "Get instant query assistance",
+    "chat": "Chat",
+    "backToTopics": "Back to Topics",
+    "gettingHelpEasy": "Getting help is easy",
+    "signInForHelp": "Sign in to get help with recent orders",
+    "signIn": "Sign in",
+    "topics": {
+      "order": "Order Related",
+      "shopping": "Shopping",
+      "account": "AOIN Account", 
+      "payments": "Payments",
+      "sell": "Sell On AOIN",
+      "others": "Others"
+    }
+  },
+  "footer": {
+    "shop": "Shop",
+    "newProduct": "New Product",
+    "liveShop": "Live Shop",
+    "promotion": "Promotion",
+    "policies": "Policies",
+    "privacyPolicy": "Privacy Policy",
+    "cancellationPolicy": "Cancellation Policy",
+    "returnRefund": "Return & Refund",
+    "shippingDelivery": "Shipping & Delivery Policy",
+    "customerSupport": "Customer Support",
+    "callUs": "Call us at",
+    "faq": "Frequently asked Questions",
+    "contactUs": "Contact Us",
+    "termsConditions": "Terms & Conditions",
+    "shippingMethods": "Shipping Methods",
+    "mailUs": "Mail us at",
+    "followUs": "Follow Us",
+    "enterEmail": "Enter your email",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "newsletterDescription": "Receive our latest updates about our products & promotions",
+    "allRightsReserved": "All Rights Reserved"
+  },
+  "services": {
+    "freeShipping": {
+      "title": "Free Shipping",
+      "description": "For invoices over $1,500"
+    },
+    "cashBack": {
+      "title": "Cash Back", 
+      "description": "When paying for products via Dasun Wallet"
+    },
+    "support": {
+      "title": "24/7 Support",
+      "description": "When something goes wrong"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "view": "View",
+    "add": "Add",
+    "remove": "Remove",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "signIn": "Sign in to proceed",
+    "pleaseSignIn": "Please sign in to proceed with checkout"
+  }
+}

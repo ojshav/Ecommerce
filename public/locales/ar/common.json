@@ -1,0 +1,136 @@
+{
+  "nav": {
+    "home": "الصفحة الرئيسية",
+    "allProducts": "جميع المنتجات",
+    "newProduct": "منتج جديد",
+    "promotion": "عروض",
+    "trackOrder": "تتبع طلبك",
+    "signInRegister": "تسجيل الدخول/التسجيل",
+    "wishlist": "المفضلة",
+    "cart": "السلة",
+    "account": "الحساب",
+    "becomeMerchant": "كن تاجراً",
+    "category": "الفئة",
+    "searchPlaceholder": "ماذا تبحث؟",
+    "search": "بحث",
+    "menu": "القائمة",
+    "aoinLive": "Aoin مباشر"
+  },
+  "home": {
+    "searchPlaceholder": "ماذا تبحث؟",
+    "searchButton": "بحث",
+    "searchCategories": {
+      "all": "الكل",
+      "products": "المنتجات",
+      "categories": "الفئات"
+    }
+  },
+  "cart": {
+    "title": "سلة التسوق",
+    "empty": "سلة التسوق فارغة",
+    "continueShopping": "متابعة التسوق",
+    "clearCart": "مسح السلة",
+    "checkout": "الدفع",
+    "product": "المنتج",
+    "price": "السعر",
+    "quantity": "الكمية",
+    "subTotal": "المجموع الفرعي",
+    "clearing": "جاري المسح...",
+    "clearCartModal": {
+      "title": "مسح السلة",
+      "message": "هل أنت متأكد من أنك تريد مسح سلة التسوق بالكامل؟ لا يمكن التراجع عن هذا الإجراء.",
+      "confirm": "مسح السلة",
+      "cancel": "إلغاء"
+    }
+  },
+  "wishlist": {
+    "title": "قائمة مفضلاتي",
+    "empty": "قائمة المفضلة فارغة",
+    "emptyDescription": "احفظ منتجاتك المفضلة في قائمة المفضلة لتتبع العناصر التي تحبها وتريد شراؤها لاحقاً.",
+    "browseProducts": "تصفح المنتجات",
+    "continueShopping": "متابعة التسوق",
+    "loading": "جاري تحميل قائمة المفضلة...",
+    "item": "عنصر",
+    "items": "عناصر"
+  },
+  "contact": {
+    "title": "تصفح المواضيع",
+    "needMoreHelp": "تحتاج مساعدة أكثر؟",
+    "chatWithUs": "تحدث معنا",
+    "getInstantHelp": "احصل على مساعدة فورية",
+    "chat": "محادثة",
+    "backToTopics": "العودة للمواضيع",
+    "gettingHelpEasy": "الحصول على المساعدة سهل",
+    "signInForHelp": "سجل الدخول للحصول على مساعدة بشأن الطلبات الأخيرة",
+    "signIn": "تسجيل الدخول",
+    "topics": {
+      "order": "متعلق بالطلبات",
+      "shopping": "التسوق",
+      "account": "حساب AOIN", 
+      "payments": "المدفوعات",
+      "sell": "البيع على AOIN",
+      "others": "أخرى"
+    }
+  },
+  "footer": {
+    "shop": "متجر",
+    "newProduct": "منتج جديد",
+    "liveShop": "متجر مباشر",
+    "promotion": "عروض",
+    "policies": "السياسات",
+    "privacyPolicy": "سياسة الخصوصية",
+    "cancellationPolicy": "سياسة الإلغاء",
+    "returnRefund": "الإرجاع والاسترداد",
+    "shippingDelivery": "سياسة الشحن والتوصيل",
+    "customerSupport": "دعم العملاء",
+    "callUs": "اتصل بنا على",
+    "faq": "الأسئلة الشائعة",
+    "contactUs": "اتصل بنا",
+    "termsConditions": "الشروط والأحكام",
+    "shippingMethods": "طرق الشحن",
+    "mailUs": "راسلنا على",
+    "followUs": "تابعنا",
+    "enterEmail": "أدخل بريدك الإلكتروني",
+    "submit": "إرسال",
+    "submitting": "جاري الإرسال...",
+    "newsletterDescription": "احصل على آخر التحديثات حول منتجاتنا وعروضنا الترويجية",
+    "allRightsReserved": "جميع الحقوق محفوظة"
+  },
+  "services": {
+    "freeShipping": {
+      "title": "شحن مجاني",
+      "description": "للفواتير أكثر من $1,500"
+    },
+    "cashBack": {
+      "title": "استرداد نقدي", 
+      "description": "عند الدفع للمنتجات عبر محفظة داسون"
+    },
+    "support": {
+      "title": "دعم 24/7",
+      "description": "عندما يحدث خطأ ما"
+    }
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "save": "حفظ",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "close": "إغلاق",
+    "view": "عرض",
+    "add": "إضافة",
+    "remove": "إزالة",
+    "update": "تحديث",
+    "search": "بحث",
+    "filter": "تصفية",
+    "sort": "ترتيب",
+    "signIn": "سجل الدخول للمتابعة",
+    "pleaseSignIn": "يرجى تسجيل الدخول للمتابعة إلى الدفع"
+  }
+}

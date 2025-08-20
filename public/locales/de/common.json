@@ -1,0 +1,136 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "allProducts": "Alle Produkte",
+    "newProduct": "Neues Produkt",
+    "promotion": "Aktionen",
+    "trackOrder": "Bestellung verfolgen",
+    "signInRegister": "Anmelden/Registrieren",
+    "wishlist": "Wunschliste",
+    "cart": "Warenkorb",
+    "account": "Konto",
+    "becomeMerchant": "Händler werden",
+    "category": "Kategorie",
+    "searchPlaceholder": "Wonach suchst du?",
+    "search": "Suchen",
+    "menu": "Menü",
+    "aoinLive": "Aoin Live"
+  },
+  "home": {
+    "searchPlaceholder": "Wonach suchst du?",
+    "searchButton": "Suchen",
+    "searchCategories": {
+      "all": "Alle",
+      "products": "Produkte",
+      "categories": "Kategorien"
+    }
+  },
+  "cart": {
+    "title": "Ihr Warenkorb",
+    "empty": "Ihr Warenkorb ist leer",
+    "continueShopping": "Einkauf fortsetzen",
+    "clearCart": "Warenkorb leeren",
+    "checkout": "Zur Kasse",
+    "product": "Produkt",
+    "price": "Preis",
+    "quantity": "Menge",
+    "subTotal": "Zwischensumme",
+    "clearing": "Wird geleert...",
+    "clearCartModal": {
+      "title": "Warenkorb leeren",
+      "message": "Sind Sie sicher, dass Sie Ihren gesamten Warenkorb leeren möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Warenkorb leeren",
+      "cancel": "Abbrechen"
+    }
+  },
+  "wishlist": {
+    "title": "Meine Wunschliste",
+    "empty": "Ihre Wunschliste ist leer",
+    "emptyDescription": "Speichern Sie Ihre Lieblingsprodukte in Ihrer Wunschliste, um Artikel im Auge zu behalten, die Sie lieben und später kaufen möchten.",
+    "browseProducts": "Produkte durchsuchen",
+    "continueShopping": "Einkauf fortsetzen",
+    "loading": "Ihre Wunschliste wird geladen...",
+    "item": "Artikel",
+    "items": "Artikel"
+  },
+  "contact": {
+    "title": "Themen durchsuchen",
+    "needMoreHelp": "Benötigen Sie weitere Hilfe?",
+    "chatWithUs": "Mit uns chatten",
+    "getInstantHelp": "Sofortige Hilfe erhalten",
+    "chat": "Chat",
+    "backToTopics": "Zurück zu den Themen",
+    "gettingHelpEasy": "Hilfe zu bekommen ist einfach",
+    "signInForHelp": "Melden Sie sich an, um Hilfe bei aktuellen Bestellungen zu erhalten",
+    "signIn": "Anmelden",
+    "topics": {
+      "order": "Bestellbezogen",
+      "shopping": "Einkaufen",
+      "account": "AOIN Konto", 
+      "payments": "Zahlungen",
+      "sell": "Auf AOIN verkaufen",
+      "others": "Andere"
+    }
+  },
+  "footer": {
+    "shop": "Shop",
+    "newProduct": "Neues Produkt",
+    "liveShop": "Live Shop",
+    "promotion": "Aktionen",
+    "policies": "Richtlinien",
+    "privacyPolicy": "Datenschutzrichtlinie",
+    "cancellationPolicy": "Stornierungsrichtlinie",
+    "returnRefund": "Rückgabe & Erstattung",
+    "shippingDelivery": "Versand- & Lieferrichtlinie",
+    "customerSupport": "Kundensupport",
+    "callUs": "Rufen Sie uns an unter",
+    "faq": "Häufig gestellte Fragen",
+    "contactUs": "Kontaktieren Sie uns",
+    "termsConditions": "Allgemeine Geschäftsbedingungen",
+    "shippingMethods": "Versandmethoden",
+    "mailUs": "Mailen Sie uns unter",
+    "followUs": "Folgen Sie uns",
+    "enterEmail": "Geben Sie Ihre E-Mail ein",
+    "submit": "Absenden",
+    "submitting": "Wird gesendet...",
+    "newsletterDescription": "Erhalten Sie unsere neuesten Updates zu unseren Produkten und Aktionen",
+    "allRightsReserved": "Alle Rechte vorbehalten"
+  },
+  "services": {
+    "freeShipping": {
+      "title": "Kostenloser Versand",
+      "description": "Für Rechnungen über $1.500"
+    },
+    "cashBack": {
+      "title": "Cashback", 
+      "description": "Bei Zahlung für Produkte über Dasun Wallet"
+    },
+    "support": {
+      "title": "24/7 Support",
+      "description": "Wenn etwas schief geht"
+    }
+  },
+  "common": {
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolgreich",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Vorherige",
+    "close": "Schließen",
+    "view": "Anzeigen",
+    "add": "Hinzufügen",
+    "remove": "Entfernen",
+    "update": "Aktualisieren",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "signIn": "Anmelden um fortzufahren",
+    "pleaseSignIn": "Bitte melden Sie sich an, um zur Kasse zu gehen"
+  }
+}

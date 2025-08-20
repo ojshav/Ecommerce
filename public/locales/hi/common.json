@@ -1,0 +1,136 @@
+{
+  "nav": {
+    "home": "होम",
+    "allProducts": "सभी प्रोडक्ट्स",
+    "newProduct": "नया प्रोडक्ट",
+    "promotion": "प्रमोशन",
+    "trackOrder": "अपना ऑर्डर ट्रैक करें",
+    "signInRegister": "साइन इन/रजिस्टर",
+    "wishlist": "वॉचलिस्ट",
+    "cart": "कार्ट",
+    "account": "अकाउंट",
+    "becomeMerchant": "व्यापारी बनें",
+    "category": "श्रेणी",
+    "searchPlaceholder": "आप क्या ढूंढ रहे हैं?",
+    "search": "खोजें",
+    "menu": "मेनू",
+    "aoinLive": "Aoin लाइव"
+  },
+  "home": {
+    "searchPlaceholder": "आप क्या ढूंढ रहे हैं?",
+    "searchButton": "खोजें",
+    "searchCategories": {
+      "all": "सभी",
+      "products": "प्रोडक्ट्स",
+      "categories": "श्रेणियां"
+    }
+  },
+  "cart": {
+    "title": "आपका कार्ट",
+    "empty": "आपका कार्ट खाली है",
+    "continueShopping": "खरीदारी जारी रखें",
+    "clearCart": "कार्ट साफ़ करें",
+    "checkout": "चेकआउट",
+    "product": "प्रोडक्ट",
+    "price": "कीमत",
+    "quantity": "मात्रा",
+    "subTotal": "उप कुल",
+    "clearing": "साफ़ कर रहे हैं...",
+    "clearCartModal": {
+      "title": "कार्ट साफ़ करें",
+      "message": "क्या आप वाकई अपना पूरा कार्ट साफ़ करना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।",
+      "confirm": "कार्ट साफ़ करें",
+      "cancel": "रद्द करें"
+    }
+  },
+  "wishlist": {
+    "title": "मेरी वॉचलिस्ट",
+    "empty": "आपकी वॉचलिस्ट खाली है",
+    "emptyDescription": "अपने पसंदीदा प्रोडक्ट्स को अपनी वॉचलिस्ट में सेव करें ताकि आप बाद में खरीदना चाहते हैं उन वस्तुओं का ट्रैक रख सकें।",
+    "browseProducts": "प्रोडक्ट्स ब्राउज़ करें",
+    "continueShopping": "खरीदारी जारी रखें",
+    "loading": "आपकी वॉचलिस्ट लोड हो रही है...",
+    "item": "आइटम",
+    "items": "आइटम"
+  },
+  "contact": {
+    "title": "विषयों को ब्राउज़ करें",
+    "needMoreHelp": "और मदद चाहिए?",
+    "chatWithUs": "हमसे चैट करें",
+    "getInstantHelp": "तुरंत सहायता प्राप्त करें",
+    "chat": "चैट",
+    "backToTopics": "विषयों पर वापस जाएं",
+    "gettingHelpEasy": "मदद पाना आसान है",
+    "signInForHelp": "हाल के ऑर्डर की मदद के लिए साइन इन करें",
+    "signIn": "साइन इन करें",
+    "topics": {
+      "order": "ऑर्डर संबंधी",
+      "shopping": "खरीदारी",
+      "account": "AOIN अकाउंट", 
+      "payments": "पेमेंट्स",
+      "sell": "AOIN पर बेचें",
+      "others": "अन्य"
+    }
+  },
+  "footer": {
+    "shop": "दुकान",
+    "newProduct": "नया प्रोडक्ट",
+    "liveShop": "लाइव शॉप",
+    "promotion": "प्रमोशन",
+    "policies": "नीतियां",
+    "privacyPolicy": "गोपनीयता नीति",
+    "cancellationPolicy": "रद्दीकरण नीति",
+    "returnRefund": "वापसी और रिफंड",
+    "shippingDelivery": "शिपिंग और डिलीवरी नीति",
+    "customerSupport": "ग्राहक सहायता",
+    "callUs": "हमें कॉल करें",
+    "faq": "अक्सर पूछे जाने वाले प्रश्न",
+    "contactUs": "संपर्क करें",
+    "termsConditions": "नियम और शर्तें",
+    "shippingMethods": "शिपिंग विधियां",
+    "mailUs": "हमें मेल करें",
+    "followUs": "हमें फॉलो करें",
+    "enterEmail": "अपना ईमेल दर्ज करें",
+    "submit": "सबमिट करें",
+    "submitting": "सबमिट कर रहे हैं...",
+    "newsletterDescription": "हमारे प्रोडक्ट्स और प्रमोशन के बारे में नवीनतम अपडेट प्राप्त करें",
+    "allRightsReserved": "सभी अधिकार सुरक्षित"
+  },
+  "services": {
+    "freeShipping": {
+      "title": "मुफ्त शिपिंग",
+      "description": "$1,500 से अधिक के इनवॉइस के लिए"
+    },
+    "cashBack": {
+      "title": "कैश बैक", 
+      "description": "दासुन वॉलेट के माध्यम से प्रोडक्ट्स के लिए पेमेंट करते समय"
+    },
+    "support": {
+      "title": "24/7 सपोर्ट",
+      "description": "जब कुछ गलत हो जाता है"
+    }
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "एरर",
+    "success": "सफलता",
+    "cancel": "रद्द करें",
+    "confirm": "कन्फर्म करें",
+    "save": "सेव करें",
+    "edit": "एडिट करें",
+    "delete": "डिलीट करें",
+    "back": "वापस",
+    "next": "अगला",
+    "previous": "पिछला",
+    "close": "बंद करें",
+    "view": "देखें",
+    "add": "ऐड करें",
+    "remove": "हटाएं",
+    "update": "अपडेट करें",
+    "search": "खोजें",
+    "filter": "फिल्टर",
+    "sort": "सॉर्ट करें",
+    "signIn": "आगे बढ़ने के लिए साइन इन करें",
+    "pleaseSignIn": "चेकआउट के साथ आगे बढ़ने के लिए कृपया साइन इन करें"
+  }
+}
