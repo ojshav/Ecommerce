@@ -168,30 +168,32 @@ const ProductsReport = () => {
       {/* Products Sold Over Time Chart */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
         <h2 className="text-lg font-medium text-black mb-4">Products Sold Over Time</h2>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={dailySales}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="quantity"
-                stroke="#FF4D00"
-                fill="#FF4D00"
-                name="Quantity Sold"
-              />
-              <Line
-                type="monotone"
-                dataKey="wishlisted"
-                stroke="#40a9a0"
-                fill="#40a9a0"
-                name="Wishlisted"
-              />
-            </LineChart>
-          </ResponsiveContainer>
+        <div className="overflow-x-auto">
+          <div className="h-80 min-w-[600px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={dailySales}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="quantity"
+                  stroke="#FF4D00"
+                  fill="#FF4D00"
+                  name="Quantity Sold"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="wishlisted"
+                  stroke="#40a9a0"
+                  fill="#40a9a0"
+                  name="Wishlisted"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 

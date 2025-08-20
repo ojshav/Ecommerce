@@ -190,6 +190,24 @@ interface ConversionRateResponse {
   message?: string;
 }
 
+// Custom Tooltip Component for Pie Chart
+const CustomPieTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+        <p className="font-medium" style={{ color: data.color }}>
+          {data.name}
+        </p>
+        <p className="text-sm text-gray-600">
+          {data.count} products ({data.value}%)
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 const Dashboard = () => {
   const [timeRange, setTimeRange] = useState('6months');
   const [loading, setLoading] = useState(true);
@@ -775,7 +793,7 @@ const Dashboard = () => {
             {/* Pie Chart */}
             <div className="h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart style={{ outline: 'none' }}>
                   <Pie
                     data={categoryData}
                     cx="50%"
@@ -783,18 +801,13 @@ const Dashboard = () => {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    style={{ outline: 'none' }}
                   >
                     {categoryData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    formatter={(value, name, props) => [
-                      `${props.payload.count} products (${props.payload.value}%)`,
-                      props.payload.name
-                    ]}
-                  />
+                  <Tooltip content={<CustomPieTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
