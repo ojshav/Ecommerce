@@ -23,6 +23,28 @@
       "all": "Alle",
       "products": "Produkte",
       "categories": "Kategorien"
+    },
+    "seeAll": "Alle ansehen",
+    "sections": {
+      "categoriesTitle": "Einkaufen nach Kategorien",
+      "brandsTitle": "Einkaufen nach Marken",
+      "featuredTitle": "Empfohlene Produkte",
+      "promoTitle": "Promo-Produkte",
+      "trendingTitle": "Trendangebote",
+      "day": "Tag",
+      "hour": "Stunde",
+      "minute": "Min",
+      "second": "Sek",
+      "soldOut": "Ausverkauft",
+      "addToCart": "In den Warenkorb",
+      "innovationWindowTitle": "DAS INNOVATIONSFENSTER",
+      "innovationWindowHours": "Täglich von 9 bis 22 Uhr",
+      "innovationWindowDescription": "Jeden Tag von 9 bis 10 öffnet AOIN seine Türen und bietet exklusive, handverlesene Produkte nur für kurze Zeit an.",
+      "currentTime": "Aktuelle Zeit:",
+      "status": "Status:",
+      "open": "OFFEN",
+      "closed": "GESCHLOSSEN",
+      "timeLeft": "Verbleibende Zeit :"
     }
   },
   "cart": {
@@ -457,6 +479,7 @@
     "loading": "Lädt...",
     "error": "Fehler",
     "success": "Erfolgreich",
+  "retry": "Erneut versuchen",
     "cancel": "Abbrechen",
     "confirm": "Bestätigen",
     "save": "Speichern",

@@ -23,6 +23,28 @@
       "all": "الكل",
       "products": "المنتجات",
       "categories": "الفئات"
+    },
+    "seeAll": "عرض الكل",
+    "sections": {
+      "categoriesTitle": "تسوق حسب الفئات",
+      "brandsTitle": "تسوق حسب العلامات التجارية",
+      "featuredTitle": "منتجات مميزة",
+      "promoTitle": "منتجات العروض",
+      "trendingTitle": "عروض رائجة",
+      "day": "يوم",
+      "hour": "ساعة",
+      "minute": "دقيقة",
+      "second": "ثانية",
+      "soldOut": "نفد المخزون",
+      "addToCart": "أضف إلى السلة",
+      "innovationWindowTitle": "نافذة الابتكار",
+      "innovationWindowHours": "من 9 صباحًا إلى 10 مساءً يوميًا",
+      "innovationWindowDescription": "كل يوم من 9 إلى 10، تفتح AOIN أبوابها لتقديم منتجات حصرية مختارة لفترة محدودة فقط.",
+      "currentTime": "الوقت الحالي:",
+      "status": "الحالة:",
+      "open": "مفتوح",
+      "closed": "مغلق",
+      "timeLeft": "الوقت المتبقي :"
     }
   },
   "cart": {
@@ -447,6 +469,7 @@
     "loading": "جاري التحميل...",
     "error": "خطأ",
     "success": "نجح",
+  "retry": "أعد المحاولة",
     "cancel": "إلغاء",
     "confirm": "تأكيد",
     "save": "حفظ",

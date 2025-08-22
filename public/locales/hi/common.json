@@ -23,6 +23,28 @@
       "all": "सभी",
       "products": "प्रोडक्ट्स",
       "categories": "श्रेणियां"
+    },
+    "seeAll": "सभी देखें",
+    "sections": {
+      "categoriesTitle": "श्रेणियों के अनुसार खरीदें",
+      "brandsTitle": "ब्रांड्स के अनुसार खरीदें",
+      "featuredTitle": "फीचर्ड प्रोडक्ट्स",
+      "promoTitle": "प्रोमो प्रोडक्ट्स",
+      "trendingTitle": "ट्रेंडिंग डील्स",
+      "day": "दिन",
+      "hour": "घंटा",
+      "minute": "मिनट",
+      "second": "सेक",
+      "soldOut": "स्टॉक ख़त्म",
+      "addToCart": "कार्ट में जोड़ें",
+      "innovationWindowTitle": "द इनोवेशन विंडो",
+      "innovationWindowHours": "रोज़ाना सुबह 9 बजे से रात 10 बजे तक",
+      "innovationWindowDescription": "हर दिन 9 से 10 के बीच, AOIN सीमित समय के लिए एक्सक्लूसिव, चुने हुए प्रोडक्ट्स पेश करता है।",
+      "currentTime": "वर्तमान समय:",
+      "status": "स्थिति:",
+      "open": "खुला",
+      "closed": "बंद",
+      "timeLeft": "बाकी समय :"
     }
   },
   "cart": {
@@ -439,6 +461,7 @@
     "loading": "लोड हो रहा है...",
     "error": "एरर",
     "success": "सफलता",
+  "retry": "पुनः प्रयास करें",
     "cancel": "रद्द करें",
     "confirm": "कन्फर्म करें",
     "save": "सेव करें",
