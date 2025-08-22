@@ -1,9 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { useAuth } from '../../../../context/AuthContext';
 import { useShopWishlistOperations } from '../../../../hooks/useShopWishlist';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../../hooks/useAmazonTranslate';
 
 const SHOP_ID = 1;
 
@@ -23,6 +25,9 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
   const [leftHovered, setLeftHovered] = useState(false);
   const [rightHovered, setRightHovered] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [tNames, setTNames] = useState<Record<number, string>>({});
 
   // Wishlist functionality
   const { isAuthenticated, user } = useAuth();
@@ -62,6 +67,28 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
       console.error('Wishlist operation failed:', error);
     }
   };
+
+  // Translate product names (display only)
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = i18n.language || 'en';
+      if (!relatedProducts?.length || lang.toLowerCase() === 'en') {
+        setTNames({});
+        return;
+      }
+      try {
+        const items = relatedProducts
+          .filter(p => !!p.product_name)
+          .map(p => ({ id: `n:${p.product_id}`, text: p.product_name }));
+        if (items.length === 0) return;
+        const res = await translateBatch(items, lang, 'text/plain');
+        const nm: Record<number, string> = {};
+        relatedProducts.forEach(p => { nm[p.product_id] = res[`n:${p.product_id}`] || ''; });
+        setTNames(nm);
+      } catch { /* fail open */ }
+    };
+    doTranslate();
+  }, [relatedProducts, i18n.language, translateBatch]);
 
   // Don't render the section if there are no related products
   if (!relatedProducts || relatedProducts.length === 0) {
@@ -139,7 +166,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
               <div className="bg-gray-100 rounded-2xl md:rounded-3xl overflow-hidden mb-4 md:mb-6 relative w-full sm:w-[399px] h-[447px]">
                 <img
                   src={product.primary_image}
-                  alt={product.product_name}
+                  alt={tNames[product.product_id] || product.product_name}
                   className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-300"
                 />
                 
@@ -169,7 +196,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
               <div className="space-y-2 md:space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base sm:text-lg md:text-xl font-bold font-archivio text-black uppercase tracking-wide">
-                    {product.product_name}
+                    {tNames[product.product_id] || product.product_name}
                   </h3>
                   <div className="text-lg sm:text-xl md:text-[24px] font-semibold text-[#F48063]">
                     {formatPrice(product.selling_price || product.price)}
@@ -199,7 +226,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
               <div className="bg-white rounded-2xl md:rounded-3xl overflow-hidden mb-4 md:mb-6 relative w-full sm:w-[399px] h-[447px]">
                 <img
                   src={product.primary_image}
-                  alt={product.product_name}
+                  alt={tNames[product.product_id] || product.product_name}
                   className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                 />
                 
@@ -229,7 +256,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
               <div className="space-y-2 md:space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base sm:text-lg md:text-xl font-bold font-archivio text-black uppercase tracking-wide">
-                    {product.product_name}
+                    {tNames[product.product_id] || product.product_name}
                   </h3>
                   <div className="text-lg sm:text-xl md:text-[24px] font-semibold text-[#F48063]">
                     {formatPrice(product.selling_price || product.price)}
