@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SectionHeaderProps {
   id: string;
@@ -11,6 +12,7 @@ interface SectionContentProps {
 }
 
 const PrivacyPolicy = () => {
+  const { t } = useTranslation();
   const [expandedSection, setExpandedSection] = useState<string>("introduction");
   
   const toggleSection = (sectionId: string) => {
@@ -51,15 +53,15 @@ const PrivacyPolicy = () => {
     <div className="bg-white min-h-screen">
       <div className="max-w-[1440px] mx-auto px-4 md:px-6 lg:px-16 xl:px-32 2xl:px-6 py-16">
         <div className="text-center mb-12">
-          <h1 className="text-[36px] font-medium text-[#FF4D00] mb-2">Privacy Policy</h1>
+          <h1 className="text-[36px] font-medium text-[#FF4D00] mb-2">{t('privacy.title')}</h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            At AUIN, we are committed to protecting your privacy and ensuring the security of your personal information. This policy explains how we collect, use, and safeguard your data when you shop with us.
+            {t('privacy.subtitle')}
           </p>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
           <p className="text-gray-700">
-            Last updated: <span className="font-medium">December 15, 2024</span>
+            {t('privacy.lastUpdated')}: <span className="font-medium">December 15, 2024</span>
           </p>
           <p className="text-gray-700 mt-2">
             This privacy policy applies to all users of AUIN's e-commerce platform, including our website, mobile applications, and any related services.
@@ -67,20 +69,20 @@ const PrivacyPolicy = () => {
         </div>
         
         <div className="space-y-2">
-          <SectionHeader id="introduction" title="Introduction" />
+          <SectionHeader id="introduction" title={t('privacy.sections.introduction.title')} />
           <SectionContent id="introduction">
             <p className="text-gray-700">
-              Welcome to AUIN, your trusted destination for fashion, technology, and lifestyle products. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and share your information when you visit our website, use our mobile app, make purchases, or interact with our services.
+              {t('privacy.sections.introduction.content')}
             </p>
             <p className="text-gray-700 mt-4">
               By using AUIN's platform, you agree to the collection and use of information in accordance with this policy. We will not use or share your information with anyone except as described in this Privacy Policy.
             </p>
           </SectionContent>
 
-          <SectionHeader id="information-collection" title="Information We Collect" />
+          <SectionHeader id="information-collection" title={t('privacy.sections.informationCollection.title')} />
           <SectionContent id="information-collection">
             <p className="text-gray-700 mb-4">
-              We collect information that you provide directly to us and information that is automatically collected when you use our services.
+              {t('privacy.sections.informationCollection.content')}
             </p>
             <h3 className="text-lg font-medium text-[#FF4D00] mb-2">Personal Information You Provide</h3>
             <ul className="list-disc pl-6 text-gray-700 mb-4 space-y-1">
