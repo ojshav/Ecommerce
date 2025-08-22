@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { Calendar } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../hooks/useAmazonTranslate';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -40,6 +42,9 @@ const ProductsReport = () => {
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const [mostViewed, setMostViewed] = useState<MostViewedProduct[]>([]);
   const { accessToken } = useAuth();
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [tProdNames, setTProdNames] = useState<Record<string, string>>({});
 
 
   const formatCurrency = (amount: number) => {
@@ -110,6 +115,29 @@ const ProductsReport = () => {
     fetchData();
     // eslint-disable-next-line
   }, []);
+
+  // Translate product names for display in lists
+  useEffect(() => {
+    const run = async () => {
+      const lang = i18n.language || 'en';
+      const items: { id: string; text: string }[] = [];
+      topProducts.forEach((p, idx) => p.name && items.push({ id: `tp:${idx}`, text: p.name }));
+      mostViewed.forEach((p, idx) => p.name && items.push({ id: `mv:${idx}`, text: p.name }));
+      if (!items.length) {
+        setTProdNames({});
+        return;
+      }
+      try {
+        const res = await translateBatch(items, lang, 'text/plain');
+        const map: Record<string, string> = {};
+        items.forEach(({ id, text }) => { if (res[id]) map[text] = res[id]; });
+        setTProdNames(map);
+      } catch {
+        // fail open
+      }
+    };
+    run();
+  }, [topProducts, mostViewed, i18n.language, translateBatch]);
 
   if (loading) {
     return (
@@ -202,7 +230,7 @@ const ProductsReport = () => {
           <div className="space-y-4">
             {topProducts.map((product, index) => (
               <div key={index} className="flex justify-between items-center">
-                <span className="text-gray-600">{product.name}</span>
+                <span className="text-gray-600">{tProdNames[product.name] || product.name}</span>
                 <div className="text-right">
                   <span className="font-medium text-black">{product.sold} sold</span>
                   <span className="text-gray-500 ml-2">({formatCurrency(Number(product.revenue.replace(/[^0-9.-]+/g, '')))})</span>
@@ -218,7 +246,7 @@ const ProductsReport = () => {
           <div className="space-y-4">
             {mostViewed.map((product, index) => (
               <div key={index} className="flex justify-between items-center">
-                <span className="text-gray-600">{product.name}</span>
+                <span className="text-gray-600">{tProdNames[product.name] || product.name}</span>
                 <div className="text-right">
                   <span className="font-medium text-black">{product.views} views</span>
                   <span className="text-gray-500 ml-2">({product.conversion})</span>
