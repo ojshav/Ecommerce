@@ -461,12 +461,34 @@ const ShopOrder: React.FC<ShopOrderProps> = ({ shopId, shopName }) => {
         // Clear the cart after successful order
         await clearShopCart(shopId);
         
-        toast.success('Order placed successfully!');
+        let shiprocketSuccess = false;
+        let shiprocketData = null;
+        
+        // Create ShipRocket order for shipping
+        try {
+          shiprocketData = await createShipRocketOrder(responseData.data.order_id, selectedAddressId);
+          shiprocketSuccess = true;
+          console.log('ShipRocket integration completed successfully');
+        } catch (shiprocketError) {
+          console.error('ShipRocket order creation failed:', shiprocketError);
+          // Don't fail the entire order if ShipRocket fails
+          console.warn('ShipRocket order creation failed, but shop order was successful');
+        }
+        
+        // Show appropriate success message
+        if (shiprocketSuccess) {
+          toast.success('Order placed successfully! ShipRocket shipping has been arranged.');
+        } else {
+          toast.success('Order placed successfully! Shipping will be arranged separately.');
+        }
+        
         navigate(`/shop${shopId}/order-confirmation`, { 
           state: { 
             orderId: responseData.data.order_id,
             total: calculateTotal(),
-            shopName 
+            shopName,
+            shiprocketSuccess,
+            shiprocketData
           }
         });
       } else {
@@ -477,6 +499,87 @@ const ShopOrder: React.FC<ShopOrderProps> = ({ shopId, shopName }) => {
       toast.error(error instanceof Error ? error.message : 'Failed to place order. Please try again.');
     } finally {
       setIsPlacingOrder(false);
+    }
+  };
+
+  const createShipRocketOrder = async (shopOrderId: string, deliveryAddressId: number) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("No authentication token");
+      }
+
+      const baseUrl = API_BASE_URL.replace(/\/+$/, "");
+      
+      // Get or ensure shop pickup location is ready in ShipRocket
+      let pickupLocationReady = false;
+      try {
+        const pickupLocationResponse = await fetch(`${baseUrl}/api/shiprocket/shop/${shopId}/pickup-location`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (pickupLocationResponse.ok) {
+          const pickupData = await pickupLocationResponse.json();
+          console.log('Shop pickup location ready:', pickupData.data);
+          pickupLocationReady = true;
+        } else {
+          console.warn('Failed to get shop pickup location, but continuing with order creation');
+        }
+      } catch (pickupError) {
+        console.warn('Pickup location setup failed, but continuing with order creation:', pickupError);
+      }
+      
+      // Create ShipRocket order for the shop
+      const shiprocketData = {
+        shop_order_id: shopOrderId,
+        shop_id: shopId,
+        delivery_address_id: deliveryAddressId,
+        // courier_id: null // Optional: let ShipRocket choose the best courier
+      };
+
+      const response = await fetch(`${baseUrl}/api/shiprocket/create-shop-order`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(shiprocketData),
+      });
+
+      const responseData = await response.json();
+      
+      if (response.ok && responseData?.data) {
+        console.log('ShipRocket order created successfully:', responseData.data);
+        
+        // Log additional details if available
+        if (responseData.data.shiprocket_order_id) {
+          console.log('ShipRocket Order ID:', responseData.data.shiprocket_order_id);
+        }
+        if (responseData.data.awb_code) {
+          console.log('AWB Code:', responseData.data.awb_code);
+        }
+        if (responseData.data.tracking_number) {
+          console.log('Tracking Number:', responseData.data.tracking_number);
+        }
+        if (responseData.data.courier_name) {
+          console.log('Courier Name:', responseData.data.courier_name);
+        }
+        
+        // Add pickup location status to response
+        responseData.data.pickup_location_ready = pickupLocationReady;
+        
+        return responseData.data;
+      } else {
+        const errorMessage = responseData?.message || responseData?.error || 'Failed to create ShipRocket order';
+        throw new Error(errorMessage);
+      }
+    } catch (error) {
+      console.error('ShipRocket order creation error:', error);
+      throw error;
     }
   };
 
@@ -952,10 +1055,49 @@ const ShopOrder: React.FC<ShopOrderProps> = ({ shopId, shopName }) => {
                     </div>
                   ))}
                   
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <div className="flex justify-between items-center text-lg font-bold">
+                  <div className="mt-4 pt-4 border-t border-gray-200 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Subtotal:</span>
+                      <span>₹{calculateTotal().toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Shipping:</span>
+                      <span className="text-green-600">Free</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Tax:</span>
+                      <span>₹0.00</span>
+                    </div>
+                    <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-gray-100">
                       <span>Total:</span>
                       <span>₹{calculateTotal().toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Shipping Information */}
+                <div className="mt-4 border border-gray-200 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3">Shipping Information</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span>Free standard shipping</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <span>Estimated delivery: 3-7 business days</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <span>ShipRocket powered delivery</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <span>Pickup from ShipRocket primary location</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      <span>Professional courier service</span>
                     </div>
                   </div>
                 </div>

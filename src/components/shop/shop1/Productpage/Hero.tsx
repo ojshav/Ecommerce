@@ -28,6 +28,7 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
   const [currentVariant, setCurrentVariant] = useState<Product | null>(null);
   const [stockError, setStockError] = useState<string>('');
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [selectedSize, setSelectedSize] = useState('L');
 
   // Display-only translations
   const [tName, setTName] = useState<string | null>(null);
@@ -145,6 +146,45 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
 
   // Extract variant data from product data (no API calls needed)
   const variants = productData?.variants || [];
+
+  // Size selection handler
+  const handleSizeSelect = (size: string) => setSelectedSize(size);
+
+  // Measurement data for different sizes
+  const measurementData = {
+    XS: {
+      shoulder: '44cm / 17.25 in',
+      length: '120cm / 47.25 in',
+      bust: '44cm / 17.25 in',
+      sleeveLength: '44cm / 17.25 in'
+    },
+    S: {
+      shoulder: '46cm / 18.25 in',
+      length: '122cm / 48.25 in',
+      bust: '46cm / 18.25 in',
+      sleeveLength: '46cm / 18.25 in'
+    },
+    M: {
+      shoulder: '48cm / 19.25 in',
+      length: '124cm / 49.25 in',
+      bust: '48cm / 19.25 in',
+      sleeveLength: '48cm / 19.25 in'
+    },
+    L: {
+      shoulder: '50cm / 19.75 in',
+      length: '124cm / 47.75 in',
+      bust: '50cm / 19.75 in',
+      sleeveLength: '50cm / 19.75 in'
+    },
+    XL: {
+      shoulder: '52cm / 20.75 in',
+      length: '126cm / 50.75 in',
+      bust: '52cm / 20.75 in',
+      sleeveLength: '52cm / 20.75 in'
+    }
+  };
+
+  const currentMeasurements = measurementData[selectedSize as keyof typeof measurementData];
 
   // Set default attributes when product changes
   useEffect(() => {
@@ -1026,49 +1066,58 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
     {/* Sizes */}
     <div className="flex flex-wrap gap-3 lg:gap-4 mb-6">
       {['XS', 'S', 'M', 'L', 'XL'].map((size) => (
-        <div
+        <button
           key={size}
-          className={`w-10 h-10 sm:w-12 sm:h-12 lg:w-[50px] lg:h-[50px] rounded-full flex items-center justify-center border-2 text-sm font-semibold 
+          onClick={() => handleSizeSelect(size)}
+          className={`w-10 h-10 sm:w-12 sm:h-12 lg:w-[50px] lg:h-[50px] rounded-full flex items-center justify-center border-2 text-sm font-semibold transition-all duration-150 focus:outline-none
             ${
-              size === 'L'
+              selectedSize === size
                 ? 'bg-black text-white border-black shadow'
-                : 'border-gray-300 text-black'
+                : 'border-gray-300 text-black hover:bg-gray-50'
             } relative`}
         >
           {size}
           <span
             className={`absolute -bottom-1 sm:-bottom-2 left-1/2 transform -translate-x-1/2 w-4 sm:w-5 h-0.5 sm:h-1 rounded-full ${
-              size === 'L' ? 'bg-transparent' : 'bg-[#FEEBD8]'
+              selectedSize === size ? 'bg-transparent' : 'bg-[#FEEBD8]'
             }`}
           />
-        </div>
+        </button>
       ))}
     </div>
     {/* Measurement Table */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 font-archivio gap-y-3 gap-x-4 mt-6 lg:mt-10 text-sm sm:text-base">
+    <div className="mt-6 lg:mt-10">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-lg font-semibold text-black">Measurements</h4>
+        <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+          Size: {selectedSize}
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 font-archivio gap-y-3 gap-x-4 text-sm sm:text-base">
       <div className="flex justify-between sm:block">
         <span className="font-semibold text-black">Shoulder</span>
-        <span className="text-gray-500 sm:hidden">50cm /19.75 in</span>
+        <span className="text-gray-500 sm:hidden">{currentMeasurements.shoulder}</span>
       </div>
-      <div className="text-gray-500 hidden sm:block">50cm /19.75 in</div>
+      <div className="text-gray-500 hidden sm:block">{currentMeasurements.shoulder}</div>
 
       <div className="flex justify-between sm:block">
         <span className="font-semibold text-black">Length</span>
-        <span className="text-gray-500 sm:hidden">124 cm /47.75 in</span>
+        <span className="text-gray-500 sm:hidden">{currentMeasurements.length}</span>
       </div>
-      <div className="text-gray-500 hidden sm:block">124 cm /47.75 in</div>
+      <div className="text-gray-500 hidden sm:block">{currentMeasurements.length}</div>
 
       <div className="flex justify-between sm:block">
         <span className="font-semibold text-black">Bust</span>
-        <span className="text-gray-500 sm:hidden">50cm /19.75 in</span>
+        <span className="text-gray-500 sm:hidden">{currentMeasurements.bust}</span>
       </div>
-      <div className="text-gray-500 hidden sm:block">50cm /19.75 in</div>
+      <div className="text-gray-500 hidden sm:block">{currentMeasurements.bust}</div>
 
       <div className="flex justify-between sm:block">
         <span className="font-semibold text-black">Sleeve length</span>
-        <span className="text-gray-500 sm:hidden">50cm /19.75 in</span>
+        <span className="text-gray-500 sm:hidden">{currentMeasurements.sleeveLength}</span>
       </div>
-      <div className="text-gray-500 hidden sm:block">50cm /19.75 in</div>
+      <div className="text-gray-500 hidden sm:block">{currentMeasurements.sleeveLength}</div>
+    </div>
     </div>
   </div>
 </div>

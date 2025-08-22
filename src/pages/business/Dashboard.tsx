@@ -312,7 +312,7 @@ const Dashboard: React.FC = () => {
           <ClipboardDocumentCheckIcon className="h-12 w-12" />
         </div>
         <p className="text-xl font-semibold text-gray-800">Error</p>
-        <p className="text-gray-600 mb-6">{error}</p>
+        <p className="text-gray-600 mb-6 text-center">{error}</p>
         <button
           onClick={fetchData}
           className="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
@@ -390,15 +390,15 @@ const Dashboard: React.FC = () => {
 
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Page Title */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-        <div className="inline-flex rounded-md shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <div className="inline-flex rounded-md shadow-sm w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setTimeframe("daily")}
-            className={`px-4 py-2 text-sm font-medium rounded-l-md ${
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-l-md ${
               timeframe === "daily"
                 ? "bg-orange-600 text-white"
                 : "bg-white text-gray-700 hover:bg-orange-50"
@@ -409,7 +409,7 @@ const Dashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setTimeframe("weekly")}
-            className={`px-4 py-2 text-sm font-medium ${
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium ${
               timeframe === "weekly"
                 ? "bg-orange-600 text-white"
                 : "bg-white text-gray-700 hover:bg-orange-50"
@@ -420,7 +420,7 @@ const Dashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => setTimeframe("monthly")}
-            className={`px-4 py-2 text-sm font-medium rounded-r-md ${
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-r-md ${
               timeframe === "monthly"
                 ? "bg-orange-600 text-white"
                 : "bg-white text-gray-700 hover:bg-orange-50"
@@ -432,31 +432,31 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         {stats.map((stat) => (
           <div
             key={stat.name}
-            className="bg-white rounded-lg shadow-sm p-5 border border-gray-200 hover:border-orange-300 transition-colors"
+            className="bg-white rounded-lg shadow-sm p-4 sm:p-5 border border-gray-200 hover:border-orange-300 transition-colors"
           >
-            <div className="flex flex-col-reverse sm:flex-row md:flex-col-reverse xl:flex-row items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium text-gray-500">{stat.name}</p>
-                <p className="mt-1 text-2xl font-semibold text-gray-900">
+            <div className="flex items-start justify-between gap-3 sm:gap-4">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-500 truncate">{stat.name}</p>
+                <p className="mt-1 text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 truncate">
                   {stat.value}
                 </p>
               </div>
-              <div className={`p-3 rounded-full ${stat.iconBg}`}>
-                <stat.icon className={`h-6 w-6 ${stat.iconColor}`} />
+              <div className={`p-2 sm:p-3 rounded-full ${stat.iconBg} flex-shrink-0`}>
+                <stat.icon className={`h-4 w-4 sm:h-6 sm:w-6 ${stat.iconColor}`} />
               </div>
             </div>
-            <div className="mt-4 flex items-center">
+            <div className="mt-3 sm:mt-4 flex items-center">
               {stat.trend > 0 ? (
-                <ArrowUpIcon className="h-4 w-4 text-green-500" />
+                <ArrowUpIcon className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
               ) : (
-                <ArrowDownIcon className="h-4 w-4 text-red-500" />
+                <ArrowDownIcon className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
               )}
               <span
-                className={`ml-2 text-sm font-medium ${
+                className={`ml-1 sm:ml-2 text-xs sm:text-sm font-medium ${
                   stat.trend > 0 ? "text-green-600" : "text-red-600"
                 }`}
               >
@@ -468,11 +468,11 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Sales & Orders Chart */}
-        <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-5 border border-gray-200">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-gray-900">
+            <h2 className="text-base sm:text-lg font-medium text-gray-900">
               Sales & Orders
             </h2>
           </div>
@@ -517,9 +517,9 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Top Products Chart */}
-        <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-5 border border-gray-200">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-gray-900">Top Products</h2>
+            <h2 className="text-base sm:text-lg font-medium text-gray-900">Top Products</h2>
           </div>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -549,83 +549,90 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-medium text-gray-900">Recent Orders</h2>
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-5 border border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
+          <h2 className="text-base sm:text-lg font-medium text-gray-900">Recent Orders</h2>
           <Link
             to="/business/orders"
-            className="text-sm font-medium text-orange-600 hover:text-orange-700"
+            className="text-sm font-medium text-orange-600 hover:text-orange-700 self-start sm:self-auto"
           >
             View All
           </Link>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {(recentOrders || []).map((order) => (
-                <tr
-                  key={order.order_id}
-                  className="hover:bg-orange-50 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-600 hover:text-orange-700">
-                    {order.order_id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {order.customer_name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(order.order_date).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatCurrency(order.total_amount)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <StatusBadge status={order.order_status} />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <Link
-                      to={`/business/orders/${order.order_id}`}
-                      className="text-orange-600 hover:text-orange-700 mr-3"
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Order ID
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Customer
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {(recentOrders || []).map((order) => (
+                    <tr
+                      key={order.order_id}
+                      className="hover:bg-orange-50 transition-colors"
                     >
-                      View
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-              {(!recentOrders || recentOrders.length === 0) && (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-4 text-center text-sm text-gray-500"
-                  >
-                    No recent orders found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-orange-600 hover:text-orange-700">
+                        <span className="hidden sm:inline">{order.order_id}</span>
+                        <span className="sm:hidden">{order.order_id.slice(0, 8)}...</span>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                        <span className="hidden sm:inline">{order.customer_name}</span>
+                        <span className="sm:hidden">{order.customer_name.length > 10 ? order.customer_name.slice(0, 8) + '...' : order.customer_name}</span>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                        <span className="hidden sm:inline">{new Date(order.order_date).toLocaleDateString()}</span>
+                        <span className="sm:hidden">{new Date(order.order_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                        {formatCurrency(order.total_amount)}
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <StatusBadge status={order.order_status} />
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                        <Link
+                          to={`/business/orders/${order.order_id}`}
+                          className="text-orange-600 hover:text-orange-700"
+                        >
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!recentOrders || recentOrders.length === 0) && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-3 sm:px-6 py-4 text-center text-xs sm:text-sm text-gray-500"
+                      >
+                        No recent orders found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

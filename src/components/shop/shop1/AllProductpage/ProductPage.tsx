@@ -161,6 +161,18 @@ const ProductPage = () => {
 
   }, [currentPage, itemsPerPage, selectedCategory, selectedBrand, searchTerm,priceRange, sortBy, sortOrder, discountChip]);
 
+  // When page changes, scroll to top of results for better UX
+  useEffect(() => {
+    try {
+      const listTop = document.querySelector('#shop1-products-top');
+      if (listTop) {
+        (listTop as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch {}
+  }, [currentPage]);
+
 
   // Ensure left bound is always 0 and initialize UI range
   useEffect(() => {
@@ -495,6 +507,7 @@ const ProductPage = () => {
       </aside>
       {/* Main Content */}
       <main className="flex-1 w-full">
+        <div id="shop1-products-top" />
         {/* Search Results Header */}
         {searchTerm && (
           <div className="mb-4 ml-0 md:ml-7">
@@ -646,7 +659,7 @@ const ProductPage = () => {
                   </button>
                 </div>
               </div>
-            </div>
+          </div>
           )}
           {/* sort panel removed; select is inline above */}
           <div className="hidden md:flex items-center gap-2 w-full md:w-auto">
@@ -668,8 +681,8 @@ const ProductPage = () => {
             {/*<select ... items per page ... />*/}
           <div className="text-[16px] md:text-[18px] font-poppins md:mr-10 text-black w-full md:w-auto">
             Show {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, totalProducts)} Of {totalProducts} Product{totalProducts !== 1 ? 's' : ''}
-            </div>
           </div>
+        </div>
         </div>
         {/* Discount chips: only on desktop, mobile moved under Filters */}
         <div className="hidden md:flex flex-wrap gap-2 mb-4 md:ml-7">
@@ -707,6 +720,26 @@ const ProductPage = () => {
                 price={product.price}
               />
             ))}
+          </div>
+        )}
+        {/* Mobile simple pagination */}
+        {totalPages > 1 && (
+          <div className="md:hidden flex items-center justify-between mt-6">
+            <button
+              className={`px-4 py-2 rounded-lg border ${currentPage === 1 ? 'text-gray-400 border-gray-200' : 'text-gray-800 border-gray-300'} `}
+              disabled={currentPage === 1}
+              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+            >
+              Prev
+            </button>
+            <span className="text-sm text-gray-600">Page {currentPage} of {totalPages}</span>
+            <button
+              className={`px-4 py-2 rounded-lg border ${currentPage === totalPages ? 'text-gray-400 border-gray-200' : 'text-gray-800 border-gray-300'}`}
+              disabled={currentPage === totalPages}
+              onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+            >
+              Next
+            </button>
           </div>
         )}
         {/* Pagination */}

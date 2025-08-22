@@ -365,14 +365,14 @@ const ShopInventoryManagement: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Inventory Management</h1>
+    <div className="p-4 sm:p-6">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Inventory Management</h1>
       
       {/* Shop selector */}
-      <div className="mb-6">
-        <label className="font-semibold mr-2">Select Shop:</label>
+      <div className="mb-4 sm:mb-6">
+        <label className="font-semibold mr-2 text-sm sm:text-base">Select Shop:</label>
         <select
-          className="border rounded px-2 py-1"
+          className="border rounded px-2 py-1 text-sm sm:text-base w-full sm:w-auto"
           value={selectedShopId ?? ''}
           onChange={(e) => {
             const value = e.target.value;
@@ -399,7 +399,7 @@ const ShopInventoryManagement: React.FC = () => {
 
       {/* Error message */}
       {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="mb-4 p-3 sm:p-4 bg-red-100 border border-red-400 text-red-700 rounded text-sm sm:text-base">
           {error}
         </div>
       )}
@@ -409,37 +409,37 @@ const ShopInventoryManagement: React.FC = () => {
         <>
           {/* Summary cards */}
           {stats && (
-            <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="bg-orange-50 rounded-lg p-4 flex flex-col items-start">
-                <span className="text-orange-500 text-2xl font-bold">{stats.total_products}</span>
-                <span className="text-gray-600 mt-2">Total Products</span>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <div className="bg-orange-50 rounded-lg p-3 sm:p-4 flex flex-col items-start">
+                <span className="text-orange-500 text-lg sm:text-2xl font-bold">{stats.total_products}</span>
+                <span className="text-gray-600 mt-1 sm:mt-2 text-xs sm:text-sm">Total Products</span>
               </div>
-              <div className="bg-orange-50 rounded-lg p-4 flex flex-col items-start">
-                <span className="text-orange-500 text-2xl font-bold">{stats.low_stock_count}</span>
-                <span className="text-gray-600 mt-2">Low Stock Alerts</span>
+              <div className="bg-orange-50 rounded-lg p-3 sm:p-4 flex flex-col items-start">
+                <span className="text-orange-500 text-lg sm:text-2xl font-bold">{stats.low_stock_count}</span>
+                <span className="text-gray-600 mt-1 sm:mt-2 text-xs sm:text-sm">Low Stock Alerts</span>
               </div>
-              <div className="bg-orange-50 rounded-lg p-4 flex flex-col items-start">
-                <span className="text-orange-500 text-2xl font-bold">{stats.out_of_stock_count}</span>
-                <span className="text-gray-600 mt-2">Out of Stock Items</span>
+              <div className="bg-orange-50 rounded-lg p-3 sm:p-4 flex flex-col items-start">
+                <span className="text-orange-500 text-lg sm:text-2xl font-bold">{stats.out_of_stock_count}</span>
+                <span className="text-gray-600 mt-1 sm:mt-2 text-xs sm:text-sm">Out of Stock Items</span>
               </div>
-              <div className="bg-orange-50 rounded-lg p-4 flex flex-col items-start">
-                <span className="text-orange-500 text-2xl font-bold">{stats.total_stock}</span>
-                <span className="text-gray-600 mt-2">Total Stock</span>
+              <div className="bg-orange-50 rounded-lg p-3 sm:p-4 flex flex-col items-start">
+                <span className="text-orange-500 text-lg sm:text-2xl font-bold">{stats.total_stock}</span>
+                <span className="text-gray-600 mt-1 sm:mt-2 text-xs sm:text-sm">Total Stock</span>
               </div>
             </div>
           )}
 
           {/* Controls */}
-          <div className="flex gap-4 mb-4 items-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 items-start sm:items-center">
             <input
               type="text"
               placeholder="Search by product name or SKU..."
-              className="border rounded px-3 py-2 w-1/3"
+              className="border rounded px-3 py-2 w-full sm:w-64 text-sm sm:text-base"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
             <select 
-              className="border rounded px-2 py-2" 
+              className="border rounded px-2 py-2 text-sm sm:text-base w-full sm:w-auto" 
               value={category} 
               onChange={(e) => setCategory(e.target.value)}
             >
@@ -450,7 +450,7 @@ const ShopInventoryManagement: React.FC = () => {
               ))}
             </select>
             <select 
-              className="border rounded px-2 py-2" 
+              className="border rounded px-2 py-2 text-sm sm:text-base w-full sm:w-auto" 
               value={brand} 
               onChange={(e) => setBrand(e.target.value)}
             >
@@ -461,7 +461,7 @@ const ShopInventoryManagement: React.FC = () => {
               ))}
             </select>
             <select 
-              className="border rounded px-2 py-2" 
+              className="border rounded px-2 py-2 text-sm sm:text-base w-full sm:w-auto" 
               value={stockStatus} 
               onChange={(e) => setStockStatus(e.target.value)}
             >
@@ -471,10 +471,10 @@ const ShopInventoryManagement: React.FC = () => {
                 </option>
               ))}
             </select>
-            <div className="ml-auto relative">
+            <div className="relative w-full sm:w-auto sm:ml-auto">
               <button
                 type="button"
-                className="border px-4 py-2 rounded bg-white hover:bg-gray-100"
+                className="border px-4 py-2 rounded bg-white hover:bg-gray-100 text-sm sm:text-base w-full sm:w-auto"
                 onClick={() => setExportOpen(o => !o)}
                 aria-haspopup="menu"
                 aria-expanded={exportOpen}
@@ -483,14 +483,11 @@ const ShopInventoryManagement: React.FC = () => {
               </button>
               {exportOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow z-10" role="menu">
-                  <button className="w-full text-left px-4 py-2 hover:bg-gray-50" onClick={exportCSV} role="menuitem">Export CSV</button>
-                  <button className="w-full text-left px-4 py-2 hover:bg-gray-50" onClick={exportExcel} role="menuitem">Export Excel (.xls)</button>
+                  <button className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm" onClick={exportCSV} role="menuitem">Export CSV</button>
+                  <button className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm" onClick={exportExcel} role="menuitem">Export Excel (.xls)</button>
                 </div>
               )}
             </div>
-            <button className="ml-2 px-4 py-2 rounded bg-orange-500 text-white font-semibold hover:bg-orange-600">
-              + Add Product
-            </button>
           </div>
 
           {/* Inventory table */}
@@ -498,86 +495,141 @@ const ShopInventoryManagement: React.FC = () => {
             {loading ? (
               <div className="p-8 text-center">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-                <p className="mt-2 text-gray-600">Loading inventory...</p>
+                <p className="mt-2 text-gray-600 text-sm sm:text-base">Loading inventory...</p>
               </div>
             ) : (
-              <table className="min-w-full">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="px-4 py-2 text-left">PRODUCT NAME</th>
-                    <th className="px-4 py-2 text-left">SKU</th>
-                    <th className="px-4 py-2 text-left">CATEGORY</th>
-                    <th className="px-4 py-2 text-left">BRAND</th>
-                    <th className="px-4 py-2 text-left">STOCK QTY</th>
-                    <th className="px-4 py-2 text-left">AVAILABLE</th>
-                    <th className="px-4 py-2 text-left">STATUS</th>
-                    <th className="px-4 py-2 text-left">ACTIONS</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <div className="min-w-full">
+                {/* Desktop table */}
+                <table className="min-w-full hidden lg:table">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="px-4 py-2 text-left text-sm">PRODUCT NAME</th>
+                      <th className="px-4 py-2 text-left text-sm">SKU</th>
+                      <th className="px-4 py-2 text-left text-sm">CATEGORY</th>
+                      <th className="px-4 py-2 text-left text-sm">BRAND</th>
+                      <th className="px-4 py-2 text-left text-sm">STOCK QTY</th>
+                      <th className="px-4 py-2 text-left text-sm">AVAILABLE</th>
+                      <th className="px-4 py-2 text-left text-sm">STATUS</th>
+                      <th className="px-4 py-2 text-left text-sm">ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {inventory.map((item) => {
+                      const status = getStockStatus(item);
+                      return (
+                        <tr key={item.id} className="border-b">
+                          <td className="px-4 py-2 text-sm">{item.name}</td>
+                          <td className="px-4 py-2 text-sm">{item.sku}</td>
+                          <td className="px-4 py-2 text-sm">{item.category.name}</td>
+                          <td className="px-4 py-2 text-sm">{item.brand.name}</td>
+                          <td className="px-4 py-2 text-sm">{item.stock_qty}</td>
+                          <td className="px-4 py-2 text-sm">{item.available}</td>
+                          <td className="px-4 py-2 text-sm">
+                            <span className={`px-2 py-1 rounded text-xs ${getStatusColor(status)}`}>
+                              {status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 text-sm">
+                            <button 
+                              onClick={() => openEditModal(item)} 
+                              className="text-orange-500 hover:text-orange-700"
+                              disabled={updating}
+                            >
+                              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path d="M12 20h9"/>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/>
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {inventory.length === 0 && !loading && (
+                      <tr>
+                        <td colSpan={8} className="text-center py-8 text-gray-400 text-sm">
+                          No products found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+
+                {/* Mobile cards */}
+                <div className="lg:hidden">
                   {inventory.map((item) => {
                     const status = getStockStatus(item);
                     return (
-                      <tr key={item.id} className="border-b">
-                        <td className="px-4 py-2">{item.name}</td>
-                        <td className="px-4 py-2">{item.sku}</td>
-                        <td className="px-4 py-2">{item.category.name}</td>
-                        <td className="px-4 py-2">{item.brand.name}</td>
-                        <td className="px-4 py-2">{item.stock_qty}</td>
-                        <td className="px-4 py-2">{item.available}</td>
-                        <td className="px-4 py-2">
-                          <span className={`px-2 py-1 rounded text-xs ${getStatusColor(status)}`}>
-                            {status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2">
+                      <div key={item.id} className="border-b p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold text-sm">{item.name}</h3>
                           <button 
                             onClick={() => openEditModal(item)} 
                             className="text-orange-500 hover:text-orange-700"
                             disabled={updating}
                           >
-                            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                               <path d="M12 20h9"/>
                               <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/>
                             </svg>
                           </button>
-                        </td>
-                      </tr>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                          <div>
+                            <span className="font-medium">SKU:</span> {item.sku}
+                          </div>
+                          <div>
+                            <span className="font-medium">Category:</span> {item.category.name}
+                          </div>
+                          <div>
+                            <span className="font-medium">Brand:</span> {item.brand.name}
+                          </div>
+                          <div>
+                            <span className="font-medium">Stock:</span> {item.stock_qty}
+                          </div>
+                          <div>
+                            <span className="font-medium">Available:</span> {item.available}
+                          </div>
+                          <div>
+                            <span className="font-medium">Status:</span>
+                            <span className={`ml-1 px-2 py-1 rounded text-xs ${getStatusColor(status)}`}>
+                              {status}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     );
                   })}
                   {inventory.length === 0 && !loading && (
-                    <tr>
-                      <td colSpan={8} className="text-center py-8 text-gray-400">
-                        No products found.
-                      </td>
-                    </tr>
+                    <div className="text-center py-8 text-gray-400 text-sm">
+                      No products found.
+                    </div>
                   )}
-                </tbody>
-              </table>
+                </div>
+              </div>
             )}
           </div>
 
           {/* Pagination */}
           {inventory.length > 0 && (
-            <div className="mt-4 flex justify-between items-center">
-              <div className="text-sm text-gray-600">
+            <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+              <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
                 Showing {((page - 1) * perPage) + 1} to {Math.min(page * perPage, inventory.length)} of {inventory.length} results
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPage(Math.max(1, page - 1))}
                   disabled={page === 1}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
+                  className="px-3 py-1 border rounded disabled:opacity-50 text-sm"
                 >
                   Previous
                 </button>
-                <span className="px-3 py-1 border rounded bg-orange-500 text-white">
+                <span className="px-3 py-1 border rounded bg-orange-500 text-white text-sm">
                   {page}
                 </span>
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={inventory.length < perPage}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
+                  className="px-3 py-1 border rounded disabled:opacity-50 text-sm"
                 >
                   Next
                 </button>
@@ -587,14 +639,14 @@ const ShopInventoryManagement: React.FC = () => {
 
           {/* Edit Stock Modal */}
           {editModal?.open && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-              <div className="bg-white rounded-lg p-6 w-80 shadow-lg">
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50 p-4">
+              <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-sm sm:max-w-md shadow-lg">
                 <h2 className="text-lg font-semibold mb-4">Update Stock</h2>
                 <div className="mb-4">
-                  <label className="block mb-1 font-medium">Stock Quantity</label>
+                  <label className="block mb-1 font-medium text-sm">Stock Quantity</label>
                   <input
                     type="number"
-                    className="border rounded px-2 py-1 w-full"
+                    className="border rounded px-2 py-1 w-full text-sm"
                     value={editModal.product.stock_qty}
                     onChange={(e) => setEditModal((prev) => prev && ({ 
                       ...prev, 
@@ -603,10 +655,10 @@ const ShopInventoryManagement: React.FC = () => {
                   />
                 </div>
                 <div className="mb-4">
-                  <label className="block mb-1 font-medium">Low Stock Threshold</label>
+                  <label className="block mb-1 font-medium text-sm">Low Stock Threshold</label>
                   <input
                     type="number"
-                    className="border rounded px-2 py-1 w-full"
+                    className="border rounded px-2 py-1 w-full text-sm"
                     value={editModal.product.low_stock_threshold}
                     onChange={(e) => setEditModal((prev) => prev && ({ 
                       ...prev, 
@@ -616,14 +668,14 @@ const ShopInventoryManagement: React.FC = () => {
                 </div>
                 <div className="flex justify-end gap-2">
                   <button 
-                    className="px-4 py-2 rounded bg-gray-100" 
+                    className="px-4 py-2 rounded bg-gray-100 text-sm" 
                     onClick={closeEditModal}
                     disabled={updating}
                   >
                     Cancel
                   </button>
                   <button 
-                    className="px-4 py-2 rounded bg-orange-500 text-white font-semibold disabled:opacity-50" 
+                    className="px-4 py-2 rounded bg-orange-500 text-white font-semibold disabled:opacity-50 text-sm" 
                     onClick={handleEditSave}
                     disabled={updating}
                   >

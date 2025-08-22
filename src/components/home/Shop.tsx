@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+
 
 // Import your SVG files
 const Prime = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058892/public_assets_banner/public_assets_Banner_Shutter.svg';
@@ -30,6 +31,10 @@ const Shop = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [hoveredBanner, setHoveredBanner] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [hasOpenedOnce, setHasOpenedOnce] = useState(false);
+  const bannerRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const scrollRaf = useRef<number | null>(null);
 
   // Calculate time remaining until closing (22:00)
   const calculateTimeLeft = () => {
@@ -109,8 +114,35 @@ const Shop = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleBannerClick = (_bannerId: number, navigationPath: string) => {
-    if (isShopOpen) {
+  // Detect mobile (Tailwind sm breakpoint < 640px)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const updateIsMobile = () => setIsMobile(mq.matches);
+    updateIsMobile();
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', updateIsMobile);
+      return () => mq.removeEventListener('change', updateIsMobile);
+    } else {
+      // @ts-ignore - for older browsers
+      mq.addListener(updateIsMobile);
+      return () => {
+        // @ts-ignore - for older browsers
+        mq.removeListener(updateIsMobile);
+      };
+    }
+  }, []);
+
+  const handleBannerClick = (bannerId: number, navigationPath: string) => {
+    if (!isShopOpen) return;
+    if (isMobile) {
+      // First tap opens, second tap navigates
+      if (hoveredBanner === bannerId) {
+        navigate(navigationPath);
+      } else {
+        setHoveredBanner(bannerId);
+        setHasOpenedOnce(true);
+      }
+    } else {
       navigate(navigationPath);
     }
   };
@@ -122,10 +154,71 @@ const Shop = () => {
   };
 
   const handleMouseLeave = () => {
-    if (isShopOpen) {
+    if (isShopOpen && !isMobile) {
       setHoveredBanner(null);
     }
   };
+
+  const handleTouchStart = (bannerId: number) => {
+    if (isShopOpen) {
+      setHoveredBanner(bannerId);
+      setHasOpenedOnce(true);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    // On mobile, keep shutter open; on desktop-like touch, allow gentle auto-close
+    if (isShopOpen && !isMobile) {
+      setTimeout(() => {
+        setHoveredBanner(null);
+      }, 500);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    // Allow scrolling on mobile; do nothing
+    if (!isMobile) {
+      e.preventDefault();
+    }
+  };
+
+  // Mobile scroll sync: keep the nearest banner to viewport center opened once user opened any
+  useEffect(() => {
+    if (!isMobile || !isShopOpen) return;
+    const onScroll = () => {
+      if (scrollRaf.current !== null) return;
+      scrollRaf.current = window.requestAnimationFrame(() => {
+        scrollRaf.current = null;
+        if (!hasOpenedOnce) return;
+        const viewportCenterY = window.innerHeight / 2;
+        let closestBannerId: number | null = null;
+        let smallestDistance = Number.POSITIVE_INFINITY;
+        for (const key of Object.keys(bannerRefs.current)) {
+          const id = Number(key);
+          const el = bannerRefs.current[id];
+          if (!el) continue;
+          const rect = el.getBoundingClientRect();
+          const centerY = rect.top + rect.height / 2;
+          const distance = Math.abs(centerY - viewportCenterY);
+          if (distance < smallestDistance) {
+            smallestDistance = distance;
+            closestBannerId = id;
+          }
+        }
+        if (closestBannerId !== null && closestBannerId !== hoveredBanner) {
+          setHoveredBanner(closestBannerId);
+        }
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (scrollRaf.current !== null) {
+        cancelAnimationFrame(scrollRaf.current);
+        scrollRaf.current = null;
+      }
+    };
+  }, [isMobile, isShopOpen, hasOpenedOnce, hoveredBanner]);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', { 
@@ -135,18 +228,7 @@ const Shop = () => {
     });
   };
 
-  // const getNextOpenTime = () => {
-  //   const now = new Date();
-  //   const tomorrow = new Date(now);
-  //   tomorrow.setDate(now.getDate() + 1);
-  //   tomorrow.setHours(9, 0, 0, 0);
-  //   if (now.getHours() < 9) {
-  //     const today = new Date(now);
-  //     today.setHours(9, 0, 0, 0);
-  //     return today;
-  //   }
-  //   return tomorrow;
-  // };
+  // removed unused getNextOpenTime helper to satisfy noUnused rules
 
   return (
     <div className="w-full min-h-screen mb-16 sm:mb-20 md:mb-24 lg:mb-32">
@@ -525,11 +607,15 @@ const Shop = () => {
               <div key={shop.id} className="w-full">
                 {/* Banner */}
                 <div 
-                  className={`cursor-pointer transform transition-all duration-300 hover:shadow-2xl group ${isShopOpen ? 'hover:scale-[1.01]' : 'cursor-not-allowed'}`}
+                  className={`cursor-pointer transform transition-all duration-300 hover:shadow-2xl group select-none touch-manipulation ${isShopOpen ? 'hover:scale-[1.01]' : 'cursor-not-allowed'}`}
                   onClick={() => handleBannerClick(shop.id, shop.navigationPath)}
                   onMouseEnter={() => handleMouseEnter(shop.id)}
                   onMouseLeave={handleMouseLeave}
                   onMouseOut={handleMouseLeave}
+                  onTouchStart={() => handleTouchStart(shop.id)}
+                  onTouchEnd={handleTouchEnd}
+                  onTouchCancel={handleTouchEnd}
+                  onTouchMove={handleTouchMove}
                   role="button"
                   tabIndex={isShopOpen ? 0 : -1}
                   onKeyDown={(e) => {
@@ -543,6 +629,7 @@ const Shop = () => {
                     marginLeft: 'calc(-50vw + 50%)',
                     position: 'relative'
                   }}
+                  ref={(el: HTMLDivElement | null) => { bannerRefs.current[shop.id] = el; }}
                 >
                   <div 
                     className="relative flex items-center justify-center w-full group-hover:after:opacity-100 after:opacity-0 after:absolute after:inset-0 after:bg-gradient-to-r after:from-black/5 after:via-transparent after:to-black/5 after:transition-opacity after:duration-300 h-[150px] sm:h-[321px]"

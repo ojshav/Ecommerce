@@ -91,10 +91,19 @@ const Footer: React.FC = () => {
           <div className="lg:col-span-1 lg:-ml-8 xl:-ml-20">
             <h4 className="text-[16px] sm:text-[18px] font-medium font-worksans text-[#161616] mb-3 lg:mb-4">{t('footer.policies')}</h4>
             <ul className="space-y-2 lg:space-y-3 font-worksans text-[13px] sm:text-[14px] text-[#161616] font-norma">
-              <li><Link to="/privacy-policy" className="hover:text-[#F2631F] transition-colors">{t('footer.privacyPolicy')}</Link></li>
-              <li><Link to="/cancellation-policy" className="hover:text-[#F2631F] transition-colors">{t('footer.cancellationPolicy')}</Link></li>
-              <li><Link to="/return-refund" className="hover:text-[#F2631F] transition-colors">{t('footer.returnRefund')}</Link></li>
-              <li><Link to="/shipping-delivery" className="hover:text-[#F2631F] transition-colors">{t('footer.shippingDelivery')}</Link></li>
+              <li>
+                <a 
+                  href="/privacy-policy" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-[#F2631F] transition-colors"
+                >
+                  Privacy Policy
+                </a>
+              </li>
+              <li><Link to="/cancellation-policy" className="hover:text-[#F2631F] transition-colors">Cancellation Policy</Link></li>
+              <li><Link to="/return-refund" className="hover:text-[#F2631F] transition-colors">Return & Refund</Link></li>
+              <li><Link to="/shipping-delivery" className="hover:text-[#F2631F] transition-colors">Shipping & Delivery Policy</Link></li>
             </ul>
           </div>
 

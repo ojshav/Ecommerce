@@ -333,11 +333,11 @@ const Settings: React.FC = () => {
   }
 
   return (
-    <div className="min-h-[80dvh] p-6 md:p-10 bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-extrabold text-orange-500 drop-shadow-sm">Super Admin Users Management</h1>
+    <div className="min-h-[80dvh] p-4 sm:p-6 lg:p-10 bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-orange-500 drop-shadow-sm">Super Admin Users Management</h1>
         <button
-          className="flex items-center gap-2 bg-gradient-to-r from-orange-400 to-orange-500 text-white px-5 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-sm font-semibold"
+          className="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-400 to-orange-500 text-white px-4 sm:px-5 py-2 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-sm font-semibold w-full sm:w-auto"
           onClick={() => { 
             setShowModal(true); 
             setIsEdit(false); 
@@ -352,12 +352,14 @@ const Settings: React.FC = () => {
             }); 
           }}
         >
-          <Plus className="w-5 h-5" />
-          Add New Super Admin
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Add New Super Admin</span>
+          <span className="sm:hidden">Add Admin</span>
         </button>
       </div>
 
-      <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg overflow-x-auto border border-orange-100">
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white/80 backdrop-blur-md rounded-xl shadow-lg overflow-x-auto border border-orange-100">
         <table className="min-w-full divide-y divide-orange-200">
           <thead className="bg-orange-100 text-orange-500 font-semibold">
             <tr>
@@ -426,23 +428,91 @@ const Settings: React.FC = () => {
         </table>
       </div>
 
+      {/* Mobile/Tablet Card View */}
+      <div className="lg:hidden space-y-4">
+        {admins.map((admin) => (
+          <div key={admin.id} className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg border border-orange-100 p-4 hover:shadow-xl transition-shadow duration-200">
+            <div className="flex flex-col space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 text-lg">
+                    {admin.first_name} {admin.last_name}
+                  </h3>
+                  <p className="text-sm text-gray-600">{admin.email}</p>
+                </div>
+                <span className={`inline-flex items-center justify-center text-xs font-medium rounded-full px-2 py-1 ${
+                  admin.is_active 
+                    ? 'bg-green-100 text-green-700' 
+                    : 'bg-red-100 text-red-700'
+                }`}>
+                  {admin.is_active ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-gray-500">Phone:</span>
+                  <span className="ml-2 text-gray-900">{admin.phone || 'Not provided'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500">Last Login:</span>
+                  <span className="ml-2 text-gray-900">
+                    {admin.last_login ? new Date(admin.last_login).toLocaleDateString() : 'Never'}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-orange-100">
+                {admin.is_active ? (
+                  <>
+                    <button 
+                      className="flex items-center gap-1 text-orange-400 hover:text-orange-500 transition-colors text-sm font-medium" 
+                      onClick={() => handleEditAdmin(admin)} 
+                    >
+                      <Pencil className="w-4 h-4" />
+                      Edit
+                    </button>
+                    <button 
+                      className="flex items-center gap-1 text-red-400 hover:text-red-500 transition-colors text-sm font-medium" 
+                      onClick={() => handleDeleteClick(admin)} 
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete
+                    </button>
+                  </>
+                ) : (
+                  <button 
+                    className="flex items-center gap-1 text-green-400 hover:text-green-500 transition-colors text-sm font-medium" 
+                    onClick={() => handleReactivate(admin)} 
+                    disabled={loading}
+                  >
+                    <UserCheck className="w-4 h-4" />
+                    Reactivate
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Delete Confirmation Modal */}
       {showDeleteModal && showDeleteModal.visible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
             <div className="flex items-center justify-start mb-4">
-              <AlertCircle className="h-8 w-8 text-orange-500 mr-3" />
-              <h3 className="text-xl font-semibold text-gray-900">Confirm Deletion</h3>
+              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500 mr-3" />
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Confirm Deletion</h3>
             </div>
             <div className="mt-2">
               <p className="text-sm text-gray-700">
                 Are you sure you want to delete the super admin user '<strong>{showDeleteModal.adminName}</strong>'? This action cannot be undone.
               </p>
             </div>
-            <div className="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+            <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row-reverse gap-3">
               <button
                 type="button"
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-500 text-base font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
+                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-500 text-base font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:w-auto sm:text-sm disabled:opacity-50"
                 onClick={handleConfirmDelete}
                 disabled={loading}
               >
@@ -451,7 +521,7 @@ const Settings: React.FC = () => {
               </button>
               <button
                 type="button"
-                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                className="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:w-auto sm:text-sm"
                 onClick={cancelDelete}
                 disabled={loading}
               >
@@ -463,8 +533,8 @@ const Settings: React.FC = () => {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div ref={modalRef} className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-orange-200 animate-scaleIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div ref={modalRef} className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl w-full max-w-lg p-4 sm:p-8 relative border border-orange-200 animate-scaleIn max-h-[90vh] overflow-y-auto">
             <button 
               className="absolute top-4 right-4 text-gray-400 hover:text-orange-500" 
               onClick={() => { setShowModal(false); setError(''); setIsEdit(false); setEditId(null); }}
@@ -472,7 +542,7 @@ const Settings: React.FC = () => {
             >
               <X className="w-5 h-5" />
             </button>
-            <h2 className="text-xl font-bold mb-6 text-orange-500">
+            <h2 className="text-lg sm:text-xl font-bold mb-6 text-orange-500 pr-8">
               {isEdit ? 'Edit Super Admin User' : 'Add New Super Admin User'}
             </h2>
             <form className="space-y-4" onSubmit={handleAddUser}>
@@ -485,14 +555,14 @@ const Settings: React.FC = () => {
                 className="w-full border border-orange-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm shadow-sm" 
                 disabled={isEdit}
               />
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <input 
                   name="first_name" 
                   value={form.first_name} 
                   onChange={handleInputChange} 
                   type="text" 
                   placeholder="First Name *" 
-                  className="w-1/2 border border-orange-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm shadow-sm" 
+                  className="w-full sm:w-1/2 border border-orange-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm shadow-sm" 
                 />
                 <input 
                   name="last_name" 
@@ -500,7 +570,7 @@ const Settings: React.FC = () => {
                   onChange={handleInputChange} 
                   type="text" 
                   placeholder="Last Name *" 
-                  className="w-1/2 border border-orange-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm shadow-sm" 
+                  className="w-full sm:w-1/2 border border-orange-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm shadow-sm" 
                 />
               </div>
               <input 
@@ -512,14 +582,14 @@ const Settings: React.FC = () => {
                 className="w-full border border-orange-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm shadow-sm" 
               />
               {!isEdit && (
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <input 
                     name="password" 
                     value={form.password} 
                     onChange={handleInputChange} 
                     type="password" 
                     placeholder="Password *" 
-                    className="w-1/2 border border-orange-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm shadow-sm" 
+                    className="w-full sm:w-1/2 border border-orange-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm shadow-sm" 
                   />
                   <input 
                     name="confirmPassword" 
@@ -527,15 +597,15 @@ const Settings: React.FC = () => {
                     onChange={handleInputChange} 
                     type="password" 
                     placeholder="Confirm Password *" 
-                    className="w-1/2 border border-orange-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm shadow-sm" 
+                    className="w-full sm:w-1/2 border border-orange-200 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm shadow-sm" 
                   />
                 </div>
               )}
               {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
-              <div className="flex justify-end gap-3 mt-6">
+              <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
                 <button 
                   type="button" 
-                  className="bg-orange-50 text-orange-500 px-5 py-2 rounded-full text-sm font-medium hover:bg-orange-100 transition-colors border border-orange-200" 
+                  className="w-full sm:w-auto bg-orange-50 text-orange-500 px-5 py-2 rounded-full text-sm font-medium hover:bg-orange-100 transition-colors border border-orange-200" 
                   onClick={() => { setShowModal(false); setError(''); setIsEdit(false); setEditId(null); }}
                   disabled={loading}
                 >
@@ -543,7 +613,7 @@ const Settings: React.FC = () => {
                 </button>
                 <button 
                   type="submit" 
-                  className="flex items-center justify-center bg-gradient-to-r from-orange-400 to-orange-500 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50"
+                  className="w-full sm:w-auto flex items-center justify-center bg-gradient-to-r from-orange-400 to-orange-500 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50"
                   disabled={loading}
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}

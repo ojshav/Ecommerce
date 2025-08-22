@@ -49,7 +49,7 @@ const SuperadminHeader: React.FC<SuperadminHeaderProps> = ({ onMenuClick }) => {
             </button>
             <img 
               src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687784/public_assets_images/public_assets_images_logo.svg" 
-              alt="ShopEasy Logo" 
+              alt="Aoin Logo" 
               className="h-8 w-auto"
             />
           </div>

@@ -111,7 +111,7 @@ const Finishing: React.FC = () => {
               {products.map((product, idx) => (
                 <div
                   key={product.id}
-                  className={`rounded-2xl shadow-lg flex flex-col w-[260px] xs:w-[320px] sm:w-[340px] md:w-[373px] min-w-[260px] xs:min-w-[320px] sm:min-w-[340px] md:min-w-[380px] max-w-[380px] transition-transform duration-300 flex-shrink-0 snap-start ${
+                  className={`rounded-2xl shadow-lg flex flex-col w-[260px] xs:w-[320px] sm:w-[340px] md:w-[373px] min-w-[260px] xs:min-w-[320px] sm:min-w-[340px] md:min-w-[380px] max-w-[380px] transition-transform duration-300 flex-shrink-0 snap-start${
                     idx === current ? "scale-100" : "scale-100 "
                   }`}
                 >
