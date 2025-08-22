@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../../context/AuthContext';
 import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
 import { useShopCartOperations } from '../../../context/ShopCartContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../hooks/useAmazonTranslate';
 
 const SHOP_ID = 2;
 
@@ -39,6 +41,26 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({
   
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [translatedName, setTranslatedName] = useState('');
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = (i18n.language || 'en').split('-')[0];
+      if (lang === 'en' || !name) {
+        setTranslatedName('');
+        return;
+      }
+      try {
+        const res = await translateBatch([{ id: 'name', text: name }], lang, 'text/plain');
+        setTranslatedName(res['name'] || '');
+      } catch {
+        setTranslatedName('');
+      }
+    };
+    doTranslate();
+  }, [name, i18n.language, translateBatch]);
 
   const handleWishlistClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -107,7 +129,7 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({
       <div className="relative w-full h-[450px] xs:h-[590px] sm:h-[400px] md:h-[595px]">
         <img
           src={image}
-          alt={name}
+          alt={translatedName || name}
           className="rounded-t-xl w-full h-full object-cover sm:object-cover bg-none border-none shadow-none transition-transform duration-300 hover:scale-100"
         />
         {/* Optional discount badge */}
@@ -137,7 +159,7 @@ const Shop2ProductCard: React.FC<Shop2ProductCardProps> = ({
       </div>
       {/* Product Info and Hover Add-to-Cart, with hover bg color */}
       <div className="w-full flex flex-col pt-10 items-center rounded-b-xl transition-colors duration-300 group-hover:bg-[#DFD1C6]">
-        <span className="font-medium text-[30px] font-bebas text-center tracking-wider">{name}</span>
+  <span className="font-medium text-[30px] font-bebas text-center tracking-wider">{translatedName || name}</span>
         <span className="font-semibold text-[25px] font-bebas mt-3 mb-4">₹{price}</span>
         {/* Hover Block: Add-to-cart only */}
         <div className="w-full flex flex-col items-center transition-all duration-300 max-h-0 opacity-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100">

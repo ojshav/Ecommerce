@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Heart, ShoppingCart, Image as ImageIcon, ChevronDown, ChevronUp, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import shop2ApiService, { Product, ProductVariant } from '../../../../services/shop2ApiService';
@@ -6,13 +6,17 @@ import chroma from 'chroma-js';
 import SizeGuide from './SizeGuide';
 import { useShopCartOperations } from '../../../../context/ShopCartContext';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../../hooks/useAmazonTranslate';
 
 const ProductDetail = () => {
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
-  const [variantsLoading, setVariantsLoading] = useState(false);
+  const [, setVariantsLoading] = useState(false);
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
   const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
@@ -43,6 +47,73 @@ const ProductDetail = () => {
     { title: "Materials", content: "Made from eco-friendly materials." },
     { title: "Return Policy", content: "Returns accepted within 30 days." },
   ];
+
+  // --- Display-only translations (Amazon Translate) ---
+  const [tName, setTName] = useState<string | null>(null);
+  const [tCategory, setTCategory] = useState<string | null>(null);
+  const [tOverviewHTML, setTOverviewHTML] = useState<string | null>(null);
+  const [tAttrNames, setTAttrNames] = useState<Record<string, string>>({});
+  const [tAttrValues, setTAttrValues] = useState<Record<string, string>>({});
+
+  const availableAttrsMemo = useMemo(() => (product ? extractAvailableAttributes(product) : []), [product]);
+
+  useEffect(() => {
+    const lang = i18n.language || 'en';
+    if (!product || lang === 'en') {
+      setTName(null);
+      setTCategory(null);
+      setTOverviewHTML(null);
+      setTAttrNames({});
+      setTAttrValues({});
+      return;
+    }
+
+    const plainItems: { id: string; text: string }[] = [];
+    const htmlItems: { id: string; text: string }[] = [];
+
+    // Names and category
+    if (product.product_name) plainItems.push({ id: 'name', text: product.product_name });
+    if (product.category_name) plainItems.push({ id: 'category', text: product.category_name });
+
+    // Overview uses HTML if provided
+    const overview = product.full_description || product.product_description;
+    if (overview) htmlItems.push({ id: 'overview', text: overview });
+
+    // Attribute labels and values
+    for (const attr of availableAttrsMemo) {
+      if (attr.name) plainItems.push({ id: `attrName:${attr.name}`, text: attr.name });
+      const values = String(attr.value || '')
+        .split(',')
+        .map((v) => v.trim())
+        .filter(Boolean);
+      for (const v of values) {
+        plainItems.push({ id: `attrVal:${attr.name}|${v}`, text: v });
+      }
+    }
+
+    const doTranslate = async () => {
+      try {
+        const [plainMap, htmlMap] = await Promise.all([
+          translateBatch(plainItems, lang, 'text/plain'),
+          translateBatch(htmlItems, lang, 'text/html'),
+        ]);
+        setTName(plainMap['name'] ?? null);
+        setTCategory(plainMap['category'] ?? null);
+        setTOverviewHTML(htmlMap['overview'] ?? null);
+        const nMap: Record<string, string> = {};
+        const vMap: Record<string, string> = {};
+        for (const k of Object.keys(plainMap)) {
+          if (k.startsWith('attrName:')) nMap[k.split(':')[1]] = plainMap[k];
+          if (k.startsWith('attrVal:')) vMap[k.substring('attrVal:'.length)] = plainMap[k];
+        }
+        setTAttrNames(nMap);
+        setTAttrValues(vMap);
+      } catch {
+        // fail open
+      }
+    };
+    doTranslate();
+  }, [product, i18n.language, translateBatch, availableAttrsMemo]);
 
   // --- Shop Reviews (real data) ---
   interface ShopReviewImage { image_id: number; image_url: string; }
@@ -119,6 +190,38 @@ const ProductDetail = () => {
     fetchShopReviews(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
+
+  // Display-only translation for review titles and bodies
+  const [tReviews, setTReviews] = useState<Record<number, { title?: string; body?: string }>>({});
+  useEffect(() => {
+    const lang = i18n.language || 'en';
+    if (!shopReviews.length || lang === 'en') {
+      setTReviews({});
+      return;
+    }
+    const run = async () => {
+      try {
+        const items: { id: string; text: string }[] = [];
+        shopReviews.forEach(r => {
+          if (r.title) items.push({ id: `t:${r.review_id}`, text: r.title });
+          if (r.body) items.push({ id: `b:${r.review_id}`, text: r.body });
+        });
+        if (!items.length) { setTReviews({}); return; }
+        const map = await translateBatch(items, lang, 'text/plain');
+        const out: Record<number, { title?: string; body?: string }> = {};
+        shopReviews.forEach(r => {
+          const title = map[`t:${r.review_id}`];
+          const body = map[`b:${r.review_id}`];
+          if (title || body) out[r.review_id] = { title, body };
+        });
+        setTReviews(out);
+      } catch {
+        // fail open
+        setTReviews(prev => prev);
+      }
+    };
+    run();
+  }, [shopReviews, i18n.language, translateBatch]);
 
   // Eligibility is checked when user clicks "Write Review"
 
@@ -317,9 +420,6 @@ const ProductDetail = () => {
     try {
       setAddingToCart(true);
       
-      // Determine which product to add (variant or parent)
-      const productToAdd = currentVariant || product;
-      
       // Convert selectedAttributes to the format expected by the API (like Hero.tsx)
       const attributesForApi: { [key: number]: string | string[] } = {};
       Object.entries(selectedAttributes).forEach(([, value], index) => {
@@ -359,9 +459,6 @@ const ProductDetail = () => {
 
     try {
       setAddingToCart(true);
-      
-      // Determine which product to add (variant or parent)
-      const productToAdd = currentVariant || product;
       
       // Convert selectedAttributes to the format expected by the API (like Hero.tsx)
       const attributesForApi: { [key: number]: string | string[] } = {};
@@ -420,24 +517,8 @@ const ProductDetail = () => {
     }
   };
 
-  // Navigate to variant page or parent product
-  const handleVariantClick = (variant: ProductVariant) => {
-    // Navigate to the variant product page using variant_product_id
-    // The variant_product_id is the actual product ID, not the variant_id
-    navigate(`/shop2/product/${variant.variant_product_id}`);
-  };
-
   // State for parent product data
   const [parentProduct, setParentProduct] = useState<Product | null>(null);
-
-  // Navigate to parent product
-  const handleParentProductClick = () => {
-    // Find parent product ID from variants data
-    const parentProductId = variants.length > 0 ? variants[0]?.parent_product_id : null;
-    if (parentProductId) {
-      navigate(`/shop2/product/${parentProductId}`);
-    }
-  };
 
   // Fetch parent product data when variants are loaded
   const fetchParentProduct = async (parentProductId: number) => {
@@ -807,8 +888,8 @@ const ProductDetail = () => {
         </div>
         {/* Product Details */}
         <div className="relative flex flex-col justify-center min-w-0 lg:min-w-[340px] h-auto lg:h-[456px] px-2 mb-4 lg:mb-8 self-center order-3 md:order-3 lg:order-3">
-          <div className="text-xs sm:text-sm uppercase text-gray-400 mb-2 sm:mb-4 font-bebas font-semibold tracking-wide">{product.category_name || 'CATEGORY'}</div>
-          <p className="text-2xl sm:text-3xl lg:text-[42px] font-normal font-bebas leading-tight mb-2 sm:mb-3">{product.product_name}</p>
+          <div className="text-xs sm:text-sm uppercase text-gray-400 mb-2 sm:mb-4 font-bebas font-semibold tracking-wide">{tCategory || product.category_name || 'CATEGORY'}</div>
+          <p className="text-2xl sm:text-3xl lg:text-[42px] font-normal font-bebas leading-tight mb-2 sm:mb-3">{tName || product.product_name}</p>
           <p className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6">
             ₹{Number(currentVariant?.effective_price || product.price).toLocaleString('en-IN')}
           </p>
@@ -849,7 +930,7 @@ const ProductDetail = () => {
                      <div key={`${attrName.toLowerCase()}-${attr.attribute_id}`} className="mb-3 sm:mb-4">
                        <div className="flex items-center justify-between mb-2">
                          <span className="text-xs sm:text-[14px] font-bebas font-bold tracking-wide">
-                           {attrName.toUpperCase()}
+                           {(tAttrNames[attrName]?.toUpperCase()) || attrName.toUpperCase()}
                          </span>
                          {attrName.toLowerCase() === 'size' && (
                            <span 
@@ -887,7 +968,7 @@ const ProductDetail = () => {
                                      style={{ backgroundColor: chroma.valid(value) ? chroma(value).hex() : '#ccc' }}
                                    />
                                  )}
-                                 {value}
+                                 {tAttrValues[`${attr.name}|${value}`] || value}
                                </button>
                              );
                            })}
@@ -1001,7 +1082,7 @@ const ProductDetail = () => {
                 {openIndex === index && (
                   <div className="pb-3 sm:pb-4 text-xs sm:text-sm text-gray-600 text-left">
                     {section.title === "Overview" ? (
-                      <div dangerouslySetInnerHTML={{ __html: section.content }} />
+                      <div dangerouslySetInnerHTML={{ __html: (tOverviewHTML || section.content) }} />
                     ) : (
                       section.content
                     )}
@@ -1094,7 +1175,7 @@ const ProductDetail = () => {
                     </div>
                     <p className="text-xs sm:text-base text-gray-400 font-gilroy whitespace-nowrap self-start sm:self-auto text-left">{new Date(review.created_at).toLocaleDateString()}</p>
                   </div>
-                  <p className="text-xs sm:text-sm text-black font-gilroy leading-relaxed text-left">{review.title ? `${review.title} — ` : ''}{review.body}</p>
+                  <p className="text-xs sm:text-sm text-black font-gilroy leading-relaxed text-left">{(tReviews[review.review_id]?.title || review.title) ? `${tReviews[review.review_id]?.title || review.title} — ` : ''}{tReviews[review.review_id]?.body || review.body}</p>
                   {Array.isArray(review.images) && review.images.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {review.images.slice(0,5).map((img, idx) => (
