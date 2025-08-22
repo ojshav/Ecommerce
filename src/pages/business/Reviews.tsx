@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Star, MoreHorizontal, Filter } from 'lucide-react';
+import { Star, MoreHorizontal } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../hooks/useAmazonTranslate';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -55,6 +57,11 @@ const Reviews: React.FC = () => {
     startDate: '',
     endDate: '',
   });
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [tTitles, setTTitles] = useState<Record<number, string>>({});
+  const [tBodies, setTBodies] = useState<Record<number, string>>({});
+  const [tProdNames, setTProdNames] = useState<Record<number, string>>({});
 
   const fetchReviews = async () => {
     try {
@@ -97,6 +104,34 @@ const Reviews: React.FC = () => {
   useEffect(() => {
     fetchReviews();
   }, [page, filters]);
+
+  // Translate dynamic review texts for display only
+  useEffect(() => {
+    const lang = (i18n.language || 'en').split('-')[0];
+    if (!reviews.length || lang === 'en') { setTTitles({}); setTBodies({}); setTProdNames({}); return; }
+    const run = async () => {
+      try {
+        const titleItems: { id: string; text: string }[] = [];
+        const bodyItems: { id: string; text: string }[] = [];
+        const prodItems: { id: string; text: string }[] = [];
+        reviews.forEach(r => {
+          if (r.title) titleItems.push({ id: `t:${r.review_id}`, text: r.title });
+          if (r.body) bodyItems.push({ id: `b:${r.review_id}`, text: r.body });
+          if (r.product?.name) prodItems.push({ id: `p:${r.product.product_id}`, text: r.product.name });
+        });
+        const [tMap, bMap, pMap] = await Promise.all([
+          translateBatch(titleItems, lang, 'text/plain'),
+          translateBatch(bodyItems, lang, 'text/plain'),
+          translateBatch(prodItems, lang, 'text/plain'),
+        ]);
+        const tOut: Record<number, string> = {}; Object.keys(tMap).forEach(k => { if (k.startsWith('t:')) tOut[Number(k.split(':')[1])] = tMap[k]; });
+        const bOut: Record<number, string> = {}; Object.keys(bMap).forEach(k => { if (k.startsWith('b:')) bOut[Number(k.split(':')[1])] = bMap[k]; });
+        const pOut: Record<number, string> = {}; Object.keys(pMap).forEach(k => { if (k.startsWith('p:')) pOut[Number(k.split(':')[1])] = pMap[k]; });
+        setTTitles(tOut); setTBodies(bOut); setTProdNames(pOut);
+      } catch { /* fail open */ }
+    };
+    run();
+  }, [reviews, i18n.language, translateBatch]);
 
   const renderStars = (rating: number) => {
     return [...Array(5)].map((_, index) => (
@@ -222,11 +257,11 @@ const Reviews: React.FC = () => {
                 </button>
               </div>
 
-              <p className="text-sm text-gray-600 mb-2">{review.product.name}</p>
+              <p className="text-sm text-gray-600 mb-2">{tProdNames[review.product.product_id] || review.product.name}</p>
               {review.title && (
-                <h3 className="font-medium text-gray-900 mb-2">{review.title}</h3>
+                <h3 className="font-medium text-gray-900 mb-2">{tTitles[review.review_id] || review.title}</h3>
               )}
-              <p className="text-gray-700 mb-4">{review.body}</p>
+              <p className="text-gray-700 mb-4">{tBodies[review.review_id] || review.body}</p>
 
               {review.images && review.images.length > 0 && (
                 <div className="flex gap-2 mb-4 overflow-x-auto">
