@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { PlusIcon, TrashIcon, StarIcon as SolidStarIcon, ShoppingBagIcon, ChevronDownIcon, XMarkIcon, PencilIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, TrashIcon, StarIcon as SolidStarIcon, ShoppingBagIcon, XMarkIcon, PencilIcon } from '@heroicons/react/24/solid';
 import { StarIcon as OutlineStarIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'; 
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../hooks/useAmazonTranslate';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -55,6 +57,8 @@ interface SubscriptionStatus {
 
 const ProductPlacements: React.FC = () => {
   const { accessToken, user } = useAuth();
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
   
   // State for subscription status
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
@@ -63,6 +67,8 @@ const ProductPlacements: React.FC = () => {
 
   const [placements, setPlacements] = useState<ProductPlacement[]>([]);
   const [merchantProducts, setMerchantProducts] = useState<MerchantProduct[]>([]);
+  // Display-only translated names
+  const [tProductNames, setTProductNames] = useState<Record<string, string>>({});
   
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -176,6 +182,36 @@ const ProductPlacements: React.FC = () => {
       fetchData();
     }
   }, [fetchData, isSubscriptionLoading, subscriptionError]);
+
+  // Translate product names for search list and table display
+  useEffect(() => {
+    const run = async () => {
+      const lang = i18n.language || 'en';
+      const items: { id: string; text: string }[] = [];
+      merchantProducts.forEach((p) => {
+        if (p.name) items.push({ id: `mp:${p.product_id}`, text: p.name });
+      });
+      placements.forEach((pl) => {
+        const name = pl.product_details?.product_name;
+        if (name) items.push({ id: `pl:${pl.placement_id}`, text: name });
+      });
+      if (!items.length) {
+        setTProductNames({});
+        return;
+      }
+      try {
+        const res = await translateBatch(items, lang, 'text/plain');
+        const map: Record<string, string> = {};
+        items.forEach(({ id, text }) => {
+          if (res[id]) map[text] = res[id];
+        });
+        setTProductNames(map);
+      } catch {
+        // fail open
+      }
+    };
+    run();
+  }, [merchantProducts, placements, i18n.language, translateBatch]);
 
   const canPlacePremium = useMemo(() => {
     // console.log('Current subscription status:', subscriptionStatus);
@@ -491,7 +527,8 @@ const ProductPlacements: React.FC = () => {
     
     const query = searchQuery.toLowerCase().trim();
     return merchantProducts.filter(product => {
-      const name = product.name.toLowerCase();
+      const displayName = tProductNames[product.name] || product.name;
+      const name = displayName.toLowerCase();
       
       // Exact match
       if (name.includes(query)) return true;
@@ -509,12 +546,12 @@ const ProductPlacements: React.FC = () => {
         )
       );
     }).slice(0, 10); // Limit to 10 results for performance
-  }, [merchantProducts, searchQuery, similarity]);
+  }, [merchantProducts, searchQuery, similarity, tProductNames]);
 
   const handleProductSelect = (product: MerchantProduct) => {
     setSelectedProduct(product);
     setSelectedProductIdToAdd(product.product_id.toString());
-    setSearchQuery(product.name);
+  setSearchQuery(tProductNames[product.name] || product.name);
     setIsSearchDropdownOpen(false);
     setHighlightedIndex(-1);
   };
@@ -903,13 +940,13 @@ const ProductPlacements: React.FC = () => {
                         {/* Highlight matching text */}
                         {searchQuery ? (
                           <span dangerouslySetInnerHTML={{
-                            __html: product.name.replace(
+                            __html: (tProductNames[product.name] || product.name).replace(
                               new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
                               '<mark class="bg-yellow-200 px-1 rounded">$1</mark>'
                             )
                           }} />
                         ) : (
-                          product.name
+                          tProductNames[product.name] || product.name
                         )}
                       </div>
                       <div className="text-xs text-gray-500">
@@ -958,7 +995,7 @@ const ProductPlacements: React.FC = () => {
                   <svg className="h-4 w-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-green-700 font-medium">Selected: {selectedProduct.name}</span>
+                  <span className="text-green-700 font-medium">Selected: {tProductNames[selectedProduct.name] || selectedProduct.name}</span>
                 </div>
               </div>
             )}
@@ -1128,7 +1165,7 @@ const ProductPlacements: React.FC = () => {
                         <div className="flex-shrink-0 h-10 w-10 mr-3 rounded-md bg-orange-100 flex items-center justify-center text-orange-500">
                             <SolidStarIcon className="h-5 w-5" />
                         </div>
-                        <div className="text-sm font-medium text-gray-900">{placement.product_details?.product_name || 'N/A'}</div>
+                        <div className="text-sm font-medium text-gray-900">{tProductNames[placement.product_details?.product_name || ''] || placement.product_details?.product_name || 'N/A'}</div>
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">

@@ -4,6 +4,8 @@ import { ArrowPathIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../../context/AuthContext';
 import ExportModal from '../../../components/business/reports/ExportModal';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../hooks/useAmazonTranslate';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -55,6 +57,13 @@ const Sales = () => {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const { accessToken } = useAuth();
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+
+  // Display-only translation maps
+  const [tProductNames, setTProductNames] = useState<Record<string, string>>({});
+  const [tCategoryNames, setTCategoryNames] = useState<Record<string, string>>({});
+  const [tMonthLabels, setTMonthLabels] = useState<Record<string, string>>({});
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -210,6 +219,74 @@ const Sales = () => {
     fetchData();
   }, []);
 
+  // Translate dynamic labels when data or language changes
+  useEffect(() => {
+    const runTranslations = async () => {
+      const lang = i18n.language || 'en';
+      // Products (from productPerformance and detailedSalesData)
+      const productItemsMap = new Map<string, string>();
+      productPerformance.forEach((p, idx) => {
+        if (p.name) productItemsMap.set(`pp:${idx}`, p.name);
+      });
+      detailedSalesData.forEach((d, idx) => {
+        if (d.product) productItemsMap.set(`dsprod:${idx}`, d.product);
+      });
+      const productItems = Array.from(productItemsMap.entries()).map(([id, text]) => ({ id, text }));
+
+      // Categories
+      const catItemsMap = new Map<string, string>();
+      categoryData.forEach((c, idx) => {
+        if (c.name) catItemsMap.set(`cat:${idx}`, c.name);
+      });
+      detailedSalesData.forEach((d, idx) => {
+        if (d.category) catItemsMap.set(`dscat:${idx}`, d.category);
+      });
+      const catItems = Array.from(catItemsMap.entries()).map(([id, text]) => ({ id, text }));
+
+      // Months
+      const monthItems = monthlyData.map((m, idx) => ({ id: `mon:${idx}`, text: m.month }));
+
+      try {
+        if (productItems.length) {
+          const res = await translateBatch(productItems, lang, 'text/plain');
+          const pMap: Record<string, string> = {};
+          // Map back to original text keys for simple lookup by text value
+          productItems.forEach(({ id, text }) => {
+            if (res[id]) pMap[text] = res[id];
+          });
+          setTProductNames(pMap);
+        } else {
+          setTProductNames({});
+        }
+
+        if (catItems.length) {
+          const res = await translateBatch(catItems, lang, 'text/plain');
+          const cMap: Record<string, string> = {};
+          catItems.forEach(({ id, text }) => {
+            if (res[id]) cMap[text] = res[id];
+          });
+          setTCategoryNames(cMap);
+        } else {
+          setTCategoryNames({});
+        }
+
+        if (monthItems.length) {
+          const res = await translateBatch(monthItems, lang, 'text/plain');
+          const mMap: Record<string, string> = {};
+          monthItems.forEach(({ id, text }) => {
+            if (res[id]) mMap[text] = res[id];
+          });
+          setTMonthLabels(mMap);
+        } else {
+          setTMonthLabels({});
+        }
+      } catch {
+        // fail open
+      }
+    };
+    runTranslations();
+  }, [i18n.language, productPerformance, detailedSalesData, categoryData, monthlyData, translateBatch]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -344,36 +421,45 @@ const Sales = () => {
       <div className="bg-white p-6 rounded-xl shadow-sm">
         <h2 className="text-xl font-semibold text-[#FF4D00] mb-4">Revenue & Sales Trend</h2>
         <div className="h-80 overflow-x-auto">
-          <div className="min-w-[600px] h-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="month" />
-                <YAxis yAxisId="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#FF4D00"
-                  name="Revenue"
-                  dot={{ fill: '#FF4D00' }}
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="units"
-                  stroke="#00E5BE"
-                  name="Units Sold"
-                  dot={{ fill: '#00E5BE' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
+  <div className="min-w-[600px] h-full">
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={monthlyData}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+        
+        {/* Month formatter added here */}
+        <XAxis 
+          dataKey="month" 
+          tickFormatter={(m) => tMonthLabels[m] || m} 
+        />
+        
+        <YAxis yAxisId="left" />
+        <YAxis yAxisId="right" orientation="right" />
+        
+        <Tooltip content={<CustomTooltip />} />
+        <Legend />
+        
+        <Line
+          yAxisId="left"
+          type="monotone"
+          dataKey="revenue"
+          stroke="#FF4D00"
+          name="Revenue"
+          dot={{ fill: '#FF4D00' }}
+        />
+        <Line
+          yAxisId="right"
+          type="monotone"
+          dataKey="units"
+          stroke="#00E5BE"
+          name="Units Sold"
+          dot={{ fill: '#00E5BE' }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+</div>
+
+  </div>
 
       {/* Detailed Sales Data */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -391,11 +477,11 @@ const Sales = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {detailedSalesData.map((item, index) => (
+        {detailedSalesData.map((item, index) => (
                 <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-gray-600">{item.month}</td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{item.product}</td>
-                  <td className="px-6 py-4 text-gray-600">{item.category}</td>
+          <td className="px-6 py-4 text-gray-600">{tMonthLabels[item.month] || item.month}</td>
+          <td className="px-6 py-4 font-medium text-gray-900">{tProductNames[item.product] || item.product}</td>
+          <td className="px-6 py-4 text-gray-600">{tCategoryNames[item.category] || item.category}</td>
                   <td className="px-6 py-4 text-right">{formatCurrency(item.price)}</td>
                   <td className="px-6 py-4 text-right text-gray-600">{item.quantity}</td>
                   <td className="px-6 py-4 text-right">{formatCurrency(item.revenue)}</td>
@@ -417,17 +503,21 @@ const Sales = () => {
             </select>
           </div>
           <div className="h-80 overflow-x-auto">
-            <div className="min-w-[600px] h-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={productPerformance}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="name" tickFormatter={name => name.length > 18 ? name.slice(0, 15) + '...' : name} />
-                  <YAxis />
-                  <Tooltip content={<ProductPerformanceTooltip />} />
-                  <Bar dataKey="revenue" fill="#FF4D00" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <div className="min-w-[600px] h-full"></div>
+             <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={productPerformance.map(p => ({ ...p, name: tProductNames[p.name] || p.name }))}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+        <XAxis
+          dataKey="name"
+          tickFormatter={name =>
+            name.length > 18 ? name.slice(0, 15) + '...' : name
+          }
+        />
+        <YAxis />
+        <Tooltip content={<ProductPerformanceTooltip />} />
+        <Bar dataKey="revenue" fill="#FF4D00" />
+      </BarChart>
+    </ResponsiveContainer>
           </div>
         </div>
 
@@ -438,7 +528,7 @@ const Sales = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={pieChartData}
+                  data={pieChartData.map(d => ({ ...d, name: tCategoryNames[d.name] || d.name }))}
                   dataKey="value"
                   nameKey="name"
                   cx="50%"

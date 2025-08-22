@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CartItem from '../components/CartItem';
 import CartSummary from '../components/CartSummary';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +12,7 @@ import ConfirmationModal from '../components/common/ConfirmationModal';
 
 
 const Cart: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     cart,
@@ -42,7 +44,7 @@ const Cart: React.FC = () => {
 
   const handleCheckout = () => {
     if (!accessToken) {
-      toast.error("Please sign in to proceed with checkout");
+      toast.error(t('common.pleaseSignIn'));
       navigate("/signin", { state: { returnUrl: "/cart" } });
       return;
     }
@@ -137,17 +139,17 @@ const Cart: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-6 sm:px-12 py-8">
-      <h1 className="text-2xl font-bold mb-8">Your Cart</h1>
+      <h1 className="text-2xl font-bold mb-8">{t('cart.title')}</h1>
 
       {activeCartItems.length === 0 ? (
         <div className="text-center py-12 flex flex-col items-center justify-center">
           <ShoppingCart className="w-16 h-16 text-gray-400 mb-4" />
-          <p className="text-gray-600 mb-4 text-lg">Your cart is empty</p>
+          <p className="text-gray-600 mb-4 text-lg">{t('cart.empty')}</p>
           <button
             onClick={handleContinueShopping}
             className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors w-full sm:w-auto max-w-xs"
           >
-            Continue Shopping
+            {t('cart.continueShopping')}
           </button>
         </div>
       ) : (
@@ -157,11 +159,11 @@ const Cart: React.FC = () => {
               <div className="hidden md:flex text-sm text-gray-500 mb-2">
                 <div className="w-8"></div>
                 <div className="flex-1 ml-4">
-                  <span className="ml-20">Product</span>
+                  <span className="ml-20">{t('cart.product')}</span>
                 </div>
-                <div className="w-24 text-center">Price</div>
-                <div className="w-32 text-center">Qty</div>
-                <div className="w-24 text-right">Sub Total</div>
+                <div className="w-24 text-center">{t('cart.price')}</div>
+                <div className="w-32 text-center">{t('cart.quantity')}</div>
+                <div className="w-24 text-right">{t('cart.subTotal')}</div>
               </div>
 
               {activeCartItems.map((item: CartItemType) => (
@@ -184,14 +186,14 @@ const Cart: React.FC = () => {
                   onClick={handleContinueShopping}
                   className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors w-full sm:w-auto"
                 >
-                  Continue Shopping
+                  {t('cart.continueShopping')}
                 </button>
                 <button
                   onClick={handleClearCart}
                   disabled={loading}
                   className="bg-orange-500 text-white px-6 py-2 rounded hover:bg-orange-600 transition-colors w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? "Clearing..." : "Clear Cart"}
+                  {loading ? t('cart.clearing') : t('cart.clearCart')}
                 </button>
               </div>
             </div>
@@ -217,8 +219,8 @@ const Cart: React.FC = () => {
       )}
       <ConfirmationModal
         isOpen={clearCartModalOpen}
-        title="Clear Cart"
-        message="Are you sure you want to clear your entire cart? This action cannot be undone."
+        title={t('cart.clearCartModal.title')}
+        message={t('cart.clearCartModal.message')}
         onConfirm={async () => {
           try {
             await clearCart();
@@ -229,8 +231,8 @@ const Cart: React.FC = () => {
           setClearCartModalOpen(false);
         }}
         onCancel={() => setClearCartModalOpen(false)}
-        confirmText="Clear Cart"
-        cancelText="Cancel"
+        confirmText={t('cart.clearCartModal.confirm')}
+        cancelText={t('cart.clearCartModal.cancel')}
         icon={
           <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-orange-100 mb-2">
             <ShoppingCart className="w-8 h-8 text-orange-500" />

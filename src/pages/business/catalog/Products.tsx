@@ -8,8 +8,9 @@ import {
   PencilIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';
-import { AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../hooks/useAmazonTranslate';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -106,7 +107,14 @@ const Products: React.FC = () => {
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: 'ascending' | 'descending'; }>({ key: null, direction: 'ascending' });
   const [showDeleteModal, setShowDeleteModal] = useState<{ visible: boolean; productId: number | null; productName: string; isBulk: boolean; } | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [, setIsDeleting] = useState(false);
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+
+  // Display-only translated maps
+  const [tNames, setTNames] = useState<Record<number, string>>({});
+  const [tCategoryNames, setTCategoryNames] = useState<Record<number, string>>({});
+  const [tBrandNames, setTBrandNames] = useState<Record<number, string>>({});
 
   // --- DATA FETCHING & PROCESSING ---
   const fetchAllData = useCallback(async () => {
@@ -176,6 +184,45 @@ const Products: React.FC = () => {
       variants: variantProducts.filter(variant => variant.parent_product_id === parent.product_id),
     }));
   }, [products, categories, brands]);
+
+  // Translate dynamic text for current processed (parent) products, categories, brands
+  useEffect(() => {
+    const lang = (i18n.language || 'en').split('-')[0];
+    if (!processedProducts.length || lang === 'en') {
+      setTNames({}); setTCategoryNames({}); setTBrandNames({});
+      return;
+    }
+    const run = async () => {
+      try {
+        const nameItems: { id: string; text: string }[] = [];
+        const catItems: { id: string; text: string }[] = [];
+        const brandItems: { id: string; text: string }[] = [];
+        processedProducts.forEach(p => {
+          if (p.product_name) nameItems.push({ id: `p:${p.product_id}`, text: p.product_name });
+          if (p.category?.name) catItems.push({ id: `c:${p.category.category_id}`, text: p.category.name });
+          if (p.brand?.name) brandItems.push({ id: `b:${p.brand.brand_id}`, text: p.brand.name });
+          (p.variants || []).forEach(v => {
+            if (v.product_name) nameItems.push({ id: `p:${v.product_id}`, text: v.product_name });
+          });
+        });
+        const [nMap, cMap, bMap] = await Promise.all([
+          translateBatch(nameItems, lang, 'text/plain'),
+          translateBatch(catItems, lang, 'text/plain'),
+          translateBatch(brandItems, lang, 'text/plain'),
+        ]);
+        const names: Record<number, string> = {};
+        Object.keys(nMap).forEach(k => { if (k.startsWith('p:')) names[Number(k.split(':')[1])] = nMap[k]; });
+        const cats: Record<number, string> = {};
+        Object.keys(cMap).forEach(k => { if (k.startsWith('c:')) cats[Number(k.split(':')[1])] = cMap[k]; });
+        const brandsMap: Record<number, string> = {};
+        Object.keys(bMap).forEach(k => { if (k.startsWith('b:')) brandsMap[Number(k.split(':')[1])] = bMap[k]; });
+        setTNames(names); setTCategoryNames(cats); setTBrandNames(brandsMap);
+      } catch {
+        // fail open
+      }
+    };
+    run();
+  }, [processedProducts, i18n.language, translateBatch]);
 
   const filteredProducts = useMemo(() => processedProducts.filter((product) => {
     const matchesSearch = product.product_name.toLowerCase().includes(searchTerm.toLowerCase()) || product.sku.toLowerCase().includes(searchTerm.toLowerCase());
@@ -331,9 +378,9 @@ const Products: React.FC = () => {
     <div className="ml-2">
       <div
         className="font-medium text-gray-900 line-clamp-2 max-w-xs"
-        title={product.product_name}
+        title={tNames[product.product_id] || product.product_name}
       >
-        {product.product_name}
+        {tNames[product.product_id] || product.product_name}
       </div>
       <div className="text-gray-500 break-words">SKU - {product.sku}</div>
     </div>
@@ -350,7 +397,7 @@ const Products: React.FC = () => {
                         )}
                       </div>
                     </td>
-                    <td className="px-2 py-1 whitespace-normal max-w-xs"><div className="text-gray-900 break-words">{product.category?.name || 'No Category'}</div><div className="text-gray-500 break-words">{product.brand?.name || 'No Brand'}</div></td>
+                    <td className="px-2 py-1 whitespace-normal max-w-xs"><div className="text-gray-900 break-words">{(product.category && tCategoryNames[product.category.category_id]) || product.category?.name || 'No Category'}</div><div className="text-gray-500 break-words">{(product.brand && tBrandNames[product.brand.brand_id]) || product.brand?.name || 'No Brand'}</div></td>
                     <td className="px-2 py-1 whitespace-nowrap"><StatusBadge active={product.active_flag} /></td>
                     <td className="px-1 py-1 whitespace-nowrap text-center align-middle">
                       <div className="flex justify-center items-center h-full">

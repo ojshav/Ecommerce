@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Heart, ChevronDown, ChevronUp, SlidersHorizontal, ArrowUpDown, X, Check, Star } from 'lucide-react';
 import { Product } from '../types';
 import ProductCard from '../components/product/ProductCard';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../hooks/useAmazonTranslate';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 

@@ -184,6 +184,7 @@ import ShopInventoryManagement from './pages/superadmin/shop/ShopInventoryManage
 import ShopOrders from './pages/superadmin/shop/ShopOrders';
 import OrderManagementPage from './pages/superadmin/shop/OrderManagementPage';
 import ShopReviews from './pages/superadmin/shop/ShopReviews';
+import { useTranslation } from 'react-i18next';
 
 // Lazy-loaded business dashboard pages
 const BusinessDashboard = lazy(() => import('./pages/business/Dashboard'));
@@ -258,6 +259,11 @@ const VisitTracker: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
 // Main App component
 const App: React.FC = () => {
+  const { i18n } = useTranslation();
+  useEffect(() => {
+    const isRtl = i18n.language === 'ar' || i18n.language?.startsWith('ar');
+    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+  }, [i18n.language]);
   return (
     <ToastProvider>
       <AuthProvider>

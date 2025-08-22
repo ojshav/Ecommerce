@@ -42,8 +42,10 @@
 // // export default ProductCard;
 
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../hooks/useAmazonTranslate';
 
 export interface Product {
   id: number;
@@ -59,6 +61,20 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [tTitle, setTTitle] = useState('');
+  useEffect(() => {
+    const run = async () => {
+      const lang = i18n.language || 'en';
+      if (!product.title || lang.toLowerCase() === 'en') { setTTitle(''); return; }
+      try {
+        const res = await translateBatch([{ id: 'title', text: product.title }], lang, 'text/plain');
+        setTTitle(res['title'] || '');
+      } catch { setTTitle(''); }
+    };
+    run();
+  }, [product.title, i18n.language, translateBatch]);
   
   const handleAddToCart = () => {
     console.log(`Added ${product.title} to cart`);
@@ -74,7 +90,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="relative w-full h-[280px] sm:h-[320px] lg:h-[280px] overflow-hidden rounded-lg mb-3">
         <img
           src={product.image}
-          alt={product.title}
+          alt={tTitle || product.title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         
@@ -97,7 +113,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* Product Info */}
       <div className="text-center">
         <h3 className="text-white text-sm sm:text-base font-medium mb-1 leading-tight">
-          {product.title}
+          {tTitle || product.title}
         </h3>
         <p className="text-white text-base sm:text-lg font-semibold">
           ${product.price}

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import shop2ApiService, { Product } from '../../../../services/shop2ApiService';
 import { useShopCartOperations } from '../../../../context/ShopCartContext';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../../hooks/useAmazonTranslate';
 
 interface SimilarProductsProps {
   currentProductId?: number;
@@ -19,7 +21,11 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
   const [loading, setLoading] = useState(false);
   const [likedProducts, setLikedProducts] = useState<Set<number>>(new Set());
   const [addingToCart, setAddingToCart] = useState<Set<number>>(new Set());
-  const [quantities, setQuantities] = useState<Record<number, number>>({});
+  // Per-card quantity is not shown in this UI; default to 1 during add-to-cart
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [tNames, setTNames] = useState<Record<number, string>>({});
+  const [tCategories, setTCategories] = useState<Record<number, string>>({});
   
   const SHOP_ID = 2; // Shop2 ID
 
@@ -78,6 +84,36 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
     }
   };
 
+  // Translate names/categories for products shown (display only)
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = i18n.language || 'en';
+      if (!products.length || lang.toLowerCase() === 'en') {
+        setTNames({});
+        setTCategories({});
+        return;
+      }
+      try {
+        const items: { id: string; text: string }[] = [];
+        products.forEach((p) => {
+          if (p.product_name) items.push({ id: `n:${p.product_id}`, text: p.product_name });
+          if ((p as any).category_name) items.push({ id: `c:${p.product_id}`, text: (p as any).category_name });
+        });
+        if (items.length === 0) return;
+        const res = await translateBatch(items, lang, 'text/plain');
+        const nm: Record<number, string> = {};
+        const cm: Record<number, string> = {};
+        products.forEach((p) => {
+          nm[p.product_id] = res[`n:${p.product_id}`] || '';
+          cm[p.product_id] = res[`c:${p.product_id}`] || '';
+        });
+        setTNames(nm);
+        setTCategories(cm);
+      } catch {}
+    };
+    doTranslate();
+  }, [products, i18n.language, translateBatch]);
+
   const handleProductClick = (productId: number) => {
     navigate(`/shop2/product/${productId}`);
   };
@@ -96,18 +132,12 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
   };
 
   // Initialize quantity for a product
-  const getQuantity = (productId: number) => {
-    return quantities[productId] || 1;
+  const getQuantity = () => {
+  return 1;
   };
 
   // Handle quantity change
-  const handleQuantityChange = (productId: number, change: number) => {
-    setQuantities(prev => {
-      const currentQty = prev[productId] || 1;
-      const newQty = Math.max(1, currentQty + change);
-      return { ...prev, [productId]: newQty };
-    });
-  };
+  // Quantity controls are currently not exposed in UI; keep internal setter via direct updates where needed.
 
   // Handle add to cart
   const handleAddToCart = async (product: Product, e: React.MouseEvent) => {
@@ -119,8 +149,8 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
       return;
     }
 
-    const productId = product.product_id;
-    const quantity = getQuantity(productId);
+  const productId = product.product_id;
+  const quantity = getQuantity();
 
     try {
       setAddingToCart(prev => new Set(prev).add(productId));
@@ -148,8 +178,8 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
       return;
     }
 
-    const productId = product.product_id;
-    const quantity = getQuantity(productId);
+  const productId = product.product_id;
+  const quantity = getQuantity();
 
     try {
       setAddingToCart(prev => new Set(prev).add(productId));
@@ -188,16 +218,16 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
       <h2 className="text-3xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-[47px] font-normal font-bebas mb-4 sm:mb-6 lg:mb-12">SIMILAR PRODUCT</h2>
 
       <div className="flex overflow-x-auto xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 xl:gap-7 pb-4 sm:pb-0 scrollbar-hide snap-x snap-mandatory">
-        {products.map((product, idx) => (
+    {products.map((product) => (
           <div 
-            key={product.product_id} 
+      key={product.product_id} 
             className="relative rounded-xl overflow-hidden cursor-pointer group flex-shrink-0 w-full sm:w-auto snap-start"
             onClick={() => handleProductClick(product.product_id)}
           >
             <div className="relative">
               <img
                 src={product.primary_image || '/assets/shop2/ProductPage/pd1.svg'}
-                alt={product.product_name}
+                alt={tNames[product.product_id] || product.product_name}
                 className="w-full h-[400px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[450px] object-cover rounded-xl  transition-transform duration-200"
               />
               <div 
@@ -257,11 +287,11 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({
 
             <div className="pb-3 sm:pb-4 font-bebas mt-2 sm:mt-3 lg:mt-4">
               <p className="text-xs sm:text-sm lg:text-base xl:text-[17px] text-[#8E8F94] font-normal uppercase">
-                {product.category_name || 'PRODUCT'}
+                {tCategories[product.product_id] || product.category_name || 'PRODUCT'}
               </p>
               <div className="flex justify-between items-center">
                 <h3 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-[31px] font-normal uppercase truncate">
-                  {product.product_name}
+                  {tNames[product.product_id] || product.product_name}
                 </h3>
                 <div className="flex flex-col items-end">
                   {product.is_on_special_offer && product.special_price ? (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
@@ -8,6 +9,7 @@ import { Product } from '../../types';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const TrendingDeals: React.FC = () => {
+  const { t } = useTranslation();
   const [itemsPerView, setItemsPerView] = useState(4);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -125,12 +127,12 @@ const TrendingDeals: React.FC = () => {
       <section className="pb-12">
         <div className="container mx-auto px-4 xl:px-14">
           <div className="flex flex-col items-center justify-center h-64">
-            <p className="text-red-500 mb-4">Error loading trending deals: {error}</p>
+            <p className="text-red-500 mb-4">{t('common.error')}: {error}</p>
             <button 
               onClick={fetchTrendingDeals}
               className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
-              Try Again
+              {t('common.retry', 'Try Again')}
             </button>
           </div>
         </div>
@@ -145,11 +147,11 @@ const TrendingDeals: React.FC = () => {
         <div className="flex flex-col space-y-6">
           {/* Header with navigation */}
           <div className="flex flex-row justify-between items-center w-full space-y-0 mb-4 md:mb-0">
-            <h6 className="text-xl font-medium font-worksans">Trending Deals</h6>
+            <h6 className="text-xl font-medium font-worksans">{t('home.sections.trendingTitle')}</h6>
             {/* Navigation */}
             <div className="flex items-center space-x-4">
               <Link to="/trendy-deals" className="text-orange-500 text-sm font-medium">
-                See All
+                {t('home.seeAll')}
               </Link>
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <button

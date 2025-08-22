@@ -9,6 +9,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
+import { useAmazonTranslate } from "../../hooks/useAmazonTranslate";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -168,6 +170,15 @@ const OrderDetail: React.FC = () => {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+
+  // Display-only translations
+  const [tItemNames, setTItemNames] = useState<Record<number, string>>({});
+  const [tItemOptions, setTItemOptions] = useState<Record<number, string>>({});
+  const [tCustomerNotes, setTCustomerNotes] = useState<string | null>(null);
+  const [tShipMethod, setTShipMethod] = useState<string | null>(null);
+  const [tStatusNotes, setTStatusNotes] = useState<Record<number, string>>({});
 
   // Generate the complete invoice HTML for printing
   const generateInvoiceHTML = () => {
@@ -175,6 +186,8 @@ const OrderDetail: React.FC = () => {
     if (!order || !merchantProfile) {
       return '';
     }
+  const displayShipMethod = tShipMethod || order.shipping_method_name;
+  const displayCustomerNotes = tCustomerNotes || order.customer_notes;
     return `
 <!DOCTYPE html>
 <html>
@@ -378,8 +391,8 @@ const OrderDetail: React.FC = () => {
     <div><strong>Order Date:</strong> ${new Date(
       order.order_date
     ).toLocaleDateString()}</div>
-    <div><strong>Payment Method:</strong> ${order.payment_method || "N/A"}</div>
-    <div><strong>Shipping Method:</strong> ${order.shipping_method_name}</div>
+  <div><strong>Payment Method:</strong> ${order.payment_method || "N/A"}</div>
+  <div><strong>Shipping Method:</strong> ${displayShipMethod}</div>
   </div>
 
   <table>
@@ -399,15 +412,11 @@ const OrderDetail: React.FC = () => {
         <tr>
           <td>${index + 1}</td>
           <td>
-            <div style="font-weight: bold;">${
-              item.product_name_at_purchase
-            }</div>
+            <div style="font-weight: bold;">${tItemNames[item.order_item_id] || item.product_name_at_purchase}</div>
             <div class="product-details">SKU: ${item.sku_at_purchase}</div>
             ${
-              formatSelectedAttributes(item.selected_attributes)
-                ? `<div class="product-details">Options: ${formatSelectedAttributes(
-                    item.selected_attributes
-                  )}</div>`
+              (tItemOptions[item.order_item_id] || formatSelectedAttributes(item.selected_attributes))
+                ? `<div class="product-details">Options: ${tItemOptions[item.order_item_id] || formatSelectedAttributes(item.selected_attributes)}</div>`
                 : ""
             }
           </td>
@@ -456,11 +465,11 @@ const OrderDetail: React.FC = () => {
   </table>
 
   ${
-    order.customer_notes
+    displayCustomerNotes
       ? `
     <div class="notes">
       <h3 style="font-weight: bold; margin-bottom: 8px;">Customer Notes</h3>
-      <p>${order.customer_notes}</p>
+      <p>${displayCustomerNotes}</p>
     </div>
   `
       : ""
@@ -559,6 +568,58 @@ const OrderDetail: React.FC = () => {
     };
     fetchOrderDetails();
   }, [orderId]);
+
+  // Translate dynamic texts for display only (fail-open)
+  useEffect(() => {
+    const lang = (i18n.language || 'en').split('-')[0];
+    if (!order || lang === 'en') {
+      setTItemNames({});
+      setTItemOptions({});
+      setTCustomerNotes(null);
+      setTShipMethod(null);
+      setTStatusNotes({});
+      return;
+    }
+    const run = async () => {
+      try {
+        const nameItems = order.items.map(it => ({ id: `n:${it.order_item_id}`, text: it.product_name_at_purchase }));
+        const optionItems: { id: string; text: string }[] = [];
+        order.items.forEach(it => {
+          const opts = formatSelectedAttributes(it.selected_attributes);
+          if (opts) optionItems.push({ id: `o:${it.order_item_id}`, text: opts });
+        });
+        const miscItems: { id: string; text: string }[] = [];
+        if (order.customer_notes) miscItems.push({ id: `cn:${order.order_id}`, text: order.customer_notes });
+        if (order.shipping_method_name) miscItems.push({ id: `ship:${order.order_id}`, text: order.shipping_method_name });
+        const historyNoteItems: { id: string; text: string }[] = [];
+        if (Array.isArray(order.status_history)) {
+          order.status_history.forEach((h: any, idx: number) => {
+            if (h?.notes) historyNoteItems.push({ id: `h:${idx}`, text: h.notes });
+          });
+        }
+        const [namesMap, optsMap, miscMap, histMap] = await Promise.all([
+          translateBatch(nameItems, lang, 'text/plain'),
+          translateBatch(optionItems, lang, 'text/plain'),
+          translateBatch(miscItems, lang, 'text/plain'),
+          translateBatch(historyNoteItems, lang, 'text/plain'),
+        ]);
+        const nOut: Record<number, string> = {};
+        Object.keys(namesMap).forEach(k => { if (k.startsWith('n:')) nOut[Number(k.split(':')[1])] = namesMap[k]; });
+        const oOut: Record<number, string> = {};
+        Object.keys(optsMap).forEach(k => { if (k.startsWith('o:')) oOut[Number(k.split(':')[1])] = optsMap[k]; });
+        const hOut: Record<number, string> = {};
+        Object.keys(histMap).forEach(k => { if (k.startsWith('h:')) hOut[Number(k.split(':')[1])] = histMap[k]; });
+        setTItemNames(nOut);
+        setTItemOptions(oOut);
+        setTCustomerNotes(miscMap[`cn:${order.order_id}`] || null);
+        setTShipMethod(miscMap[`ship:${order.order_id}`] || null);
+        setTStatusNotes(hOut);
+      } catch {
+        // ignore errors - fail open
+      }
+    };
+    run();
+  }, [order, i18n.language, translateBatch]);
 
   if (loading) {
     return (
@@ -919,15 +980,15 @@ const OrderDetail: React.FC = () => {
                   >
                     <div className="flex-1">
                       <h4 className="text-sm font-medium text-gray-900">
-                        {item.product_name_at_purchase}
+                        {tItemNames[item.order_item_id] || item.product_name_at_purchase}
                       </h4>
                       <p className="text-sm text-gray-500">
                         SKU: {item.sku_at_purchase}
                       </p>
-                      {formatSelectedAttributes(item.selected_attributes) && (
+            {(tItemOptions[item.order_item_id] || formatSelectedAttributes(item.selected_attributes)) && (
                         <p className="text-sm text-gray-600 mt-1">
                           Options:{" "}
-                          {formatSelectedAttributes(item.selected_attributes)}
+              {tItemOptions[item.order_item_id] || formatSelectedAttributes(item.selected_attributes)}
                         </p>
                       )}
                     </div>
@@ -973,9 +1034,9 @@ const OrderDetail: React.FC = () => {
                         <p className="text-sm text-gray-500">
                           {new Date(history.changed_at).toLocaleString()}
                         </p>
-                        {history.notes && (
-                          <p className="text-sm text-gray-600 mt-1 break-words">
-                            {history.notes}
+                        {(tStatusNotes[index] || history.notes) && (
+                          <p className="text-sm text-gray-600 mt-1">
+                            {tStatusNotes[index] || history.notes}
                           </p>
                         )}
                       </div>

@@ -1,0 +1,487 @@
+{
+  "nav": {
+    "home": "Home",
+    "allProducts": "All Products",
+    "newProduct": "New Product",
+    "promotion": "Promotion",
+    "trackOrder": "Track Your Order",
+    "signInRegister": "Sign In/Register",
+    "wishlist": "Wishlist",
+    "cart": "Cart",
+    "account": "Account",
+    "becomeMerchant": "Become a Merchant",
+    "category": "Category",
+    "searchPlaceholder": "What are you looking for?",
+    "search": "Search",
+    "menu": "Menu",
+    "aoinLive": "Aoin Live"
+  },
+  "home": {
+    "searchPlaceholder": "What are you looking for?",
+    "searchButton": "Search",
+    "searchCategories": {
+      "all": "All",
+      "products": "Products",
+      "categories": "Categories"
+    },
+    "seeAll": "See All",
+    "sections": {
+      "categoriesTitle": "Shop By Categories",
+      "brandsTitle": "Shop By Brands",
+      "featuredTitle": "Featured Products",
+      "promoTitle": "Promo Products",
+      "trendingTitle": "Trending Deals",
+      "day": "Day",
+      "hour": "Hour",
+      "minute": "Min",
+      "second": "Sec",
+      "soldOut": "Sold Out",
+      "addToCart": "Add to Cart",
+      "innovationWindowTitle": "THE INNOVATION WINDOW",
+      "innovationWindowHours": "9 AM to 10 PM Daily",
+      "innovationWindowDescription": "Every day from 9 to 10, AOIN opens its shutters to offer exclusive, handpicked products for a limited time only.",
+      "currentTime": "Current Time:",
+      "status": "Status:",
+      "open": "OPEN",
+      "closed": "CLOSED",
+      "timeLeft": "Time left :"
+    }
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "clearCart": "Clear Cart",
+    "checkout": "Checkout",
+    "product": "Product",
+    "price": "Price",
+    "quantity": "Qty",
+    "subTotal": "Sub Total",
+    "clearing": "Clearing...",
+    "clearCartModal": {
+      "title": "Clear Cart",
+      "message": "Are you sure you want to clear your entire cart? This action cannot be undone.",
+      "confirm": "Clear Cart",
+      "cancel": "Cancel"
+    }
+  },
+  "wishlist": {
+    "title": "My Wishlist",
+    "empty": "Your wishlist is empty",
+    "emptyDescription": "Save your favorite products to your wishlist to keep track of items you love and want to purchase later.",
+    "browseProducts": "Browse Products",
+    "continueShopping": "Continue Shopping",
+    "loading": "Loading your wishlist...",
+    "item": "Item",
+    "items": "Items"
+  },
+  "contact": {
+    "title": "Browse Topics",
+    "needMoreHelp": "Need more help?",
+    "chatWithUs": "Chat with us",
+    "getInstantHelp": "Get instant query assistance",
+    "chat": "Chat",
+    "backToTopics": "Back to Topics",
+    "gettingHelpEasy": "Getting help is easy",
+    "signInForHelp": "Sign in to get help with recent orders",
+    "signIn": "Sign in",
+    "topics": {
+      "order": "Order Related",
+      "shopping": "Shopping",
+      "account": "AOIN Account", 
+      "payments": "Payments",
+      "sell": "Sell On AOIN",
+      "others": "Others"
+    }
+  },
+  "footer": {
+    "shop": "Shop",
+    "newProduct": "New Product",
+    "liveShop": "Live Shop",
+    "promotion": "Promotion",
+    "policies": "Policies",
+    "privacyPolicy": "Privacy Policy",
+    "cancellationPolicy": "Cancellation Policy",
+    "returnRefund": "Return & Refund",
+    "shippingDelivery": "Shipping & Delivery Policy",
+    "customerSupport": "Customer Support",
+    "callUs": "Call us at",
+    "faq": "Frequently asked Questions",
+    "contactUs": "Contact Us",
+    "termsConditions": "Terms & Conditions",
+    "shippingMethods": "Shipping Methods",
+    "mailUs": "Mail us at",
+    "followUs": "Follow Us",
+    "enterEmail": "Enter your email",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "newsletterDescription": "Receive our latest updates about our products & promotions",
+    "allRightsReserved": "All Rights Reserved"
+  },
+  "services": {
+    "freeShipping": {
+      "title": "Free Shipping",
+      "description": "For invoices over $1,500"
+    },
+    "cashBack": {
+      "title": "Cash Back", 
+      "description": "When paying for products via Dasun Wallet"
+    },
+    "support": {
+      "title": "24/7 Support",
+      "description": "When something goes wrong"
+    }
+  },
+  "payment": {
+    "title": "Payment Information",
+    "continueShopping": "Continue Shopping",
+    "savedAddresses": "Saved Addresses",
+    "savedCards": "Saved Cards",
+    "noSavedCards": "No saved cards found",
+    "addNewCard": "Add New Card",
+    "fullName": "Full Name",
+    "phoneNumber": "Phone Number",
+    "city": "City",
+    "stateProvince": "State/Province",
+    "postalCode": "Postal Code",
+    "country": "Country",
+    "address": "Address",
+    "landmark": "Landmark (Optional)",
+    "deliveryToAnother": "Delivery to another address?",
+    "note": "Note",
+    "noteAboutOrder": "Note about your orders",
+    "saveAddress": "Save Address",
+    "yourOrder": "Your Order",
+    "paymentMethod": "Payment Method",
+    "creditCard": "Credit Card",
+    "debitCard": "Debit Card",
+    "cashOnDelivery": "Cash on Delivery",
+    "placeOrder": "Place Order",
+    "processing": "Processing...",
+    "selectAddress": "Please select a shipping address",
+    "selectCard": "Please select a payment card",
+    "cardNumber": "Card Number",
+    "expiryDate": "Expiry Date",
+    "cvv": "CVV",
+    "cardHolderName": "Card Holder Name",
+    "cardType": "Card Type",
+    "setAsDefault": "Set as default payment method",
+    "saving": "Saving...",
+    "saveCard": "Save Card",
+    "defaultShipping": "Default Shipping",
+    "defaultBilling": "Default Billing",
+    "editAddress": "Edit address",
+    "deleteAddress": "Delete address",
+    "setAsDefaultCard": "Set as default",
+    "deleteCard": "Delete card",
+    "invalidPostalCode": "Invalid postal code format for",
+    "enterPostalCode": "Enter postal code for"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to common questions about our services, shipping, returns, and more.",
+    "contact": "Still have questions? Contact us at",
+    "questions": {
+      "payment": {
+        "question": "What payment methods do you accept?",
+        "answer": "We accept a wide range of payment methods including credit/debit cards (Visa, MasterCard, American Express), PayPal, and bank transfers. All transactions are secure and encrypted to ensure your payment information is protected."
+      },
+      "shipping": {
+        "question": "How long does shipping take?",
+        "answer": "Shipping times vary depending on your location and the shipping method chosen. Domestic orders typically arrive within 3-5 business days, while international orders may take 7-14 business days. Express shipping options are available at checkout for faster delivery."
+      },
+      "returns": {
+        "question": "What is your return policy?",
+        "answer": "We offer a 30-day return policy for most items. Products must be unused and in their original packaging. To initiate a return, please contact our customer service team through your account dashboard. Once your return is approved, we'll provide a prepaid shipping label and process your refund within 5-7 business days of receiving the returned item."
+      },
+      "international": {
+        "question": "Do you offer international shipping?",
+        "answer": "Yes, we ship to most countries worldwide. International shipping rates and delivery times vary by location. You can see the exact shipping costs and estimated delivery time by entering your address at checkout. Please note that additional customs fees or import duties may apply depending on your country."
+      },
+      "tracking": {
+        "question": "How can I track my order?",
+        "answer": "Once your order ships, you'll receive a confirmation email with a tracking number. You can use this number to track your package on our website or through the carrier's tracking system. You can also view your order status and tracking information in your account dashboard."
+      }
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "subtitle": "At AUIN, we are committed to protecting your privacy and ensuring the security of your personal information. This policy explains how we collect, use, and safeguard your data when you shop with us.",
+    "lastUpdated": "Last updated",
+    "sections": {
+      "introduction": {
+        "title": "Introduction",
+        "content": "Welcome to AUIN, your trusted destination for fashion, technology, and lifestyle products. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and share your information when you visit our website, use our mobile app, make purchases, or interact with our services."
+      },
+      "informationCollection": {
+        "title": "Information We Collect",
+        "content": "We collect information that you provide directly to us and information that is automatically collected when you use our services."
+      },
+      "informationUse": {
+        "title": "How We Use Your Information",
+        "content": "We use your information to provide, improve, and personalize our services"
+      },
+      "informationSharing": {
+        "title": "How We Share Your Information",
+        "content": "We may share your information with trusted partners and service providers"
+      },
+      "cookies": {
+        "title": "Cookies and Tracking Technologies",
+        "content": "We use cookies and similar technologies to enhance your shopping experience and provide personalized content."
+      },
+      "privacyRights": {
+        "title": "Your Privacy Rights",
+        "content": "Depending on your location, you may have the following rights regarding your personal information"
+      },
+      "dataSecurity": {
+        "title": "Data Security",
+        "content": "We implement industry-standard security measures to protect your personal information"
+      },
+      "childrensPrivacy": {
+        "title": "Children's Privacy",
+        "content": "AUIN's services are not intended for children under the age of 16. We do not knowingly collect personal information from children under 16."
+      },
+      "internationalTransfers": {
+        "title": "International Data Transfers",
+        "content": "AUIN operates globally and may transfer your information to countries other than your own."
+      },
+      "policyUpdates": {
+        "title": "Updates to This Policy",
+        "content": "We may update this privacy policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors."
+      },
+      "contactUs": {
+        "title": "Contact Us",
+        "content": "If you have questions about this privacy policy or our data practices, please contact us"
+      }
+    }
+  },
+  "shipping": {
+    "title": "AUIN Shipping Policy",
+    "lastUpdated": "Last updated",
+    "overview": {
+      "freeShipping": {
+        "title": "Premium Free Shipping",
+        "description": "On all orders over $75 within the United States"
+      },
+      "fastProcessing": {
+        "title": "Fast Processing",
+        "description": "Same-day processing for orders before 2 PM EST"
+      },
+      "international": {
+        "title": "International Shipping",
+        "description": "Available to 100+ countries worldwide"
+      },
+      "customs": {
+        "title": "Customs & Duties",
+        "description": "May apply on international orders"
+      }
+    },
+    "methods": {
+      "title": "Shipping Methods",
+      "standard": {
+        "title": "AUIN Standard Shipping",
+        "description": "Delivery in 3-5 business days within the continental United States.",
+        "features": [
+          "Free for orders over $75",
+          "$6.95 for orders under $75"
+        ]
+      },
+      "express": {
+        "title": "AUIN Express Shipping",
+        "description": "Delivery in 2 business days within the continental United States.",
+        "features": [
+          "$12.95 flat rate for all orders",
+          "Order must be placed before 2 PM EST for same-day processing"
+        ]
+      },
+      "overnight": {
+        "title": "AUIN Priority Overnight",
+        "description": "Next business day delivery within the continental United States.",
+        "features": [
+          "$24.95 flat rate for all orders",
+          "Order must be placed before 1 PM EST for same-day processing",
+          "Not available for PO Boxes or APO/FPO addresses"
+        ]
+      },
+      "international": {
+        "title": "International Shipping",
+        "description": "Delivery to over 100 countries worldwide.",
+        "features": [
+          "Standard International: $14.99, delivery in 7-14 business days",
+          "Express International: $29.99, delivery in 3-5 business days",
+          "Customs duties and taxes may apply and are the responsibility of the recipient"
+        ]
+      }
+    },
+    "sections": {
+      "orderProcessing": {
+        "title": "Order Processing",
+        "content": "All orders are processed within 1-2 business days from the time of purchase. Orders placed during weekends or holidays will be processed on the next business day."
+      },
+      "restrictions": {
+        "title": "Shipping Restrictions",
+        "content": "Some products cannot be shipped to certain locations due to regulations. If this applies to an item in your order, we will notify you."
+      },
+      "delays": {
+        "title": "Shipping Delays",
+        "content": "While we make every effort to ship and deliver orders according to the estimated delivery times, there may be occasional delays due to weather conditions, customs issues, or other circumstances beyond our control."
+      },
+      "questions": {
+        "title": "Questions About Your Shipment?",
+        "content": "Our dedicated shipping support team is here to help"
+      }
+    }
+  },
+  "terms": {
+    "title": "Terms & Conditions",
+    "lastUpdated": "Last updated",
+    "introduction": "Welcome to AUIN, your trusted destination for fashion, technology, and lifestyle products. These Terms and Conditions govern your use of the AUIN website, mobile applications, and services. By accessing or using our platform, you agree to be bound by these Terms. Please read them carefully before making any purchases.",
+    "sections": {
+      "acceptance": {
+        "title": "Acceptance of Terms",
+        "content": [
+          "By accessing or using the AUIN website, mobile applications, or any other features, technologies, or functionalities offered by AUIN on our platform or through any other means (collectively, 'Services'), you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you may not access or use our Services.",
+          "These Terms apply to all visitors, users, and others who access or use our Services. By using our Services, you represent that you are at least 18 years old or have parental consent to use our Services."
+        ]
+      },
+      "changes": {
+        "title": "Changes to Terms",
+        "content": "We reserve the right to modify these Terms at any time. We will provide notice of any material changes by updating the 'Last Updated' date at the top of this page and posting the updated Terms on our website. Your continued use of the Services after such modifications will constitute your acknowledgment and acceptance of the modified Terms."
+      },
+      "account": {
+        "title": "Account Registration",
+        "content": [
+          "To access certain features of our Services, you may be required to register for an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.",
+          "You are responsible for safeguarding your password and for all activities that occur under your account. You agree to notify AUIN immediately of any unauthorized use of your account or any other breach of security.",
+          "You may not create an account for anyone other than yourself, and you may not create more than one account per person. We reserve the right to terminate accounts that violate these Terms."
+        ]
+      },
+      "conduct": {
+        "title": "User Conduct",
+        "introduction": "When using our Services, you agree not to:",
+        "rules": [
+          "Violate any applicable laws or regulations",
+          "Infringe upon the rights of others, including intellectual property rights", 
+          "Use the Services for any illegal or unauthorized purpose",
+          "Interfere with or disrupt the Services or servers or networks connected to the Services",
+          "Attempt to gain unauthorized access to any portion of the Services",
+          "Use any robot, spider, scraper, or other automated means to access the Services",
+          "Create or submit unwanted email, comments, or other forms of commercial or harassing communications",
+          "Impersonate any person or entity or misrepresent your affiliation with any person or entity",
+          "Upload, post, or transmit any content that is harmful, threatening, abusive, or objectionable",
+          "Attempt to circumvent any security measures or access controls"
+        ]
+      },
+      "products": {
+        "title": "Products and Services",
+        "content": [
+          "AUIN strives to display product descriptions, images, and pricing as accurately as possible. However, we do not guarantee that all information is complete or correct. Product images are for illustrative purposes and may not reflect the exact appearance of the product.",
+          "In the event of a pricing error, AUIN reserves the right to refuse or cancel any orders placed for products listed at the incorrect price. We will notify you if your order is affected by a pricing error.",
+          "Availability of products and delivery times shown on our website are estimates only and are not guaranteed. We reserve the right to limit the quantities of any products that we offer and to discontinue products at any time."
+        ]
+      },
+      "orderingPayment": {
+        "title": "Ordering and Payment",
+        "content": [
+          "When you place an order, you offer to purchase the product at the price indicated. Our acceptance of your order happens when we send you an order confirmation email.",
+          "You agree to provide current, complete, and accurate purchase and account information for all purchases made through our site. You agree to promptly update your account and other information, including your email address and credit card information, so that we can complete your transactions and contact you as needed.",
+          "All payments must be made in full at the time of purchase. We accept various payment methods including credit cards, debit cards, and digital wallets. Payment processing is handled by secure third-party providers."
+        ]
+      },
+      "shippingDelivery": {
+        "title": "Shipping and Delivery",
+        "content": [
+          "AUIN will make every effort to ship products within the estimated timeframes. However, shipping times are estimates and not guarantees. AUIN is not responsible for delays due to shipping carrier issues, weather, customs, or other circumstances beyond our control.",
+          "For more information about our shipping practices, please review our Shipping Policy."
+        ]
+      },
+      "returnsRefunds": {
+        "title": "Returns and Refunds",
+        "content": [
+          "AUIN offers a 30-day return policy for most items. Some products have specific return conditions that will be noted in the product description or in our Returns & Refunds Policy.",
+          "For detailed information on our return process, eligible items, and refund methods, please review our Returns & Refunds Policy."
+        ]
+      },
+      "intellectualProperty": {
+        "title": "Intellectual Property",
+        "content": [
+          "The Services and all contents, including but not limited to text, images, graphics, logos, icons, audio clips, and software, are the property of AUIN or its content suppliers and protected by United States and international copyright, trademark, and other intellectual property laws.",
+          "The trademarks, service marks, and logos used and displayed on our Services are registered and unregistered trademarks of AUIN and others. Nothing on our Services should be construed as granting any license or right to use any trademarks without the prior written permission of AUIN.",
+          "You may not copy, reproduce, distribute, transmit, display, perform, publish, license, create derivative works from, transfer, or sell any information obtained from our Services without our prior written consent."
+        ]
+      },
+      "disclaimer": {
+        "title": "Disclaimer of Warranties",
+        "content": [
+          "THE SERVICES AND ALL INFORMATION, CONTENT, MATERIALS, PRODUCTS, AND SERVICES INCLUDED ON OR OTHERWISE MADE AVAILABLE TO YOU THROUGH THE SERVICES ARE PROVIDED ON AN 'AS IS' AND 'AS AVAILABLE' BASIS, UNLESS OTHERWISE SPECIFIED IN WRITING. AUIN MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, AS TO THE OPERATION OF THE SERVICES, OR THE INFORMATION, CONTENT, MATERIALS, PRODUCTS, OR SERVICES INCLUDED ON OR OTHERWISE MADE AVAILABLE TO YOU THROUGH THE SERVICES.",
+          "TO THE FULL EXTENT PERMISSIBLE BY LAW, AUIN DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
+        ]
+      },
+      "limitation": {
+        "title": "Limitation of Liability",
+        "content": [
+          "AUIN WILL NOT BE LIABLE FOR ANY DAMAGES OF ANY KIND ARISING FROM THE USE OF THE SERVICES, INCLUDING, BUT NOT LIMITED TO, DIRECT, INDIRECT, INCIDENTAL, PUNITIVE, AND CONSEQUENTIAL DAMAGES, UNLESS OTHERWISE SPECIFIED IN WRITING.",
+          "CERTAIN STATE LAWS DO NOT ALLOW LIMITATIONS ON IMPLIED WARRANTIES OR THE EXCLUSION OR LIMITATION OF CERTAIN DAMAGES. IF THESE LAWS APPLY TO YOU, SOME OR ALL OF THE ABOVE DISCLAIMERS, EXCLUSIONS, OR LIMITATIONS MAY NOT APPLY TO YOU, AND YOU MIGHT HAVE ADDITIONAL RIGHTS."
+        ]
+      },
+      "indemnification": {
+        "title": "Indemnification",
+        "content": "You agree to indemnify, defend, and hold harmless AUIN, its officers, directors, employees, agents, licensors, and suppliers from and against all losses, expenses, damages and costs."
+      },
+      "privacyPolicy": {
+        "title": "Privacy Policy",
+        "content": "Your privacy is important to us. Please review our Privacy Policy, which also governs your use of the Services, to understand our practices regarding the collection and use of your information."
+      },
+      "governingLaw": {
+        "title": "Governing Law",
+        "content": "These Terms shall be governed by and construed in accordance with the laws of the State of New York, without giving effect to any principles of conflicts of law."
+      },
+      "severability": {
+        "title": "Severability",
+        "content": "If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions will remain in full force and effect, and the invalid or unenforceable provision will be limited or eliminated to the minimum extent necessary."
+      },
+      "entireAgreement": {
+        "title": "Entire Agreement",
+        "content": "These Terms, together with our Privacy Policy, Return Policy, and Shipping Policy, constitute the entire agreement between you and AUIN regarding the use of our Services."
+      },
+      "contact": {
+        "title": "Contact Information",
+        "description": "If you have any questions about these Terms, please contact us at:",
+        "customerSupport": "Customer Support",
+        "name": "AUIN E-commerce Platform",
+        "address": [
+          "1658 Rosewood Lane",
+          "New York City, NY"
+        ]
+      }
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+  "retry": "Try Again",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "view": "View",
+    "add": "Add",
+    "remove": "Remove",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "signIn": "Sign in to proceed",
+    "pleaseSignIn": "Please sign in to proceed with checkout",
+    "email": "Email",
+    "phone": "Phone",
+    "customerSupport": "Customer Support",
+    "address": "Address"
+  }
+}

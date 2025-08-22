@@ -3,6 +3,8 @@ import { Minus, Plus, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useShopCartOperations } from '../../../../context/ShopCartContext';
 import { toast } from 'react-hot-toast';
 import { Product as ApiProduct } from '../../../../services/shop1ApiService';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../../hooks/useAmazonTranslate';
 
 const SHOP_ID = 1;
 
@@ -17,6 +19,8 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0 }) => {
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
   const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
@@ -25,6 +29,14 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
   const [stockError, setStockError] = useState<string>('');
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [selectedSize, setSelectedSize] = useState('L');
+
+  // Display-only translations
+  const [tName, setTName] = useState<string | null>(null);
+  const [tCategory, setTCategory] = useState<string | null>(null);
+  const [tShort, setTShort] = useState<string | null>(null);
+  const [tFull, setTFull] = useState<string | null>(null);
+  const [tAttrNames, setTAttrNames] = useState<Record<string, string>>({});
+  const [tAttrValues, setTAttrValues] = useState<Record<string, string>>({});
 
   // Extract and combine attributes from both parent product attributes and variant attributes
   const availableAttributes = useMemo(() => {
@@ -92,6 +104,45 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
 
     return Array.from(attributeMap.values());
   }, [productData?.product_id, productData?.variant_attributes, productData?.attributes]);
+
+  // Translate dynamic display texts when language or product changes
+  useEffect(() => {
+    const lang = i18n.language || 'en';
+    if (!productData || lang === 'en') {
+      setTName(null); setTCategory(null); setTShort(null); setTFull(null);
+      setTAttrNames({}); setTAttrValues({});
+      return;
+    }
+    const plainItems: { id: string; text: string }[] = [];
+    if (productData.product_name) plainItems.push({ id: 'name', text: productData.product_name });
+    if (productData.category_name) plainItems.push({ id: 'category', text: productData.category_name });
+    if (productData.short_description) plainItems.push({ id: 'short', text: productData.short_description });
+    if (productData.full_description) plainItems.push({ id: 'full', text: productData.full_description });
+    // attribute labels/values
+    availableAttributes.forEach((attr: any) => {
+      if (attr.name) plainItems.push({ id: `attrName:${attr.name}`, text: attr.name });
+      (attr.values || []).forEach((v: string) => {
+        if (v) plainItems.push({ id: `attrVal:${attr.name}|${v}`, text: v });
+      });
+    });
+    const doTranslate = async () => {
+      try {
+        const map = await translateBatch(plainItems, lang, 'text/plain');
+        setTName(map['name'] ?? null);
+        setTCategory(map['category'] ?? null);
+        setTShort(map['short'] ?? null);
+        setTFull(map['full'] ?? null);
+        const nMap: Record<string, string> = {};
+        const vMap: Record<string, string> = {};
+        for (const k of Object.keys(map)) {
+          if (k.startsWith('attrName:')) nMap[k.split(':')[1]] = map[k];
+          if (k.startsWith('attrVal:')) vMap[k.substring('attrVal:'.length)] = map[k];
+        }
+        setTAttrNames(nMap); setTAttrValues(vMap);
+      } catch {}
+    };
+    doTranslate();
+  }, [productData, i18n.language, translateBatch, availableAttributes]);
 
   // Extract variant data from product data (no API calls needed)
   const variants = productData?.variants || [];
@@ -605,9 +656,9 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
         <nav className="text-gray-500 text-sm sm:text-base flex flex-wrap gap-1">
           <span>Shop1</span>
           <span>/</span>
-          <span>{productData?.category_name || 'Category'}</span>
+          <span>{tCategory || productData?.category_name || 'Category'}</span>
           <span>/</span>
-          <span className="text-gray-800 font-medium">{productData?.product_name || 'Product'}</span>
+          <span className="text-gray-800 font-medium">{tName || productData?.product_name || 'Product'}</span>
         </nav>
       </div>
 
@@ -739,14 +790,14 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
         <div className="flex-1 min-w-0">
           {/* Product Name */}
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-playfair font-semibold text-black leading-tight">
-            {productData?.product_name || 'NADETTA COAT'}
+            {tName || productData?.product_name || 'NADETTA COAT'}
           </h2>
 
           {/* Short Description / Meta Description */}
           {(productData?.short_description || productData?.meta_description) && (
             <div className="mb-3 lg:mb-4">
               <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                {productData.short_description || productData.meta_description}
+                {tShort || productData.short_description || productData.meta_description}
               </p>
             </div>
           )}
@@ -769,7 +820,7 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
               {productData?.has_variants && availableAttributes.length > 0 && availableAttributes.map((attribute) => (
                 <div key={attribute.name} className="min-w-0">
                   <p className="text-lg sm:text-xl font-semibold mb-3 lg:mb-4 capitalize">
-                    Select {attribute.name}
+                    Select {tAttrNames[attribute.name] || attribute.name}
                   </p>
                   <div className="flex flex-wrap gap-2 sm:gap-3">
                     {attribute.values.map((value: string) => {
@@ -806,7 +857,7 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
                           `}
                           disabled={false}
                         >
-                          {value}
+                          {tAttrValues[`${attribute.name}|${value}`] || value}
                         </button>
                       );
                     })}
@@ -819,7 +870,7 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
                 attr.attribute?.name && attr.value && (
                   <div key={attr.attribute.name} className="min-w-0">
                     <p className="text-lg sm:text-xl font-semibold mb-3 lg:mb-4 capitalize">
-                      {attr.attribute.name}
+                      {tAttrNames[attr.attribute.name] || attr.attribute.name}
                     </p>
                     <div className="flex flex-wrap gap-2 sm:gap-3">
                       {(() => {
@@ -843,7 +894,7 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
                             key={attr.value}
                             className="px-3 sm:px-4 py-2 min-w-[48px] sm:min-w-[64px] h-10 sm:h-12 rounded-full border bg-[#FEEBD8] border-[#FEEBD8] text-black shadow-md text-sm sm:text-base lg:text-lg font-semibold flex items-center justify-center"
                           >
-                            {attr.value}
+                            {tAttrValues[`${attr.attribute.name}|${attr.value}`] || attr.value}
                           </div>
                         );
                       })()}
@@ -989,8 +1040,8 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
       Product <span className="italic font-normal">Details</span>
     </h3>
     <div className="space-y-2">
-      {productData?.full_description 
-        ? parseMarkdown(productData.full_description)
+      {tFull 
+        ? parseMarkdown(tFull)
         : (
           <ul className="space-y-3 lg:space-y-4">
             {[
