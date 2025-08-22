@@ -23,6 +23,28 @@
       "all": "All",
       "products": "Products",
       "categories": "Categories"
+    },
+    "seeAll": "See All",
+    "sections": {
+      "categoriesTitle": "Shop By Categories",
+      "brandsTitle": "Shop By Brands",
+      "featuredTitle": "Featured Products",
+      "promoTitle": "Promo Products",
+      "trendingTitle": "Trending Deals",
+      "day": "Day",
+      "hour": "Hour",
+      "minute": "Min",
+      "second": "Sec",
+      "soldOut": "Sold Out",
+      "addToCart": "Add to Cart",
+      "innovationWindowTitle": "THE INNOVATION WINDOW",
+      "innovationWindowHours": "9 AM to 10 PM Daily",
+      "innovationWindowDescription": "Every day from 9 to 10, AOIN opens its shutters to offer exclusive, handpicked products for a limited time only.",
+      "currentTime": "Current Time:",
+      "status": "Status:",
+      "open": "OPEN",
+      "closed": "CLOSED",
+      "timeLeft": "Time left :"
     }
   },
   "cart": {
@@ -438,6 +460,7 @@
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
+  "retry": "Try Again",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "save": "Save",
