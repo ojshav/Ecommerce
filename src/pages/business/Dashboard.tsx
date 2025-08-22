@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   ArrowUpIcon,
   ArrowDownIcon,
   ShoppingBagIcon,
   CurrencyDollarIcon,
-  UserGroupIcon,
   ClipboardDocumentCheckIcon,
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
@@ -23,6 +22,8 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useAmazonTranslate } from "../../hooks/useAmazonTranslate";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -143,6 +144,43 @@ const Dashboard: React.FC = () => {
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
   const { accessToken, user } = useAuth();
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+
+  // Display-only translations for Top Products names (chart axis/tooltip)
+  const [tpNameMap, setTpNameMap] = useState<Record<string, string>>({});
+  useEffect(() => {
+    const lang = (i18n.language || "en").split("-")[0];
+    if (!topProducts.length || lang === "en") {
+      setTpNameMap({});
+      return;
+    }
+    const run = async () => {
+      try {
+        const items = topProducts
+          .filter(p => !!p.name)
+          .map((p, idx) => ({ id: `tp:${p.id ?? idx}`, text: p.name }));
+        if (!items.length) { setTpNameMap({}); return; }
+        const res = await translateBatch(items, lang, 'text/plain');
+        const map: Record<string, string> = {};
+        for (const key of Object.keys(res)) {
+          const k = key.startsWith('tp:') ? key : key;
+          const idx = items.find(i => i.id === k);
+          if (idx) map[idx.text] = res[key] || idx.text;
+        }
+        setTpNameMap(map);
+      } catch {
+        // fail open
+        setTpNameMap(prev => prev);
+      }
+    };
+    run();
+  }, [topProducts, i18n.language, translateBatch]);
+
+  const topProductsForChart = useMemo(() => {
+    if (!topProducts?.length) return [] as Array<TopProduct & { displayName: string }>;
+    return topProducts.map(p => ({ ...p, displayName: tpNameMap[p.name] || p.name }));
+  }, [topProducts, tpNameMap]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -449,7 +487,7 @@ const Dashboard: React.FC = () => {
                 <YAxis yAxisId="left" />
                 <YAxis yAxisId="right" orientation="right" />
                 <Tooltip
-                  formatter={(value, name, props) => {
+                  formatter={(value, _name, props) => {
                     const key = props.dataKey;
                     return [
                       key === "sales" ? formatCurrency(Number(value)) : value,
@@ -486,14 +524,14 @@ const Dashboard: React.FC = () => {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={topProducts}
+                data={topProductsForChart}
                 layout="vertical"
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
                 <YAxis
-                  dataKey="name"
+                  dataKey="displayName"
                   type="category"
                   width={150}
                   tickFormatter={(name) =>

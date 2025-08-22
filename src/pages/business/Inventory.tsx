@@ -12,6 +12,8 @@ import {
 import { toast } from 'react-hot-toast';
 import ExportModal from '../../components/business/reports/ExportModal';
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../hooks/useAmazonTranslate';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -184,7 +186,8 @@ const UpdateStockModal: React.FC<UpdateStockModalProps> = ({ isOpen, onClose, pr
 const MobileProductCard: React.FC<{ 
   product: Product; 
   onEditClick: (product: Product) => void;
-}> = ({ product, onEditClick }) => {
+  tName?: string; tCategory?: string; tBrand?: string;
+}> = ({ product, onEditClick, tName, tCategory, tBrand }) => {
   const getStockStatus = (product: Product) => {
     if (product.stock_qty === 0) return 'out_of_stock';
     if (product.stock_qty <= product.low_stock_threshold) return 'low_stock';
@@ -202,7 +205,7 @@ const MobileProductCard: React.FC<{
           />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-gray-900 truncate">{product.name}</h3>
+          <h3 className="text-sm font-medium text-gray-900 truncate">{tName || product.name}</h3>
           <p className="text-xs text-gray-500">SKU: {product.sku}</p>
         </div>
         <button 
@@ -217,13 +220,13 @@ const MobileProductCard: React.FC<{
         <div className="flex justify-between">
           <span className="text-gray-500">Category:</span>
           <span className="text-gray-900 truncate max-w-32">
-            {product.category?.name || 'N/A'}
+            {tCategory || product.category?.name || 'N/A'}
           </span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">Brand:</span>
           <span className="text-gray-900 truncate max-w-32">
-            {product.brand?.name || 'N/A'}
+            {tBrand || product.brand?.name || 'N/A'}
           </span>
         </div>
         <div className="flex justify-between">
@@ -295,6 +298,11 @@ const Inventory: React.FC = () => {
   });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [tNames, setTNames] = useState<Record<number, string>>({});
+  const [tCategoryNames, setTCategoryNames] = useState<Record<number, string>>({});
+  const [tBrandNames, setTBrandNames] = useState<Record<number, string>>({});
 
   // Add debounce effect for search
   useEffect(() => {
@@ -591,6 +599,42 @@ const Inventory: React.FC = () => {
     fetchBrands();
   }, []);
 
+  // Translate dynamic names for display only
+  useEffect(() => {
+    const lang = (i18n.language || 'en').split('-')[0];
+    if (!products.length && !categories.length && !brands.length) { setTNames({}); setTCategoryNames({}); setTBrandNames({}); return; }
+    if (lang === 'en') { setTNames({}); setTCategoryNames({}); setTBrandNames({}); return; }
+    const run = async () => {
+      try {
+        const nameItems: { id: string; text: string }[] = [];
+        const catItems: { id: string; text: string }[] = [];
+        const brandItems: { id: string; text: string }[] = [];
+        products.forEach(p => {
+          if (p.name) nameItems.push({ id: `p:${p.id}`, text: p.name });
+          if (p.category?.name) catItems.push({ id: `c:${p.category.id}`, text: p.category.name });
+          if (p.brand?.name) brandItems.push({ id: `b:${p.brand.id}`, text: p.brand.name });
+        });
+        categories.forEach(c => { if (c.name) catItems.push({ id: `c:${c.category_id}`, text: c.name }); });
+        brands.forEach(b => { if (b.name) brandItems.push({ id: `b:${b.brand_id}`, text: b.name }); });
+        const [nMap, cMap, bMap] = await Promise.all([
+          translateBatch(nameItems, lang, 'text/plain'),
+          translateBatch(catItems, lang, 'text/plain'),
+          translateBatch(brandItems, lang, 'text/plain'),
+        ]);
+        const names: Record<number, string> = {};
+        Object.keys(nMap).forEach(k => { if (k.startsWith('p:')) names[Number(k.split(':')[1])] = nMap[k]; });
+        const cats: Record<number, string> = {};
+        Object.keys(cMap).forEach(k => { if (k.startsWith('c:')) cats[Number(k.split(':')[1])] = cMap[k]; });
+        const brs: Record<number, string> = {};
+        Object.keys(bMap).forEach(k => { if (k.startsWith('b:')) brs[Number(k.split(':')[1])] = bMap[k]; });
+        setTNames(names); setTCategoryNames(cats); setTBrandNames(brs);
+      } catch {
+        // fail open
+      }
+    };
+    run();
+  }, [products, categories, brands, i18n.language, translateBatch]);
+
   // Handle sort
   const requestSort = (key: string) => {
     let direction: 'ascending' | 'descending' = 'ascending';
@@ -776,7 +820,7 @@ const Inventory: React.FC = () => {
             <option value="All">All Categories</option>
             {categories.map((category) => (
               <option key={category.category_id} value={category.slug}>
-                {category.name}
+                {tCategoryNames[category.category_id] || category.name}
               </option>
             ))}
           </select>
@@ -789,7 +833,7 @@ const Inventory: React.FC = () => {
             <option value="All">All Brands</option>
             {brands.map((brand) => (
               <option key={brand.brand_id} value={brand.slug}>
-                {brand.name}
+                {tBrandNames[brand.brand_id] || brand.name}
               </option>
             ))}
           </select>
@@ -827,6 +871,9 @@ const Inventory: React.FC = () => {
                   <MobileProductCard
                     key={product.id}
                     product={product}
+                    tName={tNames[product.id]}
+                    tCategory={product.category ? tCategoryNames[product.category.id] : undefined}
+                    tBrand={product.brand ? tBrandNames[product.brand.id] : undefined}
                     onEditClick={handleEditClick}
                   />
                 ))}
@@ -882,16 +929,16 @@ const Inventory: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-4 py-4 whitespace-normal max-w-48 font-medium text-gray-900">
-                      {product.name}
+                      {tNames[product.id] || product.name}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-gray-500">
                       {product.sku}
                     </td>
                     <td className="px-4 py-4 whitespace-normal max-w-32 text-gray-500">
-                      {product.category?.name || "N/A"}
+                      {(product.category && tCategoryNames[product.category.id]) || product.category?.name || "N/A"}
                     </td>
                     <td className="px-4 py-4 whitespace-normal max-w-32 text-gray-500">
-                      {product.brand?.name || "N/A"}
+                      {(product.brand && tBrandNames[product.brand.id]) || product.brand?.name || "N/A"}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-gray-500">
                       {product.stock_qty}

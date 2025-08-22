@@ -196,6 +196,14 @@ const ProductDetail: React.FC = () => {
     full_desc?: string;
     description?: string;
   }>({});
+  // Additional display-only translated fields
+  const [translatedCategory, setTranslatedCategory] = useState<string | undefined>(undefined);
+  const [translatedBrand, setTranslatedBrand] = useState<string | undefined>(undefined);
+  const [translatedAttrNames, setTranslatedAttrNames] = useState<Record<number, string>>({});
+  const [translatedAttrValues, setTranslatedAttrValues] = useState<Record<string, string>>({});
+  const [translatedVariantNames, setTranslatedVariantNames] = useState<Record<string, string>>({});
+  // Display-only translations for reviews (title/body)
+  const [translatedReviews, setTranslatedReviews] = useState<Record<number, { title?: string; body?: string }>>({});
   const shareDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(shareDropdownRef, () => {
     if (showShareOptions) setShowShareOptions(false);
@@ -428,6 +436,40 @@ const ProductDetail: React.FC = () => {
     }
   }, [productId]);
 
+  // Translate review titles and bodies (display-only)
+  useEffect(() => {
+    const run = async () => {
+      const lang = (i18n.language || 'en').split('-')[0];
+      if (!reviews.length || lang === 'en') {
+        setTranslatedReviews({});
+        return;
+      }
+      try {
+        const items: { id: string; text: string }[] = [];
+        reviews.forEach((r) => {
+          if (r.title) items.push({ id: `t:${r.review_id}`, text: r.title });
+          if (r.body) items.push({ id: `b:${r.review_id}`, text: r.body });
+        });
+        if (!items.length) {
+          setTranslatedReviews({});
+          return;
+        }
+        const map = await translateBatch(items, lang, 'text/plain');
+        const tMap: Record<number, { title?: string; body?: string }> = {};
+        reviews.forEach((r) => {
+          const title = map[`t:${r.review_id}`];
+          const body = map[`b:${r.review_id}`];
+          if (title || body) tMap[r.review_id] = { title, body };
+        });
+        setTranslatedReviews(tMap);
+      } catch (e) {
+        // fail open – keep originals
+        setTranslatedReviews((prev) => prev);
+      }
+    };
+    run();
+  }, [reviews, i18n.language, translateBatch]);
+
   // Translate dynamic content when language changes
   useEffect(() => {
     const doTranslate = async () => {
@@ -435,12 +477,41 @@ const ProductDetail: React.FC = () => {
       const lang = (i18n.language || 'en').split('-')[0];
       if (lang === 'en') {
         setTranslatedText({});
+        setTranslatedCategory(undefined);
+        setTranslatedBrand(undefined);
+        setTranslatedAttrNames({});
+        setTranslatedAttrValues({});
+        setTranslatedVariantNames({});
         return;
       }
       try {
         const plainItems: { id: string; text: string }[] = [];
         if (product.product_name) plainItems.push({ id: 'name', text: product.product_name });
         if (product.meta?.meta_title) plainItems.push({ id: 'meta_title', text: product.meta.meta_title });
+        if (product.category?.name) plainItems.push({ id: 'category_name', text: product.category.name });
+        if (product.brand?.name) plainItems.push({ id: 'brand_name', text: product.brand.name });
+
+        const seenAttrIds = new Set<number>();
+        for (const attr of product.attributes || []) {
+          if (!seenAttrIds.has(attr.attribute_id) && attr.attribute_name) {
+            plainItems.push({ id: `attrName:${attr.attribute_id}`, text: attr.attribute_name });
+            seenAttrIds.add(attr.attribute_id);
+          }
+        }
+        const seenAttrVals = new Set<string>();
+        for (const attr of product.attributes || []) {
+          const displayVal = attr.is_text_based ? attr.value_text : (attr.value_label || attr.value_text);
+          if (displayVal) {
+            const key = `attrVal:${attr.attribute_id}|${attr.value_code || displayVal}`;
+            if (!seenAttrVals.has(key)) {
+              plainItems.push({ id: key, text: displayVal });
+              seenAttrVals.add(key);
+            }
+          }
+        }
+        for (const v of product.variants || []) {
+          if (v?.name) plainItems.push({ id: `variant:${v.id}`, text: v.name });
+        }
 
         const htmlItems: { id: string; text: string }[] = [];
         if (product.meta?.short_desc) htmlItems.push({ id: 'short_desc', text: product.meta.short_desc });
@@ -459,9 +530,34 @@ const ProductDetail: React.FC = () => {
           full_desc: htmlMap['full_desc'] || undefined,
           description: htmlMap['description'] || undefined,
         });
+
+        setTranslatedCategory(plainMap['category_name'] || undefined);
+        setTranslatedBrand(plainMap['brand_name'] || undefined);
+
+        const newAttrNames: Record<number, string> = {};
+        const newAttrValues: Record<string, string> = {};
+        for (const attr of product.attributes || []) {
+          const nk = `attrName:${attr.attribute_id}`;
+          if (plainMap[nk]) newAttrNames[attr.attribute_id] = plainMap[nk];
+          const displayVal = attr.is_text_based ? attr.value_text : (attr.value_label || attr.value_text);
+          if (displayVal) {
+            const vk = `attrVal:${attr.attribute_id}|${attr.value_code || displayVal}`;
+            if (plainMap[vk]) newAttrValues[vk] = plainMap[vk];
+          }
+        }
+        setTranslatedAttrNames(newAttrNames);
+        setTranslatedAttrValues(newAttrValues);
+
+        const vMap: Record<string, string> = {};
+        for (const v of product.variants || []) {
+          const key = `variant:${v.id}`;
+          if (plainMap[key]) vMap[v.id] = plainMap[key];
+        }
+        setTranslatedVariantNames(vMap);
       } catch (e) {
         // Fail open: keep English
         setTranslatedText((prev) => prev);
+        // Keep previous maps as-is
       }
     };
     doTranslate();
@@ -670,7 +766,7 @@ const ProductDetail: React.FC = () => {
             return (
               <div key={groupKey} className="flex flex-wrap items-center gap-4">
                 <div className="text-sm font-medium text-gray-700 min-w-[100px]">
-                  {firstAttr.attribute_name}:
+                  {translatedAttrNames[firstAttr.attribute_id] || firstAttr.attribute_name}:
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {attributes.map((attr) => {
@@ -679,7 +775,9 @@ const ProductDetail: React.FC = () => {
                       : attr.value_label || attr.value_text;
                     const isSelected = selectedValues.includes(currentValue);
 
-                    return (
+          const valKey = `attrVal:${firstAttr.attribute_id}|${attr.value_code || currentValue}`;
+          const displayValue = translatedAttrValues[valKey] || currentValue;
+          return (
                       <button
                         key={attr.attribute_id}
                         onClick={() =>
@@ -694,7 +792,7 @@ const ProductDetail: React.FC = () => {
                             : "border-2 border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50"
                           }`}
                       >
-                        {currentValue}
+            {displayValue}
                       </button>
                     );
                   })}
@@ -710,7 +808,7 @@ const ProductDetail: React.FC = () => {
             return (
               <div key={groupKey} className="flex flex-wrap items-center gap-4">
                 <div className="text-sm font-medium text-gray-700 min-w-[100px]">
-                  {firstAttr.attribute_name}:
+                  {translatedAttrNames[firstAttr.attribute_id] || firstAttr.attribute_name}:
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {attributes.map((attr) => {
@@ -719,7 +817,9 @@ const ProductDetail: React.FC = () => {
                       : attr.value_label || attr.value_text;
                     const isSelected = selectedValue === value;
 
-                    return (
+          const valKey = `attrVal:${firstAttr.attribute_id}|${attr.value_code || value}`;
+          const displayValue = translatedAttrValues[valKey] || value;
+          return (
                       <button
                         key={attr.attribute_id}
                         onClick={() =>
@@ -734,7 +834,7 @@ const ProductDetail: React.FC = () => {
                             : "border-2 border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50"
                           }`}
                       >
-                        {value}
+            {displayValue}
                       </button>
                     );
                   })}
@@ -856,12 +956,16 @@ const ProductDetail: React.FC = () => {
                         className="border-b border-gray-200"
                       >
                         <td className="py-3 pr-4 font-medium text-gray-700">
-                          {attr.attribute_name}
+                          {translatedAttrNames[attr.attribute_id] || attr.attribute_name}
                         </td>
                         <td className="py-3 text-gray-800">
-                          {attr.is_text_based
-                            ? attr.value_text
-                            : attr.value_label || attr.value_text}
+                          {(() => {
+                            const displayVal = attr.is_text_based
+                              ? attr.value_text
+                              : attr.value_label || attr.value_text;
+                            const key = `attrVal:${attr.attribute_id}|${attr.value_code || displayVal}`;
+                            return translatedAttrValues[key] || displayVal;
+                          })()}
                         </td>
                       </tr>
                     ))}
@@ -887,7 +991,7 @@ const ProductDetail: React.FC = () => {
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <h4 className="font-medium text-gray-900">
-                          {review.title}
+                          {translatedReviews[review.review_id]?.title || review.title}
                         </h4>
                         <div className="flex items-center gap-2 mt-1">
                           {renderStars(review.rating)}
@@ -901,7 +1005,7 @@ const ProductDetail: React.FC = () => {
                         {new Date(review.created_at).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="text-gray-700 mt-2">{review.body}</p>
+                    <p className="text-gray-700 mt-2">{translatedReviews[review.review_id]?.body || review.body}</p>
                     {renderReviewImages(review.images)}
                   </div>
                 ))}
@@ -1015,7 +1119,7 @@ const ProductDetail: React.FC = () => {
                   </div>
                 )}
               </div>
-              <h4 className="font-medium text-gray-900 mb-1">{variant.name}</h4>
+              <h4 className="font-medium text-gray-900 mb-1">{translatedVariantNames[variant.id] || variant.name}</h4>
               <p className="text-sm text-gray-500">SKU: {variant.sku}</p>
               <div className="mt-2 flex justify-between items-center">
                 <div>
@@ -1236,11 +1340,11 @@ const ProductDetail: React.FC = () => {
             to={`/category/${product.category?.category_id}`}
             className="text-gray-500 hover:text-primary-600 transition-colors"
           >
-            {product.category?.name}
+            {translatedCategory || product.category?.name}
           </Link>
           <ChevronRight size={12} className="mx-1 text-gray-400" />
           <span className="text-gray-900 font-medium">
-            {product.product_name}
+            {translatedText.name || product.product_name}
           </span>
         </nav>
 
@@ -1374,10 +1478,10 @@ const ProductDetail: React.FC = () => {
 
               <div className="mb-2">
                 <div className="text-sm font-medium mb-1">
-                  Category: {product.category?.name}
+                  Category: {translatedCategory || product.category?.name}
                 </div>
                 <div className="text-sm font-medium mb-1">
-                  Brand: {product.brand?.name}
+                  Brand: {translatedBrand || product.brand?.name}
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   {renderStars(averageRating)}
@@ -1417,18 +1521,30 @@ const ProductDetail: React.FC = () => {
                           (attr) => attr.attribute_id.toString() === attributeId
                         );
                         const attributeName =
+                          (attribute && translatedAttrNames[attribute.attribute_id]) ||
                           attribute?.attribute_name ||
                           `Attribute ${attributeId}`;
                         const displayValues = Array.isArray(values)
                           ? values
                           : [values];
 
+                        const mapSelectedValue = (value: string) => {
+                          if (!attribute) return value;
+                          const match = product.attributes.find((a) => {
+                            const dv = a.is_text_based ? a.value_text : a.value_label || a.value_text;
+                            return a.attribute_id === attribute.attribute_id && dv === value;
+                          });
+                          if (!match) return value;
+                          const key = `attrVal:${match.attribute_id}|${match.value_code || value}`;
+                          return translatedAttrValues[key] || value;
+                        };
+
                         return displayValues.map((value, index) => (
                           <span
                             key={`${attributeId}-${index}`}
                             className="inline-flex items-center px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full font-medium"
                           >
-                            {attributeName}: {value}
+                            {attributeName}: {mapSelectedValue(value)}
                           </span>
                         ));
                       }
@@ -1450,12 +1566,15 @@ const ProductDetail: React.FC = () => {
                         const value = attr.is_text_based
                           ? attr.value_text
                           : attr.value_label || attr.value_text;
+                        const valKey = `attrVal:${attr.attribute_id}|${attr.value_code || value}`;
+                        const displayValue = translatedAttrValues[valKey] || value;
+                        const displayName = translatedAttrNames[attr.attribute_id] || attr.attribute_name;
                         return (
                           <span
                             key={attr.attribute_id}
                             className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full font-medium"
                           >
-                            {attr.attribute_name}: {value}
+                            {displayName}: {displayValue}
                           </span>
                         );
                       })}
