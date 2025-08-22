@@ -6,6 +6,8 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../hooks/useAmazonTranslate';
 
 // Product type for promo products from API
 export type PromoProduct = {
@@ -48,6 +50,7 @@ type Countdown = {
 };
 
 const PromoProducts: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const { addToCart } = useCart();
   const { isAuthenticated, user } = useAuth();
   const {
@@ -63,6 +66,8 @@ const PromoProducts: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [countdowns, setCountdowns] = useState<Record<number, Countdown>>({});
+  const [nameMap, setNameMap] = useState<Record<number, string>>({});
+  const { translateBatch } = useAmazonTranslate();
 
   const {
     containerRef,
@@ -174,6 +179,31 @@ const PromoProducts: React.FC = () => {
     fetchPromoProducts();
   }, []);
 
+  // Translate product names display-only
+  useEffect(() => {
+    const doTranslate = async () => {
+      if (!promoProducts.length) return;
+      const lang = i18n.language;
+      if (!lang || lang.startsWith('en')) { // reset to originals in English
+        setNameMap({});
+        return;
+      }
+      const items = promoProducts.map((p) => ({ id: String(p.product_id), text: p.product_name }));
+      try {
+        const res = await translateBatch(items, lang, 'text/plain');
+        const map: Record<number, string> = {};
+        for (const p of promoProducts) {
+          const tr = res[String(p.product_id)];
+          if (tr) map[p.product_id] = tr;
+        }
+        setNameMap(map);
+      } catch (_) {
+        // fail-open: keep originals
+      }
+    };
+    doTranslate();
+  }, [promoProducts, i18n.language, translateBatch]);
+
   const handleAddToCart = async (e: React.MouseEvent, product: PromoProduct) => {
     e.preventDefault();
     e.stopPropagation();
@@ -253,7 +283,7 @@ const PromoProducts: React.FC = () => {
       <section className="py-8">
         <div className="container mx-auto px-4 xl:px-14">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold font-worksans">Promo Products</h2>
+            <h2 className="text-2xl font-bold font-worksans">{t('home.sections.promoTitle')}</h2>
           </div>
           <div className="flex justify-center items-center h-64 font-worksans">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
@@ -268,12 +298,12 @@ const PromoProducts: React.FC = () => {
       <section className="py-8">
         <div className="container mx-auto px-4 xl:px-14">
           <div className="flex flex-col items-center justify-center h-64 font-worksans">
-            <p className="text-red-500 mb-4">Error loading promo products: {error}</p>
+            <p className="text-red-500 mb-4">{t('common.error')}: {error}</p>
             <button
               onClick={fetchPromoProducts}
               className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
-              Try Again
+              {t('common.retry', 'Try Again')}
             </button>
           </div>
         </div>
@@ -286,10 +316,10 @@ const PromoProducts: React.FC = () => {
       {promoProducts && <div className="container mx-auto px-4 xl:px-14">
         {/* Header with navigation */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-medium font-worksans">Promo Products</h2>
+      <h2 className="text-xl font-medium font-worksans">{t('home.sections.promoTitle')}</h2>
           <div className="flex items-center">
             <Link to="/promo-products" className="text-orange-500 text-sm font-medium mr-3 sm:mr-10 font-worksans">
-              See All
+        {t('home.seeAll')}
             </Link>
             <div className="flex items-center space-x-1 sm:space-x-3">
               <button
@@ -378,7 +408,7 @@ const PromoProducts: React.FC = () => {
                       {/* Product Details */}
                       <div className="md:w-3/5 p-6 flex flex-col justify-between flex-grow">
                         <div>
-                          <p className="font-normal text-sm font-worksans mb-2">{product.product_name}</p>
+                          <p className="font-normal text-sm font-worksans mb-2">{nameMap[product.product_id] || product.product_name}</p>
                           <div className="flex items-baseline mb-4">
                             <span className="text-xl font-bold">₹{product.price.toFixed(2)}</span>
                             {product.originalPrice && product.originalPrice !== product.price && (
@@ -395,25 +425,25 @@ const PromoProducts: React.FC = () => {
                                 <div className="bg-gray-100 p-2 rounded">
                                   <span className="text-base font-medium">{countdown.days}</span>
                                 </div>
-                                <span className="text-xs text-gray-500">Day</span>
+                                <span className="text-xs text-gray-500">{t('home.sections.day')}</span>
                               </div>
                               <div className="text-center">
                                 <div className="bg-gray-100 p-2 rounded">
                                   <span className="text-base font-medium">{countdown.hours}</span>
                                 </div>
-                                <span className="text-xs text-gray-500">Hour</span>
+                                <span className="text-xs text-gray-500">{t('home.sections.hour')}</span>
                               </div>
                               <div className="text-center">
                                 <div className="bg-gray-100 p-2 rounded">
                                   <span className="text-base font-medium">{countdown.minutes.toString().padStart(2, '0')}</span>
                                 </div>
-                                <span className="text-xs text-gray-500">Min</span>
+                                <span className="text-xs text-gray-500">{t('home.sections.minute')}</span>
                               </div>
                               <div className="text-center">
                                 <div className="bg-gray-100 p-2 rounded">
                                   <span className="text-base font-medium">{countdown.seconds.toString().padStart(2, '0')}</span>
                                 </div>
-                                <span className="text-xs text-gray-500">Sec</span>
+                                <span className="text-xs text-gray-500">{t('home.sections.second')}</span>
                               </div>
                             </div>
                           )}
@@ -426,7 +456,7 @@ const PromoProducts: React.FC = () => {
                           disabled={product.stock?.stock_qty === 0 || user?.role === 'merchant' || user?.role === 'admin'}
                         >
                           <ShoppingCart className="w-4 h-4" />
-                          {product.stock?.stock_qty === 0 ? 'Sold Out' : 'Add to Cart'}
+                          {product.stock?.stock_qty === 0 ? t('home.sections.soldOut') : t('home.sections.addToCart')}
                         </button>
                       </div>
                     </div>
