@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ShoppingCart, Plus, Minus, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
 import { useShopCartOperations } from '../../../context/ShopCartContext';
 import { useAuth } from '../../../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../hooks/useAmazonTranslate';
 
 export interface Product {
   id: number;
@@ -38,10 +40,31 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [translatedName, setTranslatedName] = useState('');
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { toggleProductInWishlist, isProductInWishlist, isLoading: wishlistLoading } = useShopWishlistOperations(SHOP_ID);
   const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+
+  // Translate product name on language change (display-only)
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = (i18n.language || 'en').split('-')[0];
+      if (lang === 'en' || !product?.name) {
+        setTranslatedName('');
+        return;
+      }
+      try {
+        const res = await translateBatch([{ id: 'name', text: product.name }], lang, 'text/plain');
+        setTranslatedName(res['name'] || '');
+      } catch {
+        setTranslatedName('');
+      }
+    };
+    doTranslate();
+  }, [product?.name, i18n.language, translateBatch]);
 
   const handleQuantityChange = (change: number) => {
     setQuantity(Math.max(1, quantity + change));
@@ -139,14 +162,14 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
       >
         <img
           src={product.image}
-          alt={product.name}
+          alt={translatedName || product.name}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </div>
       
       {/* Always visible product name and price - hidden on hover */}
       <div className="mt-12 text-center opacity-100 group-hover:opacity-0 transition-opacity duration-300">
-        <h3 className="text-white text-center font-abeezee text-[30px] font-normal leading-[1.2] mb-1 break-words hyphens-auto">{product.name}</h3>
+        <h3 className="text-white text-center font-abeezee text-[30px] font-normal leading-[1.2] mb-1 break-words hyphens-auto">{translatedName || product.name}</h3>
         <p className="mt-4 text-white text-center font-futura text-[25px] font-[450] leading-normal">₹{product.price}</p>
       </div>
       
@@ -154,7 +177,7 @@ const Shop4ProductCardWithWishlist: React.FC<ProductCardProps> = ({
       <div className="absolute bottom-0 left-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
         <div className="rounded-[20px] border-2 border-[#BB9D7B] bg-[#212121] p-6 w-full">
           {/* Product Name */}
-          <h3 className="text-white text-center font-abeezee text-[30px] font-normal leading-[1.2] mb-1 break-words hyphens-auto">{product.name}</h3>
+          <h3 className="text-white text-center font-abeezee text-[30px] font-normal leading-[1.2] mb-1 break-words hyphens-auto">{translatedName || product.name}</h3>
           
           {/* Product Price */}
           <p className="mt-4 text-white text-center font-futura text-[25px] font-[450] leading-normal mb-4">₹{product.price}</p>
