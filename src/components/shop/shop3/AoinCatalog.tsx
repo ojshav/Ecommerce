@@ -5,6 +5,8 @@ import { useAuth } from '../../../context/AuthContext';
 import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
 import { toast } from 'react-hot-toast';
 import shop3ApiService, { Product } from '../../../services/shop3ApiService';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../hooks/useAmazonTranslate';
 
 const SHOP_ID = 3;
 
@@ -13,6 +15,9 @@ const AoinCatalog: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [nameMap, setNameMap] = useState<Record<number, string>>({});
 
   // Wishlist functionality
   const { isAuthenticated, user } = useAuth();
@@ -71,6 +76,33 @@ const AoinCatalog: React.FC = () => {
     fetchProducts();
   }, []);
 
+  // Translate product names (display-only)
+  useEffect(() => {
+    const lang = (i18n.language || 'en').split('-')[0];
+    if (lang === 'en' || products.length === 0) {
+      setNameMap({});
+      return;
+    }
+    const run = async () => {
+      try {
+        const items = products
+          .filter(p => p.product_name)
+          .map(p => ({ id: String(p.product_id), text: p.product_name }));
+        if (items.length === 0) return;
+        const res = await translateBatch(items, lang, 'text/plain');
+        const m: Record<number, string> = {};
+        for (const p of products) {
+          const t = res[String(p.product_id)];
+          if (t) m[p.product_id] = t;
+        }
+        setNameMap(m);
+      } catch {
+        setNameMap({});
+      }
+    };
+    run();
+  }, [products, i18n.language, translateBatch]);
+
   const handleProductClick = (productId: number) => {
     navigate(`/shop3-productpage?id=${productId}`);
   };
@@ -101,7 +133,7 @@ const AoinCatalog: React.FC = () => {
               <div className="block relative">
                 <img
                   src={product.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component5_Image1.svg"}
-                  alt={product.product_name}
+                  alt={nameMap[product.product_id] || product.product_name}
                   width={427}
                   height={500}
                   className="object-cover w-full h-[70vw] sm:h-[400px] md:h-[500px] max-h-[500px] hover:opacity-90 transition-opacity duration-200 rounded-3xl"
@@ -130,7 +162,7 @@ const AoinCatalog: React.FC = () => {
               </div>
               <div className="flex justify-between items-center py-3 sm:py-5 px-1 sm:px-1">
                 <span className="text-white font-bold font-alexandria text-base sm:text-lg md:text-[19px] tracking-wide ">
-                  {product.product_name}
+                  {nameMap[product.product_id] || product.product_name}
                 </span>
                 <span className="text-white font-extrabold text-base sm:text-lg md:text-[22px] font-clash">
                   ${product.special_price || product.price}
@@ -159,7 +191,7 @@ const AoinCatalog: React.FC = () => {
                 <div className="block relative">
                   <img
                     src={product.primary_image || "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component5_Image1.svg"}
-                    alt={product.product_name}
+                    alt={nameMap[product.product_id] || product.product_name}
                     width={427}
                     height={500}
                     className="object-cover w-full h-[500px] hover:opacity-90 transition-opacity duration-200 rounded-3xl"
@@ -188,7 +220,7 @@ const AoinCatalog: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-center py-3 sm:py-5 px-1 sm:px-1">
                   <span className="text-white font-bold font-alexandria text-base sm:text-lg md:text-[19px] tracking-wide ">
-                    {product.product_name}
+                    {nameMap[product.product_id] || product.product_name}
                   </span>
                   <span className="text-white font-extrabold text-base sm:text-lg md:text-[22px] font-clash">
                     ${product.special_price || product.price}

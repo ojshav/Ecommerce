@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../../context/AuthContext';
 import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
 import { useShopCartOperations } from '../../../context/ShopCartContext';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../hooks/useAmazonTranslate';
 
 const SHOP_ID = 3;
 
@@ -43,6 +45,26 @@ const Shop3ProductCard: React.FC<Shop3ProductCardProps> = ({
   const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
   
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [translatedName, setTranslatedName] = useState('');
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = (i18n.language || 'en').split('-')[0];
+      if (lang === 'en' || !name) {
+        setTranslatedName('');
+        return;
+      }
+      try {
+        const res = await translateBatch([{ id: 'name', text: name }], lang, 'text/plain');
+        setTranslatedName(res['name'] || '');
+      } catch {
+        setTranslatedName('');
+      }
+    };
+    doTranslate();
+  }, [name, i18n.language, translateBatch]);
 
   const handleWishlistClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -136,14 +158,14 @@ const Shop3ProductCard: React.FC<Shop3ProductCardProps> = ({
         </button>
         <img
           src={image}
-          alt={name}
+          alt={translatedName || name}
           className="w-full h-full object-cover object-center"
         />
       </div>
       {/* Info: show by default, hide on hover */}
       <div className="w-full flex flex-col items-start font-alexandria mt-6 group-hover:hidden">
         <div className="text-[16px] font-semibold mb-1 truncate">
-          {name}
+          {translatedName || name}
         </div>
         <div className="flex items-center gap-2">
           <span className="text-lime-400 text-base font-bold">
