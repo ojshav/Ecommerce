@@ -18,13 +18,13 @@ import {
   CubeIcon,
   TagIcon,
   ChartBarIcon,
-  UserGroupIcon,
   CogIcon,
   ChatBubbleLeftIcon,
   DocumentChartBarIcon,
   StarIcon,
 } from "@heroicons/react/24/outline";
 import { Package } from "lucide-react";
+import { useTranslation } from "react-i18next";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Modified navigation items - updated Reports section
@@ -71,6 +71,7 @@ const navigationItems = [
 
 const AdminLayout: React.FC = () => {
   const { isAuthenticated, isMerchant, logout, user, accessToken } = useAuth();
+  const { i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -87,6 +88,17 @@ const AdminLayout: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const languageDropdownRef = useRef<HTMLDivElement>(null);
+
+  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+
+  // Language options with flags (same as Navbar)
+  const languageOptions = [
+    { code: "en", label: "English", flag: "🇺🇸" },
+    { code: "hi", label: "हिंदी", flag: "🇮🇳" },
+    { code: "ar", label: "العربية", flag: "🇸🇦" },
+    { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  ];
 
   const [popoverOpenMenus, setPopoverOpenMenus] = useState<{
     [key: string]: boolean;
@@ -94,6 +106,10 @@ const AdminLayout: React.FC = () => {
 
   useClickOutside(profileMenuRef, () => {
     setIsProfileMenuOpen(false);
+  });
+
+  useClickOutside(languageDropdownRef, () => {
+    setIsLanguageDropdownOpen(false);
   });
 
   // Check verification status
@@ -248,6 +264,57 @@ const AdminLayout: React.FC = () => {
 
           {/* Right: Notifications, Profile */}
           <div className="flex items-center space-x-4">
+            {/* Language Switcher */}
+            <div className="relative" ref={languageDropdownRef}>
+              <button
+                onClick={() => setIsLanguageDropdownOpen((v) => !v)}
+                className="flex items-center gap-2 px-3 py-2 text-sm border border-orange-500 rounded-md bg-transparent text-orange-500 hover:bg-orange-500 hover:text-black transition-colors"
+                aria-label="Language Selector"
+              >
+                <span className="text-lg">
+                  {(
+                    languageOptions.find(
+                      (lang) => lang.code === (i18n.language?.split("-")[0] || "en")
+                    )?.flag || "🇺🇸"
+                  )}
+                </span>
+                <span className="text-sm font-medium">
+                  {(
+                    languageOptions.find(
+                      (lang) => lang.code === (i18n.language?.split("-")[0] || "en")
+                    )?.code || "en"
+                  ).toUpperCase()}
+                </span>
+                <ChevronDownIcon className={`h-4 w-4 transition-transform ${isLanguageDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {isLanguageDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-[#ffedd5] ring-1 ring-gray-800 ring-opacity-5 focus:outline-none z-50">
+                  <div className="py-1" role="menu" aria-orientation="vertical">
+                    {languageOptions.map((option) => (
+                      <button
+                        key={option.code}
+                        onClick={() => {
+                          i18n.changeLanguage(option.code);
+                          setIsLanguageDropdownOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-[#fed7aa] transition-colors ${
+                          (i18n.language?.split("-")[0] || "en") === option.code
+                            ? "bg-orange-50 text-orange-700 font-medium"
+                            : "text-orange-800"
+                        }`}
+                      >
+                        <span className="text-lg">{option.flag}</span>
+                        <span>{option.label}</span>
+                        {(i18n.language?.split("-")[0] || "en") === option.code && (
+                          <div className="ml-auto w-2 h-2 bg-orange-500 rounded-full"></div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             {/* Notifications */}
             {/* <div className="relative">
               <button
