@@ -98,12 +98,12 @@ const Footer: React.FC = () => {
                   rel="noopener noreferrer" 
                   className="hover:text-[#F2631F] transition-colors"
                 >
-                  Privacy Policy
+          {t('footer.privacyPolicy')}
                 </a>
               </li>
-              <li><Link to="/cancellation-policy" className="hover:text-[#F2631F] transition-colors">Cancellation Policy</Link></li>
-              <li><Link to="/return-refund" className="hover:text-[#F2631F] transition-colors">Return & Refund</Link></li>
-              <li><Link to="/shipping-delivery" className="hover:text-[#F2631F] transition-colors">Shipping & Delivery Policy</Link></li>
+        <li><Link to="/cancellation-policy" className="hover:text-[#F2631F] transition-colors">{t('footer.cancellationPolicy')}</Link></li>
+        <li><Link to="/return-refund" className="hover:text-[#F2631F] transition-colors">{t('footer.returnRefund')}</Link></li>
+        <li><Link to="/shipping-delivery" className="hover:text-[#F2631F] transition-colors">{t('footer.shippingDelivery')}</Link></li>
             </ul>
           </div>
 
