@@ -1,10 +1,12 @@
-import React, { useMemo, memo, useState } from 'react';
+import React, { useEffect, useMemo, memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart } from 'lucide-react';
 import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
 import { useShopCartOperations } from '../../../context/ShopCartContext';
 import { useAuth } from '../../../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../hooks/useAmazonTranslate';
 
 const SHOP_ID = 1;
 
@@ -21,6 +23,9 @@ const Shop1ProductCard: React.FC<Shop1ProductCardProps> = ({ id, image, category
   const { toggleProductInWishlist, isProductInWishlist, isLoading } = useShopWishlistOperations(SHOP_ID);
   const { addToShopCart, canPerformShopCartOperations } = useShopCartOperations();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [translatedName, setTranslatedName] = useState('');
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
   
   // Use useMemo to avoid unnecessary re-calculations
   const isInWishlist = useMemo(() => isProductInWishlist(id), [isProductInWishlist, id]);
@@ -67,6 +72,24 @@ const Shop1ProductCard: React.FC<Shop1ProductCardProps> = ({ id, image, category
     }
   };
 
+  // Translate display name
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = (i18n.language || 'en').split('-')[0];
+      if (lang === 'en' || !name) {
+        setTranslatedName('');
+        return;
+      }
+      try {
+        const res = await translateBatch([{ id: 'name', text: name }], lang, 'text/plain');
+        setTranslatedName(res['name'] || '');
+      } catch {
+        setTranslatedName('');
+      }
+    };
+    doTranslate();
+  }, [name, i18n.language, translateBatch]);
+
   return (
     <div className="relative rounded-lg flex flex-col items-center p-2 md:p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer group">
       {/* Wishlist Button */}
@@ -96,8 +119,8 @@ const Shop1ProductCard: React.FC<Shop1ProductCardProps> = ({ id, image, category
           alt={name}
           className="w-full max-w-[302px] h-[220px] sm:h-[260px] md:h-[321px] object-contain rounded-md mb-2"
         />
-        <div className="text-[12px] md:text-[14px] text-gray-400 mb-1.5 mt-2 uppercase font-poppins tracking-widest">{category}</div>
-        <div className="font-semibold font-poppins text-center text-[16px] md:text-[18px]">{name}</div>
+  <div className="text-[12px] md:text-[14px] text-gray-400 mb-1.5 mt-2 uppercase font-poppins tracking-widest">{category}</div>
+  <div className="font-semibold font-poppins text-center text-[16px] md:text-[18px]">{translatedName || name}</div>
         <div className="text-red-500 font-poppins font-semibold text-[18px] md:text-[20px]">  ₹{price.toFixed(2)}</div>
       </Link>
       

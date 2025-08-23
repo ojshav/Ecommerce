@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
@@ -36,6 +37,7 @@ export type FeaturedProduct = {
 };
 
 const FeaturedProducts: React.FC = () => {
+  const { t } = useTranslation();
   const [itemsPerView, setItemsPerView] = useState(4);
   const [products, setProducts] = useState<FeaturedProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -139,12 +141,12 @@ const FeaturedProducts: React.FC = () => {
       <section className="pb-12">
         <div className="container mx-auto px-4 xl:px-14">
           <div className="flex flex-col items-center justify-center h-64 font-worksans">
-            <p className="text-red-500 mb-4">Error loading featured products: {error}</p>
+            <p className="text-red-500 mb-4">{t('common.error')}: {error}</p>
             <button 
               onClick={fetchFeaturedProducts}
               className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
-              Try Again
+              {t('common.retry', 'Try Again')}
             </button>
           </div>
         </div>
@@ -157,10 +159,10 @@ const FeaturedProducts: React.FC = () => {
       {products && <div className="container mx-auto px-4 xl:px-14">
         {/* Header with navigation */}
         <div className="flex justify-between items-center mb-6">
-          <h6 className="text-xl font-medium font-worksans">Featured Products</h6>
+      <h6 className="text-xl font-medium font-worksans">{t('home.sections.featuredTitle')}</h6>
           <div className="flex items-center">
             <Link to="/featured-products" className="text-orange-500 text-sm font-medium mr-3 sm:mr-10 font-worksans">
-              See All
+        {t('home.seeAll')}
             </Link>
             <div className="flex items-center space-x-1 sm:space-x-3">
               <button

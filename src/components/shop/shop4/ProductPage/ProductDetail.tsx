@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Minus, ShoppingCart, ChevronDown, ChevronUp, Star, ThumbsUp, ThumbsDown, Heart } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
@@ -11,6 +11,8 @@ import shop4ApiService, {
   ProductVariant, 
   VariantAttribute
 } from '../../../../services/shop4ApiService';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../../hooks/useAmazonTranslate';
 
 // --- StarRating ---
 interface StarRatingProps {
@@ -85,9 +87,11 @@ interface ShopReview {
 
 interface ReviewCardProps {
   review: ShopReview;
+  tTitle?: string;
+  tBody?: string;
 }
 
-const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
+const ReviewCard: React.FC<ReviewCardProps> = ({ review, tTitle, tBody }) => {
   const [helpfulCount, setHelpfulCount] = useState<number>(0);
   const [notHelpfulCount, setNotHelpfulCount] = useState<number>(0);
   const [voted, setVoted] = useState<'helpful' | 'not-helpful' | null>(null);
@@ -136,8 +140,8 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
           
           <div className="lg:pl-4 mt-2">
             {/* Review Headline */}
-            <h4 className="text-white font-semibold text-sm sm:text-base">{review.title}</h4>
-            <p className="text-[#FFF] text-sm sm:text-[14px] font-normal leading-normal font-poppins mb-4">{review.body}</p>
+            <h4 className="text-white font-semibold text-sm sm:text-base">{tTitle || review.title}</h4>
+            <p className="text-[#FFF] text-sm sm:text-[14px] font-normal leading-normal font-poppins mb-4">{tBody || review.body}</p>
             {/* Review Images Thumbnails */}
             {Array.isArray(review.images) && review.images.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-2">
@@ -232,6 +236,10 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ productId, allowedProdu
   // Ratings summary
   const [avgRating, setAvgRating] = useState<number>(0);
   const [reviewCount, setReviewCount] = useState<number>(0);
+  // Display-only translations for review content
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [tReviews, setTReviews] = useState<Record<number, { title?: string; body?: string }>>({});
   const MAX_IMAGES = 5;
   const MAX_BYTES = 5 * 1024 * 1024;
   const readFileAsDataURL = (file: File) => new Promise<string>((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result as string); r.onerror = reject; r.readAsDataURL(file); });
@@ -278,6 +286,36 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ productId, allowedProdu
   useEffect(() => {
     fetchReviews(1);
   }, [productId]);
+
+  // Translate review titles/bodies when language or list changes
+  useEffect(() => {
+    const lang = i18n.language || 'en';
+    if (!reviews.length || lang === 'en') {
+      setTReviews({});
+      return;
+    }
+    const run = async () => {
+      try {
+        const items: { id: string; text: string }[] = [];
+        reviews.forEach(r => {
+          if (r.title) items.push({ id: `t:${r.review_id}`, text: r.title });
+          if (r.body) items.push({ id: `b:${r.review_id}`, text: r.body });
+        });
+        if (!items.length) { setTReviews({}); return; }
+        const map = await translateBatch(items, lang, 'text/plain');
+        const out: Record<number, { title?: string; body?: string }> = {};
+        reviews.forEach(r => {
+          const title = map[`t:${r.review_id}`];
+          const body = map[`b:${r.review_id}`];
+          if (title || body) out[r.review_id] = { title, body };
+        });
+        setTReviews(out);
+      } catch {
+        setTReviews(prev => prev);
+      }
+    };
+    run();
+  }, [reviews, i18n.language, translateBatch]);
 
   // On-click eligibility like other shops
   const handleOpenReview = async () => {
@@ -466,7 +504,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ productId, allowedProdu
               ) : reviews.length > 0 ? (
                 <div className="space-y-6">
                   {reviews.map((review) => (
-                    <ReviewCard key={review.review_id} review={review} />
+                    <ReviewCard key={review.review_id} review={review} tTitle={tReviews[review.review_id]?.title} tBody={tReviews[review.review_id]?.body} />
                   ))}
                   {pages > 1 && (
                     <div className="flex items-center justify-center gap-3 pt-4">
@@ -534,6 +572,8 @@ function ReviewImageViewerShop4() {
 
 // --- Main ProductDetail Component ---
 const ProductDetail: React.FC = () => {
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -560,6 +600,14 @@ const ProductDetail: React.FC = () => {
   const [reviewCountTop, setReviewCountTop] = useState<number>(0);
 
   const productId = searchParams.get('id');
+
+  // --- Display-only translations (Amazon Translate) ---
+  const [tName, setTName] = useState<string | null>(null);
+  const [tCategory, setTCategory] = useState<string | null>(null);
+  const [tAbout, setTAbout] = useState<string | null>(null);
+  const [tAttrNames, setTAttrNames] = useState<Record<string, string>>({});
+  const [tAttrValues, setTAttrValues] = useState<Record<string, string>>({});
+  const [tRelatedNames, setTRelatedNames] = useState<Record<number, string>>({});
 
   // Helper function to get color style similar to Shop1/Shop3
   const getColorStyle = (attributeName: string, value: string): string => {
@@ -860,6 +908,63 @@ const ProductDetail: React.FC = () => {
 
     return elements;
   };
+
+  const availableAttrsMemo = useMemo(() => (product ? extractAvailableAttributes(product) : []), [product]);
+
+  useEffect(() => {
+    const lang = i18n.language || 'en';
+    if (!product || lang === 'en') {
+      setTName(null);
+      setTCategory(null);
+      setTAbout(null);
+      setTAttrNames({});
+      setTAttrValues({});
+      setTRelatedNames({});
+      return;
+    }
+    const plainItems: { id: string; text: string }[] = [];
+    // Product basic
+    if (product.product_name) plainItems.push({ id: 'name', text: product.product_name });
+    if (product.category_name) plainItems.push({ id: 'category', text: product.category_name });
+    const aboutSrc = product.full_description || product.product_description || product.short_description || '';
+    if (aboutSrc) plainItems.push({ id: 'about', text: aboutSrc });
+    // Attributes
+    for (const attr of availableAttrsMemo) {
+      if (attr.name) plainItems.push({ id: `attrName:${attr.name}`, text: attr.name });
+      for (const v of attr.values || []) {
+        if (v) plainItems.push({ id: `attrVal:${attr.name}|${v}`, text: v });
+      }
+    }
+    // Related names
+    for (const rp of relatedProducts) {
+      if (rp?.id && rp?.name) plainItems.push({ id: `rel:${rp.id}`, text: rp.name });
+    }
+    const doTranslate = async () => {
+      try {
+        const plainMap = await translateBatch(plainItems, lang, 'text/plain');
+        setTName(plainMap['name'] ?? null);
+        setTCategory(plainMap['category'] ?? null);
+        setTAbout(plainMap['about'] ?? null);
+        const nMap: Record<string, string> = {};
+        const vMap: Record<string, string> = {};
+        const rMap: Record<number, string> = {};
+        for (const k of Object.keys(plainMap)) {
+          if (k.startsWith('attrName:')) nMap[k.split(':')[1]] = plainMap[k];
+          if (k.startsWith('attrVal:')) vMap[k.substring('attrVal:'.length)] = plainMap[k];
+          if (k.startsWith('rel:')) {
+            const id = Number(k.split(':')[1]);
+            if (!Number.isNaN(id)) rMap[id] = plainMap[k];
+          }
+        }
+        setTAttrNames(nMap);
+        setTAttrValues(vMap);
+        setTRelatedNames(rMap);
+      } catch {
+        // fail open
+      }
+    };
+    doTranslate();
+  }, [product, relatedProducts, i18n.language, translateBatch, availableAttrsMemo]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -1336,12 +1441,12 @@ const ProductDetail: React.FC = () => {
         <div className="w-full lg:w-1/2 p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6">
           {/* Product Category */}
           <div className="text-white text-sm sm:text-base font-normal leading-normal font-['Poppins']">
-            {product.category_name || 'Product Category'}
+            {tCategory || product.category_name || 'Product Category'}
           </div>
 
           {/* Product Title */}
           <h1 className="text-white text-lg sm:text-xl md:text-[26px] font-normal leading-6 sm:leading-3 lg:leading-8 xl:leading-10 font-poppins min-h-[1rem] sm:min-h-0 lg:min-h-[2rem] xl:min-h-[2rem] mb-2 sm:mb-0">
-            {product.product_name}
+            {tName || product.product_name}
           </h1>
 
           {/* Pricing */}
@@ -1391,7 +1496,7 @@ const ProductDetail: React.FC = () => {
                 <div key={attribute.name} className="space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4">
                     <span className="text-xs sm:text-sm md:text-base text-white capitalize">
-                      {attribute.name} :
+                      {tAttrNames[attribute.name] || attribute.name} :
                     </span>
                     
                     {/* Color attributes - show color swatches */}
@@ -1445,7 +1550,7 @@ const ProductDetail: React.FC = () => {
                                   : 'border-2 border-[#BB9D7B] bg-[#BB9D7B] text-white cursor-default opacity-90'
                               }`}
                             >
-                              {value}
+                              {tAttrValues[`${attribute.name}|${value}`] || value}
                             </button>
                           );
                         })}
@@ -1570,9 +1675,9 @@ const ProductDetail: React.FC = () => {
             
             {expandedSections.includes('about') && (
               <div className="text-gray-300 text-xs md:text-sm">
-                {product.full_description || product.product_description || product.short_description ? (
+        {tAbout || product.full_description || product.product_description || product.short_description ? (
                   <div className="leading-relaxed">
-                    {parseMarkdown(product.full_description || product.product_description || product.short_description)}
+          {parseMarkdown(tAbout || product.full_description || product.product_description || product.short_description)}
                   </div>
                 ) : (
                   <p className="leading-relaxed text-gray-400">No product information available.</p>
@@ -1610,10 +1715,10 @@ const ProductDetail: React.FC = () => {
                   key={relatedProduct.id} 
                   className="flex-shrink-0 w-[calc(100vw-2rem)] transition-transform"
                 >
-                  <Shop4ProductCardWithWishlist 
+                    <Shop4ProductCardWithWishlist 
                     product={{
                       id: relatedProduct.id,
-                      name: relatedProduct.name,
+                      name: tRelatedNames[relatedProduct.id] || relatedProduct.name,
                       price: typeof relatedProduct.price === 'string' ? parseFloat(relatedProduct.price) : relatedProduct.price,
                       discount: relatedProduct.discount,
                       image: relatedProduct.image
@@ -1634,7 +1739,7 @@ const ProductDetail: React.FC = () => {
                 <Shop4ProductCardWithWishlist 
                   product={{
                     id: relatedProduct.id,
-                    name: relatedProduct.name,
+                    name: tRelatedNames[relatedProduct.id] || relatedProduct.name,
                     price: typeof relatedProduct.price === 'string' ? parseFloat(relatedProduct.price) : relatedProduct.price,
                     discount: relatedProduct.discount,
                     image: relatedProduct.image

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, ShoppingCart } from "lucide-react";
 import { Product } from "../../types";
@@ -6,6 +6,8 @@ import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
+import { useAmazonTranslate } from "../../hooks/useAmazonTranslate";
 
 interface ProductCardProps {
   product: Product;
@@ -30,6 +32,27 @@ const ProductCard: React.FC<ProductCardProps> = ({
     wishlistItems,
   } = useWishlist();
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate(import.meta.env.VITE_API_BASE_URL);
+  const [translatedName, setTranslatedName] = useState<string>('');
+
+  // Translate product name when language changes
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = (i18n.language || 'en').split('-')[0];
+      if (lang === 'en' || !product.name) {
+        setTranslatedName('');
+        return;
+      }
+      try {
+        const result = await translateBatch([{ id: 'name', text: product.name }], lang, 'text/plain');
+        setTranslatedName(result['name'] || '');
+      } catch (e) {
+        setTranslatedName('');
+      }
+    };
+    doTranslate();
+  }, [product.name, i18n.language, translateBatch]);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -220,7 +243,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="p-4 flex flex-col flex-grow">
         <Link to={`/product/${product.id}`} className="block">
           <h3 className="text-sm font-normal mb-1 line-clamp-2 font-['Work_Sans']">
-            {product.name}
+            {translatedName || product.name}
           </h3>
           {/* <p className="text-xs text-gray-500">
             SKU: {product.sku}

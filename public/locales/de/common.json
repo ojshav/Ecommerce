@@ -1,0 +1,506 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "allProducts": "Alle Produkte",
+    "newProduct": "Neues Produkt",
+    "promotion": "Aktionen",
+    "trackOrder": "Bestellung verfolgen",
+    "signInRegister": "Anmelden/Registrieren",
+    "wishlist": "Wunschliste",
+    "cart": "Warenkorb",
+    "account": "Konto",
+    "becomeMerchant": "Händler werden",
+    "category": "Kategorie",
+    "searchPlaceholder": "Wonach suchst du?",
+    "search": "Suchen",
+    "menu": "Menü",
+    "aoinLive": "Aoin Live"
+  },
+  "home": {
+    "searchPlaceholder": "Wonach suchst du?",
+    "searchButton": "Suchen",
+    "searchCategories": {
+      "all": "Alle",
+      "products": "Produkte",
+      "categories": "Kategorien"
+    },
+    "seeAll": "Alle ansehen",
+    "sections": {
+      "categoriesTitle": "Einkaufen nach Kategorien",
+      "brandsTitle": "Einkaufen nach Marken",
+      "featuredTitle": "Empfohlene Produkte",
+      "promoTitle": "Promo-Produkte",
+      "trendingTitle": "Trendangebote",
+      "day": "Tag",
+      "hour": "Stunde",
+      "minute": "Min",
+      "second": "Sek",
+      "soldOut": "Ausverkauft",
+      "addToCart": "In den Warenkorb",
+      "innovationWindowTitle": "DAS INNOVATIONSFENSTER",
+      "innovationWindowHours": "Täglich von 9 bis 22 Uhr",
+      "innovationWindowDescription": "Jeden Tag von 9 bis 10 öffnet AOIN seine Türen und bietet exklusive, handverlesene Produkte nur für kurze Zeit an.",
+      "currentTime": "Aktuelle Zeit:",
+      "status": "Status:",
+      "open": "OFFEN",
+      "closed": "GESCHLOSSEN",
+      "timeLeft": "Verbleibende Zeit :"
+    }
+  },
+  "cart": {
+    "title": "Ihr Warenkorb",
+    "empty": "Ihr Warenkorb ist leer",
+    "continueShopping": "Einkauf fortsetzen",
+    "clearCart": "Warenkorb leeren",
+    "checkout": "Zur Kasse",
+    "product": "Produkt",
+    "price": "Preis",
+    "quantity": "Menge",
+    "subTotal": "Zwischensumme",
+    "clearing": "Wird geleert...",
+    "clearCartModal": {
+      "title": "Warenkorb leeren",
+      "message": "Sind Sie sicher, dass Sie Ihren gesamten Warenkorb leeren möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Warenkorb leeren",
+      "cancel": "Abbrechen"
+    }
+  },
+  "wishlist": {
+    "title": "Meine Wunschliste",
+    "empty": "Ihre Wunschliste ist leer",
+    "emptyDescription": "Speichern Sie Ihre Lieblingsprodukte in Ihrer Wunschliste, um Artikel im Auge zu behalten, die Sie lieben und später kaufen möchten.",
+    "browseProducts": "Produkte durchsuchen",
+    "continueShopping": "Einkauf fortsetzen",
+    "loading": "Ihre Wunschliste wird geladen...",
+    "item": "Artikel",
+    "items": "Artikel"
+  },
+  "contact": {
+    "title": "Themen durchsuchen",
+    "needMoreHelp": "Benötigen Sie weitere Hilfe?",
+    "chatWithUs": "Mit uns chatten",
+    "getInstantHelp": "Sofortige Hilfe erhalten",
+    "chat": "Chat",
+    "backToTopics": "Zurück zu den Themen",
+    "gettingHelpEasy": "Hilfe zu bekommen ist einfach",
+    "signInForHelp": "Melden Sie sich an, um Hilfe bei aktuellen Bestellungen zu erhalten",
+    "signIn": "Anmelden",
+    "topics": {
+      "order": "Bestellbezogen",
+      "shopping": "Einkaufen",
+      "account": "AOIN Konto", 
+      "payments": "Zahlungen",
+      "sell": "Auf AOIN verkaufen",
+      "others": "Andere"
+    }
+  },
+  "footer": {
+    "shop": "Shop",
+    "newProduct": "Neues Produkt",
+    "liveShop": "Live Shop",
+    "promotion": "Aktionen",
+    "policies": "Richtlinien",
+    "privacyPolicy": "Datenschutzrichtlinie",
+    "cancellationPolicy": "Stornierungsrichtlinie",
+    "returnRefund": "Rückgabe & Erstattung",
+    "shippingDelivery": "Versand- & Lieferrichtlinie",
+    "customerSupport": "Kundensupport",
+    "callUs": "Rufen Sie uns an unter",
+    "faq": "Häufig gestellte Fragen",
+    "contactUs": "Kontaktieren Sie uns",
+    "termsConditions": "Allgemeine Geschäftsbedingungen",
+    "shippingMethods": "Versandmethoden",
+    "mailUs": "Mailen Sie uns unter",
+    "followUs": "Folgen Sie uns",
+    "enterEmail": "Geben Sie Ihre E-Mail ein",
+    "submit": "Absenden",
+    "submitting": "Wird gesendet...",
+    "newsletterDescription": "Erhalten Sie unsere neuesten Updates zu unseren Produkten und Aktionen",
+    "allRightsReserved": "Alle Rechte vorbehalten"
+  },
+  "services": {
+    "freeShipping": {
+      "title": "Kostenloser Versand",
+      "description": "Für Rechnungen über $1.500"
+    },
+    "cashBack": {
+      "title": "Cashback", 
+      "description": "Bei Zahlung für Produkte über Dasun Wallet"
+    },
+    "support": {
+      "title": "24/7 Support",
+      "description": "Wenn etwas schief geht"
+    }
+  },
+  "payment": {
+    "title": "Zahlungsinformationen",
+    "continueShopping": "Einkauf fortsetzen",
+    "savedAddresses": "Gespeicherte Adressen",
+    "savedCards": "Gespeicherte Karten",
+    "noSavedCards": "Keine gespeicherten Karten gefunden",
+    "addNewCard": "Neue Karte hinzufügen",
+    "fullName": "Vollständiger Name",
+    "phoneNumber": "Telefonnummer",
+    "city": "Stadt",
+    "stateProvince": "Bundesland/Provinz",
+    "postalCode": "Postleitzahl",
+    "country": "Land",
+    "address": "Adresse",
+    "landmark": "Orientierungspunkt (Optional)",
+    "deliveryToAnother": "Lieferung an eine andere Adresse?",
+    "note": "Notiz",
+    "noteAboutOrder": "Notiz zu Ihren Bestellungen",
+    "saveAddress": "Adresse speichern",
+    "yourOrder": "Ihre Bestellung",
+    "paymentMethod": "Zahlungsmethode",
+    "creditCard": "Kreditkarte",
+    "debitCard": "Debitkarte",
+    "cashOnDelivery": "Nachnahme",
+    "placeOrder": "Bestellung aufgeben",
+    "processing": "Wird verarbeitet...",
+    "selectAddress": "Bitte wählen Sie eine Versandadresse",
+    "selectCard": "Bitte wählen Sie eine Zahlungskarte",
+    "cardNumber": "Kartennummer",
+    "expiryDate": "Ablaufdatum",
+    "cvv": "CVV",
+    "cardHolderName": "Name des Karteninhabers",
+    "cardType": "Kartentyp",
+    "setAsDefault": "Als Standard-Zahlungsmethode festlegen",
+    "saving": "Wird gespeichert...",
+    "saveCard": "Karte speichern",
+    "defaultShipping": "Standard-Versand",
+    "defaultBilling": "Standard-Rechnung",
+    "editAddress": "Adresse bearbeiten",
+    "deleteAddress": "Adresse löschen",
+    "setAsDefaultCard": "Als Standard festlegen",
+    "deleteCard": "Karte löschen",
+    "invalidPostalCode": "Ungültiges Postleitzahlenformat für",
+    "enterPostalCode": "Postleitzahl eingeben für"
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "subtitle": "Finden Sie Antworten auf häufige Fragen zu unseren Dienstleistungen, Versand, Rückgaben und mehr.",
+    "contact": "Haben Sie noch Fragen? Kontaktieren Sie uns unter",
+    "questions": {
+      "payment": {
+        "question": "Welche Zahlungsmethoden akzeptieren Sie?",
+        "answer": "Wir akzeptieren eine Vielzahl von Zahlungsmethoden einschließlich Kredit-/Debitkarten (Visa, MasterCard, American Express), PayPal und Banküberweisungen. Alle Transaktionen sind sicher und verschlüsselt, um den Schutz Ihrer Zahlungsinformationen zu gewährleisten."
+      },
+      "shipping": {
+        "question": "Wie lange dauert der Versand?",
+        "answer": "Die Versandzeiten variieren je nach Ihrem Standort und der gewählten Versandmethode. Inlandsbestellungen kommen normalerweise innerhalb von 3-5 Werktagen an, während internationale Bestellungen 7-14 Werktage dauern können. Express-Versandoptionen sind beim Checkout für schnellere Lieferung verfügbar."
+      },
+      "returns": {
+        "question": "Wie lautet Ihre Rückgaberichtlinie?",
+        "answer": "Wir bieten eine 30-Tage-Rückgaberichtlinie für die meisten Artikel. Produkte müssen unbenutzt und in ihrer Originalverpackung sein. Um eine Rückgabe zu initiieren, kontaktieren Sie bitte unser Kundenservice-Team über Ihr Konto-Dashboard. Sobald Ihre Rückgabe genehmigt ist, stellen wir ein vorausbezahltes Versandetikett zur Verfügung und bearbeiten Ihre Rückerstattung innerhalb von 5-7 Werktagen nach Erhalt des zurückgesendeten Artikels."
+      },
+      "international": {
+        "question": "Bieten Sie internationalen Versand an?",
+        "answer": "Ja, wir versenden in die meisten Länder weltweit. Internationale Versandkosten und Lieferzeiten variieren je nach Standort. Sie können die genauen Versandkosten und geschätzte Lieferzeit sehen, indem Sie Ihre Adresse beim Checkout eingeben. Bitte beachten Sie, dass zusätzliche Zollgebühren oder Importzölle je nach Ihrem Land anfallen können."
+      },
+      "tracking": {
+        "question": "Wie kann ich meine Bestellung verfolgen?",
+        "answer": "Sobald Ihre Bestellung versendet wird, erhalten Sie eine Bestätigungs-E-Mail mit einer Tracking-Nummer. Sie können diese Nummer verwenden, um Ihr Paket auf unserer Website oder über das Tracking-System des Spediteurs zu verfolgen. Sie können auch Ihren Bestellstatus und Tracking-Informationen in Ihrem Konto-Dashboard einsehen."
+      }
+    }
+  },
+  "privacy": {
+    "title": "Datenschutzrichtlinie",
+    "subtitle": "Bei AUIN sind wir dem Schutz Ihrer Privatsphäre und der Sicherheit Ihrer persönlichen Daten verpflichtet. Diese Richtlinie erklärt, wie wir Ihre Daten sammeln, verwenden und schützen, wenn Sie bei uns einkaufen.",
+    "lastUpdated": "Zuletzt aktualisiert",
+    "sections": {
+      "introduction": {
+        "title": "Einführung",
+        "content": "Willkommen bei AUIN, Ihrem vertrauenswürdigen Ziel für Mode, Technologie und Lifestyle-Produkte. Wir sind dem Schutz Ihrer persönlichen Daten und Ihrem Recht auf Privatsphäre verpflichtet. Diese Datenschutzrichtlinie erklärt, wie wir Ihre Informationen sammeln, verwenden und teilen, wenn Sie unsere Website besuchen, unsere mobile App nutzen, Einkäufe tätigen oder mit unseren Diensten interagieren."
+      },
+      "informationCollection": {
+        "title": "Informationen, die wir sammeln",
+        "content": "Wir sammeln Informationen, die Sie uns direkt zur Verfügung stellen, und Informationen, die automatisch gesammelt werden, wenn Sie unsere Dienste nutzen."
+      },
+      "informationUse": {
+        "title": "Wie wir Ihre Informationen verwenden",
+        "content": "Wir verwenden Ihre Informationen, um unsere Dienste bereitzustellen, zu verbessern und zu personalisieren"
+      },
+      "informationSharing": {
+        "title": "Wie wir Ihre Informationen teilen",
+        "content": "Wir können Ihre Informationen mit vertrauenswürdigen Partnern und Dienstleistern teilen"
+      },
+      "cookies": {
+        "title": "Cookies und Tracking-Technologien",
+        "content": "Wir verwenden Cookies und ähnliche Technologien, um Ihr Einkaufserlebnis zu verbessern und personalisierten Inhalt bereitzustellen."
+      },
+      "privacyRights": {
+        "title": "Ihre Datenschutzrechte",
+        "content": "Je nach Ihrem Standort haben Sie möglicherweise die folgenden Rechte bezüglich Ihrer persönlichen Daten"
+      },
+      "dataSecurity": {
+        "title": "Datensicherheit",
+        "content": "Wir implementieren branchenübliche Sicherheitsmaßnahmen zum Schutz Ihrer persönlichen Daten"
+      },
+      "childrensPrivacy": {
+        "title": "Datenschutz für Kinder",
+        "content": "AUINs Dienste sind nicht für Kinder unter 16 Jahren bestimmt. Wir sammeln wissentlich keine persönlichen Daten von Kindern unter 16 Jahren."
+      },
+      "internationalTransfers": {
+        "title": "Internationale Datenübertragungen",
+        "content": "AUIN operiert global und kann Ihre Informationen in andere Länder als Ihr eigenes übertragen."
+      },
+      "policyUpdates": {
+        "title": "Updates dieser Richtlinie",
+        "content": "Wir können diese Datenschutzrichtlinie von Zeit zu Zeit aktualisieren, um Änderungen in unseren Praktiken, Technologien, rechtlichen Anforderungen oder anderen Faktoren widerzuspiegeln."
+      },
+      "contactUs": {
+        "title": "Kontaktieren Sie uns",
+        "content": "Wenn Sie Fragen zu dieser Datenschutzrichtlinie oder unseren Datenpraktiken haben, kontaktieren Sie uns bitte"
+      }
+    }
+  },
+  "shipping": {
+    "title": "AUIN Versandrichtlinie",
+    "lastUpdated": "Zuletzt aktualisiert",
+    "overview": {
+      "freeShipping": {
+        "title": "Premium Kostenloser Versand",
+        "description": "Für alle Bestellungen über $75 innerhalb der Vereinigten Staaten"
+      },
+      "fastProcessing": {
+        "title": "Schnelle Bearbeitung",
+        "description": "Bearbeitung am selben Tag für Bestellungen vor 14:00 Uhr EST"
+      },
+      "international": {
+        "title": "Internationaler Versand",
+        "description": "Verfügbar in über 100 Ländern weltweit"
+      },
+      "customs": {
+        "title": "Zoll & Abgaben",
+        "description": "Können bei internationalen Bestellungen anfallen"
+      }
+    },
+    "methods": {
+      "title": "Versandmethoden",
+      "standard": {
+        "title": "AUIN Standard-Versand",
+        "description": "Lieferung in 3-5 Werktagen innerhalb der kontinentalen Vereinigten Staaten.",
+        "features": [
+          "Kostenlos für Bestellungen über $75",
+          "$6,95 für Bestellungen unter $75"
+        ]
+      },
+      "express": {
+        "title": "AUIN Express-Versand",
+        "description": "Lieferung in 2 Werktagen innerhalb der kontinentalen Vereinigten Staaten.",
+        "features": [
+          "$12,95 Pauschalpreis für alle Bestellungen",
+          "Bestellung muss vor 14:00 Uhr EST für Bearbeitung am selben Tag aufgegeben werden"
+        ]
+      },
+      "overnight": {
+        "title": "AUIN Priority Overnight",
+        "description": "Lieferung am nächsten Werktag innerhalb der kontinentalen Vereinigten Staaten.",
+        "features": [
+          "$24,95 Pauschalpreis für alle Bestellungen",
+          "Bestellung muss vor 13:00 Uhr EST für Bearbeitung am selben Tag aufgegeben werden",
+          "Nicht verfügbar für Postfächer oder APO/FPO-Adressen"
+        ]
+      },
+      "international": {
+        "title": "Internationaler Versand",
+        "description": "Lieferung in über 100 Länder weltweit.",
+        "features": [
+          "Standard International: $14,99, Lieferung in 7-14 Werktagen",
+          "Express International: $29,99, Lieferung in 3-5 Werktagen",
+          "Zollgebühren und Steuern können anfallen und liegen in der Verantwortung des Empfängers"
+        ]
+      }
+    },
+    "processing": {
+      "title": "Bestellbearbeitung",
+      "description": "Alle Bestellungen werden innerhalb von 1-2 Werktagen ab dem Zeitpunkt des Kaufs bearbeitet. Bestellungen am Wochenende oder an Feiertagen werden am nächsten Werktag bearbeitet.",
+      "confirmation": "Sobald Ihre Bestellung bearbeitet und versendet wurde, erhalten Sie eine Bestätigungs-E-Mail mit Tracking-Informationen."
+    },
+    "restrictions": {
+      "title": "Versandbeschränkungen",
+      "description": "Einige Produkte können aufgrund von Vorschriften nicht an bestimmte Orte versendet werden. Wenn dies für einen Artikel in Ihrer Bestellung zutrifft, benachrichtigen wir Sie.",
+      "poBoxes": "Wir versenden nicht an Postfächer oder bestimmte große Artikel an APO/FPO-Adressen."
+    },
+    "delays": {
+      "title": "Versandverzögerungen",
+      "description": "Obwohl wir uns bemühen, Bestellungen gemäß den geschätzten Lieferzeiten zu versenden und zu liefern, kann es gelegentlich zu Verzögerungen durch Wetter, Zoll oder andere Umstände außerhalb unserer Kontrolle kommen.",
+      "contact": "Wenn Ihre Bestellung erhebliche Verzögerungen erfährt, kontaktieren Sie uns bitte per E-Mail oder Telefon."
+    },
+    "support": {
+      "title": "Fragen zu Ihrer Sendung?",
+      "description": "Unser spezielles Versand-Support-Team ist hier, um zu helfen"
+    },
+    "sections": {
+      "orderProcessing": {
+        "title": "Bestellbearbeitung",
+        "content": "Alle Bestellungen werden innerhalb von 1-2 Werktagen ab dem Zeitpunkt des Kaufs bearbeitet. Bestellungen, die an Wochenenden oder Feiertagen aufgegeben werden, werden am nächsten Werktag bearbeitet."
+      },
+      "restrictions": {
+        "title": "Versandbeschränkungen",
+        "content": "Einige Produkte können aufgrund von Vorschriften nicht an bestimmte Orte versendet werden. Wenn dies für einen Artikel in Ihrer Bestellung gilt, werden wir Sie benachrichtigen."
+      },
+      "delays": {
+        "title": "Versandverzögerungen",
+        "content": "Obwohl wir uns bemühen, Bestellungen gemäß den geschätzten Lieferzeiten zu versenden und zu liefern, kann es gelegentlich zu Verzögerungen aufgrund von Wetterbedingungen, Zollproblemen oder anderen Umständen außerhalb unserer Kontrolle kommen."
+      },
+      "questions": {
+        "title": "Fragen zu Ihrer Sendung?",
+        "content": "Unser spezielles Versand-Support-Team ist hier, um zu helfen"
+      }
+    }
+  },
+  "terms": {
+    "title": "Allgemeine Geschäftsbedingungen",
+    "lastUpdated": "Zuletzt aktualisiert",
+    "introduction": "Willkommen bei AUIN, Ihrem vertrauenswürdigen Ziel für Mode, Technologie und Lifestyle-Produkte. Diese Allgemeinen Geschäftsbedingungen regeln Ihre Nutzung der AUIN-Website, mobilen Anwendungen und Dienste. Durch den Zugriff auf oder die Nutzung unserer Plattform stimmen Sie zu, an diese Bedingungen gebunden zu sein.",
+    "sections": {
+      "acceptance": {
+        "title": "Annahme der Bedingungen",
+        "content": [
+          "Durch den Zugriff auf oder die Nutzung der AUIN-Website, mobilen Anwendungen oder anderer Funktionen, Technologien oder Funktionalitäten, die von AUIN auf unserer Plattform oder über andere Mittel angeboten werden (zusammenfassend 'Dienste'), stimmen Sie zu, an diese Allgemeinen Geschäftsbedingungen gebunden zu sein. Wenn Sie nicht mit einem Teil dieser Bedingungen einverstanden sind, dürfen Sie nicht auf unsere Dienste zugreifen oder diese nutzen.",
+          "Diese Bedingungen gelten für alle Besucher, Nutzer und andere, die auf unsere Dienste zugreifen oder diese nutzen. Durch die Nutzung unserer Dienste bestätigen Sie, dass Sie mindestens 18 Jahre alt sind oder die elterliche Zustimmung zur Nutzung unserer Dienste haben."
+        ]
+      },
+      "changes": {
+        "title": "Änderungen der Bedingungen",
+        "content": "Wir behalten uns das Recht vor, diese Bedingungen jederzeit zu ändern. Wir werden über wesentliche Änderungen informieren, indem wir das Datum 'Zuletzt aktualisiert' oben auf dieser Seite aktualisieren und die aktualisierten Bedingungen auf unserer Website veröffentlichen. Ihre fortgesetzte Nutzung der Dienste nach solchen Änderungen stellt Ihre Anerkennung und Annahme der geänderten Bedingungen dar."
+      },
+      "account": {
+        "title": "Kontoregistrierung",
+        "content": [
+          "Um auf bestimmte Funktionen unserer Dienste zuzugreifen, müssen Sie sich möglicherweise für ein Konto registrieren. Sie stimmen zu, während des Registrierungsprozesses genaue, aktuelle und vollständige Informationen bereitzustellen und diese Informationen zu aktualisieren, um sie genau, aktuell und vollständig zu halten.",
+          "Sie sind verantwortlich für den Schutz Ihres Passworts und für alle Aktivitäten, die unter Ihrem Konto stattfinden. Sie stimmen zu, AUIN unverzüglich über jede unbefugte Nutzung Ihres Kontos oder andere Sicherheitsverletzungen zu informieren.",
+          "Sie dürfen kein Konto für jemand anderen als sich selbst erstellen und Sie dürfen nicht mehr als ein Konto pro Person erstellen. Wir behalten uns das Recht vor, Konten zu kündigen, die gegen diese Bedingungen verstoßen."
+        ]
+      },
+      "conduct": {
+        "title": "Nutzerverhalten",
+        "introduction": "Bei der Nutzung unserer Dienste stimmen Sie zu, Folgendes zu unterlassen:",
+        "rules": [
+          "Verstoß gegen geltende Gesetze oder Vorschriften",
+          "Verletzung der Rechte anderer, einschließlich geistiger Eigentumsrechte",
+          "Nutzung der Dienste für illegale oder unbefugte Zwecke",
+          "Beeinträchtigung oder Störung der Dienste oder der mit den Diensten verbundenen Server oder Netzwerke",
+          "Versuch, unbefugten Zugriff auf Teile der Dienste zu erlangen",
+          "Verwendung von Robotern, Spider, Scraper oder anderen automatisierten Mitteln zum Zugriff auf die Dienste",
+          "Erstellung oder Übermittlung unerwünschter E-Mails, Kommentare oder anderer Formen kommerzieller oder belästigender Kommunikation",
+          "Vortäuschung einer anderen Person oder Entität oder falsche Darstellung Ihrer Zugehörigkeit zu einer Person oder Entität",
+          "Hochladen, Veröffentlichen oder Übermitteln von Inhalten, die schädlich, bedrohlich, beleidigend oder anstößig sind",
+          "Versuch, Sicherheitsmaßnahmen oder Zugangskontrollen zu umgehen"
+        ]
+      },
+      "products": {
+        "title": "Produkte und Dienstleistungen",
+        "content": [
+          "AUIN ist bestrebt, Produktbeschreibungen, Bilder und Preise so genau wie möglich darzustellen. Wir garantieren jedoch nicht, dass alle Informationen vollständig oder korrekt sind. Produktbilder dienen nur zur Veranschaulichung und entsprechen möglicherweise nicht genau dem tatsächlichen Aussehen des Produkts.",
+          "Im Falle eines Preisfehlers behält sich AUIN das Recht vor, Bestellungen für Produkte abzulehnen oder zu stornieren, die mit einem falschen Preis aufgeführt sind. Wir werden Sie benachrichtigen, wenn Ihre Bestellung von einem Preisfehler betroffen ist.",
+          "Die Verfügbarkeit von Produkten und die auf unserer Website angegebenen Lieferzeiten sind nur Schätzungen und nicht garantiert. Wir behalten uns das Recht vor, die Mengen der von uns angebotenen Produkte zu begrenzen und Produkte jederzeit einzustellen."
+        ]
+      },
+      "orderingPayment": {
+        "title": "Bestellung und Zahlung",
+        "content": [
+          "Wenn Sie eine Bestellung aufgeben, bieten Sie an, das Produkt zum angegebenen Preis zu kaufen. Unsere Annahme Ihrer Bestellung erfolgt, wenn wir Ihnen eine Bestellbestätigungs-E-Mail senden.",
+          "Sie stimmen zu, für alle über unsere Website getätigten Käufe aktuelle, vollständige und genaue Kauf- und Kontoinformationen bereitzustellen. Sie stimmen zu, Ihr Konto und andere Informationen, einschließlich Ihrer E-Mail-Adresse und Kreditkarteninformationen, umgehend zu aktualisieren, damit wir Ihre Transaktionen abschließen und Sie bei Bedarf kontaktieren können.",
+          "Alle Zahlungen müssen zum Zeitpunkt des Kaufs vollständig geleistet werden. Wir akzeptieren verschiedene Zahlungsmethoden, einschließlich Kreditkarten, Debitkarten und digitale Wallets. Die Zahlungsabwicklung erfolgt durch sichere Drittanbieter."
+        ]
+      },
+      "shippingDelivery": {
+        "title": "Versand und Lieferung",
+        "content": [
+          "AUIN wird sich bemühen, Produkte innerhalb der geschätzten Zeitrahmen zu versenden. Versandzeiten sind jedoch Schätzungen und keine Garantien. AUIN ist nicht verantwortlich für Verzögerungen aufgrund von Spediteurproblemen, Wetter, Zoll oder anderen Umständen außerhalb unserer Kontrolle.",
+          "Weitere Informationen zu unseren Versandpraktiken finden Sie in unserer Versandrichtlinie."
+        ]
+      },
+      "returnsRefunds": {
+        "title": "Rückgaben und Rückerstattungen",
+        "content": [
+          "AUIN bietet für die meisten Artikel eine 30-tägige Rückgaberichtlinie. Einige Produkte haben spezifische Rückgabebedingungen, die in der Produktbeschreibung oder in unserer Rückgabe- und Rückerstattungsrichtlinie angegeben sind.",
+          "Für detaillierte Informationen zu unserem Rückgabeprozess, berechtigten Artikeln und Rückerstattungsmethoden lesen Sie bitte unsere Rückgabe- und Rückerstattungsrichtlinie."
+        ]
+      },
+      "intellectualProperty": {
+        "title": "Geistiges Eigentum",
+        "content": [
+          "Die Dienste und alle Inhalte, einschließlich, aber nicht beschränkt auf Text, Bilder, Grafiken, Logos, Symbole, Audioclips und Software, sind Eigentum von AUIN oder seinen Inhaltsanbietern und durch US-amerikanische und internationale Urheberrechts-, Marken- und andere Gesetze zum geistigen Eigentum geschützt.",
+          "Die auf unseren Diensten verwendeten und angezeigten Warenzeichen, Dienstleistungsmarken und Logos sind eingetragene und nicht eingetragene Marken von AUIN und anderen. Nichts auf unseren Diensten ist so auszulegen, dass es eine Lizenz oder ein Recht zur Nutzung von Marken ohne die vorherige schriftliche Genehmigung von AUIN gewährt.",
+          "Sie dürfen keine Informationen, die Sie über unsere Dienste erhalten, ohne unsere vorherige schriftliche Zustimmung kopieren, reproduzieren, verbreiten, übertragen, anzeigen, aufführen, veröffentlichen, lizenzieren, abgeleitete Werke erstellen, übertragen oder verkaufen."
+        ]
+      },
+      "disclaimer": {
+        "title": "Haftungsausschluss für Garantien",
+        "content": [
+          "DIE DIENSTE UND ALLE INFORMATIONEN, INHALTE, MATERIALIEN, PRODUKTE UND DIENSTLEISTUNGEN, DIE IN DEN DIENSTEN ENTHALTEN ODER IHNEN ANDERWEITIG ZUR VERFÜGUNG GESTELLT WERDEN, WERDEN AUF \"WIE BESEHEN\"- UND \"WIE VERFÜGBAR\"-BASIS BEREITGESTELLT, SOFERN NICHT SCHRIFTLICH ANDERS ANGEGEBEN. AUIN MACHT KEINE ZUSICHERUNGEN ODER GARANTIEN IRGENDEINER ART, AUSDRÜCKLICH ODER STILLSCHWEIGEND, HINSICHTLICH DES BETRIEBS DER DIENSTE ODER DER INFORMATIONEN, INHALTE, MATERIALIEN, PRODUKTE ODER DIENSTLEISTUNGEN, DIE IN DEN DIENSTEN ENTHALTEN ODER IHNEN ANDERWEITIG ZUR VERFÜGUNG GESTELLT WERDEN.",
+          "IM VOLL ZULÄSSIGEN GESETZLICHEN UMFANG LEHNT AUIN ALLE GARANTIEN, AUSDRÜCKLICH ODER STILLSCHWEIGEND, AB, EINSCHLIESSLICH, ABER NICHT BESCHRÄNKT AUF STILLSCHWEIGENDE GARANTIEN DER MARKTGÄNGIGKEIT UND EIGNUNG FÜR EINEN BESTIMMTEN ZWECK."
+        ]
+      },
+      "limitation": {
+        "title": "Haftungsbeschränkung",
+        "content": [
+          "AUIN IST NICHT HAFTBAR FÜR SCHÄDEN JEGLICHER ART, DIE AUS DER NUTZUNG DER DIENSTE ENTSTEHEN, EINSCHLIEßLICH, ABER NICHT BESCHRÄNKT AUF DIREKTE, INDIREKTE, ZUFÄLLIGE, STRAF- UND FOLGESCHÄDEN, SOFERN NICHT SCHRIFTLICH ANDERS ANGEGEBEN.",
+          "EINIGE STAATLICHE GESETZE ERLAUBEN KEINE BESCHRÄNKUNGEN FÜR STILLSCHWEIGENDE GARANTIEN ODER DEN AUSSCHLUSS ODER DIE BESCHRÄNKUNG BESTIMMTER SCHÄDEN. WENN DIESE GESETZE AUF SIE ZUTREFFEN, GELTEN EINIGE ODER ALLE DER OBEN GENANNTEN HAFTUNGSAUSSCHLÜSSE, AUSSCHLÜSSE ODER BESCHRÄNKUNGEN MÖGLICHERWEISE NICHT FÜR SIE, UND SIE HABEN MÖGLICHERWEISE ZUSÄTZLICHE RECHTE."
+        ]
+      },
+      "privacyPolicy": {
+        "title": "Datenschutzrichtlinie",
+        "content": "Ihre Privatsphäre ist uns wichtig. Bitte lesen Sie unsere Datenschutzrichtlinie, die auch Ihre Nutzung der Dienste regelt, um unsere Praktiken bezüglich der Sammlung und Nutzung Ihrer Informationen zu verstehen."
+      },
+      "governingLaw": {
+        "title": "Geltendes Recht",
+        "content": "Diese Bedingungen unterliegen den Gesetzen des Staates New York und werden in Übereinstimmung mit diesen ausgelegt, ohne Berücksichtigung von Grundsätzen des Gesetzeskonflikts."
+      },
+      "entireAgreement": {
+        "title": "Gesamte Vereinbarung",
+        "content": "Diese Bedingungen bilden zusammen mit unserer Datenschutzrichtlinie, Rückgaberichtlinie und Versandrichtlinie die gesamte Vereinbarung zwischen Ihnen und AUIN bezüglich der Nutzung unserer Dienste."
+      },
+      "indemnification": {
+        "title": "Schadloshaltung",
+        "content": "Sie stimmen zu, AUIN, seine Beamten, Direktoren, Mitarbeiter, Agenten, Lizenzgeber und Lieferanten von und gegen alle Verluste, Ausgaben, Schäden und Kosten zu entschädigen, zu verteidigen und schadlos zu halten."
+      },
+      "severability": {
+        "title": "Salvatorische Klausel",
+        "content": "Sollte eine Bestimmung dieser Bedingungen als ungültig oder nicht durchsetzbar befunden werden, bleiben die verbleibenden Bestimmungen in vollem Umfang in Kraft, und die ungültige oder nicht durchsetzbare Bestimmung wird auf das erforderliche Minimum beschränkt oder eliminiert."
+      },
+      "contact": {
+        "title": "Kontaktinformation",
+        "description": "Wenn Sie Fragen zu diesen Bedingungen haben, kontaktieren Sie uns bitte unter:",
+        "customerSupport": "Kundensupport",
+        "name": "AUIN E‑Commerce Plattform",
+        "address": [
+          "1658 Rosewood Lane",
+          "New York City, NY"
+        ]
+      }
+    }
+  },
+  "common": {
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolgreich",
+  "retry": "Erneut versuchen",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Vorherige",
+    "close": "Schließen",
+    "view": "Anzeigen",
+    "add": "Hinzufügen",
+    "remove": "Entfernen",
+    "update": "Aktualisieren",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "signIn": "Anmelden um fortzufahren",
+    "pleaseSignIn": "Bitte melden Sie sich an, um zur Kasse zu gehen",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "customerSupport": "Kundensupport",
+    "address": "Adresse"
+  }
+}

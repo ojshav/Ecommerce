@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 // FAQ Item component with accordion behavior
@@ -31,28 +32,29 @@ const FAQItem: React.FC<{
 };
 
 const FAQ: React.FC = () => {
+  const { t } = useTranslation();
   const [openIndex, setOpenIndex] = useState<number>(0); // First item open by default
 
   const faqItems = [
     {
-      question: "What payment methods do you accept?",
-      answer: "We accept a wide range of payment methods including credit/debit cards (Visa, MasterCard, American Express), PayPal, and bank transfers. All transactions are secure and encrypted to ensure your payment information is protected."
+      question: t('faq.questions.payment.question'),
+      answer: t('faq.questions.payment.answer')
     },
     {
-      question: "How long does shipping take?",
-      answer: "Shipping times vary depending on your location and the shipping method chosen. Domestic orders typically arrive within 3-5 business days, while international orders may take 7-14 business days. Express shipping options are available at checkout for faster delivery."
+      question: t('faq.questions.shipping.question'),
+      answer: t('faq.questions.shipping.answer')
     },
     {
-      question: "What is your return policy?",
-      answer: "We offer a 30-day return policy for most items. Products must be unused and in their original packaging. To initiate a return, please contact our customer service team through your account dashboard. Once your return is approved, we'll provide a prepaid shipping label and process your refund within 5-7 business days of receiving the returned item."
+      question: t('faq.questions.returns.question'),
+      answer: t('faq.questions.returns.answer')
     },
     {
-      question: "Do you offer international shipping?",
-      answer: "Yes, we ship to most countries worldwide. International shipping rates and delivery times vary by location. You can see the exact shipping costs and estimated delivery time by entering your address at checkout. Please note that additional customs fees or import duties may apply depending on your country."
+      question: t('faq.questions.international.question'),
+      answer: t('faq.questions.international.answer')
     },
     {
-      question: "How can I track my order?",
-      answer: "Once your order ships, you'll receive a confirmation email with a tracking number. You can use this number to track your package on our website or through the carrier's tracking system. You can also view your order status and tracking information in your account dashboard."
+      question: t('faq.questions.tracking.question'),
+      answer: t('faq.questions.tracking.answer')
     }
   ];
 
@@ -62,8 +64,8 @@ const FAQ: React.FC = () => {
         <div className="max-w-3xl mx-auto">
           {/* FAQ Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-medium text-[#FF4D00] mb-4">Frequently Asked Questions</h1>
-            <p className="text-gray-600">Find answers to common questions about our services, shipping, returns, and more.</p>
+            <h1 className="text-4xl font-medium text-[#FF4D00] mb-4">{t('faq.title')}</h1>
+            <p className="text-gray-600">{t('faq.subtitle')}</p>
           </div>
 
           {/* FAQ Items */}
@@ -82,7 +84,7 @@ const FAQ: React.FC = () => {
           {/* Contact Info */}
           <div className="mt-12 text-center">
             <p className="text-gray-600">
-              Still have questions? Contact us at{' '}
+              {t('faq.contact')}{' '}
               <a href="mailto:support@example.com" className="text-[#FF4D00] hover:text-[#FF4D00]/90">
                 support@example.com
               </a>

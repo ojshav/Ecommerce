@@ -4,15 +4,14 @@ import {
   ArrowUpIcon, 
   ArrowDownIcon,
   EyeIcon,
-  PencilIcon,
-  PrinterIcon,
-  DocumentTextIcon,
   MagnifyingGlassPlusIcon,
   MagnifyingGlassMinusIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../hooks/useAmazonTranslate';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -152,7 +151,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
 };
 
 // Mobile Order Card Component
-const MobileOrderCard: React.FC<{ order: Order }> = ({ order }) => (
+const MobileOrderCard: React.FC<{ order: Order; tAddr1?: string }> = ({ order, tAddr1 }) => (
   <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
     <div className="flex justify-between items-start mb-3">
       <div className="flex-1">
@@ -170,7 +169,7 @@ const MobileOrderCard: React.FC<{ order: Order }> = ({ order }) => (
       <div className="flex justify-between">
         <span className="text-gray-500">Customer:</span>
         <span className="text-gray-900 truncate max-w-32">
-          {order.shipping_address_details?.address_line1 || 'N/A'}
+          {tAddr1 || order.shipping_address_details?.address_line1 || 'N/A'}
         </span>
       </div>
       <div className="flex justify-between">
@@ -196,7 +195,7 @@ const MobileOrderCard: React.FC<{ order: Order }> = ({ order }) => (
 );
 
 const Orders: React.FC = () => {
-  const { user } = useAuth();
+  useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -224,6 +223,12 @@ const Orders: React.FC = () => {
     direction: 'descending',
   });
   const [zoom, setZoom] = useState(1);
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+
+  // Display-only translations for address fields
+  const [tAddr1Map, setTAddr1Map] = useState<Record<string, string>>({});
+  const [tCityMap, setTCityMap] = useState<Record<string, string>>({});
 
   // Dynamic style for table zoom
   const tableZoomStyle = {
@@ -295,6 +300,37 @@ const Orders: React.FC = () => {
   useEffect(() => {
     fetchOrders();
   }, [pagination.page, selectedStatus, selectedPayment, dateRange]);
+
+  // Translate address display fields (fail-open)
+  useEffect(() => {
+    const lang = (i18n.language || 'en').split('-')[0];
+    if (!orders.length || lang === 'en') { setTAddr1Map({}); setTCityMap({}); return; }
+    const run = async () => {
+      try {
+        const addrItems: { id: string; text: string }[] = [];
+        const cityItems: { id: string; text: string }[] = [];
+        orders.forEach(o => {
+          const aid = `a:${o.order_id}`;
+          const cid = `c:${o.order_id}`;
+          const a1 = o.shipping_address_details?.address_line1;
+          const city = o.shipping_address_details?.city;
+          if (a1) addrItems.push({ id: aid, text: a1 });
+          if (city) cityItems.push({ id: cid, text: city });
+        });
+        const [aMap, cMap] = await Promise.all([
+          translateBatch(addrItems, lang, 'text/plain'),
+          translateBatch(cityItems, lang, 'text/plain'),
+        ]);
+        const outA: Record<string, string> = {};
+        const outC: Record<string, string> = {};
+        Object.keys(aMap).forEach(k => { if (k.startsWith('a:')) outA[k.split(':')[1]] = aMap[k]; });
+        Object.keys(cMap).forEach(k => { if (k.startsWith('c:')) outC[k.split(':')[1]] = cMap[k]; });
+        setTAddr1Map(outA);
+        setTCityMap(outC);
+      } catch { /* fail-open */ }
+    };
+    run();
+  }, [orders, i18n.language, translateBatch]);
 
   // Handle sort
   const requestSort = (key: string) => {
@@ -482,7 +518,7 @@ const Orders: React.FC = () => {
             ) : (
               <div className="space-y-4">
                 {sortedOrders.map((order) => (
-                  <MobileOrderCard key={order.order_id} order={order} />
+                  <MobileOrderCard key={order.order_id} order={order} tAddr1={tAddr1Map[order.order_id]} />
                 ))}
               </div>
             )}
@@ -519,8 +555,8 @@ const Orders: React.FC = () => {
                     <td className="text-sm font-medium text-gray-900" style={{ padding: cellPadding }}>{order.order_id}</td>
                     <td className="text-sm text-gray-500" style={{ padding: cellPadding }}>{new Date(order.order_date).toLocaleDateString()}</td>
                     <td className="whitespace-normal text-sm text-gray-900 max-w-xs" style={{ padding: cellPadding }}>
-                      <div>{order.shipping_address_details?.address_line1 || 'N/A'}</div>
-                      <div className="text-gray-500">{order.shipping_address_details?.city || 'N/A'}</div>
+                      <div>{tAddr1Map[order.order_id] || order.shipping_address_details?.address_line1 || 'N/A'}</div>
+                      <div className="text-gray-500">{tCityMap[order.order_id] || order.shipping_address_details?.city || 'N/A'}</div>
                     </td>
                     <td className="text-sm text-gray-500" style={{ padding: cellPadding }}>{order.items.length}</td>
                     <td className="text-sm text-gray-900" style={{ padding: cellPadding }}>{order.currency} {parseFloat(order.total_amount).toFixed(2)}</td>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +12,7 @@ interface Category {
 }
 
 const Categories: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +56,7 @@ const Categories: React.FC = () => {
       <section className="pt-8">
         <div className="container mx-auto px-4 xl:px-14">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Shop By Categories</h2>
+            <h2 className="text-2xl font-bold">{t('home.sections.categoriesTitle')}</h2>
           </div>
           <div className="flex space-x-4 overflow-x-auto pb-4 pt-2 pl-2">
             {[...Array(6)].map((_, index) => (
@@ -74,12 +76,12 @@ const Categories: React.FC = () => {
       <section className="pt-8">
         <div className="container mx-auto px-4 xl:px-14">
           <div className="text-red-500 text-center">
-            <p>Error loading categories: {error}</p>
+            <p>{t('common.error')}: {error}</p>
             <button 
               onClick={fetchCategories}
               className="mt-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
-              Try Again
+              {t('common.retry', 'Try Again')}
             </button>
           </div>
         </div>
@@ -92,10 +94,10 @@ const Categories: React.FC = () => {
       <div className="container mx-auto px-4 xl:px-14">
         {/* Categories header with navigation */}
         <div className="flex justify-between items-center mb-6">
-          <h6 className="text-xl font-medium font-worksans">Shop By Categories</h6>
+      <h6 className="text-xl font-medium font-worksans">{t('home.sections.categoriesTitle')}</h6>
           <div className="flex items-center">
             <Link to="/all-products" className="text-orange-500 text-sm font-medium mr-3 sm:mr-10">
-              See All
+        {t('home.seeAll')}
             </Link>
             <div className="flex items-center space-x-1 sm:space-x-3">
               <button

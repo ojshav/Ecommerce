@@ -5,6 +5,8 @@ import SimilarProducts from './SimilarProducts';
 import { useShopCartOperations } from '../../../../context/ShopCartContext';
 import { toast } from 'react-hot-toast';
 import { Star, X, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../../hooks/useAmazonTranslate';
 
 const ProductPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -17,6 +19,15 @@ const ProductPage: React.FC = () => {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedMainImage, setSelectedMainImage] = useState<number>(0);
   const [isSizeDropdownOpen, setIsSizeDropdownOpen] = useState<boolean>(false);
+  // Dynamic translation state (display-only)
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [tName, setTName] = useState<string>('');
+  const [tCategory, setTCategory] = useState<string>('');
+  const [tBrand, setTBrand] = useState<string>('');
+  const [tShort, setTShort] = useState<string>('');
+  const [tFull, setTFull] = useState<string>('');
+  const [tAttrValues, setTAttrValues] = useState<Record<string, string>>({});
   
   // Image gallery modal state
   const [isGalleryOpen, setIsGalleryOpen] = useState<boolean>(false);
@@ -401,6 +412,65 @@ const ProductPage: React.FC = () => {
     validateNonVariantAttributes();
   }, [selectedAttributes, product?.has_variants, product?.attributes, availableAttributes]);
 
+  // Translate dynamic display strings (do not affect logic/data)
+  useEffect(() => {
+    const run = async () => {
+      if (!product) return;
+      const lang = i18n.language || 'en';
+      if (!lang || lang.toLowerCase() === 'en') {
+        setTName('');
+        setTCategory('');
+        setTBrand('');
+        setTShort('');
+        setTFull('');
+        setTAttrValues({});
+        return;
+      }
+
+      try {
+        const plainItems: { id: string; text: string }[] = [];
+        // Core product fields
+        if (product.product_name) plainItems.push({ id: 'name', text: product.product_name });
+        if (product.category_name) plainItems.push({ id: 'category', text: product.category_name });
+        if (product.brand_name) plainItems.push({ id: 'brand', text: product.brand_name });
+
+        const shortTxt = product.short_description || product.product_description || '';
+        const fullTxt = product.full_description || product.product_description || '';
+        if (shortTxt) plainItems.push({ id: 'short', text: shortTxt });
+        if (fullTxt) plainItems.push({ id: 'full', text: fullTxt });
+
+        // Attribute labels and values
+  availableAttributes.forEach(attr => {
+          (attr.values || []).forEach((val: string) => {
+            if (val) plainItems.push({ id: `attrVal:${attr.name}|${val}`, text: val });
+          });
+        });
+
+        const tPlain = await translateBatch(plainItems, lang, 'text/plain');
+
+        setTName(tPlain['name'] || '');
+        setTCategory(tPlain['category'] || '');
+        setTBrand(tPlain['brand'] || '');
+        setTShort(tPlain['short'] || '');
+        setTFull(tPlain['full'] || '');
+
+        const valueMap: Record<string, string> = {};
+  availableAttributes.forEach(attr => {
+          (attr.values || []).forEach((val: string) => {
+            const vk = `attrVal:${attr.name}|${val}`;
+            if (tPlain[vk]) valueMap[`${attr.name}|${val}`] = tPlain[vk];
+          });
+        });
+        setTAttrValues(valueMap);
+      } catch (e) {
+        // Fail open – keep originals
+        console.error('Translate (shop3) failed', e);
+      }
+    };
+    run();
+    // include only stable identifiers
+  }, [product?.product_id, i18n.language, availableAttributes]);
+
   const handleAttributeSelect = (attributeName: string, value: string) => {
     setSelectedAttributes(prev => ({
       ...prev,
@@ -564,9 +634,9 @@ const ProductPage: React.FC = () => {
             <span className="mx-1 sm:mx-2 text-gray-400">{'>'}</span>
             <span className="text-gray-400">MEN</span>
             <span className="mx-1 sm:mx-2 text-gray-400">{'>'}</span>
-            <span className="text-gray-400">{product.category_name?.toUpperCase() || 'PRODUCT'}</span>
+            <span className="text-gray-400">{(tCategory || product.category_name)?.toUpperCase() || 'PRODUCT'}</span>
             <span className="mx-1 sm:mx-2 text-gray-400">{'>'}</span>
-            <span className="text-white">{product.product_name?.toUpperCase()}</span>
+            <span className="text-white">{(tName || product.product_name)?.toUpperCase()}</span>
           </nav>
         </div>
       </header>
@@ -785,7 +855,7 @@ const ProductPage: React.FC = () => {
 
           {/* Product Title */}
           <h1 className="text-lg sm:text-xl md:text-2xl lg:text-[24px] font-bold mb-4 sm:mb-6 font-alexandria text-[#CCFF00]">
-            {product.product_name}
+            {tName || product.product_name}
           </h1>
 
           {/* Price Information */}
@@ -827,9 +897,10 @@ const ProductPage: React.FC = () => {
 
           {/* Product Description */}
           <div className="text-[#F4EDED] mb-6 sm:mb-8 text-sm sm:text-base lg:text-[16px] leading-relaxed font-alexandria">
-            {product.short_description ? parseMarkdown(product.short_description) : 
-             product.product_description ? parseMarkdown(product.product_description) :
-             <p>A stunning product featuring modern design and exceptional quality.</p>}
+            {(() => {
+              const text = tShort || product.short_description || product.product_description || '';
+              return text ? parseMarkdown(text) : <p>A stunning product featuring modern design and exceptional quality.</p>;
+            })()}
           </div>
 
           {/* Product Links */}
@@ -873,7 +944,8 @@ const ProductPage: React.FC = () => {
                 {(() => {
                   const colorAttr = availableAttributes.find(attr => attr.name.toLowerCase().includes('color') || attr.name.toLowerCase().includes('colour'));
                   const selectedColorValue = colorAttr ? selectedAttributes[colorAttr.name] : '';
-                  return selectedColorValue || 'None';
+                  const tVal = selectedColorValue ? (tAttrValues[`${colorAttr.name}|${selectedColorValue}`] || selectedColorValue) : '';
+                  return tVal || 'None';
                 })()}
               </span>
             </div>
@@ -890,7 +962,8 @@ const ProductPage: React.FC = () => {
                   {(() => {
                     const sizeAttr = availableAttributes.find(attr => attr.name.toLowerCase().includes('size'));
                     const selectedSize = sizeAttr ? selectedAttributes[sizeAttr.name] : '';
-                    return selectedSize || 'Choose your size';
+                    const tVal = selectedSize ? (tAttrValues[`${sizeAttr?.name}|${selectedSize}`] || selectedSize) : '';
+                    return tVal || 'Choose your size';
                   })()}
                 </span>
                 <svg 
@@ -917,7 +990,7 @@ const ProductPage: React.FC = () => {
                           }}
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 text-black text-sm sm:text-base block"
                         >
-                          {sizeValue}
+                          {tAttrValues[`${sizeAttr.name}|${sizeValue}`] || sizeValue}
                         </button>
                       ))
                     ).flat()}
@@ -982,9 +1055,10 @@ const ProductPage: React.FC = () => {
           <div className="flex-1">
             <h2 className="text-base sm:text-lg lg:text-[18px] font-bold mb-4 sm:mb-6 font-alexandria text-white">Product details</h2>
             <div className="text-[#FAF8F8] font-openSans text-sm sm:text-base lg:text-[16px] font-normal leading-relaxed lg:leading-[30px]">
-              {product.full_description ? parseMarkdown(product.full_description) :
-               product.product_description ? parseMarkdown(product.product_description) :
-               <p>Detailed product information will be displayed here.</p>}
+              {(() => {
+                const text = tFull || product.full_description || product.product_description || '';
+                return text ? parseMarkdown(text) : <p>Detailed product information will be displayed here.</p>;
+              })()}
             </div>
             <ul className="list-disc ml-5 mt-6 sm:mt-8 text-[#FAF8F8] mb-6 sm:mb-8 text-sm sm:text-base lg:text-[16px] font-openSans font-normal leading-relaxed lg:leading-[26px] space-y-1">
               <li>Premium quality materials</li>
@@ -1002,8 +1076,8 @@ const ProductPage: React.FC = () => {
           <div className="flex-1">
             <h2 className="text-base sm:text-lg lg:text-[18px] font-bold mb-4 sm:mb-6 font-alexandria text-white">Information</h2>
             <ul className="list-disc ml-4 mt-4 sm:mt-6 text-[#FAF8F8] mb-4 sm:mb-6 text-sm sm:text-base lg:text-[16px] font-openSans font-normal leading-relaxed lg:leading-[26px] space-y-1">
-              <li>Brand: {product.brand_name || 'Premium Brand'}</li>
-              <li>Category: {product.category_name}</li>
+              <li>Brand: {tBrand || product.brand_name || 'Premium Brand'}</li>
+              <li>Category: {tCategory || product.category_name}</li>
               <li>SKU: {product.sku}</li>
               <li>Stock: {product.is_in_stock ? 'In Stock' : 'Out of Stock'}</li>
             </ul>
@@ -1290,6 +1364,39 @@ const Shop3ReviewsSection: React.FC<{ shopProductId: number }> = ({ shopProductI
 
   useEffect(() => { fetchShopReviews(1); }, [shopProductId]);
 
+  // Display-only translation for review titles and bodies
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [tReviews, setTReviews] = useState<Record<number, { title?: string; body?: string }>>({});
+  useEffect(() => {
+    const lang = i18n.language || 'en';
+    if (!shopReviews.length || lang === 'en') {
+      setTReviews({});
+      return;
+    }
+    const run = async () => {
+      try {
+        const items: { id: string; text: string }[] = [];
+        shopReviews.forEach(r => {
+          if (r.title) items.push({ id: `t:${r.review_id}`, text: r.title });
+          if (r.body) items.push({ id: `b:${r.review_id}`, text: r.body });
+        });
+        if (!items.length) { setTReviews({}); return; }
+        const map = await translateBatch(items, lang, 'text/plain');
+        const out: Record<number, { title?: string; body?: string }> = {};
+        shopReviews.forEach(r => {
+          const title = map[`t:${r.review_id}`];
+          const body = map[`b:${r.review_id}`];
+          if (title || body) out[r.review_id] = { title, body };
+        });
+        setTReviews(out);
+      } catch {
+        setTReviews(prev => prev);
+      }
+    };
+    run();
+  }, [shopReviews, i18n.language, translateBatch]);
+
   // Eligibility will be checked on clicking Write Review
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -1444,7 +1551,7 @@ const Shop3ReviewsSection: React.FC<{ shopProductId: number }> = ({ shopProductI
                   </div>
                   <p className="text-xs sm:text-base text-gray-400 font-gilroy whitespace-nowrap self-start sm:self-auto text-left">{new Date(review.created_at).toLocaleDateString()}</p>
                 </div>
-                <p className="text-xs sm:text-sm text-gray-200 font-gilroy leading-relaxed text-left">{review.title ? `${review.title} — ` : ''}{review.body}</p>
+                <p className="text-xs sm:text-sm text-gray-200 font-gilroy leading-relaxed text-left">{(tReviews[review.review_id]?.title || review.title) ? `${tReviews[review.review_id]?.title || review.title} — ` : ''}{tReviews[review.review_id]?.body || review.body}</p>
                 {Array.isArray(review.images) && review.images.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {review.images.slice(0,5).map((img, idx) => (

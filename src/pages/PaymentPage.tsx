@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 
 import OrderSummary from "../components/OrderSummary";
 import { useAuth } from "../context/AuthContext";
@@ -84,6 +85,7 @@ const PAYMENT_METHOD_MAP = {
 } as const;
 
 const PaymentPage: React.FC = () => {
+  const { t } = useTranslation();
   const { user, accessToken } = useAuth();
   const { cart, totalPrice, totalItems, clearCart } = useCart();
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -1647,19 +1649,19 @@ const PaymentPage: React.FC = () => {
       {/* Payment Information */}
       <div className="flex-1 bg-white rounded-lg p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold">Payment Information</h2>
+          <h2 className="text-lg font-semibold">{t('payment.title')}</h2>
           <button
             onClick={() => navigate(-1)}
             className="text-sm text-orange-500 hover:text-orange-600 font-medium"
           >
-            &larr; Continue Shopping
+            &larr; {t('payment.continueShopping')}
           </button>
         </div>
 
         {/* Saved Addresses */}
         {addresses.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-sm font-medium mb-3">Saved Addresses</h3>
+            <h3 className="text-sm font-medium mb-3">{t('payment.savedAddresses')}</h3>
             <div className="grid grid-cols-1 gap-3">
               {addresses.map((address) => (
                 <div
@@ -1691,12 +1693,12 @@ const PaymentPage: React.FC = () => {
                         <div className="flex gap-2 mt-2">
                           {address.is_default_shipping && (
                             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                              Default Shipping
+                              {t('payment.defaultShipping')}
                             </span>
                           )}
                           {address.is_default_billing && (
                             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                              Default Billing
+                              {t('payment.defaultBilling')}
                             </span>
                           )}
                         </div>
@@ -1709,7 +1711,7 @@ const PaymentPage: React.FC = () => {
                           handleEditAddress(address.address_id);
                         }}
                         className="p-1 text-gray-500 hover:text-orange-500"
-                        title="Edit address"
+                        title={t('payment.editAddress')}
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -1720,7 +1722,7 @@ const PaymentPage: React.FC = () => {
                           setDeleteModalOpen(true);
                         }}
                         className="p-1 text-gray-500 hover:text-red-500"
-                        title="Delete address"
+                        title={t('payment.deleteAddress')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -1745,7 +1747,7 @@ const PaymentPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">
-                Full Name
+                {t('payment.fullName')}
               </label>
               <input
                 type="text"
@@ -1759,7 +1761,7 @@ const PaymentPage: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">
-                Phone Number
+                {t('payment.phoneNumber')}
               </label>
               <div className="flex gap-2">
                 <div className="relative">
@@ -1798,7 +1800,7 @@ const PaymentPage: React.FC = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">City</label>
+              <label className="block text-sm font-medium mb-1">{t('payment.city')}</label>
               <input
                 type="text"
                 name="city"
@@ -1810,7 +1812,7 @@ const PaymentPage: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">
-                State/Province
+                {t('payment.stateProvince')}
               </label>
               <input
                 type="text"
@@ -1823,7 +1825,7 @@ const PaymentPage: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">
-                Postal Code
+                {t('payment.postalCode')}
               </label>
               <input
                 type="text"
@@ -1835,15 +1837,15 @@ const PaymentPage: React.FC = () => {
                     ? "border-red-500 focus:ring-red-500 focus:border-red-500"
                     : "border-gray-300 focus:ring-orange-500 focus:border-orange-500"
                   }`}
-                placeholder={`Enter postal code for ${selectedCountry.name}`}
+                placeholder={`${t('payment.enterPostalCode')} ${selectedCountry.name}`}
                 required
               />
               {postalCodeError && (
-                <p className="mt-1 text-sm text-red-500">{postalCodeError}</p>
+                <p className="mt-1 text-sm text-red-500">{t('payment.invalidPostalCode')} {selectedCountry.name}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Country</label>
+              <label className="block text-sm font-medium mb-1">{t('payment.country')}</label>
               <select
                 name="country_code"
                 value={formData.country_code}
@@ -1870,7 +1872,7 @@ const PaymentPage: React.FC = () => {
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Address</label>
+              <label className="block text-sm font-medium mb-1">{t('payment.address')}</label>
               <input
                 type="text"
                 name="address_line1"
@@ -1883,7 +1885,7 @@ const PaymentPage: React.FC = () => {
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium mb-1">
-                Landmark (Optional)
+                {t('payment.landmark')}
               </label>
               <input
                 type="text"
@@ -1905,7 +1907,7 @@ const PaymentPage: React.FC = () => {
               className="mr-2 accent-orange-500"
             />
             <label htmlFor="deliveryToAnother" className="text-sm font-medium">
-              Delivery to another address?
+              {t('payment.deliveryToAnother')}
             </label>
           </div>
 
@@ -1922,10 +1924,10 @@ const PaymentPage: React.FC = () => {
           )}
 
           <div className="mt-4">
-            <label className="block text-sm font-medium mb-1">Note</label>
+            <label className="block text-sm font-medium mb-1">{t('payment.note')}</label>
             <textarea
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
-              placeholder="Note about your orders"
+              placeholder={t('payment.noteAboutOrder')}
               rows={3}
             ></textarea>
           </div>
@@ -1934,14 +1936,14 @@ const PaymentPage: React.FC = () => {
             type="submit"
             className="w-full bg-orange-500 text-white py-3 rounded font-medium hover:bg-orange-600 transition-colors"
           >
-            Save Address
+            {t('payment.saveAddress')}
           </button>
         </form>
       </div>
 
       {/* Order Summary */}
       <div className="w-full lg:w-[400px] bg-white rounded-lg p-1 h-fit">
-        <h2 className="text-lg font-semibold mb-6">Your Order</h2>
+        <h2 className="text-lg font-semibold mb-6">{t('payment.yourOrder')}</h2>
         {/* Show warning if no courier service is available */}
         {noCourierService && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
@@ -1965,7 +1967,7 @@ const PaymentPage: React.FC = () => {
           promoLoading={promoLoading}
         />
         <div className="mb-6 ">
-          <div className="font-medium mb-3">Payment Method</div>
+          <div className="font-medium mb-3">{t('payment.paymentMethod')}</div>
           <div className="flex flex-col gap-2">
             <label className="flex items-center  gap-2 cursor-pointer">
               <input
@@ -1976,7 +1978,7 @@ const PaymentPage: React.FC = () => {
                 onChange={() => setPaymentMethod("credit_card")}
                 className="accent-orange-500 bg-transparent shadow-none align-middle"
               />
-              <span className="text-black font-worksans ml-1  font-normal text-[14px]">Credit Card</span>
+              <span className="text-black font-worksans ml-1  font-normal text-[14px]">{t('payment.creditCard')}</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -1987,7 +1989,7 @@ const PaymentPage: React.FC = () => {
                 onChange={() => setPaymentMethod("debit_card")}
                 className="accent-orange-500 bg-transparent shadow-none align-middle"
               />
-              <span className="text-black font-worksans ml-1 font-normal text-[14px]">Debit Card</span>
+              <span className="text-black font-worksans ml-1 font-normal text-[14px]">{t('payment.debitCard')}</span>
             </label>
             <label className="flex items-center  cursor-pointer">
               <input
@@ -1998,7 +2000,7 @@ const PaymentPage: React.FC = () => {
                 onChange={() => setPaymentMethod("cash_on_delivery")}
                 className="accent-orange-500 bg-transparent shadow-none align-middle"
               />
-              <span className="text-black font-worksans ml-1 font-normal text-[14px]">Cash on Delivery</span>
+              <span className="text-black font-worksans ml-1 font-normal text-[14px]">{t('payment.cashOnDelivery')}</span>
             </label>
           </div>
         </div>
@@ -2011,8 +2013,8 @@ const PaymentPage: React.FC = () => {
             }`}
         >
           {processingPayment
-            ? "Processing Payment..."
-            : "Place Order"}
+            ? t('payment.processing')
+            : t('payment.placeOrder')}
         </button>
       </div>
 

@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+
 
 // Import your SVG files
 const Prime = 'https://res.cloudinary.com/do3vxz4gw/image/upload/v1752058892/public_assets_banner/public_assets_Banner_Shutter.svg';
@@ -23,6 +25,7 @@ interface ShopBanner {
 }
 
 const Shop = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -225,7 +228,7 @@ const Shop = () => {
     });
   };
 
-  // reserved for future scheduling logic
+  // removed unused getNextOpenTime helper to satisfy noUnused rules
 
   return (
     <div className="w-full min-h-screen mb-16 sm:mb-20 md:mb-24 lg:mb-32">
@@ -350,7 +353,7 @@ const Shop = () => {
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-300/20 via-transparent to-yellow-300/20 rounded-lg blur-sm animate-shimmer"></div>
                   <span className="text-white font-bold tracking-wider text-xl sm:text-2xl md:text-3xl lg:text-4xl font-[Work Sans] block transform transition-all duration-500 hover:transform-gpu hover:rotate-y-12 relative z-10">
                     <span className="relative inline-block animate-text-shimmer bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text">
-                      THE INNOVATION WINDOW
+                      {t('home.sections.innovationWindowTitle')}
                     </span>
                     <div className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-yellow-300 to-transparent animate-shimmer"></div>
                   </span>
@@ -375,7 +378,7 @@ const Shop = () => {
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-white/20 rounded-full blur-lg animate-pulse"></div>
                 <span className="relative bg-white/20 border-2 border-white/40 text-white font-semibold px-8 sm:px-10 py-3 sm:py-4 rounded-full text-sm sm:text-base shadow-2xl backdrop-blur-sm font-[Work Sans] block transform hover:scale-105 transition-all duration-300">
-                  <span className="relative z-10 animate-text-fade">9 AM to 10 PM Daily</span>
+                  <span className="relative z-10 animate-text-fade">{t('home.sections.innovationWindowHours')}</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-300/0 via-white/30 to-yellow-300/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                 </span>
               </div>
@@ -385,7 +388,7 @@ const Shop = () => {
             <div className={`relative transform-gpu transition-all duration-1000 delay-400 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
               <p className="text-white text-sm sm:text-base md:text-lg font-medium mb-6 sm:mb-8 font-[Work Sans] relative transform hover:scale-105 transition-all duration-500">
                 <span className="relative inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-gradient-to-r after:from-transparent after:via-yellow-300 after:to-transparent after:transform after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-700">
-                  Every day from 9 to 10, AOIN opens its shutters to offer exclusive, handpicked products for a limited time only.
+                  {t('home.sections.innovationWindowDescription')}
                 </span>
               </p>
             </div>
@@ -402,7 +405,7 @@ const Shop = () => {
                       <span className="w-4 h-4 rounded-full bg-orange-500 inline-block animate-pulse"></span>
                       <div className="absolute inset-0 w-4 h-4 rounded-full bg-orange-500/30 animate-ping"></div>
                     </div>
-                    <span className="text-gray-700 font-semibold text-sm sm:text-base">Current Time:</span>
+                    <span className="text-gray-700 font-semibold text-sm sm:text-base">{t('home.sections.currentTime')}</span>
                     <span className="text-gray-900 font-bold text-sm sm:text-base animate-text-fade">{formatTime(currentTime)}</span>
                   </div>
                   
@@ -411,13 +414,13 @@ const Shop = () => {
                       <span className={`w-4 h-4 rounded-full ${isShopOpen ? 'bg-green-500' : 'bg-red-500'} inline-block animate-pulse`}></span>
                       <div className={`absolute inset-0 w-4 h-4 rounded-full ${isShopOpen ? 'bg-green-500/30' : 'bg-red-500/30'} animate-ping`}></div>
                     </div>
-                    <span className="text-gray-700 font-semibold text-sm sm:text-base">Status:</span>
+                    <span className="text-gray-700 font-semibold text-sm sm:text-base">{t('home.sections.status')}</span>
                     <span className={`px-4 py-2 rounded-full text-sm font-bold shadow-lg transform hover:scale-110 transition-all duration-300 ${
                       isShopOpen 
                         ? 'bg-gradient-to-r from-green-100 to-green-200 text-green-700 animate-status-open' 
                         : 'bg-gradient-to-r from-red-100 to-red-200 text-red-700 animate-status-closed'
                     }`}>
-                      {isShopOpen ? 'OPEN' : 'CLOSED'}
+                      {isShopOpen ? t('home.sections.open') : t('home.sections.closed')}
                     </span>
                   </div>
                 </div>
@@ -656,7 +659,7 @@ const Shop = () => {
                     {/* Time Left Badge */}
                     {isShopOpen && (
                       <div className="absolute top-1 left-2 sm:top-4 sm:left-6 text-white text-[10px] xs:text-xs sm:text-sm font-medium z-20 bg-black/50 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full backdrop-blur-sm transform group-hover:translate-y-1 transition-transform duration-300">
-                        Time left : {calculateTimeLeft()}
+                        {t('home.sections.timeLeft')} {calculateTimeLeft()}
                       </div>
                     )}
 

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import Hero from '../components/home/Hero';
 import ConditionalFeaturedProducts from '../components/home/ConditionalFeaturedProducts';
 import Categories from '../components/home/Categories';
@@ -15,6 +16,7 @@ import useClickOutside from '../hooks/useClickOutside';
 import NewProductCarousel from '../components/home/NewProductCarousel';
 
 const Home = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState<'all' | 'products' | 'categories'>('all');
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -60,7 +62,7 @@ const Home = () => {
               <div className="flex flex-1 rounded-md overflow-hidden bg-white border border-gray-300 shadow-sm">
                 <input
                   type="text"
-                  placeholder="What are you looking fo?"
+                  placeholder={t('home.searchPlaceholder')}
                   className="w-full border-0 py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none"
                   value={searchQuery}
                   onChange={handleSearchInputChange}
@@ -73,9 +75,9 @@ const Home = () => {
                     value={searchType}
                     onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
                   >
-                    <option value="all">All</option>
-                    <option value="products">Products</option>
-                    <option value="categories">Categories</option>
+                    <option value="all">{t('home.searchCategories.all')}</option>
+                    <option value="products">{t('home.searchCategories.products')}</option>
+                    <option value="categories">{t('home.searchCategories.categories')}</option>
                   </select>
                 </div>
               </div>
@@ -84,7 +86,7 @@ const Home = () => {
                 type="submit"
                 className="bg-[#F2631F] text-white py-1.5 px-6 rounded-md text-base hover:bg-orange-600 transition-colors"
               >
-                Search
+                {t('home.searchButton')}
               </button>
             </div>
 
@@ -94,7 +96,7 @@ const Home = () => {
               <div>
                 <input
                   type="text"
-                  placeholder="What are you looking for?"
+                  placeholder={t('home.searchPlaceholder')}
                   className="w-full rounded-md border border-gray-300 shadow-sm py-1.5 px-4 text-gray-900 focus:ring-0 focus:outline-none text-base"
                   value={searchQuery}
                   onChange={handleSearchInputChange}
@@ -109,16 +111,16 @@ const Home = () => {
                     value={searchType}
                     onChange={(e) => setSearchType(e.target.value as 'all' | 'products' | 'categories')}
                  >
-                    <option value="all">All</option>
-                    <option value="products">Products</option>
-                    <option value="categories">Categories</option>
+                    <option value="all">{t('home.searchCategories.all')}</option>
+                    <option value="products">{t('home.searchCategories.products')}</option>
+                    <option value="categories">{t('home.searchCategories.categories')}</option>
                  </select>
                  {/* Search Button */}
                  <button 
                    type="submit"
                    className="flex-1 bg-[#F2631F] text-white py-2 px-4 rounded-md text-base hover:bg-orange-600 transition-colors"
                  >
-                   Search
+                   {t('home.searchButton')}
                  </button>
               </div>
             </div>

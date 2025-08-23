@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { useAuth } from '../../../../context/AuthContext';
 import { useShopWishlistOperations } from '../../../../hooks/useShopWishlist';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../../hooks/useAmazonTranslate';
 
 const SHOP_ID = 3;
 
@@ -21,6 +23,9 @@ interface SimilarProductsProps {
 }
 
 const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] }) => {
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [tNames, setTNames] = useState<Record<number, string>>({});
   // Wishlist functionality
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -59,6 +64,32 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
       console.error('Wishlist operation failed:', error);
     }
   };
+
+  // Translate names/categories for related products (display only)
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = i18n.language || 'en';
+      if (!relatedProducts?.length || lang.toLowerCase() === 'en') {
+        setTNames({});
+        return;
+      }
+      try {
+        const items: { id: string; text: string }[] = [];
+        relatedProducts.forEach((p) => {
+          if (p.product_name) items.push({ id: `n:${p.product_id}`, text: p.product_name });
+          if (p.category_name) items.push({ id: `c:${p.product_id}`, text: p.category_name });
+        });
+  if (items.length === 0) { setTNames({}); return; }
+        const res = await translateBatch(items, lang, 'text/plain');
+        const nm: Record<number, string> = {};
+  relatedProducts.forEach((p) => { nm[p.product_id] = res[`n:${p.product_id}`] || ''; });
+        setTNames(nm);
+      } catch (e) {
+        // fail open
+      }
+    };
+    doTranslate();
+  }, [relatedProducts, i18n.language, translateBatch]);
 
   // Don't render the section if there are no related products
   if (!relatedProducts || relatedProducts.length === 0) {
@@ -104,7 +135,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
                   <div className="relative w-full h-[400px] xs:h-[380px] sm:h-[420px] md:h-[461px] rounded-2xl overflow-hidden mb-4">
                     <img
                       src={product.primary_image || "/assets/images/Productcard/hero3.jpg"}
-                      alt={product.product_name}
+                      alt={tNames[product.product_id] || product.product_name}
                       className="w-full h-full object-contain sm:object-cover rounded-2xl transition-transform duration-300"
                     />
                     
@@ -138,7 +169,7 @@ const SimilarProducts: React.FC<SimilarProductsProps> = ({ relatedProducts = [] 
                   </div>
                   <div className="px-0.5 pb-4 flex flex-col flex-1">
                     <div className="text-white text-base sm:text-[16px] font-alexandria font-semibold mb-2 leading-tight">
-                      {product.product_name}
+                      {tNames[product.product_id] || product.product_name}
                     </div>
                     <div className="flex items-center gap-2 mt-auto">
                       {product.special_price && product.special_price < product.price ? (

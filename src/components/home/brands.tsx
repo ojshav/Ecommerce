@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -10,6 +11,7 @@ interface Brand {
 }
 
 const Brands = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
@@ -138,7 +140,7 @@ const Brands = () => {
       <section className="py-0">
         <div className="container mx-auto px-4 xl:px-14">
           <div className="flex justify-between items-center mb-6">
-            <h6 className="text-xl font-medium font-worksans">Shop By Brands</h6>
+            <h6 className="text-xl font-medium font-worksans">{t('home.sections.brandsTitle')}</h6>
           </div>
           <div className="flex space-x-4 overflow-x-auto pb-4 pt-2 pl-2">
             {[...Array(6)].map((_, index) => (
@@ -158,12 +160,12 @@ const Brands = () => {
       <section className="py-0">
         <div className="container mx-auto px-4 xl:px-14">
           <div className="text-center text-red-500">
-            <p>Error loading brands: {error}</p>
+            <p>{t('common.error')}: {error}</p>
             <button
               onClick={fetchBrands}
               className="mt-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
             >
-              Try Again
+              {t('common.retry', 'Try Again')}
             </button>
           </div>
         </div>
@@ -176,10 +178,10 @@ const Brands = () => {
       <div className="container mx-auto px-4 xl:px-14">
         {/* Header with scroll buttons */}
         <div className="flex justify-between items-center mb-6">
-          <h6 className="text-xl font-medium font-worksans">Shop By Brands</h6>
+      <h6 className="text-xl font-medium font-worksans">{t('home.sections.brandsTitle')}</h6>
           <div className="flex items-center">
             <Link to="/all-products" className="text-orange-500 text-sm font-medium mr-3 sm:mr-10">
-              See All
+        {t('home.seeAll')}
             </Link>
             <div className="flex items-center space-x-1 sm:space-x-3">
               <button

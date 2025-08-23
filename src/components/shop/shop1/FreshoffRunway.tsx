@@ -7,6 +7,8 @@ import { useShopWishlistOperations } from '../../../hooks/useShopWishlist';
 import { useShopCartOperations } from '../../../context/ShopCartContext';
 import { toast } from 'react-hot-toast';
 import shop1ApiService, { Product } from '../../../services/shop1ApiService';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../hooks/useAmazonTranslate';
 
 const SHOP_ID = 1;
 
@@ -17,6 +19,9 @@ const FreshOffRunway = () => {
   const [error, setError] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState<Record<number, boolean>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [nameMap, setNameMap] = useState<Record<number, string>>({});
   
   // Wishlist functionality
   const { isAuthenticated, user } = useAuth();
@@ -117,6 +122,33 @@ const FreshOffRunway = () => {
 
     fetchProducts();
   }, []);
+
+  // Translate product names display-only
+  useEffect(() => {
+    const lang = (i18n.language || 'en').split('-')[0];
+    if (lang === 'en' || products.length === 0) {
+      setNameMap({});
+      return;
+    }
+    const run = async () => {
+      try {
+        const items = products
+          .filter(p => p.product_name)
+          .map(p => ({ id: String(p.product_id), text: p.product_name }));
+        if (items.length === 0) return;
+        const res = await translateBatch(items, lang, 'text/plain');
+        const m: Record<number, string> = {};
+        for (const p of products) {
+          const t = res[String(p.product_id)];
+          if (t) m[p.product_id] = t;
+        }
+        setNameMap(m);
+      } catch {
+        setNameMap({});
+      }
+    };
+    run();
+  }, [products, i18n.language, translateBatch]);
 
   // Scroll functionality
   const scrollLeft = () => {
@@ -225,7 +257,7 @@ const FreshOffRunway = () => {
                 <Link to={`/shop1/product/${product.product_id}`}>
                   <img
                     src={product.primary_image || product.media?.primary_image || '/assets/images/placeholder.jpg'}
-                    alt={product.product_name}
+                    alt={nameMap[product.product_id] || product.product_name}
                     className="w-full h-[300px] xs:h-[350px] sm:h-[290px] md:h-[300px] lg:h-[350px] xl:h-[370px] object-contain  group-hover:scale-105 transition-transform duration-300"
                   />
                 </Link>
@@ -267,7 +299,7 @@ const FreshOffRunway = () => {
               </div>
               <div>
                 <h3 className="text-sm xs:text-base sm:text-lg md:text-xl font-medium text-gray-900 mb-1 xs:mb-2 tracking-wide leading-tight">
-                  {product.product_name.toUpperCase()}
+                  {(nameMap[product.product_id] || product.product_name).toUpperCase()}
                 </h3>
                 <p className="text-base xs:text-lg sm:text-xl md:text-2xl text-gray-600">
                   {formatPrice(product)}
