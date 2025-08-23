@@ -115,7 +115,7 @@ const Footer: React.FC = () => {
             {/* <li><Link to="/RaiseTicket" className="hover:text-[#F2631F] transition-colors">User Support</Link></li> */}
               <li>
                 <div>{t('footer.callUs')}</div>
-                <a href="tel: 7879702202" className="text-[#F2631F]  transition-colors"> +91 78797 02202
+                <a href="tel: 9977131788" className="text-[#F2631F]  transition-colors"> +91 9977131788
                 </a>
               </li>
               <li><Link to="/faq" className="hover:text-[#F2631F] transition-colors">{t('footer.faq')}</Link></li>
