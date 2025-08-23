@@ -59,16 +59,16 @@ const Footer: React.FC = () => {
                 <span className="leading-tight font-worksans font-normal">
                 Anjis Overseas Pvt. Ltd.
                 <br />
-                H-104, MIG Colony, RSS Nagar
+                102 B FIRST FLOOR, PROPERTY NO 07 PU-4 SHEME NO 54 VIJAY NAGAR
                 <br />
-                Indore – 452003
+                Indore – 452010
                 <br />
                 Madhya Pradesh, India
                 </span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone size={16} className="text-[#161616] flex-shrink-0" />
-                <a href="tel: 7879702202" className="text-[#F2631F] ">+91 78797 02202</a>
+                <a href="tel: 9977131788" className="text-[#F2631F] ">+91 9977131788</a>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail size={16} className="text-[#161616] flex-shrink-0" />
@@ -124,7 +124,7 @@ const Footer: React.FC = () => {
               <li><Link to="/shipping" className="hover:text-[#F2631F] transition-colors">{t('footer.shippingMethods')}</Link></li>
               <li className="mt-2">
                 <div>{t('footer.mailUs')}</div>
-                <span className="text-[#F2631F]">auoinstore@gmail.com</span>
+                <span className="text-[#F2631F]">info@aoin11.com</span>
               </li>
             </ul>
           </div>
