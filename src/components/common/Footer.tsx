@@ -57,7 +57,7 @@ const Footer: React.FC = () => {
               <div className="flex items-start space-x-3">
                 <MapPin size={16} className="text-black mt-1  flex-shrink-0" />
                 <span className="leading-tight font-worksans font-normal">
-                Anjis Overseas Pvt. Ltd.
+                Aoin Enterprise.
                 <br />
                 102 B FIRST FLOOR, PROPERTY NO 07 PU-4 SHEME NO 54 VIJAY NAGAR
                 <br />
