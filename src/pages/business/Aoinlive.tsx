@@ -266,10 +266,11 @@ const Aoinlive: React.FC = () => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
     // if (name === 'productId' || name === 'scheduledDate') { // This line was removed
     //   setSelectedSlot(''); // This line was removed
@@ -317,6 +318,7 @@ const Aoinlive: React.FC = () => {
         form.append('description', formData.description);
         form.append('scheduled_time', scheduled_time);
         form.append('thumbnail', formData.thumbnail);
+        form.append('allow_embedding', 'true');
         response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams`, {
           method: 'POST',
           headers: {
@@ -331,6 +333,7 @@ const Aoinlive: React.FC = () => {
           product_id: Number(formData.productId),
           description: formData.description,
           scheduled_time,
+          allow_embedding: true,
         };
         response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/live-streams`, {
           method: 'POST',
@@ -991,6 +994,8 @@ const Aoinlive: React.FC = () => {
                   required
                 />
               </div>
+
+
             </div>
 
             <button
