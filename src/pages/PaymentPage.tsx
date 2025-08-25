@@ -16,8 +16,9 @@ import {
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CartItem, DirectPurchaseItem } from "../types";
+import { DirectPurchaseItem } from "../types";
 import ConfirmationModal from "../components/common/ConfirmationModal";
+import { addressService, type Address as AddressModel } from "../services/address";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -45,21 +46,7 @@ const COUNTRY_CODES = [
   { code: "IN", name: "India", phoneCode: "+91" },
 ];
 
-interface Address {
-  address_id: number;
-  contact_name: string;
-  contact_phone: string;
-  address_line1: string;
-  address_line2?: string;
-  landmark?: string;
-  city: string;
-  state_province: string;
-  postal_code: string;
-  country_code: string;
-  address_type: "shipping" | "billing";
-  is_default_shipping: boolean;
-  is_default_billing: boolean;
-}
+type Address = AddressModel;
 
 // Add new interface for payment card
 interface PaymentCard {
@@ -77,18 +64,13 @@ interface PaymentCard {
   updated_at: string;
 }
 
-// Add PaymentMethodEnum mapping
-const PAYMENT_METHOD_MAP = {
-  credit_card: "credit_card",
-  debit_card: "debit_card",
-  cash_on_delivery: "cash_on_delivery",
-} as const;
+//
 
 const PaymentPage: React.FC = () => {
   const { t } = useTranslation();
   const { user, accessToken } = useAuth();
-  const { cart, totalPrice, totalItems, clearCart } = useCart();
-  const [addresses, setAddresses] = useState<Address[]>([]);
+  const { cart, totalPrice, clearCart } = useCart();
+  const [addresses, setAddresses] = useState<AddressModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [deliveryToAnother, setDeliveryToAnother] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
@@ -112,12 +94,7 @@ const PaymentPage: React.FC = () => {
     is_default_shipping: true,
     is_default_billing: false,
   });
-  const [cardDetails, setCardDetails] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    cardHolderName: "",
-  });
+  // deprecated: card details handled via saved cards
   const [processingPayment, setProcessingPayment] = useState(false);
   const [savedCards, setSavedCards] = useState<PaymentCard[]>([]);
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
@@ -231,7 +208,7 @@ const PaymentPage: React.FC = () => {
 
   const processCardPayment = async (
     orderId: string,
-    cardId: number
+    _cardId: number
   ): Promise<boolean> => {
     try {
       setProcessingPayment(true);
@@ -668,38 +645,11 @@ const PaymentPage: React.FC = () => {
 
   const fetchAddresses = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        // console.log("No token found, skipping address fetch");
-        return;
-      }
-
-      const baseUrl = API_BASE_URL.replace(/\/+$/, "");
-      const url = `${baseUrl}/api/user-address?user_id=${user?.id}`;
-      // console.log("Fetching addresses from:", url);
-
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error response:", errorText);
-        throw new Error(
-          `Failed to fetch addresses: ${response.status} ${errorText}`
-        );
-      }
-
-      const data = await response.json();
-      // console.log("Addresses data:", data);
-      setAddresses(data.addresses);
+      const list = await addressService.list();
+      setAddresses(list);
 
       // If there are addresses, select the default shipping address
-      const defaultAddress = data.addresses.find(
+  const defaultAddress = list.find(
         (addr: Address) => addr.is_default_shipping
       );
       if (defaultAddress) {
@@ -719,7 +669,7 @@ const PaymentPage: React.FC = () => {
           is_default_billing: defaultAddress.is_default_billing,
         });
       }
-    } catch (error) {
+  } catch (error) {
       console.error("Error in fetchAddresses:", error);
       toast.error("Failed to fetch addresses");
     } finally {
@@ -748,53 +698,12 @@ const PaymentPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        // console.log("No token found, cannot save address");
-        toast.error("Please login to continue");
-        return;
-      }
-
-      const baseUrl = API_BASE_URL.replace(/\/+$/, "");
-      const requestBody = {
-        ...formData,
-        user_id: user?.id,
-      };
-
-      let url: string;
-      let method: string;
-
+      let saved: AddressModel;
       if (selectedAddressId) {
-        // Update existing address
-        url = `${baseUrl}/api/user-address/${selectedAddressId}`;
-        method = "PUT";
+        saved = await addressService.update(selectedAddressId, formData);
       } else {
-        // Create new address
-        url = `${baseUrl}/api/user-address`;
-        method = "POST";
+        saved = await addressService.create(formData);
       }
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error response:", errorText);
-        throw new Error(
-          `Failed to ${selectedAddressId ? "update" : "save"} address: ${response.status
-          } ${errorText}`
-        );
-      }
-
-      const data = await response.json();
-      // console.log("Save address response:", data);
       toast.success(
         `Address ${selectedAddressId ? "updated" : "saved"} successfully`
       );
@@ -802,18 +711,18 @@ const PaymentPage: React.FC = () => {
       // Update addresses list with the new/updated address
       setAddresses((prev) => {
         const existingIndex = prev.findIndex(
-          (addr) => addr.address_id === data.address.address_id
+          (addr) => addr.address_id === saved.address_id
         );
         if (existingIndex >= 0) {
           const updated = [...prev];
-          updated[existingIndex] = data.address;
+          updated[existingIndex] = saved as any;
           return updated;
         }
-        return [...prev, data.address];
+        return [...prev, saved as any];
       });
 
       // Set the newly saved/updated address as selected
-      setSelectedAddressId(data.address.address_id);
+      setSelectedAddressId(saved.address_id);
 
       // Only clear form if it's a new address
       if (!selectedAddressId) {
@@ -1092,30 +1001,7 @@ const PaymentPage: React.FC = () => {
 
   const handleDeleteAddress = async (addressId: number) => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        toast.error("Please login to continue");
-        return;
-      }
-
-      const baseUrl = API_BASE_URL.replace(/\/+$/, "");
-      const url = `${baseUrl}/api/user-address/${addressId}?user_id=${user?.id}`;
-
-      const response = await fetch(url, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Failed to delete address: ${response.status} ${errorText}`
-        );
-      }
+      await addressService.remove(addressId);
 
       // Remove the deleted address from the list
       setAddresses((prev) =>
@@ -1149,32 +1035,7 @@ const PaymentPage: React.FC = () => {
 
   const handleEditAddress = async (addressId: number) => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        toast.error("Please login to continue");
-        return;
-      }
-
-      const baseUrl = API_BASE_URL.replace(/\/+$/, "");
-      const url = `${baseUrl}/api/user-address/${addressId}?user_id=${user?.id}`;
-
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Failed to fetch address: ${response.status} ${errorText}`
-        );
-      }
-
-      const data = await response.json();
-      const address = data.address;
+      const address = await addressService.get(addressId);
 
       // Update form with address data
       setFormData({
@@ -1200,7 +1061,7 @@ const PaymentPage: React.FC = () => {
         setSelectedCountry(country);
       }
 
-      setSelectedAddressId(addressId);
+  setSelectedAddressId(addressId);
       toast.success("Address loaded for editing");
     } catch (error) {
       console.error("Error in handleEditAddress:", error);
@@ -1250,7 +1111,7 @@ const PaymentPage: React.FC = () => {
       }
 
       // Format the expiry year to be a full 4-digit year
-      const currentYear = new Date().getFullYear();
+  // const currentYear = new Date().getFullYear();
       const shortYear = parseInt(cardFormData.expiry_year);
       const fullYear = shortYear < 100 ? 2000 + shortYear : shortYear;
 
@@ -1394,7 +1255,6 @@ const PaymentPage: React.FC = () => {
         throw new Error("Failed to set default card");
       }
 
-      const data = await response.json();
       setSavedCards((prev) =>
         prev.map((card) => ({
           ...card,
