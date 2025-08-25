@@ -93,9 +93,11 @@ const Navbar: React.FC = () => {
 
   // Toggle document direction for Arabic
   useEffect(() => {
-    const isRtl = i18n.language === 'ar' || i18n.language?.startsWith('ar');
+    // const isRtl = i18n.language === 'zzz' || i18n.language?.startsWith('zz');
     if (typeof document !== 'undefined') {
-      document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+      // document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+      document.documentElement.dir = 'ltr';
+      
     }
   }, [i18n.language]);
 
@@ -322,16 +324,16 @@ const Navbar: React.FC = () => {
                   {/* Icons */}
                   <div className="flex items-center gap-2 nav:gap-3 mid:gap-4 xl:gap-8 xl:mr-6 mid:mr-4">
                     {/* Language Switcher */}
-                    <div className="relative" ref={languageDropdownRef}>
+          <div className="relative" ref={languageDropdownRef}>
                       <button
                         onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-                        className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors text-gray-800"
                         aria-label="Language Selector"
                       >
                         <span className="text-lg">
                           {languageOptions.find(lang => lang.code === (i18n.language?.split('-')[0] || 'en'))?.flag || '🇺🇸'}
                         </span>
-                        <span className="text-sm font-medium">
+            <span className="text-sm font-medium text-gray-900">
                           {languageOptions.find(lang => lang.code === (i18n.language?.split('-')[0] || 'en'))?.code.toUpperCase() || 'EN'}
                         </span>
                         <ChevronDown className={`w-4 h-4 transition-transform ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />

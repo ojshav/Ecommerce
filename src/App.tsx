@@ -261,8 +261,9 @@ const VisitTracker: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 const App: React.FC = () => {
   const { i18n } = useTranslation();
   useEffect(() => {
-    const isRtl = i18n.language === 'ar' || i18n.language?.startsWith('ar');
-    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+    // const isRtl = i18n.language === 'ar' || i18n.language?.startsWith('ar');
+    // document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+    document.documentElement.dir = 'ltr';
   }, [i18n.language]);
   return (
     <ToastProvider>
