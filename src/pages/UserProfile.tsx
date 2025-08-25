@@ -13,6 +13,7 @@ import { useAuth } from "../context/AuthContext";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import ConfirmationModal from "../components/common/ConfirmationModal";
+import { addressService, type Address as AddressModel } from "../services/address";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(
   /\/+$/,
@@ -20,26 +21,13 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(
 );
 
 // --- Interfaces ---
-interface Address {
-  address_id: number;
-  user_id: number;
-  user_email: string;
-  contact_name: string;
-  contact_phone: string;
-  address_line1: string;
-  address_line2: string;
-  landmark: string;
-  city: string;
-  state_province: string;
-  postal_code: string;
-  country_code: string;
-  address_type: "shipping" | "billing";
-  is_default_shipping: boolean;
-  is_default_billing: boolean;
-  full_address_str: string;
-  created_at: string;
-  updated_at: string;
-}
+type Address = AddressModel & {
+  user_id?: number;
+  user_email?: string;
+  full_address_str?: string;
+  created_at?: string;
+  updated_at?: string;
+};
 
 interface PaymentMethod {
   // For displaying fetched cards
@@ -135,7 +123,7 @@ const AVATAR_OPTIONS: AvatarOption[] = [
 ];
 
 const UserProfile: React.FC = () => {
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   // --- State Declarations ---
@@ -191,7 +179,7 @@ const UserProfile: React.FC = () => {
     landmark: "",
     contact_phone: "",
   });
-  const [showAddressAdded, setShowAddressAdded] = useState(false);
+  const [showAddressAdded] = useState(false);
   const [showEditAddressModal, setShowEditAddressModal] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
@@ -258,25 +246,10 @@ const UserProfile: React.FC = () => {
 
   const fetchUserAddresses = async () => {
     if (!user?.id) return;
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      return;
-    }
     setLoadingAddresses(true);
     setAddressesError(null);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/user-address?user_id=${user.id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch addresses.");
-      }
-      const data = await response.json();
-      const fetchedAddresses = data.addresses || [];
+      const fetchedAddresses = await addressService.list();
       setAddresses(fetchedAddresses);
       if (fetchedAddresses.length > 0) {
         const defaultShipping = fetchedAddresses.find(
@@ -388,7 +361,7 @@ const UserProfile: React.FC = () => {
       if (!response.ok) throw new Error(result.error || "Upload failed");
       const newImageUrl = result.profile_img_url;
       setUserInfo((prev) => ({ ...prev, profile_img: newImageUrl }));
-      if (user && setUser) setUser({ ...user, profile_img: newImageUrl });
+  // if you maintain user in context, it will update from backend on next fetch
       toast.success("Profile image updated!", { id: toastId });
       setIsImageModalOpen(false);
     } catch (err) {
@@ -460,8 +433,7 @@ const UserProfile: React.FC = () => {
         state: editedUserInfo.state,
         zipCode: editedUserInfo.zipCode,
       }));
-      if (user && setUser)
-        setUser({ ...user, first_name: firstName, last_name: lastName });
+  // User context will reflect changes on next profile fetch
       setIsEditing(false);
       toast.success("Profile updated successfully!", { id: toastId });
     } catch (err) {
@@ -499,33 +471,20 @@ const UserProfile: React.FC = () => {
       return;
     }
     const payload = {
-      user_id: user?.id,
       contact_name: userInfo.fullName,
       contact_phone: newAddress.contact_phone,
       address_line1: newAddress.address_line1,
-      address_line2: newAddress.address_line2 || null,
-      landmark: newAddress.landmark || null,
+      address_line2: newAddress.address_line2 || undefined,
+      landmark: newAddress.landmark || undefined,
       city: newAddress.city,
       state_province: newAddress.state_province,
       postal_code: newAddress.postal_code,
       country_code: newAddress.country_code,
-      address_type: "shipping",
+      address_type: "shipping" as const,
     };
     const toastId = toast.loading("Adding address...");
     try {
-      const response = await fetch(`${API_BASE_URL}/api/user-address`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to add address");
-      }
+  await addressService.create(payload);
       toast.success("Address added successfully", { id: toastId });
       setShowAddressModal(false);
       setNewAddress({
@@ -564,30 +523,12 @@ const UserProfile: React.FC = () => {
       toast.error("Please login to continue");
       return;
     }
-    const payload = { ...editingAddress, user_id: user?.id };
-    delete (payload as any).full_address_str;
-    delete (payload as any).user_email;
-    delete (payload as any).created_at;
-    delete (payload as any).updated_at;
+    const { address_id, ...rest } = editingAddress;
+    const payload = { ...rest } as Partial<AddressModel>;
 
     const toastId = toast.loading("Updating address...");
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/user-address/${editingAddress.address_id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update address");
-      }
+  await addressService.update(editingAddress.address_id, payload);
       toast.success("Address updated successfully", { id: toastId });
       setShowEditAddressModal(false);
       setEditingAddress(null);
@@ -609,20 +550,7 @@ const UserProfile: React.FC = () => {
     }
     const toastId = toast.loading("Deleting address...");
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/user-address/${addressId}?user_id=${user?.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete address");
-      }
+      await addressService.remove(addressId);
       toast.success("Address deleted successfully", { id: toastId });
       fetchUserAddresses();
     } catch (error) {
@@ -645,22 +573,7 @@ const UserProfile: React.FC = () => {
     }
     const toastId = toast.loading("Setting default address...");
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/user-address/${addressId}/default/${addressType}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ user_id: user?.id }),
-        }
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to set default address");
-      }
+      await addressService.setDefault(addressId, addressType);
       toast.success(`Default ${addressType} address updated successfully`, {
         id: toastId,
       });
@@ -1978,7 +1891,7 @@ const UserProfile: React.FC = () => {
                   <input
                     type="text"
                     className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-orange-500 focus:border-orange-500 transition"
-                    value={editingAddress.address_line2}
+                    value={editingAddress.address_line2 || ""}
                     onChange={(e) =>
                       setEditingAddress((prev) =>
                         prev ? { ...prev, address_line2: e.target.value } : null
@@ -2079,7 +1992,7 @@ const UserProfile: React.FC = () => {
                   <input
                     type="text"
                     className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-orange-500 focus:border-orange-500 transition"
-                    value={editingAddress.landmark}
+                    value={editingAddress.landmark || ""}
                     onChange={(e) =>
                       setEditingAddress((prev) =>
                         prev ? { ...prev, landmark: e.target.value } : null

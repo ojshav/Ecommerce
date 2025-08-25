@@ -5,6 +5,7 @@ import { useShopCartOperations } from '../../context/ShopCartContext';
 import { toast } from 'react-hot-toast';
 import { MapPin, Edit2, Trash2, ChevronDown, CreditCard, Plus, X } from 'lucide-react';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
+import { addressService, type Address as AddressModel } from '../../services/address';
 
 // Local interfaces to match what the API actually returns
 interface ShopCartItem {
@@ -36,21 +37,7 @@ const COUNTRY_CODES = [
   { code: "SA", name: "Saudi Arabia", phoneCode: "+966" },
 ];
 
-interface Address {
-  address_id: number;
-  contact_name: string;
-  contact_phone: string;
-  address_line1: string;
-  address_line2?: string;
-  landmark?: string;
-  city: string;
-  state_province: string;
-  postal_code: string;
-  country_code: string;
-  address_type: "shipping" | "billing";
-  is_default_shipping: boolean;
-  is_default_billing: boolean;
-}
+type Address = AddressModel;
 
 interface PaymentCard {
   card_id: number;
@@ -82,7 +69,7 @@ const ShopOrder: React.FC<ShopOrderProps> = ({ shopId, shopName }) => {
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   
   // Address management states
-  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addresses, setAddresses] = useState<AddressModel[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
@@ -147,33 +134,11 @@ const ShopOrder: React.FC<ShopOrderProps> = ({ shopId, shopName }) => {
 
   const loadAddresses = async () => {
     if (!user?.id) return;
-    
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
-
-      const baseUrl = API_BASE_URL.replace(/\/+$/, "");
-      const url = `${baseUrl}/api/user-address?user_id=${user.id}`;
-      
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // console.log('Address API response:', data); // Debug log
-        if (data.addresses) {
-          setAddresses(data.addresses);
-          // Auto-select default shipping address
-          const defaultShipping = data.addresses.find((addr: Address) => addr.is_default_shipping);
-          if (defaultShipping) {
-            setSelectedAddressId(defaultShipping.address_id);
-          }
-        }
-      }
+      const list = await addressService.list();
+      setAddresses(list);
+      const def = list.find((addr) => addr.is_default_shipping);
+      if (def) setSelectedAddressId(def.address_id);
     } catch (error) {
       console.error('Failed to load addresses:', error);
     }
@@ -260,31 +225,10 @@ const ShopOrder: React.FC<ShopOrderProps> = ({ shopId, shopName }) => {
 
   const handleDeleteAddress = async (addressId: number) => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        toast.error("Please login to continue");
-        return;
-      }
-
-      const baseUrl = API_BASE_URL.replace(/\/+$/, "");
-      const response = await fetch(`${baseUrl}/api/user-address/${addressId}?user_id=${user?.id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        toast.success("Address deleted successfully");
-        await loadAddresses();
-        if (selectedAddressId === addressId) {
-          setSelectedAddressId(null);
-        }
-      } else {
-        const errorData = await response.json();
-        toast.error(errorData.message || "Failed to delete address");
-      }
+      await addressService.remove(addressId);
+      toast.success("Address deleted successfully");
+      await loadAddresses();
+      if (selectedAddressId === addressId) setSelectedAddressId(null);
     } catch (error) {
       console.error("Error deleting address:", error);
       toast.error("Failed to delete address");
@@ -307,41 +251,17 @@ const ShopOrder: React.FC<ShopOrderProps> = ({ shopId, shopName }) => {
         return;
       }
 
-      const baseUrl = API_BASE_URL.replace(/\/+$/, "");
-      const url = editingAddressId 
-        ? `${baseUrl}/api/user-address/${editingAddressId}`
-        : `${baseUrl}/api/user-address`;
-      
-      const method = editingAddressId ? "PUT" : "POST";
-      const requestData = {
-        ...addressFormData,
-        user_id: user?.id,
-      };
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        toast.success(`Address ${editingAddressId ? 'updated' : 'added'} successfully`);
-        await loadAddresses();
-        
-        if (!editingAddressId && data.data?.address_id) {
-          setSelectedAddressId(data.data.address_id);
-        }
-        
-        setShowAddressForm(false);
-        setEditingAddressId(null);
+      let saved: AddressModel;
+      if (editingAddressId) {
+        saved = await addressService.update(editingAddressId, addressFormData);
       } else {
-        const errorData = await response.json();
-        toast.error(errorData.message || `Failed to ${editingAddressId ? 'update' : 'add'} address`);
+        saved = await addressService.create(addressFormData);
       }
+      toast.success(`Address ${editingAddressId ? 'updated' : 'added'} successfully`);
+      await loadAddresses();
+      if (!editingAddressId && saved?.address_id) setSelectedAddressId(saved.address_id);
+      setShowAddressForm(false);
+      setEditingAddressId(null);
     } catch (error) {
       console.error("Error saving address:", error);
       toast.error(`Failed to ${editingAddressId ? 'update' : 'add'} address`);
