@@ -11,14 +11,12 @@ import { useAmazonTranslate } from "../../hooks/useAmazonTranslate";
 
 interface ProductCardProps {
   product: Product;
-  isNew?: boolean;
   isBuiltIn?: boolean;
   salePercentage?: number;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
-  isNew = false,
   isBuiltIn = false,
   salePercentage,
 }) => {
@@ -188,18 +186,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="relative h-72 w-full bg-white">
         {/* Product badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
-          {isNew && (
-            <span className="w-[50px] h-[24px] bg-[#F2631F] text-white text-[12px] font-medium flex items-center justify-center px-1.5 py-0.5 rounded-[4px]">
-              New
-            </span>
-          )}
           {product.stock === 0 && (
             <span className="bg-gray-400 text-black text-[10px] px-1.5 py-0.5 rounded">
               Sold Out
             </span>
           )}
-          {!isNew &&
-            product.stock > 0 &&
+          {product.stock > 0 &&
             (salePercentage || calculateSalePercentage() > 0) && (
               <span className="bg-[#F2631F] text-white text-[10px] px-1.5 py-0.5 rounded">
                 -{salePercentage || calculateSalePercentage()}%

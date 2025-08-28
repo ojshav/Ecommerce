@@ -786,7 +786,6 @@ const Products: React.FC = () => {
                   >
                     <ProductCard 
                       product={product}
-                      isNew={product.isNew ?? false}
                       isBuiltIn={product.isBuiltIn ?? false}
                     />
                   </div>
@@ -901,7 +900,6 @@ const Products: React.FC = () => {
                 >
                   <ProductCard
                     product={product}
-                    isNew={product.isNew ?? false}
                     isBuiltIn={product.isBuiltIn ?? false}
                   />
                 </div>
