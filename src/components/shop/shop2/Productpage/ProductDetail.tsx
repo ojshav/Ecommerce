@@ -55,6 +55,66 @@ const ProductDetail = () => {
   const [tAttrNames, setTAttrNames] = useState<Record<string, string>>({});
   const [tAttrValues, setTAttrValues] = useState<Record<string, string>>({});
 
+  // Helper function to extract available attributes from product data (similar to Shop4)
+  const extractAvailableAttributes = (product: Product): Array<{name: string, value: string, attribute_id: number}> => {
+    const attributes: Array<{name: string, value: string, attribute_id: number}> = [];
+    
+    // Get parent product attributes first
+    const parentAttrs = product.attributes || [];
+    const variantAttrs = product.variant_attributes || [];
+    
+    // Build parent defaults map
+    const parentDefaults: Record<string, string> = {};
+    parentAttrs.forEach(attr => {
+      const attrName = attr.attribute?.name;
+      const attrValue = attr.value;
+      if (attrName && attrValue) {
+        parentDefaults[attrName] = attrValue;
+      }
+    });
+
+    if (product.has_variants) {
+      // For variant products: Use variant attributes as the primary source
+      // This prevents duplicates by only using variant attributes
+      variantAttrs.forEach(attr => {
+        if (attr.name && attr.values && Array.isArray(attr.values)) {
+          const allValues = new Set<string>();
+
+          // Add parent value if it exists for this attribute
+          if (parentDefaults[attr.name]) {
+            allValues.add(parentDefaults[attr.name]);
+          }
+
+          // Add all variant values
+          attr.values.forEach(value => allValues.add(value));
+
+          attributes.push({
+            name: attr.name,
+            value: Array.from(allValues).sort().join(', '),
+            attribute_id: 0 // Use 0 as default since VariantAttribute doesn't have attribute_id
+          });
+        }
+      });
+    } else {
+      // For non-variant products: Show parent product attributes (read-only)
+      // console.log('Product does not have variants, showing parent product attributes');
+      parentAttrs.forEach(attr => {
+        const attrName = attr.attribute?.name;
+        const attrValue = attr.value;
+
+        if (attrName && attrValue) {
+          attributes.push({
+            name: attrName,
+            value: attrValue, // Single value, non-selectable
+            attribute_id: attr.attribute_id
+          });
+        }
+      });
+    }
+
+    return attributes;
+  };
+
   const availableAttrsMemo = useMemo(() => (product ? extractAvailableAttributes(product) : []), [product]);
 
   useEffect(() => {
@@ -301,66 +361,6 @@ const ProductDetail = () => {
   };
 
 
-
-  // Helper function to extract available attributes from product data (similar to Shop4)
-  const extractAvailableAttributes = (product: Product): Array<{name: string, value: string, attribute_id: number}> => {
-    const attributes: Array<{name: string, value: string, attribute_id: number}> = [];
-    
-    // Get parent product attributes first
-    const parentAttrs = product.attributes || [];
-    const variantAttrs = product.variant_attributes || [];
-    
-    // Build parent defaults map
-    const parentDefaults: Record<string, string> = {};
-    parentAttrs.forEach(attr => {
-      const attrName = attr.attribute?.name;
-      const attrValue = attr.value;
-      if (attrName && attrValue) {
-        parentDefaults[attrName] = attrValue;
-      }
-    });
-
-    if (product.has_variants) {
-      // For variant products: Use variant attributes as the primary source
-      // This prevents duplicates by only using variant attributes
-      variantAttrs.forEach(attr => {
-        if (attr.name && attr.values && Array.isArray(attr.values)) {
-          const allValues = new Set<string>();
-
-          // Add parent value if it exists for this attribute
-          if (parentDefaults[attr.name]) {
-            allValues.add(parentDefaults[attr.name]);
-          }
-
-          // Add all variant values
-          attr.values.forEach(value => allValues.add(value));
-
-          attributes.push({
-            name: attr.name,
-            value: Array.from(allValues).sort().join(', '),
-            attribute_id: 0 // Use 0 as default since VariantAttribute doesn't have attribute_id
-          });
-        }
-      });
-    } else {
-      // For non-variant products: Show parent product attributes (read-only)
-      // console.log('Product does not have variants, showing parent product attributes');
-      parentAttrs.forEach(attr => {
-        const attrName = attr.attribute?.name;
-        const attrValue = attr.value;
-
-        if (attrName && attrValue) {
-          attributes.push({
-            name: attrName,
-            value: attrValue, // Single value, non-selectable
-            attribute_id: attr.attribute_id
-          });
-        }
-      });
-    }
-
-    return attributes;
-  };
 
   // Removed helper functions for available variants filtering
 
