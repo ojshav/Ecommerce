@@ -72,7 +72,7 @@ const PaymentPage: React.FC = () => {
   const { cart, totalPrice, clearCart } = useCart();
   const [addresses, setAddresses] = useState<AddressModel[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deliveryToAnother, setDeliveryToAnother] = useState(false);
+
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
     null
@@ -94,6 +94,8 @@ const PaymentPage: React.FC = () => {
     is_default_shipping: true,
     is_default_billing: false,
   });
+
+
   // deprecated: card details handled via saved cards
   const [processingPayment, setProcessingPayment] = useState(false);
   const [savedCards, setSavedCards] = useState<PaymentCard[]>([]);
@@ -184,6 +186,10 @@ const PaymentPage: React.FC = () => {
       setPostalCodeError("");
     }
   };
+
+
+
+
 
   const handlePostalCodeBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -747,6 +753,8 @@ const PaymentPage: React.FC = () => {
       toast.error(`Failed to ${selectedAddressId ? "update" : "save"} address`);
     }
   };
+
+
 
   const handleOrder = async () => {
     if (!accessToken) {
@@ -1519,9 +1527,36 @@ const PaymentPage: React.FC = () => {
         </div>
 
         {/* Saved Addresses */}
-        {addresses.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-sm font-medium mb-3">{t('payment.savedAddresses')}</h3>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium">{t('payment.savedAddresses')}</h3>
+            <button
+              onClick={() => {
+                setSelectedAddressId(null);
+                setFormData({
+                  contact_name: "",
+                  contact_phone: "",
+                  address_line1: "",
+                  address_line2: "",
+                  landmark: "",
+                  city: "",
+                  state_province: "",
+                  postal_code: "",
+                  country_code: "IN",
+                  address_type: "shipping",
+                  is_default_shipping: true,
+                  is_default_billing: false,
+                });
+                setSelectedCountry(COUNTRY_CODES.find(c => c.code === "IN") || COUNTRY_CODES[0]);
+              }}
+              className="flex items-center gap-2 text-orange-500 hover:text-orange-600 text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Add New Address
+            </button>
+          </div>
+          
+          {addresses.length > 0 ? (
             <div className="grid grid-cols-1 gap-3">
               {addresses.map((address) => (
                 <div
@@ -1591,8 +1626,10 @@ const PaymentPage: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-sm text-gray-500 mb-3">No saved addresses found</div>
+          )}
+        </div>
 
         {/* Saved Cards */}
         {(paymentMethod === "credit_card" ||
@@ -1758,30 +1795,7 @@ const PaymentPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center mt-2">
-            <input
-              id="deliveryToAnother"
-              type="checkbox"
-              checked={deliveryToAnother}
-              onChange={() => setDeliveryToAnother(!deliveryToAnother)}
-              className="mr-2 accent-orange-500"
-            />
-            <label htmlFor="deliveryToAnother" className="text-sm font-medium">
-              {t('payment.deliveryToAnother')}
-            </label>
-          </div>
 
-          {deliveryToAnother && (
-            <div className="mt-4 p-4 border border-gray-200 rounded-lg">
-              <h3 className="text-sm font-medium mb-4">
-                Alternative Delivery Address
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Repeat the same address fields for alternative address */}
-                {/* You can create a separate form state for this */}
-              </div>
-            </div>
-          )}
 
           <div className="mt-4">
             <label className="block text-sm font-medium mb-1">{t('payment.note')}</label>
