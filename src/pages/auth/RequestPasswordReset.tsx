@@ -39,7 +39,7 @@ const RequestPasswordReset: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA] px-4 py-12">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-md p-10">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-md p-8 sm:p-10">
         <h2 className="text-2xl font-semibold mb-2 text-gray-800">Reset Password</h2>
         <p className="text-gray-600 mb-6 text-sm">
           Enter your email address and we'll send you instructions to reset your password.
@@ -51,7 +51,7 @@ const RequestPasswordReset: React.FC = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email*
@@ -62,22 +62,23 @@ const RequestPasswordReset: React.FC = () => {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F2631F] focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F2631F] focus:border-transparent"
               placeholder="you@example.com"
             />
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[#F2631F] hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto bg-[#F2631F] hover:bg-orange-600 text-white py-3 px-6 rounded-md font-medium transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Sending...' : 'Send Reset Link'}
             </button>
+            
             <Link
               to="/"
-              className="text-sm text-[#F2631F] hover:text-orange-600 font-medium"
+              className="text-sm text-[#F2631F] hover:text-orange-600 font-medium text-center sm:text-left"
             >
               Back to Home Page
             </Link>

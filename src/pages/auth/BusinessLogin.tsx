@@ -209,18 +209,18 @@ const BusinessLogin: React.FC = () => {
         </div>
   
         <div className="px-8 py-5 bg-gray-50 border-t border-gray-200 text-center text-sm text-gray-600">
-          <p>
-            Don't have a business account?{' '}
-            <Link to="/register-business" className="font-medium text-[#F2631F] hover:text-orange-400">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center">
+            <span>Don't have a business account?</span>
+            <Link to="/register-business" className="font-medium text-[#F2631F] hover:text-orange-400 sm:ml-1">
               Register
             </Link>
-          </p>
-          <p className="mt-2">
-            Need a personal account?{' '}
-            <Link to="/sign-in" className="font-medium text-[#F2631F] hover:text-orange-400">
+          </div>
+          <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-center">
+            <span>Need a personal account?</span>
+            <Link to="/sign-in" className="font-medium text-[#F2631F] hover:text-orange-400 sm:ml-1">
               Sign in as customer
             </Link>
-          </p>
+          </div>
         </div>
       </motion.div>
     </div>
