@@ -29,12 +29,32 @@ const Shop = () => {
   const navigate = useNavigate();
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [localTime, setLocalTime] = useState<Date>(new Date());
+  const [istTime, setIstTime] = useState<Date>(new Date());
+  const [gmtTime, setGmtTime] = useState<Date>(new Date());
+  const [userTimeZone, setUserTimeZone] = useState<string>('');
   const [hoveredBanner, setHoveredBanner] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [hasOpenedOnce, setHasOpenedOnce] = useState(false);
   const bannerRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const scrollRaf = useRef<number | null>(null);
+
+  const GEOIP_URL: string | undefined = (import.meta as { env: Record<string, string | undefined> }).env?.VITE_GEOIP_URL;
+
+  const computeTimes = (tz: string | null) => {
+    const now = new Date();
+    const safeTz = tz && tz.trim().length > 0 ? tz : undefined;
+    const computedLocal = safeTz ? new Date(now.toLocaleString('en-US', { timeZone: safeTz })) : now;
+    const computedIst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    const computedGmt = new Date(now.toLocaleString('en-US', { timeZone: 'Etc/UTC' }));
+    setLocalTime(computedLocal);
+    setIstTime(computedIst);
+    setGmtTime(computedGmt);
+    setCurrentTime(computedLocal);
+    const hour = computedLocal.getHours();
+    setIsShopOpen(hour >= 9 && hour < 22);
+  };
 
   // Calculate time remaining until closing (22:00)
   const calculateTimeLeft = () => {
@@ -87,26 +107,42 @@ const Shop = () => {
     }
   ];
 
-  // Check if shop is open (5 AM to 10 PM)
-  const checkShopStatus = () => {
-    const now = new Date();
-    const hour = now.getHours();
-    return hour >= 5 && hour < 22; // 9 AM to 10 PM (22:00)
-  };
+  // Initial timezone detection via ENV-configured GEOIP endpoint, fallback to browser
+  useEffect(() => {
+    let isMounted = true;
+    const detectTimezone = async () => {
+      try {
+        if (GEOIP_URL) {
+          const resp = await fetch(GEOIP_URL, { headers: { Accept: 'application/json' } });
+          if (resp.ok) {
+            const data: { timezone?: string } = await resp.json();
+            const tz = (data && typeof data.timezone === 'string') ? data.timezone : undefined;
+            if (isMounted) {
+              setUserTimeZone(tz ?? '');
+              computeTimes(tz ?? null);
+            }
+            return;
+          }
+        }
+      } catch (_e) {
+        // ignore and fallback
+      }
+      const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      setUserTimeZone(browserTz || '');
+      computeTimes(browserTz || null);
+    };
+    detectTimezone();
+    return () => { isMounted = false; };
+  }, []);
 
-  // Update time and shop status
+  // Update local/IST/GMT times and shop status every minute
   useEffect(() => {
     const updateStatus = () => {
-      const now = new Date();
-      setCurrentTime(now);
-      setIsShopOpen(checkShopStatus());
+      computeTimes(userTimeZone || null);
     };
-
-    updateStatus(); // Initial check
-    const interval = setInterval(updateStatus, 60000); // Update every minute
-
+    const interval = setInterval(updateStatus, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [userTimeZone]);
 
   // Animation trigger on mount
   useEffect(() => {
@@ -406,7 +442,17 @@ const Shop = () => {
                       <div className="absolute inset-0 w-4 h-4 rounded-full bg-orange-500/30 animate-ping"></div>
                     </div>
                     <span className="text-gray-700 font-semibold text-sm sm:text-base">{t('home.sections.currentTime')}</span>
-                    <span className="text-gray-900 font-bold text-sm sm:text-base animate-text-fade">{formatTime(currentTime)}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-900 font-semibold text-xs sm:text-sm bg-white/70 px-2 py-1 rounded-full">
+                        {t('home.sections.localTime')}: {formatTime(localTime)}
+                      </span>
+                      <span className="text-gray-900 font-semibold text-xs sm:text-sm bg-white/70 px-2 py-1 rounded-full">
+                        {t('home.sections.istTime')}: {formatTime(istTime)}
+                      </span>
+                      <span className="text-gray-900 font-semibold text-xs sm:text-sm bg-white/70 px-2 py-1 rounded-full">
+                        {t('home.sections.gmtTime')}: {formatTime(gmtTime)}
+                      </span>
+                    </div>
                   </div>
                   
                   <div className="flex items-center space-x-3 relative z-10">
