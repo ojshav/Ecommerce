@@ -891,14 +891,14 @@ const Products: React.FC = () => {
               <h2 className="text-lg font-semibold font-worksans">Recently Viewed</h2>
             </div>
             
-            {/* Mobile: horizontal scroll - one product at a time */}
+            {/* Mobile: horizontal scroll with proper sizing */}
             <div className="lg:hidden -mx-4 px-4 overflow-x-auto">
               <div className="flex gap-4 snap-x snap-mandatory">
                 {recentlyViewed.map((product) => (
                   <div
                     key={product.id}
                     onClick={() => handleProductClick(String(product.id))}
-                    className="cursor-pointer transform transition-transform hover:scale-[1.02] snap-start flex-shrink-0 w-full max-w-sm"
+                    className="cursor-pointer transform transition-transform hover:scale-[1.02] snap-start flex-shrink-0 w-full sm:w-72"
                   >
                     <ProductCard
                       product={product}
@@ -910,7 +910,7 @@ const Products: React.FC = () => {
             </div>
 
             {/* Desktop: keep grid layout */}
-            <div className="hidden lg:grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
+            <div className="hidden lg:grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
               {recentlyViewed.map((product) => (
                 <div 
                   key={product.id}
