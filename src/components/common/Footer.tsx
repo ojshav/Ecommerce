@@ -70,10 +70,10 @@ const Footer: React.FC = () => {
                 <Phone size={16} className="text-[#161616] flex-shrink-0" />
                 <a href="tel: 9977131788" className="text-[#F2631F] ">+91 9977131788</a>
               </div>
-              <div className="flex items-center space-x-3">
-                <Mail size={16} className="text-[#161616] flex-shrink-0" />
-                <span className="text-[#F2631F]">info@aoin11.com</span>
-              </div>
+                              <div className="flex items-center space-x-3">
+                  <Mail size={16} className="text-[#161616] flex-shrink-0" />
+                  <a href="mailto:info@aoin11.com" className="text-[#F2631F] hover:underline transition-colors">info@aoin11.com</a>
+                </div>
             </div>
           </div>
 
@@ -122,10 +122,10 @@ const Footer: React.FC = () => {
               <li><Link to="/contact" className="hover:text-[#F2631F] transition-colors">{t('footer.contactUs')}</Link></li>
               <li><Link to="terms" className="hover:text-[#F2631F] transition-colors">{t('footer.termsConditions')}</Link></li>
               <li><Link to="/shipping" className="hover:text-[#F2631F] transition-colors">{t('footer.shippingMethods')}</Link></li>
-              <li className="mt-2">
-                <div>{t('footer.mailUs')}</div>
-                <span className="text-[#F2631F]">info@aoin11.com</span>
-              </li>
+                              <li className="mt-2">
+                  <div>{t('footer.mailUs')}</div>
+                  <a href="mailto:info@aoin11.com" className="text-[#F2631F] hover:underline transition-colors">info@aoin11.com</a>
+                </li>
             </ul>
           </div>
 
