@@ -14,7 +14,7 @@ const ShippingDelivery = () => {
         <h1 className="text-[36px] font-medium text-[#FF4D00] mb-6">Shipping & Delivery Policy</h1>
         
         <p className="text-gray-600 mb-8">
-          Thank you for choosing AUIN. We are committed to providing you with a smooth and efficient 
+          Thank you for choosing Aoin. We are committed to providing you with a smooth and efficient 
           delivery experience. Please read our shipping and delivery policy below to understand our shipping options, timeframes, and policies.
         </p>
 

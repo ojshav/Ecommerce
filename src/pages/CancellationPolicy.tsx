@@ -53,7 +53,7 @@ const CancellationPolicy: React.FC = () => {
         <div className="mb-10 text-center">
           <h1 className="text-[36px] font-medium text-[#FF4D00] mb-3">Cancellation Policy</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            At AUIN, we understand that circumstances can change. We strive to make cancellations as easy and transparent as possible while ensuring fair treatment for all customers.
+            At Aoin, we understand that circumstances can change. We strive to make cancellations as easy and transparent as possible while ensuring fair treatment for all customers.
           </p>
         </div>
         
@@ -95,7 +95,7 @@ const CancellationPolicy: React.FC = () => {
           icon={<CalendarClock size={24} />}
         >
           <p className="text-gray-700 mb-4">
-            For AUIN subscription services and recurring orders:
+            For Aoin subscription services and recurring orders:
           </p>
           <div className="space-y-3 mb-4">
             <div className="flex items-start">
@@ -160,7 +160,7 @@ const CancellationPolicy: React.FC = () => {
           <div className="space-y-3 mb-4">
             <div className="flex items-start">
               <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 mt-0.5 mr-3 flex-shrink-0">1</div>
-              <p className="text-gray-700"><strong>Online:</strong> Log into your AUIN account and navigate to "Order History" or "Subscriptions" to cancel directly.</p>
+              <p className="text-gray-700"><strong>Online:</strong> Log into your Aoin account and navigate to "Order History" or "Subscriptions" to cancel directly.</p>
             </div>
             <div className="flex items-start">
               <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 mt-0.5 mr-3 flex-shrink-0">2</div>
