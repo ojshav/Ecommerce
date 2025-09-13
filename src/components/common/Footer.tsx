@@ -50,7 +50,7 @@ const Footer: React.FC = () => {
           {/* Column 1 - Logo & Contact */}
           <div className="lg:col-span-1">
             <Link to="/" className="inline-block mb-6 lg:mb-8">
-              <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687784/public_assets_images/public_assets_images_logo.svg" alt="AUIN" className="h-8 sm:h-10" />
+              <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687784/public_assets_images/public_assets_images_logo.svg" alt="Aoin" className="h-8 sm:h-10" />
             </Link>
 
             <div className="space-y-3 lg:space-y-4 text-[13px] sm:text-[14px] font-light text-[#161616]">
