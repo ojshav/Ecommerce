@@ -9,10 +9,7 @@ import {
   Edit2,
   Trash2,
   ChevronDown,
-  CreditCard,
   Plus,
-  Star,
-  X,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -49,21 +46,21 @@ const COUNTRY_CODES = [
 
 type Address = AddressModel;
 
-// Add new interface for payment card
-interface PaymentCard {
-  card_id: number;
-  user_id: number;
-  card_type: "credit" | "debit";
-  last_four_digits: string;
-  card_holder_name: string;
-  card_brand: string;
-  status: "active" | "expired" | "suspended" | "deleted";
-  is_default: boolean;
-  billing_address: Address | null;
-  last_used_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
+// Payment card UI removed
+// interface PaymentCard {
+//   card_id: number;
+//   user_id: number;
+//   card_type: "credit" | "debit";
+//   last_four_digits: string;
+//   card_holder_name: string;
+//   card_brand: string;
+//   status: "active" | "expired" | "suspended" | "deleted";
+//   is_default: boolean;
+//   billing_address: Address | null;
+//   last_used_at: string | null;
+//   created_at: string;
+//   updated_at: string;
+// }
 
 //
 
@@ -74,7 +71,7 @@ const PaymentPage: React.FC = () => {
   const [addresses, setAddresses] = useState<AddressModel[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [paymentMethod, setPaymentMethod] = useState("credit_card");
+  const [paymentMethod, setPaymentMethod] = useState("razorpay");
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
     null
   );
@@ -101,25 +98,25 @@ const PaymentPage: React.FC = () => {
 
   // deprecated: card details handled via saved cards
   const [processingPayment, setProcessingPayment] = useState(false);
-  const [savedCards, setSavedCards] = useState<PaymentCard[]>([]);
-  const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
-  const [showCardForm, setShowCardForm] = useState(false);
-  const [savingCard, setSavingCard] = useState(false);
+  // const [savedCards, setSavedCards] = useState<PaymentCard[]>([]);
+  // const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+  // const [showCardForm, setShowCardForm] = useState(false);
+  // const [savingCard, setSavingCard] = useState(false);
   const [shippingCost, setShippingCost] = useState<number>(0);
   const [shippingLoading, setShippingLoading] = useState(false);
   const [availableCouriers, setAvailableCouriers] = useState<any[]>([]);
   const [selectedCourier, setSelectedCourier] = useState<any>(null);
   const [shippingRequestId, setShippingRequestId] = useState<string>(""); // To prevent duplicate requests
-  const [cardFormData, setCardFormData] = useState({
-    card_number: "",
-    cvv: "",
-    expiry_month: "",
-    expiry_year: "",
-    card_holder_name: "",
-    card_type: "credit" as "credit" | "debit",
-    billing_address_id: null as number | null,
-    is_default: false,
-  });
+  // const [cardFormData, setCardFormData] = useState({
+  //   card_number: "",
+  //   cvv: "",
+  //   expiry_month: "",
+  //   expiry_year: "",
+  //   card_holder_name: "",
+  //   card_type: "credit" as "credit" | "debit",
+  //   billing_address_id: null as number | null,
+  //   is_default: false,
+  // });
   // Add state for delete confirmation modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<Address | null>(null);
@@ -205,15 +202,8 @@ const PaymentPage: React.FC = () => {
     }
   };
 
-  const handleCardInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setCardFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  // Card input handlers removed
+  // const handleCardInputChange = () => {};
 
   // Create Razorpay order
   const createRazorpayOrder = async (amount: number): Promise<string | null> => {
@@ -1051,13 +1041,7 @@ const PaymentPage: React.FC = () => {
       toast.error("Please select a shipping address");
       return;
     }
-    if (
-      (paymentMethod === "credit_card" || paymentMethod === "debit_card") &&
-      !selectedCardId
-    ) {
-      toast.error("Please select a payment card.");
-      return;
-    }
+    // Card methods removed; no need to require a selected card
 
     // Handle Razorpay payment
     if (paymentMethod === "razorpay") {
@@ -1185,10 +1169,7 @@ const PaymentPage: React.FC = () => {
         appliedPromo && appliedPromo.code
           ? `Promo code used: ${appliedPromo.code}`
           : "",
-      payment_card_id:
-        paymentMethod === "credit_card" || paymentMethod === "debit_card"
-          ? selectedCardId
-          : undefined,
+      // Card methods removed: do not send payment_card_id
     };
 
     try {
@@ -1209,16 +1190,7 @@ const PaymentPage: React.FC = () => {
       if (responseData.status === "success") {
         const orderId = responseData.data.order_id;
 
-        // Process payment if credit/debit card is selected
-        if (paymentMethod === "credit_card" || paymentMethod === "debit_card") {
-          const paymentSuccess = await processCardPayment(
-            orderId,
-            selectedCardId || 0
-          );
-          if (!paymentSuccess) {
-            return;
-          }
-        }
+        // Card payment methods removed; no additional processing needed
 
         // Create merchant transactions for all merchants involved in the order
         const merchantTransactionsSuccess = await createMerchantTransactions(
@@ -1399,35 +1371,12 @@ const PaymentPage: React.FC = () => {
   };
 
   // Add function to fetch saved cards
-  const fetchSavedCards = async () => {
+  const fetchSavedCards = async () => { /* no-op: cards removed */ };
+
+  // Add function to save new card (removed)
+  /* const handleSaveCard = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
-
-      const baseUrl = API_BASE_URL.replace(/\/+$/, "");
-      const response = await fetch(`${baseUrl}/api/payment-cards`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch saved cards");
-      }
-
-      const data = await response.json();
-      setSavedCards(data.data);
-    } catch (error) {
-      console.error("Error fetching saved cards:", error);
-      toast.error("Failed to load saved cards");
-    }
-  };
-
-  // Add function to save new card
-  const handleSaveCard = async () => {
-    try {
-      setSavingCard(true);
+      // cards removed
       const token = localStorage.getItem("access_token");
       if (!token) {
         toast.error("Please login to continue");
@@ -1441,20 +1390,11 @@ const PaymentPage: React.FC = () => {
 
       // Format the expiry year to be a full 4-digit year
   // const currentYear = new Date().getFullYear();
-      const shortYear = parseInt(cardFormData.expiry_year);
-      const fullYear = shortYear < 100 ? 2000 + shortYear : shortYear;
+      // const shortYear = 0;
+      // const fullYear = shortYear;
 
       // Format the card data according to the API requirements
-      const cardData = {
-        card_type: cardFormData.card_type,
-        card_holder_name: cardFormData.card_holder_name,
-        billing_address_id: selectedAddressId,
-        is_default: cardFormData.is_default,
-        card_number: cardFormData.card_number.replace(/\s/g, ""), // Remove spaces and ensure we're sending the actual number
-        cvv: cardFormData.cvv,
-        expiry_month: cardFormData.expiry_month.padStart(2, "0"), // Ensure 2 digits
-        expiry_year: fullYear.toString(), // Use full 4-digit year
-      };
+      const cardData = {} as any;
 
       // Debug: Log the request data (masked for security)
       // console.log("Sending card data:", {
@@ -1494,18 +1434,6 @@ const PaymentPage: React.FC = () => {
       }
 
       if (responseData.status === "success") {
-        setSavedCards((prev) => [...prev, responseData.data]);
-        setShowCardForm(false);
-        setCardFormData({
-          card_number: "",
-          cvv: "",
-          expiry_month: "",
-          expiry_year: "",
-          card_holder_name: "",
-          card_type: "credit",
-          billing_address_id: null,
-          is_default: false,
-        });
         toast.success("Card saved successfully");
       } else {
         throw new Error(responseData.message || "Failed to save card");
@@ -1522,12 +1450,12 @@ const PaymentPage: React.FC = () => {
         error instanceof Error ? error.message : "Failed to save card"
       );
     } finally {
-      setSavingCard(false);
+      // setSavingCard(false);
     }
-  };
+  }; */
 
   // Add function to delete card
-  const handleDeleteCard = async (cardId: number) => {
+  /* const handleDeleteCard = async (cardId: number) => {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
@@ -1548,7 +1476,7 @@ const PaymentPage: React.FC = () => {
         throw new Error("Failed to delete card");
       }
 
-      setSavedCards((prev) => prev.filter((card) => card.card_id !== cardId));
+      // update local state removed
       if (selectedCardId === cardId) {
         setSelectedCardId(null);
       }
@@ -1557,10 +1485,10 @@ const PaymentPage: React.FC = () => {
       console.error("Error deleting card:", error);
       toast.error("Failed to delete card");
     }
-  };
+  }; */
 
   // Add function to set default card
-  const handleSetDefaultCard = async (cardId: number) => {
+  /* const handleSetDefaultCard = async (cardId: number) => {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
@@ -1584,20 +1512,16 @@ const PaymentPage: React.FC = () => {
         throw new Error("Failed to set default card");
       }
 
-      setSavedCards((prev) =>
-        prev.map((card) => ({
-          ...card,
-          is_default: card.card_id === cardId,
-        }))
-      );
+      // update local state removed
       toast.success("Default card updated successfully");
     } catch (error) {
       console.error("Error setting default card:", error);
       toast.error("Failed to set default card");
     }
-  };
+  }; */
 
   // Add renderSavedCards function
+  /*
   const renderSavedCards = () => {
     if (savedCards.length === 0) {
       return (
@@ -1824,6 +1748,7 @@ const PaymentPage: React.FC = () => {
       </div>
     );
   };
+  */
 
   if (loading) {
     return (
@@ -1952,14 +1877,7 @@ const PaymentPage: React.FC = () => {
           )}
         </div>
 
-        {/* Saved Cards */}
-        {(paymentMethod === "credit_card" ||
-          paymentMethod === "debit_card") && (
-            <>
-              {renderSavedCards()}
-              {showCardForm && renderCardForm()}
-            </>
-          )}
+        {/* Saved Cards (hidden since card methods are removed) */}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2164,28 +2082,6 @@ const PaymentPage: React.FC = () => {
         <div className="mb-6 ">
           <div className="font-medium mb-3">{t('payment.paymentMethod')}</div>
           <div className="flex flex-col gap-2">
-            <label className="flex items-center  gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="credit_card"
-                checked={paymentMethod === "credit_card"}
-                onChange={() => setPaymentMethod("credit_card")}
-                className="accent-orange-500 bg-transparent shadow-none align-middle"
-              />
-              <span className="text-black font-worksans ml-1  font-normal text-[14px]">{t('payment.creditCard')}</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="debit_card"
-                checked={paymentMethod === "debit_card"}
-                onChange={() => setPaymentMethod("debit_card")}
-                className="accent-orange-500 bg-transparent shadow-none align-middle"
-              />
-              <span className="text-black font-worksans ml-1 font-normal text-[14px]">{t('payment.debitCard')}</span>
-            </label>
             <label className="flex items-center  cursor-pointer">
               <input
                 type="radio"
@@ -2206,7 +2102,7 @@ const PaymentPage: React.FC = () => {
                 onChange={() => setPaymentMethod("razorpay")}
                 className="accent-orange-500 bg-transparent shadow-none align-middle"
               />
-              <span className="text-black font-worksans ml-1 font-normal text-[14px]">Razorpay (UPI/Cards/Net Banking)</span>
+              <span className="text-black font-worksans ml-1 font-normal text-[14px]">Pay Now</span>
             </label>
           </div>
         </div>
