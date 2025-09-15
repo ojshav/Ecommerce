@@ -861,6 +861,7 @@ const EditProduct: React.FC = () => {
                         {media.type.toLowerCase() === 'image' && (
                           <div className="flex gap-1">
                             <button
+                              type="button"
                               onClick={() => handleSetThumbnail(media.media_id)}
                               disabled={isUpdatingMedia || media.is_thumbnail}
                               className={`flex-1 inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium transition-colors ${
@@ -873,6 +874,7 @@ const EditProduct: React.FC = () => {
                               {media.is_thumbnail ? 'Thumbnail' : 'Set Thumbnail'}
                             </button>
                             <button
+                              type="button"
                               onClick={() => handleSetMainImage(media.media_id)}
                               disabled={isUpdatingMedia || media.is_main_image}
                               className={`flex-1 inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium transition-colors ${
@@ -891,6 +893,7 @@ const EditProduct: React.FC = () => {
 
                         {/* Delete Button */}
                         <button
+                          type="button"
                           onClick={() => openDeleteMediaModal(media.media_id)}
                           disabled={isUpdatingMedia}
                           className="w-full inline-flex items-center justify-center px-2 py-1 border border-transparent rounded text-xs font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none disabled:opacity-50"
@@ -1077,6 +1080,7 @@ const EditProduct: React.FC = () => {
           </div>
           <div className="mt-4 flex justify-end">
             <button
+              type="button"
               onClick={handleUpdateShipping}
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
             >
@@ -1173,6 +1177,7 @@ const EditProduct: React.FC = () => {
 
             <div className="flex justify-end">
               <button
+                type="button"
                 onClick={handleUpdateMeta}
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
               >
