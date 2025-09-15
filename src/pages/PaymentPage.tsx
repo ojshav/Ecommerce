@@ -237,22 +237,34 @@ const PaymentPage: React.FC = () => {
         }),
       });
 
+      const text = await response.text();
+      let data: any;
+      try { data = JSON.parse(text); } catch { data = { raw: text }; }
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          `Failed to create Razorpay order: ${response.status} ${JSON.stringify(errorData)}`
-        );
+        const message = data?.message || data?.error || text || 'Unknown error';
+        throw new Error(`Failed to create Razorpay order: ${response.status} ${message}`);
       }
-
-      const data = await response.json();
-      if (data.status === "success") {
-        return data.data.id;
-      } else {
-        throw new Error(data.message || "Failed to create Razorpay order");
+      // Accept multiple backend response shapes
+      if (data && typeof data === 'object') {
+        // Common success_response shape: { status: 'success', data: { id: 'order_...' } }
+        if (data.status === 'success' && data.data && data.data.id) {
+          return data.data.id;
+        }
+        // Alternate shape: { success: true, data: { id: 'order_...' } }
+        if (data.success === true && data.data && data.data.id) {
+          return data.data.id;
+        }
+        // Direct pass-through from provider: { id: 'order_...', ... }
+        if (data.id) {
+          return data.id;
+        }
       }
+      const detail = typeof data === 'object' ? JSON.stringify(data) : String(data);
+      throw new Error(data?.message || `Failed to create Razorpay order: ${detail}`);
     } catch (error) {
       console.error("Error creating Razorpay order:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to create payment order");
+      const msg = error instanceof Error ? error.message : String(error);
+      toast.error(msg);
       return null;
     }
   };
@@ -464,7 +476,8 @@ const PaymentPage: React.FC = () => {
         pickup_pincode: "474005", // This should come from merchant's address
         delivery_pincode: selectedAddress.postal_code,
         weight: totalWeight,
-        cod: isCOD, // Boolean: true for COD, false for prepaid
+        // ShipRocket accepts cod as integer 1/0; use 1 for COD, 0 for prepaid
+        cod: isCOD ? 1 : 0,
       };
 
       // Add cod_amount only if it's a COD order
@@ -802,7 +815,7 @@ const PaymentPage: React.FC = () => {
 
 
   // Razorpay payment handlers
-  const handleRazorpaySuccess = async (paymentId: string, razorpayOrderId: string) => {
+  const handleRazorpaySuccess = async (paymentId: string, razorpayOrderId: string, signature: string) => {
     try {
       setProcessingPayment(true);
       
@@ -818,6 +831,7 @@ const PaymentPage: React.FC = () => {
         body: JSON.stringify({
           razorpay_payment_id: paymentId,
           razorpay_order_id: razorpayOrderId,
+          razorpay_signature: signature,
         }),
       });
 

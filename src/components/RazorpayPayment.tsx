@@ -14,7 +14,7 @@ interface RazorpayPaymentProps {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  onSuccess: (paymentId: string, orderId: string) => void;
+  onSuccess: (paymentId: string, orderId: string, signature: string) => void;
   onError: (error: string) => void;
   onClose: () => void;
   description?: string;
@@ -80,7 +80,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         },
         handler: function (response: any) {
           console.log('Razorpay payment success:', response);
-          onSuccess(response.razorpay_payment_id, orderId);
+          onSuccess(response.razorpay_payment_id, orderId, response.razorpay_signature);
         },
         modal: {
           ondismiss: function () {
