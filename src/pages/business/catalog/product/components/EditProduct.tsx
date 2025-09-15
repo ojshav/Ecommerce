@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, TrashIcon, PlusIcon, StarIcon, PhotoIcon } from '@heroicons/react/24/outline';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -24,6 +24,8 @@ interface Media {
   deleted_at: string | null;
   public_id: string | null;
   product_id: number;
+  is_thumbnail?: boolean;
+  is_main_image?: boolean;
 }
 
 interface Shipping {
@@ -53,10 +55,6 @@ interface ProductMeta {
   meta_keywords: string;
 }
 
-interface ProductTax {
-  product_id: number;
-  tax_rate: number;
-}
 
 interface Product {
   product_id: number;
@@ -80,13 +78,6 @@ interface Product {
   meta?: ProductMeta;
 }
 
-interface MediaStats {
-  total_count: number;
-  image_count: number;
-  video_count: number;
-  max_allowed: number;
-  remaining_slots: number;
-}
 
 const weightUnits: ShippingUnit[] = [
   { value: 'kg', label: 'Kilograms (kg)', conversion: 1 },
@@ -108,9 +99,11 @@ const EditProduct: React.FC = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
-  const [mediaStats, setMediaStats] = useState<MediaStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isUpdatingMedia, setIsUpdatingMedia] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [mediaIdPendingDelete, setMediaIdPendingDelete] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     product_name: '',
     sku: '',
@@ -146,7 +139,6 @@ const EditProduct: React.FC = () => {
       fetchCategories();
       fetchBrands();
       fetchProduct();
-      fetchMediaStats();
       fetchShipping();
       fetchProductMeta();
     }
@@ -258,26 +250,6 @@ const EditProduct: React.FC = () => {
     }
   };
 
-  const fetchMediaStats = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${id}/media/stats`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch media stats');
-      }
-
-      const data = await response.json();
-      setMediaStats(data);
-    } catch (error) {
-      console.error('Error fetching media stats:', error);
-      setError('Failed to load media stats. Please try again later.');
-    }
-  };
 
   const fetchShipping = async () => {
     try {
@@ -371,9 +343,7 @@ const EditProduct: React.FC = () => {
         throw new Error(errorData.message || 'Failed to upload media');
       }
 
-      // First fetch the updated media stats
-      await fetchMediaStats();
-      // Then fetch the updated product data
+      // Fetch the updated product data
       await fetchProduct();
 
       // Clear the file input
@@ -384,13 +354,15 @@ const EditProduct: React.FC = () => {
     }
   };
 
-  const handleDeleteMedia = async (mediaId: number) => {
-    if (!window.confirm('Are you sure you want to delete this media?')) {
-      return;
-    }
+  const openDeleteMediaModal = (mediaId: number) => {
+    setMediaIdPendingDelete(mediaId);
+    setIsDeleteModalOpen(true);
+  };
 
+  const confirmDeleteMedia = async () => {
+    if (!mediaIdPendingDelete) return;
     try {
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/media/${mediaId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/media/${mediaIdPendingDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -402,15 +374,70 @@ const EditProduct: React.FC = () => {
         throw new Error('Failed to delete media');
       }
 
-      // First fetch the updated media stats
-      await fetchMediaStats();
-      // Then fetch the updated product data
       await fetchProduct();
+      setIsDeleteModalOpen(false);
+      setMediaIdPendingDelete(null);
     } catch (error) {
       console.error('Error deleting media:', error);
       setError('Failed to delete media. Please try again.');
+      setIsDeleteModalOpen(false);
     }
   };
+
+  const cancelDeleteMedia = () => {
+    setIsDeleteModalOpen(false);
+    setMediaIdPendingDelete(null);
+  };
+
+  const handleSetThumbnail = async (mediaId: number) => {
+    try {
+      setIsUpdatingMedia(true);
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${id}/media/${mediaId}/set-thumbnail`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to set thumbnail');
+      }
+
+      await fetchProduct();
+    } catch (error) {
+      console.error('Error setting thumbnail:', error);
+      setError('Failed to set thumbnail. Please try again.');
+    } finally {
+      setIsUpdatingMedia(false);
+    }
+  };
+
+  const handleSetMainImage = async (mediaId: number) => {
+    try {
+      setIsUpdatingMedia(true);
+      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${id}/media/${mediaId}/set-main-image`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to set main image');
+      }
+
+      await fetchProduct();
+    } catch (error) {
+      console.error('Error setting main image:', error);
+      setError('Failed to set main image. Please try again.');
+    } finally {
+      setIsUpdatingMedia(false);
+    }
+  };
+
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -517,12 +544,6 @@ const EditProduct: React.FC = () => {
     }
   };
 
-  const convertFromBaseUnit = (value: number, unit: string, units: ShippingUnit[]): number => {
-    if (!value || isNaN(value)) return 0;
-    const unitConfig = units.find(u => u.value === unit);
-    if (!unitConfig) return value;
-    return value / unitConfig.conversion;
-  };
 
   const convertToBaseUnit = (value: string, unit: string, units: ShippingUnit[]): number => {
     const numericValue = parseFloat(value) || 0;
@@ -749,10 +770,11 @@ const EditProduct: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <label
                   htmlFor="media-upload"
-                  className="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none cursor-pointer"
+                  className="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none cursor-pointer disabled:opacity-50"
+                  style={{ opacity: isUpdatingMedia ? 0.5 : 1 }}
                 >
                   <PlusIcon className="h-4 w-4 mr-2" />
-                  Add Media
+                  {isUpdatingMedia ? 'Updating...' : 'Add Media'}
                 </label>
                 <input
                   id="media-upload"
@@ -760,54 +782,127 @@ const EditProduct: React.FC = () => {
                   accept="image/*,video/*"
                   onChange={handleFileUpload}
                   className="hidden"
+                  disabled={isUpdatingMedia}
                 />
               </div>
             )}
           </div>
 
-          {(() => {
-            return null;
-          })()}
           {product?.media && product.media.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {product.media.map((media) => (
-                <div key={media.media_id} className="relative group bg-gray-50 rounded-lg overflow-hidden">
-                  <div className="aspect-w-16 aspect-h-9">
-                    {media.type.toLowerCase() === 'image' ? (
-                      <img
-                        src={media.url}
-                        alt="Product media"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : media.type.toLowerCase() === 'video' ? (
-                      <video
-                        src={media.url}
-                        className="w-full h-full object-cover"
-                        controls
-                      />
-                    ) : null}
-                  </div>
-                  <div className="p-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">
-                        {media.type.toLowerCase() === 'image' ? 'Image' : 'Video'}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        Order: {media.sort_order}
-                      </span>
-                    </div>
-                    <div className="mt-2 flex justify-end">
-                      <button
-                        onClick={() => handleDeleteMedia(media.media_id)}
-                        className="inline-flex items-center px-2 py-1 border border-transparent rounded-md text-xs font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none"
-                      >
-                        <TrashIcon className="h-3 w-3 mr-1" />
-                        Delete
-                      </button>
-                    </div>
+            <div className="space-y-4">
+              {/* Instructions */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <PhotoIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3" />
+                  <div className="text-sm text-blue-800">
+                    <p className="font-medium mb-1">Media Management Tips:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>Set one image as thumbnail (appears in product listings)</li>
+                      <li>Set one image as main image (primary product image)</li>
+                    </ul>
                   </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Media Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {product.media.map((media) => (
+                  <div 
+                    key={media.media_id} 
+                    className="relative group bg-gray-50 rounded-lg overflow-hidden border-2 border-gray-200 hover:border-orange-300 transition-all duration-200"
+                  >
+                    {/* Media Content */}
+                    <div className="aspect-w-16 aspect-h-9 relative">
+                      {media.type.toLowerCase() === 'image' ? (
+                        <img
+                          src={media.url}
+                          alt="Product media"
+                          className="w-full h-48 object-cover"
+                        />
+                      ) : media.type.toLowerCase() === 'video' ? (
+                        <video
+                          src={media.url}
+                          className="w-full h-48 object-cover"
+                          controls
+                        />
+                      ) : null}
+                      
+                      {/* Status Badges */}
+                      <div className="absolute top-2 left-2 flex flex-col gap-1">
+                        {media.is_thumbnail && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <StarIcon className="h-3 w-3 mr-1" />
+                            Thumbnail
+                          </span>
+                        )}
+                        {media.is_main_image && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <PhotoIcon className="h-3 w-3 mr-1" />
+                            Main Image
+                          </span>
+                        )}
+                      </div>
+
+                      {/* No drag handle */}
+                    </div>
+
+                    {/* Media Info */}
+                    <div className="p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-900">
+                          {media.type.toLowerCase() === 'image' ? 'Image' : 'Video'}
+                        </span>
+                        <span className="text-xs text-gray-500" />
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="space-y-2">
+                        {/* Thumbnail and Main Image buttons (only for images) */}
+                        {media.type.toLowerCase() === 'image' && (
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => handleSetThumbnail(media.media_id)}
+                              disabled={isUpdatingMedia || media.is_thumbnail}
+                              className={`flex-1 inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium transition-colors ${
+                                media.is_thumbnail
+                                  ? 'bg-yellow-100 text-yellow-800 cursor-not-allowed'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-yellow-100 hover:text-yellow-800'
+                              }`}
+                            >
+                              <StarIcon className="h-3 w-3 mr-1" />
+                              {media.is_thumbnail ? 'Thumbnail' : 'Set Thumbnail'}
+                            </button>
+                            <button
+                              onClick={() => handleSetMainImage(media.media_id)}
+                              disabled={isUpdatingMedia || media.is_main_image}
+                              className={`flex-1 inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium transition-colors ${
+                                media.is_main_image
+                                  ? 'bg-green-100 text-green-800 cursor-not-allowed'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-800'
+                              }`}
+                            >
+                              <PhotoIcon className="h-3 w-3 mr-1" />
+                              {media.is_main_image ? 'Main' : 'Set Main'}
+                            </button>
+                          </div>
+                        )}
+
+                        {/* No order controls */}
+
+                        {/* Delete Button */}
+                        <button
+                          onClick={() => openDeleteMediaModal(media.media_id)}
+                          disabled={isUpdatingMedia}
+                          className="w-full inline-flex items-center justify-center px-2 py-1 border border-transparent rounded text-xs font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none disabled:opacity-50"
+                        >
+                          <TrashIcon className="h-3 w-3 mr-1" />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="text-center py-12 bg-gray-50 rounded-lg">
@@ -825,6 +920,32 @@ const EditProduct: React.FC = () => {
             </div>
           )}
         </div>
+
+        {isDeleteModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40" onClick={cancelDeleteMedia} />
+            <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+              <h3 className="text-lg font-semibold text-gray-900">Delete media?</h3>
+              <p className="mt-2 text-sm text-gray-600">This action cannot be undone.</p>
+              <div className="mt-6 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={cancelDeleteMedia}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDeleteMedia}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Shipping Section */}
         <div className="mt-8 bg-white shadow-sm rounded-lg border border-gray-200 p-6">

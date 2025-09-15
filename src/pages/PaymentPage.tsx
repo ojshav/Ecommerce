@@ -19,6 +19,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { DirectPurchaseItem } from "../types";
 import ConfirmationModal from "../components/common/ConfirmationModal";
 import { addressService, type Address as AddressModel } from "../services/address";
+import RazorpayPayment from "../components/RazorpayPayment";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -77,6 +78,8 @@ const PaymentPage: React.FC = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
     null
   );
+  const [showRazorpay, setShowRazorpay] = useState(false);
+  const [razorpayOrderId, setRazorpayOrderId] = useState<string>("");
   const [showCountryCodes, setShowCountryCodes] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES.find(c => c.code === "IN") || COUNTRY_CODES[0]);
   const [postalCodeError, setPostalCodeError] = useState<string>("");
@@ -210,6 +213,48 @@ const PaymentPage: React.FC = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  // Create Razorpay order
+  const createRazorpayOrder = async (amount: number): Promise<string | null> => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        toast.error("Please login to continue");
+        return null;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/razorpay/create-order`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          amount: Math.round(amount * 100), // Convert to paise
+          currency: "INR",
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `Failed to create Razorpay order: ${response.status} ${JSON.stringify(errorData)}`
+        );
+      }
+
+      const data = await response.json();
+      if (data.status === "success") {
+        return data.data.id;
+      } else {
+        throw new Error(data.message || "Failed to create Razorpay order");
+      }
+    } catch (error) {
+      console.error("Error creating Razorpay order:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to create payment order");
+      return null;
+    }
   };
 
   const processCardPayment = async (
@@ -756,6 +801,233 @@ const PaymentPage: React.FC = () => {
 
 
 
+  // Razorpay payment handlers
+  const handleRazorpaySuccess = async (paymentId: string, razorpayOrderId: string) => {
+    try {
+      setProcessingPayment(true);
+      
+      // Verify payment with backend
+      const token = localStorage.getItem("access_token");
+      const response = await fetch(`${API_BASE_URL}/api/razorpay/verify-payment`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          razorpay_payment_id: paymentId,
+          razorpay_order_id: razorpayOrderId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Payment verification failed");
+      }
+
+      const data = await response.json();
+      if (data.status === "success") {
+        toast.success("Payment successful!");
+        // Continue with order processing
+        await processOrderAfterPayment();
+      } else {
+        throw new Error(data.message || "Payment verification failed");
+      }
+    } catch (error) {
+      console.error("Error verifying Razorpay payment:", error);
+      toast.error("Payment verification failed");
+    } finally {
+      setProcessingPayment(false);
+      setShowRazorpay(false);
+    }
+  };
+
+  const handleRazorpayError = (error: string) => {
+    console.error("Razorpay payment error:", error);
+    toast.error(`Payment failed: ${error}`);
+    setShowRazorpay(false);
+    setProcessingPayment(false);
+  };
+
+  const handleRazorpayClose = () => {
+    console.log("Razorpay payment closed");
+    setShowRazorpay(false);
+    setProcessingPayment(false);
+  };
+
+  const processOrderAfterPayment = async () => {
+    // This function will be called after successful payment
+    // It will contain the order creation logic
+    const itemsSource =
+      isDirectPurchase && directPurchaseItem
+        ? [
+          {
+            product_id: directPurchaseItem.product.id,
+            merchant_id: 1,
+            quantity: directPurchaseItem.quantity,
+            selected_attributes: directPurchaseItem.selected_attributes,
+            product: directPurchaseItem.product,
+          },
+        ]
+        : cart;
+
+    const subtotal = itemsSource.reduce((total, item) => {
+      const price = item.product.original_price || item.product.price;
+      return total + price * item.quantity;
+    }, 0);
+    const finalTotal = subtotal - discount + shippingCost;
+
+    const totalItemDiscounts = Object.values(itemDiscounts || {}).reduce(
+      (sum: number, discount: any) =>
+        sum + (typeof discount === "number" ? discount : 0),
+      0
+    );
+    const remainingDiscount = discount - totalItemDiscounts;
+
+    const orderData = {
+      items: itemsSource.map((item) => {
+        const basePrice = item.product.original_price || item.product.price;
+        const itemTotal = basePrice * item.quantity;
+        let itemDiscountAmount =
+          itemDiscounts && itemDiscounts[item.product.id || item.product_id]
+            ? Number(itemDiscounts[item.product.id || item.product_id])
+            : 0;
+
+        if (remainingDiscount > 0 && subtotal > 0) {
+          const itemProportion = itemTotal / subtotal;
+          const distributedDiscount = remainingDiscount * itemProportion;
+          itemDiscountAmount += distributedDiscount;
+        }
+
+        itemDiscountAmount = Math.min(itemDiscountAmount, itemTotal);
+        itemDiscountAmount = Math.round(itemDiscountAmount * 100) / 100;
+
+        const perUnitDiscount = itemDiscountAmount / item.quantity;
+        const roundedPerUnitDiscount = Math.round(perUnitDiscount * 100) / 100;
+        const finalUnitPrice = basePrice - roundedPerUnitDiscount;
+
+        return {
+          product_id: item.product.id || item.product_id,
+          merchant_id: item.merchant_id || 1,
+          product_name_at_purchase: item.product.name,
+          sku_at_purchase: item.product.sku || "",
+          quantity: item.quantity,
+          unit_price_inclusive_gst: finalUnitPrice.toString(),
+          line_item_total_inclusive_gst: (
+            finalUnitPrice * item.quantity
+          ).toString(),
+          final_price_for_item: (finalUnitPrice * item.quantity).toString(),
+          item_discount_inclusive: roundedPerUnitDiscount.toString(),
+          selected_attributes: item.selected_attributes || {},
+        };
+      }),
+      subtotal_amount: subtotal.toString(),
+      discount_amount: "0.00",
+      tax_amount: "0.00",
+      shipping_amount: shippingCost.toString(),
+      total_amount: finalTotal.toString(),
+      currency: "INR",
+      payment_method: "razorpay",
+      shipping_address_id: selectedAddressId,
+      billing_address_id: selectedAddressId,
+      shipping_method_name: "Standard Shipping",
+      customer_notes: "",
+      internal_notes:
+        appliedPromo && appliedPromo.code
+          ? `Promo code used: ${appliedPromo.code}`
+          : "",
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.message || "Failed to create order.");
+      }
+
+      if (responseData.status === "success") {
+        const orderId = responseData.data.order_id;
+
+        // Create merchant transactions
+        const merchantTransactionsSuccess = await createMerchantTransactions(orderId);
+        if (!merchantTransactionsSuccess) {
+          console.warn("Failed to create merchant transactions, but order was successful");
+        }
+
+        // ShipRocket shipment creation
+        try {
+          const shiprocketResp = await fetch(
+            `${API_BASE_URL}/api/shiprocket/create-orders-for-all-merchants`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                order_id: orderId,
+                delivery_address_id: selectedAddressId,
+                courier_id: selectedCourier?.courier_company_id,
+              }),
+            }
+          );
+
+          const srData = await shiprocketResp.json();
+          if (
+            shiprocketResp.ok &&
+            srData.status === "success" &&
+            srData.data &&
+            Array.isArray(srData.data.successful_merchants) &&
+            srData.data.successful_merchants.length > 0
+          ) {
+            const response = srData.data;
+            if (response.successful_merchants.length > 0) {
+              const successCount = response.successful_merchants.length;
+              const totalCount = response.total_merchants;
+
+              if (successCount === totalCount) {
+                toast.success(
+                  `Shipments created successfully for all ${totalCount} merchant(s)`
+                );
+              } else {
+                toast.success(
+                  `Shipments created for ${successCount}/${totalCount} merchants. Some failed.`
+                );
+              }
+            }
+          }
+        } catch (srErr) {
+          console.error("ShipRocket call error:", srErr);
+          toast.error(
+            "Order placed successfully, but shipment creation failed. Please contact support."
+          );
+        }
+
+        // Clear the cart after successful order
+        if (!isDirectPurchase) {
+          await clearCart();
+        }
+        toast.success("Order placed successfully");
+        navigate("/order-confirmation", { state: { orderId }, replace: true });
+      } else {
+        throw new Error(responseData.message || "Failed to place order");
+      }
+    } catch (error) {
+      console.error("Error in processOrderAfterPayment:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to place order"
+      );
+    }
+  };
+
   const handleOrder = async () => {
     if (!accessToken) {
       toast.error("Please login to continue");
@@ -770,6 +1042,41 @@ const PaymentPage: React.FC = () => {
       !selectedCardId
     ) {
       toast.error("Please select a payment card.");
+      return;
+    }
+
+    // Handle Razorpay payment
+    if (paymentMethod === "razorpay") {
+      setProcessingPayment(true);
+      
+      // Calculate total amount
+      const itemsSource =
+        isDirectPurchase && directPurchaseItem
+          ? [
+            {
+              product_id: directPurchaseItem.product.id,
+              merchant_id: 1,
+              quantity: directPurchaseItem.quantity,
+              selected_attributes: directPurchaseItem.selected_attributes,
+              product: directPurchaseItem.product,
+            },
+          ]
+          : cart;
+
+      const subtotal = itemsSource.reduce((total, item) => {
+        const price = item.product.original_price || item.product.price;
+        return total + price * item.quantity;
+      }, 0);
+      const finalTotal = subtotal - discount + shippingCost;
+
+      // Create Razorpay order
+      const razorpayOrderId = await createRazorpayOrder(finalTotal);
+      if (razorpayOrderId) {
+        setRazorpayOrderId(razorpayOrderId);
+        setShowRazorpay(true);
+      } else {
+        setProcessingPayment(false);
+      }
       return;
     }
 
@@ -1876,6 +2183,17 @@ const PaymentPage: React.FC = () => {
               />
               <span className="text-black font-worksans ml-1 font-normal text-[14px]">{t('payment.cashOnDelivery')}</span>
             </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="razorpay"
+                checked={paymentMethod === "razorpay"}
+                onChange={() => setPaymentMethod("razorpay")}
+                className="accent-orange-500 bg-transparent shadow-none align-middle"
+              />
+              <span className="text-black font-worksans ml-1 font-normal text-[14px]">Razorpay (UPI/Cards/Net Banking)</span>
+            </label>
           </div>
         </div>
         <button
@@ -1912,6 +2230,42 @@ const PaymentPage: React.FC = () => {
         cancelText="Cancel"
         // isDestructive
       />
+
+      {/* Razorpay Payment Component */}
+      {showRazorpay && razorpayOrderId && (
+        <RazorpayPayment
+          amount={(() => {
+            const itemsSource =
+              isDirectPurchase && directPurchaseItem
+                ? [
+                  {
+                    product_id: directPurchaseItem.product.id,
+                    merchant_id: 1,
+                    quantity: directPurchaseItem.quantity,
+                    selected_attributes: directPurchaseItem.selected_attributes,
+                    product: directPurchaseItem.product,
+                  },
+                ]
+                : cart;
+
+            const subtotal = itemsSource.reduce((total, item) => {
+              const price = item.product.original_price || item.product.price;
+              return total + price * item.quantity;
+            }, 0);
+            return subtotal - discount + shippingCost;
+          })()}
+          orderId={razorpayOrderId}
+          customerName={user?.name || formData.contact_name || ""}
+          customerEmail={user?.email || ""}
+          customerPhone={formData.contact_phone || ""}
+          onSuccess={handleRazorpaySuccess}
+          onError={handleRazorpayError}
+          onClose={handleRazorpayClose}
+          description="Aoin Store Purchase"
+          businessName="Aoin Store"
+          businessLogo="https://aoinstore.com/logo.png"
+        />
+      )}
     </div>
   );
 };
