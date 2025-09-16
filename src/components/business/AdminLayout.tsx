@@ -22,6 +22,7 @@ import {
   ChatBubbleLeftIcon,
   DocumentChartBarIcon,
   StarIcon,
+  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Package } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -66,6 +67,7 @@ const navigationItems = [
     ],
   },
   { name: "Support", path: "/business/support", icon: ChatBubbleLeftIcon },
+  { name: "Profile", path: "/business/profile", icon: UserCircleIcon },
   { name: "Settings", path: "/business/settings", icon: CogIcon },
 ];
 
@@ -213,7 +215,8 @@ const AdminLayout: React.FC = () => {
   if (
     verificationStatus !== "approved" &&
     !location.pathname.includes("/business/verification") &&
-    !location.pathname.includes("/business/verification-status")
+    !location.pathname.includes("/business/verification-status") &&
+    !location.pathname.startsWith("/business/profile")
   ) {
     return <Navigate to="/business/verification" replace />;
   }

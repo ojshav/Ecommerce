@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaMoneyBillWave, FaTimes, FaCheck } from 'react-icons/fa';
+import { FaMoneyBillWave, FaTimes } from 'react-icons/fa';
 
 interface Merchant {
   id: string;
@@ -10,10 +10,8 @@ interface Merchant {
 interface BulkPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (selectedMerchants: string[]) => void;
+  onConfirm: (selections: { merchantId: string; amount: number }[]) => void;
   merchants: Merchant[];
-  totalAmount: number;
-  merchantCount: number;
 }
 
 const BulkPaymentModal: React.FC<BulkPaymentModalProps> = ({
@@ -21,11 +19,10 @@ const BulkPaymentModal: React.FC<BulkPaymentModalProps> = ({
   onClose,
   onConfirm,
   merchants,
-  totalAmount,
-  merchantCount,
 }) => {
   const [selectedMerchants, setSelectedMerchants] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [amounts, setAmounts] = useState<Record<string, number>>({});
 
   if (!isOpen) return null;
 
@@ -33,7 +30,12 @@ const BulkPaymentModal: React.FC<BulkPaymentModalProps> = ({
     if (selectAll) {
       setSelectedMerchants([]);
     } else {
-      setSelectedMerchants(merchants.map(m => m.id));
+      const allIds = merchants.map(m => m.id);
+      setSelectedMerchants(allIds);
+      // Initialize amounts to full pending by default
+      const init: Record<string, number> = {};
+      merchants.forEach(m => { init[m.id] = m.pendingAmount; });
+      setAmounts(init);
     }
     setSelectAll(!selectAll);
   };
@@ -48,14 +50,26 @@ const BulkPaymentModal: React.FC<BulkPaymentModalProps> = ({
         if (newSelected.length === merchants.length) {
           setSelectAll(true);
         }
+        // Initialize amount if not set
+        const m = merchants.find(x => x.id === merchantId);
+        if (m && amounts[merchantId] === undefined) {
+          setAmounts(a => ({ ...a, [merchantId]: m.pendingAmount }));
+        }
         return newSelected;
       }
     });
   };
 
+  const handleAmountChange = (merchantId: string, value: string) => {
+    const num = Math.max(0, Number(value) || 0);
+    const m = merchants.find(x => x.id === merchantId);
+    const capped = m ? Math.min(num, m.pendingAmount) : num;
+    setAmounts(prev => ({ ...prev, [merchantId]: capped }));
+  };
+
   const selectedAmount = merchants
     .filter(m => selectedMerchants.includes(m.id))
-    .reduce((sum, m) => sum + m.pendingAmount, 0);
+    .reduce((sum, m) => sum + (amounts[m.id] ?? 0), 0);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -95,8 +109,8 @@ const BulkPaymentModal: React.FC<BulkPaymentModalProps> = ({
 
               <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-b-xl">
                 {merchants.map(merchant => (
-                  <div key={merchant.id} className="flex items-center justify-between p-3 hover:bg-gray-50 border-b last:border-b-0">
-                    <label className="flex items-center space-x-3 flex-1">
+                  <div key={merchant.id} className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center p-3 hover:bg-gray-50 border-b last:border-b-0">
+                    <label className="flex items-center space-x-3 sm:col-span-6">
                       <input
                         type="checkbox"
                         checked={selectedMerchants.includes(merchant.id)}
@@ -105,7 +119,22 @@ const BulkPaymentModal: React.FC<BulkPaymentModalProps> = ({
                       />
                       <span className="text-sm font-medium text-gray-700">{merchant.merchantName}</span>
                     </label>
-                    <span className="text-sm text-green-600 font-medium">₹{merchant.pendingAmount.toLocaleString()}</span>
+                    <div className="sm:col-span-3 text-xs sm:text-sm text-gray-600">
+                      Pending: <span className="text-green-700 font-medium">₹{merchant.pendingAmount.toLocaleString()}</span>
+                    </div>
+                    <div className="sm:col-span-3">
+                      <input
+                        type="number"
+                        min={0}
+                        max={merchant.pendingAmount}
+                        step="0.01"
+                        disabled={!selectedMerchants.includes(merchant.id)}
+                        value={selectedMerchants.includes(merchant.id) ? (amounts[merchant.id] ?? merchant.pendingAmount) : ''}
+                        onChange={(e) => handleAmountChange(merchant.id, e.target.value)}
+                        placeholder="Enter amount"
+                        className="w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:bg-gray-100"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -135,7 +164,7 @@ const BulkPaymentModal: React.FC<BulkPaymentModalProps> = ({
               Cancel
             </button>
             <button
-              onClick={() => onConfirm(selectedMerchants)}
+              onClick={() => onConfirm(selectedMerchants.map(id => ({ merchantId: id, amount: amounts[id] ?? 0 })).filter(s => s.amount > 0))}
               disabled={selectedMerchants.length === 0}
               className="w-full px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-colors font-medium shadow-lg hover:shadow-xl text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
