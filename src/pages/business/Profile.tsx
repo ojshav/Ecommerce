@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { 
   UserCircleIcon,
@@ -6,46 +6,160 @@ import {
   EnvelopeIcon,
   PhoneIcon,
   MapPinIcon,
-  GlobeAltIcon,
-  BanknotesIcon
+  GlobeAltIcon
 } from '@heroicons/react/24/outline';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Profile = () => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Mock data - replace with actual user data
   const [profileData, setProfileData] = useState({
     personalInfo: {
-      name: 'John Smith',
-      email: 'john.smith@example.com',
-      phone: '+1 (555) 123-4567'
+      name: '',
+      email: '',
+      phone: ''
     },
     businessInfo: {
-      businessName: 'Tech Gadgets Store',
-      businessType: 'Electronics Retail',
-      registrationNumber: 'BRN123456789',
-      address: '123 Commerce Street, Business District',
-      city: 'San Francisco',
-      state: 'CA',
-      zipCode: '94105',
-      country: 'United States',
-      website: 'www.techgadgets.com'
+      businessName: '',
+      businessType: '',
+      registrationNumber: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      country: '',
+      website: ''
     },
     accountInfo: {
-      accountNumber: '1234567890',
-      bankName: 'State Bank of India',
-      branchName: 'Main Branch',
-      ifscCode: 'SBIN0123456',
-      accountType: 'Current'
+      accountNumber: '',
+      bankName: '',
+      branchName: '',
+      ifscCode: '',
+      accountType: ''
     }
   });
 
-  const handleSave = () => {
-    setIsEditing(false);
-    // Handle save logic here
-    // console.log('Saving profile:', profileData);
+  const token = localStorage.getItem('access_token');
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${API_BASE_URL}/api/merchants/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!res.ok) throw new Error('Failed to fetch profile');
+      const data = await res.json();
+      const p = data.profile || {};
+      setProfileData(() => ({
+        personalInfo: {
+          name: `${(user as any)?.first_name || ''} ${(user as any)?.last_name || ''}`.trim(),
+          email: user?.email || '',
+          phone: p.business_phone || ''
+        },
+        businessInfo: {
+          businessName: p.business_name || '',
+          businessType: '',
+          registrationNumber: '',
+          address: p.business_address || '',
+          city: p.city || '',
+          state: p.state_province || '',
+          zipCode: p.postal_code || '',
+          country: p.country_code || '',
+          website: ''
+        },
+        accountInfo: {
+          accountNumber: p.bank_account_number || '',
+          bankName: p.bank_name || '',
+          branchName: p.bank_branch || '',
+          ifscCode: p.bank_ifsc_code || '',
+          accountType: ''
+        }
+      }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load profile');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (token) fetchProfile();
+    else setLoading(false);
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      setError(null);
+      const payload = {
+        business_name: profileData.businessInfo.businessName,
+        business_description: profileData.businessInfo.businessType,
+        business_phone: profileData.personalInfo.phone,
+        business_address: profileData.businessInfo.address,
+        country_code: profileData.businessInfo.country,
+        state_province: profileData.businessInfo.state,
+        city: profileData.businessInfo.city,
+        postal_code: profileData.businessInfo.zipCode,
+        bank_account_number: profileData.accountInfo.accountNumber,
+        bank_name: profileData.accountInfo.bankName,
+        bank_branch: profileData.accountInfo.branchName,
+        bank_ifsc_code: profileData.accountInfo.ifscCode
+      };
+      const res = await fetch(`${API_BASE_URL}/api/merchants/profile`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Failed to update profile');
+      setIsEditing(false);
+      await fetchProfile();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to update profile');
+    }
+  };
+
+  const updateBusinessInfo = (field: keyof typeof profileData.businessInfo, value: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      businessInfo: {
+        ...prev.businessInfo,
+        [field]: value
+      }
+    }));
+  };
+
+  const updatePersonalInfo = (field: keyof typeof profileData.personalInfo, value: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      personalInfo: {
+        ...prev.personalInfo,
+        [field]: value
+      }
+    }));
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-40 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -57,6 +171,11 @@ const Profile = () => {
             View and manage your personal, business, and account information
           </p>
         </div>
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 gap-8">
@@ -83,6 +202,7 @@ const Profile = () => {
                     type="text"
                     value={profileData.personalInfo.name}
                     disabled={!isEditing}
+                    onChange={(e) => updatePersonalInfo('name', e.target.value)}
                     className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
                   />
                 </div>
@@ -110,6 +230,7 @@ const Profile = () => {
                       type="tel"
                       value={profileData.personalInfo.phone}
                       disabled={!isEditing}
+                      onChange={(e) => updatePersonalInfo('phone', e.target.value)}
                       className="block w-full rounded-r-md border-0 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
                     />
                   </div>
@@ -133,6 +254,7 @@ const Profile = () => {
                     type="text"
                     value={profileData.businessInfo.businessName}
                     disabled={!isEditing}
+                    onChange={(e) => updateBusinessInfo('businessName', e.target.value)}
                     className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
                   />
                 </div>
@@ -142,6 +264,7 @@ const Profile = () => {
                     type="text"
                     value={profileData.businessInfo.businessType}
                     disabled={!isEditing}
+                    onChange={(e) => updateBusinessInfo('businessType', e.target.value)}
                     className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
                   />
                 </div>
@@ -151,6 +274,7 @@ const Profile = () => {
                     type="text"
                     value={profileData.businessInfo.registrationNumber}
                     disabled={!isEditing}
+                    onChange={(e) => updateBusinessInfo('registrationNumber', e.target.value)}
                     className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
                   />
                 </div>
@@ -164,6 +288,7 @@ const Profile = () => {
                       type="url"
                       value={profileData.businessInfo.website}
                       disabled={!isEditing}
+                      onChange={(e) => updateBusinessInfo('website', e.target.value)}
                       className="block w-full rounded-r-md border-0 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
                     />
                   </div>
@@ -178,6 +303,7 @@ const Profile = () => {
                       type="text"
                       value={profileData.businessInfo.address}
                       disabled={!isEditing}
+                      onChange={(e) => updateBusinessInfo('address', e.target.value)}
                       className="block w-full rounded-r-md border-0 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
                     />
                   </div>
@@ -188,6 +314,7 @@ const Profile = () => {
                     type="text"
                     value={profileData.businessInfo.city}
                     disabled={!isEditing}
+                    onChange={(e) => updateBusinessInfo('city', e.target.value)}
                     className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
                   />
                 </div>
@@ -197,6 +324,7 @@ const Profile = () => {
                     type="text"
                     value={profileData.businessInfo.state}
                     disabled={!isEditing}
+                    onChange={(e) => updateBusinessInfo('state', e.target.value)}
                     className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
                   />
                 </div>
@@ -206,6 +334,7 @@ const Profile = () => {
                     type="text"
                     value={profileData.businessInfo.zipCode}
                     disabled={!isEditing}
+                    onChange={(e) => updateBusinessInfo('zipCode', e.target.value)}
                     className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
                   />
                 </div>
@@ -215,6 +344,7 @@ const Profile = () => {
                     type="text"
                     value={profileData.businessInfo.country}
                     disabled={!isEditing}
+                    onChange={(e) => updateBusinessInfo('country', e.target.value)}
                     className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
                   />
                 </div>
@@ -222,63 +352,7 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Account Details */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 sm:p-8">
-              <div className="flex items-center space-x-2 mb-6">
-                <BanknotesIcon className="w-6 h-6 text-orange-500" />
-                <h2 className="text-xl font-semibold text-gray-900">Account Details</h2>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
-                  <input
-                    type="text"
-                    value={profileData.accountInfo.accountNumber}
-                    disabled={!isEditing}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
-                  <input
-                    type="text"
-                    value={profileData.accountInfo.bankName}
-                    disabled={!isEditing}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Branch Name</label>
-                  <input
-                    type="text"
-                    value={profileData.accountInfo.branchName}
-                    disabled={!isEditing}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">IFSC Code</label>
-                  <input
-                    type="text"
-                    value={profileData.accountInfo.ifscCode}
-                    disabled={!isEditing}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
-                  <input
-                    type="text"
-                    value={profileData.accountInfo.accountType}
-                    disabled={!isEditing}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          
 
           {/* Save Button */}
           {isEditing && (

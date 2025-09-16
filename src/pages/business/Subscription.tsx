@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import RazorpayPayment from '../../components/RazorpayPayment';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -32,6 +33,10 @@ const Subscription: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [subscribing, setSubscribing] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [razorpayOrderId, setRazorpayOrderId] = useState<string | null>(null);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
 
   // Fetch available subscription plans
   const fetchPlans = async () => {
@@ -99,44 +104,146 @@ const Subscription: React.FC = () => {
     }
   };
 
-  // Subscribe to a plan
-  const handleSubscribe = async (planId: number) => {
-    setSubscribing(true);
+  // Create Razorpay order for subscription
+  const createRazorpayOrder = async (plan: SubscriptionPlan) => {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
         throw new Error('No authentication token found');
       }
 
-      // console.log('Subscribing to plan:', planId);
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/subscription/subscribe`, {
+      const response = await fetch(`${API_BASE_URL}/api/razorpay/create-order`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ plan_id: planId })
+        body: JSON.stringify({
+          amount: Math.round(plan.price * 100), // Convert to paise
+          currency: 'INR'
+        })
       });
-      
+
       if (!response.ok) {
-        throw new Error(`Failed to subscribe: ${response.status}`);
+        throw new Error(`Failed to create order: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      // console.log('Subscribe response:', data);
-      setCurrentSubscription(data.subscription);
-      setSuccess('Successfully subscribed to plan');
-      toast.success('Successfully subscribed to plan');
-      await fetchCurrentSubscription(); // Refresh subscription status
+      return data.data;
     } catch (err) {
-      console.error('Error subscribing:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to subscribe to plan';
+      console.error('Error creating Razorpay order:', err);
+      throw err;
+    }
+  };
+
+  // Handle subscription with payment
+  const handleSubscribe = async (planId: number) => {
+    const plan = plans.find(p => p.plan_id === planId);
+    if (!plan) {
+      setError('Plan not found');
+      return;
+    }
+
+    setSelectedPlan(plan);
+    setSubscribing(true);
+    
+    try {
+      const order = await createRazorpayOrder(plan);
+      setRazorpayOrderId(order.id);
+      setShowPayment(true);
+    } catch (err) {
+      console.error('Error creating order:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create payment order';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
       setSubscribing(false);
     }
+  };
+
+  // Handle payment success
+  const handlePaymentSuccess = async (paymentId: string, orderId: string, signature: string) => {
+    setPaymentProcessing(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      // Verify payment
+      const verifyResponse = await fetch(`${API_BASE_URL}/api/razorpay/verify-payment`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          razorpay_payment_id: paymentId,
+          razorpay_order_id: orderId,
+          razorpay_signature: signature
+        })
+      });
+
+      if (!verifyResponse.ok) {
+        throw new Error('Payment verification failed');
+      }
+
+      // Complete subscription
+      const subscribeResponse = await fetch(`${API_BASE_URL}/api/merchant-dashboard/subscription/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          plan_id: selectedPlan?.plan_id,
+          payment_id: paymentId,
+          order_id: orderId
+        })
+      });
+      
+      if (!subscribeResponse.ok) {
+        throw new Error(`Failed to complete subscription: ${subscribeResponse.status}`);
+      }
+      
+      const data = await subscribeResponse.json();
+      setCurrentSubscription(data.subscription);
+      setSuccess('Successfully subscribed to plan');
+      toast.success('Successfully subscribed to plan');
+      await fetchCurrentSubscription(); // Refresh subscription status
+      
+      // Close payment modal
+      setShowPayment(false);
+      setSelectedPlan(null);
+      setRazorpayOrderId(null);
+    } catch (err) {
+      console.error('Error processing payment:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to process payment';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setPaymentProcessing(false);
+    }
+  };
+
+  // Handle payment error
+  const handlePaymentError = (error: string) => {
+    console.error('Payment error:', error);
+    setError(`Payment failed: ${error}`);
+    toast.error(`Payment failed: ${error}`);
+    setShowPayment(false);
+    setSelectedPlan(null);
+    setRazorpayOrderId(null);
+  };
+
+  // Handle payment close
+  const handlePaymentClose = () => {
+    setShowPayment(false);
+    setSelectedPlan(null);
+    setRazorpayOrderId(null);
   };
 
   // Cancel subscription
@@ -261,7 +368,7 @@ const Subscription: React.FC = () => {
             <div className="p-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">{plan.name}</h3>
               <div className="mb-6">
-                <span className="text-4xl font-bold text-gray-900">${plan.price}</span>
+                <span className="text-4xl font-bold text-gray-900">₹{plan.price}</span>
                 <span className="text-gray-600 ml-2">per {plan.duration_days} days</span>
               </div>
               
@@ -288,14 +395,15 @@ const Subscription: React.FC = () => {
               
               <button
                 onClick={() => handleSubscribe(plan.plan_id)}
-                disabled={subscribing || (currentSubscription?.plan?.plan_id === plan.plan_id)}
+                disabled={subscribing || paymentProcessing || (currentSubscription?.plan?.plan_id === plan.plan_id)}
                 className={`w-full py-3 px-6 rounded-lg font-medium transition-colors ${
                   plan.can_place_premium
                     ? 'bg-orange-500 text-white hover:bg-orange-600'
                     : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {subscribing ? 'Processing...' : 
+                {subscribing ? 'Creating Order...' : 
+                 paymentProcessing ? 'Processing Payment...' :
                  currentSubscription?.plan?.plan_id === plan.plan_id ? 'Current Plan' : 
                  'Subscribe Now'}
               </button>
@@ -377,6 +485,23 @@ const Subscription: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Razorpay Payment Component */}
+      {showPayment && selectedPlan && razorpayOrderId && user && (
+        <RazorpayPayment
+          amount={selectedPlan.price}
+          orderId={razorpayOrderId}
+          customerName={user.name || 'Customer'}
+          customerEmail={user.email || ''}
+          customerPhone={(user as any).phone || ''}
+          onSuccess={handlePaymentSuccess}
+          onError={handlePaymentError}
+          onClose={handlePaymentClose}
+          description={`Subscription to ${selectedPlan.name} plan`}
+          businessName="Aoin Store"
+          businessLogo="https://aoinstore.com/logo.png"
+        />
+      )}
     </div>
   );
 };

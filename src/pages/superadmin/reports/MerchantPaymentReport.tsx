@@ -10,7 +10,6 @@ import OrderDetailsModal from '../../../components/superadmin/reports/merchant-p
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface FilterOptions {
-  category: string;
   status: string;
   dateFrom: string;
   dateTo: string;
@@ -94,7 +93,6 @@ interface AnalyticsData {
 const MerchantPaymentReport: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterOptions>({
-    category: '',
     status: '',
     dateFrom: '',
     dateTo: ''
@@ -205,14 +203,20 @@ const MerchantPaymentReport: React.FC = () => {
 
   // Calculate analytics from summary and statistics using useMemo
   const calculatedAnalytics = useMemo(() => {
+    // Compute unique merchant counts from the transactions list to avoid miscounting by transaction volume
+    const uniqueMerchants = new Set<number>(transactions.map(t => t.merchant_id));
+    const pendingMerchantIds = new Set<number>(
+      transactions.filter(t => t.payment_status === 'pending').map(t => t.merchant_id)
+    );
+
     if (!summary || !statistics) {
       return {
-        totalMerchants: 0,
+        totalMerchants: uniqueMerchants.size,
         totalTransferred: 0,
         pendingPayouts: 0,
         averagePayoutTime: 3,
         payoutSuccessRate: 0,
-        merchantsWithPendingPayments: 0,
+        merchantsWithPendingPayments: pendingMerchantIds.size,
         totalCommissionEarned: 0,
         paymentTrends: {
           thisMonth: 0,
@@ -222,21 +226,22 @@ const MerchantPaymentReport: React.FC = () => {
     }
 
     return {
-      totalMerchants: summary.total_transactions,
+      // Use unique merchant counts instead of transaction counts
+      totalMerchants: uniqueMerchants.size,
       totalTransferred: summary.paid_amount,
       pendingPayouts: summary.pending_amount,
-      averagePayoutTime: 3, // Mock value - could be calculated from actual data
-      payoutSuccessRate: summary.total_transactions > 0 
-        ? Math.round((summary.paid_transactions / summary.total_transactions) * 100)
+      averagePayoutTime: 3, // Placeholder
+      payoutSuccessRate: statistics.total_transactions > 0
+        ? Math.round((statistics.paid_amount / (statistics.paid_amount + statistics.pending_amount)) * 100)
         : 0,
-      merchantsWithPendingPayments: summary.pending_transactions,
-      totalCommissionEarned: summary.total_platform_fees + summary.total_gst,
+      merchantsWithPendingPayments: pendingMerchantIds.size,
+      totalCommissionEarned: summary.total_platform_fees + summary.total_payment_gateway_fees + summary.total_gst,
       paymentTrends: {
         thisMonth: summary.total_payable_to_merchants,
-        lastMonth: summary.total_payable_to_merchants * 0.9 // Mock comparison
+        lastMonth: summary.total_payable_to_merchants * 0.9
       }
     };
-  }, [summary, statistics]);
+  }, [summary, statistics, transactions]);
 
   // Update analytics when calculatedAnalytics changes
   useEffect(() => {
@@ -312,9 +317,71 @@ const MerchantPaymentReport: React.FC = () => {
     setIsOrderModalOpen(true);
   }, []);
 
-  const handleBulkPayment = useCallback(async (selectedTransactionIds: number[]) => {
+  // Support partial payouts per merchant by selecting transactions up to the specified amount
+  const handleBulkPayment = useCallback(async (selections: { merchantId: string; amount: number }[]) => {
     try {
       setLoading(true);
+
+      // 1) Initiate payouts through backend (Razorpay payouts stub)
+      const token = localStorage.getItem('access_token');
+      if (!token) throw new Error('Missing auth token');
+
+      const payoutsPayload = selections.map(s => ({
+        merchant_id: Number(s.merchantId),
+        amount: Math.round((s.amount || 0) * 100), // paise
+        notes: { source: 'superadmin_bulk_payout' }
+      })).filter(p => p.amount > 0);
+
+      if (payoutsPayload.length === 0) {
+        toast.error('Please enter valid payout amounts');
+        setLoading(false);
+        return;
+      }
+
+      const payoutResp = await fetch(`${API_BASE_URL}/api/razorpay/payouts/bulk`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ payouts: payoutsPayload })
+      });
+
+      if (!payoutResp.ok) {
+        throw new Error('Failed to initiate payouts');
+      }
+
+      // 2) Build a list of transaction IDs to mark as paid based on amounts
+      const transactionIdsToPay: number[] = [];
+
+      // For each merchant selection, pick that merchant's pending transactions oldest first
+      selections.forEach(({ merchantId, amount }) => {
+        const mId = Number(merchantId);
+        const pendingTxns = transactions
+          .filter(t => t.merchant_id === mId && t.payment_status === 'pending')
+          .sort((a, b) => new Date(a.settlement_date).getTime() - new Date(b.settlement_date).getTime());
+
+        let remaining = amount;
+        for (const t of pendingTxns) {
+          if (remaining <= 0) break;
+          const txnAmount = t.final_payable_amount;
+          if (remaining >= txnAmount) {
+            transactionIdsToPay.push(t.id);
+            remaining -= txnAmount;
+          } else {
+            // Cannot partially pay a single transaction with current schema, stop before this one
+            break;
+          }
+        }
+      });
+
+      if (transactionIdsToPay.length === 0) {
+        toast.error('No transactions selected based on entered amounts');
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/superadmin/merchant-transactions/bulk-mark-paid`, {
         method: 'POST',
         headers: {
@@ -322,7 +389,7 @@ const MerchantPaymentReport: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          transaction_ids: selectedTransactionIds
+          transaction_ids: transactionIdsToPay
         }),
       });
 
@@ -345,7 +412,7 @@ const MerchantPaymentReport: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [fetchTransactions, fetchTransactionSummary, fetchTransactionStatistics]);
+  }, [transactions, fetchTransactions, fetchTransactionSummary, fetchTransactionStatistics]);
 
   // Transform transactions to merchant format for the table
   const transformTransactionsToMerchants = useCallback(() => {
@@ -436,7 +503,6 @@ const MerchantPaymentReport: React.FC = () => {
         totalTransferred={analytics.totalTransferred}
         pendingPayouts={analytics.pendingPayouts}
         averagePayoutTime={analytics.averagePayoutTime}
-        payoutSuccessRate={analytics.payoutSuccessRate}
         merchantsWithPendingPayments={analytics.merchantsWithPendingPayments}
         totalCommissionEarned={analytics.totalCommissionEarned}
         paymentTrends={analytics.paymentTrends}
@@ -472,8 +538,6 @@ const MerchantPaymentReport: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleBulkPayment}
         merchants={transformTransactionsToMerchants()}
-        totalAmount={eligiblePayments.totalAmount}
-        merchantCount={eligiblePayments.merchantCount}
       />
       <OrderDetailsModal
         orderId={selectedOrderId}

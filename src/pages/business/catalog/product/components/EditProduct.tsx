@@ -104,6 +104,8 @@ const EditProduct: React.FC = () => {
   const [isUpdatingMedia, setIsUpdatingMedia] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [mediaIdPendingDelete, setMediaIdPendingDelete] = useState<number | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
+  const [uploadingFiles, setUploadingFiles] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     product_name: '',
     sku: '',
@@ -315,32 +317,65 @@ const EditProduct: React.FC = () => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const file = files[0];
-    const isVideo = file.type.startsWith('video/');
-    const isImage = file.type.startsWith('image/');
-
-    if (!isVideo && !isImage) {
-      setError('Invalid file type. Please upload an image or video.');
+    // Check if we have space for all files
+    const currentMediaCount = product?.media?.length || 0;
+    const remainingSlots = 5 - currentMediaCount;
+    
+    if (files.length > remainingSlots) {
+      setError(`You can only upload ${remainingSlots} more file(s). Maximum 5 files allowed.`);
       return;
     }
 
-    const formData = new FormData();
-    formData.append('media_file', file);
-    formData.append('type', isVideo ? 'VIDEO' : 'IMAGE');
-    formData.append('sort_order', '0');
+    // Validate all files
+    const validFiles: File[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const isVideo = file.type.startsWith('video/');
+      const isImage = file.type.startsWith('image/');
+
+      if (!isVideo && !isImage) {
+        setError(`Invalid file type: ${file.name}. Please upload only images or videos.`);
+        return;
+      }
+      validFiles.push(file);
+    }
+
+    // Set uploading state
+    setIsUpdatingMedia(true);
+    const fileNames = validFiles.map(file => file.name);
+    setUploadingFiles(fileNames);
+    setUploadProgress({});
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${id}/media`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        },
-        body: formData,
-      });
+      // Upload files sequentially to avoid overwhelming the server
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        const fileName = file.name;
+        const isVideo = file.type.startsWith('video/');
+        
+        // Update progress for this file
+        setUploadProgress(prev => ({ ...prev, [fileName]: 0 }));
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to upload media');
+        const formData = new FormData();
+        formData.append('media_file', file);
+        formData.append('type', isVideo ? 'VIDEO' : 'IMAGE');
+        formData.append('sort_order', '0');
+
+        const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${id}/media`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `Failed to upload ${fileName}`);
+        }
+
+        // Mark this file as completed
+        setUploadProgress(prev => ({ ...prev, [fileName]: 100 }));
       }
 
       // Fetch the updated product data
@@ -351,6 +386,10 @@ const EditProduct: React.FC = () => {
     } catch (error) {
       console.error('Error uploading media:', error);
       setError(error instanceof Error ? error.message : 'Failed to upload media. Please try again.');
+    } finally {
+      setIsUpdatingMedia(false);
+      setUploadingFiles([]);
+      setUploadProgress({});
     }
   };
 
@@ -774,12 +813,13 @@ const EditProduct: React.FC = () => {
                   style={{ opacity: isUpdatingMedia ? 0.5 : 1 }}
                 >
                   <PlusIcon className="h-4 w-4 mr-2" />
-                  {isUpdatingMedia ? 'Updating...' : 'Add Media'}
+                  {isUpdatingMedia ? 'Uploading...' : 'Add Media Files'}
                 </label>
                 <input
                   id="media-upload"
                   type="file"
                   accept="image/*,video/*"
+                  multiple
                   onChange={handleFileUpload}
                   className="hidden"
                   disabled={isUpdatingMedia}
@@ -787,6 +827,33 @@ const EditProduct: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Upload Progress Indicator */}
+          {uploadingFiles.length > 0 && (
+            <div className="mb-4 bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <h4 className="text-sm font-medium text-orange-800 mb-3">Uploading Files...</h4>
+              <div className="space-y-2">
+                {uploadingFiles.map((fileName) => (
+                  <div key={fileName} className="flex items-center space-x-3">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-orange-700 truncate">{fileName}</span>
+                        <span className="text-orange-600 font-medium">
+                          {uploadProgress[fileName] || 0}%
+                        </span>
+                      </div>
+                      <div className="mt-1 w-full bg-orange-200 rounded-full h-2">
+                        <div
+                          className="bg-orange-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${uploadProgress[fileName] || 0}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {product?.media && product.media.length > 0 ? (
             <div className="space-y-4">
@@ -917,7 +984,7 @@ const EditProduct: React.FC = () => {
               <p className="text-gray-500">No media uploaded yet</p>
               {product?.media && product.media.length < 5 && (
                 <p className="text-sm text-gray-400 mt-1">
-                  Click "Add Media" to upload images or videos
+                  Click "Add Media Files" to upload multiple images or videos at once
                 </p>
               )}
             </div>
