@@ -283,7 +283,7 @@
 //           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
 //             <div>
 //               <p className="text-gray-700"><span className="font-medium">Email:</span> <span className="text-[#FF4D00]">auoinstore@gmail.com</span></p>
-//               <p className="text-gray-700"><span className="font-medium">Phone:</span> <span className="text-[#FF4D00]">212 929 9953</span></p>
+//               <p className="text-gray-700"><span className="font-medium">Phone:</span> <span className="text-[#FF4D00]">989 336 1102</span></p>
 //               <p className="text-gray-700"><span className="font-medium">Hours:</span> Monday-Friday, 9 AM - 6 PM EST</p>
 //             </div>
 //             <div>
@@ -349,7 +349,7 @@ const ShippingDelivery = () => {
               </p>
               <p><span className="font-medium">Brand:</span> AOIN Store</p>
               <p><span className="font-medium">Customer Support Email:</span> auoinstore@gmail.com</p>
-              <p><span className="font-medium">Phone/WhatsApp:</span> +91 98933 61162 (during business hours)</p>
+              <p><span className="font-medium">Phone/WhatsApp:</span> +91 989 336 1102 (during business hours)</p>
             </div>
           )}
         </div>
@@ -655,7 +655,7 @@ const ShippingDelivery = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-gray-700"><span className="font-medium">Email:</span> <span className="text-[#FF4D00]">auoinstore@gmail.com</span></p>
-              <p className="text-gray-700"><span className="font-medium">Phone/WhatsApp:</span> <span className="text-[#FF4D00]">+91 98933 61162</span></p>
+              <p className="text-gray-700"><span className="font-medium">Phone/WhatsApp:</span> <span className="text-[#FF4D00]">+91 989 336 1102</span></p>
               <p className="text-gray-700"><span className="font-medium">Hours:</span> Business hours</p>
             </div>
           </div>

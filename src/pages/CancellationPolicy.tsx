@@ -168,7 +168,7 @@ const CancellationPolicy: React.FC = () => {
             </div>
             <div className="flex items-start">
               <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 mt-0.5 mr-3 flex-shrink-0">3</div>
-              <p className="text-gray-700"><strong>Phone:</strong> Call our customer support team at <span className="text-[#FF4D00]">212 929 9953</span> during business hours.</p>
+              <p className="text-gray-700"><strong>Phone:</strong> Call our customer support team at <span className="text-[#FF4D00]">989 336 1102</span> during business hours.</p>
             </div>
             <div className="flex items-start">
               <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 mt-0.5 mr-3 flex-shrink-0">4</div>
@@ -185,7 +185,7 @@ const CancellationPolicy: React.FC = () => {
                 <p className="text-gray-700 text-sm mt-1">Our support team is available Monday-Friday, 9 AM - 6 PM EST to assist you with the cancellation process.</p>
                 <div className="mt-3 space-y-1">
                   <p className="text-sm text-gray-700"><strong>Email:</strong> auoinstore@gmail.com</p>
-                  <p className="text-sm text-gray-700"><strong>Phone:</strong> 212 929 9953</p>
+                  <p className="text-sm text-gray-700"><strong>Phone:</strong> 989 336 1102</p>
                   <p className="text-sm text-gray-700"><strong>Response Time:</strong> Within 2-4 hours during business hours</p>
                 </div>
               </div>
@@ -263,7 +263,7 @@ const CancellationPolicy: React.FC = () => {
 
         <div className="mt-8 p-5 border-t border-gray-200 text-sm text-gray-600">
           <p className="mb-1">Last Updated: December 15, 2024</p>
-          <p>This cancellation policy is subject to change. Please check back regularly for updates. For questions about this policy, contact us at auoinstore@gmail.com or call 212 929 9953.</p>
+          <p>This cancellation policy is subject to change. Please check back regularly for updates. For questions about this policy, contact us at auoinstore@gmail.com or call 989 336 1102.</p>
         </div>
       </div>
     </div>
