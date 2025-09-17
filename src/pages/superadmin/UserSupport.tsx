@@ -68,7 +68,7 @@ const UserSupportAdminPage: React.FC = () => {
 
   const fetchAdminUsers = useCallback(async () => {
     // Placeholder for fetching admin users
-    setAdminUsers([ {id: 1, first_name: "Super", last_name: "Admin", email:"admin@example.com"}, {id: 2, first_name: "Support", last_name: "User", email:"support@example.com"}]);
+    setAdminUsers([ {id: 1, first_name: "Super", last_name: "Admin", email:"admin@example.com"}, {id: 2, first_name: "Support", last_name: "User", email:"auoinstore@gmail.com"}]);
   }, [accessToken]);
 
   const fetchTickets = useCallback(async (page = 1) => {

@@ -72,7 +72,7 @@ const MerchantSupportAdminPage: React.FC = () => {
     // For now, using a mock or assuming you have a way to get them
     // Example: const response = await fetch(${API_BASE_URL}/api/superadmin/users?role=admin, { ... });
     // setAdminUsers(await response.json());
-    setAdminUsers([ {id: 1, first_name: "Super", last_name: "Admin", email:"admin@example.com"}, {id: 2, first_name: "Support", last_name: "User", email:"support@example.com"}]);
+    setAdminUsers([ {id: 1, first_name: "Super", last_name: "Admin", email:"admin@example.com"}, {id: 2, first_name: "Support", last_name: "User", email:"auoinstore@gmail.com"}]);
   }, [accessToken]);
 
 

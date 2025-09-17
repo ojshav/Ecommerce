@@ -105,7 +105,7 @@ const CookiesPage: React.FC = () => {
               <strong>Aoin</strong><br />
               789 Fashion Avenue, Suite 1000<br />
               New York, NY 10018<br />
-              Phone: 1-800-Aoin-HELP (1-800-284-6435)
+              Phone: auoinstore@gmail.com
             </p>
           </div>
         </div>
