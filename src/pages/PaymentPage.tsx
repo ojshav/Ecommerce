@@ -204,9 +204,9 @@ const PaymentPage: React.FC = () => {
 
   // Card input handlers removed
   // const handleCardInputChange = () => {};
-
+ 
   // Create Razorpay order
-  const createRazorpayOrder = async (amount: number): Promise<string | null> => {
+  const createRazorpayOrder = async (amount: number, receipt?: string): Promise<string | null> => {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
@@ -224,6 +224,7 @@ const PaymentPage: React.FC = () => {
         body: JSON.stringify({
           amount: Math.round(amount * 100), // Convert to paise
           currency: "INR",
+          receipt: receipt || `CLIENT-${Date.now()}`,
         }),
       });
 
@@ -397,208 +398,22 @@ const PaymentPage: React.FC = () => {
     }
   };
 
-  // Add function to calculate shipping costs
+  // Simplified: Do not call Shiprocket; keep shipping included (fixed 0)
   const calculateShippingCost = async () => {
-    if (!selectedAddressId || !user?.id) {
-      return;
-    }
-
-    // Get items for calculation
-    const itemsForShipping =
-      isDirectPurchase && directPurchaseItem
-        ? [
-          {
-            product_id: directPurchaseItem.product.id,
-            quantity: directPurchaseItem.quantity,
-          },
-        ]
-        : cart.map((item) => ({
-          product_id: item.product_id,
-          quantity: item.quantity,
-        }));
-
-    // Generate a unique request ID to prevent duplicate requests
-    const currentRequestId = `${selectedAddressId}-${paymentMethod}-${JSON.stringify(
-      itemsForShipping
-    )}`;
-
-    // If this is the same request as the last one, don't make another API call
-    if (shippingRequestId === currentRequestId && !shippingLoading) {
-      return;
-    }
-
-    try {
-      setShippingLoading(true);
-      setShippingRequestId(currentRequestId);
-
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        console.error("No access token found for shipping calculation");
-        return;
-      }
-
-      // Get the selected address
-      const selectedAddress = addresses.find(
-        (addr) => addr.address_id === selectedAddressId
-      );
-      if (!selectedAddress) {
-        console.error("Selected address not found");
-        return;
-      }
-
-      // Calculate total weight (assuming 0.5kg per item as default)
-      const totalWeight = itemsForShipping.reduce(
-        (weight, item) => weight + item.quantity * 0.5,
-        0
-      );
-
-      // Determine if this is COD or prepaid
-      const isCOD = paymentMethod === "cash_on_delivery";
-
-      // Calculate total price for COD amount
-      const currentTotal =
-        isDirectPurchase && directPurchaseItem
-          ? directPurchaseItem.product.price * directPurchaseItem.quantity
-          : totalPrice;
-      const codAmount = isCOD ? currentTotal - discount : 0;
-
-      const requestBody: any = {
-        pickup_pincode: "474005", // This should come from merchant's address
-        delivery_pincode: selectedAddress.postal_code,
-        weight: totalWeight,
-        // ShipRocket accepts cod as integer 1/0; use 1 for COD, 0 for prepaid
-        cod: isCOD ? 1 : 0,
-      };
-
-      // Add cod_amount only if it's a COD order
-      if (isCOD && codAmount > 0) {
-        requestBody.cod_amount = codAmount;
-      }
-
-      const response = await fetch(
-        `${API_BASE_URL}/api/shiprocket/serviceability`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(requestBody),
-        }
-      );
-
-      // Check if this request is still current (not cancelled by a newer request)
-      if (shippingRequestId !== currentRequestId) {
-        return;
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Failed to calculate shipping:", {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-
-        // Handle different error types
-        if (response.status === 403) {
-          console.warn(
-            "Access denied to shipping calculation, using default cost"
-          );
-          setShippingCost(150); // Default shipping cost for access denied
-        } else if (response.status === 422) {
-          console.warn("Invalid shipping parameters, using default cost");
-          setShippingCost(120); // Default shipping cost for invalid params
-        } else {
-          // Set default shipping cost for other errors
-          setShippingCost(100);
-        }
-        return; // Exit early, loading state will be reset in finally block
-      }
-
-      const data = await response.json();
-
-      // Debug: Log the actual response structure
-      console.log("ShipRocket shipping calculation response:", {
-        status: response.status,
-        message: data.message,
-        hasData: !!data.data,
-        hasCouriers: !!data.data?.data?.available_courier_companies,
-        couriersCount: data.data?.data?.available_courier_companies?.length || 0,
-        fullResponse: data
-      });
-
-      // Check if response has the expected structure
-      // Backend returns: { message: "Serviceability check successful", data: { available_courier_companies: [...] } }
-      console.log("Checking response structure:", {
-        hasMessage: !!data.message,
-        hasData: !!data.data,
-        hasCouriers: !!data.data?.data?.available_courier_companies,
-        couriersLength: data.data?.data?.available_courier_companies?.length || 0,
-        conditionResult: !!(data.message && data.data?.data?.available_courier_companies)
-      });
-      
-      // Check for couriers in the response - the actual structure is data.data.data.available_courier_companies
-      const couriers = data.data?.data?.available_courier_companies || [];
-      const hasCouriers = Array.isArray(couriers) && couriers.length > 0;
-      
-      if (data.message && hasCouriers) {
-        console.log("Found couriers:", couriers.length, couriers);
-        setAvailableCouriers(couriers);
-        setNoCourierService(false); // Explicitly set to false when we have couriers
-
-        // Select the best courier (lowest price or highest rating)
-        if (couriers.length > 0) {
-          const bestCourier = couriers.reduce((best: any, current: any) => {
-            const bestRating = parseFloat(best.rating || "0");
-            const currentRating = parseFloat(current.rating || "0");
-            const bestPrice = parseFloat(best.rate || "999999");
-            const currentPrice = parseFloat(current.rate || "999999");
-
-            // Prefer higher rating, then lower price
-            if (currentRating > bestRating) return current;
-            if (currentRating === bestRating && currentPrice < bestPrice)
-              return current;
-            return best;
-          });
-
-          console.log("Selected best courier:", bestCourier);
-          setSelectedCourier(bestCourier);
-          setShippingCost(parseFloat(bestCourier.rate || "0"));
-        } else {
-          setShippingCost(100); // Default shipping cost if no couriers available
-        }
-      } else {
-        // Debug: Log the actual response structure
-        console.log("ShipRocket response structure:", {
-          message: data.message,
-          hasData: !!data.data,
-          hasCouriers: !!data.data?.data?.available_courier_companies,
-          couriersCount: data.data?.data?.available_courier_companies?.length || 0,
-          fullResponse: data
-        });
-        
-        console.log("Setting noCourierService to true because condition failed");
-        setNoCourierService(true); // No couriers found
-        setShippingCost(100); // Default shipping cost
-      }
-    } catch (error) {
-      console.error("Error calculating shipping cost:", error);
-      setShippingCost(100); // Default shipping cost on error
-    } finally {
-      // Only update loading state if this is still the current request
-      if (shippingRequestId === currentRequestId) {
-        setShippingLoading(false);
-      }
-    }
+    setShippingLoading(false);
+    setAvailableCouriers([]);
+    setSelectedCourier(null);
+    setNoCourierService(false);
+    setShippingCost(0);
   };
 
   // Add manual refresh function for shipping calculation
   const refreshShippingCost = () => {
-    // Clear the current request ID to force a new calculation
-    setShippingRequestId("");
-    calculateShippingCost();
+    setShippingLoading(false);
+    setAvailableCouriers([]);
+    setSelectedCourier(null);
+    setNoCourierService(false);
+    setShippingCost(0);
   };
 
   // Promo code application for direct purchases
@@ -679,15 +494,7 @@ const PaymentPage: React.FC = () => {
       ? directPurchaseItem !== null
       : cart.length > 0;
     if (selectedAddressId && hasItems) {
-      // Add a small delay to prevent rapid successive calls
-      const timeoutId = setTimeout(() => {
-        calculateShippingCost();
-      }, 300); // 300ms debounce
-
-      // Cleanup function to cancel the timeout if the effect runs again
-      return () => {
-        clearTimeout(timeoutId);
-      };
+      calculateShippingCost();
     }
   }, [
     selectedAddressId,
@@ -825,21 +632,38 @@ const PaymentPage: React.FC = () => {
         }),
       });
 
+      const respText = await response.text();
+      let dataObj: { status?: string; message?: string } = {};
+      try { dataObj = JSON.parse(respText); } catch { dataObj = {}; }
+
       if (!response.ok) {
-        throw new Error("Payment verification failed");
+        const rawMsg = (dataObj as any).message ?? respText ?? 'Payment verification failed';
+        const msg = typeof rawMsg === 'string' ? rawMsg : JSON.stringify(rawMsg);
+        throw new Error(msg);
       }
 
-      const data = await response.json();
-      if (data.status === "success") {
+      const data = dataObj as any;
+      const payload = (data && (data.data ?? (typeof data.message === 'object' ? data.message : undefined))) || data;
+      const isVerified = (
+        (payload && payload.verified === true) ||
+        (data && data.verified === true) ||
+        (data && data.data && data.data.verified === true)
+      );
+      const isSuccess = data.status === 'success' || data.success === true || isVerified === true;
+      if (isSuccess) {
+        const resolvedPaymentId = payload?.payment_id || paymentId;
+        const resolvedOrderId = payload?.order_id || razorpayOrderId;
         toast.success("Payment successful!");
         // Continue with order processing
-        await processOrderAfterPayment();
+        await processOrderAfterPayment(resolvedPaymentId, resolvedOrderId);
       } else {
-        throw new Error(data.message || "Payment verification failed");
+        const rawMsg = data.message ?? 'Payment verification failed';
+        const msg = typeof rawMsg === 'string' ? rawMsg : JSON.stringify(rawMsg);
+        throw new Error(msg);
       }
     } catch (error) {
       console.error("Error verifying Razorpay payment:", error);
-      toast.error("Payment verification failed");
+      toast.error(error instanceof Error ? error.message : "Payment verification failed");
     } finally {
       setProcessingPayment(false);
       setShowRazorpay(false);
@@ -859,7 +683,7 @@ const PaymentPage: React.FC = () => {
     setProcessingPayment(false);
   };
 
-  const processOrderAfterPayment = async () => {
+  const processOrderAfterPayment = async (razorpayPaymentId?: string, razorpayOrderId?: string) => {
     // This function will be called after successful payment
     // It will contain the order creation logic
     const itemsSource =
@@ -888,7 +712,7 @@ const PaymentPage: React.FC = () => {
     );
     const remainingDiscount = discount - totalItemDiscounts;
 
-    const orderData = {
+    const orderData: any = {
       items: itemsSource.map((item) => {
         const basePrice = item.product.original_price || item.product.price;
         const itemTotal = basePrice * item.quantity;
@@ -931,7 +755,7 @@ const PaymentPage: React.FC = () => {
       shipping_amount: shippingCost.toString(),
       total_amount: finalTotal.toString(),
       currency: "INR",
-      payment_method: "razorpay",
+      payment_method: "other",
       shipping_address_id: selectedAddressId,
       billing_address_id: selectedAddressId,
       shipping_method_name: "Standard Shipping",
@@ -941,6 +765,10 @@ const PaymentPage: React.FC = () => {
           ? `Promo code used: ${appliedPromo.code}`
           : "",
     };
+
+    // Attach Razorpay references for reconciliation in backend
+    if (razorpayPaymentId) orderData.razorpay_payment_id = razorpayPaymentId;
+    if (razorpayOrderId) orderData.razorpay_order_id = razorpayOrderId;
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders`, {
@@ -1068,7 +896,8 @@ const PaymentPage: React.FC = () => {
       const finalTotal = subtotal - discount + shippingCost;
 
       // Create Razorpay order
-      const razorpayOrderId = await createRazorpayOrder(finalTotal);
+      const clientReceipt = `ORDREF-${Date.now()}`;
+      const razorpayOrderId = await createRazorpayOrder(finalTotal, clientReceipt);
       if (razorpayOrderId) {
         setRazorpayOrderId(razorpayOrderId);
         setShowRazorpay(true);
@@ -2069,8 +1898,8 @@ const PaymentPage: React.FC = () => {
           discount={discount}
           promoCode={appliedPromo?.code}
           itemDiscounts={itemDiscounts}
-          shippingCost={0}
-          shippingLoading={false}
+          shippingCost={shippingCost}
+          shippingLoading={shippingLoading}
           availableCouriers={availableCouriers}
           selectedCourier={selectedCourier}
           onRefreshShipping={refreshShippingCost}
