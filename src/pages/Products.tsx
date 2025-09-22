@@ -50,12 +50,74 @@ const buildCategoryTree = (categories: Category[]): Category[] => {
 const Products: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
   const [products, setProducts] = useState<Product[]>([]);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [translatedCategories, setTranslatedCategories] = useState<Record<number, string>>({});
+  
+  // Translate categories when language changes or categories are loaded
+  useEffect(() => {
+    const translateCategories = async () => {
+      if (categories.length === 0) return;
+      
+      // Skip translation for English
+      if (i18n.language === 'en') {
+        setTranslatedCategories({});
+        return;
+      }
+      
+      try {
+        // Collect all category names for translation
+        const collectCategoryNames = (cats: Category[]): { id: number; name: string }[] => {
+          let names: { id: number; name: string }[] = [];
+          cats.forEach(cat => {
+            names.push({ id: cat.category_id, name: cat.name });
+            if (cat.children && cat.children.length > 0) {
+              names = names.concat(collectCategoryNames(cat.children));
+            }
+          });
+          return names;
+        };
+        
+        const allCategories = collectCategoryNames(categories);
+        const textsToTranslate = allCategories.map(cat => ({ 
+          id: String(cat.id), 
+          text: cat.name 
+        }));
+        
+        if (textsToTranslate.length > 0) {
+          const translated = await translateBatch(textsToTranslate, i18n.language, 'text/plain');
+          
+          // Create mapping of category ID to translated name
+          const translationMap: Record<number, string> = {};
+          allCategories.forEach((cat) => {
+            const translatedText = translated[String(cat.id)];
+            if (translatedText) {
+              translationMap[cat.id] = translatedText;
+            }
+          });
+          
+          setTranslatedCategories(translationMap);
+        }
+      } catch (error) {
+        console.error('Error translating categories:', error);
+        setTranslatedCategories({});
+      }
+    };
+    
+    translateCategories();
+  }, [categories, i18n.language, translateBatch]);
+  
+  // Helper function to get category name (translated or original)
+  const getCategoryName = (category: Category): string => {
+    if (i18n.language === 'en') return category.name;
+    return translatedCategories[category.category_id] || category.name;
+  };
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -191,7 +253,7 @@ const Products: React.FC = () => {
           className={btnClass}
           style={{ paddingLeft: level > 0 ? `${level * 0.5}rem` : '0.5rem' }}
         >
-          <span className={spanClass}>{category.name}</span>
+          <span className={spanClass}>{getCategoryName(category)}</span>
           {hasSubcategories && (
             <span className="flex items-center ml-auto">
               {isExpanded ? (
