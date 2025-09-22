@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../hooks/useAmazonTranslate';
 
 interface Category {
   category_id: number;
@@ -20,12 +22,15 @@ interface CategoryDropdownProps {
 const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdown, isMobile = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedParentCategory, setSelectedParentCategory] = useState<Category | null>(null);
   const [expandedSidebarCategory, setExpandedSidebarCategory] = useState<string | null>(null);
+  const [translatedCategories, setTranslatedCategories] = useState<Record<number, string>>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -39,6 +44,40 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
     const categoryId = params.get('category');
     setSelectedCategory(categoryId || '');
   }, [location.search]);
+
+  // Translate category names when language changes
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = (i18n.language || 'en').split('-')[0];
+      if (lang === 'en' || !categories.length) {
+        setTranslatedCategories({});
+        return;
+      }
+      try {
+        const items = categories.map(cat => ({ 
+          id: String(cat.category_id), 
+          text: cat.name 
+        }));
+        const result = await translateBatch(items, lang, 'text/plain');
+        const map: Record<number, string> = {};
+        categories.forEach(cat => {
+          const translated = result[String(cat.category_id)];
+          if (translated) map[cat.category_id] = translated;
+        });
+        setTranslatedCategories(map);
+      } catch {
+        setTranslatedCategories({});
+      }
+    };
+    doTranslate();
+  }, [categories, i18n.language, translateBatch]);
+
+  // Helper function to get category name (translated or original)
+  const getCategoryName = (category: Category) => {
+    const lang = (i18n.language || 'en').split('-')[0];
+    if (lang === 'en') return category.name;
+    return translatedCategories[category.category_id] || category.name;
+  };
 
   const fetchCategories = async () => {
     try {
@@ -133,7 +172,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
                   selectedCategory === String(category.category_id) ? 'bg-[#F2631F] text-white' : 'text-gray-700'
                 }`}
               >
-                <span>{category.name}</span>
+                <span>{getCategoryName(category)}</span>
                 {category.children && category.children.length > 0 && (
                   <ChevronRight 
                     className={`w-5 h-5 transition-transform duration-200 ${
@@ -152,7 +191,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
                         selectedCategory === String(child.category_id) ? 'bg-[#F2631F] text-white' : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
-                      <span>{child.name}</span>
+                      <span>{getCategoryName(child)}</span>
                       {child.children && child.children.length > 0 && (
                         <ChevronRight className="w-5 h-5" />
                       )}
@@ -202,7 +241,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
                     expandedSidebarCategory === String(category.category_id) ? 'bg-[#f47521] text-white' : ''
                   }`}
                 >
-                  <span>{category.name}</span>
+                  <span>{getCategoryName(category)}</span>
                   {category.children && category.children.length > 0 && <span>›</span>}
                 </button>
                 {category.children && category.children.length > 0 && expandedSidebarCategory === String(category.category_id) && (
@@ -215,7 +254,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
                           selectedCategory === String(child.category_id) ? 'bg-[#f47521] text-white' : ''
                         }`}
                       >
-                        <span>{child.name}</span>
+                        <span>{getCategoryName(child)}</span>
                       </button>
                     ))}
                     
@@ -235,7 +274,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
                 category.children && category.children.length > 0 && (
                   <div key={category.category_id}>
                     <h3 className="text-gray-800 font-medium mb-2 md:mb-4 text-sm md:text-base">
-                      {category.name}
+                      {getCategoryName(category)}
                     </h3>
                     <ul className="space-y-1 md:space-y-3">
                       {category.children.map(child => (
@@ -246,7 +285,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
                               selectedCategory === String(child.category_id) ? 'text-[#f47521] font-medium' : ''
                             }`}
                           >
-                            {child.name}
+                            {getCategoryName(child)}
                           </button>
                         </li>
                       ))}
