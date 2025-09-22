@@ -700,8 +700,8 @@ const PaymentPage: React.FC = () => {
         : cart;
 
     const subtotal = itemsSource.reduce((total, item) => {
-      const price = item.product.original_price || item.product.price;
-      return total + price * item.quantity;
+      const effectiveUnitPrice = item.product.price;
+      return total + effectiveUnitPrice * item.quantity;
     }, 0);
     const finalTotal = subtotal - discount + shippingCost;
 
@@ -714,7 +714,7 @@ const PaymentPage: React.FC = () => {
 
     const orderData: any = {
       items: itemsSource.map((item) => {
-        const basePrice = item.product.original_price || item.product.price;
+        const basePrice = item.product.price;
         const itemTotal = basePrice * item.quantity;
         let itemDiscountAmount =
           itemDiscounts && itemDiscounts[item.product.id || item.product_id]
@@ -890,8 +890,8 @@ const PaymentPage: React.FC = () => {
           : cart;
 
       const subtotal = itemsSource.reduce((total, item) => {
-        const price = item.product.original_price || item.product.price;
-        return total + price * item.quantity;
+        const effectiveUnitPrice = item.product.price;
+        return total + effectiveUnitPrice * item.quantity;
       }, 0);
       const finalTotal = subtotal - discount + shippingCost;
 
@@ -925,8 +925,8 @@ const PaymentPage: React.FC = () => {
 
     // Calculate subtotal using original prices
     const subtotal = itemsSource.reduce((total, item) => {
-      const price = item.product.original_price || item.product.price;
-      return total + price * item.quantity;
+      const effectiveUnitPrice = item.product.price;
+      return total + effectiveUnitPrice * item.quantity;
     }, 0);
     const finalTotal = subtotal - discount + shippingCost;
 
@@ -940,8 +940,8 @@ const PaymentPage: React.FC = () => {
 
     const orderData = {
       items: itemsSource.map((item) => {
-        // Use original_price as the base price for calculations
-        const basePrice = item.product.original_price || item.product.price;
+        // Use the effective discounted price provided by backend (price)
+        const basePrice = item.product.price;
         const itemTotal = basePrice * item.quantity;
         let itemDiscountAmount =
           itemDiscounts && itemDiscounts[item.product.id || item.product_id]

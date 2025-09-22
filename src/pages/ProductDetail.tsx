@@ -1164,13 +1164,13 @@ const ProductDetail: React.FC = () => {
           </h3>
           <span className="text-xs sm:text-sm text-gray-500">{sortedVariants.length} option{sortedVariants.length === 1 ? '' : 's'}</span>
         </div>
-        <div className="flex flex-row space-x-3 overflow-x-auto scrollbar-hide sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:space-x-0 sm:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {sortedVariants.map((variant) => {
             const thumbUrl = getVariantThumbUrl(variant);
             return (
               <div
                 key={variant.id}
-                className={`min-w-[220px] max-w-xs sm:min-w-0 sm:max-w-none border rounded-lg p-3 sm:p-4 cursor-pointer transition-all ${
+                className={`w-full border rounded-lg p-3 sm:p-4 cursor-pointer transition-all ${
                   variant.id === product.product_id.toString()
                     ? "border-blue-500 bg-blue-50"
                     : "hover:border-gray-400"
@@ -1195,9 +1195,11 @@ const ProductDetail: React.FC = () => {
                   )}
                 </div>
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-0.5">{translatedVariantNames[variant.id] || variant.name}</h4>
-                    <p className="text-xs text-gray-500">SKU: {variant.sku}</p>
+                  <div className="min-w-0">
+                    <h4 className="font-medium text-gray-900 mb-0.5 truncate max-w-[150px] sm:max-w-[180px]">
+                      {translatedVariantNames[variant.id] || variant.name}
+                    </h4>
+                    <p className="text-xs text-gray-500 truncate max-w-[150px] sm:max-w-[180px]">SKU: {variant.sku}</p>
                   </div>
                   {variant.id === product.product_id.toString() && (
                     <span className="text-[10px] sm:text-xs text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full h-fit">Current</span>
