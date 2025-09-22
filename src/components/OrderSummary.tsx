@@ -209,7 +209,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   if (isLoading) {
     return (
       <div
-        className={`w-full lg:w-[400px] bg-white rounded-lg p-8 h-fit ${className}`}
+        className={`w-full lg:w-[400px] bg-white rounded-lg p-8 h-fit text-left ${className}`}
       >
         <div className="animate-pulse space-y-4">
           <div className="h-6 bg-gray-200 rounded w-1/3"></div>
@@ -233,7 +233,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   if (error) {
     return (
       <div
-        className={`w-full lg:w-[400px] bg-white rounded-lg p-8 h-fit ${className}`}
+        className={`w-full lg:w-[400px] bg-white rounded-lg p-8 h-fit text-left ${className}`}
       >
         <div className="text-red-500 text-center">{error}</div>
       </div>
@@ -242,7 +242,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   return (
     <div
-      className={`w-full lg:w-[400px] bg-white rounded-lg p-8 h-fit ${className}`}
+      className={`w-full lg:w-[400px] bg-white rounded-lg p-2 pb-5 h-fit text-left ${className}`}
     >
       <h2 className="text-lg font-semibold mb-6">Your Order</h2>
       <div className="space-y-4 mb-6">
@@ -314,7 +314,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <div className="border-t pt-4 mb-4">
           <h3 className="font-medium text-sm mb-3">Promo Code</h3>
           {!promoCode ? (
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 placeholder="Enter promo code"
@@ -326,14 +326,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               <button
                 onClick={() => onApplyPromo(promoCodeInput)}
                 disabled={promoLoading || !promoCodeInput.trim()}
-                className="px-4 py-2 bg-orange-500 text-white rounded-md text-sm hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-orange-500 text-white rounded-md text-sm hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {promoLoading ? "Applying..." : "Apply"}
               </button>
             </div>
           ) : (
-            <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md">
-              <div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md gap-2">
+              <div className="flex-1">
                 <div className="text-sm font-medium text-green-800">
                   Code: {promoCode}
                 </div>
@@ -344,7 +344,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               {onRemovePromo && (
                 <button
                   onClick={onRemovePromo}
-                  className="text-red-500 hover:text-red-700 text-sm"
+                  className="text-red-500 hover:text-red-700 text-sm self-start sm:self-auto"
                 >
                   Remove
                 </button>
