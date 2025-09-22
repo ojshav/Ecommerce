@@ -209,12 +209,12 @@
   },
   "privacy": {
     "title": "Privacy Policy",
-    "subtitle": "At AUIN, we are committed to protecting your privacy and ensuring the security of your personal information. This policy explains how we collect, use, and safeguard your data when you shop with us.",
+    "subtitle": "At Aoin, we are committed to protecting your privacy and ensuring the security of your personal information. This policy explains how we collect, use, and safeguard your data when you shop with us.",
     "lastUpdated": "Last updated",
     "sections": {
       "introduction": {
         "title": "Introduction",
-        "content": "Welcome to AUIN, your trusted destination for fashion, technology, and lifestyle products. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and share your information when you visit our website, use our mobile app, make purchases, or interact with our services."
+        "content": "Welcome to Aoin, your trusted destination for fashion, technology, and lifestyle products. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and share your information when you visit our website, use our mobile app, make purchases, or interact with our services."
       },
       "informationCollection": {
         "title": "Information We Collect",
@@ -242,11 +242,11 @@
       },
       "childrensPrivacy": {
         "title": "Children's Privacy",
-        "content": "AUIN's services are not intended for children under the age of 16. We do not knowingly collect personal information from children under 16."
+        "content": "Aoin's services are not intended for children under the age of 16. We do not knowingly collect personal information from children under 16."
       },
       "internationalTransfers": {
         "title": "International Data Transfers",
-        "content": "AUIN operates globally and may transfer your information to countries other than your own."
+        "content": "Aoin operates globally and may transfer your information to countries other than your own."
       },
       "policyUpdates": {
         "title": "Updates to This Policy",
@@ -259,7 +259,7 @@
     }
   },
   "shipping": {
-    "title": "AUIN Shipping Policy",
+    "title": "Aoin Shipping Policy",
     "lastUpdated": "Last updated",
     "overview": {
       "freeShipping": {
@@ -282,7 +282,7 @@
     "methods": {
       "title": "Shipping Methods",
       "standard": {
-        "title": "AUIN Standard Shipping",
+        "title": "Aoin Standard Shipping",
         "description": "Delivery in 3-5 business days within the continental United States.",
         "features": [
           "Free for orders over $75",
@@ -290,7 +290,7 @@
         ]
       },
       "express": {
-        "title": "AUIN Express Shipping",
+        "title": "Aoin Express Shipping",
         "description": "Delivery in 2 business days within the continental United States.",
         "features": [
           "$12.95 flat rate for all orders",
@@ -298,7 +298,7 @@
         ]
       },
       "overnight": {
-        "title": "AUIN Priority Overnight",
+        "title": "Aoin Priority Overnight",
         "description": "Next business day delivery within the continental United States.",
         "features": [
           "$24.95 flat rate for all orders",
@@ -338,12 +338,12 @@
   "terms": {
     "title": "Terms & Conditions",
     "lastUpdated": "Last updated",
-    "introduction": "Welcome to AUIN, your trusted destination for fashion, technology, and lifestyle products. These Terms and Conditions govern your use of the AUIN website, mobile applications, and services. By accessing or using our platform, you agree to be bound by these Terms. Please read them carefully before making any purchases.",
+    "introduction": "Welcome to Aoin, your trusted destination for fashion, technology, and lifestyle products. These Terms and Conditions govern your use of the Aoin website, mobile applications, and services. By accessing or using our platform, you agree to be bound by these Terms. Please read them carefully before making any purchases.",
     "sections": {
       "acceptance": {
         "title": "Acceptance of Terms",
         "content": [
-          "By accessing or using the AUIN website, mobile applications, or any other features, technologies, or functionalities offered by AUIN on our platform or through any other means (collectively, 'Services'), you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you may not access or use our Services.",
+          "By accessing or using the Aoin website, mobile applications, or any other features, technologies, or functionalities offered by Aoin on our platform or through any other means (collectively, 'Services'), you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you may not access or use our Services.",
           "These Terms apply to all visitors, users, and others who access or use our Services. By using our Services, you represent that you are at least 18 years old or have parental consent to use our Services."
         ]
       },
@@ -355,7 +355,7 @@
         "title": "Account Registration",
         "content": [
           "To access certain features of our Services, you may be required to register for an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.",
-          "You are responsible for safeguarding your password and for all activities that occur under your account. You agree to notify AUIN immediately of any unauthorized use of your account or any other breach of security.",
+          "You are responsible for safeguarding your password and for all activities that occur under your account. You agree to notify Aoin immediately of any unauthorized use of your account or any other breach of security.",
           "You may not create an account for anyone other than yourself, and you may not create more than one account per person. We reserve the right to terminate accounts that violate these Terms."
         ]
       },
@@ -378,8 +378,8 @@
       "products": {
         "title": "Products and Services",
         "content": [
-          "AUIN strives to display product descriptions, images, and pricing as accurately as possible. However, we do not guarantee that all information is complete or correct. Product images are for illustrative purposes and may not reflect the exact appearance of the product.",
-          "In the event of a pricing error, AUIN reserves the right to refuse or cancel any orders placed for products listed at the incorrect price. We will notify you if your order is affected by a pricing error.",
+          "Aoin strives to display product descriptions, images, and pricing as accurately as possible. However, we do not guarantee that all information is complete or correct. Product images are for illustrative purposes and may not reflect the exact appearance of the product.",
+          "In the event of a pricing error, Aoin reserves the right to refuse or cancel any orders placed for products listed at the incorrect price. We will notify you if your order is affected by a pricing error.",
           "Availability of products and delivery times shown on our website are estimates only and are not guaranteed. We reserve the right to limit the quantities of any products that we offer and to discontinue products at any time."
         ]
       },
@@ -394,42 +394,42 @@
       "shippingDelivery": {
         "title": "Shipping and Delivery",
         "content": [
-          "AUIN will make every effort to ship products within the estimated timeframes. However, shipping times are estimates and not guarantees. AUIN is not responsible for delays due to shipping carrier issues, weather, customs, or other circumstances beyond our control.",
+          "Aoin will make every effort to ship products within the estimated timeframes. However, shipping times are estimates and not guarantees. Aoin is not responsible for delays due to shipping carrier issues, weather, customs, or other circumstances beyond our control.",
           "For more information about our shipping practices, please review our Shipping Policy."
         ]
       },
       "returnsRefunds": {
         "title": "Returns and Refunds",
         "content": [
-          "AUIN offers a 30-day return policy for most items. Some products have specific return conditions that will be noted in the product description or in our Returns & Refunds Policy.",
+          "Aoin offers a 30-day return policy for most items. Some products have specific return conditions that will be noted in the product description or in our Returns & Refunds Policy.",
           "For detailed information on our return process, eligible items, and refund methods, please review our Returns & Refunds Policy."
         ]
       },
       "intellectualProperty": {
         "title": "Intellectual Property",
         "content": [
-          "The Services and all contents, including but not limited to text, images, graphics, logos, icons, audio clips, and software, are the property of AUIN or its content suppliers and protected by United States and international copyright, trademark, and other intellectual property laws.",
-          "The trademarks, service marks, and logos used and displayed on our Services are registered and unregistered trademarks of AUIN and others. Nothing on our Services should be construed as granting any license or right to use any trademarks without the prior written permission of AUIN.",
+          "The Services and all contents, including but not limited to text, images, graphics, logos, icons, audio clips, and software, are the property of Aoin or its content suppliers and protected by United States and international copyright, trademark, and other intellectual property laws.",
+          "The trademarks, service marks, and logos used and displayed on our Services are registered and unregistered trademarks of Aoin and others. Nothing on our Services should be construed as granting any license or right to use any trademarks without the prior written permission of Aoin.",
           "You may not copy, reproduce, distribute, transmit, display, perform, publish, license, create derivative works from, transfer, or sell any information obtained from our Services without our prior written consent."
         ]
       },
       "disclaimer": {
         "title": "Disclaimer of Warranties",
         "content": [
-          "THE SERVICES AND ALL INFORMATION, CONTENT, MATERIALS, PRODUCTS, AND SERVICES INCLUDED ON OR OTHERWISE MADE AVAILABLE TO YOU THROUGH THE SERVICES ARE PROVIDED ON AN 'AS IS' AND 'AS AVAILABLE' BASIS, UNLESS OTHERWISE SPECIFIED IN WRITING. AUIN MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, AS TO THE OPERATION OF THE SERVICES, OR THE INFORMATION, CONTENT, MATERIALS, PRODUCTS, OR SERVICES INCLUDED ON OR OTHERWISE MADE AVAILABLE TO YOU THROUGH THE SERVICES.",
-          "TO THE FULL EXTENT PERMISSIBLE BY LAW, AUIN DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
+          "THE SERVICES AND ALL INFORMATION, CONTENT, MATERIALS, PRODUCTS, AND SERVICES INCLUDED ON OR OTHERWISE MADE AVAILABLE TO YOU THROUGH THE SERVICES ARE PROVIDED ON AN 'AS IS' AND 'AS AVAILABLE' BASIS, UNLESS OTHERWISE SPECIFIED IN WRITING. Aoin MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, AS TO THE OPERATION OF THE SERVICES, OR THE INFORMATION, CONTENT, MATERIALS, PRODUCTS, OR SERVICES INCLUDED ON OR OTHERWISE MADE AVAILABLE TO YOU THROUGH THE SERVICES.",
+          "TO THE FULL EXTENT PERMISSIBLE BY LAW, Aoin DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
         ]
       },
       "limitation": {
         "title": "Limitation of Liability",
         "content": [
-          "AUIN WILL NOT BE LIABLE FOR ANY DAMAGES OF ANY KIND ARISING FROM THE USE OF THE SERVICES, INCLUDING, BUT NOT LIMITED TO, DIRECT, INDIRECT, INCIDENTAL, PUNITIVE, AND CONSEQUENTIAL DAMAGES, UNLESS OTHERWISE SPECIFIED IN WRITING.",
+          "Aoin WILL NOT BE LIABLE FOR ANY DAMAGES OF ANY KIND ARISING FROM THE USE OF THE SERVICES, INCLUDING, BUT NOT LIMITED TO, DIRECT, INDIRECT, INCIDENTAL, PUNITIVE, AND CONSEQUENTIAL DAMAGES, UNLESS OTHERWISE SPECIFIED IN WRITING.",
           "CERTAIN STATE LAWS DO NOT ALLOW LIMITATIONS ON IMPLIED WARRANTIES OR THE EXCLUSION OR LIMITATION OF CERTAIN DAMAGES. IF THESE LAWS APPLY TO YOU, SOME OR ALL OF THE ABOVE DISCLAIMERS, EXCLUSIONS, OR LIMITATIONS MAY NOT APPLY TO YOU, AND YOU MIGHT HAVE ADDITIONAL RIGHTS."
         ]
       },
       "indemnification": {
         "title": "Indemnification",
-        "content": "You agree to indemnify, defend, and hold harmless AUIN, its officers, directors, employees, agents, licensors, and suppliers from and against all losses, expenses, damages and costs."
+        "content": "You agree to indemnify, defend, and hold harmless Aoin, its officers, directors, employees, agents, licensors, and suppliers from and against all losses, expenses, damages and costs."
       },
       "privacyPolicy": {
         "title": "Privacy Policy",
@@ -445,13 +445,13 @@
       },
       "entireAgreement": {
         "title": "Entire Agreement",
-        "content": "These Terms, together with our Privacy Policy, Return Policy, and Shipping Policy, constitute the entire agreement between you and AUIN regarding the use of our Services."
+        "content": "These Terms, together with our Privacy Policy, Return Policy, and Shipping Policy, constitute the entire agreement between you and Aoin regarding the use of our Services."
       },
       "contact": {
         "title": "Contact Information",
         "description": "If you have any questions about these Terms, please contact us at:",
         "customerSupport": "Customer Support",
-        "name": "AUIN E-commerce Platform",
+        "name": "Aoin E-commerce Platform",
         "address": [
           "1658 Rosewood Lane",
           "New York City, NY"

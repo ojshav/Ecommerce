@@ -9,16 +9,14 @@ import {
   Edit2,
   Trash2,
   ChevronDown,
-  CreditCard,
   Plus,
-  Star,
-  X,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { DirectPurchaseItem } from "../types";
 import ConfirmationModal from "../components/common/ConfirmationModal";
 import { addressService, type Address as AddressModel } from "../services/address";
+import RazorpayPayment from "../components/RazorpayPayment";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -48,21 +46,21 @@ const COUNTRY_CODES = [
 
 type Address = AddressModel;
 
-// Add new interface for payment card
-interface PaymentCard {
-  card_id: number;
-  user_id: number;
-  card_type: "credit" | "debit";
-  last_four_digits: string;
-  card_holder_name: string;
-  card_brand: string;
-  status: "active" | "expired" | "suspended" | "deleted";
-  is_default: boolean;
-  billing_address: Address | null;
-  last_used_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
+// Payment card UI removed
+// interface PaymentCard {
+//   card_id: number;
+//   user_id: number;
+//   card_type: "credit" | "debit";
+//   last_four_digits: string;
+//   card_holder_name: string;
+//   card_brand: string;
+//   status: "active" | "expired" | "suspended" | "deleted";
+//   is_default: boolean;
+//   billing_address: Address | null;
+//   last_used_at: string | null;
+//   created_at: string;
+//   updated_at: string;
+// }
 
 //
 
@@ -73,10 +71,12 @@ const PaymentPage: React.FC = () => {
   const [addresses, setAddresses] = useState<AddressModel[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [paymentMethod, setPaymentMethod] = useState("credit_card");
+  const [paymentMethod, setPaymentMethod] = useState("razorpay");
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
     null
   );
+  const [showRazorpay, setShowRazorpay] = useState(false);
+  const [razorpayOrderId, setRazorpayOrderId] = useState<string>("");
   const [showCountryCodes, setShowCountryCodes] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES.find(c => c.code === "IN") || COUNTRY_CODES[0]);
   const [postalCodeError, setPostalCodeError] = useState<string>("");
@@ -98,25 +98,25 @@ const PaymentPage: React.FC = () => {
 
   // deprecated: card details handled via saved cards
   const [processingPayment, setProcessingPayment] = useState(false);
-  const [savedCards, setSavedCards] = useState<PaymentCard[]>([]);
-  const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
-  const [showCardForm, setShowCardForm] = useState(false);
-  const [savingCard, setSavingCard] = useState(false);
+  // const [savedCards, setSavedCards] = useState<PaymentCard[]>([]);
+  // const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+  // const [showCardForm, setShowCardForm] = useState(false);
+  // const [savingCard, setSavingCard] = useState(false);
   const [shippingCost, setShippingCost] = useState<number>(0);
   const [shippingLoading, setShippingLoading] = useState(false);
   const [availableCouriers, setAvailableCouriers] = useState<any[]>([]);
   const [selectedCourier, setSelectedCourier] = useState<any>(null);
   const [shippingRequestId, setShippingRequestId] = useState<string>(""); // To prevent duplicate requests
-  const [cardFormData, setCardFormData] = useState({
-    card_number: "",
-    cvv: "",
-    expiry_month: "",
-    expiry_year: "",
-    card_holder_name: "",
-    card_type: "credit" as "credit" | "debit",
-    billing_address_id: null as number | null,
-    is_default: false,
-  });
+  // const [cardFormData, setCardFormData] = useState({
+  //   card_number: "",
+  //   cvv: "",
+  //   expiry_month: "",
+  //   expiry_year: "",
+  //   card_holder_name: "",
+  //   card_type: "credit" as "credit" | "debit",
+  //   billing_address_id: null as number | null,
+  //   is_default: false,
+  // });
   // Add state for delete confirmation modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<Address | null>(null);
@@ -202,14 +202,62 @@ const PaymentPage: React.FC = () => {
     }
   };
 
-  const handleCardInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setCardFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  // Card input handlers removed
+  // const handleCardInputChange = () => {};
+ 
+  // Create Razorpay order
+  const createRazorpayOrder = async (amount: number, receipt?: string): Promise<string | null> => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        toast.error("Please login to continue");
+        return null;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/razorpay/create-order`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          amount: Math.round(amount * 100), // Convert to paise
+          currency: "INR",
+          receipt: receipt || `CLIENT-${Date.now()}`,
+        }),
+      });
+
+      const text = await response.text();
+      let data: any;
+      try { data = JSON.parse(text); } catch { data = { raw: text }; }
+      if (!response.ok) {
+        const message = data?.message || data?.error || text || 'Unknown error';
+        throw new Error(`Failed to create Razorpay order: ${response.status} ${message}`);
+      }
+      // Accept multiple backend response shapes
+      if (data && typeof data === 'object') {
+        // Common success_response shape: { status: 'success', data: { id: 'order_...' } }
+        if (data.status === 'success' && data.data && data.data.id) {
+          return data.data.id;
+        }
+        // Alternate shape: { success: true, data: { id: 'order_...' } }
+        if (data.success === true && data.data && data.data.id) {
+          return data.data.id;
+        }
+        // Direct pass-through from provider: { id: 'order_...', ... }
+        if (data.id) {
+          return data.id;
+        }
+      }
+      const detail = typeof data === 'object' ? JSON.stringify(data) : String(data);
+      throw new Error(data?.message || `Failed to create Razorpay order: ${detail}`);
+    } catch (error) {
+      console.error("Error creating Razorpay order:", error);
+      const msg = error instanceof Error ? error.message : String(error);
+      toast.error(msg);
+      return null;
+    }
   };
 
   const processCardPayment = async (
@@ -350,207 +398,22 @@ const PaymentPage: React.FC = () => {
     }
   };
 
-  // Add function to calculate shipping costs
+  // Simplified: Do not call Shiprocket; keep shipping included (fixed 0)
   const calculateShippingCost = async () => {
-    if (!selectedAddressId || !user?.id) {
-      return;
-    }
-
-    // Get items for calculation
-    const itemsForShipping =
-      isDirectPurchase && directPurchaseItem
-        ? [
-          {
-            product_id: directPurchaseItem.product.id,
-            quantity: directPurchaseItem.quantity,
-          },
-        ]
-        : cart.map((item) => ({
-          product_id: item.product_id,
-          quantity: item.quantity,
-        }));
-
-    // Generate a unique request ID to prevent duplicate requests
-    const currentRequestId = `${selectedAddressId}-${paymentMethod}-${JSON.stringify(
-      itemsForShipping
-    )}`;
-
-    // If this is the same request as the last one, don't make another API call
-    if (shippingRequestId === currentRequestId && !shippingLoading) {
-      return;
-    }
-
-    try {
-      setShippingLoading(true);
-      setShippingRequestId(currentRequestId);
-
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        console.error("No access token found for shipping calculation");
-        return;
-      }
-
-      // Get the selected address
-      const selectedAddress = addresses.find(
-        (addr) => addr.address_id === selectedAddressId
-      );
-      if (!selectedAddress) {
-        console.error("Selected address not found");
-        return;
-      }
-
-      // Calculate total weight (assuming 0.5kg per item as default)
-      const totalWeight = itemsForShipping.reduce(
-        (weight, item) => weight + item.quantity * 0.5,
-        0
-      );
-
-      // Determine if this is COD or prepaid
-      const isCOD = paymentMethod === "cash_on_delivery";
-
-      // Calculate total price for COD amount
-      const currentTotal =
-        isDirectPurchase && directPurchaseItem
-          ? directPurchaseItem.product.price * directPurchaseItem.quantity
-          : totalPrice;
-      const codAmount = isCOD ? currentTotal - discount : 0;
-
-      const requestBody: any = {
-        pickup_pincode: "474005", // This should come from merchant's address
-        delivery_pincode: selectedAddress.postal_code,
-        weight: totalWeight,
-        cod: isCOD, // Boolean: true for COD, false for prepaid
-      };
-
-      // Add cod_amount only if it's a COD order
-      if (isCOD && codAmount > 0) {
-        requestBody.cod_amount = codAmount;
-      }
-
-      const response = await fetch(
-        `${API_BASE_URL}/api/shiprocket/serviceability`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(requestBody),
-        }
-      );
-
-      // Check if this request is still current (not cancelled by a newer request)
-      if (shippingRequestId !== currentRequestId) {
-        return;
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Failed to calculate shipping:", {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-
-        // Handle different error types
-        if (response.status === 403) {
-          console.warn(
-            "Access denied to shipping calculation, using default cost"
-          );
-          setShippingCost(150); // Default shipping cost for access denied
-        } else if (response.status === 422) {
-          console.warn("Invalid shipping parameters, using default cost");
-          setShippingCost(120); // Default shipping cost for invalid params
-        } else {
-          // Set default shipping cost for other errors
-          setShippingCost(100);
-        }
-        return; // Exit early, loading state will be reset in finally block
-      }
-
-      const data = await response.json();
-
-      // Debug: Log the actual response structure
-      console.log("ShipRocket shipping calculation response:", {
-        status: response.status,
-        message: data.message,
-        hasData: !!data.data,
-        hasCouriers: !!data.data?.data?.available_courier_companies,
-        couriersCount: data.data?.data?.available_courier_companies?.length || 0,
-        fullResponse: data
-      });
-
-      // Check if response has the expected structure
-      // Backend returns: { message: "Serviceability check successful", data: { available_courier_companies: [...] } }
-      console.log("Checking response structure:", {
-        hasMessage: !!data.message,
-        hasData: !!data.data,
-        hasCouriers: !!data.data?.data?.available_courier_companies,
-        couriersLength: data.data?.data?.available_courier_companies?.length || 0,
-        conditionResult: !!(data.message && data.data?.data?.available_courier_companies)
-      });
-      
-      // Check for couriers in the response - the actual structure is data.data.data.available_courier_companies
-      const couriers = data.data?.data?.available_courier_companies || [];
-      const hasCouriers = Array.isArray(couriers) && couriers.length > 0;
-      
-      if (data.message && hasCouriers) {
-        console.log("Found couriers:", couriers.length, couriers);
-        setAvailableCouriers(couriers);
-        setNoCourierService(false); // Explicitly set to false when we have couriers
-
-        // Select the best courier (lowest price or highest rating)
-        if (couriers.length > 0) {
-          const bestCourier = couriers.reduce((best: any, current: any) => {
-            const bestRating = parseFloat(best.rating || "0");
-            const currentRating = parseFloat(current.rating || "0");
-            const bestPrice = parseFloat(best.rate || "999999");
-            const currentPrice = parseFloat(current.rate || "999999");
-
-            // Prefer higher rating, then lower price
-            if (currentRating > bestRating) return current;
-            if (currentRating === bestRating && currentPrice < bestPrice)
-              return current;
-            return best;
-          });
-
-          console.log("Selected best courier:", bestCourier);
-          setSelectedCourier(bestCourier);
-          setShippingCost(parseFloat(bestCourier.rate || "0"));
-        } else {
-          setShippingCost(100); // Default shipping cost if no couriers available
-        }
-      } else {
-        // Debug: Log the actual response structure
-        console.log("ShipRocket response structure:", {
-          message: data.message,
-          hasData: !!data.data,
-          hasCouriers: !!data.data?.data?.available_courier_companies,
-          couriersCount: data.data?.data?.available_courier_companies?.length || 0,
-          fullResponse: data
-        });
-        
-        console.log("Setting noCourierService to true because condition failed");
-        setNoCourierService(true); // No couriers found
-        setShippingCost(100); // Default shipping cost
-      }
-    } catch (error) {
-      console.error("Error calculating shipping cost:", error);
-      setShippingCost(100); // Default shipping cost on error
-    } finally {
-      // Only update loading state if this is still the current request
-      if (shippingRequestId === currentRequestId) {
-        setShippingLoading(false);
-      }
-    }
+    setShippingLoading(false);
+    setAvailableCouriers([]);
+    setSelectedCourier(null);
+    setNoCourierService(false);
+    setShippingCost(0);
   };
 
   // Add manual refresh function for shipping calculation
   const refreshShippingCost = () => {
-    // Clear the current request ID to force a new calculation
-    setShippingRequestId("");
-    calculateShippingCost();
+    setShippingLoading(false);
+    setAvailableCouriers([]);
+    setSelectedCourier(null);
+    setNoCourierService(false);
+    setShippingCost(0);
   };
 
   // Promo code application for direct purchases
@@ -631,15 +494,7 @@ const PaymentPage: React.FC = () => {
       ? directPurchaseItem !== null
       : cart.length > 0;
     if (selectedAddressId && hasItems) {
-      // Add a small delay to prevent rapid successive calls
-      const timeoutId = setTimeout(() => {
-        calculateShippingCost();
-      }, 300); // 300ms debounce
-
-      // Cleanup function to cancel the timeout if the effect runs again
-      return () => {
-        clearTimeout(timeoutId);
-      };
+      calculateShippingCost();
     }
   }, [
     selectedAddressId,
@@ -756,6 +611,255 @@ const PaymentPage: React.FC = () => {
 
 
 
+  // Razorpay payment handlers
+  const handleRazorpaySuccess = async (paymentId: string, razorpayOrderId: string, signature: string) => {
+    try {
+      setProcessingPayment(true);
+      
+      // Verify payment with backend
+      const token = localStorage.getItem("access_token");
+      const response = await fetch(`${API_BASE_URL}/api/razorpay/verify-payment`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          razorpay_payment_id: paymentId,
+          razorpay_order_id: razorpayOrderId,
+          razorpay_signature: signature,
+        }),
+      });
+
+      const respText = await response.text();
+      let dataObj: { status?: string; message?: string } = {};
+      try { dataObj = JSON.parse(respText); } catch { dataObj = {}; }
+
+      if (!response.ok) {
+        const rawMsg = (dataObj as any).message ?? respText ?? 'Payment verification failed';
+        const msg = typeof rawMsg === 'string' ? rawMsg : JSON.stringify(rawMsg);
+        throw new Error(msg);
+      }
+
+      const data = dataObj as any;
+      const payload = (data && (data.data ?? (typeof data.message === 'object' ? data.message : undefined))) || data;
+      const isVerified = (
+        (payload && payload.verified === true) ||
+        (data && data.verified === true) ||
+        (data && data.data && data.data.verified === true)
+      );
+      const isSuccess = data.status === 'success' || data.success === true || isVerified === true;
+      if (isSuccess) {
+        const resolvedPaymentId = payload?.payment_id || paymentId;
+        const resolvedOrderId = payload?.order_id || razorpayOrderId;
+        toast.success("Payment successful!");
+        // Continue with order processing
+        await processOrderAfterPayment(resolvedPaymentId, resolvedOrderId);
+      } else {
+        const rawMsg = data.message ?? 'Payment verification failed';
+        const msg = typeof rawMsg === 'string' ? rawMsg : JSON.stringify(rawMsg);
+        throw new Error(msg);
+      }
+    } catch (error) {
+      console.error("Error verifying Razorpay payment:", error);
+      toast.error(error instanceof Error ? error.message : "Payment verification failed");
+    } finally {
+      setProcessingPayment(false);
+      setShowRazorpay(false);
+    }
+  };
+
+  const handleRazorpayError = (error: string) => {
+    console.error("Razorpay payment error:", error);
+    toast.error(`Payment failed: ${error}`);
+    setShowRazorpay(false);
+    setProcessingPayment(false);
+  };
+
+  const handleRazorpayClose = () => {
+    console.log("Razorpay payment closed");
+    setShowRazorpay(false);
+    setProcessingPayment(false);
+  };
+
+  const processOrderAfterPayment = async (razorpayPaymentId?: string, razorpayOrderId?: string) => {
+    // This function will be called after successful payment
+    // It will contain the order creation logic
+    const itemsSource =
+      isDirectPurchase && directPurchaseItem
+        ? [
+          {
+            product_id: directPurchaseItem.product.id,
+            merchant_id: 1,
+            quantity: directPurchaseItem.quantity,
+            selected_attributes: directPurchaseItem.selected_attributes,
+            product: directPurchaseItem.product,
+          },
+        ]
+        : cart;
+
+    const subtotal = itemsSource.reduce((total, item) => {
+      const price = item.product.original_price || item.product.price;
+      return total + price * item.quantity;
+    }, 0);
+    const finalTotal = subtotal - discount + shippingCost;
+
+    const totalItemDiscounts = Object.values(itemDiscounts || {}).reduce(
+      (sum: number, discount: any) =>
+        sum + (typeof discount === "number" ? discount : 0),
+      0
+    );
+    const remainingDiscount = discount - totalItemDiscounts;
+
+    const orderData: any = {
+      items: itemsSource.map((item) => {
+        const basePrice = item.product.original_price || item.product.price;
+        const itemTotal = basePrice * item.quantity;
+        let itemDiscountAmount =
+          itemDiscounts && itemDiscounts[item.product.id || item.product_id]
+            ? Number(itemDiscounts[item.product.id || item.product_id])
+            : 0;
+
+        if (remainingDiscount > 0 && subtotal > 0) {
+          const itemProportion = itemTotal / subtotal;
+          const distributedDiscount = remainingDiscount * itemProportion;
+          itemDiscountAmount += distributedDiscount;
+        }
+
+        itemDiscountAmount = Math.min(itemDiscountAmount, itemTotal);
+        itemDiscountAmount = Math.round(itemDiscountAmount * 100) / 100;
+
+        const perUnitDiscount = itemDiscountAmount / item.quantity;
+        const roundedPerUnitDiscount = Math.round(perUnitDiscount * 100) / 100;
+        const finalUnitPrice = basePrice - roundedPerUnitDiscount;
+
+        return {
+          product_id: item.product.id || item.product_id,
+          merchant_id: item.merchant_id || 1,
+          product_name_at_purchase: item.product.name,
+          sku_at_purchase: item.product.sku || "",
+          quantity: item.quantity,
+          unit_price_inclusive_gst: finalUnitPrice.toString(),
+          line_item_total_inclusive_gst: (
+            finalUnitPrice * item.quantity
+          ).toString(),
+          final_price_for_item: (finalUnitPrice * item.quantity).toString(),
+          item_discount_inclusive: roundedPerUnitDiscount.toString(),
+          selected_attributes: item.selected_attributes || {},
+        };
+      }),
+      subtotal_amount: subtotal.toString(),
+      discount_amount: "0.00",
+      tax_amount: "0.00",
+      shipping_amount: shippingCost.toString(),
+      total_amount: finalTotal.toString(),
+      currency: "INR",
+      payment_method: "other",
+      shipping_address_id: selectedAddressId,
+      billing_address_id: selectedAddressId,
+      shipping_method_name: "Standard Shipping",
+      customer_notes: "",
+      internal_notes:
+        appliedPromo && appliedPromo.code
+          ? `Promo code used: ${appliedPromo.code}`
+          : "",
+    };
+
+    // Attach Razorpay references for reconciliation in backend
+    if (razorpayPaymentId) orderData.razorpay_payment_id = razorpayPaymentId;
+    if (razorpayOrderId) orderData.razorpay_order_id = razorpayOrderId;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.message || "Failed to create order.");
+      }
+
+      if (responseData.status === "success") {
+        const orderId = responseData.data.order_id;
+
+        // Create merchant transactions
+        const merchantTransactionsSuccess = await createMerchantTransactions(orderId);
+        if (!merchantTransactionsSuccess) {
+          console.warn("Failed to create merchant transactions, but order was successful");
+        }
+
+        // ShipRocket shipment creation
+        try {
+          const shiprocketResp = await fetch(
+            `${API_BASE_URL}/api/shiprocket/create-orders-for-all-merchants`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                order_id: orderId,
+                delivery_address_id: selectedAddressId,
+                courier_id: selectedCourier?.courier_company_id,
+              }),
+            }
+          );
+
+          const srData = await shiprocketResp.json();
+          if (
+            shiprocketResp.ok &&
+            srData.status === "success" &&
+            srData.data &&
+            Array.isArray(srData.data.successful_merchants) &&
+            srData.data.successful_merchants.length > 0
+          ) {
+            const response = srData.data;
+            if (response.successful_merchants.length > 0) {
+              const successCount = response.successful_merchants.length;
+              const totalCount = response.total_merchants;
+
+              if (successCount === totalCount) {
+                toast.success(
+                  `Shipments created successfully for all ${totalCount} merchant(s)`
+                );
+              } else {
+                toast.success(
+                  `Shipments created for ${successCount}/${totalCount} merchants. Some failed.`
+                );
+              }
+            }
+          }
+        } catch (srErr) {
+          console.error("ShipRocket call error:", srErr);
+          toast.error(
+            "Order placed successfully, but shipment creation failed. Please contact support."
+          );
+        }
+
+        // Clear the cart after successful order
+        if (!isDirectPurchase) {
+          await clearCart();
+        }
+        toast.success("Order placed successfully");
+        navigate("/order-confirmation", { state: { orderId }, replace: true });
+      } else {
+        throw new Error(responseData.message || "Failed to place order");
+      }
+    } catch (error) {
+      console.error("Error in processOrderAfterPayment:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to place order"
+      );
+    }
+  };
+
   const handleOrder = async () => {
     if (!accessToken) {
       toast.error("Please login to continue");
@@ -765,11 +869,41 @@ const PaymentPage: React.FC = () => {
       toast.error("Please select a shipping address");
       return;
     }
-    if (
-      (paymentMethod === "credit_card" || paymentMethod === "debit_card") &&
-      !selectedCardId
-    ) {
-      toast.error("Please select a payment card.");
+    // Card methods removed; no need to require a selected card
+
+    // Handle Razorpay payment
+    if (paymentMethod === "razorpay") {
+      setProcessingPayment(true);
+      
+      // Calculate total amount
+      const itemsSource =
+        isDirectPurchase && directPurchaseItem
+          ? [
+            {
+              product_id: directPurchaseItem.product.id,
+              merchant_id: 1,
+              quantity: directPurchaseItem.quantity,
+              selected_attributes: directPurchaseItem.selected_attributes,
+              product: directPurchaseItem.product,
+            },
+          ]
+          : cart;
+
+      const subtotal = itemsSource.reduce((total, item) => {
+        const price = item.product.original_price || item.product.price;
+        return total + price * item.quantity;
+      }, 0);
+      const finalTotal = subtotal - discount + shippingCost;
+
+      // Create Razorpay order
+      const clientReceipt = `ORDREF-${Date.now()}`;
+      const razorpayOrderId = await createRazorpayOrder(finalTotal, clientReceipt);
+      if (razorpayOrderId) {
+        setRazorpayOrderId(razorpayOrderId);
+        setShowRazorpay(true);
+      } else {
+        setProcessingPayment(false);
+      }
       return;
     }
 
@@ -864,10 +998,7 @@ const PaymentPage: React.FC = () => {
         appliedPromo && appliedPromo.code
           ? `Promo code used: ${appliedPromo.code}`
           : "",
-      payment_card_id:
-        paymentMethod === "credit_card" || paymentMethod === "debit_card"
-          ? selectedCardId
-          : undefined,
+      // Card methods removed: do not send payment_card_id
     };
 
     try {
@@ -888,16 +1019,7 @@ const PaymentPage: React.FC = () => {
       if (responseData.status === "success") {
         const orderId = responseData.data.order_id;
 
-        // Process payment if credit/debit card is selected
-        if (paymentMethod === "credit_card" || paymentMethod === "debit_card") {
-          const paymentSuccess = await processCardPayment(
-            orderId,
-            selectedCardId || 0
-          );
-          if (!paymentSuccess) {
-            return;
-          }
-        }
+        // Card payment methods removed; no additional processing needed
 
         // Create merchant transactions for all merchants involved in the order
         const merchantTransactionsSuccess = await createMerchantTransactions(
@@ -1078,35 +1200,12 @@ const PaymentPage: React.FC = () => {
   };
 
   // Add function to fetch saved cards
-  const fetchSavedCards = async () => {
+  const fetchSavedCards = async () => { /* no-op: cards removed */ };
+
+  // Add function to save new card (removed)
+  /* const handleSaveCard = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
-
-      const baseUrl = API_BASE_URL.replace(/\/+$/, "");
-      const response = await fetch(`${baseUrl}/api/payment-cards`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch saved cards");
-      }
-
-      const data = await response.json();
-      setSavedCards(data.data);
-    } catch (error) {
-      console.error("Error fetching saved cards:", error);
-      toast.error("Failed to load saved cards");
-    }
-  };
-
-  // Add function to save new card
-  const handleSaveCard = async () => {
-    try {
-      setSavingCard(true);
+      // cards removed
       const token = localStorage.getItem("access_token");
       if (!token) {
         toast.error("Please login to continue");
@@ -1120,20 +1219,11 @@ const PaymentPage: React.FC = () => {
 
       // Format the expiry year to be a full 4-digit year
   // const currentYear = new Date().getFullYear();
-      const shortYear = parseInt(cardFormData.expiry_year);
-      const fullYear = shortYear < 100 ? 2000 + shortYear : shortYear;
+      // const shortYear = 0;
+      // const fullYear = shortYear;
 
       // Format the card data according to the API requirements
-      const cardData = {
-        card_type: cardFormData.card_type,
-        card_holder_name: cardFormData.card_holder_name,
-        billing_address_id: selectedAddressId,
-        is_default: cardFormData.is_default,
-        card_number: cardFormData.card_number.replace(/\s/g, ""), // Remove spaces and ensure we're sending the actual number
-        cvv: cardFormData.cvv,
-        expiry_month: cardFormData.expiry_month.padStart(2, "0"), // Ensure 2 digits
-        expiry_year: fullYear.toString(), // Use full 4-digit year
-      };
+      const cardData = {} as any;
 
       // Debug: Log the request data (masked for security)
       // console.log("Sending card data:", {
@@ -1173,18 +1263,6 @@ const PaymentPage: React.FC = () => {
       }
 
       if (responseData.status === "success") {
-        setSavedCards((prev) => [...prev, responseData.data]);
-        setShowCardForm(false);
-        setCardFormData({
-          card_number: "",
-          cvv: "",
-          expiry_month: "",
-          expiry_year: "",
-          card_holder_name: "",
-          card_type: "credit",
-          billing_address_id: null,
-          is_default: false,
-        });
         toast.success("Card saved successfully");
       } else {
         throw new Error(responseData.message || "Failed to save card");
@@ -1201,12 +1279,12 @@ const PaymentPage: React.FC = () => {
         error instanceof Error ? error.message : "Failed to save card"
       );
     } finally {
-      setSavingCard(false);
+      // setSavingCard(false);
     }
-  };
+  }; */
 
   // Add function to delete card
-  const handleDeleteCard = async (cardId: number) => {
+  /* const handleDeleteCard = async (cardId: number) => {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
@@ -1227,7 +1305,7 @@ const PaymentPage: React.FC = () => {
         throw new Error("Failed to delete card");
       }
 
-      setSavedCards((prev) => prev.filter((card) => card.card_id !== cardId));
+      // update local state removed
       if (selectedCardId === cardId) {
         setSelectedCardId(null);
       }
@@ -1236,10 +1314,10 @@ const PaymentPage: React.FC = () => {
       console.error("Error deleting card:", error);
       toast.error("Failed to delete card");
     }
-  };
+  }; */
 
   // Add function to set default card
-  const handleSetDefaultCard = async (cardId: number) => {
+  /* const handleSetDefaultCard = async (cardId: number) => {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
@@ -1263,20 +1341,16 @@ const PaymentPage: React.FC = () => {
         throw new Error("Failed to set default card");
       }
 
-      setSavedCards((prev) =>
-        prev.map((card) => ({
-          ...card,
-          is_default: card.card_id === cardId,
-        }))
-      );
+      // update local state removed
       toast.success("Default card updated successfully");
     } catch (error) {
       console.error("Error setting default card:", error);
       toast.error("Failed to set default card");
     }
-  };
+  }; */
 
   // Add renderSavedCards function
+  /*
   const renderSavedCards = () => {
     if (savedCards.length === 0) {
       return (
@@ -1503,6 +1577,7 @@ const PaymentPage: React.FC = () => {
       </div>
     );
   };
+  */
 
   if (loading) {
     return (
@@ -1631,14 +1706,7 @@ const PaymentPage: React.FC = () => {
           )}
         </div>
 
-        {/* Saved Cards */}
-        {(paymentMethod === "credit_card" ||
-          paymentMethod === "debit_card") && (
-            <>
-              {renderSavedCards()}
-              {showCardForm && renderCardForm()}
-            </>
-          )}
+        {/* Saved Cards (hidden since card methods are removed) */}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1830,8 +1898,8 @@ const PaymentPage: React.FC = () => {
           discount={discount}
           promoCode={appliedPromo?.code}
           itemDiscounts={itemDiscounts}
-          shippingCost={0}
-          shippingLoading={false}
+          shippingCost={shippingCost}
+          shippingLoading={shippingLoading}
           availableCouriers={availableCouriers}
           selectedCourier={selectedCourier}
           onRefreshShipping={refreshShippingCost}
@@ -1843,28 +1911,6 @@ const PaymentPage: React.FC = () => {
         <div className="mb-6 ">
           <div className="font-medium mb-3">{t('payment.paymentMethod')}</div>
           <div className="flex flex-col gap-2">
-            <label className="flex items-center  gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="credit_card"
-                checked={paymentMethod === "credit_card"}
-                onChange={() => setPaymentMethod("credit_card")}
-                className="accent-orange-500 bg-transparent shadow-none align-middle"
-              />
-              <span className="text-black font-worksans ml-1  font-normal text-[14px]">{t('payment.creditCard')}</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="debit_card"
-                checked={paymentMethod === "debit_card"}
-                onChange={() => setPaymentMethod("debit_card")}
-                className="accent-orange-500 bg-transparent shadow-none align-middle"
-              />
-              <span className="text-black font-worksans ml-1 font-normal text-[14px]">{t('payment.debitCard')}</span>
-            </label>
             <label className="flex items-center  cursor-pointer">
               <input
                 type="radio"
@@ -1875,6 +1921,17 @@ const PaymentPage: React.FC = () => {
                 className="accent-orange-500 bg-transparent shadow-none align-middle"
               />
               <span className="text-black font-worksans ml-1 font-normal text-[14px]">{t('payment.cashOnDelivery')}</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="razorpay"
+                checked={paymentMethod === "razorpay"}
+                onChange={() => setPaymentMethod("razorpay")}
+                className="accent-orange-500 bg-transparent shadow-none align-middle"
+              />
+              <span className="text-black font-worksans ml-1 font-normal text-[14px]">Pay Now</span>
             </label>
           </div>
         </div>
@@ -1912,6 +1969,42 @@ const PaymentPage: React.FC = () => {
         cancelText="Cancel"
         // isDestructive
       />
+
+      {/* Razorpay Payment Component */}
+      {showRazorpay && razorpayOrderId && (
+        <RazorpayPayment
+          amount={(() => {
+            const itemsSource =
+              isDirectPurchase && directPurchaseItem
+                ? [
+                  {
+                    product_id: directPurchaseItem.product.id,
+                    merchant_id: 1,
+                    quantity: directPurchaseItem.quantity,
+                    selected_attributes: directPurchaseItem.selected_attributes,
+                    product: directPurchaseItem.product,
+                  },
+                ]
+                : cart;
+
+            const subtotal = itemsSource.reduce((total, item) => {
+              const price = item.product.original_price || item.product.price;
+              return total + price * item.quantity;
+            }, 0);
+            return subtotal - discount + shippingCost;
+          })()}
+          orderId={razorpayOrderId}
+          customerName={user?.name || formData.contact_name || ""}
+          customerEmail={user?.email || ""}
+          customerPhone={formData.contact_phone || ""}
+          onSuccess={handleRazorpaySuccess}
+          onError={handleRazorpayError}
+          onClose={handleRazorpayClose}
+          description="Aoin Store Purchase"
+          businessName="Aoin Store"
+          businessLogo="https://aoinstore.com/logo.png"
+        />
+      )}
     </div>
   );
 };

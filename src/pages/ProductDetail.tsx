@@ -204,6 +204,9 @@ const ProductDetail: React.FC = () => {
   const [translatedVariantNames, setTranslatedVariantNames] = useState<Record<string, string>>({});
   // Display-only translations for reviews (title/body)
   const [translatedReviews, setTranslatedReviews] = useState<Record<number, { title?: string; body?: string }>>({});
+  // Variants fetched via dedicated endpoint
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [loadingVariants, setLoadingVariants] = useState<boolean>(false);
   const shareDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(shareDropdownRef, () => {
     if (showShareOptions) setShowShareOptions(false);
@@ -384,6 +387,15 @@ const ProductDetail: React.FC = () => {
         }
 
         const data = await response.json();
+        // Debug: Inspect variants payload from API
+        // Using console.debug to keep noise lower than console.log
+        console.debug('[ProductDetail] Fetched product details', {
+          productId,
+          hasVariantsArray: Array.isArray(data?.variants),
+          variantsCount: Array.isArray(data?.variants) ? data.variants.length : 'n/a',
+          isVariant: data?.is_variant,
+          parentProductId: data?.parent_product_id,
+        });
 
 //         console.log("Product Data:", {
 //           selling_price: data.selling_price,
@@ -409,6 +421,10 @@ const ProductDetail: React.FC = () => {
               url: convertVideoUrl(media.url, media.type)
             })) : []
           }));
+          console.debug('[ProductDetail] Variants after media normalization', {
+            variantsCount: data.variants.length,
+            sampleVariant: data.variants[0],
+          });
         }
         
 
@@ -426,6 +442,39 @@ const ProductDetail: React.FC = () => {
 
     if (productId) {
       fetchProductDetails();
+    }
+  }, [productId]);
+
+  // Fetch variants via dedicated endpoint
+  const fetchProductVariants = async (productId: string) => {
+    try {
+      setLoadingVariants(true);
+      const response = await fetch(`${API_BASE_URL}/api/products/${productId}/variants`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch product variants');
+      }
+
+      const data = await response.json();
+      console.debug('[ProductDetail] Fetched variants via endpoint', {
+        count: Array.isArray(data?.variants) ? data.variants.length : 'n/a',
+      });
+      setVariants(data.variants || []);
+    } catch (error) {
+      console.error('Error fetching variants:', error);
+    } finally {
+      setLoadingVariants(false);
+    }
+  };
+
+  useEffect(() => {
+    if (productId) {
+      fetchProductVariants(productId);
     }
   }, [productId]);
 
@@ -863,6 +912,16 @@ const ProductDetail: React.FC = () => {
     );
   };
 
+  // Helper: get best variant thumbnail url
+  const getVariantThumbUrl = (variant: ProductVariant): string | null => {
+    if (variant?.media && variant.media.length > 0) {
+      return variant.media[0].url;
+    }
+    const anyVariant = variant as unknown as { primary_image?: string };
+    if (anyVariant && typeof anyVariant.primary_image === 'string') return anyVariant.primary_image;
+    return null;
+  };
+
   // Update the reviews tab content
   const renderTabContent = () => {
     switch (activeTab) {
@@ -1058,12 +1117,40 @@ const ProductDetail: React.FC = () => {
 
   // Replace the dummy variant selector with real variants
   const renderVariants = () => {
-    if (!product?.variants || product.variants.length === 0) {
-      return null;
+    // Determine which variants to use: fetched or included in product details
+    const variantSource: ProductVariant[] = (variants && variants.length > 0)
+      ? variants
+      : (product?.variants || []);
+
+    // Debug: Log at render-time to confirm variants availability
+    console.debug('[ProductDetail] Render variants check', {
+      hasProduct: !!product,
+      hasVariantsArray: Array.isArray(variantSource),
+      variantsCount: Array.isArray(variantSource) ? variantSource.length : 0,
+      isVariantFlag: product?.is_variant,
+      parentProductId: product?.parent_product_id,
+      loadingVariants,
+    });
+    if (loadingVariants) {
+      return (
+        <div className="mt-6 sm:mt-8">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Loading variants…</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="border rounded-lg p-3 sm:p-4 animate-pulse">
+                <div className="bg-gray-200 rounded-md h-24 sm:h-32 mb-3" />
+                <div className="h-4 bg-gray-200 rounded w-2/3 mb-2" />
+                <div className="h-3 bg-gray-100 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     }
+    if (!variantSource || variantSource.length === 0) return null;
 
     // Sort variants to show parent product first, then other variants
-    const sortedVariants = [...product.variants].sort((a, b) => {
+    const sortedVariants = [...variantSource].sort((a, b) => {
       if (a.isParent) return -1;
       if (b.isParent) return 1;
       return 0;
@@ -1071,58 +1158,52 @@ const ProductDetail: React.FC = () => {
 
     return (
       <div className="mt-6 sm:mt-8">
-        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
-          {product.is_variant ? "Related Products" : "Available Variants"}
-        </h3>
-        <div className="flex flex-row space-x-3 overflow-x-auto scrollbar-hide sm:grid sm:grid-cols-1 sm:space-x-0 sm:gap-4 lg:grid-cols-3">
-          {sortedVariants.map((variant) => (
-            <div
-              key={variant.id}
-              className={`min-w-[220px] max-w-xs sm:min-w-0 sm:max-w-none border rounded-lg p-3 sm:p-4 cursor-pointer transition-all ${
-                variant.id === product.product_id.toString()
-                  ? "border-blue-500 bg-blue-50"
-                  : "hover:border-gray-400"
-              }`}
-              onClick={() => {
-                if (variant.id !== product.product_id.toString()) {
-                  navigate(`/product/${variant.id}`);
-                }
-              }}
-            >
-              <div className="aspect-w-1 aspect-h-1 mb-4">
-                {variant.media && variant.media.length > 0 ? (
-                  variant.media[0].type?.toLowerCase() === 'video' ? (
-                    <div className="relative rounded-lg overflow-hidden">
-                      <video
-                        src={variant.media[0].url}
-                        className="object-cover w-full h-full"
-                        muted
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
-                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                          <svg className="w-4 h-4 text-gray-800 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900">
+            {product.is_variant ? "Related Products" : "Available Variants"}
+          </h3>
+          <span className="text-xs sm:text-sm text-gray-500">{sortedVariants.length} option{sortedVariants.length === 1 ? '' : 's'}</span>
+        </div>
+        <div className="flex flex-row space-x-3 overflow-x-auto scrollbar-hide sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:space-x-0 sm:gap-4">
+          {sortedVariants.map((variant) => {
+            const thumbUrl = getVariantThumbUrl(variant);
+            return (
+              <div
+                key={variant.id}
+                className={`min-w-[220px] max-w-xs sm:min-w-0 sm:max-w-none border rounded-lg p-3 sm:p-4 cursor-pointer transition-all ${
+                  variant.id === product.product_id.toString()
+                    ? "border-blue-500 bg-blue-50"
+                    : "hover:border-gray-400"
+                }`}
+                onClick={() => {
+                  if (variant.id !== product.product_id.toString()) {
+                    navigate(`/product/${variant.id}`);
+                  }
+                }}
+              >
+                <div className="aspect-w-1 aspect-h-1 mb-4">
+                  {thumbUrl ? (
                     <img
-                      src={variant.media[0].url}
+                      src={thumbUrl}
                       alt={variant.name}
-                      className="object-cover rounded-lg"
+                      className="object-cover rounded-lg w-full h-full"
                     />
-                  )
-                ) : (
-                  <div className="bg-gray-100 rounded-lg flex items-center justify-center">
-                    <span className="text-gray-400">No image</span>
+                  ) : (
+                    <div className="bg-gray-100 rounded-lg flex items-center justify-center w-full h-full">
+                      <span className="text-gray-400">No image</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-0.5">{translatedVariantNames[variant.id] || variant.name}</h4>
+                    <p className="text-xs text-gray-500">SKU: {variant.sku}</p>
                   </div>
-                )}
-              </div>
-              <h4 className="font-medium text-gray-900 mb-1">{translatedVariantNames[variant.id] || variant.name}</h4>
-              <p className="text-sm text-gray-500">SKU: {variant.sku}</p>
-              <div className="mt-2 flex justify-between items-center">
-                <div>
+                  {variant.id === product.product_id.toString() && (
+                    <span className="text-[10px] sm:text-xs text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full h-fit">Current</span>
+                  )}
+                </div>
+                <div className="mt-2">
                   <span className="text-lg font-medium text-gray-900">
                     ₹{variant.price.toFixed(2)}
                   </span>
@@ -1132,14 +1213,9 @@ const ProductDetail: React.FC = () => {
                     </span>
                   )}
                 </div>
-                {variant.id === product.product_id.toString() && (
-                  <span className="text-sm text-blue-600 font-medium">
-                    Current Selection
-                  </span>
-                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );

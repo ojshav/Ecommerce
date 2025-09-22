@@ -140,6 +140,12 @@ const Order: React.FC = () => {
         const ordersWithTracking = await Promise.all(
           data.data.orders.map(async (order) => {
             try {
+              // Only attempt tracking when order likely has shipments
+              const statusLc = String(order.order_status || '').toLowerCase();
+              const shouldTrack = ['processing', 'shipped', 'in_transit', 'delivered'].includes(statusLc);
+              if (!shouldTrack) {
+                return order;
+              }
               const trackingInfo = await fetchOrderTracking(order.order_id);
               return {
                 ...order,
@@ -225,12 +231,28 @@ const Order: React.FC = () => {
 
       const data = await response.json();
       console.log('ShipRocket Order Tracking Response:', data);
-      
+
+      // Accept common success shape { message, data }
+      const payload = data?.data ?? null;
+      if (payload) {
+        // If Shiprocket returns "no activities" or empty details, don't treat as error
+        try {
+          const sr = payload.shiprocket_response;
+          if (Array.isArray(sr) && sr.length > 0) {
+            const first = sr[0];
+            const key = Object.keys(first || {})[0];
+            const td = key ? first[key]?.tracking_data : undefined;
+            const noActivitiesMsg = td?.error && String(td.error).toLowerCase().includes('no activities');
+            if (noActivitiesMsg) return null;
+          }
+        } catch {}
+        return payload;
+      }
+      // Fallback: if backend sent status-based success
       if (data.status === 'success') {
         return data.data;
-      } else {
-        throw new Error(data.message || 'Failed to fetch order tracking');
       }
+      throw new Error(data.message || 'Failed to fetch order tracking');
     } catch (err) {
       console.error('Error fetching order tracking:', err);
       // toast.error('Failed to load order tracking information');

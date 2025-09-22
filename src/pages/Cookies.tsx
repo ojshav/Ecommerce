@@ -12,7 +12,7 @@ const CookiesPage: React.FC = () => {
           
           <div className="prose prose-lg max-w-none">
             <p>
-              This Cookie Policy explains how AUIN ("we", "us", or "our") uses cookies and similar technologies to recognize you when you visit our website ("Website"). It explains what these technologies are and why we use them, as well as your rights to control our use of them.
+              This Cookie Policy explains how Aoin ("we", "us", or "our") uses cookies and similar technologies to recognize you when you visit our website ("Website"). It explains what these technologies are and why we use them, as well as your rights to control our use of them.
             </p>
             
             <h2>What Are Cookies?</h2>
@@ -20,7 +20,7 @@ const CookiesPage: React.FC = () => {
               Cookies are small data files that are placed on your computer or mobile device when you visit a website. Cookies are widely used by website owners in order to make their websites work, or to work more efficiently, as well as to provide reporting information.
             </p>
             <p>
-              Cookies set by the website owner (in this case, AUIN) are called "first-party cookies". Cookies set by parties other than the website owner are called "third-party cookies". Third-party cookies enable third-party features or functionality to be provided on or through the website (e.g., advertising, interactive content, and analytics). The parties that set these third-party cookies can recognize your computer both when it visits the website in question and also when it visits certain other websites.
+              Cookies set by the website owner (in this case, Aoin) are called "first-party cookies". Cookies set by parties other than the website owner are called "third-party cookies". Third-party cookies enable third-party features or functionality to be provided on or through the website (e.g., advertising, interactive content, and analytics). The parties that set these third-party cookies can recognize your computer both when it visits the website in question and also when it visits certain other websites.
             </p>
             
             <h2>Why Do We Use Cookies?</h2>
@@ -102,10 +102,10 @@ const CookiesPage: React.FC = () => {
               If you have any questions about our use of cookies or other technologies, please email us at auoinstore@gmail.com or contact us at:
             </p>
             <p>
-              <strong>AUIN</strong><br />
+              <strong>Aoin</strong><br />
               789 Fashion Avenue, Suite 1000<br />
               New York, NY 10018<br />
-              Phone: 1-800-AUIN-HELP (1-800-284-6435)
+              Phone: auoinstore@gmail.com
             </p>
           </div>
         </div>

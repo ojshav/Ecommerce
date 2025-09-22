@@ -50,7 +50,7 @@ const Footer: React.FC = () => {
           {/* Column 1 - Logo & Contact */}
           <div className="lg:col-span-1">
             <Link to="/" className="inline-block mb-6 lg:mb-8">
-              <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687784/public_assets_images/public_assets_images_logo.svg" alt="AUIN" className="h-8 sm:h-10" />
+              <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687784/public_assets_images/public_assets_images_logo.svg" alt="Aoin" className="h-8 sm:h-10" />
             </Link>
 
             <div className="space-y-3 lg:space-y-4 text-[13px] sm:text-[14px] font-light text-[#161616]">
@@ -68,11 +68,11 @@ const Footer: React.FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Phone size={16} className="text-[#161616] flex-shrink-0" />
-                <a href="tel: 9977131788" className="text-[#F2631F] ">+91 9977131788</a>
+                <a href="tel: 9893361102" className="text-[#F2631F] ">+91 9893361102</a>
               </div>
                               <div className="flex items-center space-x-3">
                   <Mail size={16} className="text-[#161616] flex-shrink-0" />
-                  <a href="mailto:info@aoin11.com" className="text-[#F2631F] hover:underline transition-colors">info@aoin11.com</a>
+                  <a href="mailto:auoinstore@gmail.com" className="text-[#F2631F] hover:underline transition-colors">auoinstore@gmail.com</a>
                 </div>
             </div>
           </div>
@@ -115,7 +115,7 @@ const Footer: React.FC = () => {
             {/* <li><Link to="/RaiseTicket" className="hover:text-[#F2631F] transition-colors">User Support</Link></li> */}
               <li>
                 <div>{t('footer.callUs')}</div>
-                <a href="tel: 9977131788" className="text-[#F2631F]  transition-colors"> +91 9977131788
+                <a href="tel: 9893361102" className="text-[#F2631F]  transition-colors"> +91 9893361102
                 </a>
               </li>
               <li><Link to="/faq" className="hover:text-[#F2631F] transition-colors">{t('footer.faq')}</Link></li>
@@ -124,7 +124,7 @@ const Footer: React.FC = () => {
               <li><Link to="/shipping" className="hover:text-[#F2631F] transition-colors">{t('footer.shippingMethods')}</Link></li>
                               <li className="mt-2">
                   <div>{t('footer.mailUs')}</div>
-                  <a href="mailto:info@aoin11.com" className="text-[#F2631F] hover:underline transition-colors">info@aoin11.com</a>
+                  <a href="mailto:auoinstore@gmail.com" className="text-[#F2631F] hover:underline transition-colors">auoinstore@gmail.com</a>
                 </li>
             </ul>
           </div>

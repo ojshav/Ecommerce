@@ -298,7 +298,7 @@ const Navbar: React.FC = () => {
               {/* Logo - Left below icons */}
               <div className="mt-0 flex-shrink-0 mr-2 md:mr-6 mid:mr-8">
                 <Link to="/" className="inline-block">
-                  <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687784/public_assets_images/public_assets_images_logo.svg" alt="AUIN Logo" width="100" height="35" className="w-[90px] h-[30px] sm:w-[100px] sm:h-[35px] mid:w-[120px] mid:h-[42px]" />
+                  <img src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1751687784/public_assets_images/public_assets_images_logo.svg" alt="Aoin Logo" width="100" height="35" className="w-[90px] h-[30px] sm:w-[100px] sm:h-[35px] mid:w-[120px] mid:h-[42px]" />
                 </Link>
               </div>
 
