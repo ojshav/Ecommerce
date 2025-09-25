@@ -80,7 +80,12 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         },
         handler: function (response: any) {
           console.log('Razorpay payment success:', response);
-          onSuccess(response.razorpay_payment_id, orderId, response.razorpay_signature);
+          const returnedOrderId = response.razorpay_order_id || orderId;
+          if (!response.razorpay_payment_id || !returnedOrderId || !response.razorpay_signature) {
+            onError('Incomplete payment response from Razorpay');
+            return;
+          }
+          onSuccess(response.razorpay_payment_id, returnedOrderId, response.razorpay_signature);
         },
         modal: {
           ondismiss: function () {
