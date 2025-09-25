@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAmazonTranslate } from '../../hooks/useAmazonTranslate';
 
 interface Category {
   category_id: number;
@@ -12,11 +13,13 @@ interface Category {
 }
 
 const Categories: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { translateBatch } = useAmazonTranslate();
+  const [translatedCategories, setTranslatedCategories] = useState<Record<number, string>>({});
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -31,6 +34,40 @@ const Categories: React.FC = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  // Translate category names when language changes
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = (i18n.language || 'en').split('-')[0];
+      if (lang === 'en' || !categories.length) {
+        setTranslatedCategories({});
+        return;
+      }
+      try {
+        const items = categories.map(cat => ({ 
+          id: String(cat.category_id), 
+          text: cat.name 
+        }));
+        const result = await translateBatch(items, lang, 'text/plain');
+        const map: Record<number, string> = {};
+        categories.forEach(cat => {
+          const translated = result[String(cat.category_id)];
+          if (translated) map[cat.category_id] = translated;
+        });
+        setTranslatedCategories(map);
+      } catch {
+        setTranslatedCategories({});
+      }
+    };
+    doTranslate();
+  }, [categories, i18n.language, translateBatch]);
+
+  // Helper function to get category name (translated or original)
+  const getCategoryName = (category: Category) => {
+    const lang = (i18n.language || 'en').split('-')[0];
+    if (lang === 'en') return category.name;
+    return translatedCategories[category.category_id] || category.name;
+  };
 
   const fetchCategories = async () => {
     try {
@@ -135,14 +172,14 @@ const Categories: React.FC = () => {
               {category.icon_url ? (
                 <img 
                   src={category.icon_url} 
-                  alt={category.name}
+                  alt={getCategoryName(category)}
                   className="w-full h-full object-contain"
                 />
               ) : (
                 <span className="text-3xl">📦</span>
               )}
             </div>
-            <h3 className="font-semibold text-lg font-worksans z-10">{category.name}</h3>
+            <h3 className="font-semibold text-lg font-worksans z-10">{getCategoryName(category)}</h3>
           </div>
           
           ))}

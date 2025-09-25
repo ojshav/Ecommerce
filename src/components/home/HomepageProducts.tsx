@@ -3,6 +3,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from '../product/ProductCard';
 import { useHorizontalScroll } from '../../hooks/useHorizontalScroll';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../hooks/useAmazonTranslate';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const PRODUCTS_PER_PAGE = 4;
@@ -73,6 +75,9 @@ const HomepageProducts: React.FC = () => {
   const [categoryStates, setCategoryStates] = useState<Record<number, CategoryState>>({});
   const [itemsPerView, setItemsPerView] = useState(4);
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [translatedCategories, setTranslatedCategories] = useState<Record<number, string>>({});
   const hasFetched = useRef(false);
   const {
     containerRef,
@@ -156,6 +161,40 @@ const HomepageProducts: React.FC = () => {
 
     fetchHomepageProducts();
   }, []);
+
+  // Translate category names when language changes
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = (i18n.language || 'en').split('-')[0];
+      if (lang === 'en' || !categoriesWithProducts.length) {
+        setTranslatedCategories({});
+        return;
+      }
+      try {
+        const items = categoriesWithProducts.map(catWithProducts => ({ 
+          id: String(catWithProducts.category.category_id), 
+          text: catWithProducts.category.name 
+        }));
+        const result = await translateBatch(items, lang, 'text/plain');
+        const map: Record<number, string> = {};
+        categoriesWithProducts.forEach(catWithProducts => {
+          const translated = result[String(catWithProducts.category.category_id)];
+          if (translated) map[catWithProducts.category.category_id] = translated;
+        });
+        setTranslatedCategories(map);
+      } catch {
+        setTranslatedCategories({});
+      }
+    };
+    doTranslate();
+  }, [categoriesWithProducts, i18n.language, translateBatch]);
+
+  // Helper function to get category name (translated or original)
+  const getCategoryName = (category: Category) => {
+    const lang = (i18n.language || 'en').split('-')[0];
+    if (lang === 'en') return category.name;
+    return translatedCategories[category.category_id] || category.name;
+  };
 
   const renderProductCard = (product: Product) => {
     return (
@@ -284,7 +323,7 @@ const HomepageProducts: React.FC = () => {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                 {/* Category name and arrows for mobile */}
                 <div className="flex items-center justify-between w-full md:w-auto">
-                  <h6 className="text-xl font-medium font-worksans">{categoryData.category.name}</h6>
+                  <h6 className="text-xl font-medium font-worksans">{getCategoryName(categoryData.category)}</h6>
                   {/* Arrows: visible only on mobile (md:hidden) */}
                   <div className="flex items-center space-x-3 md:hidden ml-auto">
                     <button 
@@ -335,7 +374,7 @@ const HomepageProducts: React.FC = () => {
                       } pb-1`}
                       onClick={() => handleCategoryChange(categoryData.category.category_id, subcategory.category.name)}
                     >
-                      {subcategory.category.name}
+                      {getCategoryName(subcategory.category)}
                     </button>
                   ))}
                   {/* Arrows for md+ */}

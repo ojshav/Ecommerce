@@ -1,11 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import shop1ApiService, { Category } from '../../../services/shop1ApiService';
+import { useTranslation } from 'react-i18next';
+import { useAmazonTranslate } from '../../../hooks/useAmazonTranslate';
 
 const Categories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const { translateBatch } = useAmazonTranslate();
+  const [translatedCategories, setTranslatedCategories] = useState<Record<number, string>>({});
 
   // Predefined colors and images for categories (to maintain UI consistency)
   const categoryStyles = [
@@ -58,6 +63,40 @@ const Categories = () => {
 
     fetchCategories();
   }, []);
+
+  // Translate category names when language changes
+  useEffect(() => {
+    const doTranslate = async () => {
+      const lang = (i18n.language || 'en').split('-')[0];
+      if (lang === 'en' || !categories.length) {
+        setTranslatedCategories({});
+        return;
+      }
+      try {
+        const items = categories.map(cat => ({ 
+          id: String(cat.category_id), 
+          text: cat.name 
+        }));
+        const result = await translateBatch(items, lang, 'text/plain');
+        const map: Record<number, string> = {};
+        categories.forEach(cat => {
+          const translated = result[String(cat.category_id)];
+          if (translated) map[cat.category_id] = translated;
+        });
+        setTranslatedCategories(map);
+      } catch {
+        setTranslatedCategories({});
+      }
+    };
+    doTranslate();
+  }, [categories, i18n.language, translateBatch]);
+
+  // Helper function to get category name (translated or original)
+  const getCategoryName = (category: Category) => {
+    const lang = (i18n.language || 'en').split('-')[0];
+    if (lang === 'en') return category.name;
+    return translatedCategories[category.category_id] || category.name;
+  };
 
   const handleCategoryClick = (category: Category) => {
     // Navigate to all products page with category filter

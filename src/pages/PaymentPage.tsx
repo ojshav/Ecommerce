@@ -20,6 +20,35 @@ import RazorpayPayment from "../components/RazorpayPayment";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+// Map country code to currency code for checkout
+const COUNTRY_TO_CURRENCY: Record<string, string> = {
+  IN: "INR",
+  US: "USD",
+  GB: "GBP",
+  CA: "CAD",
+  AU: "AUD",
+  DE: "EUR",
+  FR: "EUR",
+  IT: "EUR",
+  ES: "EUR",
+  JP: "JPY",
+  CN: "CNY",
+  RU: "RUB",
+  BR: "BRL",
+  ZA: "ZAR",
+  MX: "MXN",
+  SG: "SGD",
+  AE: "AED",
+  SA: "SAR",
+  NZ: "NZD",
+  SE: "SEK",
+};
+
+const getCurrencyForCountry = (countryCode?: string): string => {
+  if (!countryCode) return "INR";
+  return COUNTRY_TO_CURRENCY[countryCode] || "INR";
+};
+
 // Country phone codes
 const COUNTRY_CODES = [
   { code: "US", name: "United States", phoneCode: "+1" },
@@ -206,7 +235,7 @@ const PaymentPage: React.FC = () => {
   // const handleCardInputChange = () => {};
  
   // Create Razorpay order
-  const createRazorpayOrder = async (amount: number, receipt?: string): Promise<string | null> => {
+  const createRazorpayOrder = async (amount: number, receipt?: string, currency?: string): Promise<string | null> => {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
@@ -222,8 +251,8 @@ const PaymentPage: React.FC = () => {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          amount: Math.round(amount * 100), // Convert to paise
-          currency: "INR",
+          amount_rupees: amount,
+          currency: currency || getCurrencyForCountry(selectedCountry?.code),
           receipt: receipt || `CLIENT-${Date.now()}`,
         }),
       });
@@ -700,8 +729,8 @@ const PaymentPage: React.FC = () => {
         : cart;
 
     const subtotal = itemsSource.reduce((total, item) => {
-      const price = item.product.original_price || item.product.price;
-      return total + price * item.quantity;
+      const effectiveUnitPrice = item.product.price;
+      return total + effectiveUnitPrice * item.quantity;
     }, 0);
     const finalTotal = subtotal - discount + shippingCost;
 
@@ -714,7 +743,7 @@ const PaymentPage: React.FC = () => {
 
     const orderData: any = {
       items: itemsSource.map((item) => {
-        const basePrice = item.product.original_price || item.product.price;
+        const basePrice = item.product.price;
         const itemTotal = basePrice * item.quantity;
         let itemDiscountAmount =
           itemDiscounts && itemDiscounts[item.product.id || item.product_id]
@@ -890,8 +919,8 @@ const PaymentPage: React.FC = () => {
           : cart;
 
       const subtotal = itemsSource.reduce((total, item) => {
-        const price = item.product.original_price || item.product.price;
-        return total + price * item.quantity;
+        const effectiveUnitPrice = item.product.price;
+        return total + effectiveUnitPrice * item.quantity;
       }, 0);
       const finalTotal = subtotal - discount + shippingCost;
 
@@ -925,8 +954,8 @@ const PaymentPage: React.FC = () => {
 
     // Calculate subtotal using original prices
     const subtotal = itemsSource.reduce((total, item) => {
-      const price = item.product.original_price || item.product.price;
-      return total + price * item.quantity;
+      const effectiveUnitPrice = item.product.price;
+      return total + effectiveUnitPrice * item.quantity;
     }, 0);
     const finalTotal = subtotal - discount + shippingCost;
 
@@ -940,8 +969,8 @@ const PaymentPage: React.FC = () => {
 
     const orderData = {
       items: itemsSource.map((item) => {
-        // Use original_price as the base price for calculations
-        const basePrice = item.product.original_price || item.product.price;
+        // Use the effective discounted price provided by backend (price)
+        const basePrice = item.product.price;
         const itemTotal = basePrice * item.quantity;
         let itemDiscountAmount =
           itemDiscounts && itemDiscounts[item.product.id || item.product_id]
