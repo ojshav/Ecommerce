@@ -20,6 +20,7 @@ interface RazorpayPaymentProps {
   description?: string;
   businessName?: string;
   businessLogo?: string;
+  currency?: string;
 }
 
 const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
@@ -33,7 +34,8 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
   onClose,
   description = "Test Transaction",
   businessName = "Aoin Store",
-  businessLogo = "https://aoinstore.com/logo.png"
+  businessLogo = "https://aoinstore.com/logo.png",
+  currency,
 }) => {
   useEffect(() => {
     const loadRazorpayScript = () => {
@@ -58,10 +60,11 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         return;
       }
 
+      const resolvedCurrency = currency || RAZORPAY_CURRENCY;
       const options = {
         key: RAZORPAY_KEY_ID,
-        amount: Math.round(amount * 100), // Convert to paise
-        currency: RAZORPAY_CURRENCY,
+        // Omit amount here to rely on order's amount for accuracy across currencies
+        currency: resolvedCurrency,
         name: businessName,
         description: description,
         image: businessLogo,
@@ -106,7 +109,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
 
     // Auto-open Razorpay when component mounts
     openRazorpay();
-  }, [amount, orderId, customerName, customerEmail, customerPhone, onSuccess, onError, onClose, description, businessName, businessLogo]);
+  }, [amount, orderId, customerName, customerEmail, customerPhone, onSuccess, onError, onClose, description, businessName, businessLogo, currency]);
 
   return null; // This component doesn't render anything
 };
