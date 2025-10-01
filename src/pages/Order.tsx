@@ -19,14 +19,15 @@ interface OrderItem {
 
 interface TrackingData {
   order_id: string;
-  shipments: {
+  shiprocket_response?: unknown;  // Direct ShipRocket response (new format)
+  shipments?: {
     [key: string]: {
       shipment_id: number;
       merchant_id: number;
       carrier_name: string;
       tracking_number: string;
       shiprocket_order_id?: number;
-      tracking_data?: any;
+      tracking_data?: unknown;
       error?: string;
     };
   };
@@ -230,7 +231,7 @@ const Order: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('ShipRocket Order Tracking Response:', data);
+      // console.log('ShipRocket Order Tracking Response:', data);
 
       // Accept common success shape { message, data }
       const payload = data?.data ?? null;
@@ -436,11 +437,10 @@ const Order: React.FC = () => {
   };
 
   const renderTrackingInfo = (trackingInfo: TrackingData, orderId: string) => {
-    if (!trackingInfo || !trackingInfo.shipments) {
+    if (!trackingInfo) {
       return null;
     }
 
-    const shipments = Object.values(trackingInfo.shipments);
     const isLoading = trackingLoading[orderId];
     
     return (
@@ -455,32 +455,81 @@ const Order: React.FC = () => {
           )}
         </div>
         <div className="space-y-2">
-          {shipments.map((shipment, index) => (
-            <div key={shipment.shipment_id} className="text-sm">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-700">
-                  {shipment.carrier_name}
-                </span>
-                {shipment.tracking_number && (
-                  <span className="text-blue-600 font-mono text-xs">
-                    #{shipment.tracking_number}
-                  </span>
-                )}
-              </div>
-              {shipment.error ? (
-                <p className="text-red-600 text-xs mt-1">{shipment.error}</p>
-              ) : shipment.tracking_data ? (
-                <div className="text-xs text-gray-600 mt-1">
-                  <p>ShipRocket Order ID: {shipment.shiprocket_order_id}</p>
-                  {shipment.tracking_data.status && (
-                    <p>Status: {shipment.tracking_data.status}</p>
+          {trackingInfo.shiprocket_response ? (
+            // Handle new ShipRocket direct response format
+            <div className="text-sm">
+              {Array.isArray(trackingInfo.shiprocket_response) && trackingInfo.shiprocket_response[0] && trackingInfo.shiprocket_response[0][trackingInfo.order_id] ? (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-gray-700">ShipRocket Tracking</span>
+                    <span className="text-blue-600 font-mono text-xs">#{trackingInfo.order_id}</span>
+                  </div>
+                  {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data?.error ? (
+                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
+                      <p className="text-yellow-800 text-xs font-medium">📦 Order Not Shipped Yet</p>
+                      <p className="text-yellow-700 text-xs mt-1">
+                        Your order is being processed. Tracking will be updated once shipped.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-gray-600 mt-1">
+                      {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data?.shipment_track?.[0] && (
+                        <div className="space-y-1">
+                          <p><strong>Status:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].current_status || 'Unknown'}</p>
+                          {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].edd && (
+                            <p><strong>Est. Delivery:</strong> {new Date(trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].edd).toLocaleDateString()}</p>
+                          )}
+                          {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].awb_code && (
+                            <p><strong>Tracking #:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].awb_code}</p>
+                          )}
+                        </div>
+                      )}
+                      {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data?.shipment_track_activities?.length > 0 && (
+                        <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
+                          <p className="text-green-800 text-xs">
+                            📍 {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track_activities.length} tracking updates
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               ) : (
-                <p className="text-gray-500 text-xs mt-1">No tracking data available</p>
+                <p className="text-gray-500 text-xs">No tracking data available</p>
               )}
             </div>
-          ))}
+          ) : trackingInfo.shipments ? (
+            // Fallback to old shipments format
+            Object.values(trackingInfo.shipments).map((shipment) => (
+              <div key={shipment.shipment_id} className="text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-gray-700">
+                    {shipment.carrier_name}
+                  </span>
+                  {shipment.tracking_number && (
+                    <span className="text-blue-600 font-mono text-xs">
+                      #{shipment.tracking_number}
+                    </span>
+                  )}
+                </div>
+                {shipment.error ? (
+                  <p className="text-red-600 text-xs mt-1">{shipment.error}</p>
+                ) : shipment.tracking_data ? (
+                  <div className="text-xs text-gray-600 mt-1">
+                    <p>ShipRocket Order ID: {shipment.shiprocket_order_id}</p>
+                    {(() => {
+                      const status = (shipment.tracking_data as Record<string, unknown>).status;
+                      return status ? <p>Status: {String(status)}</p> : null;
+                    })()}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-xs mt-1">No tracking data available</p>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 text-xs">No tracking information available</p>
+          )}
         </div>
       </div>
     );

@@ -82,7 +82,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
           color: '#f97316', // Orange color matching your theme
         },
         handler: function (response: any) {
-          console.log('Razorpay payment success:', response);
+          // console.log('Razorpay payment success:', response);
           const returnedOrderId = response.razorpay_order_id || orderId;
           if (!response.razorpay_payment_id || !returnedOrderId || !response.razorpay_signature) {
             onError('Incomplete payment response from Razorpay');
