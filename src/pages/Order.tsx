@@ -322,7 +322,7 @@ const Order: React.FC = () => {
 
   const handleOrderClick = async (order: Order) => {
     const trackingInfo = await fetchOrderTracking(order.order_id);
-    navigate(`/order/${order.order_id}`, { state: { order, trackingInfo } });
+    navigate(`/track/${order.order_id}`, { state: { order, trackingInfo } });
   };
 
   const handleAction = async (e: React.MouseEvent, type: string, order: Order) => {
@@ -444,7 +444,7 @@ const Order: React.FC = () => {
                   <p className="text-red-600 text-xs mt-1">{shipment.error}</p>
                 ) : shipment.tracking_data ? (
                   <div className="text-xs text-gray-600 mt-1">
-                    <p>ShipRocket Order ID: {shipment.shiprocket_order_id}</p>
+                    <p> Order ID: {shipment.shiprocket_order_id}</p>
                     {(() => {
                       const status = (shipment.tracking_data as Record<string, unknown>).status;
                       return status ? <p>Status: {String(status)}</p> : null;
