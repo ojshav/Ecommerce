@@ -423,7 +423,6 @@ const TrackOrder: React.FC = () => {
       case 'pending_pickup':
         return 'bg-gray-500';
       case 'cancelled':
-      case 'cancelled':
       case 'returned':
         return 'bg-red-500';
       default:
