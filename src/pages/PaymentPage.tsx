@@ -823,7 +823,7 @@ const PaymentPage: React.FC = () => {
           console.warn("Failed to create merchant transactions, but order was successful");
         }
 
-        // ShipRocket shipment creation
+        // logistics service creation
         try {
           const shiprocketResp = await fetch(
             `${API_BASE_URL}/api/shiprocket/create-orders-for-all-merchants`,
@@ -856,19 +856,19 @@ const PaymentPage: React.FC = () => {
 
               if (successCount === totalCount) {
                 toast.success(
-                  `Shipments created successfully for all ${totalCount} merchant(s)`
+                  `Logistics service created successfully for all ${totalCount} merchant(s)`
                 );
               } else {
                 toast.success(
-                  `Shipments created for ${successCount}/${totalCount} merchants. Some failed.`
+                  `Logistics service created for ${successCount}/${totalCount} merchants. Some failed.`
                 );
               }
             }
           }
         } catch (srErr) {
-          console.error("ShipRocket call error:", srErr);
+          console.error("logistics service call error:", srErr);
           toast.error(
-            "Order placed successfully, but shipment creation failed. Please contact support."
+            "Order placed successfully, but logistics service creation failed. Please contact support."
           );
         }
 

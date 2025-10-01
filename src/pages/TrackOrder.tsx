@@ -24,7 +24,7 @@ interface ShipmentTrackingData {
 
 interface TrackingInfo {
   order_id: string;
-  shiprocket_response?: any;  // Direct ShipRocket response
+  shiprocket_response?: any;  
   shipments?: {
     [key: string]: ShipmentTrackingData;
   };
@@ -263,12 +263,71 @@ const TrackOrder: React.FC = () => {
           
           // Handle real ShipRocket tracking activities
           if (trackingData && trackingData.shipment_track_activities && Array.isArray(trackingData.shipment_track_activities)) {
-            return trackingData.shipment_track_activities.map((activity: any) => ({
-              status: activity.status || activity.status_name || activity['sr-status-label'] || 'Unknown',
-              location: activity.location || activity.city || 'Unknown',
-              timestamp: activity.date || activity.updated_date || activity.timestamp || new Date().toLocaleString(),
-              description: activity.activity || activity.comment || activity.status_comment || activity.description || 'Tracking update'
-            }));
+            return trackingData.shipment_track_activities.map((activity: any) => {
+              // Map technical statuses to user-friendly statuses
+              const statusMapping: { [key: string]: string } = {
+                'expected': 'In Transit',
+                'mh_received': 'At Sorting Facility',
+                'shipped': 'Shipped',
+                'lpd_generated': 'Out for Delivery',
+                'shipment_pickup_complete': 'Picked Up',
+                'pickup_out_for_pickup': 'Out for Pickup',
+                'created': 'Order Processed',
+                'delivered': 'Delivered',
+                'returned': 'Returned',
+                'cancelled': 'Cancelled'
+              };
+
+              // Map technical descriptions to user-friendly descriptions
+              const descriptionMapping: { [key: string]: string } = {
+                'expected': 'Package is in transit to the next facility',
+                'mh_received': 'Package has arrived at the sorting facility',
+                'shipped': 'Package has been dispatched from the origin',
+                'lpd_generated': 'Package is out for delivery',
+                'shipment_pickup_complete': 'Package has been successfully picked up',
+                'pickup_out_for_pickup': 'Package is ready for pickup',
+                'created': 'Order has been processed and is being prepared',
+                'delivered': 'Package has been delivered successfully',
+                'returned': 'Package has been returned',
+                'cancelled': 'Package delivery has been cancelled'
+              };
+
+              const technicalStatus = activity.status || activity['sr-status-label'] || 'Unknown';
+              const userFriendlyStatus = statusMapping[technicalStatus] || technicalStatus;
+              const userFriendlyDescription = descriptionMapping[technicalStatus] || 
+                                           activity.activity || 
+                                           activity.comment || 
+                                           activity.status_comment || 
+                                           activity.description || 
+                                           'Tracking update';
+
+              // Format timestamp for better readability
+              const formatTimestamp = (timestamp: string) => {
+                try {
+                  const date = new Date(timestamp);
+                  if (!isNaN(date.getTime())) {
+                    return date.toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    });
+                  }
+                } catch (e) {
+                  // If parsing fails, return original
+                }
+                return timestamp;
+              };
+
+              return {
+                status: userFriendlyStatus,
+                location: activity.location || activity.city || 'Unknown',
+                timestamp: formatTimestamp(activity.date || activity.updated_date || activity.timestamp || new Date().toLocaleString()),
+                description: userFriendlyDescription
+              };
+            });
           }
           
           // Fallback: if we have shipment_track but no activities, create basic steps
@@ -404,23 +463,28 @@ const TrackOrder: React.FC = () => {
         return 'bg-green-500';
       case 'in transit':
       case 'in_transit':
-      case 'picked up':
-      case 'picked_up':
-      case 'dispatched':
+      case 'shipped':
+      case 'at sorting facility':
         return 'bg-[#FF4D00]';
       case 'processing':
       case 'pending':
       case 'confirmed':
       case 'label_created':
+      case 'order processed':
+      case 'picked up':
+      case 'picked_up':
+      case 'dispatched':
         return 'bg-yellow-500';
       case 'out for delivery':
       case 'out_for_delivery':
       case 'out for pickup':
       case 'out_for_pickup':
+      case 'lpd_generated':
         return 'bg-blue-500';
       case 'not shipped yet':
       case 'not_shipped_yet':
       case 'pending_pickup':
+      case 'created':
         return 'bg-gray-500';
       case 'cancelled':
       case 'returned':
@@ -525,7 +589,7 @@ const TrackOrder: React.FC = () => {
                   // Show ShipRocket direct response
                   <div className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">ShipRocket Tracking</h4>
+                      <h4 className="font-medium">Logistics Service Tracking</h4>
                       <span className="text-blue-600 font-mono text-sm">
                         #{trackingInfo.order_id}
                       </span>
@@ -590,7 +654,7 @@ const TrackOrder: React.FC = () => {
                         <p className="text-red-600 text-sm">{shipment.error}</p>
                       ) : shipment.tracking_data ? (
                         <div className="text-sm text-gray-600">
-                          <p>ShipRocket Order ID: {shipment.shiprocket_order_id}</p>
+                          <p>Logistics Service Order ID: {shipment.shiprocket_order_id}</p>
                           {shipment.tracking_data.status && (
                             <p>Status: {shipment.tracking_data.status}</p>
                           )}
