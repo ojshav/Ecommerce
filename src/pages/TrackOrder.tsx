@@ -81,8 +81,8 @@ const TrackOrder: React.FC = () => {
       // Handle the array format from ShipRocket
       if (Array.isArray(trackingInfo.shiprocket_response)) {
         const firstResponse = trackingInfo.shiprocket_response[0];
-        if (firstResponse && firstResponse[trackingInfo.order_id]) {
-          const trackingData = firstResponse[trackingInfo.order_id].tracking_data;
+        if (firstResponse && firstResponse.tracking_data) {
+          const trackingData = firstResponse.tracking_data;
           
           // Check if there's an error message indicating no activities
           if (trackingData.error && trackingData.error.includes("no activities found")) {
@@ -131,8 +131,8 @@ const TrackOrder: React.FC = () => {
     if (trackingInfo.shiprocket_response) {
       if (Array.isArray(trackingInfo.shiprocket_response)) {
         const firstResponse = trackingInfo.shiprocket_response[0];
-        if (firstResponse && firstResponse[trackingInfo.order_id]) {
-          const trackingData = firstResponse[trackingInfo.order_id].tracking_data;
+        if (firstResponse && firstResponse.tracking_data) {
+          const trackingData = firstResponse.tracking_data;
           
           // Check if there's an error message indicating no activities
           if (trackingData.error && trackingData.error.includes("no activities found")) {
@@ -182,8 +182,8 @@ const TrackOrder: React.FC = () => {
     if (trackingInfo.shiprocket_response) {
       if (Array.isArray(trackingInfo.shiprocket_response)) {
         const firstResponse = trackingInfo.shiprocket_response[0];
-        if (firstResponse && firstResponse[trackingInfo.order_id]) {
-          const trackingData = firstResponse[trackingInfo.order_id].tracking_data;
+        if (firstResponse && firstResponse.tracking_data) {
+          const trackingData = firstResponse.tracking_data;
           
           // Check if there's an error message indicating no activities
           if (trackingData.error && trackingData.error.includes("no activities found")) {
@@ -240,8 +240,8 @@ const TrackOrder: React.FC = () => {
     if (trackingInfo.shiprocket_response) {
       if (Array.isArray(trackingInfo.shiprocket_response)) {
         const firstResponse = trackingInfo.shiprocket_response[0];
-        if (firstResponse && firstResponse[trackingInfo.order_id]) {
-          const trackingData = firstResponse[trackingInfo.order_id].tracking_data;
+        if (firstResponse && firstResponse.tracking_data) {
+          const trackingData = firstResponse.tracking_data;
           
           // Check if there's an error message indicating no activities
           if (trackingData.error && trackingData.error.includes("no activities found")) {
@@ -264,10 +264,10 @@ const TrackOrder: React.FC = () => {
           // Handle real ShipRocket tracking activities
           if (trackingData && trackingData.shipment_track_activities && Array.isArray(trackingData.shipment_track_activities)) {
             return trackingData.shipment_track_activities.map((activity: any) => ({
-              status: activity.status || activity.status_name || 'Unknown',
+              status: activity.status || activity.status_name || activity['sr-status-label'] || 'Unknown',
               location: activity.location || activity.city || 'Unknown',
-              timestamp: activity.updated_date || activity.timestamp || new Date().toLocaleString(),
-              description: activity.comment || activity.status_comment || activity.description || 'Tracking update'
+              timestamp: activity.date || activity.updated_date || activity.timestamp || new Date().toLocaleString(),
+              description: activity.activity || activity.comment || activity.status_comment || activity.description || 'Tracking update'
             }));
           }
           
@@ -289,7 +289,7 @@ const TrackOrder: React.FC = () => {
               steps.push({
                 status: track.current_status,
                 location: track.destination || track.origin || 'Unknown',
-                timestamp: track.updated_date || new Date().toLocaleString(),
+                timestamp: track.updated_time_stamp || track.updated_date || new Date().toLocaleString(),
                 description: `Package is ${track.current_status.toLowerCase()}`
               });
             }
@@ -530,10 +530,10 @@ const TrackOrder: React.FC = () => {
                         #{trackingInfo.order_id}
                       </span>
                     </div>
-                    {Array.isArray(trackingInfo.shiprocket_response) && trackingInfo.shiprocket_response[0] && trackingInfo.shiprocket_response[0][trackingInfo.order_id] ? (
+                    {Array.isArray(trackingInfo.shiprocket_response) && trackingInfo.shiprocket_response[0] && trackingInfo.shiprocket_response[0].tracking_data ? (
                       <div className="text-sm text-gray-600">
                         <p>Order ID: {trackingInfo.order_id}</p>
-                        {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.error ? (
+                        {trackingInfo.shiprocket_response[0].tracking_data.error ? (
                           <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                             <p className="text-yellow-800 font-medium">📦 Order Not Shipped Yet</p>
                             <p className="text-yellow-700 text-xs mt-1">
@@ -543,27 +543,27 @@ const TrackOrder: React.FC = () => {
                           </div>
                         ) : (
                           <div>
-                            {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track && 
-                             trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track.length > 0 && (
+                            {trackingInfo.shiprocket_response[0].tracking_data.shipment_track && 
+                             trackingInfo.shiprocket_response[0].tracking_data.shipment_track.length > 0 && (
                               <div className="space-y-1">
-                                <p><strong>Status:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].current_status || 'Unknown'}</p>
-                                <p><strong>Destination:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].destination || 'Unknown'}</p>
-                                <p><strong>Estimated Delivery:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].edd || 'To be determined'}</p>
-                                {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].courier_name && (
-                                  <p><strong>Courier:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].courier_name}</p>
+                                <p><strong>Status:</strong> {trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].current_status || 'Unknown'}</p>
+                                <p><strong>Destination:</strong> {trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].destination || 'Unknown'}</p>
+                                <p><strong>Estimated Delivery:</strong> {trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].edd || 'To be determined'}</p>
+                                {trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].courier_name && (
+                                  <p><strong>Courier:</strong> {trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].courier_name}</p>
                                 )}
-                                {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].awb_code && (
-                                  <p><strong>Tracking Number:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].awb_code}</p>
+                                {trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].awb_code && (
+                                  <p><strong>Tracking Number:</strong> {trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].awb_code}</p>
                                 )}
                               </div>
                             )}
                             
                             {/* Show tracking activities count if available */}
-                            {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track_activities && 
-                             trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track_activities.length > 0 && (
+                            {trackingInfo.shiprocket_response[0].tracking_data.shipment_track_activities && 
+                             trackingInfo.shiprocket_response[0].tracking_data.shipment_track_activities.length > 0 && (
                               <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
                                 <p className="text-blue-800 text-xs">
-                                  📍 {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track_activities.length} tracking updates available
+                                  📍 {trackingInfo.shiprocket_response[0].tracking_data.shipment_track_activities.length} tracking updates available
                                 </p>
                               </div>
                             )}
