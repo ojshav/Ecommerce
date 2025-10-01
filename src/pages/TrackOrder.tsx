@@ -30,11 +30,6 @@ interface TrackingInfo {
   };
 }
 
-interface ShipRocketTrackingResponse {
-  status: string;
-  data: TrackingInfo;
-  message?: string;
-}
 
 const TrackOrder: React.FC = () => {
   const location = useLocation();
@@ -94,9 +89,19 @@ const TrackOrder: React.FC = () => {
             return 'Not Shipped Yet';
           }
           
-          if (trackingData && trackingData.shipment_track && trackingData.shipment_track.length > 0) {
+          // Get current status from shipment_track
+          if (trackingData && trackingData.shipment_track && Array.isArray(trackingData.shipment_track) && trackingData.shipment_track.length > 0) {
             const currentStatus = trackingData.shipment_track[0].current_status;
-            return currentStatus || 'Processing';
+            if (currentStatus) {
+              return currentStatus;
+            }
+          }
+          
+          // Fallback: check if we have any tracking activities
+          if (trackingData && trackingData.shipment_track_activities && Array.isArray(trackingData.shipment_track_activities) && trackingData.shipment_track_activities.length > 0) {
+            // Get the most recent activity status
+            const latestActivity = trackingData.shipment_track_activities[0];
+            return latestActivity.status || latestActivity.status_name || 'In Transit';
           }
         }
       }
@@ -134,9 +139,21 @@ const TrackOrder: React.FC = () => {
             return 'Will be updated when shipped';
           }
           
-          if (trackingData && trackingData.shipment_track && trackingData.shipment_track.length > 0) {
+          // Get estimated delivery from shipment_track
+          if (trackingData && trackingData.shipment_track && Array.isArray(trackingData.shipment_track) && trackingData.shipment_track.length > 0) {
             const edd = trackingData.shipment_track[0].edd;
-            return edd || 'To be determined';
+            if (edd) {
+              // Format the date if it's a valid date string
+              try {
+                const eddDate = new Date(edd);
+                if (!isNaN(eddDate.getTime())) {
+                  return eddDate.toLocaleDateString();
+                }
+              } catch (e) {
+                // If date parsing fails, return the raw string
+                return edd;
+              }
+            }
           }
         }
       }
@@ -173,9 +190,29 @@ const TrackOrder: React.FC = () => {
             return 'Order not shipped yet';
           }
           
-          if (trackingData && trackingData.shipment_track && trackingData.shipment_track.length > 0) {
-            const destination = trackingData.shipment_track[0].destination;
-            return destination || 'Unknown';
+          // Get current location from shipment_track
+          if (trackingData && trackingData.shipment_track && Array.isArray(trackingData.shipment_track) && trackingData.shipment_track.length > 0) {
+            const track = trackingData.shipment_track[0];
+            
+            // Try to get current location from various possible fields
+            const currentLocation = track.current_status_location || 
+                                  track.current_location || 
+                                  track.location || 
+                                  track.destination || 
+                                  track.origin;
+            
+            if (currentLocation) {
+              return currentLocation;
+            }
+          }
+          
+          // Fallback: check latest tracking activity for location
+          if (trackingData && trackingData.shipment_track_activities && Array.isArray(trackingData.shipment_track_activities) && trackingData.shipment_track_activities.length > 0) {
+            const latestActivity = trackingData.shipment_track_activities[0];
+            const activityLocation = latestActivity.location || latestActivity.city;
+            if (activityLocation) {
+              return activityLocation;
+            }
           }
         }
       }
@@ -224,13 +261,40 @@ const TrackOrder: React.FC = () => {
             ];
           }
           
-          if (trackingData && trackingData.shipment_track_activities) {
+          // Handle real ShipRocket tracking activities
+          if (trackingData && trackingData.shipment_track_activities && Array.isArray(trackingData.shipment_track_activities)) {
             return trackingData.shipment_track_activities.map((activity: any) => ({
-              status: activity.status || 'Unknown',
-              location: activity.location || 'Unknown',
-              timestamp: activity.timestamp || new Date().toLocaleString(),
-              description: activity.description || 'Tracking update'
+              status: activity.status || activity.status_name || 'Unknown',
+              location: activity.location || activity.city || 'Unknown',
+              timestamp: activity.updated_date || activity.timestamp || new Date().toLocaleString(),
+              description: activity.comment || activity.status_comment || activity.description || 'Tracking update'
             }));
+          }
+          
+          // Fallback: if we have shipment_track but no activities, create basic steps
+          if (trackingData && trackingData.shipment_track && Array.isArray(trackingData.shipment_track) && trackingData.shipment_track.length > 0) {
+            const track = trackingData.shipment_track[0];
+            const steps = [];
+            
+            // Add order placed step
+            steps.push({
+              status: 'Order Placed',
+              location: 'Online',
+              timestamp: new Date().toLocaleString(),
+              description: 'Your order has been placed successfully'
+            });
+            
+            // Add current status if available
+            if (track.current_status) {
+              steps.push({
+                status: track.current_status,
+                location: track.destination || track.origin || 'Unknown',
+                timestamp: track.updated_date || new Date().toLocaleString(),
+                description: `Package is ${track.current_status.toLowerCase()}`
+              });
+            }
+            
+            return steps;
           }
         }
       }
@@ -333,17 +397,35 @@ const TrackOrder: React.FC = () => {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+    const statusLower = status.toLowerCase();
+    switch (statusLower) {
       case 'delivered':
+      case 'delivery completed':
         return 'bg-green-500';
       case 'in transit':
+      case 'in_transit':
+      case 'picked up':
+      case 'picked_up':
+      case 'dispatched':
         return 'bg-[#FF4D00]';
       case 'processing':
+      case 'pending':
+      case 'confirmed':
+      case 'label_created':
         return 'bg-yellow-500';
       case 'out for delivery':
+      case 'out_for_delivery':
+      case 'out for pickup':
+      case 'out_for_pickup':
         return 'bg-blue-500';
       case 'not shipped yet':
+      case 'not_shipped_yet':
+      case 'pending_pickup':
         return 'bg-gray-500';
+      case 'cancelled':
+      case 'cancelled':
+      case 'returned':
+        return 'bg-red-500';
       default:
         return 'bg-gray-500';
     }
@@ -444,37 +526,54 @@ const TrackOrder: React.FC = () => {
                   // Show ShipRocket direct response
                   <div className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                     
+                      <h4 className="font-medium">ShipRocket Tracking</h4>
                       <span className="text-blue-600 font-mono text-sm">
                         #{trackingInfo.order_id}
                       </span>
                     </div>
-                                         {Array.isArray(trackingInfo.shiprocket_response) && trackingInfo.shiprocket_response[0] && trackingInfo.shiprocket_response[0][trackingInfo.order_id] ? (
-                       <div className="text-sm text-gray-600">
-                         <p>Order ID: {trackingInfo.order_id}</p>
-                         {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.error ? (
-                           <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                             <p className="text-yellow-800 font-medium">📦 Order Not Shipped Yet</p>
-                             <p className="text-yellow-700 text-xs mt-1">
-                               Your order has been placed successfully and is being processed. 
-                               Tracking information will be updated once your order is shipped.
-                             </p>
-                           </div>
-                         ) : (
-                           <div>
-                             {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track && trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track.length > 0 && (
-                               <div>
-                                 <p>Status: {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].current_status || 'Unknown'}</p>
-                                 <p>Destination: {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].destination || 'Unknown'}</p>
-                                 <p>Estimated Delivery: {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].edd || 'To be determined'}</p>
-                               </div>
-                             )}
-                           </div>
-                         )}
-                       </div>
-                     ) : (
-                       <p className="text-gray-500 text-sm">No tracking data available</p>
-                     )}
+                    {Array.isArray(trackingInfo.shiprocket_response) && trackingInfo.shiprocket_response[0] && trackingInfo.shiprocket_response[0][trackingInfo.order_id] ? (
+                      <div className="text-sm text-gray-600">
+                        <p>Order ID: {trackingInfo.order_id}</p>
+                        {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.error ? (
+                          <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p className="text-yellow-800 font-medium">📦 Order Not Shipped Yet</p>
+                            <p className="text-yellow-700 text-xs mt-1">
+                              Your order has been placed successfully and is being processed. 
+                              Tracking information will be updated once your order is shipped.
+                            </p>
+                          </div>
+                        ) : (
+                          <div>
+                            {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track && 
+                             trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track.length > 0 && (
+                              <div className="space-y-1">
+                                <p><strong>Status:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].current_status || 'Unknown'}</p>
+                                <p><strong>Destination:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].destination || 'Unknown'}</p>
+                                <p><strong>Estimated Delivery:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].edd || 'To be determined'}</p>
+                                {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].courier_name && (
+                                  <p><strong>Courier:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].courier_name}</p>
+                                )}
+                                {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].awb_code && (
+                                  <p><strong>Tracking Number:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].awb_code}</p>
+                                )}
+                              </div>
+                            )}
+                            
+                            {/* Show tracking activities count if available */}
+                            {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track_activities && 
+                             trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track_activities.length > 0 && (
+                              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
+                                <p className="text-blue-800 text-xs">
+                                  📍 {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track_activities.length} tracking updates available
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">No tracking data available</p>
+                    )}
                   </div>
                 ) : trackingInfo.shipments ? (
                   // Fallback to old shipments format
