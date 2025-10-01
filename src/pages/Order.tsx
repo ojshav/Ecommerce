@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, RotateCcw, Star, FileText, ChevronDown, Filter } from 'lucide-react';
+import { RotateCcw, Star, FileText, ChevronDown, Filter } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -261,78 +261,6 @@ const Order: React.FC = () => {
     }
   };
 
-  const fetchShipmentTracking = async (shipmentId: number) => {
-    try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await fetch(`${API_BASE_URL}/api/shiprocket/tracking/shipment/${shipmentId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch shipment tracking: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('ShipRocket Shipment Tracking Response:', data);
-      
-      if (data.status === 'success') {
-        return data.data;
-      } else {
-        throw new Error(data.message || 'Failed to fetch shipment tracking');
-      }
-    } catch (err) {
-      console.error('Error fetching shipment tracking:', err);
-      toast.error('Failed to load shipment tracking information');
-      return null;
-    }
-  };
-
-  const fetchDirectOrderTracking = async (orderId: string, channelId?: number) => {
-    try {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      let url = `${API_BASE_URL}/api/shiprocket/tracking/order/${orderId}`;
-      if (channelId) {
-        url += `?channel_id=${channelId}`;
-      }
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch direct order tracking: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('ShipRocket Direct Order Tracking Response:', data);
-      
-      if (data.status === 'success') {
-        return data.data;
-      } else {
-        throw new Error(data.message || 'Failed to fetch direct order tracking');
-      }
-    } catch (err) {
-      console.error('Error fetching direct order tracking:', err);
-      toast.error('Failed to load direct order tracking information');
-      return null;
-    }
-  };
 
   const refreshOrderTracking = async (orderId: string) => {
     try {
@@ -458,13 +386,13 @@ const Order: React.FC = () => {
           {trackingInfo.shiprocket_response ? (
             // Handle new ShipRocket direct response format
             <div className="text-sm">
-              {Array.isArray(trackingInfo.shiprocket_response) && trackingInfo.shiprocket_response[0] && trackingInfo.shiprocket_response[0][trackingInfo.order_id] ? (
+              {Array.isArray(trackingInfo.shiprocket_response) && trackingInfo.shiprocket_response[0] && trackingInfo.shiprocket_response[0].tracking_data ? (
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-gray-700">ShipRocket Tracking</span>
                     <span className="text-blue-600 font-mono text-xs">#{trackingInfo.order_id}</span>
                   </div>
-                  {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data?.error ? (
+                  {trackingInfo.shiprocket_response[0].tracking_data?.error ? (
                     <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
                       <p className="text-yellow-800 text-xs font-medium">📦 Order Not Shipped Yet</p>
                       <p className="text-yellow-700 text-xs mt-1">
@@ -473,21 +401,21 @@ const Order: React.FC = () => {
                     </div>
                   ) : (
                     <div className="text-xs text-gray-600 mt-1">
-                      {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data?.shipment_track?.[0] && (
+                      {trackingInfo.shiprocket_response[0].tracking_data?.shipment_track?.[0] && (
                         <div className="space-y-1">
-                          <p><strong>Status:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].current_status || 'Unknown'}</p>
-                          {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].edd && (
-                            <p><strong>Est. Delivery:</strong> {new Date(trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].edd).toLocaleDateString()}</p>
+                          <p><strong>Status:</strong> {trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].current_status || 'Unknown'}</p>
+                          {trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].edd && (
+                            <p><strong>Est. Delivery:</strong> {new Date(trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].edd).toLocaleDateString()}</p>
                           )}
-                          {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].awb_code && (
-                            <p><strong>Tracking #:</strong> {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track[0].awb_code}</p>
+                          {trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].awb_code && (
+                            <p><strong>Tracking #:</strong> {trackingInfo.shiprocket_response[0].tracking_data.shipment_track[0].awb_code}</p>
                           )}
                         </div>
                       )}
-                      {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data?.shipment_track_activities?.length > 0 && (
+                      {trackingInfo.shiprocket_response[0].tracking_data?.shipment_track_activities?.length > 0 && (
                         <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
                           <p className="text-green-800 text-xs">
-                            📍 {trackingInfo.shiprocket_response[0][trackingInfo.order_id].tracking_data.shipment_track_activities.length} tracking updates
+                            📍 {trackingInfo.shiprocket_response[0].tracking_data.shipment_track_activities.length} tracking updates
                           </p>
                         </div>
                       )}
