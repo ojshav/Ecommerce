@@ -82,7 +82,7 @@ const MessengerPopup: React.FC = () => {
       });
 
       const data = await response.json();
-      console.log('Chatbot response:', data); // Debug log
+      // console.log('Chatbot response:', data); // Debug log
       
       if (response.ok && data.answer) {
         const botMessage: Message = {
