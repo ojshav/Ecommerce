@@ -342,7 +342,7 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
         const content = trimmed.replace(/^\d+\.\s*/, '');
         elements.push(
           <div key={index} className="flex items-start mb-2">
-            <span className="w-6 h-6 rounded-full bg-[#EABABA] text-white text-sm flex items-center justify-center mr-3 mt-0.5 font-semibold">
+            <span className="w-6 h-6 rounded-full bg-[#062229] text-white text-sm flex items-center justify-center mr-3 mt-0.5 font-semibold">
               {trimmed.match(/^\d+/)?.[0]}
             </span>
             <span className="text-gray-700">{content}</span>
@@ -354,7 +354,7 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
         const content = trimmed.slice(2);
         elements.push(
           <div key={index} className="flex items-start mb-2">
-            <span className="w-2 h-2 rounded-full bg-[#EABABA] mr-4 mt-2"></span>
+            <span className="w-2 h-2 rounded-full bg-[#062229] mr-4 mt-2"></span>
             <span className="text-gray-700">{content}</span>
           </div>
         );
@@ -919,7 +919,7 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
                     <button
                       aria-label="Pink"
                       className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-4 border-white opacity-80 hover:scale-105 transition-all duration-150 focus:outline-none shadow-md flex items-center justify-center"
-                      style={{ backgroundColor: '#EABABA' }}
+                      style={{ backgroundColor: '#062229' }}
                     />
                   </div>
                 </div>
@@ -1051,7 +1051,7 @@ const Hero: React.FC<HeroProps> = ({ productData, avgRating = 0, reviewCount = 0
               'Dry clean',
             ].map((item, index) => (
               <li key={index} className="flex items-center text-base sm:text-lg">
-                <span className="w-2 h-2 rounded-full bg-[#EABABA] mr-3 lg:mr-4 flex-shrink-0"></span>
+                <span className="w-2 h-2 rounded-full bg-[#062229] mr-3 lg:mr-4 flex-shrink-0"></span>
                 {item}
               </li>
             ))}

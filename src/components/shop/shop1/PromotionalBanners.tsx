@@ -14,7 +14,7 @@ const PromotionalBanners = () => {
           <div className="relative w-full lg:w-[522px] h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden cursor-pointer" onClick={goThirtyPlus}>
             <div className="relative h-full">
               <video
-                src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691077/public_assets_videos/promo-video.mp4"
+                src="https://res.cloudinary.com/ddnb10zkq/video/upload/v1759500706/Watch_product_video_for_Easycase_iih0fz.mp4"
                 className="w-full h-full object-cover"
                 autoPlay
                 loop
@@ -24,10 +24,10 @@ const PromotionalBanners = () => {
               <div className="absolute top-4 md:top-6 lg:top-8 left-4 md:left-6 lg:left-10 text-white">
                 <div className='flex flex-col'>
                   <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif mb-1 md:mb-2">
-                    Warm Woolen
+                    Timeless Classic
                   </h3>
                   <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif mb-4 md:mb-8">
-                    Sweater
+                    Wrist Watch
                   </h3>
                 </div>
               </div>
@@ -57,7 +57,7 @@ const PromotionalBanners = () => {
           >
             <div className="relative h-full">
               <img
-                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745165/public_assets_shop1_LP/public_assets_images_promo1.svg"
+                src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759500904/1c988b90-0e44-48cf-8d43-853d4bf99302.png"
                 alt="Colorful silk scarves arranged artistically"
                 className="w-full h-full object-contain md:object-cover"
               />

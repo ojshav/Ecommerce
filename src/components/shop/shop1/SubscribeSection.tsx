@@ -59,7 +59,7 @@ function SubscribeSection() {
         {/* Left Image */}
         <div className="flex-shrink-0 w-full md:w-[50%]">
           <img 
-            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745168/public_assets_shop1_LP/public_assets_images_subscribe.svg"
+            src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759516313/13ee1299-aa90-432e-afa0-957c87e250c5.png"
             alt="Four women in elegant blue and silver outfits"
             className="w-full h-auto md:w-[522px] md:h-[389px] object-cover rounded-lg"
           />

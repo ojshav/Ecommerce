@@ -28,7 +28,7 @@ const ExclusiveDeals = () => {
         {/* Left Image */}
         <div className="w-full sm:w-[85%] md:w-[55%] max-w-[524px] aspect-[524/729] overflow-hidden shadow-lg rounded-md">
           <img
-            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745122/public_assets_shop1_LP/public_assets_images_ExclusiveDeals1.svg"
+            src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759515397/1d45c29b-5d72-4544-974b-d26fbe41f234_c_crop_w_620_h_1060_lbbac5.png"
             alt="Ethnic Glamour Collection"
             className="w-full h-full object-cover"
           />
@@ -57,7 +57,7 @@ const ExclusiveDeals = () => {
           {/* Right Image */}
           <div className="w-full sm:w-[85%] md:w-[90%] lg:w-[95%] max-w-[418px] aspect-[418/628] overflow-hidden shadow-lg rounded-md relative top-2 xs:top-3 sm:top-4 md:top-1 lg:top-2 xl:top-1 2xl:top-2 ">
             <img
-              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745128/public_assets_shop1_LP/public_assets_images_ExclusiveDeals3.svg"
+              src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759502958/616ecff7-f87b-4959-8bdf-51f65c25168e.png"
               alt="Modern Printed Outfit"
               className="w-full h-full object-cover"
             />

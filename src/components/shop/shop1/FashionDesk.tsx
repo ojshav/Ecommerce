@@ -2,42 +2,43 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const FashionDesk = () => {
-  const articles = [
-    {
-      category: "RETRO VIBES",
-      title: "The Revival of Haldi ceremony",
-      date: "August 1, 2024",
-      image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752814679/public_assets_shop1_LP/public_assets_images_desk1.svg",
-    },
-    {
-      category: "GREEN CHOICES",
-      title: "Mehendi moments We Love in 2024",
-      date: "July 25, 2024",
-      image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752814679/public_assets_shop1_LP/public_assets_images_desk2.svg",
-    },
-    {
-      category: "PARTY ESSENTIALS",
-      title: "Decoding The Cocktail Dress Code",
-      date: "July 15, 2024",
-      image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752814679/public_assets_shop1_LP/public_assets_images_desk3.svg",
-    },
-    {
-      category: "STYLE TIPS",
-      title: "Layering Like A Pro This Wedding",
-      date: "July 8, 2024",
-      image: "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752814679/public_assets_shop1_LP/public_assets_images_desk4.svg",
-    }
-  ];
+const articles = [
+  {
+    category: "HERITAGE",
+    title: "The Return of Vintage Watches",
+    date: "August 1, 2024",
+    image: "https://res.cloudinary.com/ddnb10zkq/image/upload/v1759515856/cf3e6acf-8921-463a-b5ae-fd0fbc7a6dcf.png",
+  },
+  {
+    category: "SUSTAINABLE STYLE",
+    title: "Eco-Friendly Timepieces for Modern Living",
+    date: "July 25, 2024",
+    image: "https://res.cloudinary.com/ddnb10zkq/image/upload/v1759515910/b8a9b033-3c15-4b63-b1b9-f5ee993d833c.png",
+  },
+  {
+    category: "LUXURY PICKS",
+    title: "Decoding the World of Swiss Chronographs",
+    date: "July 15, 2024",
+    image: "https://res.cloudinary.com/ddnb10zkq/image/upload/v1759516145/9a9fa64a-c6b2-4781-a310-ba852bfc526e.png",
+  },
+  {
+    category: "STYLE GUIDE",
+    title: "How to Match Watches With Every Outfit",
+    date: "July 8, 2024",
+    image: "https://res.cloudinary.com/ddnb10zkq/image/upload/v1759516178/76fb7182-6673-4cdf-82cf-8d95558a0631.png",
+  }
+];
+
 
   return (
     <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-[1280px] mx-auto">
         {/* Section Title */}
-        <div className="text-center mb-12 sm:mb-16">
-          <h2 className="font-playfair font-bold text-3xl sm:text-[50px] md:text-[64px] lg:text-[70px] leading-tight text-[#222222]">
-            From <em className="italic font-semibold">Our Fashion</em> Desk
-          </h2>
-        </div>
+<div className="text-center mb-12 sm:mb-16">
+  <h2 className="font-playfair font-bold text-3xl sm:text-[50px] md:text-[64px] lg:text-[70px] leading-tight text-[#222222]">
+    From <em className="italic font-semibold">Our Timepiece</em> Desk
+  </h2>
+</div>
 
         {/* Articles Grid - Horizontal scroll for mobile, grid for larger screens */}
         <div className="sm:hidden">

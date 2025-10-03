@@ -24,19 +24,19 @@ const About: React.FC = () => {
           <div className="mt-12 flex flex-wrap justify-center gap-4">
             <Link 
               to="/shop1" 
-              className="bg-[#e18a4b] text-white px-6 py-3 rounded-lg font-poppins font-semibold hover:bg-orange-600 transition-colors"
+              className="bg-[#062229] text-white px-6 py-3 rounded-lg font-poppins font-semibold hover:bg-orange-600 transition-colors"
             >
               Back to Home
             </Link>
             <Link 
               to="/shop1-allproductpage" 
-              className="bg-white text-[#e18a4b] border-2 border-[#e18a4b] px-6 py-3 rounded-lg font-poppins font-semibold hover:bg-[#e18a4b] hover:text-white transition-colors"
+              className="bg-white text-[#062229] border-2 border-[#062229] px-6 py-3 rounded-lg font-poppins font-semibold hover:bg-[#062229] hover:text-white transition-colors"
             >
               Shop Products
             </Link>
             <Link 
               to="/contact" 
-              className="bg-white text-[#e18a4b] border-2 border-[#e18a4b] px-6 py-3 rounded-lg font-poppins font-semibold hover:bg-[#e18a4b] hover:text-white transition-colors"
+              className="bg-white text-[#062229] border-2 border-[#062229] px-6 py-3 rounded-lg font-poppins font-semibold hover:bg-[#062229] hover:text-white transition-colors"
             >
               Contact Us
             </Link>
@@ -65,7 +65,7 @@ const About: React.FC = () => {
               </div>
             </div>
             <div className="relative">
-              <div className="bg-gradient-to-br from-[#e18a4b] to-orange-400 rounded-lg p-8 text-white">
+              <div className="bg-gradient-to-br from-[#062229] to-orange-400 rounded-lg p-8 text-white">
                 <h3 className="text-2xl font-playfair font-bold mb-4">Our Mission</h3>
                 <p className="font-poppins leading-relaxed">
                   To inspire confidence and creativity through fashion that celebrates diversity, promotes sustainability, and empowers individuals to express their unique style.
@@ -90,7 +90,7 @@ const About: React.FC = () => {
           
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-lg shadow-sm">
-              <div className="w-16 h-16 bg-[#e18a4b] rounded-full flex items-center justify-center mb-6 mx-auto">
+              <div className="w-16 h-16 bg-[#062229] rounded-full flex items-center justify-center mb-6 mx-auto">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
@@ -104,7 +104,7 @@ const About: React.FC = () => {
             </div>
 
             <div className="bg-white p-8 rounded-lg shadow-sm">
-              <div className="w-16 h-16 bg-[#e18a4b] rounded-full flex items-center justify-center mb-6 mx-auto">
+              <div className="w-16 h-16 bg-[#062229] rounded-full flex items-center justify-center mb-6 mx-auto">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
                 </svg>
@@ -118,7 +118,7 @@ const About: React.FC = () => {
             </div>
 
             <div className="bg-white p-8 rounded-lg shadow-sm">
-              <div className="w-16 h-16 bg-[#e18a4b] rounded-full flex items-center justify-center mb-6 mx-auto">
+              <div className="w-16 h-16 bg-[#062229] rounded-full flex items-center justify-center mb-6 mx-auto">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
@@ -148,7 +148,7 @@ const About: React.FC = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="w-48 h-48 bg-gradient-to-br from-[#e18a4b] to-orange-400 rounded-full mx-auto mb-6 flex items-center justify-center">
+              <div className="w-48 h-48 bg-gradient-to-br from-[#062229] to-orange-400 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <span className="text-4xl font-playfair font-bold text-white">A</span>
               </div>
               <h3 className="text-xl font-playfair font-bold text-[#222222] mb-2">
@@ -160,7 +160,7 @@ const About: React.FC = () => {
             </div>
 
             <div className="text-center">
-              <div className="w-48 h-48 bg-gradient-to-br from-[#e18a4b] to-orange-400 rounded-full mx-auto mb-6 flex items-center justify-center">
+              <div className="w-48 h-48 bg-gradient-to-br from-[#062229] to-orange-400 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <span className="text-4xl font-playfair font-bold text-white">O</span>
               </div>
               <h3 className="text-xl font-playfair font-bold text-[#222222] mb-2">
@@ -172,7 +172,7 @@ const About: React.FC = () => {
             </div>
 
             <div className="text-center">
-              <div className="w-48 h-48 bg-gradient-to-br from-[#e18a4b] to-orange-400 rounded-full mx-auto mb-6 flex items-center justify-center">
+              <div className="w-48 h-48 bg-gradient-to-br from-[#062229] to-orange-400 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <span className="text-4xl font-playfair font-bold text-white">I</span>
               </div>
               <h3 className="text-xl font-playfair font-bold text-[#222222] mb-2">
@@ -184,7 +184,7 @@ const About: React.FC = () => {
             </div>
 
             <div className="text-center">
-              <div className="w-48 h-48 bg-gradient-to-br from-[#e18a4b] to-orange-400 rounded-full mx-auto mb-6 flex items-center justify-center">
+              <div className="w-48 h-48 bg-gradient-to-br from-[#062229] to-orange-400 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <span className="text-4xl font-playfair font-bold text-white">N</span>
               </div>
               <h3 className="text-xl font-playfair font-bold text-[#222222] mb-2">
@@ -199,7 +199,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Contact CTA Section 
-      <section className="py-20 bg-gradient-to-r from-[#e18a4b] to-orange-400">
+      <section className="py-20 bg-gradient-to-r from-[#062229] to-orange-400">
         <div className="w-[1280px] max-w-full mx-auto px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-playfair font-bold text-white mb-6">
             Get in Touch
@@ -210,19 +210,19 @@ const About: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               to="/contact"
-              className="bg-white text-[#e18a4b] px-8 py-3 rounded-lg font-poppins font-semibold hover:bg-gray-100 transition-colors"
+              className="bg-white text-[#062229] px-8 py-3 rounded-lg font-poppins font-semibold hover:bg-gray-100 transition-colors"
             >
               Contact Us
             </Link>
             <a 
               href="mailto:auoinstore@gmail.com" 
-              className="border-2 border-white text-white px-8 py-3 rounded-lg font-poppins font-semibold hover:bg-white hover:text-[#e18a4b] transition-colors"
+              className="border-2 border-white text-white px-8 py-3 rounded-lg font-poppins font-semibold hover:bg-white hover:text-[#062229] transition-colors"
             >
               Email Us
             </a>
             <a 
               href="tel:+917879702202" 
-              className="border-2 border-white text-white px-8 py-3 rounded-lg font-poppins font-semibold hover:bg-white hover:text-[#e18a4b] transition-colors"
+              className="border-2 border-white text-white px-8 py-3 rounded-lg font-poppins font-semibold hover:bg-white hover:text-[#062229] transition-colors"
             >
               Call Us
             </a>

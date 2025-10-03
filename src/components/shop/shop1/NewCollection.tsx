@@ -10,7 +10,7 @@ const NewCollection = () => {
       <div className="hidden md:block w-full md:w-[45%] lg:w-[491px] flex-shrink-0">
         <div className="w-full h-[600px] sm:h-[600px] md:h-[720px] lg:h-[881px] overflow-hidden">
           <img
-            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745131/public_assets_shop1_LP/public_assets_images_New1.svg"
+            src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759501134/c3ea2c35-cad2-4de6-8f1b-a37a74a92d8b.png"
             alt="Main Model"
             className="w-full h-full object-cover"
           />
@@ -23,13 +23,16 @@ const NewCollection = () => {
         {/* Header + CTA */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight">
-              NEW <br /> COLLECTION
-            </h2>
-            <p className="mt-4 sm:mt-6 text-sm sm:text-base text-gray-600 max-w-md">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </p>
-          </div>
+  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight">
+    NEW <br /> COLLECTION
+  </h2>
+  <p className="mt-4 sm:mt-6 text-sm sm:text-base text-gray-600 max-w-md">
+    Discover our latest range of premium wristwatches — where timeless
+    craftsmanship meets modern design. Built for elegance, precision, and
+    everyday confidence.
+  </p>
+</div>
+
           <Link to="/shop1-allproductpage" className="flex items-center gap-2 text-sm font-medium cursor-pointer mt-2 sm:mt-0 hover:opacity-80 transition-opacity">
             <span>See more</span>
             <ArrowRight size={18} />
@@ -39,22 +42,22 @@ const NewCollection = () => {
         {/* Grid of Looks */}
         <div className="grid grid-cols-2 gap-4  lg:gap-4 mt-2 sm:mt-16 lg:mt-20 nav2:mt-16 xl:mt-16 2xl:mt-16">
           <img 
-            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745134/public_assets_shop1_LP/public_assets_images_New2.svg" 
+            src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759501062/929a5c3e-26ee-4534-9eba-03f7649cf483.png" 
             alt="Look 1" 
             className="w-full max-w-[291px] aspect-square object-cover" 
           />
           <img 
-            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745136/public_assets_shop1_LP/public_assets_images_New3.svg" 
+            src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759501178/b8325800-e4a5-4040-8de4-04d3f90980ff.png" 
             alt="Look 2" 
             className="w-full max-w-[199px] aspect-square object-cover self-end -ml-2 sm:-ml-2 md:ml-0 lg:-ml-1 nav2:-ml-8 xl:-ml-16" 
           />
           <img 
-            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745138/public_assets_shop1_LP/public_assets_images_New4.svg" 
+            src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759501304/bb7b90a4-6f9c-4c87-8171-a5f37c8bb558.png" 
             alt="Look 3" 
             className="w-full max-w-[291px] aspect-square object-cover" 
           />
           <img  
-            src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745141/public_assets_shop1_LP/public_assets_images_New5.svg" 
+            src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759501228/62d29d60-e8ef-4ab7-8e82-7ffab3a4a2df.png" 
             alt="Look 4" 
             className="w-full max-w-[291px] aspect-square object-cover -ml-2 sm:-ml-2 md:ml-0 lg:-ml-1 nav2:-ml-8 xl:-ml-16" 
           />
