@@ -13,6 +13,10 @@ import Streetwear from '../components/shop/shop2/Streetwear';
 import StreetwearIntro from '../components/shop/shop2/StreetwearIntro';
 import QualityShowcase from '../components/shop/shop2/QualityShowcase';
 import AoinShowcase from '../components/shop/shop2/AoinShowcase';
+import Hero from '../components/shop/shop2/Hero';
+import TrendingShapes from '../components/shop/shop2/TrendingShapes';
+import PremiumEyewear from '../components/shop/shop2/PremiumEyewear';
+import ShopFrameShape from '../components/shop/shop2/ShopFrameShape';
 
 function Shop2LandingPage() {
   React.useEffect(() => {
@@ -24,9 +28,13 @@ function Shop2LandingPage() {
 
   return (
     <div className="min-h-screen bg-white scroll-smooth overflow-x-hidden">
+      <Hero />
+      <TrendingShapes />
+      <PremiumEyewear />
+      <ShopFrameShape />
+
       <Reflection />
       <TShirt/>
-
       <SweatShirts/>
       <Bottom/>
       <Shackets/>
