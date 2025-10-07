@@ -4,13 +4,13 @@ export default function ShopFrameShape() {
       <div className="max-w-7xl mx-auto">
         {/* Heading */}
         <h2 className="text-3xl sm:text-4xl font-bold text-gray-600 text-center mb-8 sm:mb-12">
-          Shop with frame shape
+          Shop with endless options
         </h2>
 
         {/* Image */}
         <div className="w-full rounded-3xl overflow-hidden">
           <img
-            src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759695329/a32f9d3c-a59d-4a05-9dc1-252a9d922e0e.png"
+            src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759796646/ea8eb541-84a4-475b-84d7-724562968c33.png"
             alt="Shop with frame shape"
             className="w-full h-auto"
           />

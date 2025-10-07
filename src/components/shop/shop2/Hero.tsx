@@ -1,6 +1,6 @@
 export default function Hero() {
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-[80vh] overflow-hidden">
       {/* Video Background */}
       <video
         autoPlay
