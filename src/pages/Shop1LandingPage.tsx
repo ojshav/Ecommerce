@@ -13,6 +13,7 @@ import EthnicWear from '../components/shop/shop1/EthnicWear';
 import FashionDesk from '../components/shop/shop1/FashionDesk';
 import SubscribeSection from '../components/shop/shop1/SubscribeSection';
 import Footer from '../components/shop/shop1/AllProductpage/Footer.tsx';
+import HandCollection from '../components/shop/shop1/HandCollection.tsx';
 
 
 function Shop1LandingPage() {
@@ -31,7 +32,8 @@ function Shop1LandingPage() {
         <Categories />
         <FreshOffRunway />
         <PromotionalBanners />
-        <OutfitCards />
+        <HandCollection />
+        {/* <OutfitCards /> */}
         <NewCollection />
         <AoinTrendsSection />
         <EthnicWear />

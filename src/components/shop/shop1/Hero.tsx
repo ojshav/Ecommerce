@@ -13,8 +13,8 @@ const Hero = () => {
   const rightArrowHover = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745145/public_assets_shop1_LP/public_assets_images_arrow-right.svg";
 
   const images = [
-    "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752746041/public_assets_shop1_LP/public_assets_images_hero-image2.png",
-    "https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745156/public_assets_shop1_LP/public_assets_images_hero-image3.svg"
+    "https://res.cloudinary.com/ddnb10zkq/image/upload/v1759500129/5395d3bd-aec0-4877-a590-8bdea0c6e510.png",
+    "https://res.cloudinary.com/ddnb10zkq/image/upload/v1759500292/c20cc067-7215-4c67-b74a-cd651e6d04c4.png"
   ];
 
   const handleArrow = (direction: 'left' | 'right') => {
@@ -76,7 +76,7 @@ const Hero = () => {
             {/* 🔥 First Slide = Video */}
             <div className="relative flex-shrink-0 w-full">
               <video
-                src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691070/public_assets_videos/hero.mp4"
+                src="https://res.cloudinary.com/ddnb10zkq/video/upload/v1759500005/Cinematic_Watch_Product_Video_Commercial_Example___Rolex_Timex_Omega_Samsung_Apple_Jewelry_Amazon_Ad_onoi8k.mp4"
                 className="w-full h-[200px] xs:h-[250px] sm:h-[300px] md:h-[400px] lg:h-[500px] xl:h-[600px] 2xl:h-[650px] object-cover rounded-md"
                 autoPlay
                 loop

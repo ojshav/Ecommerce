@@ -45,7 +45,7 @@ const AoinTrendsSection = () => {
               <div className="absolute bottom-1 right-0 h-24 w-[2.5px] bg-black" />
             </div>
             <img
-              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745100/public_assets_shop1_LP/public_assets_images_Aoin1.svg"
+              src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759514886/6129ecdc-850a-493f-9b39-10fdd90798e1.png"
               alt="Headwrap"
               className="w-full hidden lg:block h-full object-contain"
               loading="lazy"
@@ -64,7 +64,7 @@ const AoinTrendsSection = () => {
               <div className="absolute bottom-3 -right-0 h-24 w-[2.5px] bg-black" />
             </div>
             <img
-              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745103/public_assets_shop1_LP/public_assets_images_Aoin2.svg"
+              src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759515209/e0b771a7-5360-4805-a76b-4439b2682462.png"
               alt="Orange skirt"
               className="w-full h-full object-contain"
               loading="lazy"
@@ -86,7 +86,7 @@ const AoinTrendsSection = () => {
           </Link>
 
           <video
-            src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691055/public_assets_videos/Aoin3.mp4"
+            src="https://res.cloudinary.com/ddnb10zkq/video/upload/v1759501561/662414bf53304baa892d812cd434d87d_m0i6av.mp4"
             className="w-[356px] h-[320px] object-cover"
             autoPlay
             loop

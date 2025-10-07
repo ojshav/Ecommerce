@@ -25,7 +25,7 @@ const reviews = [
 
 const colorOptions = [
   { name: 'Yellow', value: 'yellow', className: 'bg-yellow-300' },
-  { name: 'Pink', value: 'pink', className: 'bg-[#EABABA]' },
+  { name: 'Pink', value: 'pink', className: 'bg-[#062229]' },
 ];
 const sizeOptions = ['XS', 'S', 'M', 'L', 'XL'];
 
@@ -133,7 +133,7 @@ const FashionCardsSection: React.FC = () => {
                           ? 'border-[#FEEBD8] scale-110'
                           : 'border-white opacity-80 hover:scale-105'
                       }`}
-                      style={{ backgroundColor: color.value === 'yellow' ? '#FDE047' : '#EABABA' }}
+                      style={{ backgroundColor: color.value === 'yellow' ? '#FDE047' : '#062229' }}
                     />
                   ))}
                 </div>
@@ -218,7 +218,7 @@ const FashionCardsSection: React.FC = () => {
                 'Dry clean',
               ].map((item, index) => (
                 <li key={index} className="flex items-center text-[18px]">
-                  <span className="w-2 h-2 rounded-full bg-[#EABABA] mr-4"></span>
+                  <span className="w-2 h-2 rounded-full bg-[#062229] mr-4"></span>
                   {item}
                 </li>
               ))}

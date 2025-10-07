@@ -24,7 +24,7 @@ const EthnicWear = () => {
             title="Shop 50% or more"
           >
             <video
-              src="https://res.cloudinary.com/do3vxz4gw/video/upload/v1751691061/public_assets_videos/ethnic1.mp4"
+              src="https://res.cloudinary.com/ddnb10zkq/video/upload/v1759502289/Omega_Watch_Ad_-_Cinematic_B-Roll_plktip.mp4"
               className="w-full h-full object-cover"
               autoPlay
               loop
@@ -49,7 +49,7 @@ const EthnicWear = () => {
           {/* Center Image */}
           <div className="hidden md:block w-full lg:w-[351px] aspect-[351/635] overflow-hidden">
             <img
-              src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745147/public_assets_shop1_LP/public_assets_images_ethnic2.svg"
+              src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759502384/8fe2fc5a-ea0a-4261-b36b-bd5c326b6c84.png"
               alt="Center Ethnic Wear"
               className="w-full h-full object-cover"
               loading="lazy"
@@ -60,7 +60,7 @@ const EthnicWear = () => {
           <div className="hidden md:flex flex-col gap-4 w-full lg:w-[312px]">
             <div className="aspect-square overflow-hidden">
               <img
-                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752751674/public_assets_shop1_LP/public_assets_images_ethnic4.svg"
+                src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759502588/78abc061-a034-4ded-8dfc-5d8eee3b780c.png"
                 alt="Top Right Ethnic"
                 className="w-full h-full object-cover"
                 loading="lazy"
@@ -68,7 +68,7 @@ const EthnicWear = () => {
             </div>
             <div className="aspect-square overflow-hidden">
               <img
-                src="https://res.cloudinary.com/do3vxz4gw/image/upload/v1752745150/public_assets_shop1_LP/public_assets_images_ethnic3.svg"
+                src="https://res.cloudinary.com/ddnb10zkq/image/upload/v1759502672/17dc31eb-b64a-4f96-84ae-a01ac4739864.png"
                 alt="Bottom Right Ethnic"
                 className="w-full h-full object-cover"
                 loading="lazy"
