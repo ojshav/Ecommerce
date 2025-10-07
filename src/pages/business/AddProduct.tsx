@@ -16,7 +16,11 @@ const categories = {
 } as const;
 
 type SubCategory<C extends Category> = keyof typeof categories[C];
-type ProductType<C extends Category, S extends SubCategory<C>> = (typeof categories[C][S])[number];
+type ProductType<C extends Category, S extends SubCategory<C>> = S extends keyof (typeof categories)[C] 
+  ? (typeof categories)[C][S] extends readonly (infer T)[] 
+    ? T 
+    : never 
+  : never;
 
 interface Product {
   name: string;
