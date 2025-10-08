@@ -3,8 +3,6 @@ import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, SparklesIcon, PhotoIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { AI_API_URL } from '../../../../../config';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
 interface AIProductAssistantProps {
   isOpen: boolean;
   onClose: () => void;
@@ -15,15 +13,18 @@ interface AIProductAssistantProps {
     metaDescription: string;
     metaKeywords: string;
   }) => void;
+  productName?: string;
+  productImages?: string[]; // Cloudinary URLs from product media
 }
 
 const AIProductAssistant: React.FC<AIProductAssistantProps> = ({
   isOpen,
   onClose,
   onApplySuggestions,
+  productName = '',
+  productImages = [],
 }) => {
   const [productTitle, setProductTitle] = useState('');
-  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<{
     shortDescription: string;
@@ -34,66 +35,13 @@ const AIProductAssistant: React.FC<AIProductAssistantProps> = ({
   } | null>(null);
   const [currentStep, setCurrentStep] = useState<'input' | 'results'>('input');
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const filesArray = Array.from(e.target.files).slice(0, 5); // Max 5 images
-      setUploadedImages(filesArray);
+  // Update product title when prop changes
+  React.useEffect(() => {
+    if (productName) {
+      setProductTitle(productName);
     }
-  };
+  }, [productName]);
 
-  const handleRemoveImage = (index: number) => {
-    setUploadedImages(prev => prev.filter((_, i) => i !== index));
-  };
-
-  // Helper function to upload images and get URLs
-  const uploadImagesToBackend = async (files: File[]): Promise<string[]> => {
-    const uploadedUrls: string[] = [];
-    
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/upload-temp-image`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          },
-          body: formData,
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          uploadedUrls.push(data.url || data.image_url);
-        }
-      } catch (error) {
-        console.error('Error uploading image:', error);
-      }
-    }
-    
-    return uploadedUrls;
-  };
-
-  // Convert images to base64 as fallback
-  const convertImagesToBase64 = async (files: File[]): Promise<string[]> => {
-    const base64Images: string[] = [];
-    
-    for (const file of files) {
-      try {
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-        base64Images.push(base64);
-      } catch (error) {
-        console.error('Error converting image to base64:', error);
-      }
-    }
-    
-    return base64Images;
-  };
 
   const handleGenerate = async () => {
     if (!productTitle.trim()) {
@@ -103,18 +51,8 @@ const AIProductAssistant: React.FC<AIProductAssistantProps> = ({
     setIsGenerating(true);
     
     try {
-      // Try to upload images to get URLs, or use base64 as fallback
-      let imageUrls: string[] = [];
-      
-      if (uploadedImages.length > 0) {
-        // Try uploading images first
-        imageUrls = await uploadImagesToBackend(uploadedImages);
-        
-        // If upload fails, convert to base64
-        if (imageUrls.length === 0) {
-          imageUrls = await convertImagesToBase64(uploadedImages);
-        }
-      }
+      // Use product images from props (Cloudinary URLs)
+      let imageUrls: string[] = productImages.slice(0, 5); // Max 5 images
       
       // If no images provided, use a placeholder
       if (imageUrls.length === 0) {
@@ -179,8 +117,7 @@ const AIProductAssistant: React.FC<AIProductAssistantProps> = ({
   };
 
   const handleClose = () => {
-    setProductTitle('');
-    setUploadedImages([]);
+    setProductTitle(productName || '');
     setGeneratedContent(null);
     setCurrentStep('input');
     setIsGenerating(false);
@@ -290,63 +227,40 @@ const AIProductAssistant: React.FC<AIProductAssistantProps> = ({
                         </p>
                       </div>
 
-                      {/* Image Upload */}
+                      {/* Product Images Display */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Product Images <span className="text-gray-400">(Optional)</span>
+                          Product Images
                         </label>
                         
-                        {uploadedImages.length === 0 ? (
-                          <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              <PhotoIcon className="h-12 w-12 text-gray-400 mb-3" />
-                              <p className="mb-2 text-sm text-gray-600">
-                                <span className="font-semibold">Click to upload</span> or drag and drop
-                              </p>
-                              <p className="text-xs text-gray-500">PNG, JPG up to 10MB (Max 5 images)</p>
-                            </div>
-                            <input
-                              type="file"
-                              className="hidden"
-                              accept="image/*"
-                              multiple
-                              onChange={handleImageUpload}
-                            />
-                          </label>
+                        {productImages.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                            <PhotoIcon className="h-10 w-10 text-gray-400 mb-2" />
+                            <p className="text-sm text-gray-500">No product images available</p>
+                            <p className="text-xs text-gray-400 mt-1">AI will use placeholder image</p>
+                          </div>
                         ) : (
-                          <div className="space-y-3">
+                          <div className="space-y-2">
                             <div className="grid grid-cols-5 gap-3">
-                              {uploadedImages.map((file, index) => (
+                              {productImages.slice(0, 5).map((imageUrl, index) => (
                                 <div key={index} className="relative group">
                                   <img
-                                    src={URL.createObjectURL(file)}
-                                    alt={`Upload ${index + 1}`}
-                                    className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                                    src={imageUrl}
+                                    alt={`Product ${index + 1}`}
+                                    className="w-full h-24 object-cover rounded-lg border-2 border-green-200"
                                   />
-                                  <button
-                                    onClick={() => handleRemoveImage(index)}
-                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                  >
-                                    <XMarkIcon className="h-4 w-4" />
-                                  </button>
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity rounded-lg" />
                                 </div>
                               ))}
                             </div>
-                            <label className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
-                              <PhotoIcon className="h-5 w-5 mr-2" />
-                              Add More Images
-                              <input
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-                                multiple
-                                onChange={handleImageUpload}
-                              />
-                            </label>
+                            <p className="text-xs text-green-600 flex items-center">
+                              <CheckCircleIcon className="h-4 w-4 mr-1" />
+                              Using {productImages.length} product {productImages.length === 1 ? 'image' : 'images'} from your uploaded media
+                            </p>
                           </div>
                         )}
                         <p className="mt-2 text-xs text-gray-500">
-                          Upload product images to help AI understand your product better (optional)
+                          AI will use your product images to generate more accurate descriptions
                         </p>
                       </div>
 

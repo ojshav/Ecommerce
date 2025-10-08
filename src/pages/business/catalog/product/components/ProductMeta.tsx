@@ -8,6 +8,8 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ProductMetaProps {
   productId: number;
+  productName?: string;
+  productImages?: string[];
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string;
@@ -25,6 +27,8 @@ interface ProductMetaProps {
 
 const ProductMeta: React.FC<ProductMetaProps> = ({
   productId,
+  productName = '',
+  productImages = [],
   metaTitle,
   metaDescription,
   metaKeywords,
@@ -191,6 +195,8 @@ const ProductMeta: React.FC<ProductMetaProps> = ({
         isOpen={isAIAssistantOpen}
         onClose={() => setIsAIAssistantOpen(false)}
         onApplySuggestions={handleAIApply}
+        productName={productName}
+        productImages={productImages}
       />
 
       {/* AI Assistant Banner */}

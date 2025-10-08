@@ -99,6 +99,7 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
   const [metaKeywords, setMetaKeywords] = useState('');
   const [shortDescription, setShortDescription] = useState('');
   const [fullDescription, setFullDescription] = useState('');
+  const [productMedia, setProductMedia] = useState<{ url: string }[]>([]);
 
   // Add variants state
   const [variants, setVariants] = useState<Variant[]>([]);
@@ -519,7 +520,10 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
             <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
               <ProductMediaUpload
                 productId={productId}
-                onMediaChange={(mediaFiles) => console.log('Media updated in Core:', mediaFiles)}
+                onMediaChange={(mediaFiles) => {
+                  console.log('Media updated in Core:', mediaFiles);
+                  setProductMedia(mediaFiles);
+                }}
               />
             </div>
           </div>
@@ -580,6 +584,8 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
             <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
               <ProductMeta
                 productId={productId}
+                productName={name}
+                productImages={productMedia.map(m => m.url)}
                 metaTitle={metaTitle}
                 metaDescription={metaDescription}
                 metaKeywords={metaKeywords}
