@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { SparklesIcon } from '@heroicons/react/24/solid';
+import AIProductAssistant from './AIProductAssistant';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface ProductMetaProps {
   productId: number;
+  productName?: string;
+  productImages?: string[];
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string;
@@ -23,6 +27,8 @@ interface ProductMetaProps {
 
 const ProductMeta: React.FC<ProductMetaProps> = ({
   productId,
+  productName = '',
+  productImages = [],
   metaTitle,
   metaDescription,
   metaKeywords,
@@ -34,6 +40,7 @@ const ProductMeta: React.FC<ProductMetaProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
 
   // Quill editor modules configuration
   const modules = {
@@ -157,6 +164,22 @@ const ProductMeta: React.FC<ProductMetaProps> = ({
     }
   };
 
+  // Handle AI suggestions apply
+  const handleAIApply = (suggestions: {
+    shortDescription: string;
+    fullDescription: string;
+    metaTitle: string;
+    metaDescription: string;
+    metaKeywords: string;
+  }) => {
+    onMetaChange('shortDescription', suggestions.shortDescription);
+    onMetaChange('fullDescription', suggestions.fullDescription);
+    onMetaChange('metaTitle', suggestions.metaTitle);
+    onMetaChange('metaDescription', suggestions.metaDescription);
+    onMetaChange('metaKeywords', suggestions.metaKeywords);
+    setSuccess('AI suggestions applied successfully! Review and update as needed.');
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-8">
@@ -167,6 +190,55 @@ const ProductMeta: React.FC<ProductMetaProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* AI Assistant Modal */}
+      <AIProductAssistant
+        isOpen={isAIAssistantOpen}
+        onClose={() => setIsAIAssistantOpen(false)}
+        onApplySuggestions={handleAIApply}
+        productName={productName}
+        productImages={productImages}
+      />
+
+      {/* AI Assistant Banner */}
+      <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-xl p-5 shadow-sm">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start space-x-4">
+            <div className="flex-shrink-0">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-orange-600">
+                <SparklesIcon className="h-7 w-7 text-white" />
+              </div>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base font-semibold text-gray-900 mb-1">
+                Try Our AI Product Assistant
+              </h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Save time and create compelling product descriptions! Our AI can generate professional descriptions, 
+                SEO-optimized content, and meta tags based on your product title and images.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-500">
+                <span className="flex items-center bg-white px-3 py-1 rounded-full">
+                  ✨ Auto-generate descriptions
+                </span>
+                <span className="flex items-center bg-white px-3 py-1 rounded-full">
+                  🎯 SEO optimization
+                </span>
+                <span className="flex items-center bg-white px-3 py-1 rounded-full">
+                  ⚡ Instant results
+                </span>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setIsAIAssistantOpen(true)}
+            className="flex-shrink-0 ml-4 inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 shadow-md hover:shadow-lg transition-all"
+          >
+            <SparklesIcon className="h-5 w-5 mr-2" />
+            Generate with AI
+          </button>
+        </div>
+      </div>
+
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-700">{error}</p>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, TrashIcon, PlusIcon, StarIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, TrashIcon, PlusIcon, StarIcon, PhotoIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import AIProductAssistant from './AIProductAssistant';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -135,6 +136,7 @@ const EditProduct: React.FC = () => {
     meta_desc: '',
     meta_keywords: ''
   });
+  const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -629,6 +631,24 @@ const EditProduct: React.FC = () => {
       
       return updated;
     });
+  };
+
+  // Handle AI suggestions apply
+  const handleAIApply = (suggestions: {
+    shortDescription: string;
+    fullDescription: string;
+    metaTitle: string;
+    metaDescription: string;
+    metaKeywords: string;
+  }) => {
+    setMetaData(prev => ({
+      ...prev,
+      short_desc: suggestions.shortDescription,
+      full_desc: suggestions.fullDescription,
+      meta_title: suggestions.metaTitle,
+      meta_desc: suggestions.metaDescription,
+      meta_keywords: suggestions.metaKeywords
+    }));
   };
 
   if (isLoading) {
@@ -1158,7 +1178,26 @@ const EditProduct: React.FC = () => {
 
         {/* Product Meta Section */}
         <div className="mt-8 bg-white shadow-sm rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Product Meta Data</h3>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-medium text-gray-900">Product Meta Data</h3>
+            <button
+              type="button"
+              onClick={() => setIsAIAssistantOpen(true)}
+              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold rounded-lg hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 shadow-md hover:shadow-lg transition-all"
+            >
+              <SparklesIcon className="h-5 w-5 mr-2" />
+              Generate with AI
+            </button>
+          </div>
+
+          {/* AI Assistant Modal */}
+          <AIProductAssistant
+            isOpen={isAIAssistantOpen}
+            onClose={() => setIsAIAssistantOpen(false)}
+            onApplySuggestions={handleAIApply}
+            productName={formData.product_name}
+            productImages={product?.media?.filter(m => m.type.toLowerCase() === 'image').map(m => m.url) || []}
+          />
           
           <div className="space-y-6">
             {/* Short Description */}

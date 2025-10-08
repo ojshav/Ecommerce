@@ -99,6 +99,7 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
   const [metaKeywords, setMetaKeywords] = useState('');
   const [shortDescription, setShortDescription] = useState('');
   const [fullDescription, setFullDescription] = useState('');
+  const [productMedia, setProductMedia] = useState<{ url: string }[]>([]);
 
   // Add variants state
   const [variants, setVariants] = useState<Variant[]>([]);
@@ -420,15 +421,6 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
 
         </div>
 
-        {/* Description */}
-        <div>
-
-          <label htmlFor="description" className={labelClassName}>Short Description (for product card)</label>
-          <textarea id="description" rows={3} value={description} onChange={(e) => onInfoChange('description', e.target.value)} className={inputClassName(!!errors.description)} placeholder="Briefly describe your product..." />
-          {errors.description && <p className={errorTextClassName}>{errors.description}</p>}
-
-        </div>
-
         {/* SKU */}
         <div>
           <label htmlFor="sku" className={labelClassName}>SKU (Stock Keeping Unit)</label>
@@ -441,14 +433,14 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
 
-            <label htmlFor="costPrice" className={labelClassName}>Selling Price</label>
+            <label htmlFor="costPrice" className={labelClassName}>Cost Price</label>
             <input type="number" id="costPrice" value={costPrice} onChange={(e) => onInfoChange('costPrice', e.target.value)} step="0.01" min="0" className={inputClassName(!!errors.costPrice)} placeholder="0.00" required/>
             {errors.costPrice && <p className={errorTextClassName}>{errors.costPrice}</p>}
 
           </div>
           <div>
 
-            <label htmlFor="sellingPrice" className={labelClassName}>Discounted Price</label>
+            <label htmlFor="sellingPrice" className={labelClassName}>Selling Price</label>
             <input type="number" id="sellingPrice" value={sellingPrice} onChange={(e) => onInfoChange('sellingPrice', e.target.value)} step="0.01" min="0" className={inputClassName(!!errors.sellingPrice)} placeholder="0.00" required/>
             {errors.sellingPrice && <p className={errorTextClassName}>{errors.sellingPrice}</p>}
 
@@ -528,7 +520,10 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
             <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
               <ProductMediaUpload
                 productId={productId}
-                onMediaChange={(mediaFiles) => console.log('Media updated in Core:', mediaFiles)}
+                onMediaChange={(mediaFiles) => {
+                  console.log('Media updated in Core:', mediaFiles);
+                  setProductMedia(mediaFiles);
+                }}
               />
             </div>
           </div>
@@ -589,6 +584,8 @@ const CoreProductInfo: React.FC<CoreProductInfoProps> = ({
             <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
               <ProductMeta
                 productId={productId}
+                productName={name}
+                productImages={productMedia.map(m => m.url)}
                 metaTitle={metaTitle}
                 metaDescription={metaDescription}
                 metaKeywords={metaKeywords}
