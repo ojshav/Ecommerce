@@ -498,6 +498,8 @@ const TrafficAnalytics: React.FC = () => {
       const params = timeFilter === 'daily' ? `?days=30&format=${format}` :
                     timeFilter === 'monthly' ? `?months=12&format=${format}` :
                     `?format=${format}`;
+
+      console.log(API_BASE_URL, endpoint, params);
       
       const response = await fetch(`${API_BASE_URL}${endpoint}${params}`, {
         method: 'GET',

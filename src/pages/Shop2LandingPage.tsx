@@ -32,10 +32,10 @@ function Shop2LandingPage() {
   return (
     <div className="min-h-screen bg-white scroll-smooth overflow-x-hidden">
       <Header />
-      <Hero />
+      {/* <Hero /> */}
       <TrendingShapes />
       <PremiumEyewear />
-      <ShopFrameShape />
+      {/* <ShopFrameShape /> */}
       <PerfectFitGallery />
       <Footer />
 
