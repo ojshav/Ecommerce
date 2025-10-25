@@ -52,6 +52,7 @@ interface ProductAttribute {
 }
 
 interface ProductDetails {
+  stock: number;
   product_id: number;
   product_name: string;
   cost_price: number;
@@ -695,6 +696,11 @@ const ProductDetail: React.FC = () => {
     if (user?.role === "merchant" || user?.role === "admin") {
       toast.error("Merchants and admins cannot make purchases");
       return;
+    }
+
+    if(product?.stock === 0){
+      toast.error("Insufficient stock");
+      return
     }
 
     const calculatedPrice = product.price || product.selling_price;

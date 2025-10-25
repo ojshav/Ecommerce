@@ -170,6 +170,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
+
+
+  console.log("stock : ", product.stock);
+
   // Calculate sale percentage if original price exists
   const calculateSalePercentage = () => {
     if (product.original_price && product.price) {
@@ -254,17 +258,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </div>
           <div className="flex gap-2 w-full">
-            <button
-              className="w-1/2 bg-[#F2631F] text-white text-base font-worksans font-medium hover:bg-orange-600 py-2 rounded-xl duration-300 transition shadow-md"
-              onClick={handleBuyNow}
-              disabled={
-                product.stock === 0 ||
-                user?.role === "merchant" ||
-                user?.role === "admin"
-              }
-            >
-              Buy Now
-            </button>
+<button
+  className={`w-1/2 text-base font-worksans font-medium py-2 rounded-xl duration-300 transition shadow-md ${
+    product.stock === 0 || user?.role === "merchant" || user?.role === "admin"
+      ? "bg-orange-400 text-white cursor-not-allowed"
+      : "bg-[#F2631F] text-white hover:bg-orange-600"
+  }`}
+  onClick={handleBuyNow}
+  disabled={
+    product.stock === 0 ||
+    user?.role === "merchant" ||
+    user?.role === "admin"
+  }
+>
+  Buy Now
+</button>
+
             <button
               className="w-1/2 flex items-center justify-center bg-gray-200 text-black rounded-xl shadow-md hover:bg-gray-300 transition"
               onClick={handleAddToCart}
