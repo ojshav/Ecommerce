@@ -698,7 +698,7 @@ const ProductDetail: React.FC = () => {
       return;
     }
 
-    if(product?.stock === 0){
+    if(product?.stock === 0 || product?.stock < quantity) {
       toast.error("Insufficient stock");
       return
     }
