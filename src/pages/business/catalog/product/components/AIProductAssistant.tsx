@@ -343,12 +343,12 @@ const AIProductAssistant: React.FC<AIProductAssistantProps> = ({
 
                       {/* Action Buttons */}
                       <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                        <button
+                        {/* <button
                           onClick={handleStartOver}
                           className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                         >
                           Generate Again
-                        </button>
+                        </button> */}
                         <div className="flex space-x-3">
                           <button
                             onClick={handleClose}

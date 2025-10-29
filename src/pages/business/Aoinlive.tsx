@@ -26,6 +26,8 @@ interface Product {
   product_name?: string; // For backward compatibility
   sku?: string; // For backward compatibility
   selling_price?: number; // For backward compatibility
+  approval_status?: string; // For backward compatibility
+
 }
 
 interface LiveStreamForm {
@@ -101,6 +103,7 @@ const Aoinlive: React.FC = () => {
   const [showRtmpModal, setShowRtmpModal] = useState(false);
   const [rtmpModalStream, setRtmpModalStream] = useState<any | null>(null);
   const [currentLiveStream, setCurrentLiveStream] = useState<LiveStream | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
   // Fetch all streams (grouped by status)
   const fetchAllStreams = async () => {
@@ -279,10 +282,15 @@ const Aoinlive: React.FC = () => {
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
       setFormData((prev) => ({
         ...prev,
-        thumbnail: e.target.files![0],
+        thumbnail: file,
       }));
+      
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setThumbnailPreview(previewUrl);
     }
   };
 
@@ -906,7 +914,9 @@ const Aoinlive: React.FC = () => {
                   required
                 >
                   <option value="">Select a product</option>
-                  {products.map((product) => (
+                  {products
+                  .filter((product) => product.approval_status === "approved") // ✅ Only show approved products
+                  .map((product) => (
                     <option key={product.product_id} value={product.product_id}>
                       {product.name || product.product_name} - {product.sku}
                     </option>
@@ -994,6 +1004,34 @@ const Aoinlive: React.FC = () => {
                   required
                 />
               </div>
+
+              {/* Thumbnail Preview */}
+              {thumbnailPreview && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Thumbnail Preview
+                  </label>
+                  <div className="relative w-full max-w-xs mx-auto">
+                    <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden border-2 border-orange-200 shadow-sm">
+                      <img 
+                        src={thumbnailPreview} 
+                        alt="Thumbnail preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="absolute top-2 right-2">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                        Preview
+                      </span>
+                    </div>
+                    <div className="mt-2 text-center">
+                      <p className="text-xs text-gray-500">
+                        This is how your thumbnail will appear to viewers
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
 
             </div>

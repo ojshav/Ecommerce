@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface ShippingUnit {
   value: string;
   label: string;
-  conversion: number; // conversion factor to base unit (kg for weight, cm for dimensions)
+  conversion: number;
 }
 
 interface ShippingDetailsProps {
@@ -67,6 +67,97 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{
+    weight?: string;
+    length?: string;
+    width?: string;
+    height?: string;
+    shippingClass?: string;
+  }>({});
+
+  // Validation function
+  const validateShippingForm = (): boolean => {
+    const newErrors: typeof validationErrors = {};
+
+    // Weight validation (convert to kg for validation)
+    const weightValue = parseFloat(weight);
+    const weightInKg = convertToBaseUnit(weight, weightUnit, weightUnits);
+    
+    if (!weight || weight.trim() === '') {
+      newErrors.weight = 'Weight is required';
+    } else if (isNaN(weightValue)) {
+      newErrors.weight = 'Weight must be a valid number';
+    } else if (weightValue <= 0) {
+      newErrors.weight = 'Weight must be greater than 0';
+    } else if (weightInKg > 50) {
+      newErrors.weight = 'Weight cannot exceed 50 kg';
+    }
+
+    // Length validation
+    const lengthValue = parseFloat(dimensions.length);
+    if (!dimensions.length || dimensions.length.trim() === '') {
+      newErrors.length = 'Length is required';
+    } else if (isNaN(lengthValue)) {
+      newErrors.length = 'Length must be a valid number';
+    } else if (lengthValue <= 0) {
+      newErrors.length = 'Length must be greater than 0';
+    }
+
+    // Width validation
+    const widthValue = parseFloat(dimensions.width);
+    if (!dimensions.width || dimensions.width.trim() === '') {
+      newErrors.width = 'Width is required';
+    } else if (isNaN(widthValue)) {
+      newErrors.width = 'Width must be a valid number';
+    } else if (widthValue <= 0) {
+      newErrors.width = 'Width must be greater than 0';
+    }
+
+    // Height validation
+    const heightValue = parseFloat(dimensions.height);
+    if (!dimensions.height || dimensions.height.trim() === '') {
+      newErrors.height = 'Height is required';
+    } else if (isNaN(heightValue)) {
+      newErrors.height = 'Height must be a valid number';
+    } else if (heightValue <= 0) {
+      newErrors.height = 'Height must be greater than 0';
+    }
+
+    // Shipping class validation
+    if (!shippingClass || shippingClass === '') {
+      newErrors.shippingClass = 'Shipping class is required';
+    }
+
+    setValidationErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Check if form is valid for button enabling
+  const isFormValid = (): boolean => {
+    const weightValue = parseFloat(weight);
+    const weightInKg = convertToBaseUnit(weight, weightUnit, weightUnits);
+    const lengthValue = parseFloat(dimensions.length);
+    const widthValue = parseFloat(dimensions.width);
+    const heightValue = parseFloat(dimensions.height);
+
+    return (
+      weight &&
+      !isNaN(weightValue) &&
+      weightValue > 0 &&
+      weightInKg <= 50 &&
+      dimensions.length &&
+      !isNaN(lengthValue) &&
+      lengthValue > 0 &&
+      dimensions.width &&
+      !isNaN(widthValue) &&
+      widthValue > 0 &&
+      dimensions.height &&
+      !isNaN(heightValue) &&
+      heightValue > 0 &&
+      shippingClass &&
+      shippingClass !== ''
+    );
+  };
 
   const handleUpdateShipping = async () => {
     if (!productId || typeof productId !== 'number' || isNaN(productId)) {
@@ -75,12 +166,17 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
       return;
     }
 
+    // Validate before submitting
+    if (!validateShippingForm()) {
+      setError('Please fix all validation errors before updating shipping details.');
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
       setSuccess(null);
 
-      // Convert to base units (kg and cm) before sending to API
       const shippingData = {
         weight: convertToBaseUnit(weight, weightUnit, weightUnits),
         dimensions: {
@@ -90,8 +186,6 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
         },
         shipping_class: shippingClass
       };
-
-      // console.log('Sending shipping data for product:', productId, shippingData);
 
       const response = await fetch(`${API_BASE_URL}/api/merchant-dashboard/products/${productId}/shipping`, {
         method: 'POST',
@@ -108,9 +202,8 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
       }
 
       const updatedData = await response.json();
-      // console.log('Shipping update response:', updatedData);
-      
       setSuccess('Shipping details updated successfully');
+      setValidationErrors({});
     } catch (error) {
       console.error('Error updating shipping details:', error);
       setError('Failed to update shipping details. Please try again.');
@@ -136,7 +229,7 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-600"></div>
       </div>
     );
   }
@@ -158,25 +251,49 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
       {/* Weight */}
       <div>
         <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
-          Weight
+          Weight *
         </label>
         <div className="mt-1 flex rounded-md shadow-sm">
           <input
             type="number"
             id="weight"
             value={weight}
-            onChange={(e) => onShippingChange('weight', e.target.value)}
+            onChange={(e) => {
+              onShippingChange('weight', e.target.value);
+              if (validationErrors.weight) {
+                const newErrors = { ...validationErrors };
+                delete newErrors.weight;
+                setValidationErrors(newErrors);
+              }
+              setError(null);
+            }}
+            onBlur={() => {
+              const weightValue = parseFloat(weight);
+              const weightInKg = convertToBaseUnit(weight, weightUnit, weightUnits);
+              if (!weight || isNaN(weightValue) || weightValue <= 0) {
+                setValidationErrors(prev => ({
+                  ...prev,
+                  weight: !weight ? 'Weight is required' : weightValue <= 0 ? 'Weight must be greater than 0' : 'Weight must be a valid number'
+                }));
+              } else if (weightInKg > 50) {
+                setValidationErrors(prev => ({
+                  ...prev,
+                  weight: 'Weight cannot exceed 50 kg'
+                }));
+              }
+            }}
             step="0.001"
-            min="0"
-            className={`flex-1 rounded-l-md border-gray-300 focus:border-primary-500 focus:ring-primary-500 sm:text-sm ${
-              errors.weight ? 'border-red-300' : ''
+            min="0.001"
+            className={`flex-1 rounded-l-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm ${
+              validationErrors.weight || errors.weight ? 'border-red-300' : ''
             }`}
             placeholder="Enter product weight"
+            required
           />
           <select
             value={weightUnit}
             onChange={(e) => onShippingChange('weightUnit', e.target.value)}
-            className="rounded-r-md border-l-0 border-gray-300 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+            className="rounded-r-md border-l-0 border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
           >
             {weightUnits.map(unit => (
               <option key={unit.value} value={unit.value}>
@@ -185,81 +302,135 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
             ))}
           </select>
         </div>
-        {errors.weight && (
-          <p className="mt-1 text-sm text-red-600">{errors.weight}</p>
+        {(validationErrors.weight || errors.weight) && (
+          <p className="mt-1 text-sm text-red-600">{validationErrors.weight || errors.weight}</p>
         )}
       </div>
 
       {/* Dimensions */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Dimensions
+          Dimensions *
         </label>
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label htmlFor="length" className="block text-xs text-gray-500 mb-1">
-              Length
+              Length *
             </label>
             <input
               type="number"
               id="length"
               value={dimensions.length}
-              onChange={(e) => onDimensionsChange('length', e.target.value)}
+              onChange={(e) => {
+                onDimensionsChange('length', e.target.value);
+                if (validationErrors.length) {
+                  const newErrors = { ...validationErrors };
+                  delete newErrors.length;
+                  setValidationErrors(newErrors);
+                }
+                setError(null);
+              }}
+              onBlur={() => {
+                const lengthValue = parseFloat(dimensions.length);
+                if (!dimensions.length || isNaN(lengthValue) || lengthValue <= 0) {
+                  setValidationErrors(prev => ({
+                    ...prev,
+                    length: !dimensions.length ? 'Length is required' : lengthValue <= 0 ? 'Length must be greater than 0' : 'Length must be a valid number'
+                  }));
+                }
+              }}
               step="0.01"
-              min="0"
+              min="0.01"
               className={`block w-full rounded-md shadow-sm sm:text-sm ${
-                errors.dimensions?.length
+                validationErrors.length || errors.dimensions?.length
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
               }`}
               placeholder="Length"
+              required
             />
-            {errors.dimensions?.length && (
-              <p className="mt-1 text-sm text-red-600">{errors.dimensions.length}</p>
+            {(validationErrors.length || errors.dimensions?.length) && (
+              <p className="mt-1 text-sm text-red-600">{validationErrors.length || errors.dimensions?.length}</p>
             )}
           </div>
           <div>
             <label htmlFor="width" className="block text-xs text-gray-500 mb-1">
-              Width
+              Width *
             </label>
             <input
               type="number"
               id="width"
               value={dimensions.width}
-              onChange={(e) => onDimensionsChange('width', e.target.value)}
+              onChange={(e) => {
+                onDimensionsChange('width', e.target.value);
+                if (validationErrors.width) {
+                  const newErrors = { ...validationErrors };
+                  delete newErrors.width;
+                  setValidationErrors(newErrors);
+                }
+                setError(null);
+              }}
+              onBlur={() => {
+                const widthValue = parseFloat(dimensions.width);
+                if (!dimensions.width || isNaN(widthValue) || widthValue <= 0) {
+                  setValidationErrors(prev => ({
+                    ...prev,
+                    width: !dimensions.width ? 'Width is required' : widthValue <= 0 ? 'Width must be greater than 0' : 'Width must be a valid number'
+                  }));
+                }
+              }}
               step="0.01"
-              min="0"
+              min="0.01"
               className={`block w-full rounded-md shadow-sm sm:text-sm ${
-                errors.dimensions?.width
+                validationErrors.width || errors.dimensions?.width
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
               }`}
               placeholder="Width"
+              required
             />
-            {errors.dimensions?.width && (
-              <p className="mt-1 text-sm text-red-600">{errors.dimensions.width}</p>
+            {(validationErrors.width || errors.dimensions?.width) && (
+              <p className="mt-1 text-sm text-red-600">{validationErrors.width || errors.dimensions?.width}</p>
             )}
           </div>
           <div>
             <label htmlFor="height" className="block text-xs text-gray-500 mb-1">
-              Height
+              Height *
             </label>
             <input
               type="number"
               id="height"
               value={dimensions.height}
-              onChange={(e) => onDimensionsChange('height', e.target.value)}
+              onChange={(e) => {
+                onDimensionsChange('height', e.target.value);
+                if (validationErrors.height) {
+                  const newErrors = { ...validationErrors };
+                  delete newErrors.height;
+                  setValidationErrors(newErrors);
+                }
+                setError(null);
+              }}
+              onBlur={() => {
+                const heightValue = parseFloat(dimensions.height);
+                if (!dimensions.height || isNaN(heightValue) || heightValue <= 0) {
+                  setValidationErrors(prev => ({
+                    ...prev,
+                    height: !dimensions.height ? 'Height is required' : heightValue <= 0 ? 'Height must be greater than 0' : 'Height must be a valid number'
+                  }));
+                }
+              }}
               step="0.01"
-              min="0"
+              min="0.01"
               className={`block w-full rounded-md shadow-sm sm:text-sm ${
-                errors.dimensions?.height
+                validationErrors.height || errors.dimensions?.height
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
               }`}
               placeholder="Height"
+              required
             />
-            {errors.dimensions?.height && (
-              <p className="mt-1 text-sm text-red-600">{errors.dimensions.height}</p>
+            {(validationErrors.height || errors.dimensions?.height) && (
+              <p className="mt-1 text-sm text-red-600">{validationErrors.height || errors.dimensions?.height}</p>
             )}
           </div>
         </div>
@@ -267,7 +438,7 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
           <select
             value={dimensionUnit}
             onChange={(e) => onShippingChange('dimensionUnit', e.target.value)}
-            className="block w-full rounded-md border-gray-300 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+            className="block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
           >
             {dimensionUnits.map(unit => (
               <option key={unit.value} value={unit.value}>
@@ -281,18 +452,35 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
       {/* Shipping Class */}
       <div>
         <label htmlFor="shippingClass" className="block text-sm font-medium text-gray-700">
-          Shipping Class
+          Shipping Class *
         </label>
         <div className="mt-1">
           <select
             id="shippingClass"
             value={shippingClass}
-            onChange={(e) => onShippingChange('shippingClass', e.target.value)}
+            onChange={(e) => {
+              onShippingChange('shippingClass', e.target.value);
+              if (validationErrors.shippingClass) {
+                const newErrors = { ...validationErrors };
+                delete newErrors.shippingClass;
+                setValidationErrors(newErrors);
+              }
+              setError(null);
+            }}
+            onBlur={() => {
+              if (!shippingClass || shippingClass === '') {
+                setValidationErrors(prev => ({
+                  ...prev,
+                  shippingClass: 'Shipping class is required'
+                }));
+              }
+            }}
             className={`block w-full rounded-md shadow-sm sm:text-sm ${
-              errors.shippingClass
+              validationErrors.shippingClass || errors.shippingClass
                 ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
+                : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
             }`}
+            required
           >
             <option value="">Select a shipping class</option>
             {shippingClasses.map(option => (
@@ -301,8 +489,8 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
               </option>
             ))}
           </select>
-          {errors.shippingClass && (
-            <p className="mt-1 text-sm text-red-600">{errors.shippingClass}</p>
+          {(validationErrors.shippingClass || errors.shippingClass) && (
+            <p className="mt-1 text-sm text-red-600">{validationErrors.shippingClass || errors.shippingClass}</p>
           )}
         </div>
       </div>
@@ -329,8 +517,9 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
       <div className="flex justify-end">
         <button
           onClick={handleUpdateShipping}
-          disabled={isLoading}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isLoading || !isFormValid()}
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+          title={!isFormValid() ? 'Please fill all required shipping fields correctly' : ''}
         >
           {isLoading ? 'Updating...' : 'Update Shipping'}
         </button>
@@ -339,4 +528,4 @@ const ShippingDetails: React.FC<ShippingDetailsProps> = ({
   );
 };
 
-export default ShippingDetails; 
+export default ShippingDetails;
