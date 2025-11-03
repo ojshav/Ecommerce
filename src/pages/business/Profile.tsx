@@ -6,16 +6,82 @@ import {
   EnvelopeIcon,
   PhoneIcon,
   MapPinIcon,
-  GlobeAltIcon
+  GlobeAltIcon,
+  CloudArrowUpIcon,
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+interface CountryConfig {
+  country_code: string;
+  country_name: string;
+  required_documents: Array<{
+    type: string;
+    name: string;
+    required: boolean;
+  }>;
+  field_validations: Record<string, { pattern: string; message: string }>;
+  bank_fields: string[] | Record<string, unknown>;
+  tax_fields: string[] | Record<string, unknown>;
+}
+
+interface DocumentUpload {
+  id: string;
+  file: File | null;
+  status: 'pending' | 'uploaded' | 'error';
+  required: boolean;
+  documentType: string;
+  name: string;
+  fileUrl?: string | null;
+}
+
+interface BusinessDetails {
+  gstin?: string;
+  panNumber?: string;
+  taxId?: string;
+  vatNumber?: string;
+  salesTaxNumber?: string;
+}
+
+interface BankDetails {
+  accountNumber: string;
+  bankName: string;
+  bankBranch?: string;
+  ifscCode?: string;
+  swiftCode?: string;
+  routingNumber?: string;
+  iban?: string;
+}
 
 const Profile = () => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState('IN');
+  const [countryConfig, setCountryConfig] = useState<CountryConfig | null>(null);
+  const [supportedCountries, setSupportedCountries] = useState<Array<{ code: string; name: string }>>([]);
+  const [documents, setDocuments] = useState<{ [key: string]: DocumentUpload }>({});
+  const [businessDetails, setBusinessDetails] = useState<BusinessDetails>({
+    gstin: '',
+    panNumber: '',
+    taxId: '',
+    vatNumber: '',
+    salesTaxNumber: ''
+  });
+  const [bankDetails, setBankDetails] = useState<BankDetails>({
+    accountNumber: '',
+    bankName: '',
+    bankBranch: '',
+    ifscCode: '',
+    swiftCode: '',
+    routingNumber: '',
+    iban: ''
+  });
   
   // Mock data - replace with actual user data
   const [profileData, setProfileData] = useState({
@@ -61,7 +127,7 @@ const Profile = () => {
       const p = data.profile || {};
       setProfileData(() => ({
         personalInfo: {
-          name: `${(user as any)?.first_name || ''} ${(user as any)?.last_name || ''}`.trim(),
+          name: `${(user as unknown as { first_name?: string; last_name?: string })?.first_name || ''} ${(user as unknown as { first_name?: string; last_name?: string })?.last_name || ''}`.trim(),
           email: user?.email || '',
           phone: p.business_phone || ''
         },
@@ -84,6 +150,25 @@ const Profile = () => {
           accountType: ''
         }
       }));
+
+      // Initialize verification-related states
+      setSelectedCountry(p.country_code || 'IN');
+      setBusinessDetails({
+        gstin: p.gstin || '',
+        panNumber: p.pan_number || '',
+        taxId: p.tax_id || '',
+        vatNumber: p.vat_number || '',
+        salesTaxNumber: p.sales_tax_number || ''
+      });
+      setBankDetails({
+        accountNumber: p.bank_account_number || '',
+        bankName: p.bank_name || '',
+        bankBranch: p.bank_branch || '',
+        ifscCode: p.bank_ifsc_code || '',
+        swiftCode: p.bank_swift_code || '',
+        routingNumber: p.bank_routing_number || '',
+        iban: p.bank_iban || ''
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load profile');
     } finally {
@@ -96,6 +181,100 @@ const Profile = () => {
     else setLoading(false);
   }, []);
 
+  // Supported countries
+  useEffect(() => {
+    const fetchSupportedCountries = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/merchants/supported-countries`);
+        if (!response.ok) throw new Error('Failed to fetch supported countries');
+        const data = await response.json();
+        setSupportedCountries(data.countries);
+      } catch (err) {
+        // silent; profile can still work
+      }
+    };
+    fetchSupportedCountries();
+  }, []);
+
+  // Country config and documents
+  useEffect(() => {
+    const fetchCountryConfig = async () => {
+      if (!selectedCountry) return;
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/merchants/country-config/${selectedCountry}`);
+        if (!response.ok) throw new Error('Failed to fetch country configuration');
+        const config: CountryConfig = await response.json();
+
+        // Align requirements: only pan_card and aadhar required
+        const transformedRequiredDocs = (config.required_documents || []).map(doc => ({
+          ...doc,
+          required: doc.type === 'pan_card' || doc.type === 'aadhar'
+        }));
+        const transformedConfig: CountryConfig = { ...config, required_documents: transformedRequiredDocs };
+        setCountryConfig(transformedConfig);
+
+        const newDocuments: { [key: string]: DocumentUpload } = {};
+        transformedConfig.required_documents.forEach(doc => {
+          newDocuments[doc.type] = {
+            id: doc.type,
+            file: null,
+            status: 'pending',
+            required: doc.required,
+            documentType: doc.type,
+            name: doc.name,
+            fileUrl: null
+          };
+        });
+        setDocuments(newDocuments);
+      } catch (err) {
+        // silent; section remains hidden if config missing
+      }
+    };
+    fetchCountryConfig();
+  }, [selectedCountry]);
+
+  const toDisplayName = (type: string) => type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const fetchExistingDocuments = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/merchant/documents`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) return; // silently ignore
+      const data = await res.json();
+      const list: Array<{ document_type: string; file_url: string } & Record<string, unknown>> = data.documents || [];
+      if (!Array.isArray(list)) return;
+      setDocuments(prev => {
+        const merged = { ...prev } as { [key: string]: DocumentUpload };
+        list.forEach((d) => {
+          const key = d.document_type;
+          const existing = merged[key];
+          const name = existing?.name || toDisplayName(key);
+          merged[key] = {
+            id: key,
+            file: existing?.file || null,
+            status: 'uploaded',
+            required: existing?.required ?? false,
+            documentType: key,
+            name,
+            fileUrl: d.file_url as string
+          };
+        });
+        return merged;
+      });
+    } catch (_) {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    // Once country config is ready, overlay any previously uploaded docs
+    if (countryConfig) {
+      fetchExistingDocuments();
+    }
+  }, [countryConfig]);
+
   const handleSave = async () => {
     try {
       setError(null);
@@ -104,14 +283,24 @@ const Profile = () => {
         business_description: profileData.businessInfo.businessType,
         business_phone: profileData.personalInfo.phone,
         business_address: profileData.businessInfo.address,
-        country_code: profileData.businessInfo.country,
+        country_code: selectedCountry || profileData.businessInfo.country,
         state_province: profileData.businessInfo.state,
         city: profileData.businessInfo.city,
         postal_code: profileData.businessInfo.zipCode,
-        bank_account_number: profileData.accountInfo.accountNumber,
-        bank_name: profileData.accountInfo.bankName,
-        bank_branch: profileData.accountInfo.branchName,
-        bank_ifsc_code: profileData.accountInfo.ifscCode
+        // Bank details
+        bank_account_number: bankDetails.accountNumber || profileData.accountInfo.accountNumber,
+        bank_name: bankDetails.bankName || profileData.accountInfo.bankName,
+        bank_branch: bankDetails.bankBranch || profileData.accountInfo.branchName,
+        bank_ifsc_code: bankDetails.ifscCode || profileData.accountInfo.ifscCode,
+        bank_swift_code: bankDetails.swiftCode || undefined,
+        bank_routing_number: bankDetails.routingNumber || undefined,
+        bank_iban: bankDetails.iban || undefined,
+        // Business details
+        pan_number: businessDetails.panNumber || undefined,
+        gstin: businessDetails.gstin || undefined,
+        tax_id: businessDetails.taxId || undefined,
+        vat_number: businessDetails.vatNumber || undefined,
+        sales_tax_number: businessDetails.salesTaxNumber || undefined
       };
       const res = await fetch(`${API_BASE_URL}/api/merchants/profile`, {
         method: 'PUT',
@@ -126,6 +315,84 @@ const Profile = () => {
       await fetchProfile();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to update profile');
+    }
+  };
+
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCountry(e.target.value);
+  };
+
+  const handleBusinessDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setBusinessDetails(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleBankDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setBankDetails(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = async (documentId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!token) {
+      toast.error('Please log in to upload documents');
+      return;
+    }
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Invalid file type. Please upload PDF, JPEG, or PNG files only.');
+        e.target.value = '';
+        return;
+      }
+      const maxSize = 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+        toast.error('File size too large. Maximum size is 10MB.');
+        e.target.value = '';
+        return;
+      }
+      const toastId = toast.loading(`Uploading ${file.name}...`);
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('document_type', documents[documentId].documentType);
+        formData.append('country_code', selectedCountry);
+        const response = await fetch(`${API_BASE_URL}/api/merchant/documents/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to upload document');
+        }
+        const data = await response.json();
+        setDocuments(prev => ({
+          ...prev,
+          [documentId]: {
+            ...prev[documentId],
+            file,
+            status: 'uploaded',
+            fileUrl: data.document.file_url
+          }
+        }));
+        toast.success(`${documents[documentId].name} uploaded successfully`, { id: toastId });
+      } catch (err) {
+        setDocuments(prev => ({
+          ...prev,
+          [documentId]: {
+            ...prev[documentId],
+            file,
+            status: 'error',
+            fileUrl: prev[documentId].fileUrl
+          }
+        }));
+        toast.error(err instanceof Error ? err.message : 'Failed to upload document', { id: toastId });
+      } finally {
+        if (e.target) e.target.value = '';
+      }
     }
   };
 
@@ -236,6 +503,245 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Verification Details */}
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 sm:p-8">
+              <div className="flex items-center space-x-2 mb-6">
+                <BuildingOfficeIcon className="w-6 h-6 text-orange-500" />
+                <h2 className="text-xl font-semibold text-gray-900">Verification Details</h2>
+              </div>
+
+              {/* Country */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                <select
+                  value={selectedCountry}
+                  onChange={handleCountryChange}
+                  disabled={!isEditing}
+                  className="block w-full max-w-md rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                >
+                  {supportedCountries.map(country => (
+                    <option key={country.code} value={country.code}>{country.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Business details conditional */}
+              {selectedCountry === 'IN' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">PAN Number<span className="text-red-500"> *</span></label>
+                    <input
+                      type="text"
+                      name="panNumber"
+                      value={businessDetails.panNumber || ''}
+                      onChange={handleBusinessDetailsChange}
+                      disabled={!isEditing}
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
+                      placeholder="ABCDE1234F"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">GSTIN</label>
+                    <input
+                      type="text"
+                      name="gstin"
+                      value={businessDetails.gstin || ''}
+                      onChange={handleBusinessDetailsChange}
+                      disabled={!isEditing}
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
+                      placeholder="22AAAAA0000A1Z5"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tax ID</label>
+                    <input
+                      type="text"
+                      name="taxId"
+                      value={businessDetails.taxId || ''}
+                      onChange={handleBusinessDetailsChange}
+                      disabled={!isEditing}
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">VAT Number</label>
+                    <input
+                      type="text"
+                      name="vatNumber"
+                      value={businessDetails.vatNumber || ''}
+                      onChange={handleBusinessDetailsChange}
+                      disabled={!isEditing}
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Bank details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Account Number<span className="text-red-500"> *</span></label>
+                  <input
+                    type="text"
+                    name="accountNumber"
+                    value={bankDetails.accountNumber || ''}
+                    onChange={handleBankDetailsChange}
+                    disabled={!isEditing}
+                    className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name<span className="text-red-500"> *</span></label>
+                  <input
+                    type="text"
+                    name="bankName"
+                    value={bankDetails.bankName || ''}
+                    onChange={handleBankDetailsChange}
+                    disabled={!isEditing}
+                    className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
+                  />
+                </div>
+                {selectedCountry === 'IN' ? (
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">IFSC Code<span className="text-red-500"> *</span></label>
+                    <input
+                      type="text"
+                      name="ifscCode"
+                      value={bankDetails.ifscCode || ''}
+                      onChange={handleBankDetailsChange}
+                      disabled={!isEditing}
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
+                      placeholder="SBIN0001234"
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">SWIFT/BIC</label>
+                      <input
+                        type="text"
+                        name="swiftCode"
+                        value={bankDetails.swiftCode || ''}
+                        onChange={handleBankDetailsChange}
+                        disabled={!isEditing}
+                        className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Routing Number</label>
+                      <input
+                        type="text"
+                        name="routingNumber"
+                        value={bankDetails.routingNumber || ''}
+                        onChange={handleBankDetailsChange}
+                        disabled={!isEditing}
+                        className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">IBAN</label>
+                      <input
+                        type="text"
+                        name="iban"
+                        value={bankDetails.iban || ''}
+                        onChange={handleBankDetailsChange}
+                        disabled={!isEditing}
+                        className="block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-50 disabled:text-gray-500"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Documents */}
+              {countryConfig && (
+                <div className="mt-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Documents</h3>
+                  <div className="space-y-6">
+                    {Object.values(documents).map((doc) => (
+                      <div key={doc.id} className="bg-white p-4 rounded-lg border">
+                        <label className="block mb-2 font-medium text-gray-700">
+                          {doc.name}
+                          {doc.required && <span className="text-red-500 ml-1">*</span>}
+                        </label>
+                        {doc.status === 'uploaded' && doc.fileUrl ? (
+                          <div className="mt-1">
+                            <div className="flex items-center p-2 bg-green-50 border border-green-200 rounded-md">
+                              <CheckCircleIcon className="h-5 w-5 mr-2 text-green-600 flex-shrink-0" />
+                              <p className="text-sm text-green-700 font-medium truncate flex-grow">
+                                Uploaded
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-3 mt-2">
+                              <button
+                                type="button"
+                                onClick={() => window.open(doc.fileUrl as string, '_blank', 'noopener,noreferrer')}
+                                className="text-sm text-orange-600 hover:text-orange-700 font-medium py-1 px-2 rounded-md hover:bg-orange-50 transition-colors"
+                                disabled={!isEditing}
+                              >
+                                View
+                              </button>
+                              <label className={`mt-2 text-sm font-medium py-1 px-2 rounded-md transition-colors ${!isEditing ? 'text-gray-400 cursor-not-allowed' : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50 cursor-pointer'}`}>
+                                Update
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  accept=".pdf,.jpg,.jpeg,.png"
+                                  onChange={(e) => isEditing && handleFileChange(doc.id, e)}
+                                  disabled={!isEditing}
+                                />
+                              </label>
+                            </div>
+                            <p className="mt-1 text-xs text-gray-500">PDF, JPG, PNG (Max 10MB)</p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center">
+                              <label className={`
+                                flex justify-center items-center px-4 py-2 border-2 rounded-md 
+                                ${doc.status === 'error' ? 'border-red-300 bg-red-50 text-red-600' : 'border-gray-300 bg-white text-gray-600'}
+                                ${!isEditing ? 'cursor-not-allowed opacity-70' : 'hover:bg-gray-50 cursor-pointer'}
+                                w-full max-w-xs 
+                              `}
+                              >
+                                {doc.status === 'error' ? (
+                                  <span className="flex items-center">
+                                    <ExclamationCircleIcon className="h-5 w-5 mr-2" />
+                                    Upload failed. Retry?
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center">
+                                    <CloudArrowUpIcon className="h-5 w-5 mr-2" />
+                                    Upload File
+                                  </span>
+                                )}
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  accept=".pdf,.jpg,.jpeg,.png"
+                                  onChange={(e) => isEditing && handleFileChange(doc.id, e)}
+                                  disabled={!isEditing}
+                                />
+                              </label>
+                            </div>
+                            {doc.status === 'error' && (
+                              <p className="mt-1 text-sm text-red-600">Please try uploading again.</p>
+                            )}
+                            <p className="mt-1 text-xs text-gray-500">PDF, JPG, PNG (Max 10MB)</p>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
