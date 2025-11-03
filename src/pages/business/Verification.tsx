@@ -205,11 +205,22 @@ const Verification: React.FC = () => {
 
         if (!response.ok) throw new Error('Failed to fetch country configuration');
         const config = await response.json();
-        setCountryConfig(config);
+
+        // Force only PAN Card and Aadhar to be required; others optional
+        const transformedRequiredDocs = (config.required_documents || []).map((doc: { type: string; name: string; required: boolean }) => ({
+          ...doc,
+          required: doc.type === 'pan_card' || doc.type === 'aadhar'
+        }));
+
+        const transformedConfig: CountryConfig = {
+          ...config,
+          required_documents: transformedRequiredDocs
+        };
+        setCountryConfig(transformedConfig);
 
         const newDocuments: { [key: string]: DocumentUpload } = {};
-        if (config.required_documents) {
-          config.required_documents.forEach((doc: { type: string; name: string; required: boolean }) => {
+        if (transformedConfig.required_documents) {
+          transformedConfig.required_documents.forEach((doc: { type: string; name: string; required: boolean }) => {
             newDocuments[doc.type] = {
               id: doc.type,
               file: null,
@@ -372,20 +383,16 @@ const Verification: React.FC = () => {
 
     const currentValidationErrors: ValidationErrors = {};
     const requiredFieldsMap = {
-      'IN': ['panNumber', 'gstin', 'accountNumber', 'bankName', 'ifscCode'], // Added common ones
-      // Define for other countries or a 'GLOBAL' default if applicable
-      // For example, if 'US' is a country code:
-      // 'US': ['taxId', 'accountNumber', 'bankName', 'swiftCode', 'routingNumber'], 
+      'IN': ['panNumber', 'accountNumber', 'bankName', 'ifscCode']
     };
-    // Fallback to a general set if country not in map, or handle specific else case
-    const defaultRequiredFields = ['taxId', 'accountNumber', 'bankName', 'swiftCode'];
+    // Fallback: only require core bank details for non-IN
+    const defaultRequiredFields = ['accountNumber', 'bankName'];
 
 
     // Validate required text fields based on country
     let fieldsToValidate = requiredFieldsMap[selectedCountry as keyof typeof requiredFieldsMap] || defaultRequiredFields;
     if (selectedCountry !== 'IN') { // Generic non-India case
-      fieldsToValidate = ['taxId', 'accountNumber', 'bankName', 'swiftCode'];
-      // Add routingNumber as optional or conditionally required for specific non-IN countries
+      fieldsToValidate = ['accountNumber', 'bankName'];
     }
 
 
