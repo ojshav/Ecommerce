@@ -27,7 +27,7 @@ const Footer = () => (
         <div className="flex flex-col gap-2 sm:gap-4">
           <Link to="/shop3/refund" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">REFUND</Link>
           <Link to="/shop3" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">SHOP</Link>
-          <Link to="/shop3/size-chart" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">SIZE CHART</Link>
+          {/* <Link to="/shop3/size-chart" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">SIZE CHART</Link> */}
           <Link to="/shop3/blog" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">BLOG</Link>
           <Link to="/shop3/about" className="text-white font-bold text-base text-[16px] hover:text-[#CCFF00]">ABOUT</Link>
         </div>

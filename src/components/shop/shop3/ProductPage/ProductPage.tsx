@@ -908,9 +908,9 @@ const ProductPage: React.FC = () => {
             <button className="text-white font-openSans underline text-left">
               Product details
             </button>
-            <button className="text-white font-openSans underline text-left">
+            {/* <button className="text-white font-openSans underline text-left">
               Size guide
-            </button>
+            </button> */}
           </div>
 
           {/* Color Selection */}
@@ -952,7 +952,7 @@ const ProductPage: React.FC = () => {
           </div>
 
           {/* Size Selection */}
-          <div className="mb-4 flex justify-center">
+          {/* <div className="mb-4 flex justify-center">
             <div className="relative w-full sm:w-3/4 lg:w-full">
               <button
                 onClick={() => setIsSizeDropdownOpen(!isSizeDropdownOpen)}
@@ -997,7 +997,7 @@ const ProductPage: React.FC = () => {
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Combination Error Message */}
           {stockError && (
@@ -1025,7 +1025,7 @@ const ProductPage: React.FC = () => {
                 return stockQty <= 0;
               })()
                 ? 'bg-gray-600 border-gray-400 text-gray-300 cursor-not-allowed'
-                : 'bg-black border-white text-white hover:bg-gray-800'
+                : 'bg-[#CCFF00] border-white text-black hover:bg-gray-800'
             }`}
           >
             {isAddingToCart ? 'Adding...' : (() => {
