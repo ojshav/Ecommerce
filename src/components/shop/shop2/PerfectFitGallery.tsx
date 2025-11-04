@@ -1,6 +1,6 @@
 export default function PerfectFitGallery() {
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-12">
+    <div className="w-full max-w-7xl mx-auto px-4 py-24">
       <h2 className="text-4xl font-bold text-gray-600 text-center mb-8">
         FIND THE PERFECT FIT
       </h2>
