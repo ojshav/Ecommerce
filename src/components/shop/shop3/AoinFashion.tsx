@@ -1,8 +1,8 @@
 import React from 'react';
 
-const IMAGE1_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Image3.svg";
-const IMAGE2_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Image4.svg";
-const IMAGE3_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Image5.svg";
+const IMAGE1_URL = "https://belvish.com/cdn/shop/files/Men_Fragrances_Website_Banner_4_2_1.jpg?v=1728633851&width=1066";
+const IMAGE2_URL = "https://fraganote.com/cdn/shop/files/1_14.webp?v=1761807753&width=823";
+const IMAGE3_URL = "https://belvish.com/cdn/shop/files/Women_Fragrances_Website_Banner_4_2_1.jpg?v=1728634066&width=1066";
 const UNION_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Union.svg";
 
 const AoinFashion: React.FC = () => {
@@ -17,10 +17,10 @@ const AoinFashion: React.FC = () => {
       {/* Main Centered Content */}
       <div className="mx-auto max-w-[1440px] w-full px-2 sm:px-4 flex flex-col items-center">
         {/* Heading */}
-        <h1 className="animate-color-cycle text-white text-[32px] sm:text-[48px] md:text-[72px] lg:text-[104px] font-bebas font-normal text-center leading-[90%] tracking-[-1.5px] sm:tracking-[-2px] md:tracking-[-3.12px] uppercase mb-6 sm:mb-10 md:mb-12">
-          AOIN PROVIDES A VARIETY OF WORLD
+        <h1 className=" text-white text-[32px] sm:text-[48px] md:text-[72px] lg:text-[104px] font-bebas font-normal text-center leading-[90%] tracking-[-1.5px] sm:tracking-[-2px] md:tracking-[-3.12px] uppercase mb-6 sm:mb-10 md:mb-12">
+          AOIN CRAFTS A WORLD OF FRAGRANCE
           <br />
-          FASHION TO YOUR STYLES
+          TO DEFINE YOUR STYLE.
         </h1>
 
         {/* Images Row */}
@@ -61,7 +61,7 @@ const AoinFashion: React.FC = () => {
               alt="Aoin Fashion 2"
               className="object-cover w-full h-full"
             />
-            <span className="absolute animate-color-cycle text-[20px] sm:text-[28px] md:text-[44px] lg:text-[68px] font-bebas font-extrabold tracking-widest" style={{letterSpacing: '0.01em'}}>AOIN</span>
+            <span className="absolute text-[#d4ff00] text-[20px] sm:text-[28px] md:text-[44px] lg:text-[68px] font-bebas font-extrabold tracking-widest" style={{letterSpacing: '0.01em'}}>AOIN</span>
           </div>
           {/* Right Square Image */}
           <div className="hidden md:block rounded-3xl overflow-hidden w-[427px] h-[427px] flex-shrink-0 shadow-lg z-20">
@@ -75,13 +75,14 @@ const AoinFashion: React.FC = () => {
 
         {/* Description Text */}
         <div className="w-full max-w-[95vw] sm:max-w-[569px] text-white font-clash text-[14px] sm:text-[16px] self-center md:self-start font-medium tracking-wide leading-relaxed mt-2 sm:mt-4 ml-0 xl:ml-8 sm:px-0 px-2">
-          <p className="mb-3 sm:mb-5">
-            AT FIRST GLANCE, WE PRIDE OURSELVES ON OFFERING A WORLD WIDE AND CAPTIVATING SELECTION OF FASHION STYLES THAT MATCH YOUR PERSONAL STYLE. OUR CAREFULLY SELECTED RANGE OF CLOTHING,
-          </p>
-          <p>
-            ACCESSORIES AND FOOTWEAR IS DESIGNED TO SUIT ALL TASTES, WHETHER YOU PREFER CONTEMPORARY MINIMALISM OR BOHEMIAN EXTRAVAGANCE.
-          </p>
-        </div>
+  <p className="mb-3 sm:mb-5">
+    AT FIRST BREATH, WE CELEBRATE THE ART OF FRAGRANCE — CRAFTING CAPTIVATING SCENTS THAT REFLECT YOUR TRUE ESSENCE. OUR COLLECTION EMBRACES THE ELEGANCE OF TIMELESS LUXURY AND THE ALLURE OF MODERN SOPHISTICATION.
+  </p>
+  <p>
+    EACH PERFUME IS METICULOUSLY BLENDED USING THE FINEST NOTES, DESIGNED TO AWAKEN EMOTION AND LEAVE A LASTING IMPRESSION — BECAUSE YOUR SCENT DESERVES TO BE AS UNIQUE AS YOU ARE.
+  </p>
+</div>
+
       </div>
     </div>
   );

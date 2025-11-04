@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const IMAGE1_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component4_Image1.svg";
+const IMAGE1_URL = "https://t3.ftcdn.net/jpg/03/30/61/44/360_F_330614468_BLUdekJB2yjLTVxuyjqgzWf0pEE7kQxm.jpg";
 
 const SydneyCity: React.FC = () => {
   return (
@@ -34,18 +34,22 @@ const SydneyCity: React.FC = () => {
         <div className="relative z-20 flex flex-1 flex-col lg:flex-row items-center justify-between mt-64 sm:mt-64 md:mt-56 lg:mt-64 px-4 sm:px-6 lg:px-10 h-full">
           {/* Left: Big Heading */}
           <div className="flex-1 flex w-full lg:w-[592px] flex-col lg:ml-8 justify-center">
-            <h1 className="text-white font-normal font-bebas text-[60px] sm:text-[80px] md:text-[100px] lg:text-[120px] leading-[80%] hover:text-[#CCFF00] tracking-tight uppercase text-center lg:text-left" >
-              SYDNEY CITY:<br />
-              INSIDE LOOK<br />
-              SUMMER<br />
-              FASHION - 2023.
-            </h1>
-          </div>
+  <h1
+    className="text-white font-normal font-bebas text-[60px] sm:text-[80px] md:text-[100px] lg:text-[120px] leading-[80%] hover:text-[#CCFF00] tracking-tight uppercase text-center lg:text-left"
+  >
+    AOIN SCENTS:<br />
+    INSIDE LUXURY<br />
+    SUMMER<br />
+    COLLECTION - 2025.
+  </h1>
+</div>
+
           {/* Right: Description and Button */}
           <div className="w-full lg:w-[565px] flex flex-col justify-center items-center lg:items-start mt-6 sm:mt-8 lg:mt-10 lg:-mb-80">
             <div className="bg-transparent text-white text-[14px] sm:text-[15px] lg:text-[16px] font-clash font-bold p-0 mb-4 sm:mb-6 text-center lg:text-left max-w-[500px] lg:max-w-none">
-              "SYDNEY CITY: INSIDE LOOK SUMMER FASHION - 2023" IS YOUR ULTIMATE GUIDE TO EMBRACING THE ESSENCE OF SYDNEY SUMMER FASHION STYLE. SO GRAB YOUR SUNNIES AND GET READY TO BE INSPIRED BY THE THRILLING FASHION SHOW SCENE IN ONE OF AUSTRALIA'S MOST ICONIC CITIES.
-            </div>
+  "AOIN SCENTS: INSIDE LUXURY SUMMER COLLECTION - 2025" INVITES YOU TO INDULGE IN THE ESSENCE OF SUMMER THROUGH FRAGRANCES THAT CAPTURE SUN-KISSED ELEGANCE AND TIMELESS SOPHISTICATION. IMMERSE YOURSELF IN A WORLD WHERE EVERY NOTE TELLS A STORY — A CELEBRATION OF SCENT, STYLE, AND EMOTION.
+</div>
+
             <Link to="/shop3-allproductpage">
               <button className="border border-white text-white px-6 sm:px-4 lg:px-4 py-2 rounded-full text-[12px] sm:text-[13px] lg:text-[14px] font-bold hover:bg-[#3D5914] font-clash transition-colors duration-300">
                 EXPLORE COLLECTION

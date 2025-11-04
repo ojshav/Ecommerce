@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const IMAGE1_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Component3_Image1.svg";
+const IMAGE1_URL = "https://belvish.com/cdn/shop/products/noir-ambre.jpg?v=1705602147&width=990";
 const UNION_URL = "https://res.cloudinary.com/do3vxz4gw/image/upload/v1751544854/svg_assets/Shop3_Union.svg";
 
 const AoinMasteriece: React.FC = () => {
@@ -59,19 +59,23 @@ const AoinMasteriece: React.FC = () => {
           </div>
           {/* Right: Text Content */}
           <div className="flex flex-col items-center md:items-start justify-center w-full max-w-full md:max-w-lg mt-2 md:mt-0 text-center md:text-left">
-            <h1 className="aoin-animated-title text-white text-[36px] sm:text-[56px] md:text-[104px] font-normal font-bebas leading-none mb-8 sm:mb-16 md:mb-32 uppercase tracking-tight" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-              AOIN<br />MASTERIECE
-            </h1>
-            <p className="text-white text-[14px] sm:text-[16px] font-clash md:text-[16px] font-semibold mb-4 sm:mb-4 leading-relaxed">
-              WITH OUR MASTERPIECE COLLECTION, WE HAVE CURATED A SERIES OF EXQUISITE AND EXTRAORDINARY EXCLUSIVE PIECES THAT SHOWCASE THE BEST OF CRAFTSMANSHIP AND DESIGN.<br /><br />
-              EVERY ITEM IS CAREFULLY SELECTED TO CAPTIVATE AND INSPIRE, MAKING YOU FEEL LIKE A WALKING MASTERPIECE FASHION
-            </p>
-            <Link to="/shop3-allproductpage">
-              <button className="mt-2 px-5 py-2 border border-white rounded-full text-white font-normal text-[14px] font-clash hover:bg-[#3D5914] transition-colors duration-300">
-                EXPLORE COLLECTION
-              </button>
-            </Link>
-          </div>
+  <h1
+    className="aoin-animated-title text-white text-[36px] sm:text-[56px] md:text-[104px] font-normal font-bebas leading-none mb-8 sm:mb-16 md:mb-32 uppercase tracking-tight"
+    style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+  >
+    AOIN<br />MASTERPIECE
+  </h1>
+  <p className="text-white text-[14px] sm:text-[16px] font-clash md:text-[16px] font-semibold mb-4 sm:mb-4 leading-relaxed">
+    WITH OUR MASTERPIECE COLLECTION, WE HAVE CREATED A SELECTION OF ICONIC FRAGRANCES THAT EMBODY ELEGANCE, PASSION, AND REFINEMENT.<br /><br />
+    EACH SCENT IS AN ART FORM — CRAFTED WITH RARE INGREDIENTS AND TIMELESS CRAFTSMANSHIP TO AWAKEN YOUR SENSES AND LEAVE AN UNFORGETTABLE IMPRESSION.
+  </p>
+  <Link to="/shop3-allproductpage">
+    <button className="mt-2 px-5 py-2 border border-white rounded-full text-white font-normal text-[14px] font-clash hover:bg-[#3D5914] transition-colors duration-300">
+      EXPLORE COLLECTION
+    </button>
+  </Link>
+</div>
+
         </div>
       </div>
     </div>
