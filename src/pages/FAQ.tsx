@@ -85,8 +85,8 @@ const FAQ: React.FC = () => {
           <div className="mt-12 text-center">
             <p className="text-gray-600">
               {t('faq.contact')}{' '}
-              <a href="mailto:auoinstore@gmail.com" className="text-[#FF4D00] hover:text-[#FF4D00]/90">
-                auoinstore@gmail.com
+              <a href="mailto:infoaoinstore@gmail.com" className="text-[#FF4D00] hover:text-[#FF4D00]/90">
+                infoaoinstore@gmail.com
               </a>
             </p>
           </div>

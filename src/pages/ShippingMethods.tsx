@@ -136,7 +136,7 @@ const ShippingMethods: React.FC = () => {
               </p>
               <div className="space-x-4">
                 <a 
-                  href="mailto:auoinstore@gmail.com" 
+                  href="mailto:infoaoinstore@gmail.com" 
                   className="inline-flex items-center text-[#FF4D00] hover:text-[#FF4D00]/90"
                 >
                   <span className="underline">Email Support</span>

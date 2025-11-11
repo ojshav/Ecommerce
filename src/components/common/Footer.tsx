@@ -72,7 +72,7 @@ const Footer: React.FC = () => {
               </div>
                               <div className="flex items-center space-x-3">
                   <Mail size={16} className="text-[#161616] flex-shrink-0" />
-                  <a href="mailto:auoinstore@gmail.com" className="text-[#F2631F] hover:underline transition-colors">auoinstore@gmail.com</a>
+                  <a href="mailto:infoaoinstore@gmail.com" className="text-[#F2631F] hover:underline transition-colors">infoaoinstore@gmail.com</a>
                 </div>
             </div>
           </div>
@@ -124,7 +124,7 @@ const Footer: React.FC = () => {
               <li><Link to="/shipping" className="hover:text-[#F2631F] transition-colors">{t('footer.shippingMethods')}</Link></li>
                               <li className="mt-2">
                   <div>{t('footer.mailUs')}</div>
-                  <a href="mailto:auoinstore@gmail.com" className="text-[#F2631F] hover:underline transition-colors">auoinstore@gmail.com</a>
+                  <a href="mailto:infoaoinstore@gmail.com" className="text-[#F2631F] hover:underline transition-colors">infoaoinstore@gmail.com</a>
                 </li>
             </ul>
           </div>

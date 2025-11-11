@@ -187,7 +187,7 @@ const Header: React.FC = () => {
         <div className='w-full'>
           <div className="flex flex-col sm:flex-row justify-between items-center text-sm max-w-[1440px] mx-auto px-4 sm:px-8 md:px-14 lg:px-16 py-2 border-b bg-white gap-2 sm:gap-0">
             <div className="flex items-center max-w-[1080px] gap-2 md:gap-10 lg:gap-32">
-              <a href="mailto:auoinstore@gmail.com" className="hover:underline"><MailIcon />auoinstore@gmail.com</a>
+              <a href="mailto:infoaoinstore@gmail.com" className="hover:underline"><MailIcon />infoaoinstore@gmail.com</a>
               <a href="tel:+7879702202" className="hover:underline"><PhoneIcon />+91 7879702202</a>
             </div>
             <div className="flex items-center gap-4 md:gap-8 lg:gap-16 sm:mr-20 md:mr-10 lg:mr-40">
