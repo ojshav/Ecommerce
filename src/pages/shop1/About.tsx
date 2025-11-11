@@ -215,7 +215,7 @@ const About: React.FC = () => {
               Contact Us
             </Link>
             <a 
-              href="mailto:auoinstore@gmail.com" 
+              href="mailto:infoaoinstore@gmail.com" 
               className="border-2 border-white text-white px-8 py-3 rounded-lg font-poppins font-semibold hover:bg-white hover:text-[#062229] transition-colors"
             >
               Email Us

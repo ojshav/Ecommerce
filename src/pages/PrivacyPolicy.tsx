@@ -313,7 +313,7 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-xl sm:text-2xl font-medium text-[#FF4D00] mb-3 sm:mb-4">Contact Us</h2>
             <p className="text-gray-700 mb-4 text-sm sm:text-base">
-              If you have any query related to Privacy policy feel free to contact us on <span className="text-[#F2631F]">auoinstore@gmail.com</span>
+              If you have any query related to Privacy policy feel free to contact us on <span className="text-[#F2631F]">infoaoinstore@gmail.com</span>
             </p>
           </section>
         </div>

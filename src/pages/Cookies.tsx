@@ -99,13 +99,13 @@ const CookiesPage: React.FC = () => {
             
             <h2>Where Can I Get Further Information?</h2>
             <p>
-              If you have any questions about our use of cookies or other technologies, please email us at auoinstore@gmail.com or contact us at:
+              If you have any questions about our use of cookies or other technologies, please email us at infoaoinstore@gmail.com or contact us at:
             </p>
             <p>
               <strong>Aoin</strong><br />
               789 Fashion Avenue, Suite 1000<br />
               New York, NY 10018<br />
-              Phone: auoinstore@gmail.com
+              Phone: infoaoinstore@gmail.com
             </p>
           </div>
         </div>
