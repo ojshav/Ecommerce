@@ -55,7 +55,7 @@ const AoinJoinUs: React.FC = () => {
               WHEN AN UNKNOWN PRINTER TOOK A GALLEY OF TYPE AND SCRAMBLED IT TO MAKE A TYPE SPECIMEN BOOK.
             </p>
             <Link 
-              to="https://www.instagram.com/aoin.in/?igsh=NGk3dml2ZHk2cjM4#"
+              to="https://www.instagram.com/aoinstore/"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-border-white text-white font-normal py-1.5 sm:py-2 px-4 rounded-full text-xs sm:text-sm shadow font-clash transition-colors duration-300 border border-white hover:bg-[#3D5914] inline-block"
