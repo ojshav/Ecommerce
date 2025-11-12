@@ -135,7 +135,7 @@ const Footer: React.FC = () => {
             <div className="flex space-x-4 lg:space-x-5 mb-4 lg:mb-6">
               <a href="https://x.com/AOIN111111" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Twitter size={18} className="sm:w-5 sm:h-5" /></a>
               <a href="https://www.facebook.com/profile.php?id=61578809217780" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Facebook size={18} className="sm:w-5 sm:h-5" /></a>
-              <a href="https://www.instagram.com/aoin.in?igsh=NGk3dml2ZHk2cjM4" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Instagram size={18} className="sm:w-5 sm:h-5" /></a>
+              <a href="https://www.instagram.com/aoinstore/" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Instagram size={18} className="sm:w-5 sm:h-5" /></a>
               <a href="https://www.linkedin.com/company/aoinstore" target="_blank" rel="noopener noreferrer" className="text-[#F2631F] transition-colors"><Linkedin size={18} className="sm:w-5 sm:h-5" /></a>
             </div>
             {/* Email Subscription */}

@@ -20,7 +20,7 @@ const InstagramPromo = () => {
             There's something for every taste and occasion
           </p>
           <a
-            href="https://www.instagram.com/aoin_store/"
+            href="https://www.instagram.com/aoinstore/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex font-poppins items-center gap-2 border border-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-white text-lg sm:text-xl md:text-[22px] font-semibold hover:bg-white hover:text-black transition duration-300"

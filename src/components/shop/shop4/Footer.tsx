@@ -71,7 +71,7 @@ const Footer = () => {
               <a href="https://x.com/AOIN111111" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">
                 <Twitter size={20} />
               </a>
-              <a href="https://www.instagram.com/aoin.in?igsh=NGk3dml2ZHk2cjM4" target="_blank" rel="noopener noreferrer" className="text-pink-500 hover:text-pink-400 transition-colors">
+              <a href="https://www.instagram.com/aoinstore/" target="_blank" rel="noopener noreferrer" className="text-pink-500 hover:text-pink-400 transition-colors">
                 <Instagram size={20} />
               </a>
 

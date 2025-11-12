@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAmazonTranslate } from '../../hooks/useAmazonTranslate';
 
@@ -18,6 +18,18 @@ interface CategoryDropdownProps {
   closeDropdown?: () => void;
   isMobile?: boolean;
 }
+
+const collectAllCategories = (categories: Category[]): Category[] => {
+  const collected: Category[] = [];
+  const traverse = (category: Category) => {
+    collected.push(category);
+    if (category.children && category.children.length > 0) {
+      category.children.forEach(traverse);
+    }
+  };
+  categories.forEach(traverse);
+  return collected;
+};
 
 const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdown, isMobile = false }) => {
   const navigate = useNavigate();
@@ -53,14 +65,19 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
         setTranslatedCategories({});
         return;
       }
+      const allCategories = collectAllCategories(categories);
+      if (!allCategories.length) {
+        setTranslatedCategories({});
+        return;
+      }
       try {
-        const items = categories.map(cat => ({ 
+        const items = allCategories.map(cat => ({ 
           id: String(cat.category_id), 
           text: cat.name 
         }));
         const result = await translateBatch(items, lang, 'text/plain');
         const map: Record<number, string> = {};
-        categories.forEach(cat => {
+        allCategories.forEach(cat => {
           const translated = result[String(cat.category_id)];
           if (translated) map[cat.category_id] = translated;
         });
@@ -106,14 +123,6 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
     navigate(`/all-products?category=${category.category_id}`);
   };
 
-  const handleParentCategoryClick = (category: Category) => {
-    setSelectedParentCategory(category);
-  };
-
-  const handleBackClick = () => {
-    setSelectedParentCategory(null);
-  };
-
   if (!isOpen) return null;
 
   if (loading) {
@@ -154,7 +163,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ isOpen, closeDropdo
               selectedCategory === '' ? 'bg-[#F2631F] text-white' : 'text-gray-700 hover:bg-gray-50'
             }`}
           >
-            <span>All Products</span>
+            <span> </span>
           </button>
           {categories.map(category => (
             <div key={category.category_id}>
