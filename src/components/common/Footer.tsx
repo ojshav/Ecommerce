@@ -68,7 +68,7 @@ const Footer: React.FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Phone size={16} className="text-[#161616] flex-shrink-0" />
-                <a href="tel: 9893361102" className="text-[#F2631F] ">+91 9893361102</a>
+                <a href="tel: 9893361162" className="text-[#F2631F] ">+91 9893361162</a>
               </div>
                               <div className="flex items-center space-x-3">
                   <Mail size={16} className="text-[#161616] flex-shrink-0" />
@@ -115,7 +115,7 @@ const Footer: React.FC = () => {
             {/* <li><Link to="/RaiseTicket" className="hover:text-[#F2631F] transition-colors">User Support</Link></li> */}
               <li>
                 <div>{t('footer.callUs')}</div>
-                <a href="tel: 9893361102" className="text-[#F2631F]  transition-colors"> +91 9893361102
+                <a href="tel: 9893361162" className="text-[#F2631F]  transition-colors"> +91 9893361162
                 </a>
               </li>
               <li><Link to="/faq" className="hover:text-[#F2631F] transition-colors">{t('footer.faq')}</Link></li>
