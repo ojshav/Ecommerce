@@ -198,7 +198,7 @@ const Terms: React.FC = () => {
                       <span className="text-[#FF4D00]">{t('common.email')}:</span> infoaoinstore@gmail.com
                     </p>
                     <p>
-                      <span className="text-[#FF4D00]">{t('common.phone')}:</span> 989 336 1102
+                      <span className="text-[#FF4D00]">{t('common.phone')}:</span> 989 336 1162
                     </p>
                     <p>
                       <span className="text-[#FF4D00]">{t('terms.sections.contact.customerSupport')}:</span> infoaoinstore@gmail.com

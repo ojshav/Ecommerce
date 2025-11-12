@@ -152,7 +152,7 @@ const ShippingPolicy: React.FC = () => {
                   <strong>{t('common.email')}:</strong> <a href="mailto:infoaoinstore@gmail.com" className="text-blue-600 hover:underline">infoaoinstore@gmail.com</a>
                 </p>
                 <p className="text-gray-700">
-                  <strong>{t('common.phone')}:</strong> <a href="tel:+18002846435" className="text-blue-600 hover:underline">989 336 1102 </a>
+                  <strong>{t('common.phone')}:</strong> <a href="tel:+18002846435" className="text-blue-600 hover:underline">989 336 1162 </a>
                 </p>
               </div>
             </div>
