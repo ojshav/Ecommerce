@@ -293,7 +293,7 @@ const ReturnRefund = () => {
               
               <FaqItem id="damaged" question="What if my item arrives damaged?">
                 <p>
-                  If your item arrives damaged, please contact us immediately at <span className="text-[#FF4D00]">infoaoinstore@gmail.com</span> or call 989 336 1102. Take photos of the damage and we'll arrange for a free return and full refund or replacement.
+                  If your item arrives damaged, please contact us immediately at <span className="text-[#FF4D00]">infoaoinstore@gmail.com</span> or call 989 336 1162. Take photos of the damage and we'll arrange for a free return and full refund or replacement.
                 </p>
               </FaqItem>
               
@@ -309,7 +309,7 @@ const ReturnRefund = () => {
         <div className="mt-8 text-center">
           <div className="inline-flex items-center gap-2 text-[#FF4D00]">
             <AlertCircle size={20} />
-            <span>Need help with your return? <a href="mailto:infoaoinstore@gmail.com" className="underline font-medium">Contact our support team</a> or call 989 336 1102</span>
+            <span>Need help with your return? <a href="mailto:infoaoinstore@gmail.com" className="underline font-medium">Contact our support team</a> or call 989 336 1162</span>
           </div>
         </div>
       </div>
