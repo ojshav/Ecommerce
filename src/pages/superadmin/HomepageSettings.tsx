@@ -354,7 +354,7 @@ const HomepageSettings: React.FC = () => {
             }
             const formData = new FormData();
             formData.append('type', carouselType);
-            formData.append('target_id', selectedId.toString());
+            formData.append('target_id', (selectedId ?? 1).toString());
             formData.append('shareable_link', link);
             formData.append('image', selectedImage);
             const response = await fetch(`${API_BASE_URL}/api/superadmin/carousels`, {

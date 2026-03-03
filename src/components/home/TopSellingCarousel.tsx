@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -12,154 +12,156 @@ interface ICarouselItem {
   is_active: boolean;
 }
 
-const TopSellingCarousel: React.FC = () => {
-  const [carouselItems, setCarouselItems] = useState<ICarouselItem[]>([]);
-  const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState<'next' | 'prev'>('next');
-  const [sliding, setSliding] = useState(false);
+const LABEL: Record<ICarouselItem['type'], string> = {
+  brand:    'View Brand',
+  product:  'View Products',
+  promo:    'View Promo Products',
+  new:      'View New Products',
+  featured: 'View Featured Products',
+};
 
-  useEffect(() => {
-    fetchCarouselItems();
+const TopSellingCarousel: React.FC = () => {
+  const [items, setItems] = useState<ICarouselItem[]>([]);
+  const [current, setCurrent] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => { fetchItems(); }, []);
+
+  const resetTimer = useCallback((len: number) => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setCurrent(prev => (prev + 1) % len);
+    }, 3000);
   }, []);
 
   useEffect(() => {
-    if (carouselItems.length === 0) return;
-    const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % carouselItems.length);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, [carouselItems]);
+    if (items.length < 2) return;
+    resetTimer(items.length);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [items.length, resetTimer]);
 
-  const fetchCarouselItems = async () => {
+  const fetchItems = async () => {
     try {
-      // Fetch all product group types
-      const response = await fetch(`${API_BASE_URL}/api/homepage/carousels?type=promo,new,featured`);
-      if (!response.ok) throw new Error('Failed to fetch carousel items');
-      const data = await response.json();
-      // Filter active items and sort by display_order
-      const activeItems = data
-        .filter((item: ICarouselItem) => item.is_active)
-        .sort((a: ICarouselItem, b: ICarouselItem) => a.display_order - b.display_order);
-      setCarouselItems(activeItems);
-    } catch (error) {
-      console.error('Error fetching carousel items:', error);
+      const res = await fetch(`${API_BASE_URL}/api/homepage/carousels?type=promo,new,featured`);
+      if (!res.ok) throw new Error('Failed to fetch carousel items');
+      const data: ICarouselItem[] = await res.json();
+      const active = data
+        .filter(item => item.is_active)
+        .sort((a, b) => a.display_order - b.display_order);
+      setItems(active);
+    } catch (e) {
+      console.error('Error fetching carousel items:', e);
     }
   };
 
-  const slide = (direction: 'prev' | 'next', targetIndex: number) => {
-    if (sliding) return;
-    setDirection(direction);
-    setSliding(true);
-    setTimeout(() => {
-      setCurrent(targetIndex);
-      setSliding(false);
-    }, 3500);
+  const go = (idx: number) => {
+    setCurrent(idx);
+    if (items.length > 1) resetTimer(items.length);
+  };
+  const prev = (e?: React.MouseEvent) => { e?.stopPropagation(); go((current - 1 + items.length) % items.length); };
+  const next = (e?: React.MouseEvent) => { e?.stopPropagation(); go((current + 1) % items.length); };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) diff > 0 ? next() : prev();
+    touchStartX.current = null;
   };
 
-  const handlePrev = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    const targetIndex = (current - 1 + carouselItems.length) % carouselItems.length;
-    slide('prev', targetIndex);
-  };
-
-  const handleNext = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    const targetIndex = (current + 1) % carouselItems.length;
-    slide('next', targetIndex);
-  };
-
-  const getItemStyle = (index: number) => {
-    if (index === current) {
-      return 'translate-y-0 opacity-100 z-20';
-    } else if (
-      sliding &&
-      ((direction === 'next' && index === (current + 1) % carouselItems.length) ||
-        (direction === 'prev' && index === (current - 1 + carouselItems.length) % carouselItems.length))
-    ) {
-      return `${direction === 'next' ? 'translate-y-full' : '-translate-y-full'} opacity-100 z-10`;
-    }
-    return 'translate-y-full opacity-0 -z-10';
-  };
-
-  if (carouselItems.length === 0) {
+  if (items.length === 0) {
     return (
-      <div className="h-full flex flex-col justify-between rounded-lg shadow-sm overflow-hidden border border-gray-100">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF5733]"></div>
-        </div>
+      <div className="w-full h-full min-h-[280px] mid:min-h-0 flex items-center justify-center rounded-xl border border-gray-100 bg-gray-50">
+        <div className="h-8 w-8 rounded-full border-2 border-t-transparent border-[#F2631F] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col justify-between rounded-lg shadow-sm overflow-hidden border border-gray-100 relative">
-      {/* Main carousel content */}
-      <div className="flex-grow overflow-hidden relative">
-        {carouselItems.map((item, idx) => (
+    <div
+      className="relative w-full h-full min-h-[280px] mid:min-h-0 overflow-hidden rounded-xl border border-gray-100 shadow-sm select-none"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* Slide strip — translates horizontally by one container width per step */}
+      <div
+        className="flex h-full transition-transform duration-500 ease-in-out"
+        style={{
+          width: `${items.length * 100}%`,
+          transform: `translateX(-${(current * 100) / items.length}%)`,
+        }}
+      >
+        {items.map(item => (
           <div
             key={item.id}
-            className={`absolute inset-0 w-full h-full transition-transform duration-400 ease-in-out ${getItemStyle(idx)}`}
+            className="relative h-full flex-shrink-0"
+            style={{ width: `${100 / items.length}%` }}
           >
-            {/* Full background image */}
             <img
               src={item.image_url}
-              alt={item.type === 'promo' ? 'Promo Products' : 
-                   item.type === 'new' ? 'New Products' : 
-                   'Featured Products'}
-              className="absolute inset-0 w-full h-full object-cover z-0"
-              style={{ borderRadius: 'inherit' }}
+              alt={LABEL[item.type]}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
             />
-            {/* Overlay content */}
-            <div className="flex flex-col h-full justify-end items-center relative z-10 pb-8">
+
+            {/* Bottom gradient so CTA is always readable over any image */}
+            <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/65 via-black/20 to-transparent pointer-events-none" />
+
+            {/* CTA button — sits above the dots row */}
+            <div className="absolute inset-x-0 bottom-8 z-10 flex justify-center px-3">
               <a
                 href={item.shareable_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-[#F2631F] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#E25818] transition-colors shadow-md mb-3"
+                className="bg-[#F2631F] hover:bg-[#E25818] active:scale-95 text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-lg transition-all duration-200 whitespace-nowrap"
               >
-                {item.type === 'promo' ? 'View Promo Products' :
-                 item.type === 'new' ? 'View New Products' :
-                 'View Featured Products'}
+                {LABEL[item.type]}
               </a>
-              {/* Navigation dots */}
-              <div className="flex justify-center items-center mb-2">
-                {carouselItems.map((_, dotIdx) => (
-                  <div
-                    key={dotIdx}
-                    className={`w-1.5 h-1.5 mx-0.5 rounded-full transition-all duration-300 ${
-                      current === dotIdx ? 'bg-[#F2631F]' : 'bg-[#F2631F]/40 hover:bg-[#F2631F]/60'
-                    }`}
-                    onClick={() => !sliding && setCurrent(dotIdx)}
-                    role="button"
-                    aria-label={`Go to slide ${dotIdx + 1}`}
-                  />
-                ))}
-              </div>
             </div>
           </div>
         ))}
       </div>
-      {/* Navigation arrows */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 z-20">
-        <button
-          onClick={(e) => handlePrev(e)}
-          className="bg-white/10 hover:bg-white/20 p-1 flex items-center justify-center transition-colors text-white"
-          disabled={sliding}
-        >
-          <ChevronUp size={16} />
-        </button>
+
+      {/* Dots indicator — pill style, active dot expands */}
+      <div className="absolute bottom-2.5 inset-x-0 z-20 flex justify-center items-center gap-1.5">
+        {items.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => go(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            className={`rounded-full transition-all duration-300 ${
+              current === i
+                ? 'w-4 h-1.5 bg-[#F2631F]'
+                : 'w-1.5 h-1.5 bg-white/55 hover:bg-white/90'
+            }`}
+          />
+        ))}
       </div>
-      <div className="absolute top-1/2 right-0 -translate-y-1/2 z-20">
-        <button
-          onClick={(e) => handleNext(e)}
-          className="bg-white/10 hover:bg-white/20 p-1 flex items-center justify-center transition-colors text-white"
-          disabled={sliding}
-        >
-          <ChevronDown size={16} />
-        </button>
-      </div>
+
+      {/* Prev arrow */}
+      <button
+        onClick={prev}
+        aria-label="Previous slide"
+        className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 p-1 rounded-full bg-black/25 hover:bg-black/45 backdrop-blur-sm text-white transition-all duration-200"
+      >
+        <ChevronLeft size={16} />
+      </button>
+
+      {/* Next arrow */}
+      <button
+        onClick={next}
+        aria-label="Next slide"
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 p-1 rounded-full bg-black/25 hover:bg-black/45 backdrop-blur-sm text-white transition-all duration-200"
+      >
+        <ChevronRight size={16} />
+      </button>
     </div>
   );
 };
 
-export default TopSellingCarousel; 
+export default TopSellingCarousel;
